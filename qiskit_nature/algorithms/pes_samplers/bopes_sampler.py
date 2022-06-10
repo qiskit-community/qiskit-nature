@@ -26,6 +26,7 @@ from qiskit_nature.drivers.second_quantization import (
     VibrationalStructureMoleculeDriver,
 )
 from qiskit_nature import ListOrDictType
+from qiskit_nature.converters.second_quantization.utils import ListOrDict
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.problems.second_quantization import BaseProblem
@@ -68,6 +69,7 @@ class BOPESSampler:
         """
 
         self._solver_wrapper = solver_wrapper
+        self._is_variational_solver = isinstance(solver_wrapper.solver, VariationalAlgorithm)
         self._tolerance = tolerance
         self._bootstrap = bootstrap
         self._aux_operators = None
@@ -97,7 +99,7 @@ class BOPESSampler:
                     "num_bootstrap must be None or an integer greater than or equal to 2"
                 )
 
-        if isinstance(self._solver_wrapper.solver, VariationalAlgorithm):
+        if self._is_variational_solver:
             # Save initial point passed to min_eigensolver;
             # this will be used when NOT bootstrapping
             self._initial_point = self._solver_wrapper.solver.initial_point
@@ -107,10 +109,25 @@ class BOPESSampler:
         problem: BaseProblem,
         points: List[float],
         aux_operators: Optional[
-            ListOrDictType[Union[SecondQuantizedOp, PauliSumOp, Callable]]
+            ListOrDictType[
+                Union[
+                    SecondQuantizedOp,
+                    PauliSumOp,
+                    Callable[[BaseProblem], Union[SecondQuantizedOp, PauliSumOp]],
+                ]
+            ]
         ] = None,
     ) -> BOPESSamplerResult:
         """Run the sampler at the given points, potentially with repetitions.
+        Auxiliary operators can be evaluated at each step.
+        If they are given as operators, the given operator will be evaluated at each step of the
+        BOPESSampler.
+        The signature also allows `Callable` object to define geometry dependent operators.
+        The `evaluate_callable_aux_operators()` will convert all the `Callable` object of the input
+        `aux_operators` to their corresponding auxiliaries at the current step.
+        The resulting ListOrDict of aux_operators will then be passed to the solver.
+        `Callable` auxiliary operators should access the properties of the current step through a
+        `BaseProblem` argument and return a valid auxiliary operator.
 
         Args:
             problem: BaseProblem whose driver should be based on a Molecule object that has
@@ -131,7 +148,7 @@ class BOPESSampler:
         # instance before and after _solver_wrapper.solve
         self._solver_wrapper.get_qubit_operators(problem=problem, aux_operators=None)
 
-        if isinstance(self._solver_wrapper.solver, VariationalAlgorithm):
+        if self._is_variational_solver:
             # Save initial point passed to min_eigensolver;
             # this will be used when NOT bootstrapping
             self._initial_point = self._solver_wrapper.solver.initial_point
@@ -166,7 +183,7 @@ class BOPESSampler:
             The results for all points.
         """
         raw_results: Dict[float, EigenstateResult] = {}
-        if isinstance(self._solver_wrapper.solver, VariationalAlgorithm):
+        if self._is_variational_solver:
             self._points_optparams = {}
             self._solver_wrapper.solver.initial_point = self._initial_point
 
@@ -202,7 +219,7 @@ class BOPESSampler:
         self._driver.molecule.perturbations = [point]
 
         # find closest previously run point and take optimal parameters
-        if self._bootstrap and isinstance(self._solver_wrapper.solver, VariationalAlgorithm):
+        if self._bootstrap and self._is_variational_solver:
             prev_points = list(self._points_optparams.keys())
             prev_params = list(self._points_optparams.values())
             n_pp = len(prev_points)
@@ -234,7 +251,7 @@ class BOPESSampler:
         result = self._solver_wrapper.solve(self._problem, aux_ops_current_step)
 
         # Save optimal point to bootstrap
-        if isinstance(self._solver_wrapper.solver, VariationalAlgorithm):
+        if self._is_variational_solver:
             if isinstance(self._solver_wrapper, ExcitedStatesSolver):
                 optimal_params = result.raw_result.ground_state_raw_result.optimal_point
             elif isinstance(self._solver_wrapper, GroundStateSolver):
@@ -243,18 +260,19 @@ class BOPESSampler:
 
         return result
 
-    def evaluate_callable_aux_operators(self):
-        """Convert a dictionary of auxiliary observables into a dictionary of auxiliary observables where
-        the possible callable observables have been evaluated.
+    def evaluate_callable_aux_operators(
+        self,
+    ) -> ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]:
+        """Convert the dictionary of auxiliary observables into a dictionary of auxiliary
+        observables where the possible `Callable` observables have been evaluated for the
+        current step.
         For example, this can be used to specify nuclear coordinate dependent observables.
-        The aux_ops must then be defined as functional of the `problem` object encapsulating
-        the current properties of the molecule.
         """
 
         aux_ops_current_step = None
         if self._aux_operators is not None:
-            aux_ops_current_step = {}
-            for aux_name, aux_op in self._aux_operators.items():
+            aux_ops_current_step = ListOrDict()
+            for aux_name, aux_op in iter(ListOrDict(self._aux_operators)):
                 if callable(aux_op):
                     aux_ops_current_step[aux_name] = aux_op(self._problem)
                 else:

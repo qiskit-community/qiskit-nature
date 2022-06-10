@@ -1,12 +1,15 @@
 features:
   - |
-    The solver of BOPESSampler is now of type `Union[GroundStateSolver, ExcitedStatesSolver]` 
-    instead of only a `GroundStateSolver`. This generalizes to excited states the sampling 
+    The solver of BOPESSampler now accepts solvers of type
+    `Union[GroundStateSolver,ExcitedStatesSolver]` instead of only a `GroundStateSolver`. 
+    This generalizes to excited states the sampling 
     of nuclear coordinates for Born Oppenheimer Potential Energy Surfaces.
     Adds the `get_qubit_operators()` in
     :class:`qiskit_nature.algorithms.ExcitedStatesEigensolver`
     This matches the format of
     :class:`qiskit_nature.algorithms.GroundStatesEigensolver`
+    BOPESSampler now also accepts auxiliary operators to pass to the solver.
+    Geometry-dependent observable can also be defined as auxiliaries
 
 upgrade:
   - |
