@@ -38,10 +38,12 @@ from qiskit_nature.properties.second_quantization.electronic import ParticleNumb
 from ...initial_points import InitialPoint, HFInitialPoint
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
-logger = logging.getLogger(__name__) 
+logger = logging.getLogger(__name__)
+
 
 class VQEUCCFactory(MinimumEigensolverFactory):
-    """Factory to construct a :class:`~qiskit.algorithms.VQE` minimum eigensolver with :class:`~.UCCSD` ansatz wavefunction.
+    """Factory to construct a :class:`~qiskit.algorithms.VQE` minimum eigensolver with :class:`~.UCCSD`
+    ansatz wavefunction.
 
     .. note::
 
