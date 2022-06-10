@@ -20,7 +20,7 @@ from qiskit_nature.circuit.library import SlaterDeterminant
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import BravyiKitaevMapper, JordanWignerMapper
 from qiskit_nature.operators.second_quantization.quadratic_hamiltonian import QuadraticHamiltonian
-from ....random import random_quadratic_hamiltonian
+from test.random import random_quadratic_hamiltonian
 
 
 class TestSlaterDeterminant(QiskitNatureTestCase):

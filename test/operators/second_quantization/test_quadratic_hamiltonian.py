@@ -21,7 +21,7 @@ from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.operators.second_quantization import QuadraticHamiltonian
 from qiskit_nature.operators.second_quantization.fermionic_op import FermionicOp
-from ...random import random_antisymmetric_matrix
+from test.random import random_antisymmetric_matrix
 
 
 @ddt
