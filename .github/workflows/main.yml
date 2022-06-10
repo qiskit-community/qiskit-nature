@@ -64,8 +64,11 @@ jobs:
         with:
           os: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
+          use-conda: "true"
         if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
       - uses: ./.github/actions/install-nature
+        with:
+          use-conda: "true"
       - name: Install Dependencies
         run: |
           source "$CONDA/etc/profile.d/conda.sh"
@@ -180,8 +183,11 @@ jobs:
         with:
           os: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
+          use-conda: "true"
         if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
       - uses: ./.github/actions/install-nature
+        with:
+          use-conda: "true"
       - name: Install PyQuante2
         run: |
           source "$CONDA/etc/profile.d/conda.sh"
@@ -239,6 +245,26 @@ jobs:
         with:
           name: ${{ matrix.os }}-${{ matrix.python-version }}
           path: ./ci-artifact-data/*
+      - name: Nature Unit Tests without matplotlib/pyscf/psi4/pyquante2 under Python ${{ matrix.python-version }}
+        env:
+          PYTHONWARNINGS: default
+        run: |
+          source "$CONDA/etc/profile.d/conda.sh"
+          conda activate psi4env
+          pip uninstall -y matplotlib pyscf
+          if [[ "${{ matrix.os }}" != "windows-2019" || ("${{ matrix.os }}" == "windows-2019" && "${{ matrix.python-version }}" != "3.10") ]]; then
+              echo 'Uninstall psi4'
+              conda remove -y --force psi4
+          fi
+          echo 'Uninstall pyquante2'
+          conda remove -y --force pyquante2_pure
+          pip uninstall -y pyquante2
+          if [ "${{ github.event_name }}" == "schedule" ] || [ "${{ contains(github.event.pull_request.labels.*.name, 'run_slow') }}" == "true" ]; then
+              export QISKIT_TESTS="run_slow"
+          fi
+          stestr --test-path test run
+        if: ${{ !cancelled() }}
+        shell: bash
   Tutorials:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -257,21 +283,17 @@ jobs:
             setup.py
             requirements.txt
             requirements-dev.txt
-      - name: Create conda environment
-        run: |
-          source "$CONDA/etc/profile.d/conda.sh"
-          conda create -y -n psi4env python=${{ matrix.python-version }}
-        shell: bash
       - uses: ./.github/actions/install-main-dependencies
         with:
           os: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
+          use-conda: "false"
         if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
       - uses: ./.github/actions/install-nature
+        with:
+          use-conda: "false"
       - name: Install Dependencies
         run: |
-          source "$CONDA/etc/profile.d/conda.sh"
-          conda activate psi4env
           pip install jupyter sphinx_rtd_theme qiskit-terra[visualization]
           sudo apt-get install -y pandoc graphviz
           echo "earliest_version: 0.1.0" >> releasenotes/config.yaml
@@ -281,8 +303,6 @@ jobs:
           QISKIT_PARALLEL: False
           QISKIT_DOCS_BUILD_TUTORIALS: 'always'
         run: |
-          source "$CONDA/etc/profile.d/conda.sh"
-          conda activate psi4env
           make html
           cd docs/_build/html
           mkdir artifacts
@@ -298,8 +318,6 @@ jobs:
           QISKIT_PARALLEL: False
           QISKIT_DOCS_BUILD_TUTORIALS: 'always'
         run: |
-          source "$CONDA/etc/profile.d/conda.sh"
-          conda activate psi4env
           # clean last sphinx output
           make clean_sphinx
           # get current version
