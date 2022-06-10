@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021,2022.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -24,7 +24,7 @@ from .qubit_utils import qubit_number_reducer
 from ..sampling_problem import SamplingProblem
 
 if TYPE_CHECKING:
-    from ....results.protein_folding_result import ProteinFoldingResult
+    from qiskit_nature.results.protein_folding_result import ProteinFoldingResult
 
 
 class ProteinFoldingProblem(SamplingProblem):
