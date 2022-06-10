@@ -32,6 +32,4 @@ from .linalg import apply_matrix_to_slices, givens_matrix
 __all__ = [
     "apply_matrix_to_slices",
     "givens_matrix",
-    "random_antisymmetric_matrix",
-    "random_quadratic_hamiltonian",
 ]

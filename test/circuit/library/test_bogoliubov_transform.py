@@ -13,21 +13,17 @@
 """Test Bogoliubov transform circuits."""
 
 from test import QiskitNatureTestCase
+from test.random import random_quadratic_hamiltonian
 
 import numpy as np
 from ddt import data, ddt, unpack
 from qiskit import QuantumCircuit, QuantumRegister
-from qiskit.quantum_info import (
-    Operator,
-    Statevector,
-    random_hermitian,
-    random_unitary,
-)
+from qiskit.quantum_info import Operator, Statevector, random_hermitian, random_unitary
+
 from qiskit_nature.circuit.library import BogoliubovTransform
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import BravyiKitaevMapper, JordanWignerMapper
 from qiskit_nature.operators.second_quantization.quadratic_hamiltonian import QuadraticHamiltonian
-from test.random import random_quadratic_hamiltonian
 
 
 def _expand_transformation_matrix(mat: np.ndarray) -> np.ndarray:
