@@ -75,7 +75,7 @@ class TestBOPES(QiskitNatureTestCase):
         me_gss = GroundStateEigensolver(converter, solver)
 
         # BOPES sampler
-        sampler = BOPESSampler(solver_wrapper=me_gss)
+        sampler = BOPESSampler(me_gss)
 
         # absolute internuclear distance in Angstrom
         points = [0.7, 1.0, 1.3]
@@ -116,7 +116,7 @@ class TestBOPES(QiskitNatureTestCase):
         me_gss = GroundStateEigensolver(converter, solver)
         # Run BOPESSampler with exact eigensolution
         points = np.arange(0.45, 5.3, 0.3)
-        sampler = BOPESSampler(solver_wrapper=me_gss)
+        sampler = BOPESSampler(me_gss)
 
         res = sampler.sample(problem, points)
 
@@ -153,7 +153,7 @@ class TestBOPES(QiskitNatureTestCase):
         es_problem = ElectronicStructureProblem(driver)
         points = list(np.linspace(0.6, 0.8, 4))
         bopes = BOPESSampler(
-            solver_wrapper=vqe_gse, bootstrap=True, num_bootstrap=None, extrapolator=None
+            vqe_gse, bootstrap=True, num_bootstrap=None, extrapolator=None
         )
         result = bopes.sample(es_problem, points)
         ref_points = [0.6, 0.6666666666666666, 0.7333333333333334, 0.8]
@@ -230,7 +230,7 @@ class TestBOPES(QiskitNatureTestCase):
         np_excited_solver = ExcitedStatesEigensolver(converter, solver)
 
         # BOPES sampler
-        sampler = BOPESSampler(solver_wrapper=np_excited_solver)
+        sampler = BOPESSampler(np_excited_solver)
 
         # absolute internuclear distance in Angstrom
         points = [0.7, 1.0, 1.3]
@@ -275,7 +275,7 @@ class TestBOPES(QiskitNatureTestCase):
         qeom_solver = QEOM(me_gsc, "sd")
 
         # BOPES sampler
-        sampler = BOPESSampler(solver_wrapper=qeom_solver)
+        sampler = BOPESSampler(qeom_solver)
 
         # absolute internuclear distance in Angstrom
         points = [0.7, 1.0, 1.3]
@@ -320,7 +320,7 @@ class TestBOPES(QiskitNatureTestCase):
 
         # BOPES sampler
         aux = {"PN": problem.second_q_ops()["ParticleNumber"]}
-        sampler = BOPESSampler(solver_wrapper=me_gsc)
+        sampler = BOPESSampler(me_gsc)
 
         # absolute internuclear distance in Angstrom
         points = [0.7, 1.0, 1.3]

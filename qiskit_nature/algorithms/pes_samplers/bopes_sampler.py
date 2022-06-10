@@ -43,7 +43,7 @@ class BOPESSampler:
 
     def __init__(
         self,
-        solver_wrapper: Union[GroundStateSolver, ExcitedStatesSolver],
+        gss: Union[GroundStateSolver, ExcitedStatesSolver],
         tolerance: float = 1e-3,
         bootstrap: bool = True,
         num_bootstrap: Optional[int] = None,
@@ -51,7 +51,7 @@ class BOPESSampler:
     ) -> None:
         """
         Args:
-            solver_wrapper: GroundStateSolver or ExcitedStatesSolver.
+            gss: GroundStateSolver (or ExcitedStatesSolver).
             tolerance: Tolerance desired for minimum energy.
             bootstrap: Whether to warm-start the solution of variational minimum eigensolvers.
             num_bootstrap: Number of previous points for extrapolation
@@ -68,8 +68,8 @@ class BOPESSampler:
                 ``WindowExtrapolator``.
         """
 
-        self._solver_wrapper = solver_wrapper
-        self._is_variational_solver = isinstance(solver_wrapper.solver, VariationalAlgorithm)
+        self._solver_wrapper = gss
+        self._is_variational_solver = isinstance(self._solver_wrapper.solver, VariationalAlgorithm)
         self._tolerance = tolerance
         self._bootstrap = bootstrap
         self._aux_operators = None
