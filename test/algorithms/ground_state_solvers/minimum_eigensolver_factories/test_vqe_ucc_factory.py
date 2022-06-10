@@ -13,15 +13,16 @@
 """ Test VQE UCC MinimumEigensolver Factory """
 
 import unittest
+import warnings
 
 from test import QiskitNatureTestCase
-
 from qiskit import BasicAer
 from qiskit.utils import QuantumInstance
 from qiskit.opflow import AerPauliExpectation
-from qiskit.algorithms.optimizers import COBYLA
 
+from qiskit.algorithms.optimizers import COBYLA, SLSQP
 from qiskit_nature.circuit.library import HartreeFock, UCCSD
+
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.algorithms import VQEUCCFactory
@@ -46,39 +47,95 @@ class TestVQEUCCFactory(QiskitNatureTestCase):
             seed_simulator=self.seed,
             seed_transpiler=self.seed,
         )
+        self.quantum_instance_2 = QuantumInstance(
+            BasicAer.get_backend("statevector_simulator"),
+            shots=2,
+            seed_simulator=self.seed,
+            seed_transpiler=self.seed,
+        )
 
-        self._vqe_ucc_factory = VQEUCCFactory(self.quantum_instance)
+        self._vqe_ucc_factory = VQEUCCFactory(quantum_instance=self.quantum_instance)
+
+    def auxiliary_tester(self, title: str, prop: str, cases: tuple):
+        """
+        Tests the setter and getter of a given property.
+
+        Args:
+            title: A string that will be the name of the subTest
+            prop: A string making reference to the getter/setter to be tested
+            cases: A tuple containing 2 possible instances for that property.
+            The first instance needs to be the same used in the constructor.
+        """
+
+        with self.subTest(title):
+            # Check initialization
+            self.assertEqual(getattr(self._vqe_ucc_factory, prop), cases[0])
+            self.assertEqual(getattr(self._vqe_ucc_factory.minimum_eigensolver, prop), cases[0])
+            # Check factory setter
+            setattr(self._vqe_ucc_factory, prop, cases[1])
+            self.assertEqual(getattr(self._vqe_ucc_factory, prop), cases[1])
+            self.assertEqual(getattr(self._vqe_ucc_factory.minimum_eigensolver, prop), cases[1])
+            # Check vqe setter
+            setattr(self._vqe_ucc_factory.minimum_eigensolver, prop, cases[0])
+            self.assertEqual(getattr(self._vqe_ucc_factory, prop), cases[0])
+            self.assertEqual(getattr(self._vqe_ucc_factory.minimum_eigensolver, prop), cases[0])
+
+    def auxiliary_tester_isinstance(self, title: str, prop: str, cases: tuple):
+        """
+        Tests a getter and setter of a given property.
+        Only checks if the type of the property is correct.
+
+        Args:
+            title: A string that will be the name of the subTest
+            prop: A string making reference to the getter/setter to be tested
+            cases: A tuple containing 2 possible types (or classes) for that property.
+            The first class (or type) needs to be the same used in the constructor.
+        """
+
+        with self.subTest(title):
+            # Check initialization
+            self.assertTrue(isinstance(getattr(self._vqe_ucc_factory, prop), cases[0]))
+            self.assertTrue(
+                isinstance(getattr(self._vqe_ucc_factory.minimum_eigensolver, prop), cases[0])
+            )
+            # Check factory setter
+            setattr(self._vqe_ucc_factory, prop, cases[1]())
+            self.assertTrue(isinstance(getattr(self._vqe_ucc_factory, prop), cases[1]))
+            self.assertTrue(
+                isinstance(getattr(self._vqe_ucc_factory.minimum_eigensolver, prop), cases[1])
+            )
+            # Check vqe setter
+            setattr(self._vqe_ucc_factory.minimum_eigensolver, prop, cases[0]())
+            self.assertTrue(isinstance(getattr(self._vqe_ucc_factory, prop), cases[0]))
+            self.assertTrue(
+                isinstance(getattr(self._vqe_ucc_factory.minimum_eigensolver, prop), cases[0])
+            )
+
+    def deprecation_setters_getters(self):
+        """
+        Test Getter/Setter for the deprecated properties.
+        Can be removed once the properties are removed.
+        """
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            self.auxiliary_tester(
+                "Quantum Instance",
+                "quantum_instance",
+                (self.quantum_instance, self.quantum_instance_2),
+            )
+            self.auxiliary_tester("Expectation", "expectation", (None, AerPauliExpectation()))
+            self.auxiliary_tester("Include Custom", "include_custom", (False, True))
+            self.auxiliary_tester("Callback", "callback", (None, None))
+            self.auxiliary_tester_isinstance("Optimizer", "optimizer", (SLSQP, COBYLA))
 
     def test_setters_getters(self):
-        """Test Getter/Setter"""
-
-        with self.subTest("Quantum Instance"):
-            self.assertEqual(self._vqe_ucc_factory.quantum_instance, self.quantum_instance)
-            self._vqe_ucc_factory.quantum_instance = None
-            self.assertEqual(self._vqe_ucc_factory.quantum_instance, None)
-
-        with self.subTest("Optimizer"):
-            self.assertEqual(self._vqe_ucc_factory.optimizer, None)
-            optimizer = COBYLA()
-            self._vqe_ucc_factory.optimizer = optimizer
-            self.assertEqual(self._vqe_ucc_factory.optimizer, optimizer)
+        """Test Getter/Setter. These tests are using the getter/setter from the"""
 
         with self.subTest("Initial Point"):
             self.assertTrue(isinstance(self._vqe_ucc_factory.initial_point, HFInitialPoint))
             initial_point = [1, 2, 3]
             self._vqe_ucc_factory.initial_point = initial_point
             self.assertEqual(self._vqe_ucc_factory.initial_point, initial_point)
-
-        with self.subTest("Expectation"):
-            self.assertEqual(self._vqe_ucc_factory.expectation, None)
-            expectation = AerPauliExpectation()
-            self._vqe_ucc_factory.expectation = expectation
-            self.assertEqual(self._vqe_ucc_factory.expectation, expectation)
-
-        with self.subTest("Include Custom"):
-            self.assertEqual(self._vqe_ucc_factory.include_custom, False)
-            self._vqe_ucc_factory.include_custom = True
-            self.assertEqual(self._vqe_ucc_factory.include_custom, True)
 
         with self.subTest("Ansatz"):
             self.assertEqual(self._vqe_ucc_factory.ansatz, None)
