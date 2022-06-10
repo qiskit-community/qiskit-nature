@@ -115,7 +115,7 @@ class ProteinShapeFileGen:
         return self._main_positions
 
     def save_xyz_file(
-        self, name: str, path: str = "", comment: str = "", overwrite: bool = False
+        self, name: str, path: str = "", comment: str = "", replace: bool = False
     ) -> None:
         """
         Saves the data as an .xyz file.
@@ -128,12 +128,12 @@ class ProteinShapeFileGen:
                 be saved in the current working directory.
             comment: Comment to be added to the second line of the file. By default the line will
                 be left blank.
-            overwrite: If ``True``, the file will be overwritten if it already exists.
+            replace: If ``True``, the file will be overwritten if it already exists.
         Raises:
-            FileExistsError: If the file already exists and overwrite is False.
+            FileExistsError: If the file already exists and ``replace`` is False.
         """
         file_path = os.path.join(path, name + ".xyz")
-        if os.path.exists(file_path) and not overwrite:
+        if not replace and os.path.exists(file_path):
             raise FileExistsError(f"File {file_path} already exists.")
         data = self.get_xyz_file()
         number_of_particles = data.shape[0]
