@@ -152,9 +152,7 @@ class TestBOPES(QiskitNatureTestCase):
         )
         es_problem = ElectronicStructureProblem(driver)
         points = list(np.linspace(0.6, 0.8, 4))
-        bopes = BOPESSampler(
-            vqe_gse, bootstrap=True, num_bootstrap=None, extrapolator=None
-        )
+        bopes = BOPESSampler(vqe_gse, bootstrap=True, num_bootstrap=None, extrapolator=None)
         result = bopes.sample(es_problem, points)
         ref_points = [0.6, 0.6666666666666666, 0.7333333333333334, 0.8]
         ref_energies = [
