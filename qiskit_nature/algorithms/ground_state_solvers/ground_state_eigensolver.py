@@ -176,10 +176,14 @@ class GroundStateEigensolver(GroundStateSolver):
             The expectation value of the given operator(s). The return type will be identical to the
             format of the provided operators.
         """
-        # try to get a QuantumInstance from the solver
-        quantum_instance = getattr(self._solver, "quantum_instance", None)
-        # and try to get an Expectation from the solver
-        expectation = getattr(self._solver, "expectation", None)
+        if isinstance(self._solver, MinimumEigensolverFactory):
+            # try to get a QuantumInstance from the solver
+            quantum_instance = getattr(self._solver.minimum_eigensolver, "quantum_instance", None)
+            # and try to get an Expectation from the solver
+            expectation = getattr(self._solver.minimum_eigensolver, "expectation", None)
+        else:
+            quantum_instance = getattr(self._solver, "quantum_instance", None)
+            expectation = getattr(self._solver, "expectation", None)
 
         if not isinstance(state, StateFn):
             state = StateFn(state)

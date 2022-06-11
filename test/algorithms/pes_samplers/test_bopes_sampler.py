@@ -185,7 +185,7 @@ class TestBOPES(QiskitNatureTestCase):
         )
         problem = ElectronicStructureProblem(driver)
         converter = QubitConverter(ParityMapper())
-        solver = GroundStateEigensolver(converter, VQEUCCFactory(quantum_instance))
+        solver = GroundStateEigensolver(converter, VQEUCCFactory(quantum_instance=quantum_instance))
         sampler = BOPESSampler(solver, bootstrap=True, num_bootstrap=None, extrapolator=None)
 
         result = sampler.sample(problem, list(np.linspace(0.6, 0.8, 4)))
