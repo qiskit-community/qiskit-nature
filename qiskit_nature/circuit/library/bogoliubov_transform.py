@@ -216,14 +216,14 @@ def _bogoliubov_transform_num_conserving_jw(  # pylint: disable=invalid-name
                 if not np.isclose(current_matrix[row, target_index], 0.0):
                     # zero out element at target index in given row
                     givens_mat = givens_matrix(
-                        current_matrix[row, target_index],
                         current_matrix[row, target_index + 1],
+                        current_matrix[row, target_index],
                     )
-                    right_rotations.append((givens_mat, (target_index, target_index + 1)))
+                    right_rotations.append((givens_mat, (target_index + 1, target_index)))
                     current_matrix = apply_matrix_to_slices(
                         current_matrix,
                         givens_mat,
-                        [(Ellipsis, target_index), (Ellipsis, target_index + 1)],
+                        [(Ellipsis, target_index + 1), (Ellipsis, target_index)],
                     )
         else:
             # rotate rows by left multiplication
@@ -233,12 +233,12 @@ def _bogoliubov_transform_num_conserving_jw(  # pylint: disable=invalid-name
                 if not np.isclose(current_matrix[target_index, col], 0.0):
                     # zero out element at target index in given column
                     givens_mat = givens_matrix(
-                        current_matrix[target_index, col],
                         current_matrix[target_index - 1, col],
+                        current_matrix[target_index, col],
                     )
-                    left_rotations.append((givens_mat, (target_index, target_index - 1)))
+                    left_rotations.append((givens_mat, (target_index - 1, target_index)))
                     current_matrix = apply_matrix_to_slices(
-                        current_matrix, givens_mat, [target_index, target_index - 1]
+                        current_matrix, givens_mat, [target_index - 1, target_index]
                     )
 
     # convert left rotations to right rotations
@@ -246,9 +246,9 @@ def _bogoliubov_transform_num_conserving_jw(  # pylint: disable=invalid-name
         givens_mat = givens_mat.T.conj()
         givens_mat[:, 0] *= current_matrix[i, i]
         givens_mat[:, 1] *= current_matrix[j, j]
-        new_givens_mat = givens_matrix(givens_mat[1, 0], givens_mat[1, 1])
-        right_rotations.append((new_givens_mat, (i, j)))
-        phase_matrix = givens_mat @ new_givens_mat.T
+        new_givens_mat = givens_matrix(givens_mat[1, 1], givens_mat[1, 0])
+        right_rotations.append((new_givens_mat.T, (i, j)))
+        phase_matrix = givens_mat @ new_givens_mat
         current_matrix[i, i] = phase_matrix[0, 0]
         current_matrix[j, j] = phase_matrix[1, 1]
 
@@ -257,10 +257,9 @@ def _bogoliubov_transform_num_conserving_jw(  # pylint: disable=invalid-name
         phi = np.angle(current_matrix[i, i])
         yield RZGate(phi), (register[i],)
     for givens_mat, (i, j) in reversed(right_rotations):
-        theta = np.arcsin(np.real(givens_mat[1, 0]))
-        phi = -np.angle(givens_mat[1, 1])
-        yield XXPlusYYGate(2 * theta, -np.pi / 2), (register[i], register[j])
-        yield RZGate(phi), (register[j],)
+        theta = np.arccos(np.real(givens_mat[0, 0]))
+        phi = np.angle(givens_mat[0, 1])
+        yield XXPlusYYGate(2 * theta, phi - np.pi / 2), (register[j], register[i])
 
 
 def _bogoliubov_transform_general_jw(  # pylint: disable=invalid-name

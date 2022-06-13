@@ -19,7 +19,7 @@ from typing import Iterable, List, Sequence, Tuple
 import numpy as np
 from qiskit import QuantumRegister
 from qiskit.circuit import Gate, Qubit
-from qiskit.circuit.library import RZGate, XGate, XXPlusYYGate
+from qiskit.circuit.library import XGate, XXPlusYYGate
 from qiskit_nature.utils import apply_matrix_to_slices, givens_matrix
 from qiskit_nature.utils.linalg import fermionic_gaussian_decomposition_jw
 
@@ -56,8 +56,8 @@ def _prepare_slater_determinant_jw(
         for i in range(m - n + j):
             # Zero out entry in row i if needed
             if not np.isclose(current_matrix[i, j], 0.0):
-                givens_mat = givens_matrix(current_matrix[i, j], current_matrix[i + 1, j])
-                current_matrix = apply_matrix_to_slices(current_matrix, givens_mat, [i, i + 1])
+                givens_mat = givens_matrix(current_matrix[i + 1, j], current_matrix[i, j])
+                current_matrix = apply_matrix_to_slices(current_matrix, givens_mat, [i + 1, i])
 
     # decompose matrix into Givens rotations
     decomposition: List[Tuple[Gate, Tuple[Qubit, ...]]] = []
@@ -66,17 +66,16 @@ def _prepare_slater_determinant_jw(
         for j in range(n - m + i, i, -1):
             if not np.isclose(current_matrix[i, j], 0.0):
                 # compute Givens rotation
-                givens_mat = givens_matrix(current_matrix[i, j], current_matrix[i, j - 1])
-                theta = np.arcsin(np.real(givens_mat[1, 0]))
-                phi = -np.angle(givens_mat[1, 1])
+                givens_mat = givens_matrix(current_matrix[i, j - 1], current_matrix[i, j])
+                theta = np.arccos(np.real(givens_mat[0, 0]))
+                phi = np.angle(givens_mat[0, 1])
                 # add operations
-                decomposition.append((RZGate(phi), (register[j - 1],)))
                 decomposition.append(
-                    (XXPlusYYGate(2 * theta, -np.pi / 2), (register[j], register[j - 1]))
+                    (XXPlusYYGate(2 * theta, phi - np.pi / 2), (register[j], register[j - 1]))
                 )
                 # update matrix
                 current_matrix = apply_matrix_to_slices(
-                    current_matrix, givens_mat, [(Ellipsis, j), (Ellipsis, j - 1)]
+                    current_matrix, givens_mat, [(Ellipsis, j - 1), (Ellipsis, j)]
                 )
 
     yield from reversed(decomposition)

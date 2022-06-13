@@ -19,7 +19,7 @@ from typing import TYPE_CHECKING, List, Sequence, Tuple, Union
 import numpy as np
 from qiskit import QuantumRegister
 from qiskit.circuit import Gate, Qubit
-from qiskit.circuit.library import RZGate, XGate, XXPlusYYGate
+from qiskit.circuit.library import XGate, XXPlusYYGate
 
 # HACK: Sphinx fails to handle "ellipsis"
 # See https://github.com/python/typing/issues/684
@@ -66,12 +66,11 @@ def givens_matrix(a: complex, b: complex) -> np.ndarray:
         \end{pmatrix}
         =
         \begin{pmatrix}
-            0 \\
-            r
+            r \\
+            0
         \end{pmatrix}
 
     where :math:`r` is a complex number.
-    The first column of :math:`G` is guaranteed to contain only real numbers.
 
     References:
         - `<https://en.wikipedia.org/wiki/Givens_rotation#Stable_calculation>`_
@@ -86,27 +85,20 @@ def givens_matrix(a: complex, b: complex) -> np.ndarray:
     """
     # Handle case that a is zero
     if np.isclose(a, 0.0):
-        cosine = 1.0
-        sine = 0.0
-        phase: complex = 1.0
-    # Handle case that b is zero and a is nonzero
-    elif np.isclose(b, 0.0):
         cosine = 0.0
         sine = 1.0
-        phase = 1.0
+    # Handle case that b is zero and a is nonzero
+    elif np.isclose(b, 0.0):
+        cosine = 1.0
+        sine = 0.0
     # Handle case that a and b are both nonzero
     else:
         hypotenuse = np.hypot(abs(a), abs(b))
-        cosine = abs(b) / hypotenuse
-        sine = abs(a) / hypotenuse
-        sign_b = b / abs(b)
+        cosine = abs(a) / hypotenuse
         sign_a = a / abs(a)
-        phase = sign_a * sign_b.conjugate()
-        # If phase is a real number, convert it to a float
-        if np.isreal(phase):
-            phase = np.real(phase)
+        sine = sign_a * b.conjugate() / hypotenuse
 
-    return np.array([[cosine, -phase * sine], [sine, phase * cosine]])
+    return np.array([[cosine, sine], [-sine.conjugate(), cosine]])
 
 
 def fermionic_gaussian_decomposition_jw(  # pylint: disable=invalid-name
@@ -141,9 +133,9 @@ def fermionic_gaussian_decomposition_jw(  # pylint: disable=invalid-name
         for i in range(n - 1 - j):
             # Zero out entry in row l if needed
             if not np.isclose(current_matrix[i, j], 0.0):
-                givens_mat = givens_matrix(current_matrix[i, j], current_matrix[i + 1, j])
-                current_matrix = apply_matrix_to_slices(current_matrix, givens_mat, [i, i + 1])
-                left_unitary = apply_matrix_to_slices(left_unitary, givens_mat, [i, i + 1])
+                givens_mat = givens_matrix(current_matrix[i + 1, j], current_matrix[i, j])
+                current_matrix = apply_matrix_to_slices(current_matrix, givens_mat, [i + 1, i])
+                left_unitary = apply_matrix_to_slices(left_unitary, givens_mat, [i + 1, i])
 
     # decompose matrix into Givens rotations and particle-hole transformations
     decomposition: List[Tuple[Gate, Tuple[Qubit, ...]]] = []
@@ -157,24 +149,23 @@ def fermionic_gaussian_decomposition_jw(  # pylint: disable=invalid-name
                     _swap_columns(current_matrix, n - 1, 2 * n - 1)
                 else:
                     # compute Givens rotation
-                    givens_mat = givens_matrix(current_matrix[i, j], current_matrix[i, j + 1])
-                    theta = np.arcsin(np.real(givens_mat[1, 0]))
-                    phi = -np.angle(givens_mat[1, 1])
+                    givens_mat = givens_matrix(current_matrix[i, j + 1], current_matrix[i, j])
+                    theta = np.arccos(np.real(givens_mat[0, 0]))
+                    phi = np.angle(givens_mat[0, 1])
                     # add operations
-                    decomposition.append((RZGate(phi), (register[j + 1],)))
                     decomposition.append(
-                        (XXPlusYYGate(2 * theta, -np.pi / 2), (register[j], register[j + 1]))
+                        (XXPlusYYGate(2 * theta, phi - np.pi / 2), (register[j], register[j + 1]))
                     )
                     # update matrix
                     current_matrix = apply_matrix_to_slices(
                         current_matrix,
                         givens_mat,
-                        [(Ellipsis, j), (Ellipsis, j + 1)],
+                        [(Ellipsis, j + 1), (Ellipsis, j)],
                     )
                     current_matrix = apply_matrix_to_slices(
                         current_matrix,
                         givens_mat.conj(),
-                        [(Ellipsis, n + j), (Ellipsis, n + j + 1)],
+                        [(Ellipsis, n + j + 1), (Ellipsis, n + j)],
                     )
 
     for i in range(n):
