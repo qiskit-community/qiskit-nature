@@ -69,7 +69,7 @@ class TestBOPES(QiskitNatureTestCase):
         me_gss = GroundStateEigensolver(converter, solver)
 
         # BOPES sampler
-        sampler = BOPESSampler(gss=me_gss)
+        sampler = BOPESSampler(me_gss)
 
         # absolute internuclear distance in Angstrom
         points = [0.7, 1.0, 1.3]
@@ -110,7 +110,7 @@ class TestBOPES(QiskitNatureTestCase):
         me_gss = GroundStateEigensolver(converter, solver)
         # Run BOPESSampler with exact eigensolution
         points = np.arange(0.45, 5.3, 0.3)
-        sampler = BOPESSampler(gss=me_gss)
+        sampler = BOPESSampler(me_gss)
 
         res = sampler.sample(problem, points)
 
@@ -146,7 +146,7 @@ class TestBOPES(QiskitNatureTestCase):
         )
         es_problem = ElectronicStructureProblem(driver)
         points = list(np.linspace(0.6, 0.8, 4))
-        bopes = BOPESSampler(gss=vqe_gse, bootstrap=True, num_bootstrap=None, extrapolator=None)
+        bopes = BOPESSampler(vqe_gse, bootstrap=True, num_bootstrap=None, extrapolator=None)
         result = bopes.sample(es_problem, points)
         ref_points = [0.6, 0.6666666666666666, 0.7333333333333334, 0.8]
         ref_energies = [
