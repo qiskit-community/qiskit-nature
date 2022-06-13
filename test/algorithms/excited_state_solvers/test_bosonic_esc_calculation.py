@@ -119,7 +119,7 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
             seed_simulator=algorithm_globals.random_seed,
             seed_transpiler=algorithm_globals.random_seed,
         )
-        solver = VQEUVCCFactory(quantum_instance, optimizer=optimizer)
+        solver = VQEUVCCFactory(quantum_instance=quantum_instance, optimizer=optimizer)
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
         esc = QEOM(gsc, "sd")
         results = esc.solve(self.vibrational_problem)
@@ -135,7 +135,9 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
             seed_simulator=algorithm_globals.random_seed,
             seed_transpiler=algorithm_globals.random_seed,
         )
-        solver = VQEUVCCFactory(quantum_instance, optimizer=optimizer, initial_point=initial_point)
+        solver = VQEUVCCFactory(
+            quantum_instance=quantum_instance, optimizer=optimizer, initial_point=initial_point
+        )
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
         esc = QEOM(gsc, "sd")
         results = esc.solve(self.vibrational_problem)
@@ -150,12 +152,15 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
             print(f"iterations {nfev}: energy: {energy}")
 
         optimizer = COBYLA(maxiter=5000)
+
         quantum_instance = QuantumInstance(
             backend=qiskit.BasicAer.get_backend("statevector_simulator"),
             seed_simulator=algorithm_globals.random_seed,
             seed_transpiler=algorithm_globals.random_seed,
         )
-        solver = VQEUVCCFactory(quantum_instance, optimizer=optimizer, callback=cb_callback)
+        solver = VQEUVCCFactory(
+            quantum_instance=quantum_instance, optimizer=optimizer, callback=cb_callback
+        )
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
         esc = QEOM(gsc, "sd")
         with contextlib.redirect_stdout(io.StringIO()) as out:
