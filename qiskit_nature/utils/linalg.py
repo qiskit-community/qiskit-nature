@@ -124,7 +124,7 @@ def fermionic_gaussian_decomposition_jw(  # pylint: disable=invalid-name
     # transform matrix to align with exposition in arXiv:1711.05395
     left = transformation_matrix[:, :n]
     right = transformation_matrix[:, n:]
-    current_matrix = np.block([right.conj(), left.conj()])
+    current_matrix = np.block([right.conj(), left.conj()]).astype(complex, copy=False)
 
     # compute left_unitary
     left_unitary = np.eye(n, dtype=complex)
