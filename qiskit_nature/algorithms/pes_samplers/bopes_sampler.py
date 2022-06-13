@@ -19,6 +19,7 @@ import numpy as np
 
 from qiskit.algorithms import VariationalAlgorithm
 from qiskit.opflow import PauliSumOp
+from qiskit.utils.deprecation import deprecate_arguments
 
 from qiskit_nature.drivers.second_quantization import (
     BaseDriver,
@@ -41,17 +42,20 @@ logger = logging.getLogger(__name__)
 class BOPESSampler:
     """Class to evaluate the Born-Oppenheimer Potential Energy Surface (BOPES)."""
 
+    @deprecate_arguments({"gss": "solver_wrapper"})
+    # pylint: disable=unused-argument
     def __init__(
         self,
-        gss: Union[GroundStateSolver, ExcitedStatesSolver],
+        solver_wrapper: Optional[Union[GroundStateSolver, ExcitedStatesSolver]] = None,
         tolerance: float = 1e-3,
         bootstrap: bool = True,
         num_bootstrap: Optional[int] = None,
         extrapolator: Optional[Extrapolator] = None,
+        gss: Optional[GroundStateSolver] = None,
     ) -> None:
         """
         Args:
-            gss: GroundStateSolver or ExcitedStatesSolver.
+            solver_wrapper: GroundStateSolver or ExcitedStatesSolver.
             tolerance: Tolerance desired for minimum energy.
             bootstrap: Whether to warm-start the solution of variational minimum eigensolvers.
             num_bootstrap: Number of previous points for extrapolation
@@ -61,6 +65,8 @@ class BOPESSampler:
                 all previous points will be used for bootstrapping.
             extrapolator: Extrapolator objects that define space/window
                            and method to extrapolate variational parameters.
+            gss: (DEPRECATED) Old name for the solver when it only supported GroundStateEigensolver.
+                Note that gss is copied into solver_wrapper by the deprecate_arguments wrapper.
 
         Raises:
             QiskitNatureError: If ``num_boostrap`` is an integer smaller than 2, or
@@ -68,7 +74,7 @@ class BOPESSampler:
                 ``WindowExtrapolator``.
         """
 
-        self._solver_wrapper = gss
+        self._solver_wrapper = solver_wrapper
         self._is_variational_solver: bool = False
         self._tolerance = tolerance
         self._bootstrap = bootstrap

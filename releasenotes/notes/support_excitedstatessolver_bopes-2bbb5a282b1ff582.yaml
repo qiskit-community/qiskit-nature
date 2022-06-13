@@ -11,6 +11,11 @@ features:
     BOPESSampler now also accepts auxiliary operators to pass to the solver.
     Geometry-dependent observable can also be defined as auxiliaries.
     See the `Sampling the potential energy surface <tutorials/05_Sampling_potential_energy_surfaces.ipynb>`_ tutorial
-    for a demonstration of how to use this calculation of excited state Born Oppenheimer potential energy
-    surfaces.
-
+    for a demonstration of how to use this calculation of excited state Born Oppenheimer potential energy surfaces.
+deprecations:
+  - |
+    The argument `gss` of the constructor of:class:`qiskit_nature.algorithms.BOPESSampler` was deprecated 
+    and replaced by `solver_wrapper' to match the extension of this class to `ExcitedStatesEigensolver`. 
+    Now the constructor has the following positional argument:
+    
+    * solver_wrapper
