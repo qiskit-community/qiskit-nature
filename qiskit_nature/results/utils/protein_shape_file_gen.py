@@ -135,7 +135,7 @@ class ProteinShapeFileGen:
         file_path = os.path.join(path, name + ".xyz")
         if not replace and os.path.exists(file_path):
             raise FileExistsError(f"File {file_path} already exists.")
-        data = self.get_xyz_file()
+        data = self.get_xyz_data()
         number_of_particles = data.shape[0]
         header = f"{number_of_particles}\n{comment}"
         np.savetxt(
@@ -147,7 +147,7 @@ class ProteinShapeFileGen:
             comments="",
         )
 
-    def get_xyz_file(self) -> np.ndarray:
+    def get_xyz_data(self) -> np.ndarray:
         """
         Returns an array with the symbols of the atoms and their cartesian coordinates.
         Returns:

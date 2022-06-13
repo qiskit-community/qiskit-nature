@@ -129,7 +129,7 @@ class TestProteinShapeFileGen(QiskitNatureTestCase):
                 decimal=6,
             )
         with self.subTest("XYZ file data"):
-            np.testing.assert_equal(filegen.get_xyz_file(), xyz)
+            np.testing.assert_equal(filegen.get_xyz_data(), xyz)
 
         with self.subTest("Write file"):
             current_dir = os.path.dirname(__file__)

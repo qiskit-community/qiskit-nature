@@ -15,7 +15,7 @@ features:
     * Property :attr:`~qiskit_nature.results.ProteinFoldingResult.protein_shape_file_gen`
       which is an instance of :class:`~qiskit_nature.results.utils.ProteinShapeFileGen`.
       This class has in its turn a method
-      :meth:`~qiskit_nature.results.utils.ProteinShapeFileGen.get_xyz_file` which returns
+      :meth:`~qiskit_nature.results.utils.ProteinShapeFileGen.get_xyz_data` which returns
       an array with the data contained in the .xyz file without having to generate such a file.
 
     * Property :attr:`~qiskit_nature.results.ProteinFoldingResult.protein_shape_decoder`
