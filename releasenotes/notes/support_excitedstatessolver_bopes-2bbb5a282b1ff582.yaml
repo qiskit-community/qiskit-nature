@@ -5,14 +5,12 @@ features:
     This generalizes to excited states the sampling 
     of nuclear coordinates for Born Oppenheimer Potential Energy Surfaces.
     Adds the `get_qubit_operators()` in
-    :class:`qiskit_nature.algorithms.ExcitedStatesEigensolver`
+    :class:`qiskit_nature.algorithms.ExcitedStatesEigensolver`.
     This matches the format of
-    :class:`qiskit_nature.algorithms.GroundStatesEigensolver`
+    :class:`qiskit_nature.algorithms.GroundStatesEigensolver`.
     BOPESSampler now also accepts auxiliary operators to pass to the solver.
-    Geometry-dependent observable can also be defined as auxiliaries
-
-upgrade:
-  - |
-    The tutorial 05 now includes calculations of excited state Born Oppenheimer potential energy
+    Geometry-dependent observable can also be defined as auxiliaries.
+    See the `Sampling the potential energy surface <tutorials/05_Sampling_potential_energy_surfaces.ipynb>`_ tutorial
+    for a demonstration of how to use this calculation of excited state Born Oppenheimer potential energy
     surfaces.
 

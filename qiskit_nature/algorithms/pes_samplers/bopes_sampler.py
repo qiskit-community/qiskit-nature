@@ -51,7 +51,7 @@ class BOPESSampler:
     ) -> None:
         """
         Args:
-            gss: GroundStateSolver (or ExcitedStatesSolver).
+            gss: GroundStateSolver or ExcitedStatesSolver.
             tolerance: Tolerance desired for minimum energy.
             bootstrap: Whether to warm-start the solution of variational minimum eigensolvers.
             num_bootstrap: Number of previous points for extrapolation
@@ -69,7 +69,7 @@ class BOPESSampler:
         """
 
         self._solver_wrapper = gss
-        self._is_variational_solver = isinstance(self._solver_wrapper.solver, VariationalAlgorithm)
+        self._is_variational_solver: bool = False
         self._tolerance = tolerance
         self._bootstrap = bootstrap
         self._aux_operators = None
@@ -98,7 +98,6 @@ class BOPESSampler:
                 raise QiskitNatureError(
                     "num_bootstrap must be None or an integer greater than or equal to 2"
                 )
-
         if self._is_variational_solver:
             # Save initial point passed to min_eigensolver;
             # this will be used when NOT bootstrapping
@@ -145,8 +144,11 @@ class BOPESSampler:
         self._driver = problem.driver
         self._aux_operators = aux_operators
         # We have to force the creation of the solver so that we work on the same solver
-        # instance before and after _solver_wrapper.solve
+        # instance before and after `_solver_wrapper.solve`.
         self._solver_wrapper.get_qubit_operators(problem=problem, aux_operators=None)
+        # this must be called after self._solver_wrapper.get_qubit_operators to account for
+        # EigenSolverFactories.
+        self._is_variational_solver = isinstance(self._solver_wrapper.solver, VariationalAlgorithm)
 
         if self._is_variational_solver:
             # Save initial point passed to min_eigensolver;
@@ -263,9 +265,9 @@ class BOPESSampler:
     def evaluate_callable_aux_operators(
         self,
     ) -> ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]:
-        """Convert the dictionary of auxiliary observables into a dictionary of auxiliary
-        observables where the possible `Callable` observables have been evaluated for the
-        current step.
+        """Convert the dictionary of auxiliary observables stored in self at the beginning of the
+        sample() method into a dictionary of auxiliary observables where the possible `Callable`
+        observables have been evaluated for the current step.
         For example, this can be used to specify nuclear coordinate dependent observables.
         """
 
