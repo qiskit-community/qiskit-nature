@@ -46,6 +46,10 @@ class BOPESSamplerResult:
     @property
     def energies(self) -> Union[List[float], List[List[float]]]:
         """returns list of energies."""
+        # In general, self._energies is a list over all the sampling points, of lists over all
+        # eigenstates of the eigenstate energies at these sampling points.
+        # If the BOPES is based on a `GroundStateSolver`, then the inner lists have only one entry
+        # and the `List[List[float]]]` is flattened into a `List[float]`.
         formatted_energies: Union[List[float], List[List[float]]]
         if len(self._energies[0]) == 1:
             formatted_energies = [self._energies[k][0] for k in range(len(self._energies))]

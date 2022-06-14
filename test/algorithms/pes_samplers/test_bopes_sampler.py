@@ -249,6 +249,7 @@ class TestBOPES(QiskitNatureTestCase):
         )
 
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
+    @unittest.skipUnless(optionals.HAS_AER, "qiskit-aer is required to run this test")
     def test_h2_bopes_sampler_qeom(self):
         """Test BOPES Sampler on H2"""
         # Molecule
@@ -294,6 +295,7 @@ class TestBOPES(QiskitNatureTestCase):
         )
 
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
+    @unittest.skipUnless(optionals.HAS_AER, "qiskit-aer is required to run this test")
     def test_h2_bopes_sampler_auxiliaries(self):
         """Test BOPES Sampler on H2"""
         # Molecule

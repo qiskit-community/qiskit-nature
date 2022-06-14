@@ -15,7 +15,7 @@ features:
 deprecations:
   - |
     The argument `gss` of the constructor of:class:`qiskit_nature.algorithms.BOPESSampler` was deprecated 
-    and replaced by `solver_wrapper' to match the extension of this class to `ExcitedStatesEigensolver`. 
+    and replaced by `state_solver' to match the extension of this class to `ExcitedStatesEigensolver`. 
     Now the constructor has the following positional argument:
     
-    * solver_wrapper
+    * state_solver

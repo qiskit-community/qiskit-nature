@@ -42,11 +42,11 @@ logger = logging.getLogger(__name__)
 class BOPESSampler:
     """Class to evaluate the Born-Oppenheimer Potential Energy Surface (BOPES)."""
 
-    @deprecate_arguments({"gss": "solver_wrapper"})
+    @deprecate_arguments({"gss": "state_solver"})
     # pylint: disable=unused-argument
     def __init__(
         self,
-        solver_wrapper: Optional[Union[GroundStateSolver, ExcitedStatesSolver]] = None,
+        state_solver: Optional[Union[GroundStateSolver, ExcitedStatesSolver]] = None,
         tolerance: float = 1e-3,
         bootstrap: bool = True,
         num_bootstrap: Optional[int] = None,
@@ -55,7 +55,7 @@ class BOPESSampler:
     ) -> None:
         """
         Args:
-            solver_wrapper: GroundStateSolver or ExcitedStatesSolver.
+            state_solver: GroundStateSolver or ExcitedStatesSolver.
             tolerance: Tolerance desired for minimum energy.
             bootstrap: Whether to warm-start the solution of variational minimum eigensolvers.
             num_bootstrap: Number of previous points for extrapolation
@@ -65,8 +65,8 @@ class BOPESSampler:
                 all previous points will be used for bootstrapping.
             extrapolator: Extrapolator objects that define space/window
                            and method to extrapolate variational parameters.
-            gss: (DEPRECATED) Old name for the solver when it only supported GroundStateEigensolver.
-                Note that gss is copied into solver_wrapper by the deprecate_arguments wrapper.
+            gss: (DEPRECATED) Old name for the solver when it only supported GroundStateSolver.
+                Note that gss is copied into state_solver by the deprecate_arguments wrapper.
 
         Raises:
             QiskitNatureError: If ``num_boostrap`` is an integer smaller than 2, or
@@ -74,7 +74,7 @@ class BOPESSampler:
                 ``WindowExtrapolator``.
         """
 
-        self._solver_wrapper = solver_wrapper
+        self._state_solver = state_solver
         self._is_variational_solver: bool = False
         self._tolerance = tolerance
         self._bootstrap = bootstrap
@@ -107,7 +107,7 @@ class BOPESSampler:
         if self._is_variational_solver:
             # Save initial point passed to min_eigensolver;
             # this will be used when NOT bootstrapping
-            self._initial_point = self._solver_wrapper.solver.initial_point
+            self._initial_point = self._state_solver.solver.initial_point
 
     def sample(
         self,
@@ -138,7 +138,7 @@ class BOPESSampler:
             problem: BaseProblem whose driver should be based on a Molecule object that has
                      perturbations to be varied.
             points: The points along the degrees of freedom to evaluate.
-            aux_operators: Auxiliary operators to pass to the solver_wrapper object.
+            aux_operators: Auxiliary operators to pass to the state_solver object.
 
         Returns:
             BOPES Sampler Result
@@ -150,16 +150,16 @@ class BOPESSampler:
         self._driver = problem.driver
         self._aux_operators = aux_operators
         # We have to force the creation of the solver so that we work on the same solver
-        # instance before and after `_solver_wrapper.solve`.
-        self._solver_wrapper.get_qubit_operators(problem=problem, aux_operators=None)
-        # this must be called after self._solver_wrapper.get_qubit_operators to account for
+        # instance before and after `_state_solver.solve`.
+        self._state_solver.get_qubit_operators(problem=problem, aux_operators=None)
+        # this must be called after self._state_solver.get_qubit_operators to account for
         # EigenSolverFactories.
-        self._is_variational_solver = isinstance(self._solver_wrapper.solver, VariationalAlgorithm)
+        self._is_variational_solver = isinstance(self._state_solver.solver, VariationalAlgorithm)
 
         if self._is_variational_solver:
             # Save initial point passed to min_eigensolver;
             # this will be used when NOT bootstrapping
-            self._initial_point = self._solver_wrapper.solver.initial_point
+            self._initial_point = self._state_solver.solver.initial_point
 
         if not isinstance(
             self._driver, (ElectronicStructureMoleculeDriver, VibrationalStructureMoleculeDriver)
@@ -193,7 +193,7 @@ class BOPESSampler:
         raw_results: Dict[float, EigenstateResult] = {}
         if self._is_variational_solver:
             self._points_optparams = {}
-            self._solver_wrapper.solver.initial_point = self._initial_point
+            self._state_solver.solver.initial_point = self._initial_point
 
         # Iterate over the points
         for i, point in enumerate(points):
@@ -245,24 +245,24 @@ class BOPESSampler:
                     # find min 'distance' from point to previous points
                     min_index = int(np.argmin(np.linalg.norm(distances, axis=1)))
                     # update initial point
-                    self._solver_wrapper.solver.initial_point = prev_params[min_index]
+                    self._state_solver.solver.initial_point = prev_params[min_index]
                 else:  # extrapolate using saved parameters
                     opt_params = self._points_optparams
                     param_sets = self._extrapolator.extrapolate(
                         points=[point], param_dict=opt_params
                     )
                     # update initial point, note param_set is a dictionary
-                    self._solver_wrapper.solver.initial_point = param_sets.get(point)
+                    self._state_solver.solver.initial_point = param_sets.get(point)
 
         # the output is an instance of EigenstateResult
         aux_ops_current_step = self.evaluate_callable_aux_operators()
-        result = self._solver_wrapper.solve(self._problem, aux_ops_current_step)
+        result = self._state_solver.solve(self._problem, aux_ops_current_step)
 
         # Save optimal point to bootstrap
         if self._is_variational_solver:
-            if isinstance(self._solver_wrapper, ExcitedStatesSolver):
+            if isinstance(self._state_solver, ExcitedStatesSolver):
                 optimal_params = result.raw_result.ground_state_raw_result.optimal_point
-            elif isinstance(self._solver_wrapper, GroundStateSolver):
+            elif isinstance(self._state_solver, GroundStateSolver):
                 optimal_params = result.raw_result.optimal_point
             self._points_optparams[point] = optimal_params
 
