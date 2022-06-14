@@ -23,17 +23,17 @@ class ProteinShapeDecoder:
     """
 
     def __init__(
-        self, turns_sequence: str, side_chain_hot_vector: List[bool], fifth_bit: bool
+        self, turn_sequence: str, side_chain_hot_vector: List[bool], fifth_bit: bool
     ) -> None:
         """
         Args:
-            turns_sequence: Sequence to be decoded.
+            turn_sequence: Sequence to be decoded.
             side_chain_hot_vector: A list of boolean that indicates the presence of side
                 chains on corresponding indices of the main chain.
             fifth_bit: True if the 5th bit does not correspond to an unused qubit from the
                 problem.
         """
-        self._turns_sequence = turns_sequence
+        self._turn_sequence = turn_sequence
         self._side_chain_hot_vector = side_chain_hot_vector
         self._fifth_bit = fifth_bit
         self._main_chain_length = len(side_chain_hot_vector)
@@ -95,7 +95,7 @@ class ProteinShapeDecoder:
                 if no side chain on second main bead or 2(N-3) otherwise.
         """
 
-        main_turns_bitstring = self._turns_sequence[-self._split_bitstring()[0] :] + "0010"
+        main_turns_bitstring = self._turn_sequence[-self._split_bitstring()[0] :] + "0010"
 
         if self._fifth_bit:
             main_turns_bitstring = main_turns_bitstring[:-5] + "1" + main_turns_bitstring[-5:]
@@ -114,7 +114,7 @@ class ProteinShapeDecoder:
         """
         n, m = self._split_bitstring()
 
-        side_turns_bitstring = self._turns_sequence[-n - m : -n]
+        side_turns_bitstring = self._turn_sequence[-n - m : -n]
 
         side_turns = self._bitstring_to_turns(side_turns_bitstring)
 

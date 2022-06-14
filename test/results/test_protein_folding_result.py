@@ -28,7 +28,7 @@ from qiskit_nature.problems.sampling.protein_folding.penalty_parameters import P
 
 
 def create_protein_folding_result(
-    main_chain: str, side_chains: List[str], turns_sequence: str
+    main_chain: str, side_chains: List[str], turn_sequence: str
 ) -> ProteinFoldingResult:
     """
     Creates a protein_folding_problem, solves it and uses the result
@@ -36,7 +36,7 @@ def create_protein_folding_result(
     Args:
         main_chain: The desired main_chain for the molecules to be optimized
         side_chains: The desired side_chains for the molecules to be optimized
-        turns_sequence: The best sequence found by ProteinFoldingResult pre-computed
+        turn_sequence: The best sequence found by ProteinFoldingResult pre-computed
     Returns:
         Protein Folding Result
     """
@@ -56,7 +56,7 @@ def create_protein_folding_result(
     return ProteinFoldingResult(
         unused_qubits=protein_folding_problem.unused_qubits,
         peptide=protein_folding_problem.peptide,
-        turns_sequence=turns_sequence,
+        turn_sequence=turn_sequence,
     )
 
 
@@ -100,7 +100,7 @@ class TestProteinFoldingResult(QiskitNatureTestCase):
         self,
         main_chain,
         side_chain,
-        turns_sequence,
+        turn_sequence,
         binary_vector,
         hot_vector,
         unused_qubits_compact,
@@ -108,11 +108,11 @@ class TestProteinFoldingResult(QiskitNatureTestCase):
     ):
         """Tests if ProteinFoldingResult is initialized properly and its attributes are properly set."""
         result = create_protein_folding_result(
-            main_chain=main_chain, side_chains=side_chain, turns_sequence=turns_sequence
+            main_chain=main_chain, side_chains=side_chain, turn_sequence=turn_sequence
         )
 
         with self.subTest("Best Sequence"):
-            self.assertEqual(result.turns_sequence, turns_sequence)
+            self.assertEqual(result.turn_sequence, turn_sequence)
 
         with self.subTest("Binary Vector"):
             self.assertEqual(result.get_result_binary_vector(), binary_vector)

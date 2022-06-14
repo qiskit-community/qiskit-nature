@@ -98,11 +98,11 @@ class ProteinFoldingProblem(SamplingProblem):
         """
         from qiskit_nature.results import ProteinFoldingResult
 
-        best_turns_sequence = max(raw_result.eigenstate, key=raw_result.eigenstate.get)
+        best_turn_sequence = max(raw_result.eigenstate, key=raw_result.eigenstate.get)
         return ProteinFoldingResult(
             unused_qubits=self.unused_qubits,
             peptide=self.peptide,
-            turns_sequence=best_turns_sequence,
+            turn_sequence=best_turn_sequence,
         )
 
     @property

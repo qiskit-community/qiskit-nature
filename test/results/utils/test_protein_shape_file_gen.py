@@ -12,6 +12,7 @@
 """Tests ProteinShapeFileGen."""
 import os
 import filecmp
+import tempfile
 from test import QiskitNatureTestCase
 import numpy as np
 from ddt import ddt, data, unpack
@@ -134,13 +135,13 @@ class TestProteinShapeFileGen(QiskitNatureTestCase):
         with self.subTest("Write file"):
             current_dir = os.path.dirname(__file__)
             test_path = os.path.join(current_dir, "resources")
-            filegen.save_xyz_file(
-                name=name_file + "_temp", path=test_path, comment="This is a dummy comment."
-            )
-
-            file_temp = os.path.join(test_path, name_file + "_temp.xyz")
             file_test = os.path.join(test_path, name_file + "_test.xyz")
+            with tempfile.TemporaryDirectory() as tmpdirname:
+                filegen.save_xyz_file(
+                    name=name_file + "_temp", path=tmpdirname, comment="This is a dummy comment."
+                )
 
-            self.assertTrue(filecmp.cmp(file_temp, file_test))
+                file_temp = os.path.join(tmpdirname, name_file + "_temp.xyz")
+                self.assertTrue(filecmp.cmp(file_temp, file_test))
 
-            os.remove(file_temp)
+            
