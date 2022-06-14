@@ -144,4 +144,4 @@ class TestProteinShapeFileGen(QiskitNatureTestCase):
                 file_temp = os.path.join(tmpdirname, name_file + "_temp.xyz")
                 self.assertTrue(filecmp.cmp(file_temp, file_test))
 
-            
+
