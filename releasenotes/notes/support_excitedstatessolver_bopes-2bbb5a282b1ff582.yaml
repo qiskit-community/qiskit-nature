@@ -1,6 +1,6 @@
 features:
   - |
-    The solver of :class:`qiskit_nature.algorithms.BOPESSampler` now accepts solvers of type
+    The solver of :class:`~qiskit_nature.algorithms.pes_samplers.BOPESSampler` now accepts solvers of type
     `Union[GroundStateSolver,ExcitedStatesSolver]` instead of only a `GroundStateSolver`. 
     This generalizes to excited states the sampling 
     of nuclear coordinates for Born Oppenheimer Potential Energy Surfaces.
