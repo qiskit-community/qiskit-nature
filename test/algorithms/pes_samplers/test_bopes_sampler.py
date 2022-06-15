@@ -14,8 +14,10 @@
 
 import unittest
 from functools import partial
-
 from test import QiskitNatureTestCase
+
+from qiskit.opflow import PauliOp
+from qiskit.quantum_info import Pauli
 
 import numpy as np
 
@@ -23,8 +25,14 @@ import qiskit
 from qiskit.algorithms import NumPyMinimumEigensolver, VQE
 from qiskit.utils import algorithm_globals, QuantumInstance, optionals
 import qiskit_nature.optionals as _optionals
-
-from qiskit_nature.algorithms import GroundStateEigensolver, BOPESSampler
+from qiskit_nature.operators.second_quantization import SecondQuantizedOp
+from qiskit_nature.algorithms import (
+    GroundStateEigensolver,
+    BOPESSampler,
+    ExcitedStatesEigensolver,
+    NumPyEigensolverFactory,
+    QEOM,
+)
 from qiskit_nature.algorithms.pes_samplers import MorsePotential
 from qiskit_nature.drivers import Molecule
 from qiskit_nature.drivers.second_quantization import (
@@ -36,7 +44,7 @@ from qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories
 )
 from qiskit_nature.mappers.second_quantization import ParityMapper, JordanWignerMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
-from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
+from qiskit_nature.problems.second_quantization import ElectronicStructureProblem, BaseProblem
 
 
 class TestBOPES(QiskitNatureTestCase):
@@ -69,7 +77,7 @@ class TestBOPES(QiskitNatureTestCase):
         me_gss = GroundStateEigensolver(converter, solver)
 
         # BOPES sampler
-        sampler = BOPESSampler(gss=me_gss)
+        sampler = BOPESSampler(me_gss)
 
         # absolute internuclear distance in Angstrom
         points = [0.7, 1.0, 1.3]
@@ -110,7 +118,7 @@ class TestBOPES(QiskitNatureTestCase):
         me_gss = GroundStateEigensolver(converter, solver)
         # Run BOPESSampler with exact eigensolution
         points = np.arange(0.45, 5.3, 0.3)
-        sampler = BOPESSampler(gss=me_gss)
+        sampler = BOPESSampler(me_gss)
 
         res = sampler.sample(problem, points)
 
@@ -146,7 +154,7 @@ class TestBOPES(QiskitNatureTestCase):
         )
         es_problem = ElectronicStructureProblem(driver)
         points = list(np.linspace(0.6, 0.8, 4))
-        bopes = BOPESSampler(gss=vqe_gse, bootstrap=True, num_bootstrap=None, extrapolator=None)
+        bopes = BOPESSampler(vqe_gse, bootstrap=True, num_bootstrap=None, extrapolator=None)
         result = bopes.sample(es_problem, points)
         ref_points = [0.6, 0.6666666666666666, 0.7333333333333334, 0.8]
         ref_energies = [
@@ -193,6 +201,182 @@ class TestBOPES(QiskitNatureTestCase):
         ]
         np.testing.assert_almost_equal(result.points, ref_points, decimal=3)
         np.testing.assert_almost_equal(result.energies, ref_energies, decimal=3)
+
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
+    def test_h2_bopes_sampler_excited_eigensolver(self):
+        """Test BOPES Sampler on H2"""
+        # Molecule
+        dof = partial(Molecule.absolute_distance, atom_pair=(1, 0))
+        m = Molecule(
+            geometry=[["H", [0.0, 0.0, 1.0]], ["H", [0.0, 0.45, 1.0]]],
+            degrees_of_freedom=[dof],
+        )
+
+        mapper = ParityMapper()
+        converter = QubitConverter(mapper=mapper)
+
+        driver = ElectronicStructureMoleculeDriver(
+            m, driver_type=ElectronicStructureDriverType.PYSCF
+        )
+        problem = ElectronicStructureProblem(driver)
+
+        # pylint: disable=unused-argument
+        def filter_criterion(eigenstate, eigenvalue, aux_values):
+            particle_number_filter = np.isclose(aux_values["ParticleNumber"][0], 2.0)
+            magnetization_filter = np.isclose(aux_values["Magnetization"][0], 0.0)
+            return particle_number_filter and magnetization_filter
+
+        solver = NumPyEigensolverFactory(filter_criterion=filter_criterion)
+        np_excited_solver = ExcitedStatesEigensolver(converter, solver)
+
+        # BOPES sampler
+        sampler = BOPESSampler(np_excited_solver)
+
+        # absolute internuclear distance in Angstrom
+        points = [0.7, 1.0, 1.3]
+        results = sampler.sample(problem, points)
+
+        points_run = results.points
+        energies = results.energies
+
+        np.testing.assert_array_almost_equal(points_run, [0.7, 1.0, 1.3])
+        np.testing.assert_array_almost_equal(
+            energies,
+            [
+                [-1.13618945, -0.47845306, -0.1204519, 0.5833141],
+                [-1.10115033, -0.74587179, -0.35229063, 0.03904763],
+                [-1.03518627, -0.85523694, -0.42240202, -0.21860355],
+            ],
+            decimal=2,
+        )
+
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
+    @unittest.skipUnless(optionals.HAS_AER, "qiskit-aer is required to run this test")
+    def test_h2_bopes_sampler_qeom(self):
+        """Test BOPES Sampler on H2"""
+        # Molecule
+        dof = partial(Molecule.absolute_distance, atom_pair=(1, 0))
+        m = Molecule(
+            geometry=[["H", [0.0, 0.0, 1.0]], ["H", [0.0, 0.45, 1.0]]],
+            degrees_of_freedom=[dof],
+        )
+        driver = ElectronicStructureMoleculeDriver(
+            m, driver_type=ElectronicStructureDriverType.PYSCF
+        )
+        problem = ElectronicStructureProblem(driver)
+
+        qubit_converter = QubitConverter(JordanWignerMapper(), z2symmetry_reduction=None)
+        quantum_instance = QuantumInstance(
+            backend=qiskit.Aer.get_backend("aer_simulator_statevector"),
+            seed_simulator=self.seed,
+            seed_transpiler=self.seed,
+        )
+        solver = VQE(quantum_instance=quantum_instance)
+        me_gsc = GroundStateEigensolver(qubit_converter, solver)
+        qeom_solver = QEOM(me_gsc, "sd")
+
+        # BOPES sampler
+        sampler = BOPESSampler(qeom_solver)
+
+        # absolute internuclear distance in Angstrom
+        points = [0.7, 1.0, 1.3]
+        results = sampler.sample(problem, points)
+
+        points_run = results.points
+        energies = results.energies
+
+        np.testing.assert_array_almost_equal(points_run, [0.7, 1.0, 1.3])
+        np.testing.assert_array_almost_equal(
+            energies,
+            [
+                [-1.13618945, -0.47845306, -0.1204519, 0.5833141],
+                [-1.10115033, -0.74587179, -0.35229063, 0.03904763],
+                [-1.03518627, -0.85523694, -0.42240202, -0.21860355],
+            ],
+            decimal=2,
+        )
+
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
+    @unittest.skipUnless(optionals.HAS_AER, "qiskit-aer is required to run this test")
+    def test_h2_bopes_sampler_auxiliaries(self):
+        """Test BOPES Sampler on H2"""
+        # Molecule
+        dof = partial(Molecule.absolute_distance, atom_pair=(1, 0))
+        m = Molecule(
+            geometry=[["H", [0.0, 0.0, 1.0]], ["H", [0.0, 0.45, 1.0]]],
+            degrees_of_freedom=[dof],
+        )
+        driver = ElectronicStructureMoleculeDriver(
+            m, driver_type=ElectronicStructureDriverType.PYSCF
+        )
+        problem = ElectronicStructureProblem(driver)
+
+        qubit_converter = QubitConverter(JordanWignerMapper(), z2symmetry_reduction=None)
+        quantum_instance = QuantumInstance(
+            backend=qiskit.Aer.get_backend("aer_simulator_statevector"),
+            seed_simulator=self.seed,
+            seed_transpiler=self.seed,
+        )
+        solver = VQE(quantum_instance=quantum_instance)
+        me_gsc = GroundStateEigensolver(qubit_converter, solver)
+
+        # Sets up the auxiliary operators
+
+        def build_hamiltonian(current_problem: BaseProblem) -> SecondQuantizedOp:
+            """Returns the SecondQuantizedOp H(R) where H is the electronic hamiltonian and R is
+            the current nuclear coordinates. This gives the electronic energies."""
+            hamiltonian_name = current_problem.main_property_name
+            hamiltonian_op = current_problem.second_q_ops().get(hamiltonian_name, None)
+            return hamiltonian_op
+
+        aux = {
+            "PN": problem.second_q_ops()["ParticleNumber"],  # SecondQuantizedOp
+            "EN": build_hamiltonian,  # Callable
+            "IN": PauliOp(Pauli("IIII"), 1.0),  # PauliOp
+        }
+        # Note that the first item is defined once for R=0.45.
+        # The second item is a function of the problem giving the electronic energy.
+        # At each step, a perturbation is applied to the molecule degrees of freedom which updates
+        # the aux_operators.
+        # The third item is the identity written as a PauliOp, yielding the norm of the eigenstates.
+
+        # Sets up the BOPESSampler
+        sampler = BOPESSampler(me_gsc)
+
+        # absolute internuclear distance in Angstrom
+        points = [0.7, 1.0, 1.3]
+        results = sampler.sample(problem, points, aux_operators=aux)
+        points_run = results.points
+
+        particle_numbers = []
+        total_energies = []
+        norm_eigenstates = []
+
+        for results_point in list(results.raw_results.values()):
+            aux_op_dict = results_point.raw_result.aux_operator_eigenvalues
+            particle_numbers.append(aux_op_dict["PN"][0])
+            total_energies.append(aux_op_dict["EN"][0] + results_point.nuclear_repulsion_energy)
+            norm_eigenstates.append(aux_op_dict["IN"][0])
+
+        points_run_reference = [0.7, 1.0, 1.3]
+        particle_numbers_reference = [2, 2, 2]
+        total_energies_reference = [-1.136, -1.101, -1.035]
+        norm_eigenstates_reference = [1, 1, 1]
+
+        np.testing.assert_array_almost_equal(points_run, points_run_reference)
+        np.testing.assert_array_almost_equal(
+            particle_numbers, particle_numbers_reference, decimal=2
+        )
+        np.testing.assert_array_almost_equal(
+            total_energies,
+            total_energies_reference,
+            decimal=2,
+        )
+        np.testing.assert_array_almost_equal(
+            norm_eigenstates,
+            norm_eigenstates_reference,
+            decimal=2,
+        )
 
 
 if __name__ == "__main__":
