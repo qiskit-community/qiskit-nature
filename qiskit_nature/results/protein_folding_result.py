@@ -110,11 +110,11 @@ class ProteinFoldingResult(EigenstateResult):
         * The remaining pairs of qubits will encode the remaining turns of the main bead and then the
           turns of the secondary chains in that order.
 
-        Example: In the context of a protein of lenght 5 with secondary chains in the 2nd and 4th
+        Example: In the context of a protein of length 5 with secondary chains in the 2nd and 4th
         position ``10110110`` encodes the most efficient configuration. We start by flipping the
         string and pairing up the bits ``01-10-11-01``. Note that in this case we have a pair number of
         bits. This is only due to the fact that we have a secondary chain in the second position.
-        Since the first 2 turns on the main chain were arbirarily set (In qiskit we chose to set them to
+        Since the first 2 turns on the main chain were arbitrarily set (In qiskit we chose to set them to
         ``[1,0]`` respectively) the sequence of turns in the main chain is ``[0,1,1,2]``. The remaining
         pairs of bits indicate that the turns from the secondary chains in the 2nd and 4th position are
         ``3`` and ``1`` respectively.
