@@ -14,11 +14,10 @@
 
 import unittest
 from functools import partial
+from test import QiskitNatureTestCase
 
 from qiskit.opflow import PauliOp
 from qiskit.quantum_info import Pauli
-from qiskit_nature.operators.second_quantization import SecondQuantizedOp
-from test import QiskitNatureTestCase
 
 import numpy as np
 
@@ -26,7 +25,7 @@ import qiskit
 from qiskit.algorithms import NumPyMinimumEigensolver, VQE
 from qiskit.utils import algorithm_globals, QuantumInstance, optionals
 import qiskit_nature.optionals as _optionals
-
+from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.algorithms import (
     GroundStateEigensolver,
     BOPESSampler,
