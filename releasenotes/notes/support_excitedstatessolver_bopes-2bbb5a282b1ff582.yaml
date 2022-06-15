@@ -13,7 +13,7 @@ features:
 deprecations:
   - |
     The argument `gss` of the constructor of :class:`qiskit_nature.algorithms.BOPESSampler` was deprecated 
-    and replaced by `state_solver' to match the extension of this class to 
+    and replaced by `state_solver` to match the extension of this class to 
     :class:`qiskit_nature.algorithms.ExcitedStatesEigensolver`. 
     Now the constructor has the following positional argument:
     
