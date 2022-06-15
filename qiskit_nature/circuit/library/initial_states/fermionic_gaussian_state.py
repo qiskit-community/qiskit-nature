@@ -19,7 +19,7 @@ from qiskit import QuantumCircuit, QuantumRegister
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 
-from .utils.givens_rotations import _prepare_fermionic_gaussian_state_jordan_wigner
+from .utils.givens_rotations import _prepare_fermionic_gaussian_state_jw
 
 
 def _validate_transformation_matrix(
@@ -42,9 +42,9 @@ def _validate_transformation_matrix(
     right = mat[:, n:]
     comm1 = left @ left.T.conj() + right @ right.T.conj()
     comm2 = left @ right.T + right @ left.T
-    one = np.eye(n)
-    zero = np.zeros((n, n))
-    if not np.allclose(comm1, one, rtol=rtol, atol=atol) or not np.allclose(comm2, zero):
+    if not np.allclose(comm1, np.eye(n), rtol=rtol, atol=atol) or not np.allclose(
+        comm2, 0.0, atol=atol
+    ):
         raise ValueError(
             "transformation_matrix does not describe a valid transformation "
             "of fermionic ladder operators. A valid matrix should have the block form "
@@ -126,13 +126,13 @@ class FermionicGaussianState(QuantumCircuit):
         Args:
             transformation_matrix: The matrix :math:`W` that specifies the coefficients of the
                 new creation operators in terms of the original creation and annihilation operators.
-                This matrix must satisfy special constraints; see the main body of the docstring
-                of this class.
+                This matrix must satisfy special constraints, as detailed above.
             occupied_orbitals: The pseudo-particle orbitals to fill. These refer to the indices
                 of the operators :math:`\{b^\dagger_j\}` from the main body of the docstring
                 of this function. The default behavior is to use the empty set of orbitals,
                 which corresponds to a state with zero pseudo-particles.
-            qubit_converter: a QubitConverter instance.
+            qubit_converter: The qubit converter. The default behavior is to create
+                one using the call `QubitConverter(JordanWignerMapper())`.
             validate: Whether to validate the inputs.
             rtol: Relative numerical tolerance for input validation.
             atol: Absolute numerical tolerance for input validation.
@@ -141,6 +141,11 @@ class FermionicGaussianState(QuantumCircuit):
         Raises:
             ValueError: transformation_matrix must be a 2-dimensional array.
             ValueError: transformation_matrix must have shape (n_orbitals, 2 * n_orbitals).
+            ValueError: transformation_matrix does not describe a valid transformation
+                of fermionic ladder operators. A valid matrix has the block form
+                :math:`(W_1 \quad W_2)` where :math:`W_1 W_1^\dagger + W_2 W_2^\dagger = I` and
+                :math:`W_1 W_2^T + W_2 W_1^T = 0`.
+
             NotImplementedError: Currently, only the Jordan-Wigner Transform is supported.
                 Please use
                 :class:`qiskit_nature.mappers.second_quantization.JordanWignerMapper`
@@ -159,7 +164,7 @@ class FermionicGaussianState(QuantumCircuit):
         super().__init__(register, **circuit_kwargs)
 
         if isinstance(qubit_converter.mapper, JordanWignerMapper):
-            operations = _prepare_fermionic_gaussian_state_jordan_wigner(
+            operations = _prepare_fermionic_gaussian_state_jw(
                 register, transformation_matrix, occupied_orbitals
             )
             for gate, qubits in operations:

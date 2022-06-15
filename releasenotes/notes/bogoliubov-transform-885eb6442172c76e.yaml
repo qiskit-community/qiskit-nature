@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    Adds :class:`~.BogoliubovTransform`.
+    This class constructs a circuit that performs a Bogoliubov transform,
+    which is a single-particle basis change that may or may not conserve
+    particle number. See the
+    `Quadratic Hamiltonians and Slater determinants <tutorials/11_quadratic_hamiltonian_and_slater_determinants.ipynb>`_ tutorial
+    for a demonstration of how to use this class.
