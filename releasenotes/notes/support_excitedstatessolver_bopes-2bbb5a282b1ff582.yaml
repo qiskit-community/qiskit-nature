@@ -12,7 +12,7 @@ features:
     for a demonstration of how to use this calculation of excited state Born Oppenheimer potential energy surfaces.
 deprecations:
   - |
-    The argument `gss` of the constructor of :class:`qiskit_nature.algorithms.BOPESSampler` was deprecated 
+    The argument `gss` of the constructor of :class:`~qiskit_nature.algorithms.pes_samplers.BOPESSampler` was deprecated 
     and replaced by `state_solver` to match the extension of this class to 
     :class:`qiskit_nature.algorithms.ExcitedStatesEigensolver`. 
     Now the constructor has the following positional argument:
