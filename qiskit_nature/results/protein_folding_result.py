@@ -96,7 +96,31 @@ class ProteinFoldingResult(EigenstateResult):
         uses a compressed optimization problem that does not match the
         number of qubits in the original objective function. This method calculates the original
         version of the solution vector. Bits that can take any value without changing the
-        solution are denoted by '_'."""
+        solution are denoted by '_'.
+        This string is read from right to left, and every pair of bits encodes a turn ranging from 0
+        to 4:
+
+        * The first 4 correspond to the first 2 turns in the sequence. These 2 turns can arbitrarily
+          be set to any value due to rotation symmetry. Therefore the first 4 bits will be unused.
+
+        * If there is no secondary chain going out from the 2nd bead in the main chain, an other
+          symmetry argument makes it such that the 3rd turn has effectively only 2 options. Therefore
+          the 5th qubit can sometimes be unused as well.
+
+        * The remaining pairs of qubits will encode the remaining turns of the main bead and then the
+          turns of the secondary chains in that order.
+
+        Example: In the context of a protein of lenght 5 with secondary chains in the 2nd and 4th
+        position ``10110110`` encodes the most efficient configuration. We start by flipping the
+        string and pairing up the bits ``01-10-11-01``. Note that in this case we have a pair number of
+        bits. This is only due to the fact that we have a secondary chain in the second position.
+        Since the first 2 turns on the main chain were arbirarily set (In qiskit we chose to set them to
+        ``[1,0]`` respectively) the sequence of turns in the main chain is ``[0,1,1,2]``. The remaining
+        pairs of bits indicate that the turns from the secondary chains in the 2nd and 4th position are
+        ``3`` and ``1`` respectively.
+        For more information see: `<https://doi.org/10.1038/s41534-021-00368-4>`__.
+
+        """
         unused_qubits = self._unused_qubits
         result = []
         offset = 0
@@ -120,7 +144,8 @@ class ProteinFoldingResult(EigenstateResult):
         Args:
             name: Name of the file to be generated. If the name is ``None`` the
                 name of the file will be the letters of the aminoacids on the main_chain.
-                If a file with the same name already exists it will be overwritten.
+                If a file of the same name already exists then the action taken is dependent
+                on the `replace` arg.
             path: Path where the file will be generated. If left empty the file will
                 be saved in the working directory.
             comment: Comment to be added to the second line of the file. By default, the line will
