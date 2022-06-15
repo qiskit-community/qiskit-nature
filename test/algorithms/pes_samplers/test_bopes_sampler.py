@@ -15,6 +15,9 @@
 import unittest
 from functools import partial
 
+from qiskit.opflow import PauliOp
+from qiskit.quantum_info import Pauli
+from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from test import QiskitNatureTestCase
 
 import numpy as np
@@ -42,7 +45,7 @@ from qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories
 )
 from qiskit_nature.mappers.second_quantization import ParityMapper, JordanWignerMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
-from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
+from qiskit_nature.problems.second_quantization import ElectronicStructureProblem, BaseProblem
 
 
 class TestBOPES(QiskitNatureTestCase):
@@ -318,23 +321,61 @@ class TestBOPES(QiskitNatureTestCase):
         solver = VQE(quantum_instance=quantum_instance)
         me_gsc = GroundStateEigensolver(qubit_converter, solver)
 
-        # BOPES sampler
-        aux = {"PN": problem.second_q_ops()["ParticleNumber"]}
+        # Sets up the auxiliary operators
+
+        def build_hamiltonian(current_problem: BaseProblem) -> SecondQuantizedOp:
+            """Returns the SecondQuantizedOp H(R) where H is the electronic hamiltonian and R is
+            the current nuclear coordinates. This gives the electronic energies."""
+            hamiltonian_name = current_problem.main_property_name
+            hamiltonian_op = current_problem.second_q_ops().get(hamiltonian_name, None)
+            return hamiltonian_op
+
+        aux = {
+            "PN": problem.second_q_ops()["ParticleNumber"],  # SecondQuantizedOp
+            "EN": build_hamiltonian,  # Callable
+            "IN": PauliOp(Pauli("IIII"), 1.0),  # PauliOp
+        }
+        # Note that the first item is defined once for R=0.45.
+        # The second item is a function of the problem giving the electronic energy.
+        # At each step, a perturbation is applied to the molecule degrees of freedom which updates
+        # the aux_operators.
+        # The third item is the identity written as a PauliOp, yielding the norm of the eigenstates.
+
+        # Sets up the BOPESSampler
         sampler = BOPESSampler(me_gsc)
 
         # absolute internuclear distance in Angstrom
         points = [0.7, 1.0, 1.3]
         results = sampler.sample(problem, points, aux_operators=aux)
-
         points_run = results.points
-        particle_number = []
-        for results_point in list(results.raw_results.values()):
-            particle_number.append(results_point.raw_result.aux_operator_eigenvalues["PN"][0])
 
-        np.testing.assert_array_almost_equal(points_run, [0.7, 1.0, 1.3])
+        particle_numbers = []
+        total_energies = []
+        norm_eigenstates = []
+
+        for results_point in list(results.raw_results.values()):
+            aux_op_dict = results_point.raw_result.aux_operator_eigenvalues
+            particle_numbers.append(aux_op_dict["PN"][0])
+            total_energies.append(aux_op_dict["EN"][0] + results_point.nuclear_repulsion_energy)
+            norm_eigenstates.append(aux_op_dict["IN"][0])
+
+        points_run_reference = [0.7, 1.0, 1.3]
+        particle_numbers_reference = [2, 2, 2]
+        total_energies_reference = [-1.136, -1.101, -1.035]
+        norm_eigenstates_reference = [1, 1, 1]
+
+        np.testing.assert_array_almost_equal(points_run, points_run_reference)
         np.testing.assert_array_almost_equal(
-            particle_number,
-            [2, 2, 2],
+            particle_numbers, particle_numbers_reference, decimal=2
+        )
+        np.testing.assert_array_almost_equal(
+            total_energies,
+            total_energies_reference,
+            decimal=2,
+        )
+        np.testing.assert_array_almost_equal(
+            norm_eigenstates,
+            norm_eigenstates_reference,
             decimal=2,
         )
 
