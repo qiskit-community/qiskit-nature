@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -14,6 +14,9 @@ from abc import ABC, abstractmethod
 from typing import Union
 
 from qiskit.opflow import PauliSumOp, PauliOp
+from qiskit.algorithms import MinimumEigensolverResult
+
+from qiskit_nature.results import EigenstateResult
 
 
 class SamplingProblem(ABC):
@@ -24,8 +27,7 @@ class SamplingProblem(ABC):
         """Returns a qubit operator that represents a Hamiltonian encoding the sampling problem."""
         pass
 
-    # TODO type hint will be addressed later on
     @abstractmethod
-    def interpret(self):
+    def interpret(self, raw_result: MinimumEigensolverResult) -> EigenstateResult:
         """Interprets results of an optimization."""
         pass

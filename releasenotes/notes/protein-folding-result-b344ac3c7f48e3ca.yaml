@@ -1,0 +1,41 @@
+---
+features:
+  - |
+    Now there is a function to interpret the raw result of solving a protein folding problem. Previously
+    the problem was encoded in order to be solved more efficiently but the result could not be easily
+    understood by a user. This new functionality decodes the result for the user and provides a
+    plotting of the protein as well as a file with the x,y,z coordinates of each one of the beads
+    in the protein.
+
+    Added: :class:`~qiskit_nature.results.ProteinFoldingResult`.
+    This class handles the result found by running a VQE to solve a
+    :class:`~qiskit_nature.problems.sampling.protein_folding.ProteinFoldingProblem`.
+    This class has:
+
+    * Method :meth:`~qiskit_nature.results.ProteinFoldingResult.get_figure` which
+      generates a figure of the shape of the protein.
+
+    * Method :meth:`~qiskit_nature.results.ProteinFoldingResult.save_xyz_file` which
+      saves a .xyz file with the cartesian coordinates of the shape of the molecule.
+
+    * Property :attr:`~qiskit_nature.results.ProteinFoldingResult.protein_shape_file_gen`
+      which is an instance of :class:`~qiskit_nature.results.utils.ProteinShapeFileGen`.
+      This class has in its turn a method
+      :meth:`~qiskit_nature.results.utils.ProteinShapeFileGen.get_xyz_data` which returns
+      an array with the data contained in the .xyz file without having to generate such a file.
+
+    * Property :attr:`~qiskit_nature.results.ProteinFoldingResult.protein_shape_decoder`
+      which is an instance of :class:`~qiskit_nature.results.utils.ProteinShapeDecoder`.
+      This class has in its turn two properties
+      :attr:`~qiskit_nature.results.utils.ProteinShapeDecoder.main_turns`
+      and :attr:`~qiskit_nature.results.utils.ProteinShapeDecoder.side_turns` that return
+      the turn sequences of the main chain and the side chains respectively.
+
+
+    .. code-block:: python
+
+        result = protein_folding_problem.interpret(raw_result)
+        # Save xyz file in current directory.
+        result.save_xyz_file()
+        # Generate plot.
+        figure = result.get_figure()

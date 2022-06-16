@@ -19,6 +19,7 @@ Results (:mod:`qiskit_nature.results`)
 Qiskit Nature results such as for electronic and vibrational structure. Algorithms
 may extend these to provide algorithm specific aspects in their result.
 
+
 Results
 =======
 
@@ -31,6 +32,15 @@ Results
    ElectronicStructureResult
    VibrationalStructureResult
    LatticeModelResult
+   ProteinFoldingResult
+
+Protein Folding Result support classes
+--------------------------------------
+
+.. autosummary::
+   :toctree:
+
+   utils
 
 """
 
@@ -39,6 +49,7 @@ from .eigenstate_result import EigenstateResult
 from .electronic_structure_result import DipoleTuple, ElectronicStructureResult
 from .vibrational_structure_result import VibrationalStructureResult
 from .lattice_model_result import LatticeModelResult
+from .protein_folding_result import ProteinFoldingResult
 
 __all__ = [
     "BOPESSamplerResult",
@@ -47,4 +58,5 @@ __all__ = [
     "ElectronicStructureResult",
     "VibrationalStructureResult",
     "LatticeModelResult",
+    "ProteinFoldingResult",
 ]
