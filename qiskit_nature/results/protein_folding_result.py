@@ -103,7 +103,7 @@ class ProteinFoldingResult(EigenstateResult):
         * The first 4 correspond to the first 2 turns in the sequence. These 2 turns can arbitrarily
           be set to any value due to rotation symmetry. Therefore the first 4 bits will be unused.
 
-        * If there is no secondary chain going out from the 2nd bead in the main chain, an other
+        * If there is no secondary chain going out from the 2nd bead in the main chain, another
           symmetry argument makes it such that the 3rd turn has effectively only 2 options. Therefore
           the 5th qubit can sometimes be unused as well.
 
@@ -112,12 +112,12 @@ class ProteinFoldingResult(EigenstateResult):
 
         Example: In the context of a protein of length 5 with secondary chains in the 2nd and 4th
         position ``10110110`` encodes the most efficient configuration. We start by flipping the
-        string and pairing up the bits ``01-10-11-01``. Note that in this case we have a pair number of
-        bits. This is only due to the fact that we have a secondary chain in the second position.
-        Since the first 2 turns on the main chain were arbitrarily set (In qiskit we chose to set them to
-        ``[1,0]`` respectively) the sequence of turns in the main chain is ``[0,1,1,2]``. The remaining
-        pairs of bits indicate that the turns from the secondary chains in the 2nd and 4th position are
-        ``3`` and ``1`` respectively.
+        string and pairing up the bits ``01-10-11-01``. Note that in this case we have an even number
+        of bits. This is only due to the fact that we have a secondary chain in the second position.
+        Since the first 2 turns on the main chain were arbitrarily set (In qiskit we chose to set
+        them to ``[1,0]`` respectively) the sequence of turns in the main chain is ``[0,1,1,2]``.
+        The remaining pairs of bits indicate that the turns from the secondary chains in the 2nd
+        and 4th position are ``3`` and ``1`` respectively.
         For more information see: `<https://doi.org/10.1038/s41534-021-00368-4>`__.
 
         """

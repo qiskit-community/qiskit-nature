@@ -95,6 +95,12 @@ class ProteinFoldingProblem(SamplingProblem):
         Interprets the raw algorithm result, in the context of this problem, and returns a
         ProteinFoldingResult. The returned class can plot the protein and generate a
         .xyz file with the coordinates of each of its atoms.
+        Args:
+            raw_result: The raw result of solving the protein folding problem.
+
+        Returns:
+            A :class:`~qiskit_nature.results.ProteinFoldingResult`
+            instance that contains the protein folding result.
         """
         from qiskit_nature.results import ProteinFoldingResult
 
