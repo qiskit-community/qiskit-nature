@@ -56,7 +56,7 @@ class TestProteinShapeFileGen(QiskitNatureTestCase):
                 ],
                 dtype="<U32",
             ),
-            "Only_Main_Chain",
+            "only_main_chain",
         ),
         # Second
         (
@@ -92,7 +92,7 @@ class TestProteinShapeFileGen(QiskitNatureTestCase):
                 ],
                 dtype="<U32",
             ),
-            "Also_Side_Chains",
+            "also_side_chains",
         ),
     )
     def test_shape(
