@@ -154,7 +154,7 @@ def fermionic_gaussian_decomposition_jw(  # pylint: disable=invalid-name
                     phi = np.angle(givens_mat[0, 1])
                     # add operations
                     decomposition.append(
-                        (XXPlusYYGate(2 * theta, phi - np.pi / 2), (register[j], register[j + 1]))
+                        (XXPlusYYGate(2 * theta, -phi - np.pi / 2), (register[j], register[j + 1]))
                     )
                     # update matrix
                     current_matrix = apply_matrix_to_slices(
