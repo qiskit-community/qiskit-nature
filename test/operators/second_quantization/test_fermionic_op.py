@@ -374,6 +374,14 @@ class TestFermionicOp(QiskitNatureTestCase):
             )
             self.assertFalse(fer_op.is_hermitian())
 
+        with self.subTest("test require normal order"):
+            fer_op = FermionicOp("+_0 -_0 -_1") - FermionicOp("+_1 -_0 +_0") + FermionicOp("+_1")
+            self.assertTrue(fer_op.is_hermitian())
+
+        with self.subTest("test passing atol"):
+            fer_op = FermionicOp("+_0 -_1") + (1 + 1e-7) * FermionicOp("+_1 -_0")
+            self.assertTrue(fer_op.is_hermitian(atol=1e-6))
+
     @data(
         *product(
             (
