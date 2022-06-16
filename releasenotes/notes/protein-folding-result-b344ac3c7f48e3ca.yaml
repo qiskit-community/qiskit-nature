@@ -1,6 +1,12 @@
 ---
 features:
   - |
+    Added function to interpret the raw result of solving a protein folding problem. Previously the
+    problem was encoded in order to be solved more efficiently and the result could not be easily
+    understood by a user. This new functionality decodes the result for the user and provides a
+    plotting of the protein as well as a file with the x,y,z coordinates of each one of the beads
+    in the protein.
+
     Added: :class:`~qiskit_nature.results.ProteinFoldingResult`.
     This class handles the result found by running a VQE to solve a
     :class:`~qiskit_nature.problems.sampling.protein_folding.ProteinFoldingProblem`.
