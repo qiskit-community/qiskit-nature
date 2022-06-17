@@ -380,6 +380,8 @@ class TestFermionicOp(QiskitNatureTestCase):
 
         with self.subTest("test passing atol"):
             fer_op = FermionicOp("+_0 -_1") + (1 + 1e-7) * FermionicOp("+_1 -_0")
+            self.assertFalse(fer_op.is_hermitian())
+            self.assertFalse(fer_op.is_hermitian(atol=1e-8))
             self.assertTrue(fer_op.is_hermitian(atol=1e-6))
 
     @data(

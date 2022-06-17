@@ -359,6 +359,8 @@ class TestSpinOp(QiskitNatureTestCase):
 
         with self.subTest("test passing atol"):
             test_op = SpinOp("+ZXY") + (1 + 1e-7) * SpinOp("-ZXY")
+            self.assertFalse(test_op.is_hermitian())
+            self.assertFalse(test_op.is_hermitian(atol=1e-8))
             self.assertTrue(test_op.is_hermitian(atol=1e-6))
 
 
