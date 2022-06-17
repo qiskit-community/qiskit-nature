@@ -35,7 +35,6 @@ class QubitMapper(ABC):
                 number of qubits in the mapped operator can be reduced accordingly.
         """
         self._allows_two_qubit_reduction = allows_two_qubit_reduction
-        self.ret_op_list = None
 
     @property
     def allows_two_qubit_reduction(self) -> bool:
@@ -61,7 +60,7 @@ class QubitMapper(ABC):
         raise NotImplementedError()
 
     def mode_based_mapping(
-        self, second_q_op: SecondQuantizedOp, pauli_table: List[Tuple[Pauli, Pauli]]
+        second_q_op: SecondQuantizedOp, pauli_table: List[Tuple[Pauli, Pauli]]
     ) -> PauliSumOp:
         """Utility method to map a `SecondQuantizedOp` to a `PauliSumOp` using a pauli table.
 
@@ -112,7 +111,7 @@ class QubitMapper(ABC):
             )
 
         # make sure ret_op_list is not empty by including a zero op
-        self.ret_op_list = [SparsePauliOp("I" * nmodes, coeffs=[0])]
+        ret_op_list = [SparsePauliOp("I" * nmodes, coeffs=[0])]
 
         # TODO to_list() is not an attribute of SecondQuantizedOp. Change the former to have this or
         #   change the signature above to take FermionicOp?
@@ -145,6 +144,6 @@ class QubitMapper(ABC):
                     raise QiskitNatureError(
                         f"FermionicOp label included '{char}'. Allowed characters: I, N, E, +, -"
                     )
-            self.ret_op_list.append(ret_op)
+            ret_op_list.append(ret_op)
 
-        return PauliSumOp(SparsePauliOp.sum(self.ret_op_list).simplify())
+        return PauliSumOp(SparsePauliOp.sum(ret_op_list).simplify())
