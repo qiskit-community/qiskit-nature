@@ -60,7 +60,6 @@ class QubitMapper(ABC):
         """
         raise NotImplementedError()
 
-    # @staticmethod
     def mode_based_mapping(
         self, second_q_op: SecondQuantizedOp, pauli_table: List[Tuple[Pauli, Pauli]]
     ) -> PauliSumOp:
