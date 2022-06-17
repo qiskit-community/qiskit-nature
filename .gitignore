@@ -134,3 +134,7 @@ venv.bak/
 
 # stestr repostiory
 .stestr/
+qiskit_nature/mappers/second_quantization/test.py
+qiskit_nature/mappers/second_quantization/timings.csv
+qiskit_nature/mappers/second_quantization/timings_withchanges.csv
+.gitignore
