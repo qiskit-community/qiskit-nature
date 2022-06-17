@@ -12,7 +12,7 @@
 
 """The calculation of excited states via an Eigensolver algorithm"""
 
-from typing import Union, Optional
+from typing import Union, Optional, Tuple
 
 from qiskit.algorithms import Eigensolver
 from qiskit.opflow import PauliSumOp
@@ -57,34 +57,15 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         """Sets the minimum eigensolver or factory."""
         self._solver = solver
 
-    def solve(
+    def get_qubit_operators(
         self,
         problem: BaseProblem,
         aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
-    ) -> EigenstateResult:
-        """Compute Ground and Excited States properties.
-
-        Args:
-            problem: a class encoding a problem to be solved.
-            aux_operators: Additional auxiliary operators to evaluate.
-
-        Raises:
-            ValueError: if the grouped property object returned by the driver does not contain a
-                main property as requested by the problem being solved (`problem.main_property_name`)
-            QiskitNatureError: if the user-provided `aux_operators` contain a name which clashes
-                with an internally constructed auxiliary operator. Note: the names used for the
-                internal auxiliary operators correspond to the `Property.name` attributes which
-                generated the respective operators.
-
-        Returns:
-            An interpreted :class:`~.EigenstateResult`. For more information see also
-            :meth:`~.BaseProblem.interpret`.
-        """
-        # get the operator and auxiliary operators, and transform the provided auxiliary operators
-        # note that ``aux_operators`` contains not only the transformed ``aux_operators`` passed
-        # by the user but also additional ones from the transformation
+    ) -> Tuple[PauliSumOp, Optional[ListOrDictType[PauliSumOp]]]:
+        """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators"""
+        # Note that ``aux_ops`` contains not only the transformed ``aux_operators`` passed by the
+        # user but also additional ones from the transformation
         second_q_ops = problem.second_q_ops()
-
         aux_second_q_ops: ListOrDictType[SecondQuantizedOp]
         if isinstance(second_q_ops, list):
             main_second_q_op = second_q_ops[0]
@@ -128,15 +109,42 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
 
         if isinstance(self._solver, EigensolverFactory):
             # this must be called after transformation.transform
-            solver = self._solver.get_solver(problem)
-        else:
-            solver = self._solver
+            self._solver = self._solver.get_solver(problem)
 
         # if the eigensolver does not support auxiliary operators, reset them
-        if not solver.supports_aux_operators():
+        if not self._solver.supports_aux_operators():
             aux_ops = None
+        return main_operator, aux_ops
 
-        raw_es_result = solver.compute_eigenvalues(main_operator, aux_ops)
+    def solve(
+        self,
+        problem: BaseProblem,
+        aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+    ) -> EigenstateResult:
+        """Compute Ground and Excited States properties.
+
+        Args:
+            problem: a class encoding a problem to be solved.
+            aux_operators: Additional auxiliary operators to evaluate.
+
+        Raises:
+            ValueError: if the grouped property object returned by the driver does not contain a
+                main property as requested by the problem being solved (`problem.main_property_name`)
+            QiskitNatureError: if the user-provided `aux_operators` contain a name which clashes
+                with an internally constructed auxiliary operator. Note: the names used for the
+                internal auxiliary operators correspond to the `Property.name` attributes which
+                generated the respective operators.
+
+        Returns:
+            An interpreted :class:`~.EigenstateResult`. For more information see also
+            :meth:`~.BaseProblem.interpret`.
+        """
+        # get the operator and auxiliary operators, and transform the provided auxiliary operators
+        # note that ``aux_operators`` contains not only the transformed ``aux_operators`` passed
+        # by the user but also additional ones from the transformation
+
+        main_operator, aux_ops = self.get_qubit_operators(problem, aux_operators)
+        raw_es_result = self._solver.compute_eigenvalues(main_operator, aux_ops)  # type: ignore
 
         eigenstate_result = EigenstateResult()
         eigenstate_result.raw_result = raw_es_result
