@@ -1,8 +1,8 @@
 ---
 features:
   - |
-    Adds `atol` parameter to `~.SecondQuantizedOp.is_hermitian`
+    Adds `atol` parameter to :meth:`~.SecondQuantizedOp.is_hermitian`
 fixes:
   - |
-    Fixes a bug that caused `~.FermionicOp.is_hermitian` to return false negatives
+    Fixes a bug that caused :meth:`~.FermionicOp.is_hermitian` to return false negatives
     due to not normal-ordering.
