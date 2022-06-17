@@ -44,4 +44,4 @@ class JordanWignerMapper(FermionicMapper):  # pylint: disable=missing-class-docs
             pauli_table.append((Pauli((a_z, a_x)), Pauli((b_z, b_x))))
             # TODO add Pauli 3-tuple to lookup table
 
-        return QubitMapper.mode_based_mapping(self, second_q_op, pauli_table)
+        return self.mode_based_mapping(second_q_op, pauli_table)
