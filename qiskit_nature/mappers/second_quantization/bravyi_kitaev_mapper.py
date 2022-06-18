@@ -159,4 +159,4 @@ class BravyiKitaevMapper(FermionicMapper):  # pylint: disable=missing-class-docs
             pauli1.phase = 0
             pauli2.phase = 0
 
-        return QubitMapper.mode_based_mapping(second_q_op, pauli_table)
+        return self.mode_based_mapping(second_q_op, pauli_table)
