@@ -28,6 +28,4 @@ Second-Quantization Operator Factories
 
 from .quadratic_hamiltonian import QuadraticHamiltonian
 
-__all__ = [
-    "QuadraticHamiltonian"
-]
+__all__ = ["QuadraticHamiltonian"]
