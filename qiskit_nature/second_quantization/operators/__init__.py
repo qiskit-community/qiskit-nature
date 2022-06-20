@@ -31,9 +31,9 @@ Second-Quantization Operators
 """
 
 from .second_quantized_op import SecondQuantizedOp
-from fermionic.fermionic_op import FermionicOp
-from spin.spin_op import SpinOp
-from vibrational.vibrational_op import VibrationalOp
+from .fermionic.fermionic_op import FermionicOp
+from .spin.spin_op import SpinOp
+from .vibrational.vibrational_op import VibrationalOp
 
 __all__ = [
     "FermionicOp",
