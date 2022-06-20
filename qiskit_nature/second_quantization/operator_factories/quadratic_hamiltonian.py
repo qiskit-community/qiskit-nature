@@ -19,7 +19,7 @@ from typing import Optional
 import numpy as np
 import scipy.linalg
 from qiskit.quantum_info.operators.mixins import TolerancesMixin
-from qiskit_nature.second_quantization.operators.fermionic_op import FermionicOp
+from ..operators.fermionic_op import FermionicOp
 
 
 def _is_hermitian(mat: np.ndarray, rtol: float = 1e-5, atol: float = 1e-8) -> bool:
