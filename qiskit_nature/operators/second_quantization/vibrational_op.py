@@ -282,7 +282,7 @@ class VibrationalOp(SecondQuantizedOp):
         Returns a new operator (the original operator is not modified).
 
         Args:
-            atol: Absolute tolerance for checking if coefficients are zero (Default: 1e-8).
+            atol: Absolute numerical tolerance. The default behavior is to use ``self.atol``.
 
         Returns:
             The simplified operator.

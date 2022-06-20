@@ -49,7 +49,7 @@ class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
         Returns a new operator (the original operator is not modified).
 
         Args:
-            atol: Absolute tolerance for checking if coefficients are zero (Default: 1e-8).
+            atol: Absolute numerical tolerance. The default behavior is to use ``self.atol``.
 
         Returns:
             The simplified operator.
@@ -62,7 +62,14 @@ class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
         raise NotImplementedError
 
     def is_hermitian(self, atol: Optional[float] = None) -> bool:
-        """Checks whether the operator is hermitian"""
+        """Checks whether the operator is hermitian.
+
+        Args:
+            atol: Absolute numerical tolerance. The default behavior is to use ``self.atol``.
+
+        Returns:
+            True if the operator is hermitian up to numerical tolerance, False otherwise.
+        """
         if atol is None:
             atol = self.atol
         diff = (self - self.adjoint()).simplify(atol=atol)

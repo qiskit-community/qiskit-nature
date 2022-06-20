@@ -591,7 +591,7 @@ class FermionicOp(SecondQuantizedOp):
         Returns a new operator (the original operator is not modified).
 
         Args:
-            atol: Absolute tolerance for checking if coefficients are zero (Default: 1e-8).
+            atol: Absolute numerical tolerance. The default behavior is to use ``self.atol``.
 
         Returns:
             The simplified operator.
@@ -771,7 +771,14 @@ class FermionicOp(SecondQuantizedOp):
         return FermionicOp(("", 1.0), register_length=register_length, display_format="sparse")
 
     def is_hermitian(self, atol: Optional[float] = None) -> bool:
-        """Checks whether the operator is hermitian"""
+        """Checks whether the operator is hermitian.
+
+        Args:
+            atol: Absolute numerical tolerance. The default behavior is to use ``self.atol``.
+
+        Returns:
+            True if the operator is hermitian up to numerical tolerance, False otherwise.
+        """
         if atol is None:
             atol = self.atol
         diff = (self - self.adjoint()).normal_ordered().simplify(atol=atol)
