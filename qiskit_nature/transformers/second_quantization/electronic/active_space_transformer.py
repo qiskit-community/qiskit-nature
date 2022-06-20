@@ -136,7 +136,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         self._density_inactive: OneBodyElectronicIntegrals = None
 
     def _check_configuration(self):
-        if isinstance(self._num_electrons, int):
+        if isinstance(self._num_electrons, (int, np.integer)):
             if self._num_electrons % 2 != 0:
                 raise QiskitNatureError(
                     "The number of active electrons must be even! Otherwise you must specify them "
@@ -149,7 +149,10 @@ class ActiveSpaceTransformer(BaseTransformer):
                     str(self._num_electrons),
                 )
         elif isinstance(self._num_electrons, tuple):
-            if not all(isinstance(n_elec, int) and n_elec >= 0 for n_elec in self._num_electrons):
+            if not all(
+                isinstance(n_elec, (int, np.integer)) and n_elec >= 0
+                for n_elec in self._num_electrons
+            ):
                 raise QiskitNatureError(
                     "Neither the number of alpha, nor the number of beta electrons can be "
                     "negative, not:",
@@ -161,7 +164,7 @@ class ActiveSpaceTransformer(BaseTransformer):
                 str(self._num_electrons),
             )
 
-        if isinstance(self._num_molecular_orbitals, int):
+        if isinstance(self._num_molecular_orbitals, (int, np.integer)):
             if self._num_molecular_orbitals < 0:
                 raise QiskitNatureError(
                     "The number of active orbitals cannot be negative, not:",
@@ -273,7 +276,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         particle_number = grouped_property.get_property(ParticleNumber)
         if isinstance(self._num_electrons, tuple):
             num_alpha, num_beta = self._num_electrons
-        elif isinstance(self._num_electrons, int):
+        elif isinstance(self._num_electrons, (int, np.integer)):
             num_alpha = num_beta = self._num_electrons // 2
 
         # compute number of inactive electrons
@@ -343,7 +346,7 @@ class ActiveSpaceTransformer(BaseTransformer):
                 raise QiskitNatureError("More orbitals requested than available.")
             expected_num_electrons = (
                 self._num_electrons
-                if isinstance(self._num_electrons, int)
+                if isinstance(self._num_electrons, (int, np.integer))
                 else sum(self._num_electrons)
             )
             if sum(self._mo_occ_total[self._active_orbitals]) != expected_num_electrons:
