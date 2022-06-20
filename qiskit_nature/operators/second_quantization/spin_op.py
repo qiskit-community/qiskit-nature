@@ -388,17 +388,6 @@ class SpinOp(SecondQuantizedOp):
         return self.simplify(atol=atol)
 
     def simplify(self, atol: Optional[float] = None) -> "SpinOp":
-        """Simplify the operator.
-
-        Merges terms with same labels and eliminates terms with coefficients close to 0.
-        Returns a new operator (the original operator is not modified).
-
-        Args:
-            atol: Absolute numerical tolerance. The default behavior is to use ``self.atol``.
-
-        Returns:
-            The simplified operator.
-        """
         if atol is None:
             atol = self.atol
 
