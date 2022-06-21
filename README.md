@@ -2,14 +2,16 @@
 
 [![License](https://img.shields.io/github/license/Qiskit/qiskit-nature.svg?style=popout-square)](https://opensource.org/licenses/Apache-2.0)<!--- long-description-skip-begin -->[![Build Status](https://github.com/Qiskit/qiskit-nature/workflows/Nature%20Unit%20Tests/badge.svg?branch=main)](https://github.com/Qiskit/qiskit-nature/actions?query=workflow%3A"Nature%20Unit%20Tests"+branch%3Amain+event%3Apush)[![](https://img.shields.io/github/release/Qiskit/qiskit-nature.svg?style=popout-square)](https://github.com/Qiskit/qiskit-nature/releases)[![](https://img.shields.io/pypi/dm/qiskit-nature.svg?style=popout-square)](https://pypi.org/project/qiskit-nature/)[![Coverage Status](https://coveralls.io/repos/github/Qiskit/qiskit-nature/badge.svg?branch=main)](https://coveralls.io/github/Qiskit/qiskit-nature?branch=main)<!--- long-description-skip-end -->
 
-**Qiskit Nature** is an open-source framework that supports problems including ground state energy computations,
-excited states and dipole moments of molecule, both open and closed-shell.
+**Qiskit Nature** is an open-source framework which supports solving natural science problems
+using quantum computing algorithms. This includes finding ground and excited states of electronic
+and vibrational structure problems, measuring the dipole moments of molecular systems, solving
+the Ising and Fermi-Hubbard models on lattices, and much more.
 
 The code comprises chemistry drivers, which when provided with a molecular
 configuration will return one and two-body integrals as well as other data that is efficiently
 computed classically. This output data from a driver can then be used as input in Qiskit
 Nature that contains logic which is able to translate this into a form that is suitable
-for quantum algorithms. The conversion first creates a FermionicOperator which must then be mapped,
+for quantum algorithms. The conversion first creates a fermionic operator which must then be mapped,
 e.g. by a Jordan Wigner mapping, to a qubit operator in readiness for the quantum computation.
 
 ## Installation
