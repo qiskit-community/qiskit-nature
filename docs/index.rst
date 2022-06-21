@@ -14,7 +14,7 @@ The code comprises chemistry drivers, which when provided with a molecular
 configuration will return one- and two-body integrals as well as other data that is efficiently
 computed classically. This output data from a driver can then be used as input in Qiskit
 Nature that contains logic which is able to translate this into a form that is suitable
-for quantum algorithms. The conversion first creates a FermionicOperator which must then be mapped,
+for quantum algorithms. The conversion first creates a fermionic operator which must then be mapped,
 e.g. by a Jordan Wigner mapping, to a qubit operator in readiness for the quantum computation.
 
 
