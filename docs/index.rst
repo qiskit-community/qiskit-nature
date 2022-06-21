@@ -11,7 +11,7 @@ and vibrational structure problems, measuring the dipole moments of molecular sy
 the Ising and Fermi-Hubbard models on lattices, and much more.
 
 The code comprises chemistry drivers, which when provided with a molecular
-configuration will return one and two-body integrals as well as other data that is efficiently
+configuration will return one- and two-body integrals as well as other data that is efficiently
 computed classically. This output data from a driver can then be used as input in Qiskit
 Nature that contains logic which is able to translate this into a form that is suitable
 for quantum algorithms. The conversion first creates a FermionicOperator which must then be mapped,
