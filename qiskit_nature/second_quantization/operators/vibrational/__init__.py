@@ -31,5 +31,3 @@ from .mappers.direct_mapper import DirectMapper
 __all__ = [
     "DirectMapper",
 ]
-
-

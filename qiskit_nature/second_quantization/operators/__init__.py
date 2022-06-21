@@ -44,11 +44,4 @@ from .second_quantized_op import SecondQuantizedOp
 from .spin.spin_op import SpinOp
 from .vibrational.vibrational_op import VibrationalOp
 
-__all__ = [
-    "FermionicOp",
-    "QubitMapper",
-    "SecondQuantizedOp",
-    "SpinOp",
-    "VibrationalOp"
-]
-
+__all__ = ["FermionicOp", "QubitMapper", "SecondQuantizedOp", "SpinOp", "VibrationalOp"]

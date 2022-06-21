@@ -34,5 +34,3 @@ __all__ = [
     "LinearMapper",
     "LogarithmicMapper",
 ]
-
-
