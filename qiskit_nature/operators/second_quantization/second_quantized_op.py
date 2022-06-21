@@ -49,8 +49,8 @@ class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
         Returns a new operator (the original operator is not modified).
 
         Args:
-            atol: Absolute numerical tolerance. The default behavior is to use ``self.atol``.
-
+            atol: Absolute numerical tolerance. The default behavior is to use ``self.atol``,
+                which would be 1e-8 unless changed by the user.
         Returns:
             The simplified operator.
         """
@@ -65,7 +65,8 @@ class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
         """Checks whether the operator is hermitian.
 
         Args:
-            atol: Absolute numerical tolerance. The default behavior is to use ``self.atol``.
+            atol: Absolute numerical tolerance. The default behavior is to use ``self.atol``,
+                which would be 1e-8 unless changed by the user.
 
         Returns:
             True if the operator is hermitian up to numerical tolerance, False otherwise.
