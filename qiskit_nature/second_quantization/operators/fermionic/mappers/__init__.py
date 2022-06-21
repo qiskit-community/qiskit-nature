@@ -9,30 +9,12 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+
 """
-Second-Quantization Spin Operators (:mod:`qiskit_nature.second_quantization.operators.spin`)
+Second-Quantization Fermionic Op. Mappers (:mod:`qiskit_nature.second_quantization.operators.fermionic.mappers`)
 ================================================================
 
-.. currentmodule:: qiskit_nature.second_quantization.operators.spin
+.. currentmodule:: qiskit_nature.second_quantization.operators.fermionic.mappers
 
-Operators for spin systems.
-
-Spin Mappers
-============
-
-.. autosummary::
-   :toctree: ../stubs/
-
-   LinearMapper
-   LogarithmicMapper
+Mappers for fermionic systems.
 """
-
-from .mappers.linear_mapper import LinearMapper
-from .mappers.logarithmic_mapper import LogarithmicMapper
-
-__all__ = [
-    "LinearMapper",
-    "LogarithmicMapper",
-]
-
-

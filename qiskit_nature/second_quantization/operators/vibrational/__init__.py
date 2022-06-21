@@ -9,7 +9,6 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-
 """
 Second-Quantization Vibrational Operators (:mod:`qiskit_nature.second_quantization.operators.vibrational`)
 ================================================================
@@ -17,4 +16,20 @@ Second-Quantization Vibrational Operators (:mod:`qiskit_nature.second_quantizati
 .. currentmodule:: qiskit_nature.second_quantization.operators.vibrational
 
 Operators for vibrational systems.
+
+Vibrational Mappers
+==================
+
+.. autosummary::
+   :toctree: ../stubs/
+
+   DirectMapper
 """
+
+from .mappers.direct_mapper import DirectMapper
+
+__all__ = [
+    "DirectMapper",
+]
+
+

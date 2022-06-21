@@ -16,7 +16,7 @@ Second-Quantization Operators (:mod:`qiskit_nature.second_quantization.operators
 
 .. currentmodule:: qiskit_nature.second_quantization.operators
 
-Operators for different systems such as fermionic, vibrational and spin.
+Operators and mappers for different systems such as fermionic, vibrational and spin.
 
 Second-Quantization Operators
 ==============================
@@ -29,10 +29,16 @@ Second-Quantization Operators
    SecondQuantizedOp
    VibrationalOp
 
+Second-Quantization Mapper
+==============================
+
+.. autosummary::
+   :toctree: ../stubs/
+
+   QubitMapper
 """
 
 from .fermionic.fermionic_op import FermionicOp
-from .qubit_converter import QubitConverter
 from .qubit_mapper import QubitMapper
 from .second_quantized_op import SecondQuantizedOp
 from .spin.spin_op import SpinOp
@@ -40,7 +46,6 @@ from .vibrational.vibrational_op import VibrationalOp
 
 __all__ = [
     "FermionicOp",
-    "QubitConverter",
     "QubitMapper",
     "SecondQuantizedOp",
     "SpinOp",
