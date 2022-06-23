@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """
-Second-Quantization Vibrational Op. Mappers (:mod:`qiskit_nature.second_quantization.operators.vibrational.mappers`)
+Vibrational Op. Mappers (:mod:`qiskit_nature.second_quantization.operators.vibrational.mappers`)
 ================================================================
 
 .. currentmodule:: qiskit_nature.second_quantization.operators.vibrational.mappers

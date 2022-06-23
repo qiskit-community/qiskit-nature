@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """
-Second-Quantization Spin Op. Mappers (:mod:`qiskit_nature.second_quantization.operators.spin.mappers`)
+Spin Op. Mappers (:mod:`qiskit_nature.second_quantization.operators.spin.mappers`)
 ================================================================
 
 .. currentmodule:: qiskit_nature.second_quantization.operators.spin.mappers

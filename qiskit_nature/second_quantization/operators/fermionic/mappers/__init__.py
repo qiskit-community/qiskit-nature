@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """
-Second-Quantization Fermionic Op. Mappers (:mod:`qiskit_nature.second_quantization.operators.fermionic.mappers`)
+Fermionic Op. Mappers (:mod:`qiskit_nature.second_quantization.operators.fermionic.mappers`)
 ================================================================
 
 .. currentmodule:: qiskit_nature.second_quantization.operators.fermionic.mappers
