@@ -118,7 +118,7 @@ class ProteinPlotter:
             side_scatter: Scattering object that we will use for the legend.
         """
 
-        self._ax_graph.set_box_aspect([1, 1, 1])
+        #self._ax_graph.set_box_aspect([1,1,1])
 
         self._ax_graph.grid(grid)
 
