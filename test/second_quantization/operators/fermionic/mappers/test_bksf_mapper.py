@@ -15,11 +15,8 @@
 import unittest
 from test import QiskitNatureTestCase
 
-from .resources.bksf_lih import (
-    FERMIONIC_HAMILTONIAN,
-    QUBIT_HAMILTONIAN,
-)
 import numpy as np
+
 from qiskit.quantum_info import SparsePauliOp, PauliList
 
 from qiskit_nature.second_quantization.operators import FermionicOp
@@ -27,9 +24,14 @@ from qiskit_nature.second_quantization.operators.fermionic import BravyiKitaevSu
 from qiskit_nature.second_quantization.operators.fermionic.mappers.bksf import (
     _edge_operator_aij,
     _edge_operator_bi,
+    _bksf_edge_list_fermionic_op,
 )
 from qiskit_nature.second_quantization.operators.fermionic import bksf
 
+from .resources.bksf_lih import (
+    FERMIONIC_HAMILTONIAN,
+    QUBIT_HAMILTONIAN,
+)
 
 def _sort_simplify(sparse_pauli):
     sparse_pauli = sparse_pauli.simplify()
@@ -101,13 +103,13 @@ class TestBravyiKitaevSuperFastMapper(QiskitNatureTestCase):
         """Test H2 molecule"""
         with self.subTest("Excitation edges 1"):
             assert np.alltrue(
-                bksf._bksf_edge_list_fermionic_op(FermionicOp("+-+-", display_format="dense"))
+                _bksf_edge_list_fermionic_op(FermionicOp("+-+-", display_format="dense"))
                 == np.array([[0, 1], [2, 3]])
             )
 
         with self.subTest("Excitation edges 2"):
             assert np.alltrue(
-                bksf._bksf_edge_list_fermionic_op(FermionicOp("+--+", display_format="dense"))
+                _bksf_edge_list_fermionic_op(FermionicOp("+--+", display_format="dense"))
                 == np.array([[0, 1], [3, 2]])
             )
 
