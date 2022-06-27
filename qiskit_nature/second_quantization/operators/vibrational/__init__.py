@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-Second-Quantization Vibrational Operators (:mod:`qiskit_nature.second_quantization.operators.vibrational`)
+Vibrational Operators (:mod:`qiskit_nature.second_quantization.operators.vibrational`)
 ================================================================
 
 .. currentmodule:: qiskit_nature.second_quantization.operators.vibrational

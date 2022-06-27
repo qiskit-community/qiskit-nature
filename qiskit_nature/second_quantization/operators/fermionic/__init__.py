@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """
-Second-Quantization Fermionic Operators (:mod:`qiskit_nature.second_quantization.operators.fermionic`)
+Fermionic Operators (:mod:`qiskit_nature.second_quantization.operators.fermionic`)
 ================================================================
 
 .. currentmodule:: qiskit_nature.second_quantization.operators.fermionic

@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """
-Second-Quantization Spin Operators (:mod:`qiskit_nature.second_quantization.operators.spin`)
+Spin Operators (:mod:`qiskit_nature.second_quantization.operators.spin`)
 ================================================================
 
 .. currentmodule:: qiskit_nature.second_quantization.operators.spin
