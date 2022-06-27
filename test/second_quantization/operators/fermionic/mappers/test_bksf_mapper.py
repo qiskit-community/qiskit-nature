@@ -33,6 +33,7 @@ from .resources.bksf_lih import (
     QUBIT_HAMILTONIAN,
 )
 
+
 def _sort_simplify(sparse_pauli):
     sparse_pauli = sparse_pauli.simplify()
     indices = sparse_pauli.paulis.argsort()
