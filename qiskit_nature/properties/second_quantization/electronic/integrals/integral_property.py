@@ -19,7 +19,7 @@ from typing import Generator, Optional
 import h5py
 
 from qiskit_nature import ListOrDictType, settings
-from qiskit_nature.operators.second_quantization import FermionicOp
+from qiskit_nature.second_quantization.operators import FermionicOp
 from qiskit_nature.results import EigenstateResult
 
 from ...second_quantized_property import LegacyDriverResult

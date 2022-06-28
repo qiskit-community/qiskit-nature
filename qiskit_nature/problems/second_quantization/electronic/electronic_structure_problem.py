@@ -23,7 +23,7 @@ from qiskit.opflow.primitive_ops import Z2Symmetries
 from qiskit_nature import ListOrDictType, QiskitNatureError
 from qiskit_nature.circuit.library.initial_states.hartree_fock import hartree_fock_bitstring_mapped
 from qiskit_nature.drivers.second_quantization import ElectronicStructureDriver
-from qiskit_nature.operators.second_quantization import SecondQuantizedOp
+from qiskit_nature.second_quantization.operators import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
 from qiskit_nature.results import EigenstateResult, ElectronicStructureResult

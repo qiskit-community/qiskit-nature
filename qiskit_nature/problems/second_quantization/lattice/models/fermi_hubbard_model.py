@@ -13,7 +13,7 @@
 """The Fermi-Hubbard model"""
 import numpy as np
 
-from qiskit_nature.operators.second_quantization import FermionicOp
+from qiskit_nature.second_quantization.operators import FermionicOp
 from qiskit_nature.problems.second_quantization.lattice.lattices import Lattice
 
 from .lattice_model import LatticeModel

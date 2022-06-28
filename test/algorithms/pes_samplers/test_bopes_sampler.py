@@ -25,7 +25,7 @@ import qiskit
 from qiskit.algorithms import NumPyMinimumEigensolver, VQE
 from qiskit.utils import algorithm_globals, QuantumInstance, optionals
 import qiskit_nature.optionals as _optionals
-from qiskit_nature.operators.second_quantization import SecondQuantizedOp
+from qiskit_nature.second_quantization.operators import SecondQuantizedOp
 from qiskit_nature.algorithms import (
     GroundStateEigensolver,
     BOPESSampler,

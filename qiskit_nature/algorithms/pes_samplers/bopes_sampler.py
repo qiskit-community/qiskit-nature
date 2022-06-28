@@ -29,7 +29,7 @@ from qiskit_nature.drivers.second_quantization import (
 from qiskit_nature import ListOrDictType
 from qiskit_nature.converters.second_quantization.utils import ListOrDict
 from qiskit_nature.exceptions import QiskitNatureError
-from qiskit_nature.operators.second_quantization import SecondQuantizedOp
+from qiskit_nature.second_quantization.operators import SecondQuantizedOp
 from qiskit_nature.problems.second_quantization import BaseProblem
 from qiskit_nature.results import BOPESSamplerResult, EigenstateResult
 from .extrapolator import Extrapolator, WindowExtrapolator

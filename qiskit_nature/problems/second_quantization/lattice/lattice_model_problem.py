@@ -19,7 +19,7 @@ from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 from qiskit.opflow import PauliSumOp
 from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.converters.second_quantization import QubitConverter
-from qiskit_nature.operators.second_quantization import SecondQuantizedOp
+from qiskit_nature.second_quantization.operators import SecondQuantizedOp
 from qiskit_nature.results import EigenstateResult, LatticeModelResult
 
 from ..base_problem import BaseProblem
@@ -42,7 +42,7 @@ class LatticeModelProblem(BaseProblem):
 
         Returns:
             A ``list`` or ``dict`` of
-            :class:`~qiskit_nature.operators.second_quantization.SecondQuantizedOp`
+            :class:`~qiskit_nature.second_quantization.operators.SecondQuantizedOp`
         """
         second_q_ops: ListOrDictType[SecondQuantizedOp] = self._lattice_model.second_q_ops()
         if settings.dict_aux_operators:

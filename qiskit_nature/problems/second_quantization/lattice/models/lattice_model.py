@@ -18,7 +18,7 @@ from typing import Optional
 import numpy as np
 from retworkx import PyGraph
 
-from qiskit_nature.operators.second_quantization import SecondQuantizedOp
+from qiskit_nature.second_quantization.operators import SecondQuantizedOp
 from qiskit_nature.problems.second_quantization.lattice.lattices import Lattice
 
 

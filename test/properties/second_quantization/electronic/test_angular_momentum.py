@@ -21,7 +21,7 @@ import h5py
 
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.properties.second_quantization.electronic import AngularMomentum
-from qiskit_nature.operators.second_quantization import FermionicOp
+from qiskit_nature.second_quantization.operators import FermionicOp
 
 
 class TestAngularMomentum(PropertyTest):

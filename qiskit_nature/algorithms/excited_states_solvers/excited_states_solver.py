@@ -18,7 +18,7 @@ from typing import Optional, Union, Tuple
 from qiskit.opflow import PauliSumOp
 
 from qiskit_nature import ListOrDictType
-from qiskit_nature.operators.second_quantization import SecondQuantizedOp
+from qiskit_nature.second_quantization.operators import SecondQuantizedOp
 from qiskit_nature.problems.second_quantization import BaseProblem
 from qiskit_nature.results import EigenstateResult
 

@@ -1,5 +1,5 @@
 ---
 features:
   - |
-    Add :meth:`~qiskit_nature.operators.second_quantization.FermionicOp.to_normal_order()`.
+    Add :meth:`~qiskit_nature.second_quantization.operators.FermionicOp.to_normal_order()`.
     It returns the normal ordered fermionic operator that is equivalent to self.

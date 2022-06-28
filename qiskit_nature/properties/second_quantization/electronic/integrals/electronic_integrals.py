@@ -22,7 +22,7 @@ from typing import Generator, Optional, Union
 import h5py
 import numpy as np
 
-from qiskit_nature.operators.second_quantization import FermionicOp
+from qiskit_nature.second_quantization.operators import FermionicOp
 
 from ..bases import ElectronicBasis, ElectronicBasisTransform
 
@@ -37,7 +37,7 @@ class ElectronicIntegrals(ABC):
     extra method stub must be implemented to map into the special
     :class:`~qiskit_nature.properties.second_quantization.electronic.bases.ElectronicBasis.SO` basis
     which is a required intermediate representation of the electronic integrals during the process
-    of mapping to a :class:`~qiskit_nature.operators.second_quantization.SecondQuantizedOp`.
+    of mapping to a :class:`~qiskit_nature.second_quantization.operators.SecondQuantizedOp`.
 
     When these integrals are printed the output will be truncated based on the
     ``ElectronicIntegrals._truncate`` value (defaults to 5). Use
@@ -66,7 +66,7 @@ class ElectronicIntegrals(ABC):
             basis: the basis which these integrals are stored in. If this is initialized with
                 :class:`~qiskit_nature.properties.second_quantization.electronic.bases.ElectronicBasis.SO`,
                 these integrals will be used *ad verbatim* during the mapping to a
-                :class:`~qiskit_nature.operators.second_quantization.SecondQuantizedOp`.
+                :class:`~qiskit_nature.second_quantization.operators.SecondQuantizedOp`.
             matrices: the matrices (one or many) storing the actual electronic integrals. If this is
                 a single matrix, ``basis`` must be set to
                 :class:`~qiskit_nature.properties.second_quantization.electronic.bases.ElectronicBasis.SO`.
@@ -346,7 +346,7 @@ class ElectronicIntegrals(ABC):
         orbital basis.
 
         Returns:
-            The :class:`~qiskit_nature.operators.second_quantization.FermionicOp` given by these
+            The :class:`~qiskit_nature.second_quantization.operators.FermionicOp` given by these
             electronic integrals.
         """
         spin_matrix = self.to_spin()

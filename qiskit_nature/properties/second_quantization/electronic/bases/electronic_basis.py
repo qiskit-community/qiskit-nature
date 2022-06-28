@@ -22,7 +22,7 @@ class ElectronicBasis(Enum):
     basis into which an
     :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy` must map its
     integrals before being able to perform the mapping to a
-    :class:`~qiskit_nature.operators.second_quantization.SecondQuantizedOp`.
+    :class:`~qiskit_nature.second_quantization.operators.SecondQuantizedOp`.
     """
 
     AO = "atomic"

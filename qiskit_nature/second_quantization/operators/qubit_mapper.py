@@ -48,7 +48,7 @@ class QubitMapper(ABC):
 
     @abstractmethod
     def map(self, second_q_op: SecondQuantizedOp) -> PauliSumOp:
-        """Maps a :class:`~qiskit_nature.operators.second_quantization.SecondQuantizedOp`
+        """Maps a :class:`~qiskit_nature.second_quantization.operators.SecondQuantizedOp`
         to a `PauliSumOp`.
 
         Args:

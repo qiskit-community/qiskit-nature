@@ -41,7 +41,7 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
             basis: the basis which these integrals are stored in. If this is initialized with
                 :class:`~qiskit_nature.properties.second_quantization.electronic.bases.ElectronicBasis.SO`,
                 these integrals will be used *ad verbatim* during the mapping to a
-                :class:`~qiskit_nature.operators.second_quantization.SecondQuantizedOp`.
+                :class:`~qiskit_nature.second_quantization.operators.SecondQuantizedOp`.
             matrices: the matrices (one or many) storing the actual electronic integrals. If this is
                 a single matrix, ``basis`` must be set to
                 :class:`~qiskit_nature.properties.second_quantization.electronic.bases.ElectronicBasis.SO`.

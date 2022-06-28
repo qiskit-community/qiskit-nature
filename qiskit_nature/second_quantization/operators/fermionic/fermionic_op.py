@@ -158,7 +158,7 @@ class FermionicOp(SecondQuantizedOp):
 
     .. jupyter-execute::
 
-      from qiskit_nature.operators.second_quantization import FermionicOp
+      from qiskit_nature.second_quantization.operators import FermionicOp
 
       print("truncated str output")
       print(sum(FermionicOp("I", display_format="sparse") for _ in range(25)))

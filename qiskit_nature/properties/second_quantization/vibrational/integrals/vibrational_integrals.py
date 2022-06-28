@@ -23,7 +23,7 @@ import h5py
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.operators.second_quantization import VibrationalOp
+from qiskit_nature.second_quantization.operators import VibrationalOp
 
 from ..bases import VibrationalBasis
 
@@ -259,7 +259,7 @@ class VibrationalIntegrals(ABC):
         """Creates the operator representing the Hamiltonian defined by these vibrational integrals.
 
         Returns:
-            The :class:`~qiskit_nature.operators.second_quantization.VibrationalOp` given by these
+            The :class:`~qiskit_nature.second_quantization.operators.VibrationalOp` given by these
             vibrational integrals.
 
         Raises:

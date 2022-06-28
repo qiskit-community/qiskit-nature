@@ -29,7 +29,7 @@ from qiskit_nature.drivers.second_quantization import (
     ElectronicStructureDriverType,
 )
 from qiskit_nature.mappers.second_quantization import ParityMapper
-from qiskit_nature.operators.second_quantization import SecondQuantizedOp
+from qiskit_nature.second_quantization.operators import SecondQuantizedOp
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
 from qiskit_nature.transformers.second_quantization.electronic import (
     ActiveSpaceTransformer,

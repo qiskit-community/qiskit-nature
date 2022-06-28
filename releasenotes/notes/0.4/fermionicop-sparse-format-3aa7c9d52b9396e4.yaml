@@ -2,4 +2,4 @@
 upgrade:
   - |
     Changes the default ``display_format`` of the constructor of
-    :class:`~qiskit_nature.operators.second_quantization.FermionicOp` from "dense" to "sparse".
+    :class:`~qiskit_nature.second_quantization.operators.FermionicOp` from "dense" to "sparse".

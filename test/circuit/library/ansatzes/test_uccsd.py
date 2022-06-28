@@ -19,7 +19,7 @@ from ddt import ddt, data, unpack
 
 from qiskit_nature.circuit.library import UCCSD
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
-from qiskit_nature.operators.second_quantization import FermionicOp
+from qiskit_nature.second_quantization.operators import FermionicOp
 from qiskit_nature.converters.second_quantization import QubitConverter
 
 

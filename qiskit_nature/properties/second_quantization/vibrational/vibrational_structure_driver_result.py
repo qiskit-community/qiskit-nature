@@ -20,7 +20,7 @@ import h5py
 
 from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.drivers import WatsonHamiltonian
-from qiskit_nature.operators.second_quantization import VibrationalOp
+from qiskit_nature.second_quantization.operators import VibrationalOp
 
 from ..second_quantized_property import LegacyDriverResult
 from .bases import VibrationalBasis

@@ -19,7 +19,7 @@ from typing import Any, Type, TypeVar, Union
 
 from qiskit_nature import ListOrDictType, QiskitNatureError
 from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
-from qiskit_nature.operators.second_quantization import SecondQuantizedOp
+from qiskit_nature.second_quantization.operators import SecondQuantizedOp
 
 from ..grouped_property import GroupedProperty
 from ..property import Property
@@ -32,7 +32,7 @@ class SecondQuantizedProperty(Property):
 
     A second-quantization property provides the logic to transform the raw data placed into it by
     e.g. a :class:`qiskit_nature.drivers.second_quantization.BaseDriver` into a
-    :class:`qiskit_nature.operators.second_quantization.SecondQuantizedOp`.
+    :class:`qiskit_nature.second_quantization.operators.SecondQuantizedOp`.
     """
 
     @abstractmethod
