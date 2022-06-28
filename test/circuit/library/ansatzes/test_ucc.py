@@ -20,7 +20,7 @@ from qiskit import transpile
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.circuit.library import UCC
 from qiskit_nature.converters.second_quantization import QubitConverter
-from qiskit_nature.mappers.second_quantization import JordanWignerMapper, ParityMapper
+from qiskit_nature.second_quantization.operators.fermionic import JordanWignerMapper, ParityMapper
 from qiskit_nature.second_quantization.operators import FermionicOp
 
 

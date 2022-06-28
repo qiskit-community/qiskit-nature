@@ -21,7 +21,7 @@ from qiskit.algorithms import NumPyMinimumEigensolver, NumPyEigensolver
 
 from qiskit_nature.drivers import UnitsType
 from qiskit_nature.drivers.second_quantization import PySCFDriver
-from qiskit_nature.mappers.second_quantization import (
+from qiskit_nature.second_quantization.operators.fermionic import (
     BravyiKitaevMapper,
     JordanWignerMapper,
     ParityMapper,

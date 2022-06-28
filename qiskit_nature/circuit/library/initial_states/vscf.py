@@ -20,7 +20,7 @@ import numpy as np
 
 from qiskit import QuantumRegister, QuantumCircuit
 from qiskit.opflow import PauliSumOp
-from qiskit_nature.mappers.second_quantization import DirectMapper
+from qiskit_nature.second_quantization.operators.vibrational import DirectMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.second_quantization.operators import VibrationalOp
 

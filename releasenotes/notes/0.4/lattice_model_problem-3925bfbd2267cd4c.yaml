@@ -14,7 +14,7 @@ features:
         from qiskit.algorithms import NumPyMinimumEigensolver
         from qiskit_nature.algorithms import GroundStateEigensolver
         from qiskit_nature.converters.second_quantization import QubitConverter
-        from qiskit_nature.mappers.second_quantization import JordanWignerMapper
+        from qiskit_nature.second_quantization.operators.fermionic import JordanWignerMapper
 
         solver = NumPyMinimumEigensolver()
         qubit_converter = QubitConverter(JordanWignerMapper())

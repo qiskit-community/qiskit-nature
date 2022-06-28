@@ -24,7 +24,7 @@ from qiskit_nature.circuit.library.initial_states.hartree_fock import (
     hartree_fock_bitstring,
     hartree_fock_bitstring_mapped,
 )
-from qiskit_nature.mappers.second_quantization import (
+from qiskit_nature.second_quantization.operators.fermionic import (
     BravyiKitaevMapper,
     JordanWignerMapper,
     ParityMapper,

@@ -17,7 +17,7 @@ from typing import Optional, Sequence
 import numpy as np
 from qiskit import QuantumCircuit, QuantumRegister
 from qiskit_nature.converters.second_quantization import QubitConverter
-from qiskit_nature.mappers.second_quantization import JordanWignerMapper
+from qiskit_nature.second_quantization.operators.fermionic import JordanWignerMapper
 
 from .utils.givens_rotations import _prepare_fermionic_gaussian_state_jw
 
@@ -148,7 +148,7 @@ class FermionicGaussianState(QuantumCircuit):
 
             NotImplementedError: Currently, only the Jordan-Wigner Transform is supported.
                 Please use
-                :class:`qiskit_nature.mappers.second_quantization.JordanWignerMapper`
+                :class:`qiskit_nature.second_quantization.operators.fermionic.JordanWignerMapper`
                 to construct the qubit mapper used to construct `qubit_converter`.
         """
         if validate:
@@ -173,6 +173,6 @@ class FermionicGaussianState(QuantumCircuit):
             raise NotImplementedError(
                 "Currently, only the Jordan-Wigner Transform is supported. "
                 "Please use "
-                "qiskit_nature.mappers.second_quantization.JordanWignerMapper "
+                "qiskit_nature.second_quantization.operators.fermionic.JordanWignerMapper "
                 "to construct the qubit mapper used to construct qubit_converter."
             )

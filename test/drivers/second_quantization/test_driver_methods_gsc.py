@@ -20,7 +20,7 @@ from test import QiskitNatureTestCase
 from qiskit.algorithms import NumPyMinimumEigensolver
 from qiskit_nature.algorithms import GroundStateEigensolver
 from qiskit_nature.drivers.second_quantization import ElectronicStructureDriver
-from qiskit_nature.mappers.second_quantization import JordanWignerMapper
+from qiskit_nature.second_quantization.operators.fermionic import JordanWignerMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
 from qiskit_nature.transformers.second_quantization import BaseTransformer

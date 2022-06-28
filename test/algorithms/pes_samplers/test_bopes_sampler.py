@@ -42,7 +42,7 @@ from qiskit_nature.drivers.second_quantization import (
 from qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories import (
     VQEUCCFactory,
 )
-from qiskit_nature.mappers.second_quantization import ParityMapper, JordanWignerMapper
+from qiskit_nature.second_quantization.operators.fermionic import ParityMapper, JordanWignerMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem, BaseProblem
 

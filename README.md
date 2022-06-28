@@ -89,7 +89,7 @@ from qiskit.algorithms.optimizers import L_BFGS_B
 optimizer = L_BFGS_B()
 
 # setup the mapper and qubit converter
-from qiskit_nature.mappers.second_quantization import ParityMapper
+from qiskit_nature.second_quantization.operators.fermionic import ParityMapper
 from qiskit_nature.converters.second_quantization import QubitConverter
 
 mapper = ParityMapper()

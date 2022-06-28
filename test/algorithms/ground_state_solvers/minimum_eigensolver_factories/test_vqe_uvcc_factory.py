@@ -21,7 +21,7 @@ from qiskit.opflow import AerPauliExpectation
 from qiskit.algorithms.optimizers import COBYLA, SLSQP
 from qiskit_nature.circuit.library import HartreeFock, UVCCSD
 from qiskit_nature.converters.second_quantization import QubitConverter
-from qiskit_nature.mappers.second_quantization import JordanWignerMapper
+from qiskit_nature.second_quantization.operators.fermionic import JordanWignerMapper
 from qiskit_nature.algorithms import VQEUVCCFactory
 from qiskit_nature.algorithms.initial_points import VSCFInitialPoint
 
