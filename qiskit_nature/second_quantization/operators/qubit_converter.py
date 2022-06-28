@@ -13,7 +13,7 @@
 """A converter from Second-Quantized to Qubit Operators."""
 import copy
 import logging
-from typing import cast, Callable, List, Optional, Tuple, Union
+from typing import cast, Callable, List, Optional, Tuple, Union, Dict
 
 import numpy as np
 
@@ -21,7 +21,7 @@ from qiskit.opflow import PauliSumOp
 from qiskit.opflow.converters import TwoQubitReduction
 from qiskit.opflow.primitive_ops import Z2Symmetries
 
-from qiskit_nature import Dict, QiskitNatureError
+from qiskit_nature import QiskitNatureError
 
 from .qubit_mapper import QubitMapper
 from .second_quantized_op import SecondQuantizedOp

@@ -24,7 +24,7 @@ import numpy as np
 from scipy.sparse import csc_matrix
 
 from qiskit_nature.deprecation import deprecate_function
-from qiskit_nature.operators.second_quantization.second_quantized_op import SecondQuantizedOp
+from ..second_quantized_op import SecondQuantizedOp
 
 _ZERO_LABELS = {
     ("+", "+"),

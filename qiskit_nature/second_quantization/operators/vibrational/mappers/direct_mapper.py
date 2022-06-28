@@ -22,7 +22,7 @@ from ..vibrational_op import VibrationalOp
 from ...qubit_mapper import QubitMapper
 
 
-class DirectMapper(VibrationalMapper):  # pylint: disable=missing-class-docstring
+class DirectMapper(QubitMapper):  # pylint: disable=missing-class-docstring
     def __init__(self):
         """The Direct mapper.
 
