@@ -16,7 +16,7 @@ from typing import Union
 from qiskit.opflow import PauliSumOp, PauliOp
 from qiskit.algorithms import MinimumEigensolverResult
 
-from from qiskit_nature.second_quantization.problems import EigenstateResult
+from qiskit_nature.second_quantization.results import EigenstateResult
 
 
 class SamplingProblem(ABC):

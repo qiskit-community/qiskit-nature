@@ -24,7 +24,7 @@ from .qubit_utils import qubit_number_reducer
 from ..sampling_problem import SamplingProblem
 
 if TYPE_CHECKING:
-    from from qiskit_nature.second_quantization.problems.protein_folding_result import ProteinFoldingResult
+    from qiskit_nature.second_quantization.results.protein_folding_result import ProteinFoldingResult
 
 
 class ProteinFoldingProblem(SamplingProblem):
@@ -102,7 +102,7 @@ class ProteinFoldingProblem(SamplingProblem):
             A :class:`~qiskit_nature.results.ProteinFoldingResult`
             instance that contains the protein folding result.
         """
-        from from qiskit_nature.second_quantization.problems import ProteinFoldingResult
+        from qiskit_nature.second_quantization.results import ProteinFoldingResult
 
         best_turn_sequence = max(raw_result.eigenstate, key=raw_result.eigenstate.get)
         return ProteinFoldingResult(

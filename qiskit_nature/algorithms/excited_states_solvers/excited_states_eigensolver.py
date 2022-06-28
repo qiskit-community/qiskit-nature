@@ -22,7 +22,7 @@ from qiskit_nature.second_quantization.operators import QubitConverter
 from qiskit_nature.converters.second_quantization.utils import ListOrDict
 from qiskit_nature.second_quantization.operators import SecondQuantizedOp
 from qiskit_nature.second_quantization.problems import BaseProblem
-from from qiskit_nature.second_quantization.problems import EigenstateResult
+from qiskit_nature.second_quantization.results import EigenstateResult
 
 from .excited_states_solver import ExcitedStatesSolver
 from .eigensolver_factories import EigensolverFactory

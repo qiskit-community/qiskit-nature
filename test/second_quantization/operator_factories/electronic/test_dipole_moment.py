@@ -22,7 +22,9 @@ import numpy as np
 from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.second_quantization.operator_factories.electronic import ElectronicDipoleMoment
 from qiskit_nature.second_quantization.operator_factories.electronic.bases import ElectronicBasis
-from qiskit_nature.second_quantization.operator_factories.electronic.dipole_moment import DipoleMoment
+from qiskit_nature.second_quantization.operator_factories.electronic.dipole_moment import (
+    DipoleMoment,
+)
 from qiskit_nature.second_quantization.operator_factories.electronic.integrals import (
     OneBodyElectronicIntegrals,
 )

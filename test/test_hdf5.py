@@ -17,7 +17,9 @@ import tempfile
 from test import QiskitNatureTestCase
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.hdf5 import load_from_hdf5, save_to_hdf5
-from qiskit_nature.second_quantization.operator_factories.electronic import ElectronicStructureDriverResult
+from qiskit_nature.second_quantization.operator_factories.electronic import (
+    ElectronicStructureDriverResult,
+)
 
 
 class TestHDF5(QiskitNatureTestCase):

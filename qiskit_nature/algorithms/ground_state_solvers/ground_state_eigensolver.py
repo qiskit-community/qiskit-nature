@@ -27,7 +27,7 @@ from qiskit_nature.second_quantization.operators import SecondQuantizedOp
 from qiskit_nature.second_quantization.operators import QubitConverter
 from qiskit_nature.converters.second_quantization.utils import ListOrDict
 from qiskit_nature.second_quantization.problems import BaseProblem
-from from qiskit_nature.second_quantization.problems import EigenstateResult
+from qiskit_nature.second_quantization.results import EigenstateResult
 from .ground_state_solver import GroundStateSolver
 from .minimum_eigensolver_factories import MinimumEigensolverFactory
 

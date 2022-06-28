@@ -17,7 +17,7 @@ import numpy as np
 from qiskit.utils import optionals as _optionals
 
 
-from from qiskit_nature.second_quantization.problems.utils.protein_shape_file_gen import ProteinShapeFileGen
+from qiskit_nature.second_quantization.results.utils.protein_shape_file_gen import ProteinShapeFileGen
 
 if _optionals.HAS_MATPLOTLIB:
     # pylint: disable=import-error,unused-import

@@ -25,7 +25,9 @@ from qiskit_nature.second_quantization.operator_factories.electronic import (
     Magnetization,
     ParticleNumber,
 )
-from qiskit_nature.second_quantization.operator_factories.electronic.bases import ElectronicBasisTransform
+from qiskit_nature.second_quantization.operator_factories.electronic.bases import (
+    ElectronicBasisTransform,
+)
 from qiskit_nature.second_quantization.operator_factories.electronic.integrals import (
     ElectronicIntegrals,
     OneBodyElectronicIntegrals,
@@ -35,7 +37,9 @@ from qiskit_nature.second_quantization.operator_factories.vibrational import (
     OccupiedModals,
     VibrationalEnergy,
 )
-from qiskit_nature.second_quantization.operator_factories.vibrational.integrals import VibrationalIntegrals
+from qiskit_nature.second_quantization.operator_factories.vibrational.integrals import (
+    VibrationalIntegrals,
+)
 
 
 class PropertyTest(QiskitNatureTestCase):

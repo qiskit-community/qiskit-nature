@@ -28,11 +28,11 @@ intermediate data is stored in a :class:`~qiskit_nature.properties.GroupedProper
 contains multiple :class:`~qiskit_nature.properties.Property` objects.
 Some examples for the electronic structure case include:
 
-1. :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`
-2. :class:`~qiskit_nature.properties.second_quantization.electronic.ParticleNumber`
-3. :class:`~qiskit_nature.properties.second_quantization.electronic.AngularMomentum`
-4. :class:`~qiskit_nature.properties.second_quantization.electronic.Magnetization`
-5. :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicDipoleMoment`
+1. :class:`~qiskit_nature.second_quantization.operator_factories.electronic.ElectronicEnergy`
+2. :class:`~qiskit_nature.second_quantization.operator_factories.electronic.ParticleNumber`
+3. :class:`~qiskit_nature.second_quantization.operator_factories.electronic.AngularMomentum`
+4. :class:`~qiskit_nature.second_quantization.operator_factories.electronic.Magnetization`
+5. :class:`~qiskit_nature.second_quantization.operator_factories.electronic.ElectronicDipoleMoment`
 
 Once extracted, the structure of this intermediate data is independent of the driver that was
 used to compute it.  However the values and level of accuracy of such data will depend on the

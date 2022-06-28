@@ -23,7 +23,9 @@ from test import QiskitNatureTestCase
 from test.drivers.second_quantization.test_driver import TestDriver
 from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.drivers import QMolecule
-from qiskit_nature.second_quantization.operator_factories.electronic import ElectronicStructureDriverResult
+from qiskit_nature.second_quantization.operator_factories.electronic import (
+    ElectronicStructureDriverResult,
+)
 
 
 class TestDriverHDF5(QiskitNatureTestCase, TestDriver):

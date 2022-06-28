@@ -19,7 +19,10 @@ from abc import ABC, abstractmethod
 from test import QiskitNatureTestCase
 import numpy as np
 from qiskit_nature.drivers.second_quantization import FCIDumpDriver
-from qiskit_nature.second_quantization.operator_factories.electronic import ElectronicEnergy, ParticleNumber
+from qiskit_nature.second_quantization.operator_factories.electronic import (
+    ElectronicEnergy,
+    ParticleNumber,
+)
 from qiskit_nature.second_quantization.operator_factories.electronic.bases import ElectronicBasis
 
 

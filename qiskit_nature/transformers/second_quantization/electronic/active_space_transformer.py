@@ -20,7 +20,7 @@ from typing import List, Optional, Tuple, Union, cast
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.properties import GroupedProperty, Property
+from qiskit_nature.second_quantization.operator_factories import GroupedProperty, Property
 from qiskit_nature.second_quantization.operator_factories import (
     SecondQuantizedProperty,
     GroupedSecondQuantizedProperty,
@@ -39,7 +39,9 @@ from qiskit_nature.second_quantization.operator_factories.electronic.integrals i
     IntegralProperty,
     OneBodyElectronicIntegrals,
 )
-from qiskit_nature.second_quantization.operator_factories.electronic.types import GroupedElectronicProperty
+from qiskit_nature.second_quantization.operator_factories.electronic.types import (
+    GroupedElectronicProperty,
+)
 
 from ..base_transformer import BaseTransformer
 

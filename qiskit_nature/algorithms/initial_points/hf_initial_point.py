@@ -153,7 +153,7 @@ class HFInitialPoint(InitialPoint):
         """The reference energy.
 
         If the reference energy was not obtained from
-        :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`
+        :class:`~qiskit_nature.second_quantization.operator_factories.electronic.ElectronicEnergy`
         this will be equal to zero.
         """
         return self._reference_energy

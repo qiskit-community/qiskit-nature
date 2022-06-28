@@ -21,7 +21,7 @@ import sys
 import h5py
 
 from qiskit_nature.deprecation import warn_deprecated, DeprecatedType
-from from qiskit_nature.second_quantization.problems import EigenstateResult
+from qiskit_nature.second_quantization.results import EigenstateResult
 
 if sys.version_info >= (3, 8):
     # pylint: disable=no-name-in-module

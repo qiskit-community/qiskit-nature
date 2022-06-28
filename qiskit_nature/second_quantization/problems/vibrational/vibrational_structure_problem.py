@@ -27,7 +27,7 @@ from qiskit_nature.second_quantization.operator_factories.vibrational import (
     VibrationalStructureDriverResult,
 )
 from qiskit_nature.second_quantization.operator_factories.vibrational.bases import HarmonicBasis
-from from qiskit_nature.second_quantization.problems import EigenstateResult, VibrationalStructureResult
+from qiskit_nature.second_quantization.results import EigenstateResult, VibrationalStructureResult
 from qiskit_nature.transformers.second_quantization import BaseTransformer
 
 from .builders.hopping_ops_builder import _build_qeom_hopping_ops

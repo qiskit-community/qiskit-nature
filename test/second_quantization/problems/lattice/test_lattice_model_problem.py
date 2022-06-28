@@ -24,7 +24,7 @@ from qiskit_nature.second_quantization.problems.lattice import (
     FermiHubbardModel,
     LineLattice,
 )
-from from qiskit_nature.second_quantization.problems import EigenstateResult
+from qiskit_nature.second_quantization.results import EigenstateResult
 
 
 class TestLatticeModelProblem(QiskitNatureTestCase):

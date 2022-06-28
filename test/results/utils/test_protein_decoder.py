@@ -12,7 +12,7 @@
 """Tests ProteinShapeDecoder."""
 from test import QiskitNatureTestCase
 from ddt import ddt, data, unpack
-from from qiskit_nature.second_quantization.problems.utils.protein_shape_decoder import ProteinShapeDecoder
+from qiskit_nature.second_quantization.results.utils.protein_shape_decoder import ProteinShapeDecoder
 
 
 @ddt
