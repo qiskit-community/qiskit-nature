@@ -20,7 +20,7 @@ import h5py
 import numpy as np
 
 from qiskit_nature.drivers import QMolecule
-from qiskit_nature.second_quantization.results import EigenstateResult
+from qiskit_nature.second_quantization.problems import EigenstateResult
 
 from ..second_quantized_property import LegacyDriverResult
 from .bases import ElectronicBasis
