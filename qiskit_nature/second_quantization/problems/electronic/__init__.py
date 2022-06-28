@@ -11,10 +11,10 @@
 # that they have been altered from the originals.
 
 """
-Electronic Structure Problems (:mod:`qiskit_nature.problems.second_quantization.electronic`)
+Electronic Structure Problems (:mod:`qiskit_nature.second_quantization.problems.electronic`)
 ==============================================================================================
 
-.. currentmodule:: qiskit_nature.problems.second_quantization.electronic
+.. currentmodule:: qiskit_nature.second_quantization.problems.electronic
 """
 
 from .electronic_structure_problem import ElectronicStructureProblem

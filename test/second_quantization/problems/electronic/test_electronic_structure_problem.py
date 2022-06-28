@@ -13,7 +13,7 @@
 """Tests Electronic Structure Problem."""
 import unittest
 from test import QiskitNatureTestCase
-from test.problems.second_quantization.electronic.resources.resource_reader import (
+from test.second_quantization.problems.electronic.resources.resource_reader import (
     read_expected_file,
 )
 
@@ -30,7 +30,7 @@ from qiskit_nature.drivers.second_quantization import (
 )
 from qiskit_nature.second_quantization.operators.fermionic import ParityMapper
 from qiskit_nature.second_quantization.operators import SecondQuantizedOp
-from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
+from qiskit_nature.second_quantization.problems import ElectronicStructureProblem
 from qiskit_nature.transformers.second_quantization.electronic import (
     ActiveSpaceTransformer,
     FreezeCoreTransformer,

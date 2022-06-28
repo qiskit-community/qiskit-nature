@@ -18,7 +18,7 @@ from typing import Optional
 import numpy as np
 
 from qiskit_nature.second_quantization.operators import SpinOp
-from qiskit_nature.problems.second_quantization.lattice.lattices import Lattice
+from qiskit_nature.second_quantization.problems.lattice.lattices import Lattice
 
 from .lattice_model import LatticeModel
 

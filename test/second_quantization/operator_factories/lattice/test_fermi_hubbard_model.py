@@ -17,7 +17,7 @@ import numpy as np
 from numpy.testing import assert_array_equal
 from retworkx import PyGraph, is_isomorphic
 
-from qiskit_nature.problems.second_quantization.lattice import FermiHubbardModel, Lattice
+from qiskit_nature.second_quantization.problems.lattice import FermiHubbardModel, Lattice
 
 
 class TestFermiHubbardModel(QiskitNatureTestCase):

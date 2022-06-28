@@ -32,7 +32,7 @@ from qiskit.opflow import (
 
 from qiskit_nature import ListOrDictType
 from qiskit_nature.second_quantization.operators import SecondQuantizedOp
-from qiskit_nature.problems.second_quantization import BaseProblem
+from qiskit_nature.second_quantization.problems import BaseProblem
 from qiskit_nature.results import EigenstateResult
 from .excited_states_solver import ExcitedStatesSolver
 from ..ground_state_solvers import GroundStateSolver

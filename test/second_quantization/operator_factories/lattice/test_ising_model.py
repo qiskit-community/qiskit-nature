@@ -19,7 +19,7 @@ import numpy as np
 from numpy.testing import assert_array_equal
 from retworkx import PyGraph, is_isomorphic
 
-from qiskit_nature.problems.second_quantization.lattice import IsingModel, Lattice
+from qiskit_nature.second_quantization.problems.lattice import IsingModel, Lattice
 
 
 class TestIsingModel(QiskitNatureTestCase):

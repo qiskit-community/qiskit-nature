@@ -24,7 +24,7 @@ from qiskit.utils import algorithm_globals, QuantumInstance
 from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.second_quantization.operators.fermionic import ParityMapper
 from qiskit_nature.second_quantization.operators.qubit_converter import QubitConverter
-from qiskit_nature.problems.second_quantization.electronic import ElectronicStructureProblem
+from qiskit_nature.second_quantization.problems.electronic import ElectronicStructureProblem
 
 
 class TestEnd2End(QiskitNatureTestCase):

@@ -11,10 +11,10 @@
 # that they have been altered from the originals.
 
 """
-Vibrational Structure Problems (:mod:`qiskit_nature.problems.second_quantization.vibrational`)
+Vibrational Structure Problems (:mod:`qiskit_nature.second_quantization.problems.vibrational`)
 ==============================================================================================
 
-.. currentmodule:: qiskit_nature.problems.second_quantization.vibrational
+.. currentmodule:: qiskit_nature.second_quantization.problems.vibrational
 """
 
 from .vibrational_structure_problem import VibrationalStructureProblem

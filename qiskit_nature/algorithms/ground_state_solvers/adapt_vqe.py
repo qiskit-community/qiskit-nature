@@ -31,7 +31,7 @@ from qiskit_nature.circuit.library import UCC
 from qiskit_nature.second_quantization.operators import SecondQuantizedOp
 from qiskit_nature.second_quantization.operators import QubitConverter
 from qiskit_nature.converters.second_quantization.utils import ListOrDict
-from qiskit_nature.problems.second_quantization import BaseProblem
+from qiskit_nature.second_quantization.problems import BaseProblem
 from qiskit_nature.results import ElectronicStructureResult
 from qiskit_nature.deprecation import deprecate_arguments
 

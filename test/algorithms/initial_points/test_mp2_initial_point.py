@@ -29,7 +29,7 @@ from qiskit_nature.drivers.second_quantization.electronic_structure_molecule_dri
     ElectronicStructureDriverType,
     ElectronicStructureMoleculeDriver,
 )
-from qiskit_nature.problems.second_quantization.electronic.electronic_structure_problem import (
+from qiskit_nature.second_quantization.problems.electronic.electronic_structure_problem import (
     ElectronicStructureProblem,
 )
 from qiskit_nature.properties.second_quantization.electronic.integrals.electronic_integrals import (

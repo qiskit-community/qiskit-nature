@@ -18,8 +18,8 @@ import numpy as np
 
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 from qiskit_nature.second_quantization.operators import SecondQuantizedOp
-from qiskit_nature.problems.second_quantization import LatticeModelProblem
-from qiskit_nature.problems.second_quantization.lattice import (
+from qiskit_nature.second_quantization.problems import LatticeModelProblem
+from qiskit_nature.second_quantization.problems.lattice import (
     BoundaryCondition,
     FermiHubbardModel,
     LineLattice,
