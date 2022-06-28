@@ -21,10 +21,10 @@ from typing import List, Optional, cast
 from qiskit.opflow import I, PauliSumOp, X, Y, Z, Z2Symmetries
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.second_quantization.operators import QubitConverter
 from qiskit_nature.drivers.second_quantization import HDF5Driver
-from qiskit_nature.mappers.second_quantization import JordanWignerMapper, ParityMapper
-from qiskit_nature.operators.second_quantization import FermionicOp
+from qiskit_nature.second_quantization.operators.fermionic import JordanWignerMapper, ParityMapper
+from .second_quantization.operators import FermionicOp
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
 from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
 
