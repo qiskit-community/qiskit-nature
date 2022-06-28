@@ -22,11 +22,13 @@ import numpy as np
 
 from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators import Pauli, SparsePauliOp
-from qiskit_nature.operators.second_quantization import SpinOp
-from .spin_mapper import SpinMapper
+
+from ..spin_op import SpinOp
+
+from ...qubit_mapper import QubitMapper
 
 
-class LinearMapper(SpinMapper):  # pylint: disable=missing-class-docstring
+class LinearMapper(QubitMapper):  # pylint: disable=missing-class-docstring
     def __init__(self):
         """The Linear spin-to-qubit mapping."""
         super().__init__(allows_two_qubit_reduction=False)

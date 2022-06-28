@@ -17,10 +17,9 @@ import numpy as np
 from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators import Pauli
 
-from qiskit_nature.operators.second_quantization import VibrationalOp
+from ..vibrational_op import VibrationalOp
 
-from .qubit_mapper import QubitMapper
-from .vibrational_mapper import VibrationalMapper
+from ...qubit_mapper import QubitMapper
 
 
 class DirectMapper(VibrationalMapper):  # pylint: disable=missing-class-docstring
