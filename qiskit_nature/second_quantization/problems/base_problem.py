@@ -24,7 +24,7 @@ from qiskit_nature.deprecation import DeprecatedType, deprecate_property
 from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
 from qiskit_nature.drivers.second_quantization import BaseDriver
 from qiskit_nature.second_quantization.operators import SecondQuantizedOp
-from qiskit_nature.properties.second_quantization import GroupedSecondQuantizedProperty
+from qiskit_nature.second_quantization.operator_factories import GroupedSecondQuantizedProperty
 from qiskit_nature.results import EigenstateResult
 from qiskit_nature.transformers.second_quantization import BaseTransformer
 

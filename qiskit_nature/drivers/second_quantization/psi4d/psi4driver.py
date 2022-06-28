@@ -24,7 +24,7 @@ from typing import Any, Optional, Union, cast
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.hdf5 import load_from_hdf5
-from qiskit_nature.properties.second_quantization.electronic import (
+from qiskit_nature.second_quantization.operator_factories.electronic import (
     AngularMomentum,
     ElectronicStructureDriverResult,
     Magnetization,

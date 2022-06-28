@@ -21,25 +21,25 @@ import numpy as np
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.properties import GroupedProperty, Property
-from qiskit_nature.properties.second_quantization import (
+from qiskit_nature.second_quantization.operator_factories import (
     SecondQuantizedProperty,
     GroupedSecondQuantizedProperty,
 )
-from qiskit_nature.properties.second_quantization.driver_metadata import DriverMetadata
-from qiskit_nature.properties.second_quantization.electronic import (
+from qiskit_nature.second_quantization.operator_factories.driver_metadata import DriverMetadata
+from qiskit_nature.second_quantization.operator_factories.electronic import (
     ElectronicStructureDriverResult,
     ElectronicDipoleMoment,
     ParticleNumber,
 )
-from qiskit_nature.properties.second_quantization.electronic.bases import (
+from qiskit_nature.second_quantization.operator_factories.electronic.bases import (
     ElectronicBasis,
     ElectronicBasisTransform,
 )
-from qiskit_nature.properties.second_quantization.electronic.integrals import (
+from qiskit_nature.second_quantization.operator_factories.electronic.integrals import (
     IntegralProperty,
     OneBodyElectronicIntegrals,
 )
-from qiskit_nature.properties.second_quantization.electronic.types import GroupedElectronicProperty
+from qiskit_nature.second_quantization.operator_factories.electronic.types import GroupedElectronicProperty
 
 from ..base_transformer import BaseTransformer
 

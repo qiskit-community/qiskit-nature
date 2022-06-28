@@ -28,7 +28,7 @@ from qiskit_nature.drivers.second_quantization import (
     VibrationalStructureDriverType,
 )
 from qiskit_nature.exceptions import QiskitNatureError
-from qiskit_nature.properties.second_quantization.vibrational import VibrationalEnergy
+from qiskit_nature.second_quantization.operator_factories.vibrational import VibrationalEnergy
 import qiskit_nature.optionals as _optionals
 
 

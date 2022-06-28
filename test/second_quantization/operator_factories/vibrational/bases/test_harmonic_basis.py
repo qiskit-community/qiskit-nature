@@ -20,8 +20,8 @@ from ddt import ddt, data, unpack
 import h5py
 import numpy as np
 
-from qiskit_nature.properties.second_quantization.vibrational.bases import HarmonicBasis
-from qiskit_nature.properties.second_quantization.vibrational.integrals import VibrationalIntegrals
+from qiskit_nature.second_quantization.operator_factories.vibrational.bases import HarmonicBasis
+from qiskit_nature.second_quantization.operator_factories.vibrational.integrals import VibrationalIntegrals
 
 
 @ddt

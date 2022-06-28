@@ -18,13 +18,13 @@ from typing import cast
 import numpy as np
 
 from qiskit_nature.drivers import Molecule
-from qiskit_nature.properties.second_quantization.electronic import (
+from qiskit_nature.second_quantization.operator_factories.electronic import (
     ParticleNumber,
     ElectronicEnergy,
     ElectronicDipoleMoment,
     ElectronicStructureDriverResult,
 )
-from qiskit_nature.properties.second_quantization.electronic.bases import (
+from qiskit_nature.second_quantization.operator_factories.electronic.bases import (
     ElectronicBasis,
     ElectronicBasisTransform,
 )

@@ -26,8 +26,8 @@ import numpy as np
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.constants import BOHR, PERIODIC_TABLE
 import qiskit_nature.optionals as _optionals
-from qiskit_nature.properties.second_quantization.driver_metadata import DriverMetadata
-from qiskit_nature.properties.second_quantization.electronic import (
+from qiskit_nature.second_quantization.operator_factories.driver_metadata import DriverMetadata
+from qiskit_nature.second_quantization.operator_factories.electronic import (
     ElectronicStructureDriverResult,
     AngularMomentum,
     Magnetization,
@@ -36,11 +36,11 @@ from qiskit_nature.properties.second_quantization.electronic import (
     DipoleMoment,
     ElectronicDipoleMoment,
 )
-from qiskit_nature.properties.second_quantization.electronic.bases import (
+from qiskit_nature.second_quantization.operator_factories.electronic.bases import (
     ElectronicBasis,
     ElectronicBasisTransform,
 )
-from qiskit_nature.properties.second_quantization.electronic.integrals import (
+from qiskit_nature.second_quantization.operator_factories.electronic.integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )

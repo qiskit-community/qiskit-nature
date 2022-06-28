@@ -26,7 +26,7 @@ from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.second_quantization.operators.fermionic import JordanWignerMapper, ParityMapper
 from .second_quantization.operators import FermionicOp
 from qiskit_nature.second_quantization.problems import ElectronicStructureProblem
-from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
+from qiskit_nature.second_quantization.operator_factories.electronic import ParticleNumber
 
 
 class TestQubitConverter(QiskitNatureTestCase):

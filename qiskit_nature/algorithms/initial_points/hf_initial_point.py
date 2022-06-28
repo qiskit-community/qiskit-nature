@@ -19,8 +19,8 @@ import warnings
 import numpy as np
 
 from qiskit_nature.circuit.library import UCC
-from qiskit_nature.properties.second_quantization.electronic import ElectronicEnergy
-from qiskit_nature.properties.second_quantization.second_quantized_property import (
+from qiskit_nature.second_quantization.operator_factories.electronic import ElectronicEnergy
+from qiskit_nature.second_quantization.operator_factories.second_quantized_property import (
     GroupedSecondQuantizedProperty,
 )
 from qiskit_nature.exceptions import QiskitNatureError

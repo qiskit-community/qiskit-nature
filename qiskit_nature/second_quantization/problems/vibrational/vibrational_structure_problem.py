@@ -23,10 +23,10 @@ from qiskit_nature import ListOrDictType
 from qiskit_nature.drivers.second_quantization import VibrationalStructureDriver
 from qiskit_nature.second_quantization.operators import SecondQuantizedOp
 from qiskit_nature.second_quantization.operators import QubitConverter
-from qiskit_nature.properties.second_quantization.vibrational import (
+from qiskit_nature.second_quantization.operator_factories.vibrational import (
     VibrationalStructureDriverResult,
 )
-from qiskit_nature.properties.second_quantization.vibrational.bases import HarmonicBasis
+from qiskit_nature.second_quantization.operator_factories.vibrational.bases import HarmonicBasis
 from qiskit_nature.results import EigenstateResult, VibrationalStructureResult
 from qiskit_nature.transformers.second_quantization import BaseTransformer
 

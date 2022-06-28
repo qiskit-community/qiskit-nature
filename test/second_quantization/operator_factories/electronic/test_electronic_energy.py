@@ -21,12 +21,12 @@ import h5py
 import numpy as np
 
 from qiskit_nature.drivers.second_quantization import HDF5Driver
-from qiskit_nature.properties.second_quantization.electronic import ElectronicEnergy
-from qiskit_nature.properties.second_quantization.electronic.bases import (
+from qiskit_nature.second_quantization.operator_factories.electronic import ElectronicEnergy
+from qiskit_nature.second_quantization.operator_factories.electronic.bases import (
     ElectronicBasis,
     ElectronicBasisTransform,
 )
-from qiskit_nature.properties.second_quantization.electronic.integrals import (
+from qiskit_nature.second_quantization.operator_factories.electronic.integrals import (
     OneBodyElectronicIntegrals,
 )
 

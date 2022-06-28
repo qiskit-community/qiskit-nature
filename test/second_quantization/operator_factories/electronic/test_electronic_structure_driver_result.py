@@ -17,7 +17,7 @@ from test.properties.property_test import PropertyTest
 import h5py
 
 from qiskit_nature.drivers.second_quantization import HDF5Driver
-from qiskit_nature.properties.second_quantization.electronic import (
+from qiskit_nature.second_quantization.operator_factories.electronic import (
     ElectronicStructureDriverResult,
 )
 

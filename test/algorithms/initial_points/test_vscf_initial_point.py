@@ -22,7 +22,7 @@ import numpy as np
 from qiskit_nature.algorithms.initial_points import VSCFInitialPoint
 from qiskit_nature.circuit.library import UVCC
 from qiskit_nature.exceptions import QiskitNatureError
-from qiskit_nature.properties.second_quantization.second_quantized_property import (
+from qiskit_nature.second_quantization.operator_factories.second_quantized_property import (
     GroupedSecondQuantizedProperty,
 )
 

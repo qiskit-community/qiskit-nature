@@ -33,7 +33,7 @@ from qiskit_nature.second_quantization.operators import QubitConverter
 from qiskit_nature.second_quantization.problems.electronic import (
     ElectronicStructureProblem,
 )
-from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
+from qiskit_nature.second_quantization.operator_factories.electronic import ParticleNumber
 
 from ...initial_points import InitialPoint, HFInitialPoint
 from .minimum_eigensolver_factory import MinimumEigensolverFactory

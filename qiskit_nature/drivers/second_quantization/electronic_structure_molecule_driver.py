@@ -20,7 +20,7 @@ import importlib
 from enum import Enum
 
 from qiskit.exceptions import MissingOptionalLibraryError
-from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
+from qiskit_nature.second_quantization.operator_factories.electronic import ElectronicStructureDriverResult
 from .electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ..molecule import Molecule
 from ...exceptions import UnsupportMethodError

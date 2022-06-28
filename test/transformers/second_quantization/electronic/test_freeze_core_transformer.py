@@ -20,7 +20,7 @@ import numpy as np
 
 from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.transformers.second_quantization.electronic import FreezeCoreTransformer
-from qiskit_nature.properties.second_quantization.electronic.bases import ElectronicBasis
+from qiskit_nature.second_quantization.operator_factories.electronic.bases import ElectronicBasis
 
 
 @ddt

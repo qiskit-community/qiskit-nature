@@ -14,7 +14,7 @@
 
 from abc import ABC, abstractmethod
 
-from qiskit_nature.properties.second_quantization import GroupedSecondQuantizedProperty
+from qiskit_nature.second_quantization.operator_factories import GroupedSecondQuantizedProperty
 
 
 class BaseTransformer(ABC):

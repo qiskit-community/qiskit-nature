@@ -16,8 +16,8 @@ from typing import List, Optional, Tuple
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.constants import PERIODIC_TABLE
-from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
-from qiskit_nature.properties.second_quantization.electronic.types import GroupedElectronicProperty
+from qiskit_nature.second_quantization.operator_factories.electronic import ElectronicStructureDriverResult
+from qiskit_nature.second_quantization.operator_factories.electronic.types import GroupedElectronicProperty
 
 from .active_space_transformer import ActiveSpaceTransformer
 

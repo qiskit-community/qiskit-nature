@@ -23,8 +23,8 @@ import re
 
 from qiskit_nature.deprecation import deprecate_method, DeprecatedType
 from qiskit_nature.drivers import WatsonHamiltonian
-from qiskit_nature.properties.second_quantization.vibrational import VibrationalEnergy
-from qiskit_nature.properties.second_quantization.vibrational.integrals import VibrationalIntegrals
+from qiskit_nature.second_quantization.operator_factories.vibrational import VibrationalEnergy
+from qiskit_nature.second_quantization.operator_factories.vibrational.integrals import VibrationalIntegrals
 
 logger = logging.getLogger(__name__)
 

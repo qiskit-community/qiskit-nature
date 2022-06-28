@@ -22,7 +22,7 @@ from qiskit_nature import QiskitNatureError
 from qiskit_nature.circuit.library import UCC
 from qiskit_nature.second_quantization.operators import FermionicOp
 from qiskit_nature.second_quantization.operators import QubitConverter
-from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
+from qiskit_nature.second_quantization.operator_factories.electronic import ParticleNumber
 
 
 def _build_qeom_hopping_ops(

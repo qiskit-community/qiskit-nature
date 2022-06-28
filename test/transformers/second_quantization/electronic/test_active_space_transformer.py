@@ -21,14 +21,14 @@ import numpy as np
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers.second_quantization import HDF5Driver
-from qiskit_nature.properties.second_quantization.electronic import (
+from qiskit_nature.second_quantization.operator_factories.electronic import (
     ElectronicStructureDriverResult,
     ElectronicEnergy,
     ElectronicDipoleMoment,
 )
-from qiskit_nature.properties.second_quantization.electronic.bases import ElectronicBasis
-from qiskit_nature.properties.second_quantization.electronic.dipole_moment import DipoleMoment
-from qiskit_nature.properties.second_quantization.electronic.integrals import (
+from qiskit_nature.second_quantization.operator_factories.electronic.bases import ElectronicBasis
+from qiskit_nature.second_quantization.operator_factories.electronic.dipole_moment import DipoleMoment
+from qiskit_nature.second_quantization.operator_factories.electronic.integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )
