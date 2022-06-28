@@ -26,6 +26,9 @@ Second-Quantization Operator Factories
    QuadraticHamiltonian
 """
 
+from .grouped_property import GroupedProperty
+from .property import Property
 from .quadratic_hamiltonian import QuadraticHamiltonian
 
-__all__ = ["QuadraticHamiltonian"]
+
+__all__ = ["GroupedProperty", "Property", "QuadraticHamiltonian"]

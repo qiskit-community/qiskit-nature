@@ -21,8 +21,8 @@ from qiskit_nature import ListOrDictType, QiskitNatureError
 from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
 from qiskit_nature.second_quantization.operators import SecondQuantizedOp
 
-from ..grouped_property import GroupedProperty
-from ..property import Property
+from .grouped_property import GroupedProperty
+from .property import Property
 
 LegacyDriverResult = Union[QMolecule, WatsonHamiltonian]
 

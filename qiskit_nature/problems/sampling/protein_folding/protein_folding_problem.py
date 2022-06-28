@@ -24,7 +24,9 @@ from .qubit_utils import qubit_number_reducer
 from ..sampling_problem import SamplingProblem
 
 if TYPE_CHECKING:
-    from qiskit_nature.second_quantization.results.protein_folding_result import ProteinFoldingResult
+    from qiskit_nature.second_quantization.results.protein_folding_result import (
+        ProteinFoldingResult,
+    )
 
 
 class ProteinFoldingProblem(SamplingProblem):
