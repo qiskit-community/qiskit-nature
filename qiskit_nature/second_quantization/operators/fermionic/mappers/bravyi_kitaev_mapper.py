@@ -16,13 +16,12 @@ import numpy as np
 from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators import Pauli
 
-from qiskit_nature.operators.second_quantization import FermionicOp
+from ..fermionic_op import FermionicOp
 
-from .fermionic_mapper import FermionicMapper
-from .qubit_mapper import QubitMapper
+from ...qubit_mapper import QubitMapper
 
 
-class BravyiKitaevMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
+class BravyiKitaevMapper(QubitMapper):  # pylint: disable=missing-class-docstring
     def __init__(self):
         """The Bravyi-Kitaev fermion-to-qubit mapping."""
         super().__init__(allows_two_qubit_reduction=False)

@@ -18,11 +18,13 @@ import numpy as np
 
 from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators import Pauli, SparsePauliOp
-from qiskit_nature.operators.second_quantization import FermionicOp
-from .fermionic_mapper import FermionicMapper
+
+from ..fermionic_op import FermionicOp
+
+from ...qubit_mapper import QubitMapper
 
 
-class BravyiKitaevSuperFastMapper(FermionicMapper):
+class BravyiKitaevSuperFastMapper(QubitMapper):
     """The Bravyi-Kitaev super-fast fermion-to-qubit mapping.
 
     This implementation follows closely Reference [1].
