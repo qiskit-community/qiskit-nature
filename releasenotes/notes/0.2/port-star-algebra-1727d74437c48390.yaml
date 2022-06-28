@@ -2,7 +2,7 @@
 upgrade:
   - |
     The internal API of the abstract class
-    :class:`qiskit_nature.second_quantization.operators.SecondQuantizedOp` abstract class has been
+    :class:`qiskit_nature.operators.second_quantization.SecondQuantizedOp` abstract class has been
     changed to use :class:`~qiskit.opflow.mixins.StarAlgebraMixin`.
 deprecations:
   - |

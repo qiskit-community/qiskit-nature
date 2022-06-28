@@ -2,9 +2,9 @@
 features:
   - |
     Adds the `simplify` method to
-    :class:`qiskit_nature.second_quantization.operators.SecondQuantizedOp`
+    :class:`qiskit_nature.operators.second_quantization.SecondQuantizedOp`
     and the `normal_ordered` method to
-    :class:`qiskit_nature.second_quantization.operators.FermionicOp`.
+    :class:`qiskit_nature.operators.second_quantization.FermionicOp`.
     These methods replace `reduce` and `to_normal_order`, which are deprecated.
     The differences between the new and old methods are the following:
 
@@ -14,7 +14,7 @@ deprecations:
   - |
     The following second quantization operator methods are deprecated:
 
-    * :meth:`qiskit_nature.second_quantization.operators.SecondQuantizedOp.reduce`.
-      Instead, use :meth:`qiskit_nature.second_quantization.operators.SecondQuantizedOp.simplify`.
-    * :meth:`qiskit_nature.second_quantization.operators.FermionicOp.to_normal_order`.
-      Instead, use :meth:`qiskit_nature.second_quantization.operators.FermionicOp.normal_ordered`.
+    * :meth:`qiskit_nature.operators.second_quantization.SecondQuantizedOp.reduce`.
+      Instead, use :meth:`qiskit_nature.operators.second_quantization.SecondQuantizedOp.simplify`.
+    * :meth:`qiskit_nature.operators.second_quantization.FermionicOp.to_normal_order`.
+      Instead, use :meth:`qiskit_nature.operators.second_quantization.FermionicOp.normal_ordered`.

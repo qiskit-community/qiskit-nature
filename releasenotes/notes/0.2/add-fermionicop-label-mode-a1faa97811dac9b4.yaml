@@ -1,12 +1,12 @@
 ---
 upgrade:
   - |
-    The internal data in :class:`~qiskit_nature.second_quantization.operators.FermionicOp`
+    The internal data in :class:`~qiskit_nature.operators.second_quantization.FermionicOp`
     have been changed. As a result, more data type is now accepted by initialize.
     The ascending order constraint and the no-same index constraint have been removed.
     In addition, the dense and sparse labels are now automatically detected by the existence of
     underscores.
 
-    The property `display_format` of :class:`~qiskit_nature.second_quantization.operators.FermionicOp`
+    The property `display_format` of :class:`~qiskit_nature.operators.second_quantization.FermionicOp`
     is added. There are two modes `dense` and `sparse`.
     This display format can be switched by the property `FermionicOp.display_format`.

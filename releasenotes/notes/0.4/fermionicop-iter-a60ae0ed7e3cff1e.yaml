@@ -1,7 +1,7 @@
 ---
 features:
   - |
-    Adds :meth:`qiskit_nature.second_quantization.operators.FermionicOp.terms`.
+    Adds :meth:`qiskit_nature.operators.second_quantization.FermionicOp.terms`.
     This returns an iterable of
     (term, coefficient) pairs describing the terms contained in the operator.
     Each term is a list of tuples of the form (action, index), where the action
