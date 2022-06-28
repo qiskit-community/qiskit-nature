@@ -30,5 +30,4 @@ from .grouped_property import GroupedProperty
 from .property import Property
 from .quadratic_hamiltonian import QuadraticHamiltonian
 
-
 __all__ = ["GroupedProperty", "Property", "QuadraticHamiltonian"]
