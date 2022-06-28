@@ -26,7 +26,7 @@ from qiskit_nature import ListOrDictType
 from qiskit_nature.second_quantization.operators import SecondQuantizedOp
 from qiskit_nature.second_quantization.operators import QubitConverter
 from qiskit_nature.second_quantization.problems import BaseProblem
-from qiskit_nature.results import EigenstateResult
+from from qiskit_nature.second_quantization.problems import EigenstateResult
 
 
 class GroundStateSolver(ABC):

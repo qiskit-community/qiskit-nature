@@ -20,7 +20,7 @@ from qiskit.opflow import PauliSumOp
 from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.second_quantization.operators import QubitConverter
 from qiskit_nature.second_quantization.operators import SecondQuantizedOp
-from qiskit_nature.results import EigenstateResult, LatticeModelResult
+from from qiskit_nature.second_quantization.problems import EigenstateResult, LatticeModelResult
 
 from ..base_problem import BaseProblem
 from .models.lattice_model import LatticeModel

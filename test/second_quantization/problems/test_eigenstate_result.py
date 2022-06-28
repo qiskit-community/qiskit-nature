@@ -16,7 +16,7 @@ from test import QiskitNatureTestCase
 
 import numpy as np
 
-from qiskit_nature.results import EigenstateResult
+from from qiskit_nature.second_quantization.problems import EigenstateResult
 
 
 class TestEigenstateResult(QiskitNatureTestCase):

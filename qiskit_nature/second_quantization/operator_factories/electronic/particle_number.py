@@ -23,7 +23,7 @@ import numpy as np
 from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.second_quantization.operators import FermionicOp
-from qiskit_nature.results import EigenstateResult
+from from qiskit_nature.second_quantization.problems import EigenstateResult
 
 from ..second_quantized_property import LegacyDriverResult
 from .types import ElectronicProperty

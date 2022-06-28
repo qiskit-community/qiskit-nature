@@ -20,7 +20,7 @@ from typing import Generator, Generic, Optional, Type, TypeVar, Union
 import h5py
 
 from qiskit_nature.hdf5 import _import_and_build_from_hdf5
-from qiskit_nature.results import EigenstateResult
+from from qiskit_nature.second_quantization.problems import EigenstateResult
 from .property import Interpretable, Property
 
 # pylint: disable=invalid-name
