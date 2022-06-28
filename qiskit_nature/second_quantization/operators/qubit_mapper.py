@@ -19,8 +19,8 @@ from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators import Pauli, SparsePauliOp
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.operators.second_quantization import SecondQuantizedOp
-from qiskit_nature.operators.second_quantization.fermionic_op import FermionicOp
+from .second_quantized_op import SecondQuantizedOp
+from .fermionic.fermionic_op import FermionicOp
 
 
 class QubitMapper(ABC):
