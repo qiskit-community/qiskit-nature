@@ -20,8 +20,4 @@ Electronic Structure Problems (:mod:`qiskit_nature.second_quantization.problems.
 from .electronic_structure_problem import ElectronicStructureProblem
 from .electronic_structure_result import DipoleTuple, ElectronicStructureResult
 
-__all__ = [
-    "ElectronicStructureProblem",
-    "DipoleTuple",
-    "ElectronicStructureResult"
-]
+__all__ = ["ElectronicStructureProblem", "DipoleTuple", "ElectronicStructureResult"]

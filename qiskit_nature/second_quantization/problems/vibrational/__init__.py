@@ -20,7 +20,4 @@ Vibrational Structure Problems (:mod:`qiskit_nature.second_quantization.problems
 from .vibrational_structure_problem import VibrationalStructureProblem
 from .vibrational_structure_result import DipoleTuple, VibrationalStructureResult
 
-__all__ = [
-    "VibrationalStructureProblem",
-    "VibrationalStructureResult"
-]
+__all__ = ["VibrationalStructureProblem", "VibrationalStructureResult"]
