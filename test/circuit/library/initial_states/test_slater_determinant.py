@@ -20,7 +20,10 @@ from qiskit.quantum_info import Statevector
 
 from qiskit_nature.circuit.library import SlaterDeterminant
 from qiskit_nature.second_quantization.operators import QubitConverter
-from qiskit_nature.second_quantization.operators.fermionic import BravyiKitaevMapper, JordanWignerMapper
+from qiskit_nature.second_quantization.operators.fermionic import (
+    BravyiKitaevMapper,
+    JordanWignerMapper,
+)
 
 
 class TestSlaterDeterminant(QiskitNatureTestCase):

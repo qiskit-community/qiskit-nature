@@ -22,8 +22,13 @@ from qiskit.quantum_info import Operator, Statevector, random_hermitian, random_
 
 from qiskit_nature.circuit.library import BogoliubovTransform
 from qiskit_nature.second_quantization.operators import QubitConverter
-from qiskit_nature.second_quantization.operators.fermionic import BravyiKitaevMapper, JordanWignerMapper
-from qiskit_nature.second_quantization.operator_factories.quadratic_hamiltonian import QuadraticHamiltonian
+from qiskit_nature.second_quantization.operators.fermionic import (
+    BravyiKitaevMapper,
+    JordanWignerMapper,
+)
+from qiskit_nature.second_quantization.operator_factories.quadratic_hamiltonian import (
+    QuadraticHamiltonian,
+)
 
 
 def _expand_transformation_matrix(mat: np.ndarray) -> np.ndarray:
