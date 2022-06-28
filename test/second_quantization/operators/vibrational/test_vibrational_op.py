@@ -16,7 +16,7 @@ from test import QiskitNatureTestCase
 import numpy as np
 from ddt import data, ddt
 
-from qiskit_nature.operators.second_quantization import VibrationalOp
+from qiskit_nature.second_quantization.operators import VibrationalOp
 
 
 @ddt
