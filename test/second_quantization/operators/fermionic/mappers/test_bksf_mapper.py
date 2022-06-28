@@ -15,10 +15,6 @@
 import unittest
 from test import QiskitNatureTestCase
 
-from .resources.bksf_lih import (
-    FERMIONIC_HAMILTONIAN,
-    QUBIT_HAMILTONIAN,
-)
 import numpy as np
 from qiskit.quantum_info import SparsePauliOp, PauliList
 
@@ -28,6 +24,11 @@ from qiskit_nature.second_quantization.operators.fermionic.mappers.bksf import (
     _edge_operator_aij,
     _edge_operator_bi,
     _bksf_edge_list_fermionic_op,
+)
+
+from qiskit_nature.test.second_quantization.operators.fermionic.mappers.resources.bksf_lih import (
+    FERMIONIC_HAMILTONIAN,
+    QUBIT_HAMILTONIAN,
 )
 
 
