@@ -17,7 +17,7 @@ from test.algorithms.excited_state_solvers.test_bosonic_esc_calculation import _
 from qiskit.opflow import PauliSumOp
 from qiskit.utils import algorithm_globals
 
-from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.second_quantization.operators import QubitConverter
 from qiskit_nature.second_quantization.operators.vibrational import DirectMapper
 from qiskit_nature.problems.second_quantization import VibrationalStructureProblem
 from qiskit_nature.problems.second_quantization.vibrational.builders.hopping_ops_builder import (

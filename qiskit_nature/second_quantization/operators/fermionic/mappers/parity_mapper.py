@@ -29,7 +29,7 @@ class ParityMapper(QubitMapper):  # pylint: disable=missing-class-docstring
 
         When using this mapper `two_qubit_reduction` can optionally be used for the qubit
         operator that is created, see converter class
-        :class:`~qiskit_nature.converters.second_quantization.QubitConverter`.
+        :class:`~qiskit_nature.second_quantization.operators.QubitConverter`.
         """
         super().__init__(allows_two_qubit_reduction=True)
 

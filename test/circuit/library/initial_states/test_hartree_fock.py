@@ -29,7 +29,7 @@ from qiskit_nature.second_quantization.operators.fermionic import (
     JordanWignerMapper,
     ParityMapper,
 )
-from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.second_quantization.operators import QubitConverter
 
 
 class TestHartreeFock(QiskitNatureTestCase):

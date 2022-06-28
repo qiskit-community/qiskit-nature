@@ -18,7 +18,7 @@ from test.drivers.second_quantization.test_driver_methods_gsc import TestDriverM
 from qiskit_nature.drivers import UnitsType
 from qiskit_nature.drivers.second_quantization import PySCFDriver, MethodType
 from qiskit_nature.second_quantization.operators.fermionic import BravyiKitaevMapper, ParityMapper
-from qiskit_nature.converters.second_quantization.qubit_converter import QubitConverter
+from qiskit_nature.second_quantization.operators.qubit_converter import QubitConverter
 from qiskit_nature.transformers.second_quantization.electronic import FreezeCoreTransformer
 import qiskit_nature.optionals as _optionals
 

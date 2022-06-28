@@ -26,7 +26,7 @@ from qiskit.algorithms.optimizers import COBYLA
 from qiskit_nature.circuit.library import UVCC, VSCF
 from qiskit_nature.second_quantization.operators.vibrational import DirectMapper
 from qiskit_nature.second_quantization.operators import VibrationalOp
-from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.second_quantization.operators import QubitConverter
 
 
 def assert_ucc_like_ansatz(test_case, ansatz, num_modals, expected_ops):

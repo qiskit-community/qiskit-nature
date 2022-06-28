@@ -21,7 +21,7 @@ from qiskit.utils import algorithm_globals
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.circuit.library import UCC
 from qiskit_nature.second_quantization.operators import FermionicOp
-from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.second_quantization.operators import QubitConverter
 from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
 
 

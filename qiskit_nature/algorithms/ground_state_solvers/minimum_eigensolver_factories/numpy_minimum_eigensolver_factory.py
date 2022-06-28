@@ -20,7 +20,7 @@ from qiskit_nature.deprecation import (
     deprecate_property,
     deprecate_positional_arguments,
 )
-from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.second_quantization.operators import QubitConverter
 from qiskit_nature.problems.second_quantization import BaseProblem
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 

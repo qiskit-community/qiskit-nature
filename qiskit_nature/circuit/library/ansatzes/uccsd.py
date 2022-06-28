@@ -16,7 +16,7 @@ The UCCSD Ansatz.
 from typing import Optional, Tuple
 
 from qiskit.circuit import QuantumCircuit
-from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.second_quantization.operators import QubitConverter
 from .ucc import UCC
 
 

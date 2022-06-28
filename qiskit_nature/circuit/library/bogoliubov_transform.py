@@ -21,7 +21,7 @@ import numpy as np
 from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.circuit import Gate, Qubit
 from qiskit.circuit.library import RZGate, XXPlusYYGate
-from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.second_quantization.operators import QubitConverter
 from qiskit_nature.second_quantization.operators.fermionic import JordanWignerMapper
 from qiskit_nature.utils import apply_matrix_to_slices, givens_matrix
 from qiskit_nature.utils.linalg import fermionic_gaussian_decomposition_jw

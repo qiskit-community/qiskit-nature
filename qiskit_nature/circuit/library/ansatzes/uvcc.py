@@ -23,7 +23,7 @@ from qiskit.circuit.library import EvolvedOperatorAnsatz
 from qiskit.opflow import PauliTrotterEvolution
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.second_quantization.operators import QubitConverter
 from qiskit_nature.second_quantization.operators import SecondQuantizedOp, VibrationalOp
 
 from .utils.vibration_excitation_generator import generate_vibration_excitations

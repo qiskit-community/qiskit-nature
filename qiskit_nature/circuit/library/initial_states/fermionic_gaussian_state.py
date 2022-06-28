@@ -16,7 +16,7 @@ from typing import Optional, Sequence
 
 import numpy as np
 from qiskit import QuantumCircuit, QuantumRegister
-from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.second_quantization.operators import QubitConverter
 from qiskit_nature.second_quantization.operators.fermionic import JordanWignerMapper
 
 from .utils.givens_rotations import _prepare_fermionic_gaussian_state_jw

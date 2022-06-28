@@ -24,7 +24,7 @@ from qiskit.opflow import OperatorBase, PauliSumOp, StateFn, CircuitSampler
 
 from qiskit_nature import ListOrDictType, QiskitNatureError
 from qiskit_nature.second_quantization.operators import SecondQuantizedOp
-from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.second_quantization.operators import QubitConverter
 from qiskit_nature.converters.second_quantization.utils import ListOrDict
 from qiskit_nature.problems.second_quantization import BaseProblem
 from qiskit_nature.results import EigenstateResult

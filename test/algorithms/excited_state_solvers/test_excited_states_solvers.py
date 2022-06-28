@@ -26,7 +26,7 @@ from qiskit_nature.second_quantization.operators.fermionic import (
     JordanWignerMapper,
     ParityMapper,
 )
-from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.second_quantization.operators import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
 from qiskit_nature.algorithms import (
     GroundStateEigensolver,

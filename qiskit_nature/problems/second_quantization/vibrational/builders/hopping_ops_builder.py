@@ -20,7 +20,7 @@ from qiskit.utils import algorithm_globals
 
 from qiskit_nature.circuit.library import UVCC
 from qiskit_nature.second_quantization.operators import VibrationalOp
-from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.second_quantization.operators import QubitConverter
 
 
 def _build_qeom_hopping_ops(

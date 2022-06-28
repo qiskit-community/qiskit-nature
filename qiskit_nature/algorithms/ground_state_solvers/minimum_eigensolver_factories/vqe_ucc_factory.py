@@ -29,7 +29,7 @@ from qiskit_nature.deprecation import (
 )
 
 from qiskit_nature.circuit.library import HartreeFock, UCC, UCCSD
-from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.second_quantization.operators import QubitConverter
 from qiskit_nature.problems.second_quantization.electronic import (
     ElectronicStructureProblem,
 )

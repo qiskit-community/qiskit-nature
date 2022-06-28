@@ -21,7 +21,7 @@ from qiskit.opflow import PauliSumOp
 from qiskit.utils.validation import validate_min
 
 from qiskit_nature.second_quantization.operators import FermionicOp
-from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.second_quantization.operators import QubitConverter
 from qiskit_nature.second_quantization.operators.fermionic import BravyiKitaevSuperFastMapper
 
 

@@ -17,7 +17,7 @@ from test import QiskitNatureTestCase
 from qiskit.opflow import PauliSumOp
 from qiskit.utils import algorithm_globals
 
-from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.second_quantization.operators import QubitConverter
 from qiskit_nature.drivers import UnitsType
 from qiskit_nature.drivers.second_quantization import PySCFDriver
 from qiskit_nature.second_quantization.operators.fermionic import JordanWignerMapper

@@ -20,7 +20,7 @@ from test.problems.second_quantization.electronic.resources.resource_reader impo
 import warnings
 import numpy as np
 
-from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.second_quantization.operators import QubitConverter
 from qiskit_nature.drivers import Molecule
 from qiskit_nature.drivers.second_quantization import (
     HDF5Driver,
