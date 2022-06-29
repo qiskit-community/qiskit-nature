@@ -175,6 +175,48 @@ class ElectronicStructureProblem(BaseProblem):
 
         In the fermionic case the default filter ensures that the number of particles is being
         preserved.
+
+        .. note::
+
+            The default filter_criterion assumes a singlet spin configuration. (the number of alpha
+            particles is equal to the number of beta particles).
+            If the AngularMomentum property is available, then working with non singlet spin
+            configuration can be done using a custom filter_criterion in the following manner:
+
+        .. code-block::python
+
+            from qiskit_nature.properties.second_quantization.electronic import (
+                AngularMomentum,
+                ParticleNumber,
+            )
+            import numpy as np
+            from typing import cast
+            from functools import partial
+
+
+            def custom_filter_criterion(problem):
+                def filter_criterion(problem, eigenstate, eigenvalue, aux_values):
+                    try:
+                        num_particles_aux = aux_values["ParticleNumber"][0]
+                        total_angular_momentum_aux = aux_values["AngularMomentum"][0]
+                    except TypeError:
+                        num_particles_aux = aux_values[0][0]
+                        total_angular_momentum_aux = aux_values[1][0]
+                    particle_number = cast(
+                        ParticleNumber,
+                        problem.grouped_property_transformed.get_property(ParticleNumber),
+                    )
+                    total_angular_momentum = cast(
+                        AngularMomentum,
+                        problem.grouped_property_transformed.get_property(AngularMomentum),
+                    )
+                    return np.isclose(
+                        total_angular_momentum.spin, total_angular_momentum_aux
+                    ) and np.isclose(
+                        particle_number.num_alpha + particle_number.num_beta, num_particles_aux
+                    )
+
+                return partial(filter_criterion, problem)
         """
 
         # pylint: disable=unused-argument
