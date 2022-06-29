@@ -23,11 +23,11 @@ from qiskit.algorithms import MinimumEigensolver
 from qiskit.opflow import OperatorBase, PauliSumOp, StateFn, CircuitSampler
 
 from qiskit_nature import ListOrDictType, QiskitNatureError
-from qiskit_nature.second_quantization.operators import SecondQuantizedOp
-from qiskit_nature.second_quantization.operators import QubitConverter
+from qiskit_nature.second_q.operators import SecondQuantizedOp
+from qiskit_nature.second_q.operators import QubitConverter
 from qiskit_nature.converters.second_quantization.utils import ListOrDict
-from qiskit_nature.second_quantization.problems import BaseProblem
-from qiskit_nature.second_quantization.problems import EigenstateResult
+from qiskit_nature.second_q.problems import BaseProblem
+from qiskit_nature.second_q.problems import EigenstateResult
 from .ground_state_solver import GroundStateSolver
 from .minimum_eigensolver_factories import MinimumEigensolverFactory
 

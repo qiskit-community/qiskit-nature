@@ -19,11 +19,11 @@ import h5py
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_quantization.operator_factories.electronic.bases import (
+from qiskit_nature.second_q.operator_factories.electronic.bases import (
     ElectronicBasis,
     ElectronicBasisTransform,
 )
-from qiskit_nature.second_quantization.operator_factories.electronic.integrals import (
+from qiskit_nature.second_q.operator_factories.electronic.integrals import (
     OneBodyElectronicIntegrals,
 )
 

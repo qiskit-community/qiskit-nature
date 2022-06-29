@@ -17,7 +17,7 @@ from test.properties.property_test import PropertyTest
 import h5py
 
 from qiskit_nature.drivers.second_quantization import HDF5Driver
-from qiskit_nature.second_quantization.operator_factories.electronic import (
+from qiskit_nature.second_q.operator_factories.electronic import (
     ElectronicStructureDriverResult,
 )
 
@@ -31,7 +31,7 @@ class TestElectronicStructureDriverResult(PropertyTest):
 
         driver = HDF5Driver(
             self.get_resource_path(
-                "BeH_sto3g_reduced.hdf5", "transformers/second_quantization/electronic"
+                "BeH_sto3g_reduced.hdf5", "transformers/second_q/electronic"
             )
         )
         self.expected = driver.run()
@@ -41,7 +41,7 @@ class TestElectronicStructureDriverResult(PropertyTest):
         with h5py.File(
             self.get_resource_path(
                 "electronic_structure_driver_result.hdf5",
-                "properties/second_quantization/electronic/resources",
+                "properties/second_q/electronic/resources",
             ),
             "r",
         ) as file:

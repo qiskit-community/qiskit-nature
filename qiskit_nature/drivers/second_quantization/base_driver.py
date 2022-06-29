@@ -16,7 +16,7 @@ This module implements the abstract base class for driver modules.
 
 from abc import ABC, abstractmethod
 
-from qiskit_nature.second_quantization.operator_factories import GroupedSecondQuantizedProperty
+from qiskit_nature.second_q.operator_factories import GroupedSecondQuantizedProperty
 
 
 class BaseDriver(ABC):

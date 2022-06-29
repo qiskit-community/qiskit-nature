@@ -19,7 +19,7 @@ from test import QiskitNatureTestCase
 
 import numpy as np
 
-from qiskit_nature.second_quantization.results import ElectronicStructureResult
+from qiskit_nature.second_q.results import ElectronicStructureResult
 
 
 class TestElectronicStructureResult(QiskitNatureTestCase):

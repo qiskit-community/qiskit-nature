@@ -21,8 +21,8 @@ import numpy as np
 from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.circuit import Gate, Qubit
 from qiskit.circuit.library import RZGate, XXPlusYYGate
-from qiskit_nature.second_quantization.operators import QubitConverter
-from qiskit_nature.second_quantization.operators.fermionic import JordanWignerMapper
+from qiskit_nature.second_q.operators import QubitConverter
+from qiskit_nature.second_q.operators.fermionic import JordanWignerMapper
 from qiskit_nature.utils import apply_matrix_to_slices, givens_matrix
 from qiskit_nature.utils.linalg import fermionic_gaussian_decomposition_jw
 
@@ -162,7 +162,7 @@ class BogoliubovTransform(QuantumCircuit):
                 :math:`W_1 W_2^T + W_2 W_1^T = 0`.
             NotImplementedError: Currently, only the Jordan-Wigner Transform is supported.
                 Please use
-                :class:`qiskit_nature.second_quantization.operators.fermionic.JordanWignerMapper`
+                :class:`qiskit_nature.second_q.operators.fermionic.JordanWignerMapper`
                 to construct the qubit mapper.
         """
         if validate:
@@ -183,7 +183,7 @@ class BogoliubovTransform(QuantumCircuit):
             raise NotImplementedError(
                 "Currently, only the Jordan-Wigner Transform is supported. "
                 "Please use "
-                "qiskit_nature.second_quantization.operators.fermionic.JordanWignerMapper "
+                "qiskit_nature.second_q.operators.fermionic.JordanWignerMapper "
                 "to construct the qubit mapper."
             )
 

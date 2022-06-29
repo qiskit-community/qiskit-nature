@@ -20,12 +20,12 @@ import h5py
 import numpy as np
 
 from qiskit_nature.drivers.second_quantization import HDF5Driver
-from qiskit_nature.second_quantization.operator_factories.electronic import ElectronicDipoleMoment
-from qiskit_nature.second_quantization.operator_factories.electronic.bases import ElectronicBasis
-from qiskit_nature.second_quantization.operator_factories.electronic.dipole_moment import (
+from qiskit_nature.second_q.operator_factories.electronic import ElectronicDipoleMoment
+from qiskit_nature.second_q.operator_factories.electronic.bases import ElectronicBasis
+from qiskit_nature.second_q.operator_factories.electronic.dipole_moment import (
     DipoleMoment,
 )
-from qiskit_nature.second_quantization.operator_factories.electronic.integrals import (
+from qiskit_nature.second_q.operator_factories.electronic.integrals import (
     OneBodyElectronicIntegrals,
 )
 
@@ -38,7 +38,7 @@ class TestElectronicDipoleMoment(PropertyTest):
         super().setUp()
         driver = HDF5Driver(
             hdf5_input=self.get_resource_path(
-                "test_driver_hdf5.hdf5", "drivers/second_quantization/hdf5d"
+                "test_driver_hdf5.hdf5", "drivers/second_q/hdf5d"
             )
         )
         self.prop = driver.run().get_property(ElectronicDipoleMoment)
@@ -53,7 +53,7 @@ class TestElectronicDipoleMoment(PropertyTest):
         self.assertEqual(len(ops), 3)
         with open(
             self.get_resource_path(
-                "dipole_moment_ops.json", "properties/second_quantization/electronic/resources"
+                "dipole_moment_ops.json", "properties/second_q/electronic/resources"
             ),
             "r",
             encoding="utf8",

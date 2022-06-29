@@ -14,8 +14,8 @@
 
 from test import QiskitNatureTestCase
 
-from qiskit_nature.second_quantization.operator_factories.grouped_property import GroupedProperty
-from qiskit_nature.second_quantization.operator_factories.electronic.integrals import (
+from qiskit_nature.second_q.operator_factories.grouped_property import GroupedProperty
+from qiskit_nature.second_q.operator_factories.electronic.integrals import (
     IntegralProperty,
 )
 

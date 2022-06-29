@@ -23,11 +23,11 @@ from qiskit.opflow import ExpectationBase
 from qiskit.opflow.gradients import GradientBase
 from qiskit.utils import QuantumInstance
 from qiskit_nature.circuit.library import UVCC, UVCCSD, VSCF
-from qiskit_nature.second_quantization.operators import QubitConverter
-from qiskit_nature.second_quantization.problems.vibrational import (
+from qiskit_nature.second_q.operators import QubitConverter
+from qiskit_nature.second_q.problems.vibrational import (
     VibrationalStructureProblem,
 )
-from qiskit_nature.second_quantization.operator_factories.vibrational import (
+from qiskit_nature.second_q.operator_factories.vibrational import (
     VibrationalStructureDriverResult,
 )
 from qiskit_nature.deprecation import deprecate_property, deprecate_positional_arguments

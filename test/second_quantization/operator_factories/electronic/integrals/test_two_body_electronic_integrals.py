@@ -20,11 +20,11 @@ import h5py
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_quantization.operator_factories.electronic.bases import (
+from qiskit_nature.second_q.operator_factories.electronic.bases import (
     ElectronicBasis,
     ElectronicBasisTransform,
 )
-from qiskit_nature.second_quantization.operator_factories.electronic.integrals import (
+from qiskit_nature.second_q.operator_factories.electronic.integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )
@@ -133,7 +133,7 @@ class TestTwoBodyElectronicIntegrals(PropertyTest):
             expected = np.fromfile(
                 self.get_resource_path(
                     "two_body_test_to_spin_only_alpha_expected.numpy.bin",
-                    "properties/second_quantization/electronic/integrals/resources",
+                    "properties/second_q/electronic/integrals/resources",
                 )
             ).reshape((4, 4, 4, 4))
             self.assertTrue(np.allclose(mat_so, expected))
@@ -146,7 +146,7 @@ class TestTwoBodyElectronicIntegrals(PropertyTest):
             expected = np.fromfile(
                 self.get_resource_path(
                     "two_body_test_to_spin_alpha_and_beta_expected.numpy.bin",
-                    "properties/second_quantization/electronic/integrals/resources",
+                    "properties/second_q/electronic/integrals/resources",
                 )
             ).reshape((4, 4, 4, 4))
             self.assertTrue(np.allclose(mat_so, expected))
@@ -163,7 +163,7 @@ class TestTwoBodyElectronicIntegrals(PropertyTest):
             with open(
                 self.get_resource_path(
                     "two_body_test_to_second_q_op_only_alpha_expected.json",
-                    "properties/second_quantization/electronic/integrals/resources",
+                    "properties/second_q/electronic/integrals/resources",
                 ),
                 "r",
                 encoding="utf8",
@@ -181,7 +181,7 @@ class TestTwoBodyElectronicIntegrals(PropertyTest):
             with open(
                 self.get_resource_path(
                     "two_body_test_to_second_q_op_alpha_and_beta_expected.json",
-                    "properties/second_quantization/electronic/integrals/resources",
+                    "properties/second_q/electronic/integrals/resources",
                 ),
                 "r",
                 encoding="utf8",

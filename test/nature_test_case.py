@@ -46,7 +46,7 @@ class QiskitNatureTestCase(unittest.TestCase, ABC):
         warnings.filterwarnings("ignore", category=DeprecationWarning, module="pyscf")
         warnings.filterwarnings(action="ignore", category=DeprecationWarning, module=".*drivers*")
         warnings.filterwarnings(
-            action="default", category=DeprecationWarning, module=".*drivers.second_quantization*"
+            action="default", category=DeprecationWarning, module=".*drivers.second_q*"
         )
         warnings.filterwarnings(
             action="ignore", category=DeprecationWarning, module=".*transformers*"
@@ -54,7 +54,7 @@ class QiskitNatureTestCase(unittest.TestCase, ABC):
         warnings.filterwarnings(
             action="default",
             category=DeprecationWarning,
-            module=".*transformers.second_quantization*",
+            module=".*transformers.second_q*",
         )
         self._started_at = time.time()
         self._class_location = __file__

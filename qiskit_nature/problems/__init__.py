@@ -23,7 +23,7 @@ Second-Quantization Problems
 .. autosummary::
    :toctree:
 
-   second_quantization
+   second_q
 
 Sampling Problems
 +++++++++++++++++

@@ -14,7 +14,7 @@
 
 from typing import List, Optional
 from qiskit.utils import optionals as _optionals
-from qiskit_nature.second_quantization.problems import EigenstateResult
+from qiskit_nature.second_q.problems import EigenstateResult
 
 from ..problems.sampling.protein_folding.peptide.peptide import Peptide
 from .utils.protein_plotter import ProteinPlotter

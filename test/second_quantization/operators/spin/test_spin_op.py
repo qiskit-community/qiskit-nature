@@ -22,7 +22,7 @@ import numpy as np
 from ddt import data, ddt, unpack
 from qiskit.quantum_info import Pauli
 
-from qiskit_nature.second_quantization.operators import SpinOp
+from qiskit_nature.second_q.operators import SpinOp
 
 from ..utils import str2list, str2str, str2tuple
 

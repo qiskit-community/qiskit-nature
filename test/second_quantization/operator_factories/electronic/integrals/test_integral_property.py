@@ -19,11 +19,11 @@ from test.properties.property_test import PropertyTest
 import h5py
 import numpy as np
 
-from qiskit_nature.second_quantization.operator_factories.electronic.bases import (
+from qiskit_nature.second_q.operator_factories.electronic.bases import (
     ElectronicBasis,
     ElectronicBasisTransform,
 )
-from qiskit_nature.second_quantization.operator_factories.electronic.integrals import (
+from qiskit_nature.second_q.operator_factories.electronic.integrals import (
     IntegralProperty,
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
@@ -93,7 +93,7 @@ class TestIntegralProperty(PropertyTest):
         with open(
             self.get_resource_path(
                 "integral_property_op.json",
-                "properties/second_quantization/electronic/integrals/resources",
+                "properties/second_q/electronic/integrals/resources",
             ),
             "r",
             encoding="utf8",

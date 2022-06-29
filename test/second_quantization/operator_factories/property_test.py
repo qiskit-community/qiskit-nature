@@ -16,8 +16,8 @@ from test import QiskitNatureTestCase
 
 import numpy as np
 
-from qiskit_nature.second_quantization.operator_factories.driver_metadata import DriverMetadata
-from qiskit_nature.second_quantization.operator_factories.electronic import (
+from qiskit_nature.second_q.operator_factories.driver_metadata import DriverMetadata
+from qiskit_nature.second_q.operator_factories.electronic import (
     AngularMomentum,
     DipoleMoment,
     ElectronicDipoleMoment,
@@ -25,19 +25,19 @@ from qiskit_nature.second_quantization.operator_factories.electronic import (
     Magnetization,
     ParticleNumber,
 )
-from qiskit_nature.second_quantization.operator_factories.electronic.bases import (
+from qiskit_nature.second_q.operator_factories.electronic.bases import (
     ElectronicBasisTransform,
 )
-from qiskit_nature.second_quantization.operator_factories.electronic.integrals import (
+from qiskit_nature.second_q.operator_factories.electronic.integrals import (
     ElectronicIntegrals,
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )
-from qiskit_nature.second_quantization.operator_factories.vibrational import (
+from qiskit_nature.second_q.operator_factories.vibrational import (
     OccupiedModals,
     VibrationalEnergy,
 )
-from qiskit_nature.second_quantization.operator_factories.vibrational.integrals import (
+from qiskit_nature.second_q.operator_factories.vibrational.integrals import (
     VibrationalIntegrals,
 )
 

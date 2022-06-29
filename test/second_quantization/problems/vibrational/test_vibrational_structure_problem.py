@@ -18,8 +18,8 @@ from test import QiskitNatureTestCase
 import numpy as np
 
 from qiskit_nature.drivers.second_quantization import GaussianForcesDriver
-from qiskit_nature.second_quantization.operators import VibrationalOp
-from qiskit_nature.second_quantization.problems import VibrationalStructureProblem
+from qiskit_nature.second_q.operators import VibrationalOp
+from qiskit_nature.second_q.problems import VibrationalStructureProblem
 
 from .resources.expected_ops import _truncation_order_1_op, _truncation_order_2_op
 
@@ -45,7 +45,7 @@ class TestVibrationalStructureProblem(QiskitNatureTestCase):
 
         logfile = self.get_resource_path(
             "test_driver_gaussian_log_C01.txt",
-            "drivers/second_quantization/gaussiand",
+            "drivers/second_q/gaussiand",
         )
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)

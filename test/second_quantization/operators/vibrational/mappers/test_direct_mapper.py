@@ -18,8 +18,8 @@ import warnings
 from test import QiskitNatureTestCase
 
 from qiskit_nature.drivers.second_quantization import GaussianForcesDriver
-from qiskit_nature.second_quantization.operators.vibrational import DirectMapper
-from qiskit_nature.second_quantization.operator_factories.vibrational.bases import HarmonicBasis
+from qiskit_nature.second_q.operators.vibrational import DirectMapper
+from qiskit_nature.second_q.operator_factories.vibrational.bases import HarmonicBasis
 
 from qiskit_nature.test.second_quantization.operators.vibrational.mappers.resources.reference_direct_mapper import (
     _num_modals_2_q_op,
@@ -39,7 +39,7 @@ class TestDirectMapper(QiskitNatureTestCase):
             driver = GaussianForcesDriver(
                 logfile=self.get_resource_path(
                     "test_driver_gaussian_log_C01.txt",
-                    "drivers/second_quantization/gaussiand",
+                    "drivers/second_q/gaussiand",
                 )
             )
             self.driver_result = driver.run()

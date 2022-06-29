@@ -23,8 +23,8 @@ from typing import List, Optional, Tuple, Union, Any, Dict
 import numpy as np
 from qiskit.utils.validation import validate_min
 
-from qiskit_nature.second_quantization.operator_factories.driver_metadata import DriverMetadata
-from qiskit_nature.second_quantization.operator_factories.electronic import (
+from qiskit_nature.second_q.operator_factories.driver_metadata import DriverMetadata
+from qiskit_nature.second_q.operator_factories.electronic import (
     ElectronicStructureDriverResult,
     AngularMomentum,
     Magnetization,
@@ -33,11 +33,11 @@ from qiskit_nature.second_quantization.operator_factories.electronic import (
     DipoleMoment,
     ElectronicDipoleMoment,
 )
-from qiskit_nature.second_quantization.operator_factories.electronic.bases import (
+from qiskit_nature.second_q.operator_factories.electronic.bases import (
     ElectronicBasis,
     ElectronicBasisTransform,
 )
-from qiskit_nature.second_quantization.operator_factories.electronic.integrals import (
+from qiskit_nature.second_q.operator_factories.electronic.integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )

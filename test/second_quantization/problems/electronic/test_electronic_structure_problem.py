@@ -20,7 +20,7 @@ from test.second_quantization.problems.electronic.resources.resource_reader impo
 import warnings
 import numpy as np
 
-from qiskit_nature.second_quantization.operators import QubitConverter
+from qiskit_nature.second_q.operators import QubitConverter
 from qiskit_nature.drivers import Molecule
 from qiskit_nature.drivers.second_quantization import (
     HDF5Driver,
@@ -28,9 +28,9 @@ from qiskit_nature.drivers.second_quantization import (
     ElectronicStructureMoleculeDriver,
     ElectronicStructureDriverType,
 )
-from qiskit_nature.second_quantization.operators.fermionic import ParityMapper
-from qiskit_nature.second_quantization.operators import SecondQuantizedOp
-from qiskit_nature.second_quantization.problems import ElectronicStructureProblem
+from qiskit_nature.second_q.operators.fermionic import ParityMapper
+from qiskit_nature.second_q.operators import SecondQuantizedOp
+from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.transformers.second_quantization.electronic import (
     ActiveSpaceTransformer,
     FreezeCoreTransformer,
@@ -47,13 +47,13 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
         expected_num_of_sec_quant_ops = 7
         expected_fermionic_op_path = self.get_resource_path(
             "H2_631g_ferm_op_two_ints",
-            "problems/second_quantization/electronic/resources",
+            "problems/second_q/electronic/resources",
         )
         expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
 
         driver = HDF5Driver(
             hdf5_input=self.get_resource_path(
-                "H2_631g.hdf5", "transformers/second_quantization/electronic"
+                "H2_631g.hdf5", "transformers/second_q/electronic"
             )
         )
         electronic_structure_problem = ElectronicStructureProblem(driver)
@@ -89,12 +89,12 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
         expected_num_of_sec_quant_ops = 7
         expected_fermionic_op_path = self.get_resource_path(
             "H2_631g_ferm_op_active_space",
-            "problems/second_quantization/electronic/resources",
+            "problems/second_q/electronic/resources",
         )
         expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
         driver = HDF5Driver(
             hdf5_input=self.get_resource_path(
-                "H2_631g.hdf5", "transformers/second_quantization/electronic"
+                "H2_631g.hdf5", "transformers/second_q/electronic"
             )
         )
         trafo = ActiveSpaceTransformer(num_electrons=2, num_molecular_orbitals=2)

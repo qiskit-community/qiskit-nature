@@ -20,7 +20,7 @@ import h5py
 import numpy as np
 
 from qiskit_nature.drivers import QMolecule
-from qiskit_nature.second_quantization.operator_factories.electronic import ParticleNumber
+from qiskit_nature.second_q.operator_factories.electronic import ParticleNumber
 
 
 class TestParticleNumber(PropertyTest):

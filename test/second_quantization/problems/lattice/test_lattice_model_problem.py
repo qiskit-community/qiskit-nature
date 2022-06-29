@@ -17,14 +17,14 @@ from test import QiskitNatureTestCase
 import numpy as np
 
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
-from qiskit_nature.second_quantization.operators import SecondQuantizedOp
-from qiskit_nature.second_quantization.problems import LatticeModelProblem
-from qiskit_nature.second_quantization.problems.lattice import (
+from qiskit_nature.second_q.operators import SecondQuantizedOp
+from qiskit_nature.second_q.problems import LatticeModelProblem
+from qiskit_nature.second_q.problems.lattice import (
     BoundaryCondition,
     FermiHubbardModel,
     LineLattice,
 )
-from qiskit_nature.second_quantization.results import EigenstateResult
+from qiskit_nature.second_q.results import EigenstateResult
 
 
 class TestLatticeModelProblem(QiskitNatureTestCase):

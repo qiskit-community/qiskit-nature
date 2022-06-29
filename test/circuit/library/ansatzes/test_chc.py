@@ -25,9 +25,9 @@ from qiskit_nature.circuit.library import CHC, VSCF
 from qiskit_nature.circuit.library.ansatzes.utils.vibration_excitation_generator import (
     generate_vibration_excitations,
 )
-from qiskit_nature.second_quantization.operators.vibrational import DirectMapper
-from qiskit_nature.second_quantization.operators import QubitConverter
-from qiskit_nature.second_quantization.operators import VibrationalOp
+from qiskit_nature.second_q.operators.vibrational import DirectMapper
+from qiskit_nature.second_q.operators import QubitConverter
+from qiskit_nature.second_q.operators import VibrationalOp
 
 
 class TestCHCVSCF(QiskitNatureTestCase):

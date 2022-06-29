@@ -18,9 +18,9 @@ from test.circuit.library.ansatzes.test_ucc import assert_ucc_like_ansatz
 from ddt import ddt, data, unpack
 
 from qiskit_nature.circuit.library import UCCSD
-from qiskit_nature.second_quantization.operators.fermionic import JordanWignerMapper
-from qiskit_nature.second_quantization.operators import FermionicOp
-from qiskit_nature.second_quantization.operators import QubitConverter
+from qiskit_nature.second_q.operators.fermionic import JordanWignerMapper
+from qiskit_nature.second_q.operators import FermionicOp
+from qiskit_nature.second_q.operators import QubitConverter
 
 
 @ddt

@@ -20,7 +20,7 @@ import importlib
 from enum import Enum
 
 from qiskit.exceptions import MissingOptionalLibraryError
-from qiskit_nature.second_quantization.operator_factories.electronic import (
+from qiskit_nature.second_q.operator_factories.electronic import (
     ElectronicStructureDriverResult,
 )
 from .electronic_structure_driver import ElectronicStructureDriver, MethodType
@@ -77,7 +77,7 @@ class ElectronicStructureDriverType(Enum):
             if driver_class is None:
                 raise error
         else:
-            driver_module = importlib.import_module("qiskit_nature.drivers.second_quantization")
+            driver_module = importlib.import_module("qiskit_nature.drivers.second_q")
             class_obj = getattr(driver_module, driver_type.value, None)
             if class_obj is None:
                 raise MissingOptionalLibraryError(

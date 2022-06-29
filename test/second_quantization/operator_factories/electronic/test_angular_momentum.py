@@ -20,8 +20,8 @@ from test.properties.property_test import PropertyTest
 import h5py
 
 from qiskit_nature.drivers import QMolecule
-from qiskit_nature.second_quantization.operator_factories.electronic import AngularMomentum
-from qiskit_nature.second_quantization.operators import FermionicOp
+from qiskit_nature.second_q.operator_factories.electronic import AngularMomentum
+from qiskit_nature.second_q.operators import FermionicOp
 
 
 class TestAngularMomentum(PropertyTest):
@@ -41,7 +41,7 @@ class TestAngularMomentum(PropertyTest):
         op = self.prop.second_q_ops()["AngularMomentum"]
         with open(
             self.get_resource_path(
-                "angular_momentum_op.json", "properties/second_quantization/electronic/resources"
+                "angular_momentum_op.json", "properties/second_q/electronic/resources"
             ),
             "r",
             encoding="utf8",

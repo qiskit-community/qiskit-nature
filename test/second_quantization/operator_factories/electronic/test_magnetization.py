@@ -19,7 +19,7 @@ from test.properties.property_test import PropertyTest
 import h5py
 
 from qiskit_nature.drivers import QMolecule
-from qiskit_nature.second_quantization.operator_factories.electronic import Magnetization
+from qiskit_nature.second_q.operator_factories.electronic import Magnetization
 
 
 class TestMagnetization(PropertyTest):

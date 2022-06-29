@@ -21,12 +21,12 @@ from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.quantum_info import Operator, Statevector, random_hermitian, random_unitary
 
 from qiskit_nature.circuit.library import BogoliubovTransform
-from qiskit_nature.second_quantization.operators import QubitConverter
-from qiskit_nature.second_quantization.operators.fermionic import (
+from qiskit_nature.second_q.operators import QubitConverter
+from qiskit_nature.second_q.operators.fermionic import (
     BravyiKitaevMapper,
     JordanWignerMapper,
 )
-from qiskit_nature.second_quantization.operator_factories.quadratic_hamiltonian import (
+from qiskit_nature.second_q.operator_factories.quadratic_hamiltonian import (
     QuadraticHamiltonian,
 )
 

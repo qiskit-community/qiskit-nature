@@ -20,8 +20,8 @@ from ddt import ddt, data, unpack
 import h5py
 import numpy as np
 
-from qiskit_nature.second_quantization.operator_factories.vibrational.bases import HarmonicBasis
-from qiskit_nature.second_quantization.operator_factories.vibrational.integrals import (
+from qiskit_nature.second_q.operator_factories.vibrational.bases import HarmonicBasis
+from qiskit_nature.second_q.operator_factories.vibrational.integrals import (
     VibrationalIntegrals,
 )
 
@@ -92,7 +92,7 @@ class TestHarmonicBasis(QiskitNatureTestCase):
             with open(
                 self.get_resource_path(
                     f"test_harmonic_basis_to_basis_{num_body}.json",
-                    "properties/second_quantization/vibrational/bases/resources",
+                    "properties/second_q/vibrational/bases/resources",
                 ),
                 "r",
                 encoding="utf8",
@@ -108,7 +108,7 @@ class TestHarmonicBasis(QiskitNatureTestCase):
             with open(
                 self.get_resource_path(
                     f"test_harmonic_basis_to_second_q_op_{num_body}.json",
-                    "properties/second_quantization/vibrational/bases/resources",
+                    "properties/second_q/vibrational/bases/resources",
                 ),
                 "r",
                 encoding="utf8",

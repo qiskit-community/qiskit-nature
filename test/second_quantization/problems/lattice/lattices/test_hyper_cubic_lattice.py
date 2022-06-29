@@ -15,7 +15,7 @@ from test import QiskitNatureTestCase
 import numpy as np
 from numpy.testing import assert_array_equal
 from retworkx import PyGraph, is_isomorphic
-from qiskit_nature.second_quantization.problems.lattice import (
+from qiskit_nature.second_q.problems.lattice import (
     BoundaryCondition,
     HyperCubicLattice,
 )

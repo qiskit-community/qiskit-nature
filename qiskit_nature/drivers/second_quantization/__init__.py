@@ -11,9 +11,9 @@
 # that they have been altered from the originals.
 
 """
-Second Quantization Drivers (:mod:`qiskit_nature.drivers.second_quantization`)
+Second Quantization Drivers (:mod:`qiskit_nature.drivers.second_q`)
 ==============================================================================
-.. currentmodule:: qiskit_nature.drivers.second_quantization
+.. currentmodule:: qiskit_nature.drivers.second_q
 
 Qiskit Nature requires a computational chemistry program or library, accessed via a
 chemistry *driver*, to be installed on the system for the electronic-structure computation of a
@@ -28,11 +28,11 @@ intermediate data is stored in a :class:`~qiskit_nature.properties.GroupedProper
 contains multiple :class:`~qiskit_nature.properties.Property` objects.
 Some examples for the electronic structure case include:
 
-1. :class:`~qiskit_nature.second_quantization.operator_factories.electronic.ElectronicEnergy`
-2. :class:`~qiskit_nature.second_quantization.operator_factories.electronic.ParticleNumber`
-3. :class:`~qiskit_nature.second_quantization.operator_factories.electronic.AngularMomentum`
-4. :class:`~qiskit_nature.second_quantization.operator_factories.electronic.Magnetization`
-5. :class:`~qiskit_nature.second_quantization.operator_factories.electronic.ElectronicDipoleMoment`
+1. :class:`~qiskit_nature.second_q.operator_factories.electronic.ElectronicEnergy`
+2. :class:`~qiskit_nature.second_q.operator_factories.electronic.ParticleNumber`
+3. :class:`~qiskit_nature.second_q.operator_factories.electronic.AngularMomentum`
+4. :class:`~qiskit_nature.second_q.operator_factories.electronic.Magnetization`
+5. :class:`~qiskit_nature.second_q.operator_factories.electronic.ElectronicDipoleMoment`
 
 Once extracted, the structure of this intermediate data is independent of the driver that was
 used to compute it.  However the values and level of accuracy of such data will depend on the
@@ -43,7 +43,7 @@ exchange input data with another person or computer, you have to (until Qiskit N
 to using the deprecated drivers from the :class:`~qiskit_nature.drivers` module which still output a
 :class:`~qiskit_nature.drivers.QMolecule` object. This object can in turn by stored in a binary
 format known as the `Hierarchical Data Format 5 (HDF5) <https://support.hdfgroup.org/HDF5/>`__.
-You can use the :class:`~qiskit_nature.drivers.second_quantization.HDF5Driver` to read such a binary
+You can use the :class:`~qiskit_nature.drivers.second_q.HDF5Driver` to read such a binary
 file and directly construct a :class:`~qiskit_nature.properties.GroupedProperty` as you would with
 the updated drivers.
 
@@ -85,10 +85,10 @@ to use.
 .. toctree::
    :maxdepth: 1
 
-   qiskit_nature.drivers.second_quantization.gaussiand
-   qiskit_nature.drivers.second_quantization.psi4d
-   qiskit_nature.drivers.second_quantization.pyquanted
-   qiskit_nature.drivers.second_quantization.pyscfd
+   qiskit_nature.drivers.second_q.gaussiand
+   qiskit_nature.drivers.second_q.psi4d
+   qiskit_nature.drivers.second_q.pyquanted
+   qiskit_nature.drivers.second_q.pyscfd
 
 The :class:`HDF5Driver` reads molecular data from a pre-existing HDF5 file, as saved from a
 :class:`~qiskit_nature.drivers.QMolecule`, and is not dependent on any external chemistry

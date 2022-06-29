@@ -19,8 +19,8 @@ from test import QiskitNatureTestCase
 from ddt import ddt, data, unpack
 
 from qiskit.opflow import X, Y, Z, I
-from qiskit_nature.second_quantization.operators import SpinOp
-from qiskit_nature.second_quantization.operators.spin import LogarithmicMapper
+from qiskit_nature.second_q.operators import SpinOp
+from qiskit_nature.second_q.operators.spin import LogarithmicMapper
 
 
 @ddt

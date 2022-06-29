@@ -19,9 +19,9 @@ from ddt import ddt, data, unpack
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.circuit.library import PUCCD
-from qiskit_nature.second_quantization.operators.fermionic import JordanWignerMapper
-from qiskit_nature.second_quantization.operators import FermionicOp
-from qiskit_nature.second_quantization.operators import QubitConverter
+from qiskit_nature.second_q.operators.fermionic import JordanWignerMapper
+from qiskit_nature.second_q.operators import FermionicOp
+from qiskit_nature.second_q.operators import QubitConverter
 
 
 @ddt

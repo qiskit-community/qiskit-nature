@@ -18,8 +18,8 @@ from test import QiskitNatureTestCase
 from qiskit.opflow import I, PauliSumOp, X, Z
 
 from qiskit_nature.drivers.second_quantization import HDF5Driver
-from qiskit_nature.second_quantization.operators.fermionic import ParityMapper
-from qiskit_nature.second_quantization.operators import FermionicOp
+from qiskit_nature.second_q.operators.fermionic import ParityMapper
+from qiskit_nature.second_q.operators import FermionicOp
 
 
 class TestParityMapper(QiskitNatureTestCase):
@@ -47,7 +47,7 @@ class TestParityMapper(QiskitNatureTestCase):
         """Test mapping to qubit operator"""
         driver = HDF5Driver(
             hdf5_input=self.get_resource_path(
-                "test_driver_hdf5.hdf5", "drivers/second_quantization/hdf5d"
+                "test_driver_hdf5.hdf5", "drivers/second_q/hdf5d"
             )
         )
         driver_result = driver.run()

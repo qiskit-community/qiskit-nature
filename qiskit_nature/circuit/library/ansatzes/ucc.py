@@ -24,8 +24,8 @@ from qiskit.circuit.library import EvolvedOperatorAnsatz
 from qiskit.opflow import PauliTrotterEvolution
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_quantization.operators import QubitConverter
-from qiskit_nature.second_quantization.operators import FermionicOp, SecondQuantizedOp
+from qiskit_nature.second_q.operators import QubitConverter
+from qiskit_nature.second_q.operators import FermionicOp, SecondQuantizedOp
 
 from .utils.fermionic_excitation_generator import generate_fermionic_excitations
 

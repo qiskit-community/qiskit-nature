@@ -28,7 +28,7 @@ from qiskit_nature.drivers.second_quantization import (
     VibrationalStructureDriverType,
 )
 from qiskit_nature.exceptions import QiskitNatureError
-from qiskit_nature.second_quantization.operator_factories.vibrational import VibrationalEnergy
+from qiskit_nature.second_q.operator_factories.vibrational import VibrationalEnergy
 import qiskit_nature.optionals as _optionals
 
 
@@ -161,7 +161,7 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
 
         driver = GaussianForcesDriver(
             logfile=self.get_resource_path(
-                f"test_driver_gaussian_log_{suffix}.txt", "drivers/second_quantization/gaussiand"
+                f"test_driver_gaussian_log_{suffix}.txt", "drivers/second_q/gaussiand"
             )
         )
 

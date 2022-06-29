@@ -21,16 +21,16 @@ import numpy as np
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers.second_quantization import HDF5Driver
-from qiskit_nature.second_quantization.operator_factories.electronic import (
+from qiskit_nature.second_q.operator_factories.electronic import (
     ElectronicStructureDriverResult,
     ElectronicEnergy,
     ElectronicDipoleMoment,
 )
-from qiskit_nature.second_quantization.operator_factories.electronic.bases import ElectronicBasis
-from qiskit_nature.second_quantization.operator_factories.electronic.dipole_moment import (
+from qiskit_nature.second_q.operator_factories.electronic.bases import ElectronicBasis
+from qiskit_nature.second_q.operator_factories.electronic.dipole_moment import (
     DipoleMoment,
 )
-from qiskit_nature.second_quantization.operator_factories.electronic.integrals import (
+from qiskit_nature.second_q.operator_factories.electronic.integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )
@@ -85,7 +85,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         """test that transformer has no effect when all orbitals are active."""
         driver = HDF5Driver(
             hdf5_input=self.get_resource_path(
-                "H2_sto3g.hdf5", "transformers/second_quantization/electronic"
+                "H2_sto3g.hdf5", "transformers/second_q/electronic"
             )
         )
         driver_result = driver.run()
@@ -103,7 +103,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         """Test a minimal active space manually."""
         driver = HDF5Driver(
             hdf5_input=self.get_resource_path(
-                "H2_631g.hdf5", "transformers/second_quantization/electronic"
+                "H2_631g.hdf5", "transformers/second_q/electronic"
             )
         )
         driver_result = driver.run()
@@ -181,7 +181,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         """Test an active space with an unpaired electron."""
         driver = HDF5Driver(
             hdf5_input=self.get_resource_path(
-                "BeH_sto3g.hdf5", "transformers/second_quantization/electronic"
+                "BeH_sto3g.hdf5", "transformers/second_q/electronic"
             )
         )
         driver_result = driver.run()
@@ -191,7 +191,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
 
         expected = HDF5Driver(
             hdf5_input=self.get_resource_path(
-                "BeH_sto3g_reduced.hdf5", "transformers/second_quantization/electronic"
+                "BeH_sto3g_reduced.hdf5", "transformers/second_q/electronic"
             )
         ).run()
 
@@ -201,7 +201,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         """Test manual selection of active orbital indices."""
         driver = HDF5Driver(
             hdf5_input=self.get_resource_path(
-                "H2_631g.hdf5", "transformers/second_quantization/electronic"
+                "H2_631g.hdf5", "transformers/second_q/electronic"
             )
         )
         driver_result = driver.run()
@@ -290,7 +290,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         """Test errors are being raised in certain scenarios."""
         driver = HDF5Driver(
             hdf5_input=self.get_resource_path(
-                "H2_sto3g.hdf5", "transformers/second_quantization/electronic"
+                "H2_sto3g.hdf5", "transformers/second_q/electronic"
             )
         )
         driver_result = driver.run()
@@ -306,7 +306,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         """Test based on QMolecule v2 (mo_occ not available)."""
         driver = HDF5Driver(
             hdf5_input=self.get_resource_path(
-                "H2_sto3g_v2.hdf5", "transformers/second_quantization/electronic"
+                "H2_sto3g_v2.hdf5", "transformers/second_q/electronic"
             )
         )
         driver_result = driver.run()
@@ -324,7 +324,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         """Regression test against https://github.com/Qiskit/qiskit-nature/issues/434."""
         driver = HDF5Driver(
             hdf5_input=self.get_resource_path(
-                "H2_631g.hdf5", "transformers/second_quantization/electronic"
+                "H2_631g.hdf5", "transformers/second_q/electronic"
             )
         )
         driver_result = driver.run()
@@ -410,7 +410,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         """
         driver = HDF5Driver(
             hdf5_input=self.get_resource_path(
-                "H2_631g.hdf5", "transformers/second_quantization/electronic"
+                "H2_631g.hdf5", "transformers/second_q/electronic"
             )
         )
         driver_result = driver.run()
@@ -442,7 +442,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         """
         driver = HDF5Driver(
             hdf5_input=self.get_resource_path(
-                "H2_631g.hdf5", "transformers/second_quantization/electronic"
+                "H2_631g.hdf5", "transformers/second_q/electronic"
             )
         )
         driver_result = driver.run()

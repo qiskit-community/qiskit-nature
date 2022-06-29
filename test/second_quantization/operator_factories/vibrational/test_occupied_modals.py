@@ -19,8 +19,8 @@ from test.properties.property_test import PropertyTest
 import h5py
 
 from qiskit_nature.drivers import WatsonHamiltonian
-from qiskit_nature.second_quantization.operator_factories.vibrational import OccupiedModals
-from qiskit_nature.second_quantization.operator_factories.vibrational.bases import HarmonicBasis
+from qiskit_nature.second_q.operator_factories.vibrational import OccupiedModals
+from qiskit_nature.second_q.operator_factories.vibrational.bases import HarmonicBasis
 
 
 class TestOccupiedModals(PropertyTest):

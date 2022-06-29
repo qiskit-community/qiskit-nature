@@ -21,12 +21,12 @@ import h5py
 import numpy as np
 
 from qiskit_nature.drivers.second_quantization import HDF5Driver
-from qiskit_nature.second_quantization.operator_factories.electronic import ElectronicEnergy
-from qiskit_nature.second_quantization.operator_factories.electronic.bases import (
+from qiskit_nature.second_q.operator_factories.electronic import ElectronicEnergy
+from qiskit_nature.second_q.operator_factories.electronic.bases import (
     ElectronicBasis,
     ElectronicBasisTransform,
 )
-from qiskit_nature.second_quantization.operator_factories.electronic.integrals import (
+from qiskit_nature.second_q.operator_factories.electronic.integrals import (
     OneBodyElectronicIntegrals,
 )
 
@@ -39,7 +39,7 @@ class TestElectronicEnergy(PropertyTest):
         super().setUp()
         driver = HDF5Driver(
             hdf5_input=self.get_resource_path(
-                "test_driver_hdf5.hdf5", "drivers/second_quantization/hdf5d"
+                "test_driver_hdf5.hdf5", "drivers/second_q/hdf5d"
             )
         )
         self.prop = cast(ElectronicEnergy, driver.run().get_property(ElectronicEnergy))
@@ -51,7 +51,7 @@ class TestElectronicEnergy(PropertyTest):
         self.assertEqual(len(ops), 1)
         with open(
             self.get_resource_path(
-                "electronic_energy_op.json", "properties/second_quantization/electronic/resources"
+                "electronic_energy_op.json", "properties/second_q/electronic/resources"
             ),
             "r",
             encoding="utf8",

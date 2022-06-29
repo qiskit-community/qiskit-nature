@@ -20,7 +20,7 @@ import logging
 
 from qiskit.circuit import QuantumCircuit
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_quantization.operators import QubitConverter
+from qiskit_nature.second_q.operators import QubitConverter
 
 from .ucc import UCC
 from .utils.fermionic_excitation_generator import (

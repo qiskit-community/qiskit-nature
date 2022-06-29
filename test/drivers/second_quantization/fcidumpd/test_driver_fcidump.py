@@ -19,11 +19,11 @@ from abc import ABC, abstractmethod
 from test import QiskitNatureTestCase
 import numpy as np
 from qiskit_nature.drivers.second_quantization import FCIDumpDriver
-from qiskit_nature.second_quantization.operator_factories.electronic import (
+from qiskit_nature.second_q.operator_factories.electronic import (
     ElectronicEnergy,
     ParticleNumber,
 )
-from qiskit_nature.second_quantization.operator_factories.electronic.bases import ElectronicBasis
+from qiskit_nature.second_q.operator_factories.electronic.bases import ElectronicBasis
 
 
 class BaseTestDriverFCIDump(ABC):
@@ -160,7 +160,7 @@ class TestDriverFCIDumpH2(QiskitNatureTestCase, BaseTestDriverFCIDump):
         self.mo_eri_bb = None
         driver = FCIDumpDriver(
             self.get_resource_path(
-                "test_driver_fcidump_h2.fcidump", "drivers/second_quantization/fcidumpd"
+                "test_driver_fcidump_h2.fcidump", "drivers/second_q/fcidumpd"
             )
         )
         self.driver_result = driver.run()
@@ -177,7 +177,7 @@ class TestDriverFCIDumpLiH(QiskitNatureTestCase, BaseTestDriverFCIDump):
         self.num_beta = 2
         loaded = np.load(
             self.get_resource_path(
-                "test_driver_fcidump_lih.npz", "drivers/second_quantization/fcidumpd"
+                "test_driver_fcidump_lih.npz", "drivers/second_q/fcidumpd"
             )
         )
         self.mo_onee = loaded["mo_onee"]
@@ -187,7 +187,7 @@ class TestDriverFCIDumpLiH(QiskitNatureTestCase, BaseTestDriverFCIDump):
         self.mo_eri_bb = None
         driver = FCIDumpDriver(
             self.get_resource_path(
-                "test_driver_fcidump_lih.fcidump", "drivers/second_quantization/fcidumpd"
+                "test_driver_fcidump_lih.fcidump", "drivers/second_q/fcidumpd"
             )
         )
         self.driver_result = driver.run()
@@ -204,7 +204,7 @@ class TestDriverFCIDumpOH(QiskitNatureTestCase, BaseTestDriverFCIDump):
         self.num_beta = 4
         loaded = np.load(
             self.get_resource_path(
-                "test_driver_fcidump_oh.npz", "drivers/second_quantization/fcidumpd"
+                "test_driver_fcidump_oh.npz", "drivers/second_q/fcidumpd"
             )
         )
         self.mo_onee = loaded["mo_onee"]
@@ -214,7 +214,7 @@ class TestDriverFCIDumpOH(QiskitNatureTestCase, BaseTestDriverFCIDump):
         self.mo_eri_bb = loaded["mo_eri_bb"]
         driver = FCIDumpDriver(
             self.get_resource_path(
-                "test_driver_fcidump_oh.fcidump", "drivers/second_quantization/fcidumpd"
+                "test_driver_fcidump_oh.fcidump", "drivers/second_q/fcidumpd"
             )
         )
         self.driver_result = driver.run()

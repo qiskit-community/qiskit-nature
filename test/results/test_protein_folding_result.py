@@ -18,7 +18,7 @@ from qiskit.utils import algorithm_globals
 from qiskit_nature.problems.sampling.protein_folding.protein_folding_problem import (
     ProteinFoldingProblem,
 )
-from qiskit_nature.second_quantization.results.protein_folding_result import ProteinFoldingResult
+from qiskit_nature.second_q.results.protein_folding_result import ProteinFoldingResult
 from qiskit_nature.problems.sampling.protein_folding.interactions.miyazawa_jernigan_interaction import (
     MiyazawaJerniganInteraction,
 )

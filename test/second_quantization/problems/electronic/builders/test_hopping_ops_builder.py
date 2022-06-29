@@ -17,11 +17,11 @@ from test import QiskitNatureTestCase
 from qiskit.opflow import PauliSumOp
 from qiskit.utils import algorithm_globals
 
-from qiskit_nature.second_quantization.operators import QubitConverter
+from qiskit_nature.second_q.operators import QubitConverter
 from qiskit_nature.drivers import UnitsType
 from qiskit_nature.drivers.second_quantization import PySCFDriver
-from qiskit_nature.second_quantization.operators.fermionic import JordanWignerMapper
-from qiskit_nature.second_quantization.problems import ElectronicStructureProblem
+from qiskit_nature.second_q.operators.fermionic import JordanWignerMapper
+from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.problems.second_quantization.electronic.builders.hopping_ops_builder import (
     _build_qeom_hopping_ops,
 )

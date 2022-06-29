@@ -20,7 +20,7 @@ import importlib
 from enum import Enum
 
 from qiskit.exceptions import MissingOptionalLibraryError
-from qiskit_nature.second_quantization.operator_factories.vibrational import (
+from qiskit_nature.second_q.operator_factories.vibrational import (
     VibrationalStructureDriverResult,
 )
 from .vibrational_structure_driver import VibrationalStructureDriver
@@ -67,7 +67,7 @@ class VibrationalStructureDriverType(Enum):
             if driver_class is None:
                 raise missing_error
         else:
-            driver_module = importlib.import_module("qiskit_nature.drivers.second_quantization")
+            driver_module = importlib.import_module("qiskit_nature.drivers.second_q")
             driver_class = getattr(driver_module, driver_type.value, None)
             if driver_class is None:
                 raise MissingOptionalLibraryError(

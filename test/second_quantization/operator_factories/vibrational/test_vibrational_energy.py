@@ -21,8 +21,8 @@ import h5py
 import numpy as np
 
 from qiskit_nature.drivers import WatsonHamiltonian
-from qiskit_nature.second_quantization.operator_factories.vibrational import VibrationalEnergy
-from qiskit_nature.second_quantization.operator_factories.vibrational.bases import HarmonicBasis
+from qiskit_nature.second_q.operator_factories.vibrational import VibrationalEnergy
+from qiskit_nature.second_q.operator_factories.vibrational.bases import HarmonicBasis
 
 
 class TestVibrationalEnergy(PropertyTest):
@@ -73,7 +73,7 @@ class TestVibrationalEnergy(PropertyTest):
         self.assertEqual(len(ops), 1)
         with open(
             self.get_resource_path(
-                "vibrational_energy_op.json", "properties/second_quantization/vibrational/resources"
+                "vibrational_energy_op.json", "properties/second_q/vibrational/resources"
             ),
             "r",
             encoding="utf8",

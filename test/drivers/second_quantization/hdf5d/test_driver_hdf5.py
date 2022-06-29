@@ -23,7 +23,7 @@ from test import QiskitNatureTestCase
 from test.drivers.second_quantization.test_driver import TestDriver
 from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.drivers import QMolecule
-from qiskit_nature.second_quantization.operator_factories.electronic import (
+from qiskit_nature.second_q.operator_factories.electronic import (
     ElectronicStructureDriverResult,
 )
 
@@ -35,7 +35,7 @@ class TestDriverHDF5(QiskitNatureTestCase, TestDriver):
         super().setUp()
         driver = HDF5Driver(
             hdf5_input=self.get_resource_path(
-                "test_driver_hdf5.hdf5", "drivers/second_quantization/hdf5d"
+                "test_driver_hdf5.hdf5", "drivers/second_q/hdf5d"
             )
         )
         self.driver_result = driver.run()
@@ -43,7 +43,7 @@ class TestDriverHDF5(QiskitNatureTestCase, TestDriver):
     def test_convert(self):
         """Test the legacy-conversion method."""
         legacy_file_path = self.get_resource_path(
-            "test_driver_hdf5_legacy.hdf5", "drivers/second_quantization/hdf5d"
+            "test_driver_hdf5_legacy.hdf5", "drivers/second_q/hdf5d"
         )
         with self.subTest("replace=True"):
             # pylint: disable=consider-using-with
@@ -96,7 +96,7 @@ class TestDriverHDF5Legacy(QiskitNatureTestCase, TestDriver):
     def setUp(self):
         super().setUp()
         hdf5_file = self.get_resource_path(
-            "test_driver_hdf5_legacy.hdf5", "drivers/second_quantization/hdf5d"
+            "test_driver_hdf5_legacy.hdf5", "drivers/second_q/hdf5d"
         )
         # Using QMolecule directly here to avoid the deprecation on HDF5Driver.run method
         # to be triggered and let it be handled on the method test_convert

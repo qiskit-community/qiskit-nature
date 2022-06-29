@@ -25,7 +25,7 @@ import qiskit
 from qiskit.algorithms import NumPyMinimumEigensolver, VQE
 from qiskit.utils import algorithm_globals, QuantumInstance, optionals
 import qiskit_nature.optionals as _optionals
-from qiskit_nature.second_quantization.operators import SecondQuantizedOp
+from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.algorithms import (
     GroundStateEigensolver,
     BOPESSampler,
@@ -42,8 +42,8 @@ from qiskit_nature.drivers.second_quantization import (
 from qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories import (
     VQEUCCFactory,
 )
-from qiskit_nature.second_quantization.operators.fermionic import ParityMapper, JordanWignerMapper
-from qiskit_nature.second_quantization.operators import QubitConverter
+from qiskit_nature.second_q.operators.fermionic import ParityMapper, JordanWignerMapper
+from qiskit_nature.second_q.operators import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem, BaseProblem
 
 

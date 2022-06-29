@@ -16,7 +16,7 @@ from abc import ABC, abstractmethod
 
 from qiskit.algorithms import Eigensolver
 
-from qiskit_nature.second_quantization.problems.base_problem import BaseProblem
+from qiskit_nature.second_q.problems.base_problem import BaseProblem
 
 
 class EigensolverFactory(ABC):

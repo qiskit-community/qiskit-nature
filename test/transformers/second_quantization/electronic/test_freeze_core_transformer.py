@@ -20,7 +20,7 @@ import numpy as np
 
 from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.transformers.second_quantization.electronic import FreezeCoreTransformer
-from qiskit_nature.second_quantization.operator_factories.electronic.bases import ElectronicBasis
+from qiskit_nature.second_q.operator_factories.electronic.bases import ElectronicBasis
 
 
 @ddt
@@ -43,7 +43,7 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
         """Test that transformer has no effect when all orbitals are active."""
         driver = HDF5Driver(
             hdf5_input=self.get_resource_path(
-                "H2_sto3g.hdf5", "transformers/second_quantization/electronic"
+                "H2_sto3g.hdf5", "transformers/second_q/electronic"
             )
         )
         driver_result = driver.run()
@@ -65,7 +65,7 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
         """Test the `freeze_core` convenience argument."""
         driver = HDF5Driver(
             hdf5_input=self.get_resource_path(
-                "LiH_sto3g.hdf5", "transformers/second_quantization/electronic"
+                "LiH_sto3g.hdf5", "transformers/second_q/electronic"
             )
         )
         driver_result = driver.run()
@@ -75,7 +75,7 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
 
         expected = HDF5Driver(
             hdf5_input=self.get_resource_path(
-                "LiH_sto3g_reduced.hdf5", "transformers/second_quantization/electronic"
+                "LiH_sto3g_reduced.hdf5", "transformers/second_q/electronic"
             )
         ).run()
 
@@ -85,7 +85,7 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
         """Test the `freeze_core` convenience argument in combination with `remove_orbitals`."""
         driver = HDF5Driver(
             hdf5_input=self.get_resource_path(
-                "BeH_sto3g.hdf5", "transformers/second_quantization/electronic"
+                "BeH_sto3g.hdf5", "transformers/second_q/electronic"
             )
         )
         driver_result = driver.run()
@@ -95,7 +95,7 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
 
         expected = HDF5Driver(
             hdf5_input=self.get_resource_path(
-                "BeH_sto3g_reduced.hdf5", "transformers/second_quantization/electronic"
+                "BeH_sto3g_reduced.hdf5", "transformers/second_q/electronic"
             )
         ).run()
         expected.get_property("ParticleNumber")._num_spin_orbitals = 6
@@ -109,7 +109,7 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
         """
         driver = HDF5Driver(
             hdf5_input=self.get_resource_path(
-                "LiH_sto3g.hdf5", "transformers/second_quantization/electronic"
+                "LiH_sto3g.hdf5", "transformers/second_q/electronic"
             )
         )
         driver_result = driver.run()

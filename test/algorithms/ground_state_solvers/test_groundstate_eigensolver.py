@@ -37,12 +37,12 @@ from qiskit_nature.algorithms import (
 )
 from qiskit_nature.circuit.library import HartreeFock, UCC, UCCSD
 from qiskit_nature.drivers.second_quantization import HDF5Driver
-from qiskit_nature.second_quantization.operators.fermionic import JordanWignerMapper, ParityMapper
-from qiskit_nature.second_quantization.operators import QubitConverter
-from qiskit_nature.second_quantization.problems import ElectronicStructureProblem
-from qiskit_nature.second_quantization.operator_factories.electronic import ElectronicEnergy
-from qiskit_nature.second_quantization.operator_factories.electronic.bases import ElectronicBasis
-from qiskit_nature.second_quantization.operator_factories.electronic.integrals import (
+from qiskit_nature.second_q.operators.fermionic import JordanWignerMapper, ParityMapper
+from qiskit_nature.second_q.operators import QubitConverter
+from qiskit_nature.second_q.problems import ElectronicStructureProblem
+from qiskit_nature.second_q.operator_factories.electronic import ElectronicEnergy
+from qiskit_nature.second_q.operator_factories.electronic.bases import ElectronicBasis
+from qiskit_nature.second_q.operator_factories.electronic.integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )
@@ -58,7 +58,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         super().setUp()
         warnings.filterwarnings("ignore", category=DeprecationWarning, module=".*drivers.*")
         self.driver = HDF5Driver(
-            self.get_resource_path("test_driver_hdf5.hdf5", "drivers/second_quantization/hdf5d")
+            self.get_resource_path("test_driver_hdf5.hdf5", "drivers/second_q/hdf5d")
         )
         self.seed = 56
         algorithm_globals.random_seed = self.seed
@@ -486,7 +486,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         """
         driver = HDF5Driver(
             hdf5_input=self.get_resource_path(
-                "LiH_sto3g.hdf5", "transformers/second_quantization/electronic"
+                "LiH_sto3g.hdf5", "transformers/second_q/electronic"
             )
         )
         problem = ElectronicStructureProblem(driver, [FreezeCoreTransformer()])

@@ -19,5 +19,5 @@ Transformers (:mod:`qiskit_nature.transformers`)
 .. autosummary::
    :toctree:
 
-   second_quantization
+   second_q
 """

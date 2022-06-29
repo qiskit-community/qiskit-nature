@@ -29,7 +29,7 @@ Driver Common
 .. autosummary::
    :toctree:
 
-   second_quantization
+   second_q
 
 """
 

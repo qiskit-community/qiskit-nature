@@ -19,9 +19,9 @@ from ddt import data, ddt, unpack
 from qiskit import transpile
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.circuit.library import UCC
-from qiskit_nature.second_quantization.operators import QubitConverter
-from qiskit_nature.second_quantization.operators.fermionic import JordanWignerMapper, ParityMapper
-from qiskit_nature.second_quantization.operators import FermionicOp
+from qiskit_nature.second_q.operators import QubitConverter
+from qiskit_nature.second_q.operators.fermionic import JordanWignerMapper, ParityMapper
+from qiskit_nature.second_q.operators import FermionicOp
 
 
 def assert_ucc_like_ansatz(test_case, ansatz, num_spin_orbitals, expected_ops):

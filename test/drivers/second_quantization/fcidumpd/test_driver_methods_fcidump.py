@@ -27,7 +27,7 @@ class TestDriverMethodsFCIDump(TestDriverMethods):
         """LiH test"""
         driver = FCIDumpDriver(
             self.get_resource_path(
-                "test_driver_fcidump_lih.fcidump", "drivers/second_quantization/fcidumpd"
+                "test_driver_fcidump_lih.fcidump", "drivers/second_q/fcidumpd"
             )
         )
         result = self._run_driver(driver)
@@ -37,7 +37,7 @@ class TestDriverMethodsFCIDump(TestDriverMethods):
         """OH test"""
         driver = FCIDumpDriver(
             self.get_resource_path(
-                "test_driver_fcidump_oh.fcidump", "drivers/second_quantization/fcidumpd"
+                "test_driver_fcidump_oh.fcidump", "drivers/second_q/fcidumpd"
             )
         )
         result = self._run_driver(driver)
@@ -49,13 +49,13 @@ class TestDriverMethodsFCIDump(TestDriverMethods):
         with self.assertLogs("qiskit_nature", level="WARNING") as log:
             driver = FCIDumpDriver(
                 self.get_resource_path(
-                    "test_driver_fcidump_lih.fcidump", "drivers/second_quantization/fcidumpd"
+                    "test_driver_fcidump_lih.fcidump", "drivers/second_q/fcidumpd"
                 )
             )
             result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
             self._assert_energy(result, "lih")
         warning = (
-            "WARNING:qiskit_nature.drivers.second_quantization.qmolecule:Missing molecule !"
+            "WARNING:qiskit_nature.drivers.second_q.qmolecule:Missing molecule !"
             "information! Returning empty core orbital list."
         )
         self.assertIn(warning, log.output)
@@ -66,13 +66,13 @@ class TestDriverMethodsFCIDump(TestDriverMethods):
         with self.assertLogs("qiskit_nature", level="WARNING") as log:
             driver = FCIDumpDriver(
                 self.get_resource_path(
-                    "test_driver_fcidump_oh.fcidump", "drivers/second_quantization/fcidumpd"
+                    "test_driver_fcidump_oh.fcidump", "drivers/second_q/fcidumpd"
                 )
             )
             result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
             self._assert_energy(result, "oh")
         warning = (
-            "WARNING:qiskit_nature.drivers.second_quantization.qmolecule:Missing molecule "
+            "WARNING:qiskit_nature.drivers.second_q.qmolecule:Missing molecule "
             "information! Returning empty core orbital list."
         )
         self.assertIn(warning, log.output)
@@ -82,7 +82,7 @@ class TestDriverMethodsFCIDump(TestDriverMethods):
         """LiH with num_atoms test"""
         driver = FCIDumpDriver(
             self.get_resource_path(
-                "test_driver_fcidump_lih.fcidump", "drivers/second_quantization/fcidumpd"
+                "test_driver_fcidump_lih.fcidump", "drivers/second_q/fcidumpd"
             ),
             # atoms=["Li", "H"],
         )
@@ -94,7 +94,7 @@ class TestDriverMethodsFCIDump(TestDriverMethods):
         """OH with num_atoms test"""
         driver = FCIDumpDriver(
             self.get_resource_path(
-                "test_driver_fcidump_oh.fcidump", "drivers/second_quantization/fcidumpd"
+                "test_driver_fcidump_oh.fcidump", "drivers/second_q/fcidumpd"
             ),
             # atoms=["O", "H"],
         )
@@ -109,7 +109,7 @@ class TestFCIDumpDriverDriverResult(QiskitNatureTestCase):
         """Test DriverResult log function."""
         driver_result = FCIDumpDriver(
             self.get_resource_path(
-                "test_driver_fcidump_h2.fcidump", "drivers/second_quantization/fcidumpd"
+                "test_driver_fcidump_h2.fcidump", "drivers/second_q/fcidumpd"
             )
         ).run()
         with self.assertLogs("qiskit_nature", level="DEBUG") as _:
@@ -119,7 +119,7 @@ class TestFCIDumpDriverDriverResult(QiskitNatureTestCase):
         """Test DriverResult log function."""
         driver_result = FCIDumpDriver(
             self.get_resource_path(
-                "test_driver_fcidump_h2.fcidump", "drivers/second_quantization/fcidumpd"
+                "test_driver_fcidump_h2.fcidump", "drivers/second_q/fcidumpd"
             ),
             # atoms=["H", "H"],
         ).run()

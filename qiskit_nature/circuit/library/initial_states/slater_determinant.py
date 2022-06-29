@@ -16,8 +16,8 @@ from typing import Optional
 
 import numpy as np
 from qiskit import QuantumCircuit, QuantumRegister
-from qiskit_nature.second_quantization.operators import QubitConverter
-from qiskit_nature.second_quantization.operators.fermionic import JordanWignerMapper
+from qiskit_nature.second_q.operators import QubitConverter
+from qiskit_nature.second_q.operators.fermionic import JordanWignerMapper
 
 from .utils.givens_rotations import _prepare_slater_determinant_jw
 
@@ -97,7 +97,7 @@ class SlaterDeterminant(QuantumCircuit):
             ValueError: transformation_matrix must have orthonormal rows.
             NotImplementedError: Currently, only the Jordan-Wigner Transform is supported.
                 Please use
-                :class:`qiskit_nature.second_quantization.operators.fermionic.JordanWignerMapper`
+                :class:`qiskit_nature.second_q.operators.fermionic.JordanWignerMapper`
                 to construct the qubit mapper used to construct `qubit_converter`.
         """
         if validate:
@@ -118,6 +118,6 @@ class SlaterDeterminant(QuantumCircuit):
             raise NotImplementedError(
                 "Currently, only the Jordan-Wigner Transform is supported. "
                 "Please use "
-                "qiskit_nature.second_quantization.operators.fermionic.JordanWignerMapper "
+                "qiskit_nature.second_q.operators.fermionic.JordanWignerMapper "
                 "to construct the qubit mapper used to construct qubit_converter."
             )

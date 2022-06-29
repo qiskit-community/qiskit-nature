@@ -53,7 +53,7 @@ class QMolecule:
             DeprecatedType.CLASS,
             "QMolecule",
             additional_msg=(
-                "Instead look towards the qiskit_nature.second_quantization.operator_factories.electronic "
+                "Instead look towards the qiskit_nature.second_q.operator_factories.electronic "
                 "module. The new return object for drivers is the ElectronicStructureDriverResult "
                 "which you can construct from a QMolecule via the `from_legacy_driver_result()` "
                 "method."

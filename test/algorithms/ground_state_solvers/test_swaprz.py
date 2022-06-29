@@ -26,10 +26,10 @@ from qiskit.utils import QuantumInstance, algorithm_globals
 from qiskit_nature.algorithms import GroundStateEigensolver
 from qiskit_nature.circuit.library import HartreeFock
 from qiskit_nature.drivers.second_quantization import HDF5Driver
-from qiskit_nature.second_quantization.operators.fermionic import ParityMapper
-from qiskit_nature.second_quantization.operators import QubitConverter
-from qiskit_nature.second_quantization.problems import ElectronicStructureProblem
-from qiskit_nature.second_quantization.operator_factories.electronic import ParticleNumber
+from qiskit_nature.second_q.operators.fermionic import ParityMapper
+from qiskit_nature.second_q.operators import QubitConverter
+from qiskit_nature.second_q.problems import ElectronicStructureProblem
+from qiskit_nature.second_q.operator_factories.electronic import ParticleNumber
 
 
 class TestExcitationPreserving(QiskitNatureTestCase):
@@ -51,7 +51,7 @@ class TestExcitationPreserving(QiskitNatureTestCase):
         """Test the excitation preserving wavefunction on a chemistry example."""
 
         driver = HDF5Driver(
-            self.get_resource_path("test_driver_hdf5.hdf5", "drivers/second_quantization/hdf5d")
+            self.get_resource_path("test_driver_hdf5.hdf5", "drivers/second_q/hdf5d")
         )
 
         converter = QubitConverter(ParityMapper())

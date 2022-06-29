@@ -23,7 +23,7 @@ from ddt import data, ddt, unpack
 from scipy.sparse import csc_matrix
 from scipy.sparse.linalg import eigs
 
-from qiskit_nature.second_quantization.operators import FermionicOp
+from qiskit_nature.second_q.operators import FermionicOp
 
 from ..utils import str2list, str2str, str2tuple
 

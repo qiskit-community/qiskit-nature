@@ -4,8 +4,8 @@ import numpy
 from qiskit_nature.constants import BOHR
 from qiskit_nature.drivers import Molecule
 from qiskit_nature.hdf5 import save_to_hdf5
-from qiskit_nature.second_quantization.operator_factories.driver_metadata import DriverMetadata
-from qiskit_nature.second_quantization.operator_factories.electronic import (
+from qiskit_nature.second_q.operator_factories.driver_metadata import DriverMetadata
+from qiskit_nature.second_q.operator_factories.electronic import (
     AngularMomentum,
     DipoleMoment,
     ElectronicDipoleMoment,
@@ -14,11 +14,11 @@ from qiskit_nature.second_quantization.operator_factories.electronic import (
     Magnetization,
     ParticleNumber,
 )
-from qiskit_nature.second_quantization.operator_factories.electronic.bases import (
+from qiskit_nature.second_q.operator_factories.electronic.bases import (
     ElectronicBasis,
     ElectronicBasisTransform,
 )
-from qiskit_nature.second_quantization.operator_factories.electronic.integrals import (
+from qiskit_nature.second_q.operator_factories.electronic.integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )

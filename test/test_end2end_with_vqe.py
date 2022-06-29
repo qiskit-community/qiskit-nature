@@ -22,9 +22,9 @@ from qiskit.algorithms.optimizers import COBYLA
 from qiskit.circuit.library import TwoLocal
 from qiskit.utils import algorithm_globals, QuantumInstance
 from qiskit_nature.drivers.second_quantization import HDF5Driver
-from qiskit_nature.second_quantization.operators.fermionic import ParityMapper
-from qiskit_nature.second_quantization.operators.qubit_converter import QubitConverter
-from qiskit_nature.second_quantization.problems.electronic import ElectronicStructureProblem
+from qiskit_nature.second_q.operators.fermionic import ParityMapper
+from qiskit_nature.second_q.operators.qubit_converter import QubitConverter
+from qiskit_nature.second_q.problems.electronic import ElectronicStructureProblem
 
 
 class TestEnd2End(QiskitNatureTestCase):
@@ -36,7 +36,7 @@ class TestEnd2End(QiskitNatureTestCase):
 
         driver = HDF5Driver(
             hdf5_input=self.get_resource_path(
-                "test_driver_hdf5.hdf5", "drivers/second_quantization/hdf5d"
+                "test_driver_hdf5.hdf5", "drivers/second_q/hdf5d"
             )
         )
         problem = ElectronicStructureProblem(driver)

@@ -61,7 +61,7 @@ must be compiled into object code that can be used by Python. This is accomplish
 `Fortran to Python Interface Generator (F2PY) <https://docs.scipy.org/doc/numpy/f2py/>`__,
 which is part of the `NumPy <http://www.numpy.org/>`__ Python library.
 Specifically, on your command prompt window, change directory to the
-`qiskit_nature/drivers/second_quantization/gaussiand/gauopen` directory inside the Qiskit
+`qiskit_nature/drivers/second_q/gaussiand/gauopen` directory inside the Qiskit
 installation directory, and while in the Python environment created for Qiskit and the nature
 module, invoke `f2py` on `qcmatrixio.F` as explained below.
 

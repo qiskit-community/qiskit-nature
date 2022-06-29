@@ -20,8 +20,8 @@ import numpy as np
 
 from qiskit_nature.hdf5 import load_from_hdf5
 from qiskit_nature.drivers.second_quantization import GaussianLogDriver, GaussianLogResult
-from qiskit_nature.second_quantization.operator_factories.vibrational import VibrationalEnergy
-from qiskit_nature.second_quantization.operator_factories.vibrational.integrals import (
+from qiskit_nature.second_q.operator_factories.vibrational import VibrationalEnergy
+from qiskit_nature.second_q.operator_factories.vibrational.integrals import (
     VibrationalIntegrals,
 )
 import qiskit_nature.optionals as _optionals
@@ -33,7 +33,7 @@ class TestDriverGaussianLog(QiskitNatureTestCase):
     def setUp(self):
         super().setUp()
         self.logfile = self.get_resource_path(
-            "test_driver_gaussian_log_A03.txt", "drivers/second_quantization/gaussiand"
+            "test_driver_gaussian_log_A03.txt", "drivers/second_q/gaussiand"
         )
 
     @unittest.skipIf(not _optionals.HAS_GAUSSIAN, "gaussian not available.")
@@ -146,7 +146,7 @@ class TestDriverGaussianLog(QiskitNatureTestCase):
         expected = load_from_hdf5(
             self.get_resource_path(
                 "test_driver_gaussian_log_vibrational_energy.hdf5",
-                "drivers/second_quantization/gaussiand",
+                "drivers/second_q/gaussiand",
             )
         )
 

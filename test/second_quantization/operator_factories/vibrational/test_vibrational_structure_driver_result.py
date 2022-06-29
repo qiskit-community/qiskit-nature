@@ -17,10 +17,10 @@ from test.properties.property_test import PropertyTest
 import h5py
 
 from qiskit_nature.drivers.second_quantization import GaussianForcesDriver
-from qiskit_nature.second_quantization.operator_factories.vibrational import (
+from qiskit_nature.second_q.operator_factories.vibrational import (
     VibrationalStructureDriverResult,
 )
-from qiskit_nature.second_quantization.operator_factories.vibrational.bases import HarmonicBasis
+from qiskit_nature.second_q.operator_factories.vibrational.bases import HarmonicBasis
 
 
 class TestVibrationalStructureDriverResult(PropertyTest):
@@ -32,7 +32,7 @@ class TestVibrationalStructureDriverResult(PropertyTest):
 
         driver = GaussianForcesDriver(
             logfile=self.get_resource_path(
-                "test_driver_gaussian_log_C01.txt", "drivers/second_quantization/gaussiand"
+                "test_driver_gaussian_log_C01.txt", "drivers/second_q/gaussiand"
             )
         )
         self.expected = driver.run()
@@ -43,7 +43,7 @@ class TestVibrationalStructureDriverResult(PropertyTest):
         with h5py.File(
             self.get_resource_path(
                 "vibrational_structure_driver_result.hdf5",
-                "properties/second_quantization/vibrational/resources",
+                "properties/second_q/vibrational/resources",
             ),
             "r",
         ) as file:

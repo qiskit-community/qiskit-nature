@@ -17,7 +17,7 @@ from __future__ import annotations
 from typing import Any, Optional, Union
 from qiskit_nature import QiskitNatureError
 
-from qiskit_nature.second_quantization.operator_factories.vibrational import (
+from qiskit_nature.second_q.operator_factories.vibrational import (
     OccupiedModals,
     VibrationalStructureDriverResult,
 )

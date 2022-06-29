@@ -62,7 +62,7 @@ the ground-state (minimum) energy of a molecule.
 from qiskit_nature.settings import settings
 from qiskit_nature.drivers import UnitsType
 from qiskit_nature.drivers.second_quantization import PySCFDriver
-from qiskit_nature.second_quantization.problems.electronic import ElectronicStructureProblem
+from qiskit_nature.second_q.problems.electronic import ElectronicStructureProblem
 
 settings.dict_aux_operators = True
 
@@ -89,8 +89,8 @@ from qiskit.algorithms.optimizers import L_BFGS_B
 optimizer = L_BFGS_B()
 
 # setup the mapper and qubit converter
-from qiskit_nature.second_quantization.operators.fermionic import ParityMapper
-from qiskit_nature.second_quantization.operators import QubitConverter
+from qiskit_nature.second_q.operators.fermionic import ParityMapper
+from qiskit_nature.second_q.operators import QubitConverter
 
 mapper = ParityMapper()
 converter = QubitConverter(mapper=mapper, two_qubit_reduction=True)
