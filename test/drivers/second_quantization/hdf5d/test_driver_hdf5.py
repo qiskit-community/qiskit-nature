@@ -34,9 +34,7 @@ class TestDriverHDF5(QiskitNatureTestCase, TestDriver):
     def setUp(self):
         super().setUp()
         driver = HDF5Driver(
-            hdf5_input=self.get_resource_path(
-                "test_driver_hdf5.hdf5", "drivers/second_q/hdf5d"
-            )
+            hdf5_input=self.get_resource_path("test_driver_hdf5.hdf5", "drivers/second_q/hdf5d")
         )
         self.driver_result = driver.run()
 
@@ -95,9 +93,7 @@ class TestDriverHDF5Legacy(QiskitNatureTestCase, TestDriver):
 
     def setUp(self):
         super().setUp()
-        hdf5_file = self.get_resource_path(
-            "test_driver_hdf5_legacy.hdf5", "drivers/second_q/hdf5d"
-        )
+        hdf5_file = self.get_resource_path("test_driver_hdf5_legacy.hdf5", "drivers/second_q/hdf5d")
         # Using QMolecule directly here to avoid the deprecation on HDF5Driver.run method
         # to be triggered and let it be handled on the method test_convert
         # Those deprecation messages are shown only once and this one could prevent

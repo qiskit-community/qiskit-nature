@@ -42,9 +42,7 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
     def test_full_active_space(self, kwargs):
         """Test that transformer has no effect when all orbitals are active."""
         driver = HDF5Driver(
-            hdf5_input=self.get_resource_path(
-                "H2_sto3g.hdf5", "transformers/second_q/electronic"
-            )
+            hdf5_input=self.get_resource_path("H2_sto3g.hdf5", "transformers/second_q/electronic")
         )
         driver_result = driver.run()
 
@@ -64,9 +62,7 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
     def test_freeze_core(self):
         """Test the `freeze_core` convenience argument."""
         driver = HDF5Driver(
-            hdf5_input=self.get_resource_path(
-                "LiH_sto3g.hdf5", "transformers/second_q/electronic"
-            )
+            hdf5_input=self.get_resource_path("LiH_sto3g.hdf5", "transformers/second_q/electronic")
         )
         driver_result = driver.run()
 
@@ -84,9 +80,7 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
     def test_freeze_core_with_remove_orbitals(self):
         """Test the `freeze_core` convenience argument in combination with `remove_orbitals`."""
         driver = HDF5Driver(
-            hdf5_input=self.get_resource_path(
-                "BeH_sto3g.hdf5", "transformers/second_q/electronic"
-            )
+            hdf5_input=self.get_resource_path("BeH_sto3g.hdf5", "transformers/second_q/electronic")
         )
         driver_result = driver.run()
 
@@ -108,9 +102,7 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
         Regression test against https://github.com/Qiskit/qiskit-nature/issues/652
         """
         driver = HDF5Driver(
-            hdf5_input=self.get_resource_path(
-                "LiH_sto3g.hdf5", "transformers/second_q/electronic"
-            )
+            hdf5_input=self.get_resource_path("LiH_sto3g.hdf5", "transformers/second_q/electronic")
         )
         driver_result = driver.run()
 

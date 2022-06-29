@@ -22,8 +22,8 @@ from qiskit_nature.second_q.operators import QubitConverter
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.problems import EigenstateResult, LatticeModelResult
 
-from ..base_problem import BaseProblem
 from qiskit_nature.second_q.operator_factories.lattice.lattice_model import LatticeModel
+from ..base_problem import BaseProblem
 
 
 class LatticeModelProblem(BaseProblem):

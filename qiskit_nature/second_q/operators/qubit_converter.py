@@ -22,10 +22,10 @@ from qiskit.opflow.converters import TwoQubitReduction
 from qiskit.opflow.primitive_ops import Z2Symmetries
 
 from qiskit_nature import ListOrDictType, QiskitNatureError
+from qiskit_nature.converters.second_quantization.utils import ListOrDict
+
 from .qubit_mapper import QubitMapper
 from .second_quantized_op import SecondQuantizedOp
-
-from qiskit_nature.converters.second_quantization.utils import ListOrDict
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +37,7 @@ class QubitConverter:
     when 2nd quantized operators are requested to be converted (mapped) to qubit operators.
 
     For a Fermionic system, when its a electronic problem, there are certain mappers, such as
-    the :class:`~qiskit_nature.mappers.second_quantization.ParityMapper` that introduces known
+    the :class:`~qiskit_nature.mappers.second_q.ParityMapper` that introduces known
     symmetries, by virtue of the mapping, that can be exploited to reduce the size of the
     problem, i.e the qubit operator, by two qubits. The two qubit reduction setting indicates
     to do this where possible - i.e. mapper supports it and the number of particles in the

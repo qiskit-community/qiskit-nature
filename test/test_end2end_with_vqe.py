@@ -35,9 +35,7 @@ class TestEnd2End(QiskitNatureTestCase):
         algorithm_globals.random_seed = 42
 
         driver = HDF5Driver(
-            hdf5_input=self.get_resource_path(
-                "test_driver_hdf5.hdf5", "drivers/second_q/hdf5d"
-            )
+            hdf5_input=self.get_resource_path("test_driver_hdf5.hdf5", "drivers/second_q/hdf5d")
         )
         problem = ElectronicStructureProblem(driver)
         second_q_ops = [problem.second_q_ops()[problem.main_property_name]]

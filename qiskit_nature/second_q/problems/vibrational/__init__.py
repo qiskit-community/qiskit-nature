@@ -18,6 +18,6 @@ Vibrational Structure Problems (:mod:`qiskit_nature.second_q.problems.vibrationa
 """
 
 from .vibrational_structure_problem import VibrationalStructureProblem
-from .vibrational_structure_result import DipoleTuple, VibrationalStructureResult
+from .vibrational_structure_result import VibrationalStructureResult
 
 __all__ = ["VibrationalStructureProblem", "VibrationalStructureResult"]

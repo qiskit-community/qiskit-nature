@@ -11,10 +11,10 @@
 # that they have been altered from the originals.
 
 """
-SecondQuantizedOp Converters (:mod:`qiskit_nature.converters.second_quantization.utils`)
+SecondQuantizedOp Converters (:mod:`qiskit_nature.converters.second_q.utils`)
 ========================================================================================
 
-.. currentmodule:: qiskit_nature.converters.second_quantization.utils
+.. currentmodule:: qiskit_nature.converters.second_q.utils
 
 .. autosummary::
    :toctree: ../stubs/

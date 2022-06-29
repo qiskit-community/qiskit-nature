@@ -37,7 +37,7 @@ from .extrapolator import Extrapolator, WindowExtrapolator
 from ..ground_state_solvers import GroundStateSolver
 from ..excited_states_solvers import ExcitedStatesSolver
 
-logger = logging.getLogger(__name__)make 
+logger = logging.getLogger(__name__)
 
 
 class BOPESSampler:
