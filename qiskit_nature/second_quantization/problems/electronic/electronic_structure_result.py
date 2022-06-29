@@ -19,7 +19,7 @@ import numpy as np
 
 from qiskit_nature.constants import DEBYE
 
-from .eigenstate_result import EigenstateResult
+from ..eigenstate_result import EigenstateResult
 
 # A dipole moment, when present as X, Y and Z components will normally have float values for all
 # the components. However when using Z2Symmetries, if the dipole component operator does not

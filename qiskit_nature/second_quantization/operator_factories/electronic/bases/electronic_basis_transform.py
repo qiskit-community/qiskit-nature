@@ -21,7 +21,7 @@ import h5py
 import numpy as np
 
 from .electronic_basis import ElectronicBasis
-from ....property import Property
+from ...property import Property
 
 
 class ElectronicBasisTransform(Property):

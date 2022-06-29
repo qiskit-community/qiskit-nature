@@ -20,7 +20,7 @@ from qiskit.opflow import PauliSumOp
 from qiskit_nature import ListOrDictType
 from qiskit_nature.second_quantization.operators import SecondQuantizedOp
 from qiskit_nature.second_quantization.problems import BaseProblem
-from qiskit_nature.second_quantization.results import EigenstateResult
+from qiskit_nature.second_quantization.problems import EigenstateResult
 
 
 class ExcitedStatesSolver(ABC):

@@ -17,7 +17,7 @@ import numpy as np
 from qiskit.utils import optionals as _optionals
 
 
-from qiskit_nature.second_quantization.results.utils.protein_shape_file_gen import (
+from qiskit_nature.results.utils.protein_shape_file_gen import (
     ProteinShapeFileGen,
 )
 

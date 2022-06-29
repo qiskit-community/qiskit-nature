@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import h5py
 
-from ..property import Property
+from .property import Property
 
 
 class DriverMetadata(Property):

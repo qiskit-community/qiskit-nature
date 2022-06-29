@@ -23,7 +23,7 @@ from qiskit_nature.second_quantization.operators import SecondQuantizedOp
 from qiskit_nature.second_quantization.problems import EigenstateResult, LatticeModelResult
 
 from ..base_problem import BaseProblem
-from .models.lattice_model import LatticeModel
+from qiskit_nature.second_quantization.operator_factories.lattice.lattice_model import LatticeModel
 
 
 class LatticeModelProblem(BaseProblem):

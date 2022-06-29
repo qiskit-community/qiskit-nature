@@ -23,7 +23,7 @@ from qiskit_nature.drivers import QMolecule
 from qiskit_nature.second_quantization.operators import FermionicOp
 from qiskit_nature.second_quantization.problems import EigenstateResult
 
-from ...grouped_property import GroupedProperty
+from ..grouped_property import GroupedProperty
 from ..second_quantized_property import LegacyDriverResult
 from .bases import ElectronicBasis
 from .integrals import ElectronicIntegrals, IntegralProperty, OneBodyElectronicIntegrals

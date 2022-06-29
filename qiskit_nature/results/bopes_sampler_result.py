@@ -14,7 +14,7 @@
 
 from typing import List, Dict, Union
 
-from .eigenstate_result import EigenstateResult
+from qiskit_nature.second_quantization.problems import EigenstateResult
 
 
 class BOPESSamplerResult:

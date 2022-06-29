@@ -27,11 +27,7 @@ Results
    :toctree: ../stubs/
    :nosignatures:
 
-   EigenstateResult
    BOPESSamplerResult
-   ElectronicStructureResult
-   VibrationalStructureResult
-   LatticeModelResult
    ProteinFoldingResult
 
 Protein Folding Result support classes
@@ -45,18 +41,9 @@ Protein Folding Result support classes
 """
 
 from .bopes_sampler_result import BOPESSamplerResult
-from .eigenstate_result import EigenstateResult
-from .electronic_structure_result import DipoleTuple, ElectronicStructureResult
-from .vibrational_structure_result import VibrationalStructureResult
-from .lattice_model_result import LatticeModelResult
 from .protein_folding_result import ProteinFoldingResult
 
 __all__ = [
     "BOPESSamplerResult",
-    "DipoleTuple",
-    "EigenstateResult",
-    "ElectronicStructureResult",
-    "VibrationalStructureResult",
-    "LatticeModelResult",
     "ProteinFoldingResult",
 ]
