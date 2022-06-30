@@ -26,6 +26,7 @@ from .resources.reference_direct_mapper import (
     _num_modals_3_q_op,
 )
 
+
 class TestDirectMapper(QiskitNatureTestCase):
     """Test Direct Mapper"""
 
