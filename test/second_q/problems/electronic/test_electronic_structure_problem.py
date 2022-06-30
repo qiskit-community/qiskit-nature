@@ -31,7 +31,7 @@ from qiskit_nature.drivers.second_quantization import (
 from qiskit_nature.second_q.operators.fermionic import ParityMapper
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
-from qiskit_nature.transformers.second_quantization.electronic import (
+from qikskit_nature.second_q.transformers.second_quantization.electronic import (
     ActiveSpaceTransformer,
     FreezeCoreTransformer,
 )

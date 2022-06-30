@@ -39,7 +39,7 @@ from qiskit_nature.drivers.second_quantization import (
     ElectronicStructureDriverType,
     ElectronicStructureMoleculeDriver,
 )
-from qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories import (
+from qiskit_nature.second_q.algorithms.ground_state_solvers.minimum_eigensolver_factories import (
     VQEUCCFactory,
 )
 from qiskit_nature.second_q.operators.fermionic import ParityMapper, JordanWignerMapper

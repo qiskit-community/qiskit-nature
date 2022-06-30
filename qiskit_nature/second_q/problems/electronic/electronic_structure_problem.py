@@ -21,13 +21,15 @@ from qiskit.opflow import PauliSumOp
 from qiskit.opflow.primitive_ops import Z2Symmetries
 
 from qiskit_nature import ListOrDictType, QiskitNatureError
-from qiskit_nature.second_q.circuit.library.initial_states.hartree_fock import hartree_fock_bitstring_mapped
+from qiskit_nature.second_q.circuit.library.initial_states.hartree_fock import (
+    hartree_fock_bitstring_mapped,
+)
 from qiskit_nature.drivers.second_quantization import ElectronicStructureDriver
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.operators import QubitConverter
 from qiskit_nature.second_q.operator_factories.electronic import ParticleNumber
 from qiskit_nature.second_q.problems import EigenstateResult, ElectronicStructureResult
-from qiskit_nature.transformers.second_quantization import BaseTransformer
+from qikskit_nature.second_q.transformers.second_quantization import BaseTransformer
 
 from .builders.hopping_ops_builder import _build_qeom_hopping_ops
 from ..base_problem import BaseProblem

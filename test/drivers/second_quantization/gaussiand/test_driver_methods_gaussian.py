@@ -16,7 +16,7 @@ import unittest
 
 from test.drivers.second_quantization.test_driver_methods_gsc import TestDriverMethods
 from qiskit_nature.drivers.second_quantization import GaussianDriver
-from qiskit_nature.transformers.second_quantization.electronic import FreezeCoreTransformer
+from qikskit_nature.second_q.transformers.second_quantization.electronic import FreezeCoreTransformer
 import qiskit_nature.optionals as _optionals
 
 
