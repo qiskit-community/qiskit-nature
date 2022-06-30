@@ -21,7 +21,7 @@ from typing import List, Optional, cast
 from qiskit.opflow import I, PauliSumOp, X, Y, Z, Z2Symmetries
 
 from qiskit_nature import QiskitNatureError
-from LatticeModel import QubitConverter, FermionicOp
+from qiskit_nature.second_q.operators import QubitConverter, FermionicOp
 from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.second_q.operators.fermionic import JordanWignerMapper, ParityMapper
 from qiskit_nature.second_q.problems import ElectronicStructureProblem

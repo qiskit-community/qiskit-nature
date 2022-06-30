@@ -17,7 +17,7 @@ from test import QiskitNatureTestCase
 import numpy as np
 from ddt import ddt, data, unpack
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
-from qiskit_nature.second_q.results.utils.protein_shape_file_gen import (
+from qiskit_nature.results.utils.protein_shape_file_gen import (
     ProteinShapeFileGen,
 )
 

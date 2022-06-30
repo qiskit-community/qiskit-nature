@@ -19,8 +19,8 @@ from qiskit.utils import algorithm_globals
 
 from qiskit_nature.second_q.operators import QubitConverter
 from qiskit_nature.second_q.operators.vibrational import DirectMapper
-from qiskit_nature.problems.second_quantization import VibrationalStructureProblem
-from qiskit_nature.problems.second_quantization.vibrational.builders.hopping_ops_builder import (
+from qiskit_nature.second_q.problems import VibrationalStructureProblem
+from qiskit_nature.second_q.problems.vibrational.builders.hopping_ops_builder import (
     _build_qeom_hopping_ops,
 )
 

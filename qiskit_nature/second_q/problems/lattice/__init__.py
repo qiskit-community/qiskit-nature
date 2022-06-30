@@ -19,8 +19,21 @@ Lattice Model Problems (:mod:`qiskit_nature.second_q.problems.lattice`)
 
 from .lattice_model_problem import LatticeModelProblem
 from .lattice_model_result import LatticeModelResult
+from .lattices.boundary_condition import BoundaryCondition
+from .lattices.hyper_cubic_lattice import HyperCubicLattice
+from .lattices.lattice import LatticeDrawStyle, Lattice
+from .lattices.line_lattice import LineLattice
+from .lattices.square_lattice import SquareLattice
+from .lattices.triangular_lattice import TriangularLattice
 
 __all__ = [
     "LatticeModelProblem",
     "LatticeModelResult",
+    "BoundaryCondition",
+    "HyperCubicLattice",
+    "LatticeDrawStyle",
+    "Lattice",
+    "LineLattice",
+    "SquareLattice",
+    "TriangularLattice"
 ]

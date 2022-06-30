@@ -44,7 +44,7 @@ from qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories
 )
 from qiskit_nature.second_q.operators.fermionic import ParityMapper, JordanWignerMapper
 from qiskit_nature.second_q.operators import QubitConverter
-from qiskit_nature.problems.second_quantization import ElectronicStructureProblem, BaseProblem
+from qiskit_nature.second_q.problems import ElectronicStructureProblem, BaseProblem
 
 
 class TestBOPES(QiskitNatureTestCase):

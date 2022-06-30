@@ -21,11 +21,10 @@ from qiskit_nature.drivers.second_quantization import GaussianForcesDriver
 from qiskit_nature.second_q.operators.vibrational import DirectMapper
 from qiskit_nature.second_q.operator_factories.vibrational.bases import HarmonicBasis
 
-from qiskit_nature.test.second_q.operators.vibrational.mappers.resources.reference_direct_mapper import (
+from .resources.reference_direct_mapper import (
     _num_modals_2_q_op,
     _num_modals_3_q_op,
 )
-
 
 class TestDirectMapper(QiskitNatureTestCase):
     """Test Direct Mapper"""

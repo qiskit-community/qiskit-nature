@@ -22,7 +22,7 @@ from qiskit_nature.drivers import UnitsType
 from qiskit_nature.drivers.second_quantization import PySCFDriver
 from qiskit_nature.second_q.operators.fermionic import JordanWignerMapper
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
-from qiskit_nature.problems.second_quantization.electronic.builders.hopping_ops_builder import (
+from qiskit_nature.second_q.problems.electronic.builders.hopping_ops_builder import (
     _build_qeom_hopping_ops,
 )
 import qiskit_nature.optionals as _optionals

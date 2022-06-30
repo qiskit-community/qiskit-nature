@@ -26,7 +26,7 @@ from qiskit_nature.second_q.operators.fermionic.mappers.bksf import (
     _bksf_edge_list_fermionic_op,
 )
 
-from qiskit_nature.test.second_q.operators.fermionic.mappers.resources.bksf_lih import (
+from .resources.bksf_lih import (
     FERMIONIC_HAMILTONIAN,
     QUBIT_HAMILTONIAN,
 )
