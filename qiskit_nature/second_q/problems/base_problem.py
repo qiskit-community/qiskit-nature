@@ -25,7 +25,7 @@ from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
 from qiskit_nature.drivers.second_quantization import BaseDriver
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.operator_factories import GroupedSecondQuantizedProperty
-from qiskit_nature.second_q.problems import EigenstateResult
+from .eigenstate_result import EigenstateResult
 from qiskit_nature.transformers.second_quantization import BaseTransformer
 
 LegacyDriverResult = Union[QMolecule, WatsonHamiltonian]
