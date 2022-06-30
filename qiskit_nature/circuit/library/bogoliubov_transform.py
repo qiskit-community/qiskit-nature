@@ -259,7 +259,7 @@ def _bogoliubov_transform_num_conserving_jw(  # pylint: disable=invalid-name
     for givens_mat, (i, j) in reversed(right_rotations):
         theta = np.arccos(np.real(givens_mat[0, 0]))
         phi = np.angle(givens_mat[0, 1])
-        yield XXPlusYYGate(2 * theta, -phi - np.pi / 2), (register[j], register[i])
+        yield XXPlusYYGate(2 * theta, phi - np.pi / 2), (register[j], register[i])
 
 
 def _bogoliubov_transform_general_jw(  # pylint: disable=invalid-name
