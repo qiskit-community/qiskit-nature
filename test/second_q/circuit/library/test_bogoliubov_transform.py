@@ -20,7 +20,7 @@ from ddt import data, ddt, unpack
 from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.quantum_info import Operator, Statevector, random_hermitian, random_unitary
 
-from qiskit_nature.circuit.library import BogoliubovTransform
+from qiskit_nature.second_q.circuit.library import BogoliubovTransform
 from qiskit_nature.second_q.operators import QubitConverter
 from qiskit_nature.second_q.operators.fermionic import (
     BravyiKitaevMapper,

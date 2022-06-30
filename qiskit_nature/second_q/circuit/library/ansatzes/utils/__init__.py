@@ -11,11 +11,11 @@
 # that they have been altered from the originals.
 
 """
-Excitation generator utilities (:mod:`qiskit_nature.circuit.library.ansatzes.utils`)
+Excitation generator utilities (:mod:`qiskit_nature.second_q.circuit.library.ansatzes.utils`)
 ====================================================================================
 Utility methods to build fermionic and vibrational excitations.
 
-.. currentmodule:: qiskit_nature.circuit.library.ansatzes.utils
+.. currentmodule:: qiskit_nature.second_q.circuit.library.ansatzes.utils
 
 .. autosummary::
    :toctree: ../stubs/

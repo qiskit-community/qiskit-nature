@@ -24,7 +24,7 @@ from qiskit.circuit.library import ExcitationPreserving
 from qiskit.test import slow_test
 from qiskit.utils import QuantumInstance, algorithm_globals
 from qiskit_nature.second_q.algorithms import GroundStateEigensolver
-from qiskit_nature.circuit.library import HartreeFock
+from qiskit_nature.second_q.circuit.library import HartreeFock
 from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.second_q.operators.fermionic import ParityMapper
 from qiskit_nature.second_q.operators import QubitConverter

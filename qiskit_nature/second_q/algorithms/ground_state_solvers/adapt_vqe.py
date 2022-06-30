@@ -27,7 +27,7 @@ from qiskit.opflow.gradients import GradientBase, Gradient
 from qiskit.utils.validation import validate_min
 from qiskit_nature import ListOrDictType
 from qiskit_nature.exceptions import QiskitNatureError
-from qiskit_nature.circuit.library import UCC
+from qiskit_nature.second_q.circuit.library import UCC
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.operators import QubitConverter
 from qiskit_nature.converters.second_quantization.utils import ListOrDict

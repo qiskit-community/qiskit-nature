@@ -16,7 +16,7 @@ from test import QiskitNatureTestCase
 
 from ddt import data, ddt, unpack
 
-from qiskit_nature.circuit.library.ansatzes.utils.fermionic_excitation_generator import (
+from qiskit_nature.second_q.circuit.library.ansatzes.utils.fermionic_excitation_generator import (
     generate_fermionic_excitations,
 )
 

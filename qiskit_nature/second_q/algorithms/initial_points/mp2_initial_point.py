@@ -19,7 +19,7 @@ from dataclasses import dataclass
 import numpy as np
 from qiskit_nature.exceptions import QiskitNatureError
 
-from qiskit_nature.circuit.library import UCC
+from qiskit_nature.second_q.circuit.library import UCC
 from qiskit_nature.second_q.operator_factories.electronic import ElectronicEnergy
 from qiskit_nature.second_q.operator_factories.electronic.bases import ElectronicBasis
 from qiskit_nature.second_q.operator_factories.electronic.integrals.electronic_integrals import (
@@ -45,7 +45,7 @@ class MP2InitialPoint(InitialPoint):
     """Compute the second-order Møller-Plesset perturbation theory (MP2) initial point.
 
     The computed MP2 correction coefficients are intended for use as an initial point for the VQE
-    parameters in combination with a :class:`~qiskit_nature.circuit.library.ansatzes.ucc.UCC`
+    parameters in combination with a :class:`~qiskit_nature.second_q.circuit.library.ansatzes.ucc.UCC`
     ansatz.
 
     The coefficients and energy corrections are computed using the :meth:`compute` method, which

@@ -17,7 +17,7 @@ from __future__ import annotations
 import numpy as np
 
 from qiskit_nature.exceptions import QiskitNatureError
-from qiskit_nature.circuit.library import UVCC
+from qiskit_nature.second_q.circuit.library import UVCC
 from qiskit_nature.second_q.operator_factories.second_quantized_property import (
     GroupedSecondQuantizedProperty,
 )
@@ -53,7 +53,7 @@ class VSCFInitialPoint(InitialPoint):
 
         Raises:
             QiskitNatureError: If not set using a valid
-                :class:`~qiskit_nature.circuit.library.ansatzes.uvcc.UVCC` instance.
+                :class:`~qiskit_nature.second_q.circuit.library.ansatzes.uvcc.UVCC` instance.
         """
         return self._ansatz
 

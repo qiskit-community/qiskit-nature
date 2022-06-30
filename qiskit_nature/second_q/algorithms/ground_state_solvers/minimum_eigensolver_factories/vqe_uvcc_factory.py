@@ -22,7 +22,7 @@ from qiskit.circuit import QuantumCircuit
 from qiskit.opflow import ExpectationBase
 from qiskit.opflow.gradients import GradientBase
 from qiskit.utils import QuantumInstance
-from qiskit_nature.circuit.library import UVCC, UVCCSD, VSCF
+from qiskit_nature.second_q.circuit.library import UVCC, UVCCSD, VSCF
 from qiskit_nature.second_q.operators import QubitConverter
 from qiskit_nature.second_q.problems.vibrational import (
     VibrationalStructureProblem,
@@ -53,7 +53,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
     .. code-block:: python
 
         from qiskit_nature.second_q.algorithms import VQEUVCCFactory
-        from qiskit_nature.circuit.library import UVCCSD, UVCC
+        from qiskit_nature.second_q.circuit.library import UVCCSD, UVCC
         factory = VQEUVCCFactory()
         vqe1 = factory.get_solver(problem, qubit_converter)
         print(type(vqe1.ansatz))  # UVCC()

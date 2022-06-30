@@ -1,6 +1,6 @@
 ---
 fixes:
   - |
-    Fix :class:`~qiskit_nature.second_q.algorithms.AdaptVQE` after the update of
+    Fix :class:`~qiskit_nature.algorithms.AdaptVQE` after the update of 
     :class:`~qiskit.algorithms.VQE` which deleted the internal ``_energy_evaluation``
     method that Adapt-VQE was relying on.

@@ -21,8 +21,8 @@ from qiskit import BasicAer
 from qiskit.utils import QuantumInstance, algorithm_globals
 from qiskit.algorithms import VQE
 from qiskit.algorithms.optimizers import COBYLA
-from qiskit_nature.circuit.library import CHC, VSCF
-from qiskit_nature.circuit.library.ansatzes.utils.vibration_excitation_generator import (
+from qiskit_nature.second_q.circuit.library import CHC, VSCF
+from qiskit_nature.second_q.circuit.library.ansatzes.utils.vibration_excitation_generator import (
     generate_vibration_excitations,
 )
 from qiskit_nature.second_q.operators.vibrational import DirectMapper

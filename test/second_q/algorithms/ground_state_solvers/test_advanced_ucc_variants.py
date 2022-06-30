@@ -23,7 +23,7 @@ from qiskit.algorithms.optimizers import SLSQP
 from qiskit.test import slow_test
 
 from qiskit_nature.second_q.algorithms import GroundStateEigensolver
-from qiskit_nature.circuit.library import HartreeFock, SUCCD, PUCCD
+from qiskit_nature.second_q.circuit.library import HartreeFock, SUCCD, PUCCD
 from qiskit_nature.drivers.second_quantization import PySCFDriver
 from qiskit_nature.second_q.operators.fermionic import ParityMapper
 from qiskit_nature.second_q.operators import QubitConverter

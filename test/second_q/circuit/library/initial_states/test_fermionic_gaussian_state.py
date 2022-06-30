@@ -18,7 +18,7 @@ from test.random import random_quadratic_hamiltonian
 import numpy as np
 from qiskit.quantum_info import Statevector
 
-from qiskit_nature.circuit.library import FermionicGaussianState
+from qiskit_nature.second_q.circuit.library import FermionicGaussianState
 from qiskit_nature.second_q.operators import QubitConverter
 from qiskit_nature.second_q.operators.fermionic import (
     BravyiKitaevMapper,

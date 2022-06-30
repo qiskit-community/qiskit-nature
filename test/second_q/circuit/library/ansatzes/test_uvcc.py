@@ -23,7 +23,7 @@ from qiskit import BasicAer, transpile
 from qiskit.utils import QuantumInstance, algorithm_globals
 from qiskit.algorithms import VQE
 from qiskit.algorithms.optimizers import COBYLA
-from qiskit_nature.circuit.library import UVCC, VSCF
+from qiskit_nature.second_q.circuit.library import UVCC, VSCF
 from qiskit_nature.second_q.operators.vibrational import DirectMapper
 from qiskit_nature.second_q.operators import VibrationalOp
 from qiskit_nature.second_q.operators import QubitConverter

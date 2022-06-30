@@ -129,7 +129,7 @@ def generate_fermionic_excitations(
     Examples:
         Generate excitations with basic inputs.
 
-        >>> from qiskit_nature.circuit.library.ansatzes.utils.fermionic_excitation_generator import generate_fermionic_excitations
+        >>> from qiskit_nature.second_q.circuit.library.ansatzes.utils.fermionic_excitation_generator import generate_fermionic_excitations
         >>> generate_fermionic_excitations(num_excitations=1, num_spin_orbitals=6, num_particles=(1,1))
         [((0,), (1,)), ((0,), (2,)), ((3,), (4,)), ((3,), (5,))]
 

@@ -18,7 +18,7 @@ from ddt import data, ddt, unpack
 
 from qiskit import transpile
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.circuit.library import UCC
+from qiskit_nature.second_q.circuit.library import UCC
 from qiskit_nature.second_q.operators import QubitConverter
 from qiskit_nature.second_q.operators.fermionic import JordanWignerMapper, ParityMapper
 from qiskit_nature.second_q.operators import FermionicOp

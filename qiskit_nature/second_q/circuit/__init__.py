@@ -11,10 +11,10 @@
 # that they have been altered from the originals.
 
 """
-Circuit library (:mod:`qiskit_nature.circuit`)
+Circuit library (:mod:`qiskit_nature.second_q.circuit`)
 ==============================================
 
-.. currentmodule:: qiskit_nature.circuit
+.. currentmodule:: qiskit_nature.second_q.circuit
 
 
 .. autosummary::

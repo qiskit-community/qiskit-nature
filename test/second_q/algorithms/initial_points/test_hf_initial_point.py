@@ -20,7 +20,7 @@ from test import QiskitNatureTestCase
 import numpy as np
 
 from qiskit_nature.second_q.algorithms.initial_points import HFInitialPoint
-from qiskit_nature.circuit.library import UCC
+from qiskit_nature.second_q.circuit.library import UCC
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.operator_factories.second_quantized_property import (
     GroupedSecondQuantizedProperty,

@@ -28,7 +28,7 @@ from qiskit_nature.deprecation import (
     deprecate_positional_arguments,
 )
 
-from qiskit_nature.circuit.library import HartreeFock, UCC, UCCSD
+from qiskit_nature.second_q.circuit.library import HartreeFock, UCC, UCCSD
 from qiskit_nature.second_q.operators import QubitConverter
 from qiskit_nature.second_q.problems.electronic import (
     ElectronicStructureProblem,
@@ -56,7 +56,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     .. code-block:: python
 
         from qiskit_nature.second_q.algorithms import VQEUCCFactory
-        from qiskit_nature.circuit.library import UCCSD, UCC
+        from qiskit_nature.second_q.circuit.library import UCCSD, UCC
         factory = VQEUCCFactory()
         vqe1 = factory.get_solver(problem, qubit_converter)
         print(type(vqe1.ansatz))  # UCCSD (default)

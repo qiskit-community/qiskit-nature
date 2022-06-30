@@ -18,7 +18,7 @@ import warnings
 
 import numpy as np
 
-from qiskit_nature.circuit.library import UCC
+from qiskit_nature.second_q.circuit.library import UCC
 from qiskit_nature.second_q.operator_factories.electronic import ElectronicEnergy
 from qiskit_nature.second_q.operator_factories.second_quantized_property import (
     GroupedSecondQuantizedProperty,

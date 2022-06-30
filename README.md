@@ -99,7 +99,7 @@ converter = QubitConverter(mapper=mapper, two_qubit_reduction=True)
 qubit_op = converter.convert(main_op, num_particles=num_particles)
 
 # setup the initial state for the ansatz
-from qiskit_nature.circuit.library import HartreeFock
+from qiskit_nature.second_q.circuit.library import HartreeFock
 
 init_state = HartreeFock(num_spin_orbitals, num_particles, converter)
 

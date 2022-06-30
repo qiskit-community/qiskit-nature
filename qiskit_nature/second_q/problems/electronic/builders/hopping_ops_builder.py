@@ -19,7 +19,7 @@ from qiskit.tools import parallel_map
 from qiskit.utils import algorithm_globals
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.circuit.library import UCC
+from qiskit_nature.second_q.circuit.library import UCC
 from qiskit_nature.second_q.operators import FermionicOp
 from qiskit_nature.second_q.operators import QubitConverter
 from qiskit_nature.second_q.operator_factories.electronic import ParticleNumber

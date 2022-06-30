@@ -19,8 +19,8 @@ import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.opflow.primitive_ops.tapered_pauli_sum_op import Z2Symmetries
 from qiskit.quantum_info.operators.symplectic import Pauli
-from qiskit_nature.circuit.library import HartreeFock
-from qiskit_nature.circuit.library.initial_states.hartree_fock import (
+from qiskit_nature.second_q.circuit.library import HartreeFock
+from qiskit_nature.second_q.circuit.library.initial_states.hartree_fock import (
     hartree_fock_bitstring,
     hartree_fock_bitstring_mapped,
 )

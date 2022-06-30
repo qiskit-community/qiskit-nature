@@ -35,7 +35,7 @@ from qiskit_nature.second_q.algorithms import (
     VQEUCCFactory,
     NumPyMinimumEigensolverFactory,
 )
-from qiskit_nature.circuit.library import HartreeFock, UCC, UCCSD
+from qiskit_nature.second_q.circuit.library import HartreeFock, UCC, UCCSD
 from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.second_q.operators.fermionic import JordanWignerMapper, ParityMapper
 from qiskit_nature.second_q.operators import QubitConverter
