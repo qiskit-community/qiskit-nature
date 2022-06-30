@@ -13,12 +13,12 @@
 """
 ====================================================================================
 Minimum Eigensolver Factories
-(:mod:`qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories`)
+(:mod:`qiskit_nature.second_q.algorithms.ground_state_solvers.minimum_eigensolver_factories`)
 ====================================================================================
 
 Factories that create a minimum eigensolver based on a qubit transformation.
 
-.. currentmodule:: qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories
+.. currentmodule:: qiskit_nature.second_q.algorithms.ground_state_solvers.minimum_eigensolver_factories
 
 
 .. autosummary::

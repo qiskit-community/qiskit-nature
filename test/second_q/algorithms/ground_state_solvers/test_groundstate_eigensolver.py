@@ -30,7 +30,7 @@ from qiskit.opflow import AerPauliExpectation, PauliExpectation
 from qiskit.test import slow_test
 from qiskit.utils import QuantumInstance, algorithm_globals, optionals
 
-from qiskit_nature.algorithms import (
+from qiskit_nature.second_q.algorithms import (
     GroundStateEigensolver,
     VQEUCCFactory,
     NumPyMinimumEigensolverFactory,
@@ -48,7 +48,7 @@ from qiskit_nature.second_q.operator_factories.electronic.integrals import (
 )
 from qiskit_nature.transformers.second_quantization.electronic import FreezeCoreTransformer
 from qiskit_nature import settings
-from qiskit_nature.algorithms.initial_points import MP2InitialPoint
+from qiskit_nature.second_q.algorithms.initial_points import MP2InitialPoint
 
 
 class TestGroundStateEigensolver(QiskitNatureTestCase):

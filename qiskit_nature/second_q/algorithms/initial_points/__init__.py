@@ -11,11 +11,11 @@
 # that they have been altered from the originals.
 
 """
-Initial Points (:mod:`qiskit_nature.algorithms.initial_points`)
+Initial Points (:mod:`qiskit_nature.second_q.algorithms.initial_points`)
 ===============================================================
 Utility classes that provide initial points to use with specific ansatzes.
 
-.. currentmodule:: qiskit_nature.algorithms.initial_points
+.. currentmodule:: qiskit_nature.second_q.algorithms.initial_points
 
 .. autosummary::
    :toctree: ../stubs/

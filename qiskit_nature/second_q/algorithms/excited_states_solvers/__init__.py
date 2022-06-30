@@ -11,10 +11,10 @@
 # that they have been altered from the originals.
 
 """
-Excited State Solving Algorithms (:mod:`qiskit_nature.algorithms.excited_states_solvers`)
+Excited State Solving Algorithms (:mod:`qiskit_nature.second_q.algorithms.excited_states_solvers`)
 =========================================================================================
 
-.. currentmodule:: qiskit_nature.algorithms.excited_states_solvers
+.. currentmodule:: qiskit_nature.second_q.algorithms.excited_states_solvers
 
 .. autosummary::
    :toctree: ../stubs/

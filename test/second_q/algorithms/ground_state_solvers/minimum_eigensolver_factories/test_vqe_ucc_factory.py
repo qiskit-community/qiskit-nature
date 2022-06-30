@@ -25,8 +25,8 @@ from qiskit_nature.circuit.library import HartreeFock, UCCSD
 
 from qiskit_nature.second_q.operators import QubitConverter
 from qiskit_nature.second_q.operators.fermionic import JordanWignerMapper
-from qiskit_nature.algorithms import VQEUCCFactory
-from qiskit_nature.algorithms.initial_points import HFInitialPoint
+from qiskit_nature.second_q.algorithms import VQEUCCFactory
+from qiskit_nature.second_q.algorithms.initial_points import HFInitialPoint
 
 
 class TestVQEUCCFactory(QiskitNatureTestCase):

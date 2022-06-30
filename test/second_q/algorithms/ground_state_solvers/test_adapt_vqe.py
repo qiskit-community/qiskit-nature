@@ -32,7 +32,7 @@ from qiskit.opflow.gradients import Gradient, NaturalGradient
 from qiskit.test import slow_test
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.algorithms import AdaptVQE, VQEUCCFactory
+from qiskit_nature.second_q.algorithms import AdaptVQE, VQEUCCFactory
 from qiskit_nature.circuit.library import HartreeFock, UCC
 from qiskit_nature.drivers import UnitsType
 from qiskit_nature.drivers.second_quantization import PySCFDriver

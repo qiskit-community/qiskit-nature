@@ -13,12 +13,12 @@
 """
 ====================================================================================
 Eigensolver Factories
-(:mod:`qiskit_nature.algorithms.excited_states_solvers.eigensolver_factories`)
+(:mod:`qiskit_nature.second_q.algorithms.excited_states_solvers.eigensolver_factories`)
 ====================================================================================
 
 Factories that create an eigensolver based on a qubit transformation.
 
-.. currentmodule:: qiskit_nature.algorithms.excited_states_solvers.eigensolver_factories
+.. currentmodule:: qiskit_nature.second_q.algorithms.excited_states_solvers.eigensolver_factories
 
 
 .. autosummary::

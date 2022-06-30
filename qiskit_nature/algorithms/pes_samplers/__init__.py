@@ -11,11 +11,11 @@
 # that they have been altered from the originals.
 
 """
-Potential energy surface samplers (:mod:`qiskit_nature.algorithms.pes_samplers`)
+Potential energy surface samplers (:mod:`qiskit_nature.second_q.algorithms.pes_samplers`)
 ================================================================================
 Potential energy surface samplers.
 
-.. currentmodule:: qiskit_nature.algorithms.pes_samplers
+.. currentmodule:: qiskit_nature.second_q.algorithms.pes_samplers
 
 Algorithms that can compute potential energy surfaces.
 

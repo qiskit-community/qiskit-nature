@@ -16,7 +16,7 @@ import unittest
 from unittest.mock import patch
 from test import QiskitNatureTestCase
 
-from qiskit_nature.algorithms.initial_points import InitialPoint
+from qiskit_nature.second_q.algorithms.initial_points import InitialPoint
 
 
 class TestInitialPoint(QiskitNatureTestCase):

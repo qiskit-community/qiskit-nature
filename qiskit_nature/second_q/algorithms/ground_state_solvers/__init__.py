@@ -11,10 +11,10 @@
 # that they have been altered from the originals.
 
 """
-Ground State Solving Algorithms (:mod:`qiskit_nature.algorithms.ground_state_solvers`)
+Ground State Solving Algorithms (:mod:`qiskit_nature.second_q.algorithms.ground_state_solvers`)
 ======================================================================================
 
-.. currentmodule:: qiskit_nature.algorithms.ground_state_solvers
+.. currentmodule:: qiskit_nature.second_q.algorithms.ground_state_solvers
 
 .. autosummary::
    :toctree: ../stubs/

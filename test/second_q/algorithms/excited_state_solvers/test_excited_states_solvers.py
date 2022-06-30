@@ -28,7 +28,7 @@ from qiskit_nature.second_q.operators.fermionic import (
 )
 from qiskit_nature.second_q.operators import QubitConverter
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
-from qiskit_nature.algorithms import (
+from qiskit_nature.second_q.algorithms import (
     GroundStateEigensolver,
     VQEUCCFactory,
     NumPyEigensolverFactory,

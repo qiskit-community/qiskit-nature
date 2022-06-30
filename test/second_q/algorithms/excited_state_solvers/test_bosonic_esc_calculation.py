@@ -33,7 +33,7 @@ from qiskit_nature.second_q.problems.vibrational import (
     VibrationalStructureProblem,
 )
 
-from qiskit_nature.algorithms import (
+from qiskit_nature.second_q.algorithms import (
     GroundStateEigensolver,
     NumPyMinimumEigensolverFactory,
     VQEUVCCFactory,

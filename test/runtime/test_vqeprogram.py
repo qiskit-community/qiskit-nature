@@ -24,7 +24,7 @@ from qiskit.algorithms.optimizers import SPSA
 from qiskit.circuit.library import RealAmplitudes
 from qiskit.opflow import I, Z
 
-from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
+from qiskit_nature.second_q.algorithms.ground_state_solvers import GroundStateEigensolver
 from qiskit_nature.second_q.operators import QubitConverter
 from qiskit_nature.second_q.operators.fermionic import JordanWignerMapper
 from qiskit_nature.runtime import VQEClient, VQEProgram, VQERuntimeResult, VQEProgramResult

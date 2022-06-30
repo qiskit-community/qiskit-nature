@@ -55,7 +55,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
 
     .. code-block:: python
 
-        from qiskit_nature.algorithms import VQEUCCFactory
+        from qiskit_nature.second_q.algorithms import VQEUCCFactory
         from qiskit_nature.circuit.library import UCCSD, UCC
         factory = VQEUCCFactory()
         vqe1 = factory.get_solver(problem, qubit_converter)
@@ -102,10 +102,10 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             initial_point: An optional initial point (i.e., initial parameter values for the VQE
                 optimizer). If ``None`` then VQE will use an all-zero initial point of the
                 appropriate length computed using
-                :class:`~qiskit_nature.algorithms.initial_points.hf_initial_point.HFInitialPoint`.
+                :class:`~qiskit_nature.second_q.algorithms.initial_points.hf_initial_point.HFInitialPoint`.
                 This then defaults to the Hartree-Fock (HF) state when the HF circuit is prepended
                 to the ansatz circuit. If another
-                :class:`~qiskit_nature.algorithms.initial_points.initial_point.InitialPoint`
+                :class:`~qiskit_nature.second_q.algorithms.initial_points.initial_point.InitialPoint`
                 instance, this is used to compute an initial point for the VQE ansatz parameters.
                 If a user-provided NumPy array, this is used directly.
             initial_state: Allows specification of a custom `QuantumCircuit` to be used as the
