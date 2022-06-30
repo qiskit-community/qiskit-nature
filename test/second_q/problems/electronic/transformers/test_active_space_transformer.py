@@ -20,7 +20,7 @@ from ddt import ddt, idata, unpack
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.drivers.second_quantization import HDF5Driver
+from qiskit_nature.second_q.drivers import HDF5Driver
 from qiskit_nature.second_q.operator_factories.electronic import (
     ElectronicStructureDriverResult,
     ElectronicEnergy,

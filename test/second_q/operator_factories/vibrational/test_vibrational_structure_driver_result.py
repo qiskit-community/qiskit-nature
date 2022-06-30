@@ -16,7 +16,7 @@ from test.second_q.operator_factories.property_test import PropertyTest
 
 import h5py
 
-from qiskit_nature.drivers.second_quantization import GaussianForcesDriver
+from qiskit_nature.second_q.drivers import GaussianForcesDriver
 from qiskit_nature.second_q.operator_factories.vibrational import (
     VibrationalStructureDriverResult,
 )

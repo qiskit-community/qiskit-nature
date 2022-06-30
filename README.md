@@ -36,17 +36,17 @@ Several, as listed below, are supported, and while logic to interface these prog
 Qiskit Nature via the above pip installation, the dependent programs/libraries themselves need
 to be installed separately.
 
-1. [Gaussian 16&trade;](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.drivers.second_quantization.gaussiand.html), a commercial chemistry program
-2. [PSI4](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.drivers.second_quantization.psi4d.html), a chemistry program that exposes a Python interface allowing for accessing internal objects
-3. [PyQuante](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.drivers.second_quantization.pyquanted.html), a pure cross-platform open-source Python chemistry program
-4. [PySCF](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.drivers.second_quantization.pyscfd.html), an open-source Python chemistry program
+1. [Gaussian 16&trade;](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.second_q.drivers.gaussiand.html), a commercial chemistry program
+2. [PSI4](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.second_q.drivers.psi4d.html), a chemistry program that exposes a Python interface allowing for accessing internal objects
+3. [PyQuante](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.second_q.drivers.pyquanted.html), a pure cross-platform open-source Python chemistry program
+4. [PySCF](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.second_q.drivers.pyscfd.html), an open-source Python chemistry program
 
 ### HDF5 Driver
 
 A useful functionality integrated into Qiskit Nature is its ability to serialize a file
 in hierarchical Data Format 5 (HDF5) format representing all the output data from a chemistry driver.
 
-The [HDF5 driver](https://qiskit.org/documentation/nature/stubs/qiskit_nature.drivers.second_quantization.HDF5Driver.html#qiskit_nature.drivers.second_quantization.HDF5Driver)
+The [HDF5 driver](https://qiskit.org/documentation/nature/stubs/qiskit_nature.second_q.drivers.HDF5Driver.html#qiskit_nature.second_q.drivers.HDF5Driver)
 accepts such HDF5 files as input so molecular experiments can be run, albeit on the fixed data
 as stored in the file. As such, if you have some pre-created HDF5 files created from Qiskit
 Nature, you can use these with the HDF5 driver even if you do not install one of the classical
@@ -61,7 +61,7 @@ the ground-state (minimum) energy of a molecule.
 ```python
 from qiskit_nature.settings import settings
 from qiskit_nature.drivers import UnitsType
-from qiskit_nature.drivers.second_quantization import PySCFDriver
+from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.problems.electronic import ElectronicStructureProblem
 
 settings.dict_aux_operators = True

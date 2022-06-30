@@ -26,7 +26,7 @@ from qiskit.utils import algorithm_globals, QuantumInstance
 from qiskit.algorithms.optimizers import COBYLA
 
 from qiskit_nature.drivers import WatsonHamiltonian
-from qiskit_nature.drivers.second_quantization import VibrationalStructureDriver
+from qiskit_nature.second_q.drivers import VibrationalStructureDriver
 from qiskit_nature.second_q.operators.vibrational import DirectMapper
 from qiskit_nature.second_q.operators import QubitConverter
 from qiskit_nature.second_q.problems.vibrational import (

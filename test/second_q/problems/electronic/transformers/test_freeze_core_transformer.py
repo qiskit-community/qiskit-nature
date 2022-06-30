@@ -18,7 +18,7 @@ from test import QiskitNatureTestCase
 from ddt import ddt, idata
 import numpy as np
 
-from qiskit_nature.drivers.second_quantization import HDF5Driver
+from qiskit_nature.second_q.drivers import HDF5Driver
 from qiskit_nature.second_q.problems.electronic import FreezeCoreTransformer
 from qiskit_nature.second_q.operator_factories.electronic.bases import ElectronicBasis
 
