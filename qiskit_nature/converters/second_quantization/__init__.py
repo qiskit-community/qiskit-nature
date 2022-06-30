@@ -10,26 +10,3 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""
-SecondQuantizedOp Converters (:mod:`qiskit_nature.converters.second_quantization`)
-==================================================================================
-
-.. currentmodule:: qiskit_nature.converters.second_quantization
-
-The classes here are used to convert fermionic, vibrational and spin operators to qubit operators,
-using mappers and other techniques that can also reduce the problem such as leveraging
-Z2 Symmetries.
-
-.. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
-
-   QubitConverter
-
-"""
-
-from .qubit_converter import QubitConverter
-
-__all__ = [
-    "QubitConverter",
-]
