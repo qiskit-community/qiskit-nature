@@ -22,6 +22,7 @@ from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.converters.second_quantization.utils import ListOrDict
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.problems.second_quantization import BaseProblem
+from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
 from qiskit_nature.results import EigenstateResult
 
 from .excited_states_solver import ExcitedStatesSolver
@@ -61,11 +62,12 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         self,
         problem: BaseProblem,
         aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+        driver_result: Optional[ElectronicStructureDriverResult] = None,
     ) -> Tuple[PauliSumOp, Optional[ListOrDictType[PauliSumOp]]]:
         """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators"""
         # Note that ``aux_ops`` contains not only the transformed ``aux_operators`` passed by the
         # user but also additional ones from the transformation
-        second_q_ops = problem.second_q_ops()
+        second_q_ops = problem.second_q_ops(driver_result)
         aux_second_q_ops: ListOrDictType[SecondQuantizedOp]
         if isinstance(second_q_ops, list):
             main_second_q_op = second_q_ops[0]
@@ -120,12 +122,14 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         self,
         problem: BaseProblem,
         aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+        driver_result: Optional[ElectronicStructureDriverResult] = None,
     ) -> EigenstateResult:
         """Compute Ground and Excited States properties.
 
         Args:
             problem: a class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
+            driver_result: Previously calculated driver result.
 
         Raises:
             ValueError: if the grouped property object returned by the driver does not contain a

@@ -104,10 +104,16 @@ class BaseProblem(ABC):
         return None
 
     @abstractmethod
-    def second_q_ops(self) -> ListOrDictType[SecondQuantizedOp]:
+    def second_q_ops(
+        self,
+        driver_result: Optional[GroupedSecondQuantizedProperty],
+    ) -> ListOrDictType[SecondQuantizedOp]:
         """Returns the second quantized operators associated with this Property.
 
         The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
+
+        Args:
+            driver_result: Previously calculated driver result.
 
         Returns:
             A `list` or `dict` of `SecondQuantizedOp` objects.

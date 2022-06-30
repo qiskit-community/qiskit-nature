@@ -23,9 +23,8 @@ from qiskit_nature import ListOrDictType
 from qiskit_nature.drivers.second_quantization import VibrationalStructureDriver
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
-from qiskit_nature.properties.second_quantization.vibrational import (
-    VibrationalStructureDriverResult,
-)
+from qiskit_nature.properties.second_quantization import GroupedSecondQuantizedProperty
+from qiskit_nature.properties.second_quantization.vibrational import VibrationalStructureDriverResult
 from qiskit_nature.properties.second_quantization.vibrational.bases import HarmonicBasis
 from qiskit_nature.results import EigenstateResult, VibrationalStructureResult
 from qiskit_nature.transformers.second_quantization import BaseTransformer
@@ -55,7 +54,10 @@ class VibrationalStructureProblem(BaseProblem):
         self.num_modals = num_modals
         self.truncation_order = truncation_order
 
-    def second_q_ops(self) -> ListOrDictType[SecondQuantizedOp]:
+    def second_q_ops(
+        self,
+        driver_result: Optional[GroupedSecondQuantizedProperty] = None,
+    ) -> ListOrDictType[SecondQuantizedOp]:
         """Returns the second quantized operators created based on the driver and transformations.
 
         If the arguments are returned as a `list`, the operators are in the following order: the
@@ -63,10 +65,14 @@ class VibrationalStructureProblem(BaseProblem):
 
         The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
 
+        Args:
+            driver_result: Previously calculated driver result
+
         Returns:
             A `list` or `dict` of `SecondQuantizedOp` objects.
         """
-        driver_result = self.driver.run()
+        if driver_result is None:
+            driver_result = self.driver.run()
 
         self._grouped_property = driver_result
         self._grouped_property_transformed = self._transform(self._grouped_property)

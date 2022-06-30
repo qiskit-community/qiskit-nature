@@ -33,6 +33,7 @@ from qiskit.opflow import (
 from qiskit_nature import ListOrDictType
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.problems.second_quantization import BaseProblem
+from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
 from qiskit_nature.results import EigenstateResult
 from .excited_states_solver import ExcitedStatesSolver
 from ..ground_state_solvers import GroundStateSolver
@@ -85,13 +86,15 @@ class QEOM(ExcitedStatesSolver):
         self,
         problem: BaseProblem,
         aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+        driver_result: Optional[ElectronicStructureDriverResult] = None,
     ) -> Tuple[PauliSumOp, Optional[ListOrDictType[PauliSumOp]]]:
-        return self._gsc.get_qubit_operators(problem, aux_operators)
+        return self._gsc.get_qubit_operators(problem, aux_operators, driver_result)
 
     def solve(
         self,
         problem: BaseProblem,
         aux_operators: Optional[ListOrDictType[SecondQuantizedOp]] = None,
+        driver_result: Optional[ElectronicStructureDriverResult] = None,
     ) -> EigenstateResult:
         """Run the excited-states calculation.
 
@@ -101,6 +104,7 @@ class QEOM(ExcitedStatesSolver):
         Args:
             problem: a class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
+            driver_result: Previously calculated driver result.
 
         Returns:
             An interpreted :class:`~.EigenstateResult`. For more information see also
@@ -117,7 +121,7 @@ class QEOM(ExcitedStatesSolver):
         groundstate_result = self._gsc.solve(problem, aux_operators)
 
         # 2. Prepare the excitation operators
-        second_q_ops = problem.second_q_ops()
+        second_q_ops = problem.second_q_ops(driver_result)
         if isinstance(second_q_ops, list):
             main_second_q_op = second_q_ops[0]
         elif isinstance(second_q_ops, dict):

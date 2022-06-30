@@ -20,6 +20,7 @@ from qiskit.opflow import PauliSumOp
 from qiskit_nature import ListOrDictType
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.problems.second_quantization import BaseProblem
+from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
 from qiskit_nature.results import EigenstateResult
 
 
@@ -31,12 +32,14 @@ class ExcitedStatesSolver(ABC):
         self,
         problem: BaseProblem,
         aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+        driver_result: Optional[ElectronicStructureDriverResult] = None,
     ) -> EigenstateResult:
         r"""Compute the excited states energies of the molecule that was supplied via the driver.
 
         Args:
             problem: a class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
+            driver_result: Previously calculated driver result.
 
         Returns:
             An interpreted :class:`~.EigenstateResult`. For more information see also
@@ -54,6 +57,7 @@ class ExcitedStatesSolver(ABC):
         self,
         problem: BaseProblem,
         aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+        driver_result: Optional[ElectronicStructureDriverResult] = None,
     ) -> Tuple[PauliSumOp, Optional[ListOrDictType[PauliSumOp]]]:
         """Construct qubit operators by getting the second quantized operators from the problem
         (potentially running a driver in doing so [can be computationally expensive])
@@ -61,6 +65,7 @@ class ExcitedStatesSolver(ABC):
         Args:
             problem: a class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
+            driver_result: Previously calculated driver result.
 
         Returns:
             Qubit operator.

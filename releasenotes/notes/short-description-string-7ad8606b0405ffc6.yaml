@@ -1,0 +1,15 @@
+---
+feature:
+  - |
+    Introduced new functionality that allows a previously calculated driver
+    result to be passed as an optional argument when using an eigensolver.
+    This allows the solver to avoid doing redundant calculations.
+    
+    Example Usage::
+        driver_result = driver.run()
+        problem = ElectronicStructureProblem(driver, tranformers=[])
+        qubit_converter = QubitConverter(ParityMapper(), two_qubit_reduction=True)
+        gs_solver = GroundStateEigenSolver(qubit_converter, NumPyMinimumEigensolver())
+        gs_result = gs_solver.solve(problem, driver_result=driver_result)
+---
+

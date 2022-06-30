@@ -32,6 +32,7 @@ from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.converters.second_quantization.utils import ListOrDict
 from qiskit_nature.problems.second_quantization import BaseProblem
+from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
 from qiskit_nature.results import ElectronicStructureResult
 from qiskit_nature.deprecation import deprecate_arguments
 
@@ -188,12 +189,14 @@ class AdaptVQE(GroundStateEigensolver):
         self,
         problem: BaseProblem,
         aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+        driver_result: Optional[ElectronicStructureDriverResult] = None,
     ) -> "AdaptVQEResult":
         """Computes the ground state.
 
         Args:
             problem: a class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
+            driver_result: Previously calculated driver result.
 
         Raises:
             QiskitNatureError: if a solver other than VQE or a ansatz other than UCCSD is provided
@@ -211,7 +214,7 @@ class AdaptVQE(GroundStateEigensolver):
             information about the AdaptVQE algorithm like the number of iterations, finishing
             criterion, and the final maximum gradient.
         """
-        second_q_ops = problem.second_q_ops()
+        second_q_ops = problem.second_q_ops(driver_result)
 
         aux_second_q_ops: ListOrDictType[SecondQuantizedOp]
         if isinstance(second_q_ops, list):

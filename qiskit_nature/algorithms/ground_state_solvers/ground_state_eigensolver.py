@@ -27,6 +27,7 @@ from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.converters.second_quantization.utils import ListOrDict
 from qiskit_nature.problems.second_quantization import BaseProblem
+from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
 from qiskit_nature.results import EigenstateResult
 from .ground_state_solver import GroundStateSolver
 from .minimum_eigensolver_factories import MinimumEigensolverFactory
@@ -68,12 +69,14 @@ class GroundStateEigensolver(GroundStateSolver):
         self,
         problem: BaseProblem,
         aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+        driver_result: Optional[ElectronicStructureDriverResult] = None,
     ) -> EigenstateResult:
         """Compute Ground State properties.
 
         Args:
             problem: a class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
+            driver_result: Previously calculated driver result.
 
         Raises:
             ValueError: if the grouped property object returned by the driver does not contain a
@@ -87,7 +90,7 @@ class GroundStateEigensolver(GroundStateSolver):
             An interpreted :class:`~.EigenstateResult`. For more information see also
             :meth:`~.BaseProblem.interpret`.
         """
-        main_operator, aux_ops = self.get_qubit_operators(problem, aux_operators)
+        main_operator, aux_ops = self.get_qubit_operators(problem, aux_operators, driver_result)
         raw_mes_result = self._solver.compute_minimum_eigenvalue(main_operator, aux_ops)  # type: ignore
 
         result = problem.interpret(raw_mes_result)
@@ -97,11 +100,12 @@ class GroundStateEigensolver(GroundStateSolver):
         self,
         problem: BaseProblem,
         aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+        driver_result: Optional[ElectronicStructureDriverResult] = None,
     ) -> Tuple[PauliSumOp, Optional[ListOrDictType[PauliSumOp]]]:
         """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators"""
         # Note that ``aux_ops`` contains not only the transformed ``aux_operators`` passed by the
         # user but also additional ones from the transformation
-        second_q_ops = problem.second_q_ops()
+        second_q_ops = problem.second_q_ops(driver_result)
         aux_second_q_ops: ListOrDictType[SecondQuantizedOp]
         if isinstance(second_q_ops, list):
             main_second_q_op = second_q_ops[0]

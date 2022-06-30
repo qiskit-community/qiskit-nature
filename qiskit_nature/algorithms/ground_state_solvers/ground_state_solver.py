@@ -26,6 +26,7 @@ from qiskit_nature import ListOrDictType
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import BaseProblem
+from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
 from qiskit_nature.results import EigenstateResult
 
 
@@ -45,12 +46,14 @@ class GroundStateSolver(ABC):
         self,
         problem: BaseProblem,
         aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+        driver_result: Optional[ElectronicStructureDriverResult] = None,
     ) -> EigenstateResult:
         """Compute the ground state energy of the molecule that was supplied via the driver.
 
         Args:
             problem: a class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
+            driver_result: Previously calculated driver result.
 
         Returns:
             An interpreted :class:`~.EigenstateResult`. For more information see also
@@ -63,6 +66,7 @@ class GroundStateSolver(ABC):
         self,
         problem: BaseProblem,
         aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+        driver_result: Optional[ElectronicStructureDriverResult] = None,
     ) -> Tuple[PauliSumOp, Optional[ListOrDictType[PauliSumOp]]]:
         """Construct qubit operators by getting the second quantized operators from the problem
         (potentially running a driver in doing so [can be computationally expensive])
@@ -70,6 +74,7 @@ class GroundStateSolver(ABC):
         Args:
             problem: a class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
+            driver_result: Previously generated driver result.
 
         Returns:
             Qubit operator.

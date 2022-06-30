@@ -25,6 +25,7 @@ from qiskit_nature.circuit.library.initial_states.hartree_fock import hartree_fo
 from qiskit_nature.drivers.second_quantization import ElectronicStructureDriver
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.properties.second_quantization import GroupedSecondQuantizedProperty
 from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
 from qiskit_nature.results import EigenstateResult, ElectronicStructureResult
 from qiskit_nature.transformers.second_quantization import BaseTransformer
@@ -73,7 +74,10 @@ class ElectronicStructureProblem(BaseProblem):
             )
         return self._grouped_property_transformed.get_property("ParticleNumber").num_spin_orbitals
 
-    def second_q_ops(self) -> ListOrDictType[SecondQuantizedOp]:
+    def second_q_ops(
+        self,
+        driver_result: Optional[GroupedSecondQuantizedProperty] = None,
+    ) -> ListOrDictType[SecondQuantizedOp]:
         """Returns the second quantized operators associated with this Property.
 
         If the arguments are returned as a `list`, the operators are in the following order: the
@@ -81,11 +85,14 @@ class ElectronicStructureProblem(BaseProblem):
         magnetization operator, and (if available) x, y, z dipole operators.
 
         The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
-
+        Args:
+            driver_result: An optional GroupedSecondQuantizedProperty that can be provided if
+                           the driver results are already known.
         Returns:
             A `list` or `dict` of `SecondQuantizedOp` objects.
         """
-        driver_result = self.driver.run()
+        if driver_result is None:
+            driver_result = self.driver.run()
 
         self._grouped_property = driver_result
         self._grouped_property_transformed = self._transform(self._grouped_property)

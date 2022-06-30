@@ -20,6 +20,7 @@ from qiskit.opflow import PauliSumOp
 from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
+from qiskit_nature.properties.second_quantization import GroupedSecondQuantizedProperty
 from qiskit_nature.results import EigenstateResult, LatticeModelResult
 
 from ..base_problem import BaseProblem
@@ -37,14 +38,24 @@ class LatticeModelProblem(BaseProblem):
         super().__init__(main_property_name="LatticeEnergy")
         self._lattice_model = lattice_model
 
-    def second_q_ops(self) -> ListOrDictType[SecondQuantizedOp]:
+    def second_q_ops(
+        self,
+        driver_result: Optional[GroupedSecondQuantizedProperty] = None,
+    ) -> ListOrDictType[SecondQuantizedOp]:
         """Returns the second quantized operators created based on the lattice models.
+
+        Args:
+            driver_result: Previously calculated driver result.
 
         Returns:
             A ``list`` or ``dict`` of
             :class:`~qiskit_nature.operators.second_quantization.SecondQuantizedOp`
         """
-        second_q_ops: ListOrDictType[SecondQuantizedOp] = self._lattice_model.second_q_ops()
+        if driver_result is None:
+            second_q_ops: ListOrDictType[SecondQuantizedOp] = self._lattice_model.second_q_ops()
+        else:
+            second_q_ops = driver_result.second_q_ops()
+
         if settings.dict_aux_operators:
             second_q_ops = {self._main_property_name: second_q_ops}
         else:
