@@ -29,7 +29,7 @@ from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.operators import QubitConverter
 from qiskit_nature.second_q.operator_factories.electronic import ParticleNumber
 from qiskit_nature.second_q.problems import EigenstateResult, ElectronicStructureResult
-from qikskit_nature.second_q.transformers.second_quantization import BaseTransformer
+from qiskit_nature.second_q.problems import BaseTransformer
 
 from .builders.hopping_ops_builder import _build_qeom_hopping_ops
 from ..base_problem import BaseProblem

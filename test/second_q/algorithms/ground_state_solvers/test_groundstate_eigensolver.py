@@ -46,7 +46,7 @@ from qiskit_nature.second_q.operator_factories.electronic.integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )
-from qikskit_nature.second_q.transformers.second_quantization.electronic import FreezeCoreTransformer
+from qiskit_nature.second_q.problems.electronic import FreezeCoreTransformer
 from qiskit_nature import settings
 from qiskit_nature.second_q.algorithms.initial_points import MP2InitialPoint
 

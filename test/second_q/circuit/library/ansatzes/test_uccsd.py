@@ -13,7 +13,7 @@
 """Test the UCCSD Ansatz."""
 
 from test import QiskitNatureTestCase
-from test.circuit.library.ansatzes.test_ucc import assert_ucc_like_ansatz
+from test.second_q.circuit.library.ansatzes.test_ucc import assert_ucc_like_ansatz
 
 from ddt import ddt, data, unpack
 

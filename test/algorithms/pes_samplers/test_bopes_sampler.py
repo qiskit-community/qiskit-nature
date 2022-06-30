@@ -27,8 +27,10 @@ from qiskit.utils import algorithm_globals, QuantumInstance, optionals
 import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.algorithms import (
-    GroundStateEigensolver,
     BOPESSampler,
+)
+from qiskit_nature.second_q.algorithms import (
+    GroundStateEigensolver,
     ExcitedStatesEigensolver,
     NumPyEigensolverFactory,
     QEOM,

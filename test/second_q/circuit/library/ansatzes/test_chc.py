@@ -15,7 +15,7 @@
 import unittest
 
 from test import QiskitNatureTestCase
-from test.circuit.library.ansatzes.utils.vibrational_op_label_creator import _create_labels
+from test.second_q.circuit.library.ansatzes.utils.vibrational_op_label_creator import _create_labels
 
 from qiskit import BasicAer
 from qiskit.utils import QuantumInstance, algorithm_globals

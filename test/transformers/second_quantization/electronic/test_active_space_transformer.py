@@ -34,7 +34,7 @@ from qiskit_nature.second_q.operator_factories.electronic.integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )
-from qikskit_nature.second_q.transformers.second_quantization.electronic import ActiveSpaceTransformer
+from qiskit_nature.second_q.problems.electronic import ActiveSpaceTransformer
 
 
 @ddt

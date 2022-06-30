@@ -32,9 +32,10 @@ from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.problems import BaseProblem, EigenstateResult
 from qiskit_nature.results import BOPESSamplerResult
+from qiskit_nature.second_q.algorithms.ground_state_solvers import GroundStateSolver
+from qiskit_nature.second_q.algorithms.excited_states_solvers import ExcitedStatesSolver
+
 from .extrapolator import Extrapolator, WindowExtrapolator
-from ..ground_state_solvers import GroundStateSolver
-from ..excited_states_solvers import ExcitedStatesSolver
 
 logger = logging.getLogger(__name__)
 

@@ -28,7 +28,7 @@ from qiskit_nature.drivers.second_quantization import PySCFDriver
 from qiskit_nature.second_q.operators.fermionic import ParityMapper
 from qiskit_nature.second_q.operators import QubitConverter
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
-from qikskit_nature.second_q.transformers.second_quantization.electronic import FreezeCoreTransformer
+from qiskit_nature.second_q.problems.electronic import FreezeCoreTransformer
 import qiskit_nature.optionals as _optionals
 
 # pylint: disable=invalid-name
