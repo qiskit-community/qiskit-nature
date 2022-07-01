@@ -190,7 +190,7 @@ class SUCCfull(UCC):
             else:
                 excitations_dictionary[exc_level] = [exc]
         for exc_level, exc_level_items in excitations_dictionary.items():
-            final_op = 0
+            final_op = FermionicOp.zero(register_length=self.num_spin_orbitals)
             for exc in exc_level_items:
                 label = ["I"] * self.num_spin_orbitals
                 for occ in exc[0]:
