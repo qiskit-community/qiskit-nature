@@ -20,7 +20,7 @@ import h5py
 
 from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.deprecation import deprecate_method
-from qiskit_nature.second_q.drivers import WatsonHamiltonian
+from qiskit_nature.second_q._watson_hamiltonian import WatsonHamiltonian
 from qiskit_nature.second_q.operators import VibrationalOp
 
 from ..second_quantized_property import LegacyDriverResult

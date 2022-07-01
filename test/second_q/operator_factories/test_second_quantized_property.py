@@ -19,7 +19,8 @@ from test import QiskitNatureTestCase
 from ddt import data, ddt, unpack
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_q.drivers import QMolecule, WatsonHamiltonian
+from qiskit_nature.second_q._qmolecule import QMolecule
+from qiskit_nature.second_q._watson_hamiltonian import WatsonHamiltonian
 from qiskit_nature.second_q.operator_factories.second_quantized_property import (
     SecondQuantizedProperty,
 )

@@ -22,9 +22,9 @@ from qiskit_nature.second_q.operator_factories.vibrational import (
     VibrationalStructureDriverResult,
 )
 import qiskit_nature.optionals as _optionals
-from ...units_type import UnitsType
+from ..units_type import UnitsType
 from ..vibrational_structure_driver import VibrationalStructureDriver
-from ...molecule import Molecule
+from ..molecule import Molecule
 from .gaussian_log_driver import GaussianLogDriver
 from .gaussian_log_result import GaussianLogResult
 

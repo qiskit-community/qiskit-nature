@@ -18,7 +18,7 @@ import numpy as np
 
 from qiskit_nature.deprecation import DeprecatedType, warn_deprecated_same_type_name
 
-from qiskit_nature.second_q.drivers import WatsonHamiltonian
+from qiskit_nature.second_q._watson_hamiltonian import WatsonHamiltonian
 from .bosonic_basis import BosonicBasis
 
 

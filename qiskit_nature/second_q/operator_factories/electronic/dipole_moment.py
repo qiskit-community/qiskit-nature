@@ -14,13 +14,13 @@
 
 from __future__ import annotations
 
-from typing import Optional, Tuple, cast
+from typing import Optional, Tuple, cast, TYPE_CHECKING
 
 import h5py
 
 from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.deprecation import deprecate_method
-from qiskit_nature.second_q.drivers import QMolecule
+from qiskit_nature.second_q._qmolecule import QMolecule
 from qiskit_nature.second_q.operators import FermionicOp
 
 
@@ -29,6 +29,9 @@ from ..second_quantized_property import LegacyDriverResult
 from .bases import ElectronicBasis
 from .integrals import ElectronicIntegrals, IntegralProperty, OneBodyElectronicIntegrals
 from .types import ElectronicProperty
+
+if TYPE_CHECKING:
+    from qiskit_nature.second_q.problems import EigenstateResult
 
 
 # A dipole moment, when present as X, Y and Z components will normally have float values for all the
@@ -124,8 +127,8 @@ class DipoleMoment(IntegralProperty):
 
         return cast(OneBodyElectronicIntegrals, self.get_electronic_integral(ElectronicBasis.AO, 1))
 
-    def interpret(self, result: str) -> None:
-        """Interprets an :class:`~qiskit_nature.results.str` in this property's context.
+    def interpret(self, result: "EigenstateResult") -> None:
+        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
 
         Args:
             result: the result to add meaning to.
@@ -325,8 +328,8 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
             ops.update(prop.second_q_ops())
         return ops
 
-    def interpret(self, result: str) -> None:
-        """Interprets an :class:`~qiskit_nature.results.str` in this property's context.
+    def interpret(self, result: "EigenstateResult") -> None:
+        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
 
         Args:
             result: the result to add meaning to.

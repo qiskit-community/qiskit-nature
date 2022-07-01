@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import Generator, Optional
+from typing import Generator, Optional, TYPE_CHECKING
 
 import h5py
 
@@ -28,6 +28,8 @@ from ..types import ElectronicProperty
 from .electronic_integrals import ElectronicIntegrals
 from .one_body_electronic_integrals import OneBodyElectronicIntegrals
 
+if TYPE_CHECKING:
+    from qiskit_nature.second_q.problems import EigenstateResult
 
 class IntegralProperty(ElectronicProperty):
     """A common Property object based on
@@ -179,8 +181,8 @@ class IntegralProperty(ElectronicProperty):
         """
         raise NotImplementedError()
 
-    def interpret(self, result: str) -> None:
-        """Interprets an :class:`~qiskit_nature.results.str` in this property's context.
+    def interpret(self, result: "EigenstateResult") -> None:
+        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
 
         Args:
             result: the result to add meaning to.

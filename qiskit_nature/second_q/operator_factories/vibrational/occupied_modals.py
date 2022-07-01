@@ -14,19 +14,21 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 import h5py
 
 from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.deprecation import deprecate_method
-from qiskit_nature.second_q.drivers import WatsonHamiltonian
+from qiskit_nature.second_q._watson_hamiltonian import WatsonHamiltonian
 from qiskit_nature.second_q.operators import VibrationalOp
 
 from ..second_quantized_property import LegacyDriverResult
 from .bases import VibrationalBasis
 from .types import VibrationalProperty
 
+if TYPE_CHECKING:
+    from qiskit_nature.second_q.problems import EigenstateResult
 
 class OccupiedModals(VibrationalProperty):
     """The OccupiedModals property."""
@@ -73,7 +75,7 @@ class OccupiedModals(VibrationalProperty):
             An instance of this property.
 
         Raises:
-            QiskitNatureError: if a :class:`~qiskit_nature.second_q.drivers.QMolecule` is provided.
+            QiskitNatureError: if a :class:`~qiskit_nature.second_q.Rdrivers.QMolecule` is provided.
         """
         cls._validate_input_type(result, WatsonHamiltonian)
 
@@ -113,8 +115,8 @@ class OccupiedModals(VibrationalProperty):
 
         return VibrationalOp(labels, len(num_modals_per_mode), num_modals_per_mode)
 
-    def interpret(self, result: str) -> None:
-        """Interprets an :class:`~qiskit_nature.results.str` in this property's context.
+    def interpret(self, result: "EigenstateResult") -> None:
+        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
 
         Args:
             result: the result to add meaning to.

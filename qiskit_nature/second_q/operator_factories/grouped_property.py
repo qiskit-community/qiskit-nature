@@ -15,13 +15,15 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-from typing import Generator, Generic, Optional, Type, TypeVar, Union
+from typing import Generator, Generic, Optional, Type, TypeVar, Union, TYPE_CHECKING
 
 import h5py
 from qiskit_nature.hdf5 import _import_and_build_from_hdf5
 
 from .property import Interpretable, Property
 
+if TYPE_CHECKING:
+    from qiskit_nature.second_q.problems import EigenstateResult
 # pylint: disable=invalid-name
 T_co = TypeVar("T_co", bound=Property, covariant=True)
 
@@ -99,8 +101,8 @@ class GroupedProperty(Property, Iterable, Generic[T_co]):
             if new_property is not None:
                 self.add_property(new_property)
 
-    def interpret(self, result: str) -> None:
-        """Interprets an :class:`~qiskit_nature.results.str` in this property's context.
+    def interpret(self, result: "EigenstateResult") -> None:
+        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
 
         Args:
             result: the result to add meaning to.

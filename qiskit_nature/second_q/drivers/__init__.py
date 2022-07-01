@@ -33,8 +33,6 @@ Driver Common
 
 """
 
-from .qmolecule import QMolecule
-from .watson_hamiltonian import WatsonHamiltonian
 from .molecule import Molecule
 from .units_type import UnitsType
 from .electronic_structure_molecule_driver import (
@@ -75,8 +73,6 @@ __all__ = [
     "PyQuanteDriver",
     "PySCFDriver",
     "InitialGuess",
-    "QMolecule",
     "Molecule",
-    "WatsonHamiltonian",
     "UnitsType",
 ]

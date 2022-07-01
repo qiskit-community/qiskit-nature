@@ -18,7 +18,8 @@ from abc import abstractmethod
 from typing import Any, Type, TypeVar, Union
 
 from qiskit_nature import ListOrDictType, QiskitNatureError
-from qiskit_nature.second_q.drivers import QMolecule, WatsonHamiltonian
+from qiskit_nature.second_q._qmolecule import QMolecule
+from qiskit_nature.second_q._watson_hamiltonian import WatsonHamiltonian
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 
 from .grouped_property import GroupedProperty

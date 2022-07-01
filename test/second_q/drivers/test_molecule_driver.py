@@ -32,7 +32,9 @@ from qiskit_nature.second_q.drivers import (
     VibrationalStructureMoleculeDriver,
     GaussianLogDriver,
 )
-from qiskit_nature.second_q.drivers import Molecule, WatsonHamiltonian
+from qiskit_nature.second_q.drivers import Molecule
+from qiskit_nature.second_q._watson_hamiltonian import WatsonHamiltonian
+
 from qiskit_nature.exceptions import UnsupportMethodError
 from qiskit_nature.second_q.operator_factories.electronic import ElectronicEnergy
 from qiskit_nature.second_q.operator_factories.vibrational import VibrationalEnergy

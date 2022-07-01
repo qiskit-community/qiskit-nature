@@ -33,8 +33,8 @@ from qiskit_nature.second_q.operator_factories.electronic import (
 import qiskit_nature.optionals as _optionals
 
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
-from ...molecule import Molecule
-from ...units_type import UnitsType
+from ..molecule import Molecule
+from ..units_type import UnitsType
 
 logger = logging.getLogger(__name__)
 

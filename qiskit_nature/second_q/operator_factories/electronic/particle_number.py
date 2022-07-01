@@ -15,20 +15,22 @@
 from __future__ import annotations
 
 import logging
-from typing import Optional, Union, cast
+from typing import Optional, Union, cast, TYPE_CHECKING
 
 import h5py
 import numpy as np
 
 from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.deprecation import deprecate_method
-from qiskit_nature.second_q.drivers import QMolecule
+from qiskit_nature.second_q._qmolecule import QMolecule
 from qiskit_nature.second_q.operators import FermionicOp
 
 
 from ..second_quantized_property import LegacyDriverResult
 from .types import ElectronicProperty
 
+if TYPE_CHECKING:
+    from qiskit_nature.second_q.problems import EigenstateResult
 
 LOGGER = logging.getLogger(__name__)
 
@@ -273,7 +275,7 @@ class ParticleNumber(ElectronicProperty):
 
         return {self.name: op}
 
-    def interpret(self, result: str) -> None:
+    def interpret(self, result: "EigenstateResult") -> None:
         """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
 
         Args:

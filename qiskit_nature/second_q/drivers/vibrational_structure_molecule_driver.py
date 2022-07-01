@@ -24,7 +24,7 @@ from qiskit_nature.second_q.operator_factories.vibrational import (
     VibrationalStructureDriverResult,
 )
 from .vibrational_structure_driver import VibrationalStructureDriver
-from ..molecule import Molecule
+from .molecule import Molecule
 
 logger = logging.getLogger(__name__)
 

@@ -14,19 +14,21 @@
 
 from __future__ import annotations
 
-from typing import cast
+from typing import cast, TYPE_CHECKING
 
 import h5py
 
 from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.deprecation import deprecate_method
-from qiskit_nature.second_q.drivers import QMolecule
+from qiskit_nature.second_q._qmolecule import QMolecule
 from qiskit_nature.second_q.operators import FermionicOp
 
 
 from ..second_quantized_property import LegacyDriverResult
 from .types import ElectronicProperty
 
+if TYPE_CHECKING:
+    from qiskit_nature.second_q.problems import EigenstateResult
 
 class Magnetization(ElectronicProperty):
     """The Magnetization property."""
@@ -128,8 +130,8 @@ class Magnetization(ElectronicProperty):
 
         return {self.name: op}
 
-    def interpret(self, result: str) -> None:
-        """Interprets an :class:`~qiskit_nature.results.str` in this property's context.
+    def interpret(self, result: "EigenstateResult") -> None:
+        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
 
         Args:
             result: the result to add meaning to.

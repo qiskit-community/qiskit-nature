@@ -48,8 +48,8 @@ from qiskit_nature.second_q.operator_factories.electronic.integrals import (
 
 from .gaussian_utils import run_g16
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
-from ...molecule import Molecule
-from ...units_type import UnitsType
+from ..molecule import Molecule
+from ..units_type import UnitsType
 
 
 logger = logging.getLogger(__name__)

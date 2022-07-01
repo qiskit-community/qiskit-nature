@@ -22,7 +22,7 @@ from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.constants import BOHR
 from qiskit_nature.deprecation import deprecate_method
 from qiskit_nature.second_q.drivers import Molecule
-from qiskit_nature.second_q.drivers import QMolecule
+from qiskit_nature.second_q._qmolecule import QMolecule
 from qiskit_nature.second_q.operators import FermionicOp
 
 from ..second_quantized_property import LegacyDriverResult, SecondQuantizedProperty

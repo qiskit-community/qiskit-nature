@@ -28,7 +28,7 @@ from qiskit_nature.second_q.operator_factories.electronic import (
     ElectronicStructureDriverResult,
 )
 
-from ...qmolecule import QMolecule
+from qiskit_nature.second_q._qmolecule import QMolecule
 from ..base_driver import BaseDriver
 
 LOGGER = logging.getLogger(__name__)
