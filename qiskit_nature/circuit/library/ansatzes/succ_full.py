@@ -182,7 +182,7 @@ class SUCCfull(UCC):
             The list of excitation operators in the second quantized formalism.
         """
         operators = []
-        excitations_dictionary: Dict[Int:List[Tuple[Tuple[int, ...], Tuple[int, ...]]]] = {}
+        excitations_dictionary: Dict[Int,List[Tuple[Tuple[int, ...], Tuple[int, ...]]]] = {}
         for exc in excitations:
             exc_level = sum(exc[1])
             if exc_level in excitations_dictionary:
