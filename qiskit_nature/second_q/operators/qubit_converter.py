@@ -22,7 +22,7 @@ from qiskit.opflow.converters import TwoQubitReduction
 from qiskit.opflow.primitive_ops import Z2Symmetries
 
 from qiskit_nature import ListOrDictType, QiskitNatureError
-from qiskit_nature.converters.second_quantization.utils import ListOrDict
+from qiskit_nature import ListOrDict
 
 from .qubit_mapper import QubitMapper
 from .second_quantized_op import SecondQuantizedOp

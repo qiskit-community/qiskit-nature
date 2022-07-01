@@ -30,7 +30,7 @@ from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import UCC
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.operators import QubitConverter
-from qiskit_nature.converters.second_quantization.utils import ListOrDict
+from qiskit_nature import ListOrDict
 from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.second_q.problems import ElectronicStructureResult
 from qiskit_nature.deprecation import deprecate_arguments
