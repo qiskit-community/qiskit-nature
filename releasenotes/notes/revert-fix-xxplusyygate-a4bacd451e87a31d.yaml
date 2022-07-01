@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Reverts a temporary change to XXPlusYYGate that has been fixed in Qiskit Terra 0.21.
+    Pins Qiskit-Terra to >= 0.21
