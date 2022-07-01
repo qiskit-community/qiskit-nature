@@ -15,8 +15,8 @@
 import unittest
 
 from test import QiskitNatureTestCase
-from test.second_q.drivers.second_quantization.test_driver_methods_gsc import TestDriverMethods
-from qiskit_nature.second_q.drivers.second_quantization import FCIDumpDriver
+from test.second_q.drivers.test_driver_methods_gsc import TestDriverMethods
+from qiskit_nature.second_q.drivers import FCIDumpDriver
 from qiskit_nature.second_q.problems.electronic import FreezeCoreTransformer
 
 

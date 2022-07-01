@@ -17,7 +17,7 @@ from test import QiskitNatureTestCase
 
 import numpy as np
 
-from qiskit_nature.second_q.drivers.second_quantization import GaussianForcesDriver
+from qiskit_nature.second_q.drivers import GaussianForcesDriver
 from qiskit_nature.second_q.operators import VibrationalOp
 from qiskit_nature.second_q.problems import VibrationalStructureProblem
 

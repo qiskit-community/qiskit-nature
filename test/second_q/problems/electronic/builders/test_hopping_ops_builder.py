@@ -19,7 +19,7 @@ from qiskit.utils import algorithm_globals
 
 from qiskit_nature.second_q.operators import QubitConverter
 from qiskit_nature.second_q.drivers import UnitsType
-from qiskit_nature.second_q.drivers.second_quantization import PySCFDriver
+from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.operators.fermionic import JordanWignerMapper
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.problems.electronic.builders.hopping_ops_builder import (

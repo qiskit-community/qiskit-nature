@@ -17,7 +17,7 @@ from test import QiskitNatureTestCase
 
 from qiskit.opflow import I, PauliSumOp, X, Y, Z
 
-from qiskit_nature.second_q.drivers.second_quantization import HDF5Driver
+from qiskit_nature.second_q.drivers import HDF5Driver
 from qiskit_nature.second_q.operators.fermionic import JordanWignerMapper
 from qiskit_nature.second_q.operators import FermionicOp
 

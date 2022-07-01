@@ -19,7 +19,7 @@ import warnings
 import numpy as np
 
 from qiskit_nature.hdf5 import load_from_hdf5
-from qiskit_nature.second_q.drivers.second_quantization import GaussianLogDriver, GaussianLogResult
+from qiskit_nature.second_q.drivers import GaussianLogDriver, GaussianLogResult
 from qiskit_nature.second_q.operator_factories.vibrational import VibrationalEnergy
 from qiskit_nature.second_q.operator_factories.vibrational.integrals import (
     VibrationalIntegrals,

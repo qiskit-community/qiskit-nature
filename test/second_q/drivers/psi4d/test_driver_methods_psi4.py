@@ -14,8 +14,8 @@
 
 import unittest
 
-from test.second_q.drivers.second_quantization.test_driver_methods_gsc import TestDriverMethods
-from qiskit_nature.second_q.drivers.second_quantization import PSI4Driver
+from test.second_q.drivers.test_driver_methods_gsc import TestDriverMethods
+from qiskit_nature.second_q.drivers import PSI4Driver
 from qiskit_nature.second_q.problems.electronic import FreezeCoreTransformer
 import qiskit_nature.optionals as _optionals
 

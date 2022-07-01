@@ -21,7 +21,7 @@ from test import QiskitNatureTestCase
 from ddt import data, ddt, unpack
 
 from qiskit_nature.second_q.drivers import Molecule, WatsonHamiltonian
-from qiskit_nature.second_q.drivers.second_quantization import (
+from qiskit_nature.second_q.drivers import (
     GaussianForcesDriver,
     GaussianLogDriver,
     VibrationalStructureMoleculeDriver,

@@ -16,9 +16,9 @@ from typing import cast
 
 import unittest
 from test import QiskitNatureTestCase
-from test.second_q.drivers.second_quantization.test_driver import TestDriver
+from test.second_q.drivers.test_driver import TestDriver
 from qiskit_nature.second_q.drivers import UnitsType
-from qiskit_nature.second_q.drivers.second_quantization import (
+from qiskit_nature.second_q.drivers import (
     PySCFDriver,
     ElectronicStructureDriverType,
     ElectronicStructureMoleculeDriver,

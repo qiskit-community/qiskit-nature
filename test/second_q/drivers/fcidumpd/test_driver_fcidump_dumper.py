@@ -19,7 +19,7 @@ from test import QiskitNatureTestCase
 import numpy as np
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.drivers import UnitsType
-from qiskit_nature.second_q.drivers.second_quantization import FCIDumpDriver, PySCFDriver
+from qiskit_nature.second_q.drivers import FCIDumpDriver, PySCFDriver
 import qiskit_nature.optionals as _optionals
 
 

@@ -14,9 +14,9 @@
 
 import unittest
 
-from test.second_q.drivers.second_quantization.test_driver_methods_gsc import TestDriverMethods
+from test.second_q.drivers.test_driver_methods_gsc import TestDriverMethods
 from qiskit_nature.second_q.drivers import UnitsType
-from qiskit_nature.second_q.drivers.second_quantization import PyQuanteDriver, BasisType, MethodType
+from qiskit_nature.second_q.drivers import PyQuanteDriver, BasisType, MethodType
 import qiskit_nature.optionals as _optionals
 
 

@@ -24,7 +24,7 @@ from ddt import ddt, data
 from qiskit.exceptions import MissingOptionalLibraryError
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_q.drivers.second_quantization import (
+from qiskit_nature.second_q.drivers import (
     MethodType,
     ElectronicStructureDriverType,
     ElectronicStructureMoleculeDriver,

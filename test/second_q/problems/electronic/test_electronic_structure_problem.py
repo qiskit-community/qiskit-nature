@@ -22,7 +22,7 @@ import numpy as np
 
 from qiskit_nature.second_q.operators import QubitConverter
 from qiskit_nature.second_q.drivers import Molecule
-from qiskit_nature.second_q.drivers.second_quantization import (
+from qiskit_nature.second_q.drivers import (
     HDF5Driver,
     PySCFDriver,
     ElectronicStructureMoleculeDriver,

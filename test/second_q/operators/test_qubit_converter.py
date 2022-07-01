@@ -22,7 +22,7 @@ from qiskit.opflow import I, PauliSumOp, X, Y, Z, Z2Symmetries
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.operators import QubitConverter, FermionicOp
-from qiskit_nature.second_q.drivers.second_quantization import HDF5Driver
+from qiskit_nature.second_q.drivers import HDF5Driver
 from qiskit_nature.second_q.operators.fermionic import JordanWignerMapper, ParityMapper
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.operator_factories.electronic import ParticleNumber

@@ -18,7 +18,7 @@ import unittest
 from abc import ABC, abstractmethod
 from test import QiskitNatureTestCase
 import numpy as np
-from qiskit_nature.second_q.drivers.second_quantization import FCIDumpDriver
+from qiskit_nature.second_q.drivers import FCIDumpDriver
 from qiskit_nature.second_q.operator_factories.electronic import (
     ElectronicEnergy,
     ParticleNumber,
