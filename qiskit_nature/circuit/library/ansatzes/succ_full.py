@@ -1,3 +1,17 @@
+# This code is part of Qiskit.
+#
+# (C) Copyright IBM 2021.
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
+"""
+The SUCC_full Ansatz.
+"""
 from typing import List, Optional, Tuple, Sequence
 
 import itertools
@@ -11,16 +25,14 @@ from qiskit_nature.circuit.library.ansatzes.ucc import UCC
 from qiskit_nature.circuit.library.ansatzes.utils.fermionic_excitation_generator import (
     generate_fermionic_excitations,
     get_alpha_excitations,
-    get_beta_excitations
+    get_beta_excitations,
 )
-from qiskit_nature.operators.second_quantization import FermionicOp, SecondQuantizedOp
+from qiskit_nature.operators.second_quantization import FermionicOp
 
 logger = logging.getLogger(__name__)
 
 
-
-
-class SUCC_full(UCC):
+class SUCCfull(UCC):
     """The SUCC_full Ansatz.
     The SUCC_full (by default) only contains double excitations. Furthermore, it only considers
     the set of excitations which is symmetrically invariant with respect to spin-flips of both
@@ -84,10 +96,15 @@ class SUCC_full(UCC):
         """Sets whether to include single excitations."""
         self._include_singles = include_singles
 
+    @property
+    def excitation_list(self) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
+        """The excitation list that SUCC_full is using, in the required format."""
+        return self.generate_excitations(self.num_spin_orbitals, self.num_particles)
+
     def generate_excitations(
         self, num_spin_orbitals: int, num_particles: Tuple[int, int]
     ) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
-        """Generates the excitations for the SUCCD Ansatz.
+        """Generates the excitations for the SUCC_full Ansatz.
         Args:
             num_spin_orbitals: the number of spin orbitals.
             num_particles: the number of alpha and beta electrons. Note, these must be identical for
@@ -113,15 +130,12 @@ class SUCC_full(UCC):
         )
 
         num_electrons = num_particles[0]
-        beta_index_shift = num_spin_orbitals // 2
 
-        # generate alpha-spin orbital indices for occupied and unoccupied ones
+        # generate alpha-spin and beta-spin orbital indices for occupied and unoccupied ones
         alpha_excitations = get_alpha_excitations(
             num_electrons, num_spin_orbitals, self._generalized
         )
-        beta_excitations = get_beta_excitations(
-            num_electrons, num_spin_orbitals, self._generalized
-        )
+        beta_excitations = get_beta_excitations(num_electrons, num_spin_orbitals, self._generalized)
         logger.debug("Generated list of single alpha excitations: %s", alpha_excitations)
         logger.debug("Generated list of single beta excitations: %s", beta_excitations)
 
@@ -154,16 +168,10 @@ class SUCC_full(UCC):
             assert num_particles[0] == num_particles[1]
         except AssertionError as exc:
             raise QiskitNatureError(
-                "The SUCCD Ansatz only works for singlet-spin systems. However, you specified "
+                "The SUCC_full Ansatz only works for singlet-spin systems. However, you specified "
                 "differing numbers of alpha and beta electrons:",
                 str(num_particles),
             ) from exc
- 
-
-
-
-
-
 
     def _build_fermionic_excitation_ops(self, excitations: Sequence) -> List[FermionicOp]:
         """Builds all possible excitation operators with the given number of excitations for the
@@ -175,19 +183,16 @@ class SUCC_full(UCC):
         """
         operators = []
         ### excitations_dictionary: Dict{Int:List[Tuple[Tuple[int, ...], Tuple[int, ...]]]} = {}
-        excitations_dictionary={}
+        excitations_dictionary = {}
         for exc in excitations:
             exc_level = sum(exc[1])
-            if exc_level in excitations_dictionary.keys():
+            if exc_level in excitations_dictionary:
                 excitations_dictionary[exc_level].append(exc)
             else:
                 excitations_dictionary[exc_level] = [exc]
-            
-            
-            
-        for exc_level in excitations_dictionary:
+        for exc_level, exc_level_items in excitations_dictionary.items():
             final_op = 0
-            for exc in excitations_dictionary[exc_level]:
+            for exc in exc_level_items:
                 label = ["I"] * self.num_spin_orbitals
                 for occ in exc[0]:
                     label[occ] = "+"

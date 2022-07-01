@@ -1,0 +1,19 @@
+---
+prelude: >
+    For qiskit-nature issues #91
+
+features:
+  - |
+    Introduced a new feature SUCCfull, that adds succ_full ansatz to
+    ``UCC`` objects. It can be used by using the ``SUCCfull`` function,
+    for example::
+
+      from qiskit_nature.circuit.library.ansatzes import SUCCfull
+      from qiskit_nature.converters.second_quantization import QubitConverter
+      from qiskit_nature.mappers.second_quantization import JordanWignerMapper
+      converter = QubitConverter(JordanWignerMapper())
+      ansatz = SUCCfull(converter, (1, 1), 6)
+
+issues:
+  - |
+    Need tests 
