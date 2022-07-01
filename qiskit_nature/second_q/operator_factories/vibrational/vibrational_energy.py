@@ -22,7 +22,6 @@ from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.deprecation import deprecate_method
 from qiskit_nature.second_q.drivers import WatsonHamiltonian
 from qiskit_nature.second_q.operators import VibrationalOp
-from qiskit_nature.second_q.problems import EigenstateResult
 
 from ..second_quantized_property import LegacyDriverResult
 from .bases import VibrationalBasis
@@ -207,8 +206,8 @@ class VibrationalEnergy(VibrationalProperty):
 
         return {self.name: sum(ops)}
 
-    def interpret(self, result: EigenstateResult) -> None:
-        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
+    def interpret(self, result: str) -> None:
+        """Interprets an :class:`~qiskit_nature.results.str` in this property's context.
 
         Args:
             result: the result to add meaning to.

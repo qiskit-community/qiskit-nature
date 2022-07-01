@@ -21,7 +21,7 @@ import sys
 import h5py
 
 from qiskit_nature.deprecation import warn_deprecated, DeprecatedType
-from qiskit_nature.second_q.problems import EigenstateResult
+
 
 if sys.version_info >= (3, 8):
     # pylint: disable=no-name-in-module
@@ -109,7 +109,7 @@ class PseudoProperty(Property, ABC):
             ),
         )
 
-    def interpret(self, result: EigenstateResult) -> None:
+    def interpret(self, result: str) -> None:
         """A PseudoProperty cannot interpret anything."""
         pass
 
@@ -121,8 +121,8 @@ class Interpretable(Protocol):
     An object is considered interpretable if it implements an `interpret` method.
     """
 
-    def interpret(self, result: EigenstateResult) -> None:
-        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in the object's context.
+    def interpret(self, result: str) -> None:
+        """Interprets an :class:`~qiskit_nature.results.str` in the object's context.
 
         Args:
             result: the result to add meaning to.

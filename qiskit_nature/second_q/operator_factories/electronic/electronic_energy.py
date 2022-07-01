@@ -21,7 +21,7 @@ import numpy as np
 
 from qiskit_nature.deprecation import deprecate_method
 from qiskit_nature.second_q.drivers import QMolecule
-from qiskit_nature.second_q.problems import EigenstateResult
+
 
 from ..second_quantized_property import LegacyDriverResult
 from .bases import ElectronicBasis
@@ -329,7 +329,7 @@ class ElectronicEnergy(IntegralProperty):
 
         return cast(OneBodyElectronicIntegrals, op)
 
-    def interpret(self, result: EigenstateResult) -> None:
+    def interpret(self, result: str) -> None:
         """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
 
         Args:

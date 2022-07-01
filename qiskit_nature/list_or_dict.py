@@ -13,7 +13,9 @@
 """The ListOrDict utility class."""
 
 from typing import Dict, Generator, Generic, Iterable, Optional, Tuple, TypeVar, Union
-from qiskit_nature import ListOrDictType
+from qiskit.algorithms.minimum_eigen_solvers.minimum_eigen_solver import (
+    ListOrDict as ListOrDictType,
+)
 
 # pylint: disable=invalid-name
 T = TypeVar("T")

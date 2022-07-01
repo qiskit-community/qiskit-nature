@@ -22,7 +22,7 @@ from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.deprecation import deprecate_method
 from qiskit_nature.second_q.drivers import QMolecule
 from qiskit_nature.second_q.operators import FermionicOp
-from qiskit_nature.second_q.problems import EigenstateResult
+
 
 from ..grouped_property import GroupedProperty
 from ..second_quantized_property import LegacyDriverResult
@@ -124,8 +124,8 @@ class DipoleMoment(IntegralProperty):
 
         return cast(OneBodyElectronicIntegrals, self.get_electronic_integral(ElectronicBasis.AO, 1))
 
-    def interpret(self, result: EigenstateResult) -> None:
-        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
+    def interpret(self, result: str) -> None:
+        """Interprets an :class:`~qiskit_nature.results.str` in this property's context.
 
         Args:
             result: the result to add meaning to.
@@ -325,8 +325,8 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
             ops.update(prop.second_q_ops())
         return ops
 
-    def interpret(self, result: EigenstateResult) -> None:
-        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
+    def interpret(self, result: str) -> None:
+        """Interprets an :class:`~qiskit_nature.results.str` in this property's context.
 
         Args:
             result: the result to add meaning to.

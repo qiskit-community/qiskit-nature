@@ -20,7 +20,7 @@ import h5py
 
 from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.second_q.operators import FermionicOp
-from qiskit_nature.second_q.problems import EigenstateResult
+
 
 from ...second_quantized_property import LegacyDriverResult
 from ..bases import ElectronicBasis, ElectronicBasisTransform
@@ -179,8 +179,8 @@ class IntegralProperty(ElectronicProperty):
         """
         raise NotImplementedError()
 
-    def interpret(self, result: EigenstateResult) -> None:
-        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
+    def interpret(self, result: str) -> None:
+        """Interprets an :class:`~qiskit_nature.results.str` in this property's context.
 
         Args:
             result: the result to add meaning to.
