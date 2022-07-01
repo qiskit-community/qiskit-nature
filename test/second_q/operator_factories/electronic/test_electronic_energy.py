@@ -20,7 +20,7 @@ from typing import cast
 import h5py
 import numpy as np
 
-from qiskit_nature.second_q.drivers import HDF5Driver
+from qiskit_nature.second_q.drivers.second_quantization import HDF5Driver
 from qiskit_nature.second_q.operator_factories.electronic import ElectronicEnergy
 from qiskit_nature.second_q.operator_factories.electronic.bases import (
     ElectronicBasis,

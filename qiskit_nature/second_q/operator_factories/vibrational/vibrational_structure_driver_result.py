@@ -19,7 +19,8 @@ from typing import cast
 import h5py
 
 from qiskit_nature import ListOrDictType, settings
-from qiskit_nature.drivers import WatsonHamiltonian
+from qiskit_nature.deprecation import deprecate_method
+from qiskit_nature.second_q.drivers import WatsonHamiltonian
 from qiskit_nature.second_q.operators import VibrationalOp
 
 from ..second_quantized_property import LegacyDriverResult
@@ -27,14 +28,14 @@ from .bases import VibrationalBasis
 from .occupied_modals import OccupiedModals
 from .vibrational_energy import VibrationalEnergy
 from .types import GroupedVibrationalProperty
-from ....deprecation import deprecate_method
 
 
 class VibrationalStructureDriverResult(GroupedVibrationalProperty):
     """The VibrationalStructureDriverResult class.
 
     This is a :class:`~qiskit_nature.properties.GroupedProperty` gathering all property objects
-    previously stored in Qiskit Nature's :class:`~qiskit_nature.drivers.WatsonHamiltonian` object.
+    previously stored in Qiskit Nature's
+    :class:`~qiskit_nature.second_q.drivers.WatsonHamiltonian` object.
     """
 
     def __init__(self) -> None:
@@ -104,17 +105,17 @@ class VibrationalStructureDriverResult(GroupedVibrationalProperty):
     def from_legacy_driver_result(
         cls, result: LegacyDriverResult
     ) -> VibrationalStructureDriverResult:
-        """Converts a :class:`~qiskit_nature.drivers.WatsonHamiltonian` into an
+        """Converts a :class:`~qiskit_nature.second_q.drivers.WatsonHamiltonian` into an
         ``VibrationalStructureDriverResult``.
 
         Args:
-            result: the :class:`~qiskit_nature.drivers.WatsonHamiltonian` to convert.
+            result: the :class:`~qiskit_nature.second_q.drivers.WatsonHamiltonian` to convert.
 
         Returns:
             An instance of this property.
 
         Raises:
-            QiskitNatureError: if a :class:`~qiskit_nature.drivers.QMolecule` is provided.
+            QiskitNatureError: if a :class:`~qiskit_nature.second_q.drivers.QMolecule` is provided.
         """
         cls._validate_input_type(result, WatsonHamiltonian)
 

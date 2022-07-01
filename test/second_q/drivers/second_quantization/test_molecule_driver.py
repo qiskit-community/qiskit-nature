@@ -24,7 +24,7 @@ from ddt import ddt, data
 from qiskit.exceptions import MissingOptionalLibraryError
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.drivers.second_quantization import (
+from qiskit_nature.second_q.drivers.second_quantization import (
     MethodType,
     ElectronicStructureDriverType,
     ElectronicStructureMoleculeDriver,
@@ -32,7 +32,7 @@ from qiskit_nature.drivers.second_quantization import (
     VibrationalStructureMoleculeDriver,
     GaussianLogDriver,
 )
-from qiskit_nature.drivers import Molecule, WatsonHamiltonian
+from qiskit_nature.second_q.drivers import Molecule, WatsonHamiltonian
 from qiskit_nature.exceptions import UnsupportMethodError
 from qiskit_nature.second_q.operator_factories.electronic import ElectronicEnergy
 from qiskit_nature.second_q.operator_factories.vibrational import VibrationalEnergy

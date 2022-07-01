@@ -21,12 +21,13 @@ from qiskit.opflow import PauliSumOp, Z2Symmetries
 from qiskit_nature import ListOrDictType
 from qiskit_nature.second_q.operators import QubitConverter
 from qiskit_nature.deprecation import DeprecatedType, deprecate_property
-from qiskit_nature.drivers import QMolecule, WatsonHamiltonian
-from qiskit_nature.second_q.drivers import BaseDriver
+from qiskit_nature.second_q.drivers import QMolecule, WatsonHamiltonian
+from qiskit_nature.second_q.drivers.second_quantization import BaseDriver
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.operator_factories import GroupedSecondQuantizedProperty
-from .eigenstate_result import EigenstateResult
 from qiskit_nature.second_q.problems import BaseTransformer
+
+from .eigenstate_result import EigenstateResult
 
 LegacyDriverResult = Union[QMolecule, WatsonHamiltonian]
 

@@ -19,8 +19,8 @@ import warnings
 from typing import List
 
 import numpy
-from ..constants import BOHR, PERIODIC_TABLE
-from ..deprecation import DeprecatedType, warn_deprecated
+from qiskit_nature.constants import BOHR, PERIODIC_TABLE
+from qiskit_nature.deprecation import DeprecatedType, warn_deprecated
 
 TWOE_TO_SPIN_SUBSCRIPT = "ijkl->ljik"
 

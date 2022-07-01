@@ -23,7 +23,8 @@ import h5py
 import numpy as np
 
 from qiskit_nature import ListOrDictType, settings
-from qiskit_nature.drivers import QMolecule
+from qiskit_nature.deprecation import deprecate_method
+from qiskit_nature.second_q.drivers import QMolecule
 from qiskit_nature.second_q.operators import FermionicOp
 from qiskit_nature.second_q.problems import EigenstateResult
 
@@ -34,7 +35,7 @@ from .integrals import (
     TwoBodyElectronicIntegrals,
 )
 from .types import ElectronicProperty
-from ....deprecation import deprecate_method
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -154,17 +155,19 @@ class AngularMomentum(ElectronicProperty):
     @classmethod
     @deprecate_method("0.4.0")
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> AngularMomentum:
-        """Construct an AngularMomentum instance from a :class:`~qiskit_nature.drivers.QMolecule`.
+        """Construct an AngularMomentum instance from a
+        :class:`~qiskit_nature.second_q.drivers.QMolecule`.
 
         Args:
             result: the driver result from which to extract the raw data. For this property, a
-                :class:`~qiskit_nature.drivers.QMolecule` is required!
+                :class:`~qiskit_nature.second_q.drivers.QMolecule` is required!
 
         Returns:
             An instance of this property.
 
         Raises:
-            QiskitNatureError: if a :class:`~qiskit_nature.drivers.WatsonHamiltonian` is provided.
+            QiskitNatureError: if a :class:`~qiskit_nature.second_q.drivers.WatsonHamiltonian`
+            is provided.
         """
         cls._validate_input_type(result, QMolecule)
 

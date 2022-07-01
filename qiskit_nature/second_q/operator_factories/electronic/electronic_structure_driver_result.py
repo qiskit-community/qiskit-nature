@@ -20,8 +20,9 @@ import h5py
 
 from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.constants import BOHR
-from qiskit_nature.drivers import Molecule
-from qiskit_nature.drivers import QMolecule
+from qiskit_nature.deprecation import deprecate_method
+from qiskit_nature.second_q.drivers import Molecule
+from qiskit_nature.second_q.drivers import QMolecule
 from qiskit_nature.second_q.operators import FermionicOp
 
 from ..second_quantized_property import LegacyDriverResult, SecondQuantizedProperty
@@ -33,14 +34,13 @@ from .electronic_energy import ElectronicEnergy
 from .magnetization import Magnetization
 from .particle_number import ParticleNumber
 from .types import GroupedElectronicProperty
-from ....deprecation import deprecate_method
 
 
 class ElectronicStructureDriverResult(GroupedElectronicProperty):
     """The ElectronicStructureDriverResult class.
 
     This is a :class:`~qiskit_nature.properties.GroupedProperty` gathering all property objects
-    previously stored in Qiskit Nature's :class:`~qiskit_nature.drivers.QMolecule` object.
+    previously stored in Qiskit Nature's :class:`~qiskit_nature.second_q.drivers.QMolecule` object.
     """
 
     def __init__(self) -> None:
@@ -95,17 +95,18 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
     def from_legacy_driver_result(
         cls, result: LegacyDriverResult
     ) -> ElectronicStructureDriverResult:
-        """Converts a :class:`~qiskit_nature.drivers.QMolecule` into an
+        """Converts a :class:`~qiskit_nature.second_q.drivers.QMolecule` into an
         ``ElectronicStructureDriverResult``.
 
         Args:
-            result: the :class:`~qiskit_nature.drivers.QMolecule` to convert.
+            result: the :class:`~qiskit_nature.second_q.drivers.QMolecule` to convert.
 
         Returns:
             An instance of this property.
 
         Raises:
-            QiskitNatureError: if a :class:`~qiskit_nature.drivers.WatsonHamiltonian` is provided.
+            QiskitNatureError: if a :class:`~qiskit_nature.second_q.drivers.WatsonHamiltonian`
+            is provided.
         """
         cls._validate_input_type(result, QMolecule)
 

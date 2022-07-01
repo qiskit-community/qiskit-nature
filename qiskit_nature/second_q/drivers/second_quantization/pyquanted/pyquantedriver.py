@@ -24,6 +24,7 @@ from qiskit.utils.validation import validate_min
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.constants import BOHR, PERIODIC_TABLE
+from qiskit_nature.exceptions import UnsupportMethodError
 from qiskit_nature.second_q.operator_factories.driver_metadata import DriverMetadata
 from qiskit_nature.second_q.operator_factories.electronic import (
     ElectronicStructureDriverResult,
@@ -45,7 +46,6 @@ import qiskit_nature.optionals as _optionals
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ...molecule import Molecule
 from ...units_type import UnitsType
-from ....exceptions import UnsupportMethodError
 
 logger = logging.getLogger(__name__)
 

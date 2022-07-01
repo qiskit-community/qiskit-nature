@@ -14,7 +14,7 @@
 
 from typing import Union, List
 
-from ..deprecation import DeprecatedType, warn_deprecated
+from qiskit_nature.deprecation import DeprecatedType, warn_deprecated
 
 
 class WatsonHamiltonian:

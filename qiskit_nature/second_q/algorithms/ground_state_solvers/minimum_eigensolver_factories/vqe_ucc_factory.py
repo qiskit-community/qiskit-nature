@@ -102,7 +102,8 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             initial_point: An optional initial point (i.e., initial parameter values for the VQE
                 optimizer). If ``None`` then VQE will use an all-zero initial point of the
                 appropriate length computed using
-                :class:`~qiskit_nature.second_q.algorithms.initial_points.hf_initial_point.HFInitialPoint`.
+                :class:`~qiskit_nature.second_q.algorithms.initial_points.\
+                hf_initial_point.HFInitialPoint`.
                 This then defaults to the Hartree-Fock (HF) state when the HF circuit is prepended
                 to the ansatz circuit. If another
                 :class:`~qiskit_nature.second_q.algorithms.initial_points.initial_point.InitialPoint`

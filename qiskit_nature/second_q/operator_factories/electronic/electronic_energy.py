@@ -19,7 +19,8 @@ from typing import Optional, cast
 import h5py
 import numpy as np
 
-from qiskit_nature.drivers import QMolecule
+from qiskit_nature.deprecation import deprecate_method
+from qiskit_nature.second_q.drivers import QMolecule
 from qiskit_nature.second_q.problems import EigenstateResult
 
 from ..second_quantized_property import LegacyDriverResult
@@ -30,7 +31,6 @@ from .integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )
-from ....deprecation import deprecate_method
 
 
 class ElectronicEnergy(IntegralProperty):
@@ -187,17 +187,19 @@ class ElectronicEnergy(IntegralProperty):
     @classmethod
     @deprecate_method("0.4.0")
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> ElectronicEnergy:
-        """Construct an ``ElectronicEnergy`` instance from a :class:`~qiskit_nature.drivers.QMolecule`.
+        """Construct an ``ElectronicEnergy`` instance from a
+        :class:`~qiskit_nature.second_q.drivers.QMolecule`.
 
         Args:
             result: the driver result from which to extract the raw data. For this property, a
-                :class:`~qiskit_nature.drivers.QMolecule` is required!
+                :class:`~qiskit_nature.second_q.drivers.QMolecule` is required!
 
         Returns:
             An instance of this property.
 
         Raises:
-            QiskitNatureError: if a :class:`~qiskit_nature.drivers.WatsonHamiltonian` is provided.
+            QiskitNatureError: if a :class:`~qiskit_nature.second_q.drivers.WatsonHamiltonian`
+             is provided.
         """
         cls._validate_input_type(result, QMolecule)
 

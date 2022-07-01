@@ -34,8 +34,8 @@ from qiskit.test import slow_test
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.algorithms import AdaptVQE, VQEUCCFactory
 from qiskit_nature.second_q.circuit.library import HartreeFock, UCC
-from qiskit_nature.drivers import UnitsType
-from qiskit_nature.second_q.drivers import PySCFDriver
+from qiskit_nature.second_q.drivers import UnitsType
+from qiskit_nature.second_q.drivers.second_quantization import PySCFDriver
 from qiskit_nature.second_q.operators.fermionic import ParityMapper
 from qiskit_nature.second_q.operators import QubitConverter
 from qiskit_nature.second_q.problems import ElectronicStructureProblem

@@ -23,6 +23,7 @@ from typing import List, Optional, Tuple, Union, Any, Dict
 import numpy as np
 from qiskit.utils.validation import validate_min
 
+from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.operator_factories.driver_metadata import DriverMetadata
 from qiskit_nature.second_q.operator_factories.electronic import (
     ElectronicStructureDriverResult,
@@ -43,7 +44,6 @@ from qiskit_nature.second_q.operator_factories.electronic.integrals import (
 )
 import qiskit_nature.optionals as _optionals
 
-from ....exceptions import QiskitNatureError
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ...molecule import Molecule
 from ...units_type import UnitsType

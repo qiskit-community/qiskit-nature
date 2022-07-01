@@ -154,7 +154,8 @@ class UCC(EvolvedOperatorAnsatz):
                     `num_particles` (with identical types to those explained above) and must return
                     a `list[tuple[tuple[int, ...], tuple[int, ...]]]`. For more information on how
                     to write such a callable refer to the default method
-                    :meth:`~qiskit_nature.second_q.circuit.library.ansatzes.utils.generate_fermionic_excitations`.
+                    :meth:`~qiskit_nature.second_q.circuit.library.ansatzes.utils.\
+                    generate_fermionic_excitations`.
             alpha_spin: boolean flag whether to include alpha-spin excitations.
             beta_spin: boolean flag whether to include beta-spin excitations.
             max_spin_excitation: the largest number of excitations within a spin. E.g. you can set

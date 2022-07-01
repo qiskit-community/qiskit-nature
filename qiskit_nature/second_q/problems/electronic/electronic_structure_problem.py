@@ -24,7 +24,7 @@ from qiskit_nature import ListOrDictType, QiskitNatureError
 from qiskit_nature.second_q.circuit.library.initial_states.hartree_fock import (
     hartree_fock_bitstring_mapped,
 )
-from qiskit_nature.second_q.drivers import ElectronicStructureDriver
+from qiskit_nature.second_q.drivers.second_quantization import ElectronicStructureDriver
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.operators import QubitConverter
 from qiskit_nature.second_q.operator_factories.electronic import ParticleNumber

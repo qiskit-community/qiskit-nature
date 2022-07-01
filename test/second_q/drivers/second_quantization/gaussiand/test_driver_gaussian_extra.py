@@ -15,7 +15,7 @@
 import unittest
 
 from test import QiskitNatureTestCase
-from qiskit_nature.drivers.second_quantization import GaussianDriver
+from qiskit_nature.second_q.drivers.second_quantization import GaussianDriver
 
 
 class TestDriverGaussianExtra(QiskitNatureTestCase):

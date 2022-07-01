@@ -25,6 +25,7 @@ import numpy as np
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.constants import BOHR, PERIODIC_TABLE
+from qiskit_nature.exceptions import UnsupportMethodError
 import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.operator_factories.driver_metadata import DriverMetadata
 from qiskit_nature.second_q.operator_factories.electronic import (
@@ -49,7 +50,7 @@ from .gaussian_utils import run_g16
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
 from ...molecule import Molecule
 from ...units_type import UnitsType
-from ....exceptions import UnsupportMethodError
+
 
 logger = logging.getLogger(__name__)
 

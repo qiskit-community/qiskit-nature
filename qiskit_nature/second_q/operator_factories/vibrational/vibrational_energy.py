@@ -19,7 +19,8 @@ from typing import cast, Generator, Optional
 import h5py
 
 from qiskit_nature import ListOrDictType, settings
-from qiskit_nature.drivers import WatsonHamiltonian
+from qiskit_nature.deprecation import deprecate_method
+from qiskit_nature.second_q.drivers import WatsonHamiltonian
 from qiskit_nature.second_q.operators import VibrationalOp
 from qiskit_nature.second_q.problems import EigenstateResult
 
@@ -27,7 +28,6 @@ from ..second_quantized_property import LegacyDriverResult
 from .bases import VibrationalBasis
 from .integrals import VibrationalIntegrals
 from .types import VibrationalProperty
-from ....deprecation import deprecate_method
 
 
 class VibrationalEnergy(VibrationalProperty):
@@ -117,17 +117,17 @@ class VibrationalEnergy(VibrationalProperty):
     @deprecate_method("0.4.0")
     def from_legacy_driver_result(cls, result: LegacyDriverResult) -> VibrationalEnergy:
         """Construct a VibrationalEnergy instance from a
-        :class:`~qiskit_nature.drivers.WatsonHamiltonian`.
+        :class:`~qiskit_nature.second_q.drivers.WatsonHamiltonian`.
 
         Args:
             result: the driver result from which to extract the raw data. For this property, a
-                :class:`~qiskit_nature.drivers.WatsonHamiltonian` is required!
+                :class:`~qiskit_nature.second_q.drivers.WatsonHamiltonian` is required!
 
         Returns:
             An instance of this property.
 
         Raises:
-            QiskitNatureError: if a :class:`~qiskit_nature.drivers.QMolecule` is provided.
+            QiskitNatureError: if a :class:`~qiskit_nature.second_q.drivers.QMolecule` is provided.
         """
         cls._validate_input_type(result, WatsonHamiltonian)
 

@@ -19,8 +19,8 @@ from qiskit import BasicAer
 from qiskit.utils import algorithm_globals, QuantumInstance
 from qiskit.algorithms import NumPyMinimumEigensolver, NumPyEigensolver
 
-from qiskit_nature.drivers import UnitsType
-from qiskit_nature.second_q.drivers import PySCFDriver
+from qiskit_nature.second_q.drivers import UnitsType
+from qiskit_nature.second_q.drivers.second_quantization import PySCFDriver
 from qiskit_nature.second_q.operators.fermionic import (
     BravyiKitaevMapper,
     JordanWignerMapper,

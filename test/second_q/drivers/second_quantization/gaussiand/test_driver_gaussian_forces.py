@@ -20,8 +20,8 @@ from typing import cast
 from test import QiskitNatureTestCase
 from ddt import data, ddt, unpack
 
-from qiskit_nature.drivers import Molecule, WatsonHamiltonian
-from qiskit_nature.drivers.second_quantization import (
+from qiskit_nature.second_q.drivers import Molecule, WatsonHamiltonian
+from qiskit_nature.second_q.drivers.second_quantization import (
     GaussianForcesDriver,
     GaussianLogDriver,
     VibrationalStructureMoleculeDriver,

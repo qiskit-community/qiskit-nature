@@ -60,8 +60,8 @@ the ground-state (minimum) energy of a molecule.
 
 ```python
 from qiskit_nature.settings import settings
-from qiskit_nature.drivers import UnitsType
-from qiskit_nature.second_q.drivers import PySCFDriver
+from qiskit_nature.second_q.drivers import UnitsType
+from qiskit_nature.second_q.drivers.second_quantization import PySCFDriver
 from qiskit_nature.second_q.problems.electronic import ElectronicStructureProblem
 
 settings.dict_aux_operators = True

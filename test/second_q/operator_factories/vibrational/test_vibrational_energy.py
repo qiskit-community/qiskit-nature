@@ -20,7 +20,7 @@ from test.second_q.operator_factories.property_test import PropertyTest
 import h5py
 import numpy as np
 
-from qiskit_nature.drivers import WatsonHamiltonian
+from qiskit_nature.second_q.drivers import WatsonHamiltonian
 from qiskit_nature.second_q.operator_factories.vibrational import VibrationalEnergy
 from qiskit_nature.second_q.operator_factories.vibrational.bases import HarmonicBasis
 

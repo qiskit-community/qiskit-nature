@@ -16,9 +16,10 @@ from typing import Dict, List, Tuple
 
 import numpy as np
 
-from qiskit_nature.drivers import WatsonHamiltonian
+from qiskit_nature.deprecation import DeprecatedType, warn_deprecated_same_type_name
+
+from qiskit_nature.second_q.drivers import WatsonHamiltonian
 from .bosonic_basis import BosonicBasis
-from ...deprecation import DeprecatedType, warn_deprecated_same_type_name
 
 
 class HarmonicBasis(BosonicBasis):

@@ -43,7 +43,7 @@ from qiskit_nature.second_q.operator_factories.electronic.types import (
     GroupedElectronicProperty,
 )
 
-from ..base_transformer import BaseTransformer
+from ...base_transformer import BaseTransformer
 
 logger = logging.getLogger(__name__)
 

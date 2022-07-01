@@ -19,7 +19,7 @@ from test.second_q.operator_factories.property_test import PropertyTest
 import h5py
 import numpy as np
 
-from qiskit_nature.second_q.drivers import HDF5Driver
+from qiskit_nature.second_q.drivers.second_quantization import HDF5Driver
 from qiskit_nature.second_q.operator_factories.electronic import ElectronicDipoleMoment
 from qiskit_nature.second_q.operator_factories.electronic.bases import ElectronicBasis
 from qiskit_nature.second_q.operator_factories.electronic.dipole_moment import (

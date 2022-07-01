@@ -15,8 +15,8 @@
 import unittest
 
 from test import QiskitNatureTestCase
-from test.drivers.second_quantization.test_driver import TestDriver
-from qiskit_nature.drivers.second_quantization import (
+from test.second_q.drivers.second_quantization.test_driver import TestDriver
+from qiskit_nature.second_q.drivers.second_quantization import (
     PSI4Driver,
     ElectronicStructureDriverType,
     ElectronicStructureMoleculeDriver,

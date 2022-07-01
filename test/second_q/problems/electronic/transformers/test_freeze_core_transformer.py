@@ -18,7 +18,7 @@ from test import QiskitNatureTestCase
 from ddt import ddt, idata
 import numpy as np
 
-from qiskit_nature.second_q.drivers import HDF5Driver
+from qiskit_nature.second_q.drivers.second_quantization import HDF5Driver
 from qiskit_nature.second_q.problems.electronic import FreezeCoreTransformer
 from qiskit_nature.second_q.operator_factories.electronic.bases import ElectronicBasis
 
@@ -28,7 +28,7 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
     """FreezeCoreTransformer tests."""
 
     # pylint: disable=import-outside-toplevel
-    from test.transformers.second_quantization.electronic.test_active_space_transformer import (
+    from test.second_q.problems.electronic.transformers.test_active_space_transformer import (
         TestActiveSpaceTransformer,
     )
 
