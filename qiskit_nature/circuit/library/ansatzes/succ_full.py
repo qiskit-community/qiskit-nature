@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,7 +12,7 @@
 """
 The SUCC_full Ansatz.
 """
-from typing import List, Optional, Tuple, Sequence
+from typing import List, Optional, Tuple, Sequence, Dict
 
 import itertools
 import logging
@@ -182,8 +182,7 @@ class SUCCfull(UCC):
             The list of excitation operators in the second quantized formalism.
         """
         operators = []
-        ### excitations_dictionary: Dict{Int:List[Tuple[Tuple[int, ...], Tuple[int, ...]]]} = {}
-        excitations_dictionary = {}
+        excitations_dictionary: Dict[Int:List[Tuple[Tuple[int, ...], Tuple[int, ...]]]] = {}
         for exc in excitations:
             exc_level = sum(exc[1])
             if exc_level in excitations_dictionary:
