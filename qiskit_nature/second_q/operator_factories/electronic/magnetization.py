@@ -30,6 +30,7 @@ from .types import ElectronicProperty
 if TYPE_CHECKING:
     from qiskit_nature.second_q.problems import EigenstateResult
 
+
 class Magnetization(ElectronicProperty):
     """The Magnetization property."""
 

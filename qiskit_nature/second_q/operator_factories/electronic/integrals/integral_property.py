@@ -31,6 +31,7 @@ from .one_body_electronic_integrals import OneBodyElectronicIntegrals
 if TYPE_CHECKING:
     from qiskit_nature.second_q.problems import EigenstateResult
 
+
 class IntegralProperty(ElectronicProperty):
     """A common Property object based on
     :class:`~qiskit_nature.properties.second_q.electronic.integrals.ElectronicIntegrals`

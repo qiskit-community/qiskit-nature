@@ -35,6 +35,7 @@ from .integrals import (
 if TYPE_CHECKING:
     from qiskit_nature.second_q.problems import EigenstateResult
 
+
 class ElectronicEnergy(IntegralProperty):
     """The ElectronicEnergy property.
 

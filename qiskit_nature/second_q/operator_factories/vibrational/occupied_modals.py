@@ -30,6 +30,7 @@ from .types import VibrationalProperty
 if TYPE_CHECKING:
     from qiskit_nature.second_q.problems import EigenstateResult
 
+
 class OccupiedModals(VibrationalProperty):
     """The OccupiedModals property."""
 
