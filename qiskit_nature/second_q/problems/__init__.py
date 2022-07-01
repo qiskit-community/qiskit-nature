@@ -50,5 +50,5 @@ __all__ = [
     "ElectronicStructureResult",
     "VibrationalStructureResult",
     "LatticeModelResult",
-    "BaseTransformer"
+    "BaseTransformer",
 ]

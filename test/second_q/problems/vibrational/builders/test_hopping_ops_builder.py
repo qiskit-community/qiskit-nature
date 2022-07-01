@@ -12,8 +12,9 @@
 
 """Tests Hopping Operators builder."""
 from test import QiskitNatureTestCase
-from test.second_q.algorithms.excited_state_solvers.test_bosonic_esc_calculation \
-    import _DummyBosonicDriver
+from test.second_q.algorithms.excited_state_solvers.test_bosonic_esc_calculation import (
+    _DummyBosonicDriver,
+)
 
 from qiskit.opflow import PauliSumOp
 from qiskit.utils import algorithm_globals

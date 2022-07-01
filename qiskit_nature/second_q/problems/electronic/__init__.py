@@ -22,8 +22,10 @@ from .electronic_structure_result import DipoleTuple, ElectronicStructureResult
 from .transformers.active_space_transformer import ActiveSpaceTransformer
 from .transformers.freeze_core_transformer import FreezeCoreTransformer
 
-__all__ = ["ElectronicStructureProblem",
-           "DipoleTuple",
-           "ElectronicStructureResult",
-           "ActiveSpaceTransformer",
-            "FreezeCoreTransformer",]
+__all__ = [
+    "ElectronicStructureProblem",
+    "DipoleTuple",
+    "ElectronicStructureResult",
+    "ActiveSpaceTransformer",
+    "FreezeCoreTransformer",
+]
