@@ -573,6 +573,12 @@ class TestFermionicOp(QiskitNatureTestCase):
             expected = [((("-", 1), ("+", 2)), 6)]
             self.assertEqual(fer_op._data, expected)
 
+    def test_induced_norm(self):
+        """Test induced norm."""
+        op = 3 * FermionicOp("+") + 4j * FermionicOp("-")
+        self.assertAlmostEqual(op.induced_norm(), 7.0)
+        self.assertAlmostEqual(op.induced_norm(2), 5.0)
+
 
 if __name__ == "__main__":
     unittest.main()

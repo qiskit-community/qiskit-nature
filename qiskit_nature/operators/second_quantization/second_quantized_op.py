@@ -65,3 +65,24 @@ class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
         return frozenset(self.simplify().to_list()) == frozenset(
             self.adjoint().simplify().to_list()
         )
+
+    def induced_norm(self, order: int = 1) -> float:
+        r"""Returns the induced p-norm of the operator.
+
+        If the operator is represented as a sum of terms
+
+        .. math::
+            \sum_i w_i H_i
+
+        then the induced :math:`p`-norm is
+
+        .. math::
+            \left(\sum_i |w_i|^p \right)^{1/p}
+
+        Args:
+            order: Order :math:`p` of the norm. The default value is 1.
+
+        Returns:
+            The induced p-norm of the operator.
+        """
+        return sum(abs(coeff) ** order for _, coeff in self.to_list()) ** (1 / order)
