@@ -49,7 +49,7 @@ class TestElectronicEnergy(PropertyTest):
         self.assertEqual(len(ops), 1)
         with open(
             self.get_resource_path(
-                "electronic_energy_op.json", "properties/second_q/electronic/resources"
+                "electronic_energy_op.json", "second_q/operator_factories/electronic/resources"
             ),
             "r",
             encoding="utf8",

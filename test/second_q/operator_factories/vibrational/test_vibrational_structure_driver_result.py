@@ -43,7 +43,7 @@ class TestVibrationalStructureDriverResult(PropertyTest):
         with h5py.File(
             self.get_resource_path(
                 "vibrational_structure_driver_result.hdf5",
-                "properties/second_q/vibrational/resources",
+                "second_q/operator_factories/vibrational/resources",
             ),
             "r",
         ) as file:

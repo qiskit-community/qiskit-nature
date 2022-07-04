@@ -39,7 +39,7 @@ class TestElectronicStructureDriverResult(PropertyTest):
         with h5py.File(
             self.get_resource_path(
                 "electronic_structure_driver_result.hdf5",
-                "properties/second_q/electronic/resources",
+                "second_q/operator_factories/electronic/resources",
             ),
             "r",
         ) as file:

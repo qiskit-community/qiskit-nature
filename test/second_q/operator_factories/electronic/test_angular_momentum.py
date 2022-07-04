@@ -41,7 +41,7 @@ class TestAngularMomentum(PropertyTest):
         op = self.prop.second_q_ops()["AngularMomentum"]
         with open(
             self.get_resource_path(
-                "angular_momentum_op.json", "properties/second_q/electronic/resources"
+                "angular_momentum_op.json", "second_q/operator_factories/electronic/resources"
             ),
             "r",
             encoding="utf8",

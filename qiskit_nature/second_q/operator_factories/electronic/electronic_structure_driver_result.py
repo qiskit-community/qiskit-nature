@@ -131,7 +131,7 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
         for atom, xyz in zip(qmol.atom_symbol, qmol.atom_xyz):
             # QMolecule XYZ defaults to Bohr but Molecule requires Angstrom
             geometry.append((atom, xyz * BOHR))
-            
+
         from qiskit_nature.second_q.drivers import Molecule
         ret.molecule = Molecule(geometry, qmol.multiplicity, qmol.molecular_charge)
 

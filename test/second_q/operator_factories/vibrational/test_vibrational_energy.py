@@ -73,7 +73,7 @@ class TestVibrationalEnergy(PropertyTest):
         self.assertEqual(len(ops), 1)
         with open(
             self.get_resource_path(
-                "vibrational_energy_op.json", "properties/second_q/vibrational/resources"
+                "vibrational_energy_op.json", "second_q/operator_factories/vibrational/resources"
             ),
             "r",
             encoding="utf8",
