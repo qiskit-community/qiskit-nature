@@ -19,8 +19,8 @@ import numpy as np
 from qiskit.quantum_info import Statevector
 
 from qiskit_nature.second_q.circuit.library import SlaterDeterminant
-from qiskit_nature.second_q.operators import QubitConverter
-from qiskit_nature.second_q.operators.fermionic import (
+from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import (
     BravyiKitaevMapper,
     JordanWignerMapper,
 )

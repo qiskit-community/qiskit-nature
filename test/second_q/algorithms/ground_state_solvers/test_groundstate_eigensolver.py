@@ -37,8 +37,8 @@ from qiskit_nature.second_q.algorithms import (
 )
 from qiskit_nature.second_q.circuit.library import HartreeFock, UCC, UCCSD
 from qiskit_nature.second_q.drivers import HDF5Driver
-from qiskit_nature.second_q.operators.fermionic import JordanWignerMapper, ParityMapper
-from qiskit_nature.second_q.operators import QubitConverter
+from qiskit_nature.second_q.mappers import JordanWignerMapper, ParityMapper
+from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.operator_factories.electronic import ElectronicEnergy
 from qiskit_nature.second_q.operator_factories.electronic.bases import ElectronicBasis

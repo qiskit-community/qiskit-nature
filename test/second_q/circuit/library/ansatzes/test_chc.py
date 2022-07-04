@@ -25,8 +25,8 @@ from qiskit_nature.second_q.circuit.library import CHC, VSCF
 from qiskit_nature.second_q.circuit.library.ansatzes.utils.vibration_excitation_generator import (
     generate_vibration_excitations,
 )
-from qiskit_nature.second_q.operators.vibrational import DirectMapper
-from qiskit_nature.second_q.operators import QubitConverter
+from qiskit_nature.second_q.mappers import DirectMapper
+from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.operators import VibrationalOp
 
 

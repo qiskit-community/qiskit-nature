@@ -24,8 +24,8 @@ from qiskit.opflow.primitive_ops import Z2Symmetries
 from qiskit_nature import ListOrDictType, QiskitNatureError
 from qiskit_nature import ListOrDict
 
+from qiskit_nature.second_q.operators import SecondQuantizedOp
 from .qubit_mapper import QubitMapper
-from .second_quantized_op import SecondQuantizedOp
 
 logger = logging.getLogger(__name__)
 

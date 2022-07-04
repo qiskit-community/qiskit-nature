@@ -18,7 +18,7 @@ import warnings
 from test import QiskitNatureTestCase
 
 from qiskit_nature.second_q.drivers import GaussianForcesDriver
-from qiskit_nature.second_q.operators.vibrational import DirectMapper
+from qiskit_nature.second_q.mappers import DirectMapper
 from qiskit_nature.second_q.operator_factories.vibrational.bases import HarmonicBasis
 
 from .resources.reference_direct_mapper import (

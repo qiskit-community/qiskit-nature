@@ -18,7 +18,7 @@ import numpy as np
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 from qiskit.opflow import PauliSumOp
 from qiskit_nature import ListOrDictType, settings
-from qiskit_nature.second_q.operators import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 
 from qiskit_nature.second_q.operator_factories.lattice.lattice_model import LatticeModel

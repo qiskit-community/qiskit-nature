@@ -20,8 +20,8 @@ from qiskit.utils import QuantumInstance
 from qiskit.opflow import AerPauliExpectation
 from qiskit.algorithms.optimizers import COBYLA, SLSQP
 from qiskit_nature.second_q.circuit.library import HartreeFock, UVCCSD
-from qiskit_nature.second_q.operators import QubitConverter
-from qiskit_nature.second_q.operators.fermionic import JordanWignerMapper
+from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import JordanWignerMapper
 from qiskit_nature.second_q.algorithms import VQEUVCCFactory
 from qiskit_nature.second_q.algorithms.initial_points import VSCFInitialPoint
 

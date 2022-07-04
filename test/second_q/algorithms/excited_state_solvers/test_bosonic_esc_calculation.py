@@ -27,8 +27,8 @@ from qiskit.algorithms.optimizers import COBYLA
 
 from qiskit_nature.second_q._watson_hamiltonian import WatsonHamiltonian
 from qiskit_nature.second_q.drivers import VibrationalStructureDriver
-from qiskit_nature.second_q.operators.vibrational import DirectMapper
-from qiskit_nature.second_q.operators import QubitConverter
+from qiskit_nature.second_q.mappers import DirectMapper
+from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.problems.vibrational import (
     VibrationalStructureProblem,
 )

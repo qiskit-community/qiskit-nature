@@ -19,8 +19,8 @@ import numpy as np
 from ddt import data, ddt
 from qiskit.quantum_info import random_hermitian
 
-from qiskit_nature.second_q.operators import QubitConverter
-from qiskit_nature.second_q.operators.fermionic import JordanWignerMapper
+from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import JordanWignerMapper
 from qiskit_nature.second_q.operator_factories import QuadraticHamiltonian
 from qiskit_nature.second_q.operators import FermionicOp
 

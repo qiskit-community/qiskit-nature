@@ -16,7 +16,7 @@ The UVCCSD Ansatz.
 from typing import Optional, List
 
 from qiskit.circuit import QuantumCircuit
-from qiskit_nature.second_q.operators import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter
 from .uvcc import UVCC
 
 

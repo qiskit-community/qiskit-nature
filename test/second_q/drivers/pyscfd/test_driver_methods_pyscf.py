@@ -17,8 +17,8 @@ import unittest
 from test.second_q.drivers.test_driver_methods_gsc import TestDriverMethods
 from qiskit_nature.second_q.drivers import UnitsType
 from qiskit_nature.second_q.drivers import PySCFDriver, MethodType
-from qiskit_nature.second_q.operators.fermionic import BravyiKitaevMapper, ParityMapper
-from qiskit_nature.second_q.operators.qubit_converter import QubitConverter
+from qiskit_nature.second_q.mappers import BravyiKitaevMapper, ParityMapper
+from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.problems.electronic import FreezeCoreTransformer
 import qiskit_nature.optionals as _optionals
 

@@ -24,12 +24,12 @@ from qiskit_nature.second_q.circuit.library.initial_states.hartree_fock import (
     hartree_fock_bitstring,
     hartree_fock_bitstring_mapped,
 )
-from qiskit_nature.second_q.operators.fermionic import (
+from qiskit_nature.second_q.mappers import (
     BravyiKitaevMapper,
     JordanWignerMapper,
     ParityMapper,
 )
-from qiskit_nature.second_q.operators import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter
 
 
 class TestHartreeFock(QiskitNatureTestCase):

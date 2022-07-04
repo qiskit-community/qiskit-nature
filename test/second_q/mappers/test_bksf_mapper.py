@@ -19,8 +19,8 @@ import numpy as np
 from qiskit.quantum_info import SparsePauliOp, PauliList
 
 from qiskit_nature.second_q.operators import FermionicOp
-from qiskit_nature.second_q.operators.fermionic import BravyiKitaevSuperFastMapper
-from qiskit_nature.second_q.operators.fermionic.mappers.bksf import (
+from qiskit_nature.second_q.mappers import BravyiKitaevSuperFastMapper
+from qiskit_nature.second_q.mappers.bksf import (
     _edge_operator_aij,
     _edge_operator_bi,
     _bksf_edge_list_fermionic_op,

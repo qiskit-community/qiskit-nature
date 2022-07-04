@@ -22,7 +22,7 @@ from qiskit.opflow import PauliSumOp
 from qiskit_nature import ListOrDictType
 from qiskit_nature.second_q.drivers import VibrationalStructureDriver
 from qiskit_nature.second_q.operators import SecondQuantizedOp
-from qiskit_nature.second_q.operators import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.operator_factories.vibrational import (
     VibrationalStructureDriverResult,
 )

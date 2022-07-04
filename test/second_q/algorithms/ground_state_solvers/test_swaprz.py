@@ -26,8 +26,8 @@ from qiskit.utils import QuantumInstance, algorithm_globals
 from qiskit_nature.second_q.algorithms import GroundStateEigensolver
 from qiskit_nature.second_q.circuit.library import HartreeFock
 from qiskit_nature.second_q.drivers import HDF5Driver
-from qiskit_nature.second_q.operators.fermionic import ParityMapper
-from qiskit_nature.second_q.operators import QubitConverter
+from qiskit_nature.second_q.mappers import ParityMapper
+from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.operator_factories.electronic import ParticleNumber
 

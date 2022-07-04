@@ -20,7 +20,7 @@ from ddt import ddt, data, unpack
 
 from qiskit.opflow import X, Y, Z, I
 from qiskit_nature.second_q.operators import SpinOp
-from qiskit_nature.second_q.operators.spin import LinearMapper
+from qiskit_nature.second_q.mappers import LinearMapper
 
 
 @ddt

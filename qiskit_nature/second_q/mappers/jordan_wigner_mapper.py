@@ -17,9 +17,8 @@ import numpy as np
 from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators import Pauli
 
-from ..fermionic_op import FermionicOp
-
-from ...qubit_mapper import QubitMapper
+from qiskit_nature.second_q.operators import FermionicOp
+from .qubit_mapper import QubitMapper
 
 
 class JordanWignerMapper(QubitMapper):  # pylint: disable=missing-class-docstring

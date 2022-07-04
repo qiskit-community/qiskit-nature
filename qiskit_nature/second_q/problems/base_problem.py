@@ -19,7 +19,7 @@ import numpy as np
 from qiskit.opflow import PauliSumOp, Z2Symmetries
 
 from qiskit_nature import ListOrDictType
-from qiskit_nature.second_q.operators import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.deprecation import DeprecatedType, deprecate_property
 from qiskit_nature.second_q._qmolecule import QMolecule
 from qiskit_nature.second_q._watson_hamiltonian import WatsonHamiltonian

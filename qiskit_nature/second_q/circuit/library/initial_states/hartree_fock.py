@@ -21,8 +21,8 @@ from qiskit.opflow import PauliSumOp
 from qiskit.utils.validation import validate_min
 
 from qiskit_nature.second_q.operators import FermionicOp
-from qiskit_nature.second_q.operators import QubitConverter
-from qiskit_nature.second_q.operators.fermionic import BravyiKitaevSuperFastMapper
+from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import BravyiKitaevSuperFastMapper
 
 
 class HartreeFock(QuantumCircuit):

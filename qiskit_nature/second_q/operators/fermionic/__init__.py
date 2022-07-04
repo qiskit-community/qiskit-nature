@@ -11,12 +11,11 @@
 # that they have been altered from the originals.
 
 """
-Fermionic Operators (:mod:`qiskit_nature.second_q.operators.fermionic`)
+Fermionic Operators (:mod:`qiskit_nature.second_q.mappers`)
 ================================================================
 
-.. currentmodule:: qiskit_nature.second_q.operators.fermionic
+.. currentmodule:: qiskit_nature.second_q.mappers
 
 Operators for fermionic systems.
 
 """
-

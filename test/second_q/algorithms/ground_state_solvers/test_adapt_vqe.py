@@ -36,8 +36,8 @@ from qiskit_nature.second_q.algorithms import AdaptVQE, VQEUCCFactory
 from qiskit_nature.second_q.circuit.library import HartreeFock, UCC
 from qiskit_nature.second_q.drivers import UnitsType
 from qiskit_nature.second_q.drivers import PySCFDriver
-from qiskit_nature.second_q.operators.fermionic import ParityMapper
-from qiskit_nature.second_q.operators import QubitConverter
+from qiskit_nature.second_q.mappers import ParityMapper
+from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.operator_factories.electronic import (
     ElectronicEnergy,

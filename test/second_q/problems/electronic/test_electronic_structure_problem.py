@@ -20,7 +20,7 @@ from test.second_q.problems.electronic.resources.resource_reader import (
 import warnings
 import numpy as np
 
-from qiskit_nature.second_q.operators import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.drivers import Molecule
 from qiskit_nature.second_q.drivers import (
     HDF5Driver,
@@ -28,7 +28,7 @@ from qiskit_nature.second_q.drivers import (
     ElectronicStructureMoleculeDriver,
     ElectronicStructureDriverType,
 )
-from qiskit_nature.second_q.operators.fermionic import ParityMapper
+from qiskit_nature.second_q.mappers import ParityMapper
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.problems.electronic import (

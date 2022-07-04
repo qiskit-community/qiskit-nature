@@ -346,7 +346,7 @@ class ElectronicIntegrals(ABC):
         orbital basis.
 
         Returns:
-            The :class:`~qiskit_nature.second_q.operators.FermionicOp` given by these
+            The :class:`~qiskit_nature.second_q.mappersOp` given by these
             electronic integrals.
         """
         spin_matrix = self.to_spin()
