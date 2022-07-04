@@ -35,6 +35,10 @@ class QubitMapper(ABC):
                 number of qubits in the mapped operator can be reduced accordingly.
         """
         self._allows_two_qubit_reduction = allows_two_qubit_reduction
+        self.times_creation_op = []
+        self.times_annihilation_op = []
+        self.times_occupation_number_op = []
+        self.times_emptiness_number_op = []
 
     @property
     def allows_two_qubit_reduction(self) -> bool:
@@ -60,7 +64,7 @@ class QubitMapper(ABC):
         raise NotImplementedError()
 
     def mode_based_mapping(
-        second_q_op: SecondQuantizedOp, pauli_table: List[Tuple[Pauli, Pauli]]
+        self, second_q_op: SecondQuantizedOp, pauli_table: List[Tuple[Pauli, Pauli]]
     ) -> PauliSumOp:
         """Utility method to map a `SecondQuantizedOp` to a `PauliSumOp` using a pauli table.
 
@@ -84,29 +88,25 @@ class QubitMapper(ABC):
 
         # 0. Some utilities
 
-        times_creation_op = []
-        times_annihilation_op = []
-        times_occupation_number_op = []
-        times_emptiness_number_op = []
         for paulis in pauli_table:
             real_part = SparsePauliOp(paulis[0], coeffs=[0.5])
             imag_part = SparsePauliOp(paulis[1], coeffs=[0.5j])
 
             # The creation operator is given by 0.5*(X - 1j*Y)
             creation_op = real_part - imag_part
-            times_creation_op.append(creation_op)
+            self.times_creation_op.append(creation_op)
 
             # The annihilation operator is given by 0.5*(X + 1j*Y)
             annihilation_op = real_part + imag_part
-            times_annihilation_op.append(annihilation_op)
+            self.times_annihilation_op.append(annihilation_op)
 
             # The occupation number operator N is given by `+-`.
-            times_occupation_number_op.append(
+            self.times_occupation_number_op.append(
                 creation_op.compose(annihilation_op, front=True).simplify()
             )
 
             # The `emptiness number` operator E is given by `-+` = (I - N).
-            times_emptiness_number_op.append(
+            self.times_emptiness_number_op.append(
                 annihilation_op.compose(creation_op, front=True).simplify()
             )
 
@@ -129,13 +129,13 @@ class QubitMapper(ABC):
             # save the respective Pauli string in the pauli_str list.
             for position, char in enumerate(label):
                 if char == "+":
-                    ret_op = ret_op.compose(times_creation_op[position], front=True)
+                    ret_op = ret_op.compose(self.times_creation_op[position], front=True)
                 elif char == "-":
-                    ret_op = ret_op.compose(times_annihilation_op[position], front=True)
+                    ret_op = ret_op.compose(self.times_annihilation_op[position], front=True)
                 elif char == "N":
-                    ret_op = ret_op.compose(times_occupation_number_op[position], front=True)
+                    ret_op = ret_op.compose(self.times_occupation_number_op[position], front=True)
                 elif char == "E":
-                    ret_op = ret_op.compose(times_emptiness_number_op[position], front=True)
+                    ret_op = ret_op.compose(self.times_emptiness_number_op[position], front=True)
                 elif char == "I":
                     continue
 
