@@ -27,7 +27,7 @@ from qiskit_nature.circuit.library.ansatzes.utils.fermionic_excitation_generator
     generate_fermionic_excitations,
     get_alpha_excitations,
 )
-from qiskit_nature.operators.second_quantization import FermionicOp, SecondQuantizedOp
+from qiskit_nature.operators.second_quantization import FermionicOp
 
 logger = logging.getLogger(__name__)
 
@@ -111,7 +111,7 @@ class MySUCCD(UCC):
         return self._full
 
     @full.setter
-    def full(self, full: bool, bool) -> None:
+    def full(self, full: bool) -> None:
         """Sets whether to use SUCC_full."""
         self._full = full
 
@@ -152,7 +152,7 @@ class MySUCCD(UCC):
             )
         )
 
-        if self._full == False:
+        if self._full is False:
             num_electrons = num_particles[0]
             beta_index_shift = num_spin_orbitals // 2
 
@@ -215,11 +215,11 @@ class MySUCCD(UCC):
         """
         operators = []
         excitations_dictionary: Dict[int, List[Tuple[Tuple[int, ...], Tuple[int, ...]]]] = {}
-        """Reform the excitations list to a dictionary. Each items in the dictionary corresponds to 
+        """Reform the excitations list to a dictionary. Each items in the dictionary corresponds to
             a parrameter."""
         for exc in excitations:
             exc_level = sum(exc[1])
-            """ sum(exc[1]) sums over the indices of the virtual orbitals in which we excite into. 
+            """ sum(exc[1]) sums over the indices of the virtual orbitals in which we excite into.
             Thus, the level of an excitations is indicated by this sum. And the excitaions with the
             same level will be assigned the same parameter."""
             if exc_level in excitations_dictionary:
