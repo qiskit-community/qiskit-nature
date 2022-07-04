@@ -88,27 +88,30 @@ class QubitMapper(ABC):
 
         # 0. Some utilities
 
-        for paulis in pauli_table:
-            real_part = SparsePauliOp(paulis[0], coeffs=[0.5])
-            imag_part = SparsePauliOp(paulis[1], coeffs=[0.5j])
+        if not self.times_creation_op or not self.times_annihilation_op \
+        or not self.times_occupation_number_op or not self.times_emptiness_number_op:
 
-            # The creation operator is given by 0.5*(X - 1j*Y)
-            creation_op = real_part - imag_part
-            self.times_creation_op.append(creation_op)
+            for paulis in pauli_table:
+                real_part = SparsePauliOp(paulis[0], coeffs=[0.5])
+                imag_part = SparsePauliOp(paulis[1], coeffs=[0.5j])
 
-            # The annihilation operator is given by 0.5*(X + 1j*Y)
-            annihilation_op = real_part + imag_part
-            self.times_annihilation_op.append(annihilation_op)
+                # The creation operator is given by 0.5*(X - 1j*Y)
+                creation_op = real_part - imag_part
+                self.times_creation_op.append(creation_op)
 
-            # The occupation number operator N is given by `+-`.
-            self.times_occupation_number_op.append(
-                creation_op.compose(annihilation_op, front=True).simplify()
-            )
+                # The annihilation operator is given by 0.5*(X + 1j*Y)
+                annihilation_op = real_part + imag_part
+                self.times_annihilation_op.append(annihilation_op)
 
-            # The `emptiness number` operator E is given by `-+` = (I - N).
-            self.times_emptiness_number_op.append(
-                annihilation_op.compose(creation_op, front=True).simplify()
-            )
+                # The occupation number operator N is given by `+-`.
+                self.times_occupation_number_op.append(
+                    creation_op.compose(annihilation_op, front=True).simplify()
+                )
+
+                # The `emptiness number` operator E is given by `-+` = (I - N).
+                self.times_emptiness_number_op.append(
+                    annihilation_op.compose(creation_op, front=True).simplify()
+                )
 
         # make sure ret_op_list is not empty by including a zero op
         ret_op_list = [SparsePauliOp("I" * nmodes, coeffs=[0])]
