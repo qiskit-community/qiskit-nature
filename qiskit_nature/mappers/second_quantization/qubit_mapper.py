@@ -88,8 +88,8 @@ class QubitMapper(ABC):
 
         # 0. Some utilities
 
-        if not self.times_creation_op or not self.times_annihilation_op \
-        or not self.times_occupation_number_op or not self.times_emptiness_number_op:
+        if not (self.times_creation_op and self.times_annihilation_op \
+        and self.times_occupation_number_op and self.times_emptiness_number_op):
 
             for paulis in pauli_table:
                 real_part = SparsePauliOp(paulis[0], coeffs=[0.5])
