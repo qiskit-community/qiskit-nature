@@ -27,13 +27,13 @@ from qiskit_nature.second_q.operator_factories.vibrational import (
     VibrationalStructureDriverResult,
 )
 from qiskit_nature.second_q.operator_factories.vibrational.bases import HarmonicBasis
+from qiskit_nature.second_q.transformers.base_transformer import BaseTransformer
 
 from .builders.hopping_ops_builder import _build_qeom_hopping_ops
 from ..base_problem import BaseProblem
 
 from .vibrational_structure_result import VibrationalStructureResult
 from ..eigenstate_result import EigenstateResult
-from ..base_transformer import BaseTransformer
 
 
 class VibrationalStructureProblem(BaseProblem):

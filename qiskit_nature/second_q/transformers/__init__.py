@@ -11,10 +11,10 @@
 # that they have been altered from the originals.
 
 """
-QMolecule Transformers (:mod:`qiskit_nature.transformers.second_q.electronic`)
+Transformers (:mod:`qiskit_nature.second_q.transformers`)
 =========================================================================================
 
-.. currentmodule:: qiskit_nature.transformers.second_q.electronic
+.. currentmodule:: qiskit_nature.second_q.transformers
 
 Transformers act on a :class:`~qiskit_nature.drivers.QMolecule` to produce an altered copy of it as
 per the specific transformer. So for instance the :class:`FreezeCoreTransformer` will alter the
@@ -32,8 +32,6 @@ state energy computation to get complete result.
 
 from .active_space_transformer import ActiveSpaceTransformer
 from .freeze_core_transformer import FreezeCoreTransformer
+from .base_transformer import BaseTransformer
 
-__all__ = [
-    "ActiveSpaceTransformer",
-    "FreezeCoreTransformer",
-]
+__all__ = ["ActiveSpaceTransformer", "FreezeCoreTransformer", "BaseTransformer"]

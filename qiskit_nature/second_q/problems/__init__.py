@@ -36,7 +36,6 @@ Submodules
 """
 
 from .base_problem import BaseProblem, EigenstateResult
-from .base_transformer import BaseTransformer
 from .electronic import ElectronicStructureProblem, ElectronicStructureResult
 from .lattice import LatticeModelProblem, LatticeModelResult
 from .vibrational import VibrationalStructureProblem, VibrationalStructureResult
@@ -50,5 +49,4 @@ __all__ = [
     "ElectronicStructureResult",
     "VibrationalStructureResult",
     "LatticeModelResult",
-    "BaseTransformer",
 ]

@@ -43,7 +43,7 @@ from qiskit_nature.second_q.operator_factories.electronic import (
     ElectronicEnergy,
     ParticleNumber,
 )
-from qiskit_nature.second_q.problems.electronic import ActiveSpaceTransformer
+from qiskit_nature.second_q.transformers import ActiveSpaceTransformer
 from qiskit_nature.second_q.operator_factories.electronic.bases import ElectronicBasis
 from qiskit_nature.second_q.operator_factories.electronic.integrals import (
     OneBodyElectronicIntegrals,

@@ -28,10 +28,10 @@ from qiskit_nature.second_q.drivers import ElectronicStructureDriver
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.operator_factories.electronic import ParticleNumber
+from qiskit_nature.second_q.transformers.base_transformer import BaseTransformer
 
 from .electronic_structure_result import ElectronicStructureResult
 from ..eigenstate_result import EigenstateResult
-from ..base_transformer import BaseTransformer
 
 from .builders.hopping_ops_builder import _build_qeom_hopping_ops
 from ..base_problem import BaseProblem
