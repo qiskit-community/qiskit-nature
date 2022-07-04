@@ -82,5 +82,5 @@ __all__ = [
     "LinearMapper",
     "LogarithmicMapper",
     "QubitConverter",
-    "QubitMapper"
+    "QubitMapper",
 ]
