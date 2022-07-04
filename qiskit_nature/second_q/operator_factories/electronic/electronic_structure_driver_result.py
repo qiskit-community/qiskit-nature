@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import cast
+from typing import cast, TYPE_CHECKING
 
 import h5py
 
@@ -34,6 +34,8 @@ from .magnetization import Magnetization
 from .particle_number import ParticleNumber
 from .types import GroupedElectronicProperty
 
+if TYPE_CHECKING:
+    from qiskit_nature.second_q.drivers import Molecule
 
 class ElectronicStructureDriverResult(GroupedElectronicProperty):
     """The ElectronicStructureDriverResult class.
@@ -47,9 +49,8 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
         Property objects should be added via ``add_property`` rather than via the initializer.
         """
         super().__init__(self.__class__.__name__)
-        from qiskit_nature.second_q.drivers import Molecule
 
-        self.molecule: Molecule = None
+        self.molecule: "Molecule" = None
 
     def __str__(self) -> str:
         string = [super().__str__()]
@@ -83,10 +84,9 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
         grouped_property = GroupedElectronicProperty.from_hdf5(h5py_group)
 
         ret = ElectronicStructureDriverResult()
-        from qiskit_nature.second_q.drivers import Molecule
 
         for prop in grouped_property:
-            if isinstance(prop, Molecule):
+            if isinstance(prop, "Molecule"):
                 ret.molecule = prop
             else:
                 ret.add_property(prop)
@@ -133,9 +133,8 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
         for atom, xyz in zip(qmol.atom_symbol, qmol.atom_xyz):
             # QMolecule XYZ defaults to Bohr but Molecule requires Angstrom
             geometry.append((atom, xyz * BOHR))
-
+            
         from qiskit_nature.second_q.drivers import Molecule
-
         ret.molecule = Molecule(geometry, qmol.multiplicity, qmol.molecular_charge)
 
         ret.add_property(
