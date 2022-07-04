@@ -67,7 +67,7 @@ class VibrationalStructureDriverType(Enum):
             if driver_class is None:
                 raise missing_error
         else:
-            driver_module = importlib.import_module("qiskit_nature.drivers.second_q")
+            driver_module = importlib.import_module("qiskit_nature.second_q.drivers")
             driver_class = getattr(driver_module, driver_type.value, None)
             if driver_class is None:
                 raise MissingOptionalLibraryError(
