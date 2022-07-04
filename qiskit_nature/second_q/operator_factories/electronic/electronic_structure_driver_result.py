@@ -82,6 +82,7 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
         grouped_property = GroupedElectronicProperty.from_hdf5(h5py_group)
 
         ret = ElectronicStructureDriverResult()
+        from qiskit_nature.second_q.drivers import Molecule
         for prop in grouped_property:
             if isinstance(prop, Molecule):
                 ret.molecule = prop
@@ -130,7 +131,8 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
         for atom, xyz in zip(qmol.atom_symbol, qmol.atom_xyz):
             # QMolecule XYZ defaults to Bohr but Molecule requires Angstrom
             geometry.append((atom, xyz * BOHR))
-
+            
+        from qiskit_nature.second_q.drivers import Molecule
         ret.molecule = Molecule(geometry, qmol.multiplicity, qmol.molecular_charge)
 
         ret.add_property(
