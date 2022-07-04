@@ -17,17 +17,4 @@ Vibrational Operators (:mod:`qiskit_nature.second_q.operators.vibrational`)
 
 Operators for vibrational systems.
 
-Vibrational Mappers
-==================
-
-.. autosummary::
-   :toctree: ../stubs/
-
-   DirectMapper
 """
-
-from .mappers.direct_mapper import DirectMapper
-
-__all__ = [
-    "DirectMapper",
-]

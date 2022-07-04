@@ -17,20 +17,4 @@ Spin Operators (:mod:`qiskit_nature.second_q.operators.spin`)
 
 Operators for spin systems.
 
-Spin Mappers
-============
-
-.. autosummary::
-   :toctree: ../stubs/
-
-   LinearMapper
-   LogarithmicMapper
 """
-
-from .mappers.linear_mapper import LinearMapper
-from .mappers.logarithmic_mapper import LogarithmicMapper
-
-__all__ = [
-    "LinearMapper",
-    "LogarithmicMapper",
-]

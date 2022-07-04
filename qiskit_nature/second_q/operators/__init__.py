@@ -28,35 +28,15 @@ Second-Quantization Operators
    SpinOp
    SecondQuantizedOp
    VibrationalOp
-
-Qubit Mapper
-=============
-
-.. autosummary::
-   :toctree: ../stubs/
-
-   QubitMapper
-
-Qubit Converter
-===============
-
-.. autosummary::
-   :toctree: ../stubs/
-
-   QubitConverter
 """
 
 from .fermionic.fermionic_op import FermionicOp
-from .qubit_mapper import QubitMapper
-from .qubit_converter import QubitConverter
 from .second_quantized_op import SecondQuantizedOp
 from .spin.spin_op import SpinOp
 from .vibrational.vibrational_op import VibrationalOp
 
 __all__ = [
     "FermionicOp",
-    "QubitConverter",
-    "QubitMapper",
     "SecondQuantizedOp",
     "SpinOp",
     "VibrationalOp",
