@@ -4,16 +4,14 @@ prelude: >
 
 features:
   - |
-    Introduced a new feature SUCCfull, that adds succ_full ansatz to
-    ``UCC`` objects. It can be used by using the ``SUCCfull`` function,
+    Adds succ_full ansatz option to ``SUCCD`` objects. It can be used in the ``SUCCD`` function,
     for example::
 
       from qiskit_nature.circuit.library.ansatzes import SUCCfull
       from qiskit_nature.converters.second_quantization import QubitConverter
       from qiskit_nature.mappers.second_quantization import JordanWignerMapper
       converter = QubitConverter(JordanWignerMapper())
-      ansatz = SUCCfull(converter, (1, 1), 6)
+      ansatz = SUCCD(converter, (1, 1), 6, full=True)
 
 issues:
   - |
-    Need tests 
