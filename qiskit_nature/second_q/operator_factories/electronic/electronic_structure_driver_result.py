@@ -37,6 +37,7 @@ from .types import GroupedElectronicProperty
 if TYPE_CHECKING:
     from qiskit_nature.second_q.drivers import Molecule
 
+
 class ElectronicStructureDriverResult(GroupedElectronicProperty):
     """The ElectronicStructureDriverResult class.
 
@@ -133,8 +134,9 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
         for atom, xyz in zip(qmol.atom_symbol, qmol.atom_xyz):
             # QMolecule XYZ defaults to Bohr but Molecule requires Angstrom
             geometry.append((atom, xyz * BOHR))
-            
+
         from qiskit_nature.second_q.drivers import Molecule
+
         ret.molecule = Molecule(geometry, qmol.multiplicity, qmol.molecular_charge)
 
         ret.add_property(
