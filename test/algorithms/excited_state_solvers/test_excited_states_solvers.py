@@ -152,8 +152,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
             self.assertAlmostEqual(computed_energies[idx], energy, places=4)
 
     def test_custom_filter_criterion(self):
-        """Test NumPyEigenSolverFactory with ExcitedStatesEigensolver and a custom filter criterion
-        """
+        """Test NumPyEigenSolverFactory with ExcitedStatesEigensolver and a custom filter criterion"""
 
         expected_spin = 0
         expected_num_electrons = 2
