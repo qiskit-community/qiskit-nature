@@ -150,7 +150,7 @@ class TestSUCCD(QiskitNatureTestCase):
         )
 
         assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)
-    
+
     @unpack
     @data(
         (
@@ -158,7 +158,10 @@ class TestSUCCD(QiskitNatureTestCase):
             (1, 1),
             [
                 FermionicOp([("+-I+-I", 1j), ("-+I-+I", -1j)], display_format="dense"),
-                FermionicOp([("+-I+I-", 1j), ("-+I-I+", -1j), ("+I-+-I", 1j), ("-I+-+I", -1j)], display_format="dense"),
+                FermionicOp(
+                    [("+-I+I-", 1j), ("-+I-I+", -1j), ("+I-+-I", 1j), ("-I+-+I", -1j)],
+                    display_format="dense",
+                ),
                 FermionicOp([("+I-+I-", 1j), ("-I+-I+", -1j)], display_format="dense"),
             ],
         ),
