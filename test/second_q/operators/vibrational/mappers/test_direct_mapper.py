@@ -39,7 +39,7 @@ class TestDirectMapper(QiskitNatureTestCase):
             driver = GaussianForcesDriver(
                 logfile=self.get_resource_path(
                     "test_driver_gaussian_log_C01.txt",
-                    "drivers/second_q/gaussiand",
+                    "second_q/drivers/gaussiand",
                 )
             )
             self.driver_result = driver.run()

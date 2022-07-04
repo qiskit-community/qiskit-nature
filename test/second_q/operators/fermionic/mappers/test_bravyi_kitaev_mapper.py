@@ -46,7 +46,7 @@ class TestBravyiKitaevMapper(QiskitNatureTestCase):
     def test_mapping(self):
         """Test mapping to qubit operator"""
         driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("test_driver_hdf5.hdf5", "drivers/second_q/hdf5d")
+            hdf5_input=self.get_resource_path("test_driver_hdf5.hdf5", "second_q/drivers/hdf5d")
         )
         driver_result = driver.run()
         fermionic_op = driver_result.second_q_ops()["ElectronicEnergy"]

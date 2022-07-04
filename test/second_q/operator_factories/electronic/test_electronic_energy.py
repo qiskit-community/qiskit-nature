@@ -38,7 +38,7 @@ class TestElectronicEnergy(PropertyTest):
         """Setup."""
         super().setUp()
         driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("test_driver_hdf5.hdf5", "drivers/second_q/hdf5d")
+            hdf5_input=self.get_resource_path("test_driver_hdf5.hdf5", "second_q/drivers/hdf5d")
         )
         self.prop = cast(ElectronicEnergy, driver.run().get_property(ElectronicEnergy))
         self.prop.get_electronic_integral(ElectronicBasis.MO, 1).set_truncation(2)

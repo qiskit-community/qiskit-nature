@@ -32,7 +32,7 @@ class TestVibrationalStructureDriverResult(PropertyTest):
 
         driver = GaussianForcesDriver(
             logfile=self.get_resource_path(
-                "test_driver_gaussian_log_C01.txt", "drivers/second_q/gaussiand"
+                "test_driver_gaussian_log_C01.txt", "second_q/drivers/gaussiand"
             )
         )
         self.expected = driver.run()

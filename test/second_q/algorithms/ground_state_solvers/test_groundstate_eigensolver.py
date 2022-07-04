@@ -58,7 +58,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         super().setUp()
         warnings.filterwarnings("ignore", category=DeprecationWarning, module=".*drivers.*")
         self.driver = HDF5Driver(
-            self.get_resource_path("test_driver_hdf5.hdf5", "drivers/second_q/hdf5d")
+            self.get_resource_path("test_driver_hdf5.hdf5", "second_q/drivers/hdf5d")
         )
         self.seed = 56
         algorithm_globals.random_seed = self.seed

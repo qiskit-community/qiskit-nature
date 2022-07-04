@@ -45,7 +45,7 @@ class TestVibrationalStructureProblem(QiskitNatureTestCase):
 
         logfile = self.get_resource_path(
             "test_driver_gaussian_log_C01.txt",
-            "drivers/second_q/gaussiand",
+            "second_q/drivers/gaussiand",
         )
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
