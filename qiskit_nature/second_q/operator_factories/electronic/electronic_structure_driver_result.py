@@ -21,7 +21,6 @@ import h5py
 from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.constants import BOHR
 from qiskit_nature.deprecation import deprecate_method
-from qiskit_nature.second_q.drivers import Molecule
 from qiskit_nature.second_q._qmolecule import QMolecule
 from qiskit_nature.second_q.operators import FermionicOp
 
@@ -48,6 +47,7 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
         Property objects should be added via ``add_property`` rather than via the initializer.
         """
         super().__init__(self.__class__.__name__)
+        from qiskit_nature.second_q.drivers import Molecule
         self.molecule: Molecule = None
 
     def __str__(self) -> str:
