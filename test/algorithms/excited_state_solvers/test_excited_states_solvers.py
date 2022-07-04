@@ -152,10 +152,14 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
             self.assertAlmostEqual(computed_energies[idx], energy, places=4)
 
     def test_custom_filter_criterion(self):
+        """Test NumPyEigenSolverFactory with ExcitedStatesEigensolver and a custom filter criterion
+        """
+
         expected_spin = 0
         expected_num_electrons = 2
 
-        def filter_criterion_angular_momentum(eigenstate, eigenvalue, aux_values):
+        # pylint: disable=unused-argument
+        def filter_criterion_spin(eigenstate, eigenvalue, aux_values):
             num_particles_aux = aux_values["ParticleNumber"][0]
             total_angular_momentum_aux = aux_values["AngularMomentum"][0]
 
@@ -163,7 +167,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
                 expected_num_electrons, num_particles_aux
             )
 
-        solver = NumPyEigensolverFactory(filter_criterion=filter_criterion_angular_momentum)
+        solver = NumPyEigensolverFactory(filter_criterion=filter_criterion_spin)
         esc = ExcitedStatesEigensolver(self.qubit_converter, solver)
         results = esc.solve(self.electronic_structure_problem)
 
