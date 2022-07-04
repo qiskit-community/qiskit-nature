@@ -92,7 +92,7 @@ class TestHarmonicBasis(QiskitNatureTestCase):
             with open(
                 self.get_resource_path(
                     f"test_harmonic_basis_to_basis_{num_body}.json",
-                    "properties/second_q/vibrational/bases/resources",
+                    "second_q/operator_factories/vibrational/bases/resources",
                 ),
                 "r",
                 encoding="utf8",
@@ -108,7 +108,7 @@ class TestHarmonicBasis(QiskitNatureTestCase):
             with open(
                 self.get_resource_path(
                     f"test_harmonic_basis_to_second_q_op_{num_body}.json",
-                    "properties/second_q/vibrational/bases/resources",
+                    "second_q/operator_factories/vibrational/bases/resources",
                 ),
                 "r",
                 encoding="utf8",

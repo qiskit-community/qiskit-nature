@@ -86,8 +86,9 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
 
         ret = ElectronicStructureDriverResult()
 
+        from qiskit_nature.second_q.drivers import Molecule
         for prop in grouped_property:
-            if isinstance(prop, "Molecule"):
+            if isinstance(prop, Molecule):
                 ret.molecule = prop
             else:
                 ret.add_property(prop)
