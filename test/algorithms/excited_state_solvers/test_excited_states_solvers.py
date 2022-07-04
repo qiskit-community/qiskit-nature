@@ -151,6 +151,33 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         for idx, energy in enumerate(self.reference_energies):
             self.assertAlmostEqual(computed_energies[idx], energy, places=4)
 
+    def test_custom_filter_criterion(self):
+        expected_spin = 0
+        expected_num_electrons = 2
+
+        def filter_criterion_angular_momentum(eigenstate, eigenvalue, aux_values):
+            num_particles_aux = aux_values["ParticleNumber"][0]
+            total_angular_momentum_aux = aux_values["AngularMomentum"][0]
+
+            return np.isclose(expected_spin, total_angular_momentum_aux) and np.isclose(
+                expected_num_electrons, num_particles_aux
+            )
+
+        solver = NumPyEigensolverFactory(filter_criterion=filter_criterion_angular_momentum)
+        esc = ExcitedStatesEigensolver(self.qubit_converter, solver)
+        results = esc.solve(self.electronic_structure_problem)
+
+        # filter duplicates from list
+        computed_energies = [results.computed_energies[0]]
+        for comp_energy in results.computed_energies[1:]:
+            if not np.isclose(comp_energy, computed_energies[-1]):
+                computed_energies.append(comp_energy)
+
+        ref_energies_no_spin = [-1.84268, -0.88480, -0.24576]
+
+        for idx, energy in enumerate(ref_energies_no_spin):
+            self.assertAlmostEqual(computed_energies[idx], energy, places=4)
+
 
 if __name__ == "__main__":
     unittest.main()

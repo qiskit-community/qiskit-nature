@@ -178,45 +178,25 @@ class ElectronicStructureProblem(BaseProblem):
 
         .. note::
 
-            The default filter_criterion assumes a singlet spin configuration. (the number of alpha
-            particles is equal to the number of beta particles).
-            If the AngularMomentum property is available, then working with non singlet spin
-            configuration can be done using a custom filter_criterion in the following manner:
+            The default filter_criterion assumes a singlet spin configuration. This means, that the
+            number of alpha-spin electrons is equal to the number of beta-spin electrons.
+            If the :class:`~qiskit_nature.properties.second_quantization.electronic.AngularMomentum`
+            property is available, one can correctly filter a non-singlet spin configuration with a
+            custom `filter_criterion` similar to the following:
 
-        .. code-block::python
+        .. code-block:: python
 
-            from qiskit_nature.properties.second_quantization.electronic import (
-                AngularMomentum,
-                ParticleNumber,
-            )
             import numpy as np
-            from typing import cast
-            from functools import partial
 
+            expected_spin = 2
+            expected_num_electrons = 6
 
-            def custom_filter_criterion(problem):
-                def filter_criterion(problem, eigenstate, eigenvalue, aux_values):
-                    try:
-                        num_particles_aux = aux_values["ParticleNumber"][0]
-                        total_angular_momentum_aux = aux_values["AngularMomentum"][0]
-                    except TypeError:
-                        num_particles_aux = aux_values[0][0]
-                        total_angular_momentum_aux = aux_values[1][0]
-                    particle_number = cast(
-                        ParticleNumber,
-                        problem.grouped_property_transformed.get_property(ParticleNumber),
-                    )
-                    total_angular_momentum = cast(
-                        AngularMomentum,
-                        problem.grouped_property_transformed.get_property(AngularMomentum),
-                    )
-                    return np.isclose(
-                        total_angular_momentum.spin, total_angular_momentum_aux
-                    ) and np.isclose(
-                        particle_number.num_alpha + particle_number.num_beta, num_particles_aux
-                    )
+            def filter_criterion_custom(eigenstate, eigenvalue, aux_values):
+                num_particles_aux = aux_values["ParticleNumber"][0]
+                total_angular_momentum_aux = aux_values["AngularMomentum"][0]
 
-                return partial(filter_criterion, problem)
+                return np.isclose(expected_spin, total_angular_momentum_aux) and \
+                       np.isclose(expected_num_electrons, num_particles_aux)
         """
 
         # pylint: disable=unused-argument
