@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -147,6 +147,31 @@ class TestSUCCD(QiskitNatureTestCase):
             num_particles=num_particles,
             num_spin_orbitals=num_spin_orbitals,
             generalized=True,
+        )
+
+        assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)
+    
+    @unpack
+    @data(
+        (
+            6,
+            (1, 1),
+            [
+                FermionicOp([("+-I+-I", 1j), ("-+I-+I", -1j)], display_format="dense"),
+                FermionicOp([("+-I+I-", 1j), ("-+I-I+", -1j), ("+I-+-I", 1j), ("-I+-+I", -1j)], display_format="dense"),
+                FermionicOp([("+I-+I-", 1j), ("-I+-I+", -1j)], display_format="dense"),
+            ],
+        ),
+    )
+    def test_succ_full(self, num_spin_orbitals, num_particles, expect):
+        """Tests the generalized SUCCD Ansatz."""
+        converter = QubitConverter(JordanWignerMapper())
+
+        ansatz = SUCCD(
+            qubit_converter=converter,
+            num_particles=num_particles,
+            num_spin_orbitals=num_spin_orbitals,
+            full=True,
         )
 
         assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)
