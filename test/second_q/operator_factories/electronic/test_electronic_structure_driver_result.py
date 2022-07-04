@@ -30,7 +30,7 @@ class TestElectronicStructureDriverResult(PropertyTest):
         super().setUp()
 
         driver = HDF5Driver(
-            self.get_resource_path("BeH_sto3g_reduced.hdf5", "transformers/second_q/electronic")
+            self.get_resource_path("BeH_sto3g_reduced.hdf5", "second_q/problems/electronic/transformers")
         )
         self.expected = driver.run()
 

@@ -52,7 +52,7 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
         expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
 
         driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("H2_631g.hdf5", "transformers/second_q/electronic")
+            hdf5_input=self.get_resource_path("H2_631g.hdf5", "second_q/problems/electronic/transformers")
         )
         electronic_structure_problem = ElectronicStructureProblem(driver)
 
@@ -91,7 +91,7 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
         )
         expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
         driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("H2_631g.hdf5", "transformers/second_q/electronic")
+            hdf5_input=self.get_resource_path("H2_631g.hdf5", "second_q/problems/electronic/transformers")
         )
         trafo = ActiveSpaceTransformer(num_electrons=2, num_molecular_orbitals=2)
 
