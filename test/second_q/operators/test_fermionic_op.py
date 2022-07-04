@@ -25,7 +25,7 @@ from scipy.sparse.linalg import eigs
 
 from qiskit_nature.second_q.operators import FermionicOp
 
-from ..utils import str2list, str2str, str2tuple
+from .utils import str2list, str2str, str2tuple
 
 
 @lru_cache(3)

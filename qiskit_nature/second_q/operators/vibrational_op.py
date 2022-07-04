@@ -22,7 +22,7 @@ import numpy as np
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.deprecation import deprecate_function
 
-from ..second_quantized_op import SecondQuantizedOp
+from .second_quantized_op import SecondQuantizedOp
 
 logger = logging.getLogger(__name__)
 
