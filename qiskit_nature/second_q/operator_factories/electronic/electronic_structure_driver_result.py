@@ -48,6 +48,7 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
         """
         super().__init__(self.__class__.__name__)
         from qiskit_nature.second_q.drivers import Molecule
+
         self.molecule: Molecule = None
 
     def __str__(self) -> str:
@@ -83,6 +84,7 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
 
         ret = ElectronicStructureDriverResult()
         from qiskit_nature.second_q.drivers import Molecule
+
         for prop in grouped_property:
             if isinstance(prop, Molecule):
                 ret.molecule = prop
@@ -133,6 +135,7 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
             geometry.append((atom, xyz * BOHR))
 
         from qiskit_nature.second_q.drivers import Molecule
+
         ret.molecule = Molecule(geometry, qmol.multiplicity, qmol.molecular_charge)
 
         ret.add_property(
