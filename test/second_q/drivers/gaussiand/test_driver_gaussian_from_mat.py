@@ -26,7 +26,7 @@ class TestDriverGaussianFromMat(QiskitNatureTestCase, TestDriver):
     def setUp(self):
         super().setUp()
         matfile = self.get_resource_path(
-            "test_driver_gaussian_from_mat.mat", "drivers/second_q/gaussiand"
+            "test_driver_gaussian_from_mat.mat", "second_q/drivers/gaussiand"
         )
         try:
             self.driver_result = GaussianDriver._parse_matrix_file(matfile)

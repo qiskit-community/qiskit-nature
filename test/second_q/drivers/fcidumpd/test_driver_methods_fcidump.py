@@ -26,7 +26,7 @@ class TestDriverMethodsFCIDump(TestDriverMethods):
     def test_lih(self):
         """LiH test"""
         driver = FCIDumpDriver(
-            self.get_resource_path("test_driver_fcidump_lih.fcidump", "drivers/second_q/fcidumpd")
+            self.get_resource_path("test_driver_fcidump_lih.fcidump", "second_q/drivers/fcidumpd")
         )
         result = self._run_driver(driver)
         self._assert_energy(result, "lih")
@@ -34,7 +34,7 @@ class TestDriverMethodsFCIDump(TestDriverMethods):
     def test_oh(self):
         """OH test"""
         driver = FCIDumpDriver(
-            self.get_resource_path("test_driver_fcidump_oh.fcidump", "drivers/second_q/fcidumpd")
+            self.get_resource_path("test_driver_fcidump_oh.fcidump", "second_q/drivers/fcidumpd")
         )
         result = self._run_driver(driver)
         self._assert_energy(result, "oh")
@@ -45,7 +45,7 @@ class TestDriverMethodsFCIDump(TestDriverMethods):
         with self.assertLogs("qiskit_nature", level="WARNING") as log:
             driver = FCIDumpDriver(
                 self.get_resource_path(
-                    "test_driver_fcidump_lih.fcidump", "drivers/second_q/fcidumpd"
+                    "test_driver_fcidump_lih.fcidump", "second_q/drivers/fcidumpd"
                 )
             )
             result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
@@ -62,7 +62,7 @@ class TestDriverMethodsFCIDump(TestDriverMethods):
         with self.assertLogs("qiskit_nature", level="WARNING") as log:
             driver = FCIDumpDriver(
                 self.get_resource_path(
-                    "test_driver_fcidump_oh.fcidump", "drivers/second_q/fcidumpd"
+                    "test_driver_fcidump_oh.fcidump", "second_q/drivers/fcidumpd"
                 )
             )
             result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
@@ -77,7 +77,7 @@ class TestDriverMethodsFCIDump(TestDriverMethods):
     def test_lih_with_atoms(self):
         """LiH with num_atoms test"""
         driver = FCIDumpDriver(
-            self.get_resource_path("test_driver_fcidump_lih.fcidump", "drivers/second_q/fcidumpd"),
+            self.get_resource_path("test_driver_fcidump_lih.fcidump", "second_q/drivers/fcidumpd"),
             # atoms=["Li", "H"],
         )
         result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
@@ -87,7 +87,7 @@ class TestDriverMethodsFCIDump(TestDriverMethods):
     def test_oh_with_atoms(self):
         """OH with num_atoms test"""
         driver = FCIDumpDriver(
-            self.get_resource_path("test_driver_fcidump_oh.fcidump", "drivers/second_q/fcidumpd"),
+            self.get_resource_path("test_driver_fcidump_oh.fcidump", "second_q/drivers/fcidumpd"),
             # atoms=["O", "H"],
         )
         result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
@@ -100,7 +100,7 @@ class TestFCIDumpDriverDriverResult(QiskitNatureTestCase):
     def test_driver_result_log(self):
         """Test DriverResult log function."""
         driver_result = FCIDumpDriver(
-            self.get_resource_path("test_driver_fcidump_h2.fcidump", "drivers/second_q/fcidumpd")
+            self.get_resource_path("test_driver_fcidump_h2.fcidump", "second_q/drivers/fcidumpd")
         ).run()
         with self.assertLogs("qiskit_nature", level="DEBUG") as _:
             driver_result.log()
@@ -108,7 +108,7 @@ class TestFCIDumpDriverDriverResult(QiskitNatureTestCase):
     def test_driver_result_log_with_atoms(self):
         """Test DriverResult log function."""
         driver_result = FCIDumpDriver(
-            self.get_resource_path("test_driver_fcidump_h2.fcidump", "drivers/second_q/fcidumpd"),
+            self.get_resource_path("test_driver_fcidump_h2.fcidump", "second_q/drivers/fcidumpd"),
             # atoms=["H", "H"],
         ).run()
         with self.assertLogs("qiskit_nature", level="DEBUG") as _:

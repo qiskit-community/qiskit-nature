@@ -33,7 +33,7 @@ class TestDriverGaussianLog(QiskitNatureTestCase):
     def setUp(self):
         super().setUp()
         self.logfile = self.get_resource_path(
-            "test_driver_gaussian_log_A03.txt", "drivers/second_q/gaussiand"
+            "test_driver_gaussian_log_A03.txt", "second_q/drivers/gaussiand"
         )
 
     @unittest.skipIf(not _optionals.HAS_GAUSSIAN, "gaussian not available.")
@@ -146,7 +146,7 @@ class TestDriverGaussianLog(QiskitNatureTestCase):
         expected = load_from_hdf5(
             self.get_resource_path(
                 "test_driver_gaussian_log_vibrational_energy.hdf5",
-                "drivers/second_q/gaussiand",
+                "second_q/drivers/gaussiand",
             )
         )
 

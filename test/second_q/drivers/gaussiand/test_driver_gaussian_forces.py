@@ -162,7 +162,7 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
 
         driver = GaussianForcesDriver(
             logfile=self.get_resource_path(
-                f"test_driver_gaussian_log_{suffix}.txt", "drivers/second_q/gaussiand"
+                f"test_driver_gaussian_log_{suffix}.txt", "second_q/drivers/gaussiand"
             )
         )
 
