@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 # the symmetrically mirrored double excitations, but assigns the same circuit parameter to them.
 
 
-class MySUCCD(UCC):
+class SUCCD(UCC):
     """The SUCCD Ansatz.
     The SUCCD Ansatz (by default) only contains double excitations. Furthermore, it only considers
     the set of excitations which is symmetrically invariant with respect to spin-flips of both
