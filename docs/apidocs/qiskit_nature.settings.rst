@@ -1,11 +1,8 @@
-﻿Settings
-========
+﻿
 
-.. _qiskit_nature-settings:
+settings
+======================
 
-.. automodule:: qiskit_nature.settings
+.. currentmodule:: qiskit_nature
 
-   .. rubric:: Classes
-
-   .. autosummary::
-      QiskitNatureSettings
+.. autodata:: settings

@@ -44,18 +44,8 @@ Submodules
 .. autosummary::
    :toctree:
 
-   algorithms
-   circuit
-   converters
-   drivers
    hdf5
-   mappers
-   operators
-   problems
-   properties
-   results
-   runtime
-   transformers
+   second_q
    utils
 
 """
