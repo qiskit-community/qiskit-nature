@@ -33,7 +33,7 @@ from qiskit_nature.second_q.transformers.base_transformer import BaseTransformer
 from .electronic_structure_result import ElectronicStructureResult
 from .eigenstate_result import EigenstateResult
 
-from .builders.hopping_ops_builder import _build_qeom_hopping_ops
+from .builders.electronic_hopping_ops_builder import _build_qeom_hopping_ops
 from .base_problem import BaseProblem
 
 

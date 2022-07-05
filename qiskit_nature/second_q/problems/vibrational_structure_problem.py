@@ -29,7 +29,7 @@ from qiskit_nature.second_q.properties import (
 from qiskit_nature.second_q.properties.bases import HarmonicBasis
 from qiskit_nature.second_q.transformers.base_transformer import BaseTransformer
 
-from .builders.hopping_ops_builder import _build_qeom_hopping_ops
+from .builders.vibrational_hopping_ops_builder import _build_qeom_hopping_ops
 from .base_problem import BaseProblem
 
 from .vibrational_structure_result import VibrationalStructureResult
