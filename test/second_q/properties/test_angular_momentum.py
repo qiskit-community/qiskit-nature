@@ -40,9 +40,7 @@ class TestAngularMomentum(PropertyTest):
         """Test second_q_ops."""
         op = self.prop.second_q_ops()["AngularMomentum"]
         with open(
-            self.get_resource_path(
-                "angular_momentum_op.json", "second_q/properties/electronic/resources"
-            ),
+            self.get_resource_path("angular_momentum_op.json", "second_q/properties/resources"),
             "r",
             encoding="utf8",
         ) as file:

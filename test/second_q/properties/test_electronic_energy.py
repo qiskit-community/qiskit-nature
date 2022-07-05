@@ -48,9 +48,7 @@ class TestElectronicEnergy(PropertyTest):
         ops = [self.prop.second_q_ops()["ElectronicEnergy"]]
         self.assertEqual(len(ops), 1)
         with open(
-            self.get_resource_path(
-                "electronic_energy_op.json", "second_q/properties/electronic/resources"
-            ),
+            self.get_resource_path("electronic_energy_op.json", "second_q/properties/resources"),
             "r",
             encoding="utf8",
         ) as file:

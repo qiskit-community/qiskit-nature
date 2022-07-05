@@ -93,7 +93,7 @@ class TestIntegralProperty(PropertyTest):
         with open(
             self.get_resource_path(
                 "integral_property_op.json",
-                "second_q/properties/electronic/integrals/resources",
+                "second_q/properties/integrals/resources",
             ),
             "r",
             encoding="utf8",

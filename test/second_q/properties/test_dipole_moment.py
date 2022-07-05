@@ -50,9 +50,7 @@ class TestElectronicDipoleMoment(PropertyTest):
         ]
         self.assertEqual(len(ops), 3)
         with open(
-            self.get_resource_path(
-                "dipole_moment_ops.json", "second_q/properties/electronic/resources"
-            ),
+            self.get_resource_path("dipole_moment_ops.json", "second_q/properties/resources"),
             "r",
             encoding="utf8",
         ) as file:
