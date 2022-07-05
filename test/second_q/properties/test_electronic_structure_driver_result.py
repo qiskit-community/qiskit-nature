@@ -30,9 +30,7 @@ class TestElectronicStructureDriverResult(PropertyTest):
         super().setUp()
 
         driver = HDF5Driver(
-            self.get_resource_path(
-                "BeH_sto3g_reduced.hdf5", "second_q/problems/electronic/transformers"
-            )
+            self.get_resource_path("BeH_sto3g_reduced.hdf5", "second_q/transformers")
         )
         self.expected = driver.run()
 
@@ -41,7 +39,7 @@ class TestElectronicStructureDriverResult(PropertyTest):
         with h5py.File(
             self.get_resource_path(
                 "electronic_structure_driver_result.hdf5",
-                "second_q/properties/electronic/resources",
+                "second_q/properties/resources",
             ),
             "r",
         ) as file:

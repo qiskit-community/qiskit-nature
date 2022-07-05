@@ -31,7 +31,7 @@ class TestHDF5(QiskitNatureTestCase):
             driver_result = load_from_hdf5(
                 self.get_resource_path(
                     "electronic_structure_driver_result.hdf5",
-                    "second_q/properties/electronic/resources",
+                    "second_q/properties/resources",
                 )
             )
             self.assertTrue(isinstance(driver_result, ElectronicStructureDriverResult))
@@ -73,7 +73,7 @@ class TestHDF5(QiskitNatureTestCase):
         driver_result = load_from_hdf5(
             self.get_resource_path(
                 "electronic_structure_driver_result.hdf5",
-                "second_q/properties/electronic/resources",
+                "second_q/properties/resources",
             )
         )
 
