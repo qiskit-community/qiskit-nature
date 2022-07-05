@@ -13,7 +13,7 @@
 """Tests Electronic Structure Problem."""
 import unittest
 from test import QiskitNatureTestCase
-from test.second_q.problems.electronic.resources.resource_reader import (
+from test.second_q.problems.resources.resource_reader import (
     read_expected_file,
 )
 

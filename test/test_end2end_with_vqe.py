@@ -23,7 +23,7 @@ from qiskit.circuit.library import TwoLocal
 from qiskit.utils import algorithm_globals, QuantumInstance
 from qiskit_nature.second_q.drivers import HDF5Driver
 from qiskit_nature.second_q.mappers import ParityMapper, QubitConverter
-from qiskit_nature.second_q.problems.electronic import ElectronicStructureProblem
+from qiskit_nature.second_q.problems import ElectronicStructureProblem
 
 
 class TestEnd2End(QiskitNatureTestCase):

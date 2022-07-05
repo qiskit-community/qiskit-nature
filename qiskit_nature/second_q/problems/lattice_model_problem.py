@@ -23,9 +23,9 @@ from qiskit_nature.second_q.operators import SecondQuantizedOp
 
 from qiskit_nature.second_q.operator_factories.lattice.lattice_model import LatticeModel
 
-from ..base_problem import BaseProblem
+from .base_problem import BaseProblem
 from .lattice_model_result import LatticeModelResult
-from ..eigenstate_result import EigenstateResult
+from .eigenstate_result import EigenstateResult
 
 
 class LatticeModelProblem(BaseProblem):

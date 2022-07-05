@@ -19,7 +19,7 @@ import numpy as np
 from retworkx import PyGraph
 
 from qiskit_nature.second_q.operators import SecondQuantizedOp
-from qiskit_nature.second_q.problems.lattice.lattices import Lattice
+from qiskit_nature.second_q.operator_factories.lattices import Lattice
 
 
 class LatticeModel(ABC):

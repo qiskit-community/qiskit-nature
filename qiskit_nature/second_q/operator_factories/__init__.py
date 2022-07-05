@@ -31,6 +31,13 @@ from .property import Property
 from .quadratic_hamiltonian import QuadraticHamiltonian
 from .second_quantized_property import GroupedSecondQuantizedProperty, SecondQuantizedProperty
 
+from .lattices.boundary_condition import BoundaryCondition
+from .lattices.hyper_cubic_lattice import HyperCubicLattice
+from .lattices.lattice import LatticeDrawStyle, Lattice
+from .lattices.line_lattice import LineLattice
+from .lattices.square_lattice import SquareLattice
+from .lattices.triangular_lattice import TriangularLattice
+
 __all__ = [
     "GroupedProperty",
     "GroupedSecondQuantizedProperty",

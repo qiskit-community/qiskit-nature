@@ -30,10 +30,10 @@ from qiskit_nature.second_q.operator_factories.vibrational.bases import Harmonic
 from qiskit_nature.second_q.transformers.base_transformer import BaseTransformer
 
 from .builders.hopping_ops_builder import _build_qeom_hopping_ops
-from ..base_problem import BaseProblem
+from .base_problem import BaseProblem
 
 from .vibrational_structure_result import VibrationalStructureResult
-from ..eigenstate_result import EigenstateResult
+from .eigenstate_result import EigenstateResult
 
 
 class VibrationalStructureProblem(BaseProblem):

@@ -30,7 +30,7 @@ from qiskit_nature.deprecation import (
 
 from qiskit_nature.second_q.circuit.library import HartreeFock, UCC, UCCSD
 from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.problems.electronic import (
+from qiskit_nature.second_q.problems import (
     ElectronicStructureProblem,
 )
 from qiskit_nature.second_q.operator_factories.electronic import ParticleNumber

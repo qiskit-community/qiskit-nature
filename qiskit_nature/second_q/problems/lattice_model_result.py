@@ -17,7 +17,7 @@ from typing import List, Optional
 import numpy as np
 
 from qiskit.algorithms import AlgorithmResult
-from ..eigenstate_result import EigenstateResult
+from .eigenstate_result import EigenstateResult
 
 
 class LatticeModelResult(EigenstateResult):

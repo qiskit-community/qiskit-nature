@@ -20,7 +20,7 @@ from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.operator_factories.lattice import FermiHubbardModel
 from qiskit_nature.second_q.problems import LatticeModelProblem
-from qiskit_nature.second_q.problems.lattice import (
+from qiskit_nature.second_q.operator_factories.lattices import (
     BoundaryCondition,
     LineLattice,
 )
