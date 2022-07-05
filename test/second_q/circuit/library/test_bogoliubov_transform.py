@@ -26,7 +26,7 @@ from qiskit_nature.second_q.mappers import (
     BravyiKitaevMapper,
     JordanWignerMapper,
 )
-from qiskit_nature.second_q.operator_factories.quadratic_hamiltonian import (
+from qiskit_nature.second_q.properties.quadratic_hamiltonian import (
     QuadraticHamiltonian,
 )
 

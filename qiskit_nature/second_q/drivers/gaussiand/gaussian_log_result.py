@@ -23,8 +23,8 @@ import re
 
 from qiskit_nature.deprecation import deprecate_method, DeprecatedType
 from qiskit_nature.second_q._watson_hamiltonian import WatsonHamiltonian
-from qiskit_nature.second_q.operator_factories.vibrational import VibrationalEnergy
-from qiskit_nature.second_q.operator_factories.vibrational.integrals import (
+from qiskit_nature.second_q.properties import VibrationalEnergy
+from qiskit_nature.second_q.properties.integrals import (
     VibrationalIntegrals,
 )
 

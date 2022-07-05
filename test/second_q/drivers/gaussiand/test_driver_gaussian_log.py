@@ -20,8 +20,8 @@ import numpy as np
 
 from qiskit_nature.hdf5 import load_from_hdf5
 from qiskit_nature.second_q.drivers import GaussianLogDriver, GaussianLogResult
-from qiskit_nature.second_q.operator_factories.vibrational import VibrationalEnergy
-from qiskit_nature.second_q.operator_factories.vibrational.integrals import (
+from qiskit_nature.second_q.properties import VibrationalEnergy
+from qiskit_nature.second_q.properties.integrals import (
     VibrationalIntegrals,
 )
 import qiskit_nature.optionals as _optionals

@@ -19,11 +19,11 @@ from abc import ABC, abstractmethod
 from test import QiskitNatureTestCase
 import numpy as np
 from qiskit_nature.second_q.drivers import FCIDumpDriver
-from qiskit_nature.second_q.operator_factories.electronic import (
+from qiskit_nature.second_q.properties import (
     ElectronicEnergy,
     ParticleNumber,
 )
-from qiskit_nature.second_q.operator_factories.electronic.bases import ElectronicBasis
+from qiskit_nature.second_q.properties.bases import ElectronicBasis
 
 
 class BaseTestDriverFCIDump(ABC):

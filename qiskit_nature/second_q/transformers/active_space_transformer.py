@@ -20,26 +20,26 @@ from typing import List, Optional, Tuple, Union, cast
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_q.operator_factories import GroupedProperty, Property
-from qiskit_nature.second_q.operator_factories import (
+from qiskit_nature.second_q.properties import GroupedProperty, Property
+from qiskit_nature.second_q.properties import (
     SecondQuantizedProperty,
     GroupedSecondQuantizedProperty,
 )
-from qiskit_nature.second_q.operator_factories.driver_metadata import DriverMetadata
-from qiskit_nature.second_q.operator_factories.electronic import (
+from qiskit_nature.second_q.properties.driver_metadata import DriverMetadata
+from qiskit_nature.second_q.properties import (
     ElectronicStructureDriverResult,
     ElectronicDipoleMoment,
     ParticleNumber,
 )
-from qiskit_nature.second_q.operator_factories.electronic.bases import (
+from qiskit_nature.second_q.properties.bases import (
     ElectronicBasis,
     ElectronicBasisTransform,
 )
-from qiskit_nature.second_q.operator_factories.electronic.integrals import (
+from qiskit_nature.second_q.properties.integrals import (
     IntegralProperty,
     OneBodyElectronicIntegrals,
 )
-from qiskit_nature.second_q.operator_factories.electronic.types import (
+from qiskit_nature.second_q.properties.electronic_types import (
     GroupedElectronicProperty,
 )
 

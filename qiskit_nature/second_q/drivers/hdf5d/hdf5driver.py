@@ -21,10 +21,10 @@ import h5py
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.deprecation import warn_deprecated, DeprecatedType
 from qiskit_nature.hdf5 import load_from_hdf5, save_to_hdf5
-from qiskit_nature.second_q.operator_factories.second_quantized_property import (
+from qiskit_nature.second_q.properties.second_quantized_property import (
     GroupedSecondQuantizedProperty,
 )
-from qiskit_nature.second_q.operator_factories.electronic import (
+from qiskit_nature.second_q.properties import (
     ElectronicStructureDriverResult,
 )
 

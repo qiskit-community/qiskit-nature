@@ -17,7 +17,7 @@ This module implements the abstract base class for electronic structure driver m
 from abc import abstractmethod
 from enum import Enum
 
-from qiskit_nature.second_q.operator_factories.electronic import (
+from qiskit_nature.second_q.properties import (
     ElectronicStructureDriverResult,
 )
 from .base_driver import BaseDriver

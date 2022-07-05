@@ -15,13 +15,13 @@
 from typing import List, Optional, cast
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_q.operator_factories.electronic import (
+from qiskit_nature.second_q.properties import (
     ElectronicStructureDriverResult,
     ElectronicEnergy,
     ParticleNumber,
 )
-from qiskit_nature.second_q.operator_factories.electronic.bases import ElectronicBasis
-from qiskit_nature.second_q.operator_factories.electronic.integrals import (
+from qiskit_nature.second_q.properties.bases import ElectronicBasis
+from qiskit_nature.second_q.properties.integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )

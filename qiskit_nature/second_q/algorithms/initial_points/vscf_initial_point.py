@@ -18,7 +18,7 @@ import numpy as np
 
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import UVCC
-from qiskit_nature.second_q.operator_factories.second_quantized_property import (
+from qiskit_nature.second_q.properties.second_quantized_property import (
     GroupedSecondQuantizedProperty,
 )
 

@@ -41,7 +41,7 @@ from qiskit_nature.second_q.algorithms import (
     ExcitedStatesEigensolver,
     NumPyEigensolverFactory,
 )
-from qiskit_nature.second_q.operator_factories.vibrational import (
+from qiskit_nature.second_q.properties import (
     VibrationalStructureDriverResult,
 )
 

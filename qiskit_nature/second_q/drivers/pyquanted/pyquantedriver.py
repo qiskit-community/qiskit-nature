@@ -25,19 +25,19 @@ from qiskit.utils.validation import validate_min
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.constants import BOHR, PERIODIC_TABLE
 from qiskit_nature.exceptions import UnsupportMethodError
-from qiskit_nature.second_q.operator_factories.driver_metadata import DriverMetadata
-from qiskit_nature.second_q.operator_factories.electronic import (
+from qiskit_nature.second_q.properties.driver_metadata import DriverMetadata
+from qiskit_nature.second_q.properties import (
     ElectronicStructureDriverResult,
     AngularMomentum,
     Magnetization,
     ParticleNumber,
     ElectronicEnergy,
 )
-from qiskit_nature.second_q.operator_factories.electronic.bases import (
+from qiskit_nature.second_q.properties.bases import (
     ElectronicBasis,
     ElectronicBasisTransform,
 )
-from qiskit_nature.second_q.operator_factories.electronic.integrals import (
+from qiskit_nature.second_q.properties.integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )

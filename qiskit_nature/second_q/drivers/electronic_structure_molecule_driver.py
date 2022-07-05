@@ -22,7 +22,7 @@ from enum import Enum
 from qiskit.exceptions import MissingOptionalLibraryError
 
 from qiskit_nature.exceptions import UnsupportMethodError
-from qiskit_nature.second_q.operator_factories.electronic import (
+from qiskit_nature.second_q.properties import (
     ElectronicStructureDriverResult,
 )
 from .electronic_structure_driver import ElectronicStructureDriver, MethodType

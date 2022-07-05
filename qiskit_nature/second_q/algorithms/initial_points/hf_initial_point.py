@@ -19,8 +19,8 @@ import warnings
 import numpy as np
 
 from qiskit_nature.second_q.circuit.library import UCC
-from qiskit_nature.second_q.operator_factories.electronic import ElectronicEnergy
-from qiskit_nature.second_q.operator_factories.second_quantized_property import (
+from qiskit_nature.second_q.properties import ElectronicEnergy
+from qiskit_nature.second_q.properties.second_quantized_property import (
     GroupedSecondQuantizedProperty,
 )
 from qiskit_nature.exceptions import QiskitNatureError
@@ -153,7 +153,7 @@ class HFInitialPoint(InitialPoint):
         """The reference energy.
 
         If the reference energy was not obtained from
-        :class:`~qiskit_nature.second_q.operator_factories.electronic.ElectronicEnergy`
+        :class:`~qiskit_nature.second_q.properties.electronic.ElectronicEnergy`
         this will be equal to zero.
         """
         return self._reference_energy

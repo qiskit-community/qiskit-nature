@@ -36,8 +36,8 @@ from qiskit_nature.second_q.drivers import Molecule
 from qiskit_nature.second_q._watson_hamiltonian import WatsonHamiltonian
 
 from qiskit_nature.exceptions import UnsupportMethodError
-from qiskit_nature.second_q.operator_factories.electronic import ElectronicEnergy
-from qiskit_nature.second_q.operator_factories.vibrational import VibrationalEnergy
+from qiskit_nature.second_q.properties import ElectronicEnergy
+from qiskit_nature.second_q.properties import VibrationalEnergy
 import qiskit_nature.optionals as _optionals
 
 

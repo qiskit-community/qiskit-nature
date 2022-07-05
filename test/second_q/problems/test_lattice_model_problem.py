@@ -18,9 +18,9 @@ import numpy as np
 
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 from qiskit_nature.second_q.operators import SecondQuantizedOp
-from qiskit_nature.second_q.operator_factories.lattice import FermiHubbardModel
+from qiskit_nature.second_q.properties import FermiHubbardModel
 from qiskit_nature.second_q.problems import LatticeModelProblem
-from qiskit_nature.second_q.operator_factories.lattices import (
+from qiskit_nature.second_q.properties.lattices import (
     BoundaryCondition,
     LineLattice,
 )

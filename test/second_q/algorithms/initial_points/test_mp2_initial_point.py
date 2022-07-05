@@ -32,11 +32,11 @@ from qiskit_nature.second_q.drivers.electronic_structure_molecule_driver import 
 from qiskit_nature.second_q.problems.electronic_structure_problem import (
     ElectronicStructureProblem,
 )
-from qiskit_nature.second_q.operator_factories.electronic.integrals.electronic_integrals import (
+from qiskit_nature.second_q.properties.integrals.electronic_integrals import (
     ElectronicIntegrals,
 )
-from qiskit_nature.second_q.operator_factories.electronic import ElectronicEnergy
-from qiskit_nature.second_q.operator_factories.second_quantized_property import (
+from qiskit_nature.second_q.properties import ElectronicEnergy
+from qiskit_nature.second_q.properties.second_quantized_property import (
     GroupedSecondQuantizedProperty,
 )
 from qiskit_nature.settings import settings

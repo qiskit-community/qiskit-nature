@@ -17,7 +17,7 @@ from typing import Any
 import numpy as np
 from qiskit.quantum_info import random_hermitian
 from qiskit.utils import algorithm_globals
-from qiskit_nature.second_q.operator_factories import QuadraticHamiltonian
+from qiskit_nature.second_q.properties import QuadraticHamiltonian
 
 
 # TODO see if type of seed can be specified instead of using Any

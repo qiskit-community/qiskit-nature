@@ -19,7 +19,7 @@ from test import QiskitNatureTestCase
 
 from qiskit_nature.second_q.drivers import GaussianForcesDriver
 from qiskit_nature.second_q.mappers import DirectMapper
-from qiskit_nature.second_q.operator_factories.vibrational.bases import HarmonicBasis
+from qiskit_nature.second_q.properties.bases import HarmonicBasis
 
 from .resources.reference_direct_mapper import (
     _num_modals_2_q_op,

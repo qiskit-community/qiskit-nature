@@ -39,13 +39,13 @@ from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import ParityMapper
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
-from qiskit_nature.second_q.operator_factories.electronic import (
+from qiskit_nature.second_q.properties import (
     ElectronicEnergy,
     ParticleNumber,
 )
 from qiskit_nature.second_q.transformers import ActiveSpaceTransformer
-from qiskit_nature.second_q.operator_factories.electronic.bases import ElectronicBasis
-from qiskit_nature.second_q.operator_factories.electronic.integrals import (
+from qiskit_nature.second_q.properties.bases import ElectronicBasis
+from qiskit_nature.second_q.properties.integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )

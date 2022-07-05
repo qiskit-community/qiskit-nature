@@ -27,7 +27,7 @@ from qiskit_nature.second_q.circuit.library.initial_states.hartree_fock import (
 from qiskit_nature.second_q.drivers import ElectronicStructureDriver
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.operator_factories.electronic import ParticleNumber
+from qiskit_nature.second_q.properties import ParticleNumber
 from qiskit_nature.second_q.transformers.base_transformer import BaseTransformer
 
 from .electronic_structure_result import ElectronicStructureResult

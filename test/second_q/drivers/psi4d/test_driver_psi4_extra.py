@@ -19,7 +19,7 @@ import unittest
 from test import QiskitNatureTestCase
 from qiskit_nature.second_q.drivers import PSI4Driver
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_q.operator_factories.electronic import ElectronicEnergy
+from qiskit_nature.second_q.properties import ElectronicEnergy
 import qiskit_nature.optionals as _optionals
 
 

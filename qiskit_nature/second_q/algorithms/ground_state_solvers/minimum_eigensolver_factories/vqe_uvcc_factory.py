@@ -27,7 +27,7 @@ from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.problems import (
     VibrationalStructureProblem,
 )
-from qiskit_nature.second_q.operator_factories.vibrational import (
+from qiskit_nature.second_q.properties import (
     VibrationalStructureDriverResult,
 )
 from qiskit_nature.deprecation import deprecate_property, deprecate_positional_arguments

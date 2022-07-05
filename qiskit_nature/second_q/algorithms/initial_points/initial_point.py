@@ -19,7 +19,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 
 from qiskit.circuit.library import EvolvedOperatorAnsatz
-from qiskit_nature.second_q.operator_factories.second_quantized_property import (
+from qiskit_nature.second_q.properties.second_quantized_property import (
     GroupedSecondQuantizedProperty,
 )
 

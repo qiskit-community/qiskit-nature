@@ -33,7 +33,7 @@ class WatsonHamiltonian:
             DeprecatedType.CLASS,
             "WatsonHamiltonian",
             additional_msg=(
-                "Instead look towards the qiskit_nature.second_q.operator_factories.vibrational "
+                "Instead look towards the qiskit_nature.second_q.properties.vibrational "
                 "module. The new return object for drivers is the VibrationalStructureDriverResult "
                 "which you can construct from a WatsonHamiltonian via the "
                 "`from_legacy_driver_result()` method."

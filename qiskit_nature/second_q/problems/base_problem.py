@@ -25,7 +25,7 @@ from qiskit_nature.second_q._qmolecule import QMolecule
 from qiskit_nature.second_q._watson_hamiltonian import WatsonHamiltonian
 from qiskit_nature.second_q.drivers import BaseDriver
 from qiskit_nature.second_q.operators import SecondQuantizedOp
-from qiskit_nature.second_q.operator_factories import GroupedSecondQuantizedProperty
+from qiskit_nature.second_q.properties import GroupedSecondQuantizedProperty
 from qiskit_nature.second_q.transformers.base_transformer import BaseTransformer
 
 from .eigenstate_result import EigenstateResult
@@ -84,14 +84,14 @@ class BaseProblem(ABC):
     @property
     def grouped_property(self) -> Optional[GroupedSecondQuantizedProperty]:
         """Returns the
-        :class:`~qiskit_nature.second_q.operator_factories.GroupedSecondQuantizedProperty`
+        :class:`~qiskit_nature.second_q.properties.GroupedSecondQuantizedProperty`
         object."""
         return self._grouped_property
 
     @property
     def grouped_property_transformed(self) -> Optional[GroupedSecondQuantizedProperty]:
         """Returns the transformed
-        :class:`~qiskit_nature.second_q.operator_factories.GroupedSecondQuantizedProperty`
+        :class:`~qiskit_nature.second_q.properties.GroupedSecondQuantizedProperty`
         object."""
         return self._grouped_property_transformed
 
