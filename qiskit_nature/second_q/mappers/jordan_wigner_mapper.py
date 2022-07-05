@@ -18,10 +18,10 @@ from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators import Pauli
 
 from qiskit_nature.second_q.operators import FermionicOp
-from .qubit_mapper import QubitMapper
+from .fermionic_mapper import FermionicMapper
 
 
-class JordanWignerMapper(QubitMapper):  # pylint: disable=missing-class-docstring
+class JordanWignerMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
     def __init__(self):
         """The Jordan-Wigner fermion-to-qubit mapping."""
         super().__init__(allows_two_qubit_reduction=False)
@@ -42,4 +42,4 @@ class JordanWignerMapper(QubitMapper):  # pylint: disable=missing-class-docstrin
             pauli_table.append((Pauli((a_z, a_x)), Pauli((b_z, b_x))))
             # TODO add Pauli 3-tuple to lookup table
 
-        return QubitMapper.mode_based_mapping(second_q_op, pauli_table)
+        return FermionicMapper.mode_based_mapping(second_q_op, pauli_table)

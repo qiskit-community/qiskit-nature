@@ -24,10 +24,10 @@ from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators import SparsePauliOp, Operator
 
 from qiskit_nature.second_q.operators import SpinOp
-from .qubit_mapper import QubitMapper
+from .spin_mapper import SpinMapper
 
 
-class LogarithmicMapper(QubitMapper):
+class LogarithmicMapper(SpinMapper):
     r"""A mapper for Logarithmic spin-to-qubit mapping.
     In this local encoding transformation, each individual spin S system is represented via
     the lowest lying :math:`2S+1` states in a qubit system with the minimal number of qubits needed to
