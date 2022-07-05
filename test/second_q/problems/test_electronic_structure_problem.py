@@ -47,7 +47,7 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
         expected_num_of_sec_quant_ops = 7
         expected_fermionic_op_path = self.get_resource_path(
             "H2_631g_ferm_op_two_ints",
-            "second_q/resources",
+            "second_q/problems/resources",
         )
         expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
 
@@ -87,7 +87,7 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
         expected_num_of_sec_quant_ops = 7
         expected_fermionic_op_path = self.get_resource_path(
             "H2_631g_ferm_op_active_space",
-            "second_q/resources",
+            "second_q/problems/resources",
         )
         expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
         driver = HDF5Driver(
