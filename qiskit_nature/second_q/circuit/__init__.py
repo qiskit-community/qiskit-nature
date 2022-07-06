@@ -12,7 +12,7 @@
 
 """
 Circuit library (:mod:`qiskit_nature.second_q.circuit`)
-==============================================
+=======================================================
 
 .. currentmodule:: qiskit_nature.second_q.circuit
 

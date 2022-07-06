@@ -20,14 +20,6 @@ Factories that create an eigensolver based on a qubit transformation.
 
 .. currentmodule:: qiskit_nature.second_q.algorithms.excited_states_solvers.eigensolver_factories
 
-
-.. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
-
-   EigensolverFactory
-   NumPyEigensolverFactory
-
 """
 
 from .eigensolver_factory import EigensolverFactory

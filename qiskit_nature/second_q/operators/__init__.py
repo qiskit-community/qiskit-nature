@@ -12,7 +12,7 @@
 
 """
 Second-Quantization Operators (:mod:`qiskit_nature.second_q.operators`)
-================================================================
+=======================================================================
 
 .. currentmodule:: qiskit_nature.second_q.operators
 

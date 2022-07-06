@@ -16,17 +16,6 @@ Excited State Solving Algorithms (:mod:`qiskit_nature.second_q.algorithms.excite
 
 .. currentmodule:: qiskit_nature.second_q.algorithms.excited_states_solvers
 
-.. autosummary::
-   :toctree: ../stubs/
-
-   eigensolver_factories
-
-.. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
-
-   ExcitedStatesEigensolver
-   QEOM
 """
 
 from .excited_states_solver import ExcitedStatesSolver

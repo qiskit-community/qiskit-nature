@@ -12,7 +12,7 @@
 
 """
 Qiskit Nature Drivers (:mod:`qiskit_nature.second_q.drivers`)
-====================================================
+=============================================================
 
 .. currentmodule:: qiskit_nature.second_q.drivers
 
@@ -25,11 +25,6 @@ Driver Common
 
    Molecule
    UnitsType
-
-.. autosummary::
-   :toctree:
-
-   second_q
 
 """
 

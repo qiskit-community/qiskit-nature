@@ -16,17 +16,6 @@ Ground State Solving Algorithms (:mod:`qiskit_nature.second_q.algorithms.ground_
 
 .. currentmodule:: qiskit_nature.second_q.algorithms.ground_state_solvers
 
-.. autosummary::
-   :toctree: ../stubs/
-
-   minimum_eigensolver_factories
-
-.. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
-
-   GroundStateEigensolver
-   AdaptVQE
 """
 
 from .ground_state_solver import GroundStateSolver

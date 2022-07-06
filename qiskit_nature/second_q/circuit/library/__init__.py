@@ -12,7 +12,7 @@
 
 """
 Circuit Library (:mod:`qiskit_nature.second_q.circuit.library`)
-======================================================
+===============================================================
 
 A collection of circuits used as building blocks or inputs for algorithms.
 
@@ -90,3 +90,4 @@ __all__ = [
     "SlaterDeterminant",
     "BogoliubovTransform",
 ]
+

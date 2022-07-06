@@ -12,17 +12,10 @@
 
 """
 Excitation generator utilities (:mod:`qiskit_nature.second_q.circuit.library.ansatzes.utils`)
-====================================================================================
+=============================================================================================
 Utility methods to build fermionic and vibrational excitations.
 
 .. currentmodule:: qiskit_nature.second_q.circuit.library.ansatzes.utils
-
-.. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
-
-   generate_fermionic_excitations
-   generate_vibration_excitations
 """
 
 from .fermionic_excitation_generator import generate_fermionic_excitations

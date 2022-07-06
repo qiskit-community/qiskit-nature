@@ -12,7 +12,7 @@
 
 """
 Second-Quantization Problems (:mod:`qiskit_nature.second_q.problems`)
-================================================================================
+=====================================================================
 
 .. currentmodule:: qiskit_nature.second_q.problems
 
@@ -25,13 +25,6 @@ Second-Quantization Problems (:mod:`qiskit_nature.second_q.problems`)
    ElectronicStructureProblem
    VibrationalStructureProblem
    LatticeModelProblem
-
-Submodules
-==========
-.. autosummary::
-   :toctree: ../stubs/
-
-   lattice
 
 """
 

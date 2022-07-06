@@ -13,7 +13,7 @@
 
 """
 Mappers (:mod:`qiskit_nature.second_q.mappers`)
-================================================================
+===============================================
 
 .. currentmodule:: qiskit_nature.second_q.mappers
 
@@ -46,7 +46,7 @@ Spin Mappers
    LogarithmicMapper
 
 Vibrational Mappers
-==================
+===================
 
 .. autosummary::
    :toctree: ../stubs/

@@ -20,16 +20,6 @@ Factories that create a minimum eigensolver based on a qubit transformation.
 
 .. currentmodule:: qiskit_nature.second_q.algorithms.ground_state_solvers.minimum_eigensolver_factories
 
-
-.. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
-
-   MinimumEigensolverFactory
-   NumPyMinimumEigensolverFactory
-   VQEUCCFactory
-   VQEUVCCFactory
-
 """
 
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
