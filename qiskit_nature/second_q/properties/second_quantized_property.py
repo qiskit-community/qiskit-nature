@@ -32,7 +32,7 @@ class SecondQuantizedProperty(Property):
     """The SecondQuantizedProperty base class.
 
     A second-quantization property provides the logic to transform the raw data placed into it by
-    e.g. a :class:`qiskit_nature.second_q.drivers.second_q.BaseDriver` into a
+    e.g. a :class:`qiskit_nature.second_q.drivers.BaseDriver` into a
     :class:`qiskit_nature.second_q.operators.SecondQuantizedOp`.
     """
 
