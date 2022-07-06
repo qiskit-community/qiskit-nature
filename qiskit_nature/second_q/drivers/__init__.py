@@ -11,10 +11,10 @@
 # that they have been altered from the originals.
 
 """
-Qiskit Nature Drivers (:mod:`qiskit_nature.drivers`)
+Qiskit Nature Drivers (:mod:`qiskit_nature.second_q.drivers`)
 ====================================================
 
-.. currentmodule:: qiskit_nature.drivers
+.. currentmodule:: qiskit_nature.second_q.drivers
 
 Driver Common
 =============

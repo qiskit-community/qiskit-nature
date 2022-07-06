@@ -12,10 +12,10 @@
 
 """
 ============================================
-Algorithms (:mod:`qiskit_nature.algorithms`)
+Algorithms (:mod:`qiskit_nature.second_q.algorithms`)
 ============================================
 
-.. currentmodule:: qiskit_nature.algorithms
+.. currentmodule:: qiskit_nature.second_q.algorithms
 
 These are natural science algorithms to solve specific problems such as finding the ground state
 energy, excited state energies or potential energy surfaces.

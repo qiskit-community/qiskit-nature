@@ -11,6 +11,12 @@
 # that they have been altered from the originals.
 
 """
+============================================
+Second Quantization (:mod:`qiskit_nature.second_q`)
+============================================
+
+.. currentmodule:: qiskit_nature.second_q
+
 Submodules
 ==========
 
