@@ -84,24 +84,6 @@ depend
    VQEUCCFactory
    VQEUVCCFactory
 
-Potential Energy Surface Samplers
-+++++++++++++++++++++++++++++++++
-Algorithms that can compute potential energy surfaces.
-
-.. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
-
-   ~pes_samplers.BOPESSampler
-
-The samplers include extrapolators to facilitate convergence across a set of points and support
-of various potentials. More detail may be found in the sub-module linked below.
-
-.. autosummary::
-   :toctree:
-
-   pes_samplers
-
 Initial Points
 ++++++++++++++
 The factories linked above make use of utility classes to compute initial points to use with
