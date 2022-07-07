@@ -215,13 +215,13 @@ class SUCCD(UCC):
         """
         operators = []
         excitations_dictionary: Dict[int, List[Tuple[Tuple[int, ...], Tuple[int, ...]]]] = {}
-        """Reform the excitations list to a dictionary. Each items in the dictionary corresponds to
-            a parrameter."""
+        # Reform the excitations list to a dictionary. Each items in the dictionary corresponds to
+        # a parrameter.
         for exc in excitations:
             exc_level = sum(exc[1])
-            """ sum(exc[1]) sums over the indices of the virtual orbitals in which we excite into.
-            Thus, the level of an excitations is indicated by this sum. And the excitaions with the
-            same level will be assigned the same parameter."""
+            # sum(exc[1]) sums over the indices of the virtual orbitals in which we excite into.
+            # Thus, the level of an excitations is indicated by this sum. And the excitaions with the
+            # same level will be assigned the same parameter.
             if exc_level in excitations_dictionary:
                 excitations_dictionary[exc_level].append(exc)
             else:
