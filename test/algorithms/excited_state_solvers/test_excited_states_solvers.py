@@ -152,13 +152,24 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
             self.assertAlmostEqual(computed_energies[idx], energy, places=4)
 
     def test_custom_filter_criterion(self):
-        """Test NumPyEigenSolverFactory with ExcitedStatesEigensolver and a custom filter criterion"""
+        """Test NumPyEigenSolverFactory with ExcitedStatesEigensolver + Custom filter criterion"""
 
-        expected_spin = 0
-        expected_num_electrons = 2
+        driver = PySCFDriver(
+            atom="Be .0 .0 .0; H .0 .0 0.75",
+            unit=UnitsType.ANGSTROM,
+            charge=0,
+            spin=1,
+            basis="sto3g",
+        )
+        converter = QubitConverter(JordanWignerMapper(), z2symmetry_reduction="auto")
+
+        esp = ElectronicStructureProblem(driver)
+
+        expected_spin = 0.75  # Doublet states
+        expected_num_electrons = 3
 
         # pylint: disable=unused-argument
-        def filter_criterion_spin(eigenstate, eigenvalue, aux_values):
+        def custom_filter_criterion(eigenstate, eigenvalue, aux_values):
             num_particles_aux = aux_values["ParticleNumber"][0]
             total_angular_momentum_aux = aux_values["AngularMomentum"][0]
 
@@ -166,9 +177,9 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
                 expected_num_electrons, num_particles_aux
             )
 
-        solver = NumPyEigensolverFactory(filter_criterion=filter_criterion_spin)
-        esc = ExcitedStatesEigensolver(self.qubit_converter, solver)
-        results = esc.solve(self.electronic_structure_problem)
+        solver = NumPyEigensolverFactory(filter_criterion=custom_filter_criterion)
+        esc = ExcitedStatesEigensolver(converter, solver)
+        results = esc.solve(esp)
 
         # filter duplicates from list
         computed_energies = [results.computed_energies[0]]
@@ -176,10 +187,39 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
             if not np.isclose(comp_energy, computed_energies[-1]):
                 computed_energies.append(comp_energy)
 
-        ref_energies_no_spin = [-1.84268, -0.88480, -0.24576]
+        ref_energies = [
+            -16.37398589,
+            -15.81011588,
+            -15.11360601,
+            -12.11070668,
+            -11.85464205,
+            -11.81656738,
+            -11.21958652,
+            -11.1894481,
+            -11.02312955,
+            -11.0033246,
+            -10.77109545,
+            -10.50584913,
+            -10.42441884,
+            -9.64142998,
+            -6.11972339,
+            -5.73565183,
+            -5.66843831,
+            -5.56295658,
+            -5.04833303,
+            -5.03045877,
+            -4.99115695,
+            -4.89610313,
+            -4.70101663,
+            -4.31527217,
+            -4.29476484,
+            -4.13685426,
+            -3.78471127,
+            -3.47659961,
+        ]
 
-        for idx, energy in enumerate(ref_energies_no_spin):
-            self.assertAlmostEqual(computed_energies[idx], energy, places=4)
+        for idx, energy in enumerate(ref_energies):
+            self.assertAlmostEqual(computed_energies[idx], energy, places=3)
 
 
 if __name__ == "__main__":

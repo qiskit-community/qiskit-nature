@@ -39,6 +39,35 @@ class ElectronicStructureProblem(BaseProblem):
     The attributes `num_particles` and `num_spin_orbitals` are only available _after_ the
     `second_q_ops()` method has been called! Note, that if you do so, the method will be executed
     again when the problem is being solved.
+
+    In the fermionic case the default filter ensures that the number of particles is being
+    preserved.
+
+        .. note::
+
+            The default filter_criterion assumes a singlet spin configuration. This means, that the
+            number of alpha-spin electrons is equal to the number of beta-spin electrons.
+            If the :class:`~qiskit_nature.properties.second_quantization.electronic.AngularMomentum`
+            property is available, one can correctly filter a non-singlet spin configuration with a
+            custom `filter_criterion` similar to the following:
+
+        .. code-block:: python
+
+            import numpy as np
+            from qiskit_nature.algorithms import NumPyEigensolverFactory
+
+            expected_spin = 2
+            expected_num_electrons = 6
+
+            def filter_criterion_custom(eigenstate, eigenvalue, aux_values):
+                num_particles_aux = aux_values["ParticleNumber"][0]
+                total_angular_momentum_aux = aux_values["AngularMomentum"][0]
+
+                return np.isclose(expected_spin, total_angular_momentum_aux) and \
+                       np.isclose(expected_num_electrons, num_particles_aux)
+
+            solver = NumPyEigensolverFactory(filter_criterion=filter_criterion_spin)
+
     """
 
     def __init__(
@@ -173,30 +202,6 @@ class ElectronicStructureProblem(BaseProblem):
         eigen solver. For more information see also
         qiskit.algorithms.eigen_solvers.NumPyEigensolver.filter_criterion.
 
-        In the fermionic case the default filter ensures that the number of particles is being
-        preserved.
-
-        .. note::
-
-            The default filter_criterion assumes a singlet spin configuration. This means, that the
-            number of alpha-spin electrons is equal to the number of beta-spin electrons.
-            If the :class:`~qiskit_nature.properties.second_quantization.electronic.AngularMomentum`
-            property is available, one can correctly filter a non-singlet spin configuration with a
-            custom `filter_criterion` similar to the following:
-
-        .. code-block:: python
-
-            import numpy as np
-
-            expected_spin = 2
-            expected_num_electrons = 6
-
-            def filter_criterion_custom(eigenstate, eigenvalue, aux_values):
-                num_particles_aux = aux_values["ParticleNumber"][0]
-                total_angular_momentum_aux = aux_values["AngularMomentum"][0]
-
-                return np.isclose(expected_spin, total_angular_momentum_aux) and \
-                       np.isclose(expected_num_electrons, num_particles_aux)
         """
 
         # pylint: disable=unused-argument
