@@ -17,50 +17,58 @@ Mappers (:mod:`qiskit_nature.second_q.mappers`)
 
 .. currentmodule:: qiskit_nature.second_q.mappers
 
-Qubit Mapper
-=============
+The classes here are used to convert fermionic, vibrational and spin operators to qubit operators.
 
 .. autosummary::
    :toctree: ../stubs/
+   :nosignatures:
 
    QubitMapper
 
-Fermionic Mappers
-=================
+FermionicOp Mappers
++++++++++++++++++++
 
 .. autosummary::
    :toctree: ../stubs/
+   :nosignatures:
 
+   FermionicMapper
    BravyiKitaevMapper
    BravyiKitaevSuperFastMapper
    JordanWignerMapper
    ParityMapper
 
-Spin Mappers
-============
+
+VibrationalOp Mappers
++++++++++++++++++++++
 
 .. autosummary::
    :toctree: ../stubs/
+   :nosignatures:
 
+   VibrationalMapper
+   DirectMapper
+
+
+SpinOp Mappers
+++++++++++++++
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   SpinMapper
    LinearMapper
    LogarithmicMapper
 
-Vibrational Mappers
-===================
-
-.. autosummary::
-   :toctree: ../stubs/
-
-   DirectMapper
-
 Qubit Converter
-===============
++++++++++++++++
 
 .. autosummary::
    :toctree: ../stubs/
+   :nosignatures:
 
    QubitConverter
-
 """
 
 from .bksf import BravyiKitaevSuperFastMapper
@@ -72,6 +80,9 @@ from .logarithmic_mapper import LogarithmicMapper
 from .direct_mapper import DirectMapper
 from .qubit_mapper import QubitMapper
 from .qubit_converter import QubitConverter
+from .fermionic_mapper import FermionicMapper
+from .spin_mapper import SpinMapper
+from .vibrational_mapper import VibrationalMapper
 
 __all__ = [
     "BravyiKitaevMapper",

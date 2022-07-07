@@ -22,6 +22,7 @@ A collection of circuits used as building blocks or inputs for algorithms.
    :toctree: ../stubs/
    :nosignatures:
 
+
    BogoliubovTransform
 
 Initial states
@@ -30,6 +31,7 @@ Initial states
 .. autosummary::
    :toctree: ../stubs/
    :nosignatures:
+
 
    FermionicGaussianState
    HartreeFock
@@ -42,6 +44,7 @@ Ansatzes
 .. autosummary::
    :toctree: ../stubs/
    :nosignatures:
+
 
    UCC
    UCCSD
@@ -58,6 +61,7 @@ Utilities such as excitation generators for use with the ansatzes.
 
 .. autosummary::
    :toctree:
+
 
    ansatzes.utils
 """

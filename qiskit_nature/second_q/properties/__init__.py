@@ -23,6 +23,7 @@ Second-Quantization Operator Factories
 .. autosummary::
    :toctree: ../stubs/
 
+
    QuadraticHamiltonian
 """
 

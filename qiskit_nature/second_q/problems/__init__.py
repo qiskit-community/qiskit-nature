@@ -16,7 +16,6 @@ Second-Quantization Problems (:mod:`qiskit_nature.second_q.problems`)
 
 .. currentmodule:: qiskit_nature.second_q.problems
 
-
 .. autosummary::
    :toctree: ../stubs/
    :nosignatures:

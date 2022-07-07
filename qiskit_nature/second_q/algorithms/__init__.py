@@ -93,7 +93,6 @@ specific ansatzes. More detail may be found in the sub-module linked below.
    :toctree:
 
    initial_points
-
 """
 
 from .excited_states_solvers import (

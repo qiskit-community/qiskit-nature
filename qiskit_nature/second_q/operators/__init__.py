@@ -18,9 +18,6 @@ Second-Quantization Operators (:mod:`qiskit_nature.second_q.operators`)
 
 Operators and mappers for different systems such as fermionic, vibrational and spin.
 
-Second-Quantization Operators
-==============================
-
 .. autosummary::
    :toctree: ../stubs/
 

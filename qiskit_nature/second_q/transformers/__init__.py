@@ -25,9 +25,9 @@ state energy computation to get complete result.
 .. autosummary::
    :toctree: ../stubs/
 
+   BaseTransformer
    ActiveSpaceTransformer
    FreezeCoreTransformer
-
 """
 
 from .active_space_transformer import ActiveSpaceTransformer
