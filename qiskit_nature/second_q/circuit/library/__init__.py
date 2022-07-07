@@ -94,4 +94,3 @@ __all__ = [
     "SlaterDeterminant",
     "BogoliubovTransform",
 ]
-
