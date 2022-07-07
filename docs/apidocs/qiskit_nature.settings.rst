@@ -3,6 +3,9 @@
 settings
 ======================
 
-.. currentmodule:: qiskit_nature
+.. automodule:: qiskit_nature.settings
 
-.. autodata:: settings
+   .. rubric:: Classes
+
+   .. autosummary::
+      QiskitNatureSettings

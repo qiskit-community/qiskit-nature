@@ -1,8 +1,11 @@
-﻿
+﻿Logging
+=======
 
-logging
-=====================
+.. _qiskit_nature-logging:
 
-.. currentmodule:: qiskit_nature
+.. automodule:: qiskit_nature.logging
 
-.. autodata:: logging
+   .. rubric:: Classes
+
+   .. autosummary::
+      QiskitNatureLogging
