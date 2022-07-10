@@ -119,7 +119,7 @@ class QubitMapper(ABC):
         # TODO to_list() is not an attribute of SecondQuantizedOp. Change the former to have this or
         #   change the signature above to take FermionicOp?
         label_coeff_list = (
-            second_q_op.to_list(display_format="dense")
+            second_q_op.to_list(display_format="sparse")
             if isinstance(second_q_op, FermionicOp)
             else second_q_op.to_list()
         )
