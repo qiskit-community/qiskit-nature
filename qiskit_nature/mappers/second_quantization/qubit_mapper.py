@@ -130,15 +130,21 @@ class QubitMapper(ABC):
 
             # Go through the label and replace the fermion operators by their qubit-equivalent, then
             # save the respective Pauli string in the pauli_str list.
-            for position, char in enumerate(label):
+
+            splits = label.split()
+
+            for word in splits:
+                char = word[0]
+                index = word[2]
+
                 if char == "+":
-                    ret_op = ret_op.compose(self.times_creation_op[position], front=True)
+                    ret_op = ret_op.compose(self.times_creation_op[index], front=True)
                 elif char == "-":
-                    ret_op = ret_op.compose(self.times_annihilation_op[position], front=True)
+                    ret_op = ret_op.compose(self.times_annihilation_op[index], front=True)
                 elif char == "N":
-                    ret_op = ret_op.compose(self.times_occupation_number_op[position], front=True)
+                    ret_op = ret_op.compose(self.times_occupation_number_op[index], front=True)
                 elif char == "E":
-                    ret_op = ret_op.compose(self.times_emptiness_number_op[position], front=True)
+                    ret_op = ret_op.compose(self.times_emptiness_number_op[index], front=True)
                 elif char == "I":
                     continue
 
