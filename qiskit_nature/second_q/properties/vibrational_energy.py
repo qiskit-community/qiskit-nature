@@ -46,7 +46,7 @@ class VibrationalEnergy(VibrationalProperty):
         """
         Args:
             vibrational_integrals: a list of
-                :class:`~qiskit_nature.properties.second_q.vibrational.integrals.VibrationalIntegrals`.
+                :class:`~qiskit_nature.second_q.properties.integrals.VibrationalIntegrals`.
             truncation_order: an optional truncation order for the highest number of body terms to
                 include in the constructed Hamiltonian.
             basis: the
