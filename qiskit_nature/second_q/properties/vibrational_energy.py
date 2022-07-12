@@ -206,7 +206,7 @@ class VibrationalEnergy(VibrationalProperty):
 
         return {self.name: sum(ops)}
 
-    def interpret(self, result: str) -> None:
+    def interpret(self, result: "EigenstateResult") -> None:
         """Interprets an :class:`~qiskit_nature.results.str` in this property's context.
 
         Args:
