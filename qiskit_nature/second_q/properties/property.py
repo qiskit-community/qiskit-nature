@@ -109,7 +109,7 @@ class PseudoProperty(Property, ABC):
             ),
         )
 
-    def interpret(self, result: str) -> None:
+    def interpret(self, result: "EigenstateResult") -> None:
         """A PseudoProperty cannot interpret anything."""
         pass
 
