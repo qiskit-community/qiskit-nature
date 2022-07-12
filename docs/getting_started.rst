@@ -100,7 +100,7 @@ algorithms that compute properties of molecules, such as the ground state energy
 library/program should be installed. As you can choose which driver you use, you can install as
 many, or as few as you wish, that are supported by your platform etc.
 
-See `Driver installation <./apidocs/qiskit_nature.second_q.drivers.html#drivers>`__ which lists each driver
+See `Driver installation <./apidocs/qiskit_nature.second_q.drivers.html>`__ which lists each driver
 and how to install the dependent library/program that it requires.
 
 ----
