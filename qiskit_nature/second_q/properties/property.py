@@ -29,8 +29,10 @@ if sys.version_info >= (3, 8):
 else:
     from typing_extensions import runtime_checkable, Protocol
 
-LOGGER = logging.getLogger(__name__)
+if TYPE_CHECKING:
+    from qiskit_nature.second_q.problems import EigenstateResult
 
+LOGGER = logging.getLogger(__name__)
 
 class Property(ABC):
     """The Property base class.
