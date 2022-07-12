@@ -54,7 +54,7 @@ class QiskitNatureTestCase(unittest.TestCase, ABC):
         warnings.filterwarnings(
             action="default",
             category=DeprecationWarning,
-            module=".*transformers.second_q*",
+            module=".*second_q.transformers.*",
         )
         self._started_at = time.time()
         self._class_location = __file__
