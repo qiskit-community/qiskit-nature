@@ -11,25 +11,15 @@
 # that they have been altered from the originals.
 
 """
-Second-Quantization Operator Factories (:mod:`qiskit_nature.second_q.properties`)
+Second-Quantization Properties (:mod:`qiskit_nature.second_q.properties`)
 ================================================================================================
 
 .. currentmodule:: qiskit_nature.second_q.properties
 
-
-Second-Quantization Operator Factories
-=======================================
-
-.. autosummary::
-   :toctree: ../stubs/
-
-
-   QuadraticHamiltonian
 """
 
 from .grouped_property import GroupedProperty
 from .property import Property
-from .quadratic_hamiltonian import QuadraticHamiltonian
 from .second_quantized_property import GroupedSecondQuantizedProperty, SecondQuantizedProperty
 
 from .fermi_hubbard_model import FermiHubbardModel
@@ -59,7 +49,6 @@ __all__ = [
     "GroupedSecondQuantizedProperty",
     "Property",
     "SecondQuantizedProperty",
-    "QuadraticHamiltonian",
     "AngularMomentum",
     "DipoleMoment",
     "ElectronicDipoleMoment",
