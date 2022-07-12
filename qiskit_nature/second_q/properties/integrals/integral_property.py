@@ -34,12 +34,12 @@ if TYPE_CHECKING:
 
 class IntegralProperty(ElectronicProperty):
     """A common Property object based on
-    :class:`~qiskit_nature.properties.second_q.electronic.integrals.ElectronicIntegrals`
+    :class:`~qiskit_nature.second_q.properties.integrals.ElectronicIntegrals`
     as its raw data.
 
     This is a common base class, extracted to be used by (at the time of writing) the
-    :class:`~qiskit_nature.properties.second_q.electronic.ElectronicEnergy` and the
-    :class:`~qiskit_nature.properties.second_q.electronic.DipoleMoment` properties. More
+    :class:`~qiskit_nature.second_q.properties.ElectronicEnergy` and the
+    :class:`~qiskit_nature.second_q.properties.DipoleMoment` properties. More
     subclasses may be added in the future.
     """
 
@@ -54,7 +54,7 @@ class IntegralProperty(ElectronicProperty):
         Args:
             name: the name of this Property object.
             electronic_integrals: a list of
-                :class:`~qiskit_nature.properties.second_q.electronic.integrals.ElectronicIntegrals`.
+                :class:`~qiskit_nature.second_q.properties.integrals.ElectronicIntegrals`.
             shift: an optional dictionary of value shifts.
         """
         super().__init__(name)
@@ -132,7 +132,7 @@ class IntegralProperty(ElectronicProperty):
         An IntegralProperty typically represents an observable which can be expressed in terms of a
         matrix-formatted operator at a given electronic density. In the Property framework the
         generic representation of such matrices are
-        :class:`~qiskit_nature.properties.second_q.electronic.integrals.ElectronicIntegrals`.
+        :class:`~qiskit_nature.second_q.properties.integrals.ElectronicIntegrals`.
 
         Args:
             density: the electronic density at which to compute the operator.

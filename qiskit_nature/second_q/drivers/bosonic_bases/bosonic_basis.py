@@ -27,7 +27,7 @@ class BosonicBasis:
             "BosonicBasis",
             DeprecatedType.CLASS,
             "VibrationalBasis",
-            "from qiskit_nature.second_q.properties.vibrational.bases",
+            "from qiskit_nature.second_q.properties.bases",
         )
 
     def convert(self, threshold: float = 1e-6) -> List[List[Tuple[List[List[int]], complex]]]:

@@ -30,7 +30,7 @@ class VibrationalProperty(SecondQuantizedProperty):
         Args:
             name: the name of the property.
             basis: the
-                :class:`~qiskit_nature.properties.second_q.vibrational.bases.VibrationalBasis`
+                :class:`~qiskit_nature.second_q.properties.bases.VibrationalBasis`
                 through which to map the integrals into second quantization. This attribute **MUST**
                 be set before the second-quantized operator can be constructed.
         """

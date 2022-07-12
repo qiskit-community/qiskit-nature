@@ -50,7 +50,7 @@ class VibrationalEnergy(VibrationalProperty):
             truncation_order: an optional truncation order for the highest number of body terms to
                 include in the constructed Hamiltonian.
             basis: the
-                :class:`~qiskit_nature.properties.second_q.vibrational.bases.VibrationalBasis`
+                :class:`~qiskit_nature.second_q.properties.bases.VibrationalBasis`
                 through which to map the integrals into second quantization. This attribute **MUST**
                 be set before the second-quantized operator can be constructed.
         """
@@ -157,25 +157,25 @@ class VibrationalEnergy(VibrationalProperty):
     def add_vibrational_integral(self, integral: VibrationalIntegrals) -> None:
         # pylint: disable=line-too-long
         """Adds a
-        :class:`~qiskit_nature.properties.second_q.vibrational.integrals.VibrationalIntegrals`
+        :class:`~qiskit_nature.second_q.properties.integrals.VibrationalIntegrals`
         instance to the internal storage.
 
         Internally, the
-        :class:`~qiskit_nature.properties.second_q.vibrational.integrals.VibrationalIntegrals`
+        :class:`~qiskit_nature.second_q.properties.integrals.VibrationalIntegrals`
         are stored in a dictionary sorted by their number of body terms. This simplifies access
         based on these properties (see ``get_vibrational_integral``) and avoids duplicate,
         inconsistent entries.
 
         Args:
             integral: the
-                :class:`~qiskit_nature.properties.second_q.vibrational.integrals.VibrationalIntegrals`
+                :class:`~qiskit_nature.second_q.properties.integrals.VibrationalIntegrals`
                 to add.
         """
         self._vibrational_integrals[integral._num_body_terms] = integral
 
     def get_vibrational_integral(self, num_body_terms: int) -> Optional[VibrationalIntegrals]:
         """Gets an
-        :class:`~qiskit_nature.properties.second_q.vibrational.integrals.VibrationalIntegrals`
+        :class:`~qiskit_nature.second_q.properties.integrals.VibrationalIntegrals`
         given the number of body terms.
 
         Args:

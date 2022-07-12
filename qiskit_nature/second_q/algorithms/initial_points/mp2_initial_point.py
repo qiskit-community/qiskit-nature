@@ -53,7 +53,7 @@ class MP2InitialPoint(InitialPoint):
     :attr:`grouped_property` and :attr:`excitation_list` attributes to be set already.
 
     ``MP2InitialPoint`` requires the
-    :class:`~qiskit_nature.second_q.properties.electronic.ElectronicEnergy`, which should
+    :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`, which should
     be passed in via the :attr:`grouped_property` attribute. From this it must obtain the two-body
     molecular orbital electronic integrals and orbital energies. If the Hartree-Fock reference
     energy is also obtained, it will be used to compute the absolute MP2 energy using the
@@ -124,13 +124,13 @@ class MP2InitialPoint(InitialPoint):
         """The grouped property.
 
         The grouped property is required to contain the
-        :class:`~qiskit_nature.second_q.properties.electronic.ElectronicEnergy`, which
+        :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`, which
         must contain the two-body molecular orbitals matrix and the orbital energies. Optionally,
         it will also use the Hartree-Fock reference energy to compute the absolute energy.
 
         Raises:
             QiskitNatureError: If
-                :class:`~qiskit_nature.second_q.properties.electronic.ElectronicEnergy`
+                :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`
                 is missing or the two-body molecular orbitals matrix or the orbital energies are not
                 found.
             NotImplementedError: If alpha and beta spin molecular orbitals are not identical.
@@ -328,7 +328,7 @@ class MP2InitialPoint(InitialPoint):
         """The absolute energy.
 
         If the reference energy was not obtained from
-        :class:`~qiskit_nature.properties.second_q.electronic.ElectronicEnergy`
+        :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`
         this will be equal to :meth:`get_energy_correction`.
         """
         return self._reference_energy + self.get_energy_correction()

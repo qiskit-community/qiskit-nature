@@ -39,12 +39,12 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
         """
         Args:
             basis: the basis which these integrals are stored in. If this is initialized with
-                :class:`~qiskit_nature.properties.second_q.electronic.bases.ElectronicBasis.SO`,
+                :class:`~qiskit_nature.second_q.properties.bases.ElectronicBasis.SO`,
                 these integrals will be used *ad verbatim* during the mapping to a
                 :class:`~qiskit_nature.second_q.operators.SecondQuantizedOp`.
             matrices: the matrices (one or many) storing the actual electronic integrals. If this is
                 a single matrix, ``basis`` must be set to
-                :class:`~qiskit_nature.properties.second_q.electronic.bases.ElectronicBasis.SO`.
+                :class:`~qiskit_nature.second_q.properties.bases.ElectronicBasis.SO`.
                 Otherwise, this must be a pair of matrices, the first one being the alpha-spin
                 matrix (which is required) and the second one being an optional beta-spin matrix. If
                 the latter is ``None``, the alpha-spin matrix is used in its place.
@@ -64,11 +64,11 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
 
         Returns:
             The transformed
-            :class:`~qiskit_nature.properties.second_q.electronic.integrals.ElectronicIntegrals`.
+            :class:`~qiskit_nature.second_q.properties.integrals.ElectronicIntegrals`.
 
         Raises:
             QiskitNatureError: if the integrals do not match
-                :class:`~qiskit_nature.properties.second_q.electronic.bases.ElectronicBasisTransform.initial_basis`.
+                :class:`~qiskit_nature.second_q.properties.bases.ElectronicBasisTransform.initial_basis`.
         """
         if self._basis == transform.final_basis:
             return self
@@ -89,7 +89,7 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
 
     def to_spin(self) -> np.ndarray:
         """Transforms the integrals into the special
-        :class:`~qiskit_nature.properties.second_q.electronic.bases.ElectronicBasis.SO`
+        :class:`~qiskit_nature.second_q.properties.bases.ElectronicBasis.SO`
         basis.
 
         In this case of the 1-body integrals, the returned matrix is a block matrix of the form:

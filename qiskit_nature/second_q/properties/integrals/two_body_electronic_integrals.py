@@ -46,12 +46,12 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
         """
         Args:
             basis: the basis which these integrals are stored in. If this is initialized with
-                :class:`~qiskit_nature.properties.second_q.electronic.bases.ElectronicBasis.SO`,
+                :class:`~qiskit_nature.second_q.properties.bases.ElectronicBasis.SO`,
                 these integrals will be used *ad verbatim* during the mapping to a
                 :class:`~qiskit_nature.second_q.operators.SecondQuantizedOp`.
             matrices: the matrices (one or many) storing the actual electronic integrals. If this is
                 a single matrix, ``basis`` must be set to
-                :class:`~qiskit_nature.properties.second_q.electronic.bases.ElectronicBasis.SO`.
+                :class:`~qiskit_nature.second_q.properties.bases.ElectronicBasis.SO`.
                 Otherwise, this must be a quartet of matrices, the first one being the
                 alpha-alpha-spin matrix (which is required), followed by the beta-alpha-spin,
                 beta-beta-spin, and alpha-beta-spin matrices (which are optional). The order of
@@ -74,7 +74,7 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
         be returned.
 
         For more details see also
-        :class:`~qiskit_nature.properties.second_q.electronic.integrals.electronic_integrals.ElectronicIntegrals.get_matrix`
+        :class:`~qiskit_nature.second_q.properties.integrals.electronic_integrals.ElectronicIntegrals.get_matrix`
 
         Args:
             index: the index of the integral matrix to get.
@@ -114,11 +114,11 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
 
         Returns:
             The transformed
-            :class:`~qiskit_nature.properties.second_q.electronic.integrals.ElectronicIntegrals`.
+            :class:`~qiskit_nature.second_q.properties.integrals.ElectronicIntegrals`.
 
         Raises:
             QiskitNatureError: if the integrals do not match
-                :class:`~qiskit_nature.properties.second_q.electronic.bases.ElectronicBasisTransform.initial_basis`.
+                :class:`~qiskit_nature.second_q.properties.bases.ElectronicBasisTransform.initial_basis`.
         """
         if self._basis == transform.final_basis:
             return self
@@ -155,7 +155,7 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
 
     def to_spin(self) -> np.ndarray:
         """Transforms the integrals into the special
-        :class:`~qiskit_nature.properties.second_q.electronic.bases.ElectronicBasis.SO`
+        :class:`~qiskit_nature.second_q.properties.bases.ElectronicBasis.SO`
         basis.
 
         Returns:
@@ -190,28 +190,28 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
     ) -> OneBodyElectronicIntegrals:
         # pylint: disable=line-too-long
         """Composes these ``TwoBodyElectronicIntegrals`` with an instance of
-        :class:`~qiskit_nature.properties.second_q.electronic.integrals.OneBodyElectronicIntegrals`.
+        :class:`~qiskit_nature.second_q.properties.integrals.OneBodyElectronicIntegrals`.
 
         This method requires an ``einsum_subscript`` subscript and produces a new instance of
-        :class:`~qiskit_nature.properties.second_q.electronic.integrals.OneBodyElectronicIntegrals`.
+        :class:`~qiskit_nature.second_q.properties.integrals.OneBodyElectronicIntegrals`.
 
         Args:
             other: an instance of
-                :class:`~qiskit_nature.properties.second_q.electronic.integrals.OneBodyElectronicIntegrals`.
+                :class:`~qiskit_nature.second_q.properties.integrals.OneBodyElectronicIntegrals`.
             einsum_subscript: an additional ``np.einsum`` subscript.
 
         Returns:
             The resulting
-            :class:`~qiskit_nature.properties.second_q.electronic.integrals.OneBodyElectronicIntegrals`.
+            :class:`~qiskit_nature.second_q.properties.integrals.OneBodyElectronicIntegrals`.
 
         Raises:
             TypeError: if ``other`` is not an
-                :class:`~qiskit_nature.properties.second_q.electronic.integrals.OneBodyElectronicIntegrals`
+                :class:`~qiskit_nature.second_q.properties.integrals.OneBodyElectronicIntegrals`
                 instance.
             ValueError: if the bases of ``self`` and ``other`` do not match or if ``einsum_subscript`` is
                 ``None``.
             NotImplementedError: if the basis of ``self`` is not
-            :class:`~qiskit_nature.properties.second_q.electronic.bases.ElectronicBasis.AO`.
+            :class:`~qiskit_nature.second_q.properties.bases.ElectronicBasis.AO`.
         """
         if einsum_subscript is None:
             raise ValueError(

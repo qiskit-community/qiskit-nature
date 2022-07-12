@@ -60,7 +60,7 @@ class ElectronicEnergy(IntegralProperty):
         """
         Args:
             electronic_integrals: a dictionary mapping the ``# body terms`` to the corresponding
-                :class:`~qiskit_nature.properties.second_q.electronic.integrals.ElectronicIntegrals`.
+                :class:`~qiskit_nature.second_q.properties.integrals.ElectronicIntegrals`.
             energy_shift: an optional dictionary of energy shifts.
             nuclear_repulsion_energy: the optional nuclear repulsion energy.
             reference_energy: an optional reference energy (such as the HF energy).
@@ -268,12 +268,12 @@ class ElectronicEnergy(IntegralProperty):
         """Construct an ``ElectronicEnergy`` from raw integrals in a given basis.
 
         When setting the basis to
-        :class:`~qiskit_nature.properties.second_q.electronic.bases.ElectronicBasis.SO`,
+        :class:`~qiskit_nature.second_q.properties.bases.ElectronicBasis.SO`,
         all of the arguments ``h1_b``, ``h2_bb`` and ``h2_ba`` will be ignored.
 
         Args:
             basis: the
-                :class:`~qiskit_nature.properties.second_q.electronic.bases.ElectronicBasis`
+                :class:`~qiskit_nature.second_q.properties.bases.ElectronicBasis`
                 of the provided integrals.
             h1: the one-body integral matrix.
             h2: the two-body integral matrix.
@@ -300,7 +300,7 @@ class ElectronicEnergy(IntegralProperty):
 
     def integral_operator(self, density: OneBodyElectronicIntegrals) -> OneBodyElectronicIntegrals:
         """Constructs the Fock operator resulting from this
-        :class:`~qiskit_nature.properties.second_q.electronic.ElectronicEnergy`.
+        :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`.
 
         Args:
             density: the electronic density at which to compute the operator.

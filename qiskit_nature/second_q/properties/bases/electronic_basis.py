@@ -20,7 +20,7 @@ class ElectronicBasis(Enum):
 
     This ``Enum`` simply names the available electronic bases. The ``SO`` basis is the *special*
     basis into which an
-    :class:`~qiskit_nature.properties.second_q.electronic.ElectronicEnergy` must map its
+    :class:`~qiskit_nature.second_q.properties.ElectronicEnergy` must map its
     integrals before being able to perform the mapping to a
     :class:`~qiskit_nature.second_q.operators.SecondQuantizedOp`.
     """

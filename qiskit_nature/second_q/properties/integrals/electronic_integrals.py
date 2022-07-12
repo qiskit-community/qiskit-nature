@@ -33,9 +33,9 @@ class ElectronicIntegrals(ABC):
     This class is a template for ``n``-body electronic integral containers.
     It provides method stubs which must be completed in order to allow basis transformation between
     different
-    :class:`~qiskit_nature.properties.second_q.electronic.bases.ElectronicBasis`. An
+    :class:`~qiskit_nature.second_q.properties.bases.ElectronicBasis`. An
     extra method stub must be implemented to map into the special
-    :class:`~qiskit_nature.properties.second_q.electronic.bases.ElectronicBasis.SO` basis
+    :class:`~qiskit_nature.second_q.properties.bases.ElectronicBasis.SO` basis
     which is a required intermediate representation of the electronic integrals during the process
     of mapping to a :class:`~qiskit_nature.second_q.operators.SecondQuantizedOp`.
 
@@ -64,12 +64,12 @@ class ElectronicIntegrals(ABC):
         Args:
             num_body_terms: ``n``, as in the ``n-body`` terms stored in these integrals.
             basis: the basis which these integrals are stored in. If this is initialized with
-                :class:`~qiskit_nature.properties.second_q.electronic.bases.ElectronicBasis.SO`,
+                :class:`~qiskit_nature.second_q.properties.bases.ElectronicBasis.SO`,
                 these integrals will be used *ad verbatim* during the mapping to a
                 :class:`~qiskit_nature.second_q.operators.SecondQuantizedOp`.
             matrices: the matrices (one or many) storing the actual electronic integrals. If this is
                 a single matrix, ``basis`` must be set to
-                :class:`~qiskit_nature.properties.second_q.electronic.bases.ElectronicBasis.SO`.
+                :class:`~qiskit_nature.second_q.properties.bases.ElectronicBasis.SO`.
                 Refer to the documentation of the specific ``n-body`` integral types for the
                 requirements in case of multiple matrices.
             threshold: the truncation level below which to treat the integral as zero-valued.
@@ -322,17 +322,17 @@ class ElectronicIntegrals(ABC):
 
         Returns:
             The transformed
-            :class:`~qiskit_nature.properties.second_q.electronic.integrals.ElectronicIntegrals`.
+            :class:`~qiskit_nature.second_q.properties.integrals.ElectronicIntegrals`.
 
         Raises:
             QiskitNatureError: if the integrals do not match
-                :class:`~qiskit_nature.properties.second_q.electronic.bases.ElectronicBasisTransform.initial_basis`.
+                :class:`~qiskit_nature.second_q.properties.bases.ElectronicBasisTransform.initial_basis`.
         """
 
     @abstractmethod
     def to_spin(self) -> np.ndarray:
         """Transforms the integrals into the special
-        :class:`~qiskit_nature.properties.second_q.electronic.bases.ElectronicBasis.SO`
+        :class:`~qiskit_nature.second_q.properties.bases.ElectronicBasis.SO`
         basis.
 
         Returns:
