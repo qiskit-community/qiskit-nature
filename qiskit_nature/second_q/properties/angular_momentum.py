@@ -204,7 +204,8 @@ class AngularMomentum(ElectronicProperty):
         return {self.name: op}
 
     def interpret(self, result: "EigenstateResult") -> None:
-        """Interprets an :class:`~qiskit_nature.second_q.problems.EigenstateResult` in this property's context.
+        """Interprets an :class:`~qiskit_nature.second_q.problems.EigenstateResult`
+        in this property's context.
 
         Args:
             result: the result to add meaning to.
