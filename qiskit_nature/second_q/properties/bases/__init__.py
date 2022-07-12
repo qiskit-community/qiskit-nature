@@ -9,8 +9,9 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-r"""
-Electronic Bases (:mod:`qiskit_nature.second_q.properties.bases`)
+""""
+Second-Quantization Integral Bases (:mod:`qiskit_nature.second_q.properties.bases`)
+
 =======================================================================================
 
 .. currentmodule:: qiskit_nature.second_q.properties.bases
