@@ -117,7 +117,7 @@ class OccupiedModals(VibrationalProperty):
         return VibrationalOp(labels, len(num_modals_per_mode), num_modals_per_mode)
 
     def interpret(self, result: "EigenstateResult") -> None:
-        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
+        """Interprets an :class:`~qiskit_nature.second_q.problems.EigenstateResult` in this property's context.
 
         Args:
             result: the result to add meaning to.

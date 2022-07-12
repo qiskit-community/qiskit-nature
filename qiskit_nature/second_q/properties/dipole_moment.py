@@ -128,7 +128,7 @@ class DipoleMoment(IntegralProperty):
         return cast(OneBodyElectronicIntegrals, self.get_electronic_integral(ElectronicBasis.AO, 1))
 
     def interpret(self, result: "EigenstateResult") -> None:
-        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
+        """Interprets an :class:`~qiskit_nature.second_q.problems.EigenstateResult` in this property's context.
 
         Args:
             result: the result to add meaning to.
@@ -329,7 +329,7 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
         return ops
 
     def interpret(self, result: "EigenstateResult") -> None:
-        """Interprets an :class:`~qiskit_nature.results.EigenstateResult` in this property's context.
+        """Interprets an :class:`~qiskit_nature.second_q.problems.EigenstateResult` in this property's context.
 
         Args:
             result: the result to add meaning to.

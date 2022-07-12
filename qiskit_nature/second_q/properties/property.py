@@ -121,8 +121,8 @@ class Interpretable(Protocol):
     An object is considered interpretable if it implements an `interpret` method.
     """
 
-    def interpret(self, result: str) -> None:
-        """Interprets an :class:`~qiskit_nature.results.str` in the object's context.
+    def interpret(self, result: "EigenstateResult") -> None:
+        """Interprets an :class:`~qiskit_nature.second_q.problems.EigenstateResult` in the object's context.
 
         Args:
             result: the result to add meaning to.
