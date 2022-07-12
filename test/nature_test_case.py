@@ -46,7 +46,7 @@ class QiskitNatureTestCase(unittest.TestCase, ABC):
         warnings.filterwarnings("ignore", category=DeprecationWarning, module="pyscf")
         warnings.filterwarnings(action="ignore", category=DeprecationWarning, module=".*drivers*")
         warnings.filterwarnings(
-            action="default", category=DeprecationWarning, module=".*drivers.second_q*"
+            action="default", category=DeprecationWarning, module=".*second_q.drivers.*"
         )
         warnings.filterwarnings(
             action="ignore", category=DeprecationWarning, module=".*transformers*"
