@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import cast, Generator, Optional
+from typing import cast, Generator, Optional, TYPE_CHECKING
 
 import h5py
 
@@ -30,7 +30,7 @@ from .vibrational_types import VibrationalProperty
 
 if TYPE_CHECKING:
     from qiskit_nature.second_q.problems import EigenstateResult
-    
+
 class VibrationalEnergy(VibrationalProperty):
     """The VibrationalEnergy property.
 
