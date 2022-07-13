@@ -26,6 +26,7 @@ Submodules
    algorithms
    circuit
    drivers
+   hamiltonians
    mappers
    operators
    problems
