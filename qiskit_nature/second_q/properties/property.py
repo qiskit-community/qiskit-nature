@@ -36,6 +36,7 @@ if TYPE_CHECKING:
 
 LOGGER = logging.getLogger(__name__)
 
+
 class Property(ABC):
     """The Property base class.
 
