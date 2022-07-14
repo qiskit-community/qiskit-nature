@@ -42,6 +42,7 @@ all_check: spell style lint copyright mypy clean_sphinx html doctest
 lint:
 	python -m pylint -rn --ignore=gauopen qiskit_nature test tools
 	python tools/verify_headers.py qiskit_nature test tools
+	python tools/find_stray_release_notes.py
 
 mypy:
 	python -m mypy qiskit_nature test tools
@@ -82,5 +83,5 @@ coverage:
 coverage_erase:
 	python -m coverage erase
 
-clean: clean_sphinx coverage_erase; 
+clean: clean_sphinx coverage_erase;
 
