@@ -238,21 +238,22 @@ class SUCCD(UCC):
             exc_level = (
                 str(exc[0][0])
                 + str(exc[0][1])
-                + str(abs((exc[1][0] - exc[0][0]) - (exc[1][1] - exc[0][1])))
-                + str(exc[1][0] - exc[0][0] + exc[1][1] - exc[0][1])
+                + str(abs((exc[1][0] - exc[0][0]) - (exc[1][-1] - exc[0][-1])))
+                + str(exc[1][0] - exc[0][0] + exc[1][-1] - exc[0][-1])
             )
             # exc_level is a 4-number string. First two numbers are occupied indices. And
             # last two numbers indicate the indices changing during excitation. Thus,
             # the level of an excitations is indicated by this string. The symmetrically
             # mirrored double excitations have the same exc_level string, and the
             # excitations with the same level will be assigned the same parameter.
+
             if exc_level in excitations_dictionary:
                 excitations_dictionary[exc_level].append(exc)
             else:
                 excitations_dictionary[exc_level] = [exc]
 
         for exc_level, exc_level_items in excitations_dictionary.items():
-            ops = []
+            ops: List[FermionicOp] = []
             for exc in exc_level_items:
                 label = ["I"] * self.num_spin_orbitals
                 for occ in exc[0]:
@@ -266,7 +267,7 @@ class SUCCD(UCC):
                 op *= 1j  # type: ignore
                 ops.append(op)
             operators.append(sum(ops))
-            if not operators:
-                return FermionicOp.zero(self.num_spin_orbitals)
-
-        return operators
+        if not operators:
+            return [FermionicOp.zero(self.num_spin_orbitals)]
+        else:
+            return operators
