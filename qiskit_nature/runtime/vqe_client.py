@@ -307,7 +307,9 @@ class VQEClient(VariationalAlgorithm, MinimumEigensolver):
         vqe_result.eigenvalue = result.get("eigenvalue", None)
         aux_op_eigenvalues = result.get("aux_operator_eigenvalues", None)
         if isinstance(aux_operators, dict) and aux_op_eigenvalues is not None:
-            aux_op_eigenvalues = dict(zip(wrapped_aux_operators, aux_op_eigenvalues))
+            aux_op_eigenvalues = dict(
+                zip(wrapped_aux_operators.keys(), aux_op_eigenvalues.values())
+            )
             if not aux_op_eigenvalues:  # For consistency set to None for empty dict
                 aux_op_eigenvalues = None
         vqe_result.aux_operator_eigenvalues = aux_op_eigenvalues
