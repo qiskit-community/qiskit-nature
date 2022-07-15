@@ -69,6 +69,5 @@ __all__ = [
     "Lattice",
     "LineLattice",
     "SquareLattice",
-    "TriangularLattice"
-
+    "TriangularLattice",
 ]
