@@ -203,6 +203,6 @@ This project uses the [Apache License 2.0](https://github.com/Qiskit/qiskit-natu
 
 However there is some code that is included under other licensing as follows:
 
-* The [Gaussian 16 driver](https://github.com/Qiskit/qiskit-nature/tree/main/qiskit_nature/drivers/second_quantization/gaussiand) in `qiskit-nature`
-  contains [work](https://github.com/Qiskit/qiskit-nature/tree/main/qiskit_nature/drivers/second_quantization/gaussiand/gauopen) licensed under the
-  [Gaussian Open-Source Public License](https://github.com/Qiskit/qiskit-nature/blob/main/qiskit_nature/drivers/second_quantization/gaussiand/gauopen/LICENSE.txt).
+* The [Gaussian 16 driver](https://github.com/Qiskit/qiskit-nature/tree/main/qiskit_nature/second_q/drivers/gaussiand) in `qiskit-nature`
+  contains [work](https://github.com/Qiskit/qiskit-nature/tree/main/qiskit_nature/second_q/drivers/gaussiand/gauopen) licensed under the
+  [Gaussian Open-Source Public License](https://github.com/Qiskit/qiskit-nature/blob/main/qiskit_nature/second_q/drivers/gaussiand/gauopen/LICENSE.txt).

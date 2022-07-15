@@ -25,7 +25,7 @@ class VibrationalMapper(QubitMapper):
 
     @abstractmethod
     def map(self, second_q_op: VibrationalOp) -> PauliSumOp:
-        """Maps a :class:`~qiskit_nature.operators.second_quantization.VibrationalOp`
+        """Maps a :class:`~qiskit_nature.second_q.operators.VibrationalOp`
         to a `PauliSumOp`.
 
         Args:

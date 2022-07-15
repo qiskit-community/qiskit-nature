@@ -25,7 +25,7 @@ class SpinMapper(QubitMapper):
 
     @abstractmethod
     def map(self, second_q_op: SpinOp) -> PauliSumOp:
-        """Maps a :class:`~qiskit_nature.operators.second_quantization.SpinOp` to a `PauliSumOp`.
+        """Maps a :class:`~qiskit_nature.second_q.operators.SpinOp` to a `PauliSumOp`.
 
         Args:
             second_q_op: the `SpinOp` to be mapped.
