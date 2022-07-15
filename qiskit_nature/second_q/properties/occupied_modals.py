@@ -76,7 +76,7 @@ class OccupiedModals(VibrationalProperty):
             An instance of this property.
 
         Raises:
-            QiskitNatureError: if a :class:`~qiskit_nature.second_q.Rdrivers.QMolecule` is provided.
+            QiskitNatureError: if a :class:`~qiskit_nature.second_q.drivers.QMolecule` is provided.
         """
         cls._validate_input_type(result, WatsonHamiltonian)
 

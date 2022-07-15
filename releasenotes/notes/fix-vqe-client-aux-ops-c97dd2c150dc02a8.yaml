@@ -1,0 +1,4 @@
+---
+fixes:
+  - |
+    The gathering of the auxiliary operator results when using the VQEClient.
