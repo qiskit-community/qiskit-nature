@@ -19,6 +19,7 @@ from qiskit.quantum_info.operators import Pauli
 
 from qiskit_nature.second_q.operators import VibrationalOp
 from .vibrational_mapper import VibrationalMapper
+from .qubit_mapper import QubitMapper
 
 
 class DirectMapper(VibrationalMapper):  # pylint: disable=missing-class-docstring
@@ -42,4 +43,4 @@ class DirectMapper(VibrationalMapper):  # pylint: disable=missing-class-docstrin
             b_x = np.asarray([0] * i + [1] + [0] * (nmodes - i - 1), dtype=bool)
             pauli_table.append((Pauli((a_z, a_x)), Pauli((b_z, b_x))))
 
-        return VibrationalMapper.mode_based_mapping(second_q_op, pauli_table)
+        return QubitMapper.mode_based_mapping(second_q_op, pauli_table)

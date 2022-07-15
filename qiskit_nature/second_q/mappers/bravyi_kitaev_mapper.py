@@ -18,6 +18,7 @@ from qiskit.quantum_info.operators import Pauli
 
 from qiskit_nature.second_q.operators import FermionicOp
 from .fermionic_mapper import FermionicMapper
+from .qubit_mapper import QubitMapper
 
 
 class BravyiKitaevMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
@@ -157,4 +158,4 @@ class BravyiKitaevMapper(FermionicMapper):  # pylint: disable=missing-class-docs
             pauli1.phase = 0
             pauli2.phase = 0
 
-        return FermionicMapper.mode_based_mapping(second_q_op, pauli_table)
+        return QubitMapper.mode_based_mapping(second_q_op, pauli_table)
