@@ -17,7 +17,9 @@ import tempfile
 from test import QiskitNatureTestCase
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.hdf5 import load_from_hdf5, save_to_hdf5
-from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
+from qiskit_nature.second_q.properties import (
+    ElectronicStructureDriverResult,
+)
 
 
 class TestHDF5(QiskitNatureTestCase):
@@ -29,7 +31,7 @@ class TestHDF5(QiskitNatureTestCase):
             driver_result = load_from_hdf5(
                 self.get_resource_path(
                     "electronic_structure_driver_result.hdf5",
-                    "properties/second_quantization/electronic/resources",
+                    "second_q/properties/resources",
                 )
             )
             self.assertTrue(isinstance(driver_result, ElectronicStructureDriverResult))
@@ -71,7 +73,7 @@ class TestHDF5(QiskitNatureTestCase):
         driver_result = load_from_hdf5(
             self.get_resource_path(
                 "electronic_structure_driver_result.hdf5",
-                "properties/second_quantization/electronic/resources",
+                "second_q/properties/resources",
             )
         )
 

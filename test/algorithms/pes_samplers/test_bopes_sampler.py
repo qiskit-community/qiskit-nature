@@ -16,10 +16,10 @@ import unittest
 from functools import partial
 from test import QiskitNatureTestCase
 
+import numpy as np
+
 from qiskit.opflow import PauliOp
 from qiskit.quantum_info import Pauli
-
-import numpy as np
 
 import qiskit
 from qiskit.algorithms import NumPyMinimumEigensolver, VQE
