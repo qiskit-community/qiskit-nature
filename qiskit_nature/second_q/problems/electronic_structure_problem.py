@@ -51,14 +51,14 @@ class ElectronicStructureProblem(BaseProblem):
 
             The default filter_criterion assumes a singlet spin configuration. This means, that the
             number of alpha-spin electrons is equal to the number of beta-spin electrons.
-            If the :class:`~qiskit_nature.properties.second_quantization.electronic.AngularMomentum`
+            If the :class:`~qiskit_nature.second_q.properties.AngularMomentum`
             property is available, one can correctly filter a non-singlet spin configuration with a
             custom `filter_criterion` similar to the following:
 
         .. code-block:: python
 
             import numpy as np
-            from qiskit_nature.algorithms import NumPyEigensolverFactory
+            from qiskit_nature.second_q.algorithms import NumPyEigensolverFactory
 
             expected_spin = 2
             expected_num_electrons = 6
