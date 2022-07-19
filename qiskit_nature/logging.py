@@ -73,7 +73,7 @@ class QiskitNatureLogging:
         """Return logging levels for module names.
 
         Args:
-            names: list of module names (qiskit_nature.drivers, qiskit.algorithms etc)
+            names: list of module names (qiskit_nature.second_q.drivers, qiskit.algorithms etc)
         Returns:
             Dictionary mapping names to effective level
         """
@@ -89,7 +89,7 @@ class QiskitNatureLogging:
         """Set logging levels for module names.
 
         Args:
-            name_levels: Dictionary of module names (qiskit_nature.drivers, qiskit.algorithms etc)
+            name_levels: Dictionary of module names (qiskit_nature.second_q, qiskit.algorithms etc)
                          to desired level
             add_default_handler: add or not the default stream handler
         """
@@ -138,7 +138,7 @@ class QiskitNatureLogging:
         """Remove all handlers from modules.
 
         Args:
-            names: list of module names (qiskit_nature.drivers, qiskit.algorithms etc)
+            names: list of module names (qiskit_nature.second_q.drivers, qiskit.algorithms etc)
         """
         for name in names:
             logger = python_logging.getLogger(name)
@@ -150,7 +150,7 @@ class QiskitNatureLogging:
         """Remove default handler from modules.
 
         Args:
-            names: list of module names (qiskit_nature.drivers, qiskit.algorithms etc)
+            names: list of module names (qiskit_nature.second_q.drivers, qiskit.algorithms etc)
         """
         for name in names:
             logger = python_logging.getLogger(name)
@@ -165,7 +165,7 @@ class QiskitNatureLogging:
         """Logs modules to file.
 
         Args:
-            names: list of module names (qiskit_nature.drivers, qiskit.algorithms etc)
+            names: list of module names (qiskit_nature.second_q.drivers, qiskit.algorithms etc)
             path: file path
             mode: file open mode. If it is not specified, 'a' is used to append
         Returns:
