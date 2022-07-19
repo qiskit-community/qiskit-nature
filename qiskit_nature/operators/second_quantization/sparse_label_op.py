@@ -1,6 +1,8 @@
 from __future__ import annotations
 from abc import abstractmethod, abstractclassmethod, ABC
-from typing import Dict
+from typing import Dict, Iterator
+import math
+from xmlrpc.client import Boolean
 
 from qiskit.opflow.mixins import StarAlgebraMixin
 from qiskit.quantum_info.operators.mixins import TolerancesMixin
@@ -30,23 +32,62 @@ class SparseLabelOp(StarAlgebraMixin, TolerancesMixin, ABC):
             )
         return self.__class__( #Max to think about...
             [(label, coeff * other) for label, coeff in self._data],
-            register_length=self.register_length,
+            register_length=self._register_length,
         )
 
     def compose(self, other: SparseLabelOp) -> SparseLabelOp:
-        if not isinstance(other, SparseLabelOp):
+        """Composes two ``SparseLabelOp`` instances.
+
+        Args:
+            other: another instance of ``SparseLabelOp``.
+
+        Returns:
+            Either a zero operator or a new instance of ``SparseLabelOp``.
+        """
+        if not isinstance(other, self.__class__):
             raise TypeError(
-                f"Unsupported operand type(s) for *: 'SparseLabelOp' and '{type(other).__name__}'"
+                f"Compose arguments must be same type, but '{type(self).__name__}' and '{type(other).__name__}' provided"
             )
 
-        new_data = #Max to think about... something with commutativity
-        register_length = max(self.register_length, other.register_length)
+        new_data = list(
+            filter(
+                lambda x: x[1] != 0,
+                (
+                    (label1 + label2, cf1 * cf2)
+                    for label2, cf2 in other._data
+                    for label1, cf1 in self._data
+                ),
+            )
+        )
+        register_length = max(self._register_length, other._register_length)
         if not new_data:
             return self.__class__.zero(register_length)
         return self.__class__(new_data, register_length)
     
     def adjoint(self) -> SparseLabelOp:
-        return # Max to think about...
+        """Compute the Adjoint of the operator"""
+        new_data = {val: val.conjugate() for val in self._data}
+        return self.__class__(new_data, self._register_length)
+
+    def __eq__(self, other) -> Boolean:
+        """Check equality of two ``SparseLabelOp`` instances
+        
+        Args:
+            other: the second ``SparseLabelOp`` to compare the first with.
+
+        Returns:
+            Bool: True if operators are equal, False if not.
+        """
+        if set(self._data.keys()) != set(other._data.keys()):
+            return False
+        for key, val in self._data.items():
+            if not math.isclose(val, other._data[key], rel_tol=self.rtol, abs_tol=self.atol):
+                return False
+        return True
+    
+    def __iter__(self) -> Iterator[SparseLabelOp]:
+        """Iterate through SparseLabelOp items"""
+        return iter(self._data.items())
 
     @abstractmethod
     def commutativity(self) -> bool:
