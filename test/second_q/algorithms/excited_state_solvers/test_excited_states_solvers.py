@@ -13,12 +13,14 @@
 """ Test Numerical qEOM excited states calculation """
 
 import unittest
+
 from test import QiskitNatureTestCase
 import numpy as np
 from qiskit import BasicAer
 from qiskit.utils import algorithm_globals, QuantumInstance
 from qiskit.algorithms import NumPyMinimumEigensolver, NumPyEigensolver
 
+from qiskit_nature.second_q.transformers import ActiveSpaceTransformer
 from qiskit_nature.second_q.drivers import UnitsType
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import (
@@ -150,6 +152,66 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
 
         for idx, energy in enumerate(self.reference_energies):
             self.assertAlmostEqual(computed_energies[idx], energy, places=4)
+
+    def test_custom_filter_criterion(self):
+        """Test NumPyEigenSolverFactory with ExcitedStatesEigensolver + Custom filter criterion"""
+
+        driver = PySCFDriver(
+            atom="Be .0 .0 .0; H .0 .0 0.75",
+            unit=UnitsType.ANGSTROM,
+            charge=0,
+            spin=1,
+            basis="sto3g",
+        )
+
+        transformer = ActiveSpaceTransformer(
+            num_electrons=(1, 4),
+            num_molecular_orbitals=4,
+        )
+        # We define an ActiveSpaceTransformer to reduce the duration of this test example.
+
+        converter = QubitConverter(JordanWignerMapper(), z2symmetry_reduction="auto")
+
+        esp = ElectronicStructureProblem(driver, [transformer])
+
+        expected_spin = 0.75  # Doublet states
+        expected_num_electrons = 3
+
+        # pylint: disable=unused-argument
+        def custom_filter_criterion(eigenstate, eigenvalue, aux_values):
+            num_particles_aux = aux_values["ParticleNumber"][0]
+            total_angular_momentum_aux = aux_values["AngularMomentum"][0]
+
+            return np.isclose(expected_spin, total_angular_momentum_aux) and np.isclose(
+                expected_num_electrons, num_particles_aux
+            )
+
+        solver = NumPyEigensolverFactory(filter_criterion=custom_filter_criterion)
+        esc = ExcitedStatesEigensolver(converter, solver)
+        results = esc.solve(esp)
+
+        # filter duplicates from list
+        computed_energies = [results.computed_energies[0]]
+        for comp_energy in results.computed_energies[1:]:
+            if not np.isclose(comp_energy, computed_energies[-1]):
+                computed_energies.append(comp_energy)
+
+        ref_energies = [
+            -16.349993424338262,
+            -15.804096126512256,
+            -12.093285010134545,
+            -11.812014019410089,
+            -11.774487487199583,
+            -11.192145243311225,
+            -11.040667487562008,
+            -6.082175294589466,
+            -5.665974336141678,
+            -5.5470290884167905,
+            -5.003061800514367,
+        ]
+
+        for idx, energy in enumerate(ref_energies):
+            self.assertAlmostEqual(computed_energies[idx], energy, places=3)
 
 
 if __name__ == "__main__":
