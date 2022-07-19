@@ -154,7 +154,8 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
             self.assertAlmostEqual(computed_energies[idx], energy, places=4)
 
     def test_custom_filter_criterion(self):
-        """Test NumPyEigenSolverFactory with ExcitedStatesEigensolver + Custom filter criterion"""
+        """Test NumPyEigenSolverFactory with ExcitedStatesEigensolver + Custom filter criterion
+        for doublet states """
 
         driver = PySCFDriver(
             atom="Be .0 .0 .0; H .0 .0 0.75",
