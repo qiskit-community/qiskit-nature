@@ -175,7 +175,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         esp = ElectronicStructureProblem(driver, [transformer])
 
         expected_spin = 0.75  # Doublet states
-        expected_num_electrons = 3
+        expected_num_electrons = 3 # 1+2
 
         # pylint: disable=unused-argument
         def custom_filter_criterion(eigenstate, eigenvalue, aux_values):
