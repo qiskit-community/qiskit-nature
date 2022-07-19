@@ -43,10 +43,13 @@ class SparseLabelOp(StarAlgebraMixin, TolerancesMixin, ABC):
 
         Returns:
             Either a zero operator or a new instance of ``SparseLabelOp``.
+        
+        Raises:
+            TypeError: invalid operator type provided
         """
         if not isinstance(other, self.__class__):
             raise TypeError(
-                f"Compose arguments must be same type, but '{type(self).__name__}' and '{type(other).__name__}' provided"
+                f"Compose argument must be of type '{type(self).__name__}', but type '{type(other).__name__}' provided"
             )
 
         new_data = list(
@@ -93,7 +96,7 @@ class SparseLabelOp(StarAlgebraMixin, TolerancesMixin, ABC):
     def commutativity(self) -> bool:
         # a*b = b*a OR -b*a, communtativity tells you if +/-1
         # return true if commutes (+1), false if anti-commutes
-        # return true default
+        # return true default ?
         ...
 
     @abstractmethod
