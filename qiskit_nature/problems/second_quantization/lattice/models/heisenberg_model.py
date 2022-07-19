@@ -10,7 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"The Heisenberg model"
+"""The Heisenberg model."""
+
 import logging
 from typing import Optional
 from fractions import Fraction
