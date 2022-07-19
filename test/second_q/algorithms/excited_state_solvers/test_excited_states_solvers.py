@@ -165,7 +165,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         )
 
         transformer = ActiveSpaceTransformer(
-            num_electrons=(1, 4),
+            num_electrons=(1, 2),
             num_molecular_orbitals=4,
         )
         # We define an ActiveSpaceTransformer to reduce the duration of this test example.
@@ -197,17 +197,12 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
                 computed_energies.append(comp_energy)
 
         ref_energies = [
-            -16.349993424338262,
-            -15.804096126512256,
-            -12.093285010134545,
-            -11.812014019410089,
-            -11.774487487199583,
-            -11.192145243311225,
-            -11.040667487562008,
-            -6.082175294589466,
-            -5.665974336141678,
-            -5.5470290884167905,
-            -5.003061800514367,
+            -2.6362023196223254,
+            -2.2971398524128923,
+            -2.2020252702733165,
+            -2.1044859216523752,
+            -1.696132447109807,
+            -1.6416831059956618,
         ]
 
         for idx, energy in enumerate(ref_energies):
