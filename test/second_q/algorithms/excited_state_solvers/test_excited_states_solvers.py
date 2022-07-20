@@ -155,7 +155,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
 
     def test_custom_filter_criterion(self):
         """Test NumPyEigenSolverFactory with ExcitedStatesEigensolver + Custom filter criterion
-        for doublet states """
+        for doublet states"""
 
         driver = PySCFDriver(
             atom="Be .0 .0 .0; H .0 .0 0.75",
