@@ -84,6 +84,9 @@ class MP2InitialPoint(InitialPoint):
         self._reference_energy: float = 0.0
         self._corrections: list[_Correction] | None = None
 
+        # Second order cluster operator amplitudes with PySCF indexing.
+        self._t2: np.ndarray | None = None
+
     @property
     def ansatz(self) -> UCC:
         """The UCC ansatz.
@@ -98,8 +101,7 @@ class MP2InitialPoint(InitialPoint):
         # Operators must be built early to compute the excitation list.
         _ = ansatz.operators
 
-        # Invalidate any previous computation.
-        self._corrections = None
+        self._invalidate()
 
         self._excitation_list = ansatz.excitation_list
         self._ansatz = ansatz
@@ -114,8 +116,7 @@ class MP2InitialPoint(InitialPoint):
 
     @excitation_list.setter
     def excitation_list(self, excitations: list[tuple[tuple[int, ...], tuple[int, ...]]]):
-        # Invalidate any previous computation.
-        self._corrections = None
+        self._invalidate()
 
         self._excitation_list = excitations
 
@@ -168,10 +169,16 @@ class MP2InitialPoint(InitialPoint):
                 "See https://github.com/Qiskit/qiskit-nature/issues/645."
             )
 
-        # Invalidate any previous computation.
-        self._corrections = None
+        self._invalidate()
 
         self._orbital_energies = orbital_energies
+
+        # Create matrix to store second order cluster operator amplitudes.
+        num_mo = self._integral_matrix.shape[0]
+        num_occ = len(self._orbital_energies[self._orbital_energies < 0.0])
+        num_vir = num_mo - num_occ
+        self._t2 = np.zeros((num_occ, num_occ, num_vir, num_vir))
+
         self._reference_energy = electronic_energy.reference_energy if not None else 0.0
         self._grouped_property = grouped_property
 
@@ -191,8 +198,7 @@ class MP2InitialPoint(InitialPoint):
         except TypeError:
             threshold = 0.0
 
-        # Invalidate any previous computation.
-        self._corrections = None
+        self._invalidate()
 
         self._threshold = threshold
 
@@ -285,13 +291,23 @@ class MP2InitialPoint(InitialPoint):
         orbital_energies = self._orbital_energies
         threshold = self._threshold
 
-        # Infer the number of molecular orbitals from the MO matrix.
-        num_molecular_orbitals: int = integral_matrix.shape[0]
+        num_mo = integral_matrix.shape[0]
+        num_occ = self._t2.shape[0]
 
-        i = excitation[0][0] % num_molecular_orbitals
-        j = excitation[0][1] % num_molecular_orbitals
-        a = excitation[1][0] % num_molecular_orbitals
-        b = excitation[1][1] % num_molecular_orbitals
+        # Occupied orbitals
+        i = excitation[0][0] % num_mo
+        j = excitation[0][1] % num_mo
+
+        # Virtual orbitals
+        a = excitation[1][0] % num_mo
+        b = excitation[1][1] % num_mo
+        a_vir = a - num_occ
+        b_vir = b - num_occ
+
+        if self._t2[i, j, a_vir, b_vir]:
+            # Check if this has already been computed for a symmetric counterpart.
+            # Do not duplicate equivilent corrections.
+            return _Correction(excitation=excitation)
 
         expectation_value_iajb = integral_matrix[i, a, j, b]
         expectation_value_ibja = integral_matrix[i, b, j, a]
@@ -305,6 +321,10 @@ class MP2InitialPoint(InitialPoint):
 
         energy_correction = coefficient * expectation_value_iajb
         energy_correction = energy_correction if abs(energy_correction) > threshold else 0.0
+
+        if coefficient:
+            # Store coefficient in T2 tensor with indexing to match PySCF.
+            self._t2[i, j, a_vir, b_vir] += coefficient
 
         return _Correction(excitation=excitation, coefficient=coefficient, energy=energy_correction)
 
@@ -332,3 +352,7 @@ class MP2InitialPoint(InitialPoint):
         this will be equal to :meth:`get_energy_correction`.
         """
         return self._reference_energy + self.get_energy_correction()
+
+    def _invalidate(self):
+        """Invalidate any previous computation."""
+        self._corrections = None
