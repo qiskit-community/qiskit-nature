@@ -10,6 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+"""Some expected VibrationalOps."""
+
 from qiskit_nature.operators.second_quantization import VibrationalOp
 
 _truncation_order_1_op = VibrationalOp(
