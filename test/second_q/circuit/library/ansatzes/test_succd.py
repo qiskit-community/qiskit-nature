@@ -13,15 +13,15 @@
 """Test the SUCCD Ansatz."""
 
 from test import QiskitNatureTestCase
-from test.second_q.circuit.library.ansatzes.test_ucc import assert_ucc_like_ansatz
+from test.circuit.library.ansatzes.test_ucc import assert_ucc_like_ansatz
 
 from ddt import ddt, data, unpack
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_q.circuit.library import SUCCD
-from qiskit_nature.second_q.mappers import JordanWignerMapper
-from qiskit_nature.second_q.operators import FermionicOp
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.circuit.library import SUCCD
+from qiskit_nature.mappers.second_quantization import JordanWignerMapper
+from qiskit_nature.operators.second_quantization import FermionicOp
+from qiskit_nature.converters.second_quantization import QubitConverter
 
 
 @ddt
@@ -147,6 +147,34 @@ class TestSUCCD(QiskitNatureTestCase):
             num_particles=num_particles,
             num_spin_orbitals=num_spin_orbitals,
             generalized=True,
+        )
+
+        assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)
+
+    @unpack
+    @data(
+        (
+            6,
+            (1, 1),
+            [
+                FermionicOp([("+-I+-I", 1j), ("-+I-+I", -1j)], display_format="dense"),
+                FermionicOp(
+                    [("+-I+I-", 1j), ("-+I-I+", -1j), ("+I-+-I", 1j), ("-I+-+I", -1j)],
+                    display_format="dense",
+                ),
+                FermionicOp([("+I-+I-", 1j), ("-I+-I+", -1j)], display_format="dense"),
+            ],
+        ),
+    )
+    def test_succ_full(self, num_spin_orbitals, num_particles, expect):
+        """Tests the generalized SUCCD Ansatz."""
+        converter = QubitConverter(JordanWignerMapper())
+
+        ansatz = SUCCD(
+            qubit_converter=converter,
+            num_particles=num_particles,
+            num_spin_orbitals=num_spin_orbitals,
+            mirror=True,
         )
 
         assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)
