@@ -13,15 +13,15 @@
 """Test the SUCCD Ansatz."""
 
 from test import QiskitNatureTestCase
-from test.circuit.library.ansatzes.test_ucc import assert_ucc_like_ansatz
+from test.second_q.circuit.library.ansatzes.test_ucc import assert_ucc_like_ansatz
 
 from ddt import ddt, data, unpack
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.circuit.library import SUCCD
-from qiskit_nature.mappers.second_quantization import JordanWignerMapper
-from qiskit_nature.operators.second_quantization import FermionicOp
-from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.second_q.circuit.library import SUCCD
+from qiskit_nature.second_q.mappers import JordanWignerMapper
+from qiskit_nature.second_q.operators import FermionicOp
+from qiskit_nature.second_q.mappers import QubitConverter
 
 
 @ddt
@@ -167,7 +167,7 @@ class TestSUCCD(QiskitNatureTestCase):
         ),
     )
     def test_succ_full(self, num_spin_orbitals, num_particles, expect):
-        """Tests the generalized SUCCD Ansatz."""
+        """Tests the SUCCD_full Ansatz."""
         converter = QubitConverter(JordanWignerMapper())
 
         ansatz = SUCCD(

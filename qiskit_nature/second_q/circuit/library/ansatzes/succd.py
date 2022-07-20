@@ -76,7 +76,7 @@ class SUCCD(UCC):
                 particles.
             mirror: boolean flag whether or not to include the symmetrically mirrored double
                   excitations, while keeping the original number of circuit parameters.
-                  This results in mirrored excitations having identical parametrization values.
+                  This results in mirrored excitations having identical parameter values.
         Raises:
             QiskitNatureError: if the number of alpha and beta electrons is not equal.
         """
@@ -215,7 +215,7 @@ class SUCCD(UCC):
         Returns:
             The list of excitation operators in the second quantized formalism.
         """
-        operators : List[FermionicOp] = []
+        operators: List[FermionicOp] = []
         excitations_dictionary: Dict[
             str, List[Tuple[Tuple[int, ...], Tuple[int, ...]]]
         ] = defaultdict(list)
