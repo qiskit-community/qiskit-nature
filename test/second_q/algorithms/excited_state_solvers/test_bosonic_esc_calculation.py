@@ -29,9 +29,6 @@ from qiskit_nature.second_q._watson_hamiltonian import WatsonHamiltonian
 from qiskit_nature.second_q.drivers import VibrationalStructureDriver
 from qiskit_nature.second_q.mappers import DirectMapper
 from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.problems import (
-    VibrationalStructureProblem,
-)
 
 from qiskit_nature.second_q.algorithms import (
     GroundStateEigensolver,
@@ -41,6 +38,7 @@ from qiskit_nature.second_q.algorithms import (
     ExcitedStatesEigensolver,
     NumPyEigensolverFactory,
 )
+from qiskit_nature.second_q.problems import VibrationalStructureProblem
 from qiskit_nature.second_q.properties import (
     VibrationalStructureDriverResult,
 )
@@ -63,7 +61,9 @@ class _DummyBosonicDriver(VibrationalStructureDriver):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             watson = WatsonHamiltonian(modes, 2)
-            self._driver_result = VibrationalStructureDriverResult.from_legacy_driver_result(watson)
+            self._driver_result = VibrationalStructureProblem.from_legacy_driver_result(
+                VibrationalStructureDriverResult.from_legacy_driver_result(watson)
+            )
 
     def run(self):
         """Run dummy driver to return test watson hamiltonian"""
@@ -88,9 +88,9 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
         self.basis_size = 2
         self.truncation_order = 2
 
-        self.vibrational_problem = VibrationalStructureProblem(
-            self.driver, self.basis_size, self.truncation_order
-        )
+        self.vibrational_problem = self.driver.run()
+        self.vibrational_problem.num_modals = self.basis_size
+        self.vibrational_problem.truncation_order = self.truncation_order
 
     def test_numpy_mes(self):
         """Test with NumPyMinimumEigensolver"""

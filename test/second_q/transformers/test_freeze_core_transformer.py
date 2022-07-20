@@ -48,8 +48,8 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
 
         # The references which we compare too were produced by the `ActiveSpaceTransformer` and,
         # thus, the key here needs to stay the same as in that test case.
-        driver_result.get_property("ElectronicEnergy")._shift["ActiveSpaceTransformer"] = 0.0
-        for prop in iter(driver_result.get_property("ElectronicDipoleMoment")):
+        driver_result.hamiltonian._shift["ActiveSpaceTransformer"] = 0.0
+        for prop in iter(driver_result.properties["ElectronicDipoleMoment"]):
             prop._shift["ActiveSpaceTransformer"] = 0.0
 
         trafo = FreezeCoreTransformer(**kwargs)
@@ -88,7 +88,7 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
         expected = HDF5Driver(
             hdf5_input=self.get_resource_path("BeH_sto3g_reduced.hdf5", "second_q/transformers")
         ).run()
-        expected.get_property("ParticleNumber")._num_spin_orbitals = 6
+        expected.properties["ParticleNumber"]._num_spin_orbitals = 6
 
         self.assertDriverResult(driver_result_reduced, expected, dict_key="FreezeCoreTransformer")
 
@@ -105,8 +105,8 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
         trafo = FreezeCoreTransformer(freeze_core=False)
         driver_result_reduced = trafo.transform(driver_result)
 
-        electronic_energy = driver_result_reduced.get_property("ElectronicEnergy")
-        electronic_energy_exp = driver_result.get_property("ElectronicEnergy")
+        electronic_energy = driver_result_reduced.hamiltonian
+        electronic_energy_exp = driver_result.hamiltonian
         with self.subTest("MO 1-electron integrals"):
             np.testing.assert_array_almost_equal(
                 electronic_energy.get_electronic_integral(ElectronicBasis.MO, 1).to_spin(),

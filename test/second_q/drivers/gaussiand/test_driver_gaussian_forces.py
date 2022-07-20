@@ -175,7 +175,7 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             expected_watson = WatsonHamiltonian(expected_watson_data, 4)
         expected = VibrationalEnergy.from_legacy_driver_result(expected_watson)
-        true_vib_energy = cast(VibrationalEnergy, prop.get_property(VibrationalEnergy))
+        true_vib_energy = cast(VibrationalEnergy, prop.hamiltonian)
 
         with self.subTest("one-body terms"):
             expected_one_body = expected.get_vibrational_integral(1)

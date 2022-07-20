@@ -27,9 +27,9 @@ from qiskit_nature import QiskitNatureError
 from qiskit_nature.constants import BOHR, PERIODIC_TABLE
 from qiskit_nature.exceptions import UnsupportMethodError
 import qiskit_nature.optionals as _optionals
+from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.properties.driver_metadata import DriverMetadata
 from qiskit_nature.second_q.properties import (
-    ElectronicStructureDriverResult,
     AngularMomentum,
     Magnetization,
     ParticleNumber,
@@ -156,7 +156,7 @@ class GaussianDriver(ElectronicStructureDriver):
         if method not in [MethodType.RHF, MethodType.ROHF, MethodType.UHF]:
             raise UnsupportMethodError(f"Invalid Gaussian method {method.value}.")
 
-    def run(self) -> ElectronicStructureDriverResult:
+    def run(self) -> ElectronicStructureProblem:
         cfg = self._config
         while not cfg.endswith("\n\n"):
             cfg += "\n"
@@ -190,7 +190,7 @@ class GaussianDriver(ElectronicStructureDriver):
             logger.warning("Failed to remove MatrixElement file %s", fname)
 
         # inject runtime config
-        driver_metadata = driver_result.get_property("DriverMetadata")
+        driver_metadata = driver_result.driver_metadata
         driver_metadata.config = cfg
 
         return driver_result
@@ -264,7 +264,7 @@ class GaussianDriver(ElectronicStructureDriver):
         return cfgaug
 
     @staticmethod
-    def _parse_matrix_file(fname: str, useao2e: bool = False) -> ElectronicStructureDriverResult:
+    def _parse_matrix_file(fname: str, useao2e: bool = False) -> ElectronicStructureProblem:
         """
         get_driver_class is used here because the discovery routine will load all the gaussian
         binary dependencies, if not loaded already. It won't work without it.
@@ -292,23 +292,6 @@ class GaussianDriver(ElectronicStructureDriver):
         mel = MatEl(file=fname)
         logger.debug("MatrixElement file:\n%s", mel)
 
-        driver_result = ElectronicStructureDriverResult()
-
-        # molecule
-        coords = np.reshape(mel.c, (len(mel.ian), 3))
-        geometry: list[tuple[str, list[float]]] = []
-        for atom, xyz in zip(mel.ian, coords):
-            geometry.append((PERIODIC_TABLE[atom], BOHR * xyz))
-
-        driver_result.molecule = Molecule(
-            geometry,
-            multiplicity=mel.multip,
-            charge=mel.icharg,
-        )
-
-        # driver metadata
-        driver_result.add_property(DriverMetadata("GAUSSIAN", mel.gversion, ""))
-
         # basis transform
         moc = GaussianDriver._get_matrix(mel, "ALPHA MO COEFFICIENTS")
         moc_b = GaussianDriver._get_matrix(mel, "BETA MO COEFFICIENTS")
@@ -321,15 +304,10 @@ class GaussianDriver(ElectronicStructureDriver):
         basis_transform = ElectronicBasisTransform(
             ElectronicBasis.AO, ElectronicBasis.MO, moc, moc_b
         )
-        driver_result.add_property(basis_transform)
 
         # particle number
         num_alpha = (mel.ne + mel.multip - 1) // 2
         num_beta = (mel.ne - mel.multip + 1) // 2
-
-        driver_result.add_property(
-            ParticleNumber(num_spin_orbitals=nmo * 2, num_particles=(num_alpha, num_beta))
-        )
 
         # electronic energy
         hcore = GaussianDriver._get_matrix(mel, "CORE HAMILTONIAN ALPHA")
@@ -408,7 +386,27 @@ class GaussianDriver(ElectronicStructureDriver):
         orbital_energies = (orbs_energy, orbs_energy_b) if moc_b is not None else orbs_energy
         electronic_energy.orbital_energies = np.asarray(orbital_energies)
 
-        driver_result.add_property(electronic_energy)
+        driver_result = ElectronicStructureProblem(electronic_energy)
+        driver_result.electronic_basis_transform = basis_transform
+
+        # molecule
+        coords = np.reshape(mel.c, (len(mel.ian), 3))
+        geometry: list[tuple[str, list[float]]] = []
+        for atom, xyz in zip(mel.ian, coords):
+            geometry.append((PERIODIC_TABLE[atom], BOHR * xyz))
+
+        driver_result.molecule = Molecule(
+            geometry,
+            multiplicity=mel.multip,
+            charge=mel.icharg,
+        )
+
+        # driver metadata
+        driver_result.driver_metadata = DriverMetadata("GAUSSIAN", mel.gversion, "")
+
+        driver_result.properties["ParticleNumber"] = ParticleNumber(
+            num_spin_orbitals=nmo * 2, num_particles=(num_alpha, num_beta)
+        )
 
         # dipole moment
         dipints = GaussianDriver._get_matrix(mel, "DIPOLE INTEGRALS")
@@ -425,20 +423,18 @@ class GaussianDriver(ElectronicStructureDriver):
         nucl_dip = np.einsum("i,ix->x", mel.ian, coords)
         nucl_dip = np.round(nucl_dip, decimals=8)
 
-        driver_result.add_property(
-            ElectronicDipoleMoment(
-                [x_dipole, y_dipole, z_dipole],
-                nuclear_dipole_moment=nucl_dip,
-                reverse_dipole_sign=True,
-            )
+        driver_result.properties["ElectronicDipoleMoment"] = ElectronicDipoleMoment(
+            [x_dipole, y_dipole, z_dipole],
+            nuclear_dipole_moment=nucl_dip,
+            reverse_dipole_sign=True,
         )
 
         # extra properties
         # TODO: once https://github.com/Qiskit/qiskit-nature/issues/312 is fixed we can stop adding
         # these properties by default.
         # if not settings.dict_aux_operators:
-        driver_result.add_property(AngularMomentum(nmo * 2))
-        driver_result.add_property(Magnetization(nmo * 2))
+        driver_result.properties["AngularMomentum"] = AngularMomentum(nmo * 2)
+        driver_result.properties["Magnetization"] = Magnetization(nmo * 2)
 
         return driver_result
 

@@ -49,7 +49,7 @@ class TestDriverPSI4Extra(QiskitNatureTestCase):
             ]
         )
         driver_result = driver.run()
-        electronic_energy = cast(ElectronicEnergy, driver_result.get_property(ElectronicEnergy))
+        electronic_energy = cast(ElectronicEnergy, driver_result.hamiltonian)
         self.assertAlmostEqual(electronic_energy.reference_energy, -1.117, places=3)
 
     def test_input_format_string(self):
@@ -70,7 +70,7 @@ scf_type pk
 """
         driver = PSI4Driver(cfg)
         driver_result = driver.run()
-        electronic_energy = cast(ElectronicEnergy, driver_result.get_property(ElectronicEnergy))
+        electronic_energy = cast(ElectronicEnergy, driver_result.hamiltonian)
         self.assertAlmostEqual(electronic_energy.reference_energy, -1.117, places=3)
 
     def test_input_format_fail(self):

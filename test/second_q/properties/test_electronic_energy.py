@@ -40,7 +40,7 @@ class TestElectronicEnergy(PropertyTest):
         driver = HDF5Driver(
             hdf5_input=self.get_resource_path("test_driver_hdf5.hdf5", "second_q/drivers/hdf5d")
         )
-        self.prop = cast(ElectronicEnergy, driver.run().get_property(ElectronicEnergy))
+        self.prop = cast(ElectronicEnergy, driver.run().hamiltonian)
         self.prop.get_electronic_integral(ElectronicBasis.MO, 1).set_truncation(2)
 
     def test_second_q_ops(self):

@@ -12,7 +12,7 @@
 
 """ Test Driver Methods """
 
-from typing import List, Optional
+from typing import cast, List, Optional
 
 import unittest
 
@@ -43,7 +43,10 @@ class TestDriverMethods(QiskitNatureTestCase):
         transformers: Optional[List[BaseTransformer]] = None,
     ):
 
-        problem = ElectronicStructureProblem(driver, transformers)
+        problem = driver.run()
+        if transformers:
+            for trafo in transformers:
+                problem = cast(ElectronicStructureProblem, trafo.transform(problem))
 
         solver = NumPyMinimumEigensolver()
 

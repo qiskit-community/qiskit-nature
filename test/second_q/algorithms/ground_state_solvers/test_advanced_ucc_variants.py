@@ -27,7 +27,6 @@ from qiskit_nature.second_q.circuit.library import HartreeFock, SUCCD, PUCCD
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import ParityMapper
 from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.transformers import FreezeCoreTransformer
 import qiskit_nature.optionals as _optionals
 
@@ -44,9 +43,7 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
 
         self.qubit_converter = QubitConverter(ParityMapper(), two_qubit_reduction=True)
 
-        self.electronic_structure_problem = ElectronicStructureProblem(
-            self.driver, [FreezeCoreTransformer()]
-        )
+        self.electronic_structure_problem = FreezeCoreTransformer().transform(self.driver.run())
 
         self.num_spin_orbitals = 8
         self.num_particles = (1, 1)
@@ -54,9 +51,7 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         # because we create the initial state and ansatzes early, we need to ensure the qubit
         # converter already ran such that convert_match works as expected
         _ = self.qubit_converter.convert(
-            self.electronic_structure_problem.second_q_ops()[
-                self.electronic_structure_problem.main_property_name
-            ],
+            self.electronic_structure_problem.second_q_ops()[0],
             self.num_particles,
         )
 

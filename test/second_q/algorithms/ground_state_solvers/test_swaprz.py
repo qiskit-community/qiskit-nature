@@ -28,7 +28,6 @@ from qiskit_nature.second_q.circuit.library import HartreeFock
 from qiskit_nature.second_q.drivers import HDF5Driver
 from qiskit_nature.second_q.mappers import ParityMapper
 from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.properties import ParticleNumber
 
 
@@ -56,13 +55,11 @@ class TestExcitationPreserving(QiskitNatureTestCase):
 
         converter = QubitConverter(ParityMapper())
 
-        problem = ElectronicStructureProblem(driver)
+        problem = driver.run()
 
         _ = problem.second_q_ops()
 
-        particle_number = cast(
-            ParticleNumber, problem.grouped_property_transformed.get_property(ParticleNumber)
-        )
+        particle_number = cast(ParticleNumber, problem.properties["ParticleNumber"])
         num_particles = (particle_number.num_alpha, particle_number.num_beta)
         num_spin_orbitals = particle_number.num_spin_orbitals
 

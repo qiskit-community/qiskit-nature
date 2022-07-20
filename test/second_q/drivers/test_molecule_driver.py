@@ -82,7 +82,7 @@ class TestElectronicStructureMoleculeDriver(QiskitNatureTestCase):
             driver_result = driver.run()
         except MissingOptionalLibraryError as ex:
             self.skipTest(str(ex))
-        electronic_energy = cast(ElectronicEnergy, driver_result.get_property(ElectronicEnergy))
+        electronic_energy = cast(ElectronicEnergy, driver_result.hamiltonian)
         self.assertAlmostEqual(electronic_energy.reference_energy, hf_energy, places=5)
 
     @data(
@@ -216,7 +216,7 @@ class TestVibrationalStructureMoleculeDriver(QiskitNatureTestCase):
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             expected_watson = WatsonHamiltonian(expected_watson_data, 4)
             expected = VibrationalEnergy.from_legacy_driver_result(expected_watson)
-        true_vib_energy = cast(VibrationalEnergy, watson.get_property(VibrationalEnergy))
+        true_vib_energy = cast(VibrationalEnergy, watson.hamiltonian)
 
         with self.subTest("one-body terms"):
             expected_one_body = expected.get_vibrational_integral(1)

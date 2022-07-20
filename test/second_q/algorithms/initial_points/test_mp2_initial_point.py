@@ -29,16 +29,11 @@ from qiskit_nature.second_q.drivers.electronic_structure_molecule_driver import 
     ElectronicStructureDriverType,
     ElectronicStructureMoleculeDriver,
 )
-from qiskit_nature.second_q.problems.electronic_structure_problem import (
-    ElectronicStructureProblem,
-)
+from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.second_q.properties.integrals.electronic_integrals import (
     ElectronicIntegrals,
 )
 from qiskit_nature.second_q.properties import ElectronicEnergy
-from qiskit_nature.second_q.properties.second_quantized_property import (
-    GroupedSecondQuantizedProperty,
-)
 from qiskit_nature.settings import settings
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import UCC
@@ -63,8 +58,8 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         electronic_integrals = Mock(spec=ElectronicIntegrals)
         electronic_integrals.get_matrix = Mock(return_value=[0])
         electronic_energy.get_electronic_integral = Mock(return_value=electronic_integrals)
-        self.mock_grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
-        self.mock_grouped_property.get_property = Mock(return_value=electronic_energy)
+        self.mock_grouped_property = Mock(spec=BaseProblem)
+        self.mock_grouped_property.hamiltonian = electronic_energy
 
     def test_no_threshold(self):
         """Test when no threshold is provided."""
@@ -102,7 +97,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
     def test_no_electronic_energy(self):
         """Test when the electronic energy is missing."""
 
-        self.mock_grouped_property.get_property = Mock(return_value=None)
+        self.mock_grouped_property.hamiltonian = None
         mp2_initial_point = MP2InitialPoint()
         with self.assertRaises(QiskitNatureError):
             mp2_initial_point.compute(
@@ -115,7 +110,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         electronic_energy = Mock(spec=ElectronicEnergy)
         electronic_energy.orbital_energies = Mock(np.ndarray)
         electronic_energy.get_electronic_integral = Mock(return_value=None)
-        self.mock_grouped_property.get_property = Mock(return_value=electronic_energy)
+        self.mock_grouped_property.hamiltonian = electronic_energy
 
         mp2_initial_point = MP2InitialPoint()
         with self.assertRaises(QiskitNatureError):
@@ -130,7 +125,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         electronic_energy = Mock(spec=ElectronicEnergy)
         electronic_energy.get_electronic_integral = Mock(return_value=electronic_integrals)
         electronic_energy.orbital_energies = None
-        self.mock_grouped_property.get_property = Mock(return_value=electronic_energy)
+        self.mock_grouped_property.hamiltonian = electronic_energy
 
         ansatz = Mock(spec=UCC)
         ansatz.excitation_list = self.excitation_list
@@ -187,8 +182,8 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         electronic_energy = Mock(spec=ElectronicEnergy)
         electronic_energy.orbital_energies = Mock(spec=np.ndarray)
         electronic_energy.get_electronic_integral = Mock(return_value=electronic_integrals)
-        grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
-        grouped_property.get_property = Mock(return_value=electronic_energy)
+        grouped_property = Mock(spec=BaseProblem)
+        grouped_property.hamiltonian = electronic_energy
 
         ansatz = Mock(spec=UCC)
         ansatz.excitation_list = self.excitation_list
@@ -231,18 +226,16 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
             driver = ElectronicStructureMoleculeDriver(
                 molecule, basis="sto3g", driver_type=ElectronicStructureDriverType.PYSCF
             )
-            problem = ElectronicStructureProblem(driver)
+            problem = driver.run()
             problem.second_q_ops()
         except MissingOptionalLibraryError:
             self.skipTest("PySCF driver does not appear to be installed.")
-
-        driver_result = problem.grouped_property_transformed
 
         ansatz = Mock(spec=UCC)
         ansatz.excitation_list = excitations
 
         mp2_initial_point = MP2InitialPoint()
-        mp2_initial_point.grouped_property = driver_result
+        mp2_initial_point.grouped_property = problem
         mp2_initial_point.ansatz = ansatz
 
         with self.subTest("Test MP2 initial point array."):

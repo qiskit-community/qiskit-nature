@@ -49,7 +49,7 @@ class TestJordanWignerMapper(QiskitNatureTestCase):
             hdf5_input=self.get_resource_path("test_driver_hdf5.hdf5", "second_q/drivers/hdf5d")
         )
         driver_result = driver.run()
-        fermionic_op = driver_result.second_q_ops()["ElectronicEnergy"]
+        fermionic_op = driver_result.second_q_ops()[0]
         mapper = JordanWignerMapper()
         qubit_op = mapper.map(fermionic_op)
 

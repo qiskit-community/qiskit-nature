@@ -17,7 +17,6 @@ import numpy as np
 
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 from qiskit.opflow import PauliSumOp
-from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 
@@ -31,28 +30,21 @@ from .eigenstate_result import EigenstateResult
 class LatticeModelProblem(BaseProblem):
     """Lattice Model Problem class to create second quantized operators from a lattice model."""
 
-    def __init__(self, lattice_model: LatticeModel) -> None:
+    def __init__(self, hamiltonian: LatticeModel) -> None:
         """
         Args:
             lattice_model: A lattice model class to create second quantized operators.
         """
-        super().__init__(main_property_name="LatticeEnergy")
-        self._lattice_model = lattice_model
+        super().__init__(hamiltonian)
 
-    def second_q_ops(self) -> ListOrDictType[SecondQuantizedOp]:
+    def second_q_ops(self) -> Tuple[SecondQuantizedOp, Optional[Dict[str, SecondQuantizedOp]]]:
         """Returns the second quantized operators created based on the lattice models.
 
         Returns:
             A ``list`` or ``dict`` of
             :class:`~qiskit_nature.second_q.operators.SecondQuantizedOp`
         """
-        second_q_ops: ListOrDictType[SecondQuantizedOp] = self._lattice_model.second_q_ops()
-        if settings.dict_aux_operators:
-            second_q_ops = {self._main_property_name: second_q_ops}
-        else:
-            second_q_ops = [second_q_ops]
-
-        return second_q_ops
+        return self.hamiltonian.second_q_ops(), {}
 
     def interpret(
         self,

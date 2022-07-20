@@ -211,21 +211,7 @@ class AdaptVQE(GroundStateEigensolver):
             information about the AdaptVQE algorithm like the number of iterations, finishing
             criterion, and the final maximum gradient.
         """
-        second_q_ops = problem.second_q_ops()
-
-        aux_second_q_ops: ListOrDictType[SecondQuantizedOp]
-        if isinstance(second_q_ops, list):
-            main_second_q_op = second_q_ops[0]
-            aux_second_q_ops = second_q_ops[1:]
-        elif isinstance(second_q_ops, dict):
-            name = problem.main_property_name
-            main_second_q_op = second_q_ops.pop(name, None)
-            if main_second_q_op is None:
-                raise ValueError(
-                    f"The main `SecondQuantizedOp` associated with the {name} property cannot be "
-                    "`None`."
-                )
-            aux_second_q_ops = second_q_ops
+        main_second_q_op, aux_second_q_ops = problem.second_q_ops()
 
         self._main_operator = self._qubit_converter.convert(
             main_second_q_op,

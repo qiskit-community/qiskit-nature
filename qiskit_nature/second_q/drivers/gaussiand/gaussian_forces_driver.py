@@ -17,10 +17,8 @@ from __future__ import annotations
 from typing import Any, Optional, Union
 from qiskit_nature import QiskitNatureError
 
-from qiskit_nature.second_q.properties import (
-    OccupiedModals,
-    VibrationalStructureDriverResult,
-)
+from qiskit_nature.second_q.problems import VibrationalStructureProblem
+from qiskit_nature.second_q.properties import OccupiedModals
 import qiskit_nature.optionals as _optionals
 from ..units_type import UnitsType
 from ..vibrational_structure_driver import VibrationalStructureDriver
@@ -133,15 +131,15 @@ class GaussianForcesDriver(VibrationalStructureDriver):
             return "sto-3g"
         return basis
 
-    def run(self) -> VibrationalStructureDriverResult:
+    def run(self) -> VibrationalStructureProblem:
         if self._logfile is not None:
             glr = GaussianLogResult(self._logfile)
         else:
             glr = GaussianLogDriver(jcf=self._jcf).run()
 
-        driver_result = VibrationalStructureDriverResult()
-        driver_result.add_property(glr.get_vibrational_energy(self._normalize))
-        driver_result.num_modes = len(glr.a_to_h_numbering)
-        driver_result.add_property(OccupiedModals())
+        num_modes = len(glr.a_to_h_numbering)
+        vib_energy = glr.get_vibrational_energy(self._normalize)
+        driver_result = VibrationalStructureProblem(vib_energy, num_modes)
+        driver_result.properties["OccupiedModals"] = OccupiedModals()
 
         return driver_result

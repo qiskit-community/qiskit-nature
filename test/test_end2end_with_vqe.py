@@ -23,7 +23,6 @@ from qiskit.circuit.library import TwoLocal
 from qiskit.utils import algorithm_globals, QuantumInstance
 from qiskit_nature.second_q.drivers import HDF5Driver
 from qiskit_nature.second_q.mappers import ParityMapper, QubitConverter
-from qiskit_nature.second_q.problems import ElectronicStructureProblem
 
 
 class TestEnd2End(QiskitNatureTestCase):
@@ -36,15 +35,15 @@ class TestEnd2End(QiskitNatureTestCase):
         driver = HDF5Driver(
             hdf5_input=self.get_resource_path("test_driver_hdf5.hdf5", "second_q/drivers/hdf5d")
         )
-        problem = ElectronicStructureProblem(driver)
-        second_q_ops = [problem.second_q_ops()[problem.main_property_name]]
+        problem = driver.run()
+        main_op, aux_ops = problem.second_q_ops()
         converter = QubitConverter(mapper=ParityMapper(), two_qubit_reduction=True)
         num_particles = (
-            problem.grouped_property_transformed.get_property("ParticleNumber").num_alpha,
-            problem.grouped_property_transformed.get_property("ParticleNumber").num_beta,
+            problem.properties["ParticleNumber"].num_alpha,
+            problem.properties["ParticleNumber"].num_beta,
         )
-        self.qubit_op = converter.convert(second_q_ops[0], num_particles)
-        self.aux_ops = converter.convert_match(second_q_ops[1:])
+        self.qubit_op = converter.convert(main_op, num_particles)
+        self.aux_ops = converter.convert_match(aux_ops)
         self.reference_energy = -1.857275027031588
 
     def test_end2end_h2(self):

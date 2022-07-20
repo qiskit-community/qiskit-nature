@@ -39,7 +39,6 @@ from qiskit_nature.second_q.circuit.library import HartreeFock, UCC, UCCSD
 from qiskit_nature.second_q.drivers import HDF5Driver
 from qiskit_nature.second_q.mappers import JordanWignerMapper, ParityMapper
 from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.properties import ElectronicEnergy
 from qiskit_nature.second_q.properties.bases import ElectronicBasis
 from qiskit_nature.second_q.properties.integrals import (
@@ -66,7 +65,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         self.reference_energy = -1.1373060356951838
 
         self.qubit_converter = QubitConverter(JordanWignerMapper())
-        self.electronic_structure_problem = ElectronicStructureProblem(self.driver)
+        self.electronic_structure_problem = self.driver.run()
 
         self.num_spin_orbitals = 4
         self.num_particles = (1, 1)
@@ -150,6 +149,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
             frozenset(a.to_list()) == frozenset(b.to_list()) for a, b in zip(aux_ops, aux_ops_copy)
         )
 
+    @unittest.skip("Skip until removal")
     def test_list_based_aux_ops(self):
         """Test the list based aux ops variant"""
         msg_ref = (
@@ -195,9 +195,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
         # now we decide that we want to evaluate another operator
         # for testing simplicity, we just use some pre-constructed auxiliary operators
-        second_q_ops = self.electronic_structure_problem.second_q_ops()
-        # Remove main op to leave just aux ops
-        second_q_ops.pop(self.electronic_structure_problem.main_property_name)
+        _, second_q_ops = self.electronic_structure_problem.second_q_ops()
         aux_ops_dict = self.qubit_converter.convert_match(second_q_ops)
         return calc, res, aux_ops_dict
 
@@ -314,9 +312,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res_qasm = calc.solve(self.electronic_structure_problem)
 
-        hamiltonian = self.electronic_structure_problem.second_q_ops()[
-            self.electronic_structure_problem.main_property_name
-        ]
+        hamiltonian, _ = self.electronic_structure_problem.second_q_ops()
         qubit_op = self.qubit_converter.map(hamiltonian)
 
         ansatz = solver.get_solver(self.electronic_structure_problem, self.qubit_converter).ansatz
@@ -344,9 +340,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res_qasm = calc.solve(self.electronic_structure_problem)
 
-        hamiltonian = self.electronic_structure_problem.second_q_ops()[
-            self.electronic_structure_problem.main_property_name
-        ]
+        hamiltonian, _ = self.electronic_structure_problem.second_q_ops()
         qubit_op = self.qubit_converter.map(hamiltonian)
 
         ansatz = solver.get_solver(self.electronic_structure_problem, self.qubit_converter).ansatz
@@ -487,7 +481,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         driver = HDF5Driver(
             hdf5_input=self.get_resource_path("LiH_sto3g.hdf5", "second_q/transformers")
         )
-        problem = ElectronicStructureProblem(driver, [FreezeCoreTransformer()])
+        problem = FreezeCoreTransformer().transform(driver.run())
         qubit_converter = QubitConverter(
             ParityMapper(),
             two_qubit_reduction=True,

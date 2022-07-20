@@ -69,9 +69,7 @@ class BaseTestDriverFCIDump(ABC):
 
     def test_driver_result_electronic_energy(self):
         """Test the ElectronicEnergy property."""
-        electronic_energy = cast(
-            ElectronicEnergy, self.driver_result.get_property(ElectronicEnergy)
-        )
+        electronic_energy = cast(ElectronicEnergy, self.driver_result.hamiltonian)
 
         with self.subTest("inactive energy"):
             self.log.debug("inactive energy: %s", electronic_energy.nuclear_repulsion_energy)
@@ -124,7 +122,7 @@ class BaseTestDriverFCIDump(ABC):
 
     def test_driver_result_particle_number(self):
         """Test the ParticleNumber property."""
-        particle_number = cast(ParticleNumber, self.driver_result.get_property(ParticleNumber))
+        particle_number = cast(ParticleNumber, self.driver_result.properties["ParticleNumber"])
 
         with self.subTest("orbital number"):
             self.log.debug("Number of orbitals is %s", particle_number.num_spin_orbitals)

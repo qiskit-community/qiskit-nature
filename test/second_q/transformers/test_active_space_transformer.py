@@ -21,8 +21,8 @@ import numpy as np
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.drivers import HDF5Driver
+from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.properties import (
-    ElectronicStructureDriverResult,
     ElectronicEnergy,
     ElectronicDipoleMoment,
 )
@@ -43,8 +43,8 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
 
     def assertDriverResult(self, driver_result, expected, dict_key="ActiveSpaceTransformer"):
         """Asserts that the two `DriverResult` object's relevant fields are equivalent."""
-        electronic_energy = driver_result.get_property("ElectronicEnergy")
-        electronic_energy_exp = expected.get_property("ElectronicEnergy")
+        electronic_energy = driver_result.hamiltonian
+        electronic_energy_exp = expected.hamiltonian
         with self.subTest("MO 1-electron integrals"):
             np.testing.assert_array_almost_equal(
                 electronic_energy.get_electronic_integral(ElectronicBasis.MO, 1).to_spin(),
@@ -62,8 +62,8 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
             )
 
         for dipole, dipole_exp in zip(
-            iter(driver_result.get_property("ElectronicDipoleMoment")),
-            iter(expected.get_property("ElectronicDipoleMoment")),
+            iter(driver_result.properties["ElectronicDipoleMoment"]),
+            iter(expected.properties["ElectronicDipoleMoment"]),
         ):
             with self.subTest(f"MO 1-electron {dipole._axis} dipole integrals"):
                 np.testing.assert_array_almost_equal(
@@ -88,8 +88,8 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         )
         driver_result = driver.run()
 
-        driver_result.get_property("ElectronicEnergy")._shift["ActiveSpaceTransformer"] = 0.0
-        for prop in iter(driver_result.get_property("ElectronicDipoleMoment")):
+        driver_result.hamiltonian._shift["ActiveSpaceTransformer"] = 0.0
+        for prop in iter(driver_result.properties["ElectronicDipoleMoment"]):
             prop._shift["ActiveSpaceTransformer"] = 0.0
 
         trafo = ActiveSpaceTransformer(**kwargs)
@@ -107,8 +107,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         trafo = ActiveSpaceTransformer(num_electrons=2, num_molecular_orbitals=2)
         driver_result_reduced = trafo.transform(driver_result)
 
-        expected = ElectronicStructureDriverResult()
-        expected.add_property(
+        expected = ElectronicStructureProblem(
             ElectronicEnergy(
                 [
                     OneBodyElectronicIntegrals(
@@ -139,36 +138,32 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
                 energy_shift={"ActiveSpaceTransformer": 0.0},
             )
         )
-        expected.add_property(
-            ElectronicDipoleMoment(
-                [
-                    DipoleMoment(
-                        "x",
-                        [OneBodyElectronicIntegrals(ElectronicBasis.MO, (np.zeros((2, 2)), None))],
-                        shift={"ActiveSpaceTransformer": 0.0},
-                    ),
-                    DipoleMoment(
-                        "y",
-                        [OneBodyElectronicIntegrals(ElectronicBasis.MO, (np.zeros((2, 2)), None))],
-                        shift={"ActiveSpaceTransformer": 0.0},
-                    ),
-                    DipoleMoment(
-                        "z",
-                        [
-                            OneBodyElectronicIntegrals(
-                                ElectronicBasis.MO,
-                                (
-                                    np.asarray(
-                                        [[0.69447435, -1.01418298], [-1.01418298, 0.69447435]]
-                                    ),
-                                    None,
-                                ),
-                            )
-                        ],
-                        shift={"ActiveSpaceTransformer": 0.0},
-                    ),
-                ]
-            )
+        expected.properties["ElectronicDipoleMoment"] = ElectronicDipoleMoment(
+            [
+                DipoleMoment(
+                    "x",
+                    [OneBodyElectronicIntegrals(ElectronicBasis.MO, (np.zeros((2, 2)), None))],
+                    shift={"ActiveSpaceTransformer": 0.0},
+                ),
+                DipoleMoment(
+                    "y",
+                    [OneBodyElectronicIntegrals(ElectronicBasis.MO, (np.zeros((2, 2)), None))],
+                    shift={"ActiveSpaceTransformer": 0.0},
+                ),
+                DipoleMoment(
+                    "z",
+                    [
+                        OneBodyElectronicIntegrals(
+                            ElectronicBasis.MO,
+                            (
+                                np.asarray([[0.69447435, -1.01418298], [-1.01418298, 0.69447435]]),
+                                None,
+                            ),
+                        )
+                    ],
+                    shift={"ActiveSpaceTransformer": 0.0},
+                ),
+            ]
         )
 
         self.assertDriverResult(driver_result_reduced, expected)
@@ -201,8 +196,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         )
         driver_result_reduced = trafo.transform(driver_result)
 
-        expected = ElectronicStructureDriverResult()
-        expected.add_property(
+        expected = ElectronicStructureProblem(
             ElectronicEnergy(
                 [
                     OneBodyElectronicIntegrals(
@@ -236,31 +230,29 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
                 energy_shift={"ActiveSpaceTransformer": 0.0},
             )
         )
-        expected.add_property(
-            ElectronicDipoleMoment(
-                [
-                    DipoleMoment(
-                        "x",
-                        [OneBodyElectronicIntegrals(ElectronicBasis.MO, (np.zeros((2, 2)), None))],
-                        shift={"ActiveSpaceTransformer": 0.0},
-                    ),
-                    DipoleMoment(
-                        "y",
-                        [OneBodyElectronicIntegrals(ElectronicBasis.MO, (np.zeros((2, 2)), None))],
-                        shift={"ActiveSpaceTransformer": 0.0},
-                    ),
-                    DipoleMoment(
-                        "z",
-                        [
-                            OneBodyElectronicIntegrals(
-                                ElectronicBasis.MO,
-                                (np.asarray([[0.69447435, 0.0], [0.0, 0.69447435]]), None),
-                            )
-                        ],
-                        shift={"ActiveSpaceTransformer": 0.0},
-                    ),
-                ]
-            )
+        expected.properties["ElectronicDipoleMoment"] = ElectronicDipoleMoment(
+            [
+                DipoleMoment(
+                    "x",
+                    [OneBodyElectronicIntegrals(ElectronicBasis.MO, (np.zeros((2, 2)), None))],
+                    shift={"ActiveSpaceTransformer": 0.0},
+                ),
+                DipoleMoment(
+                    "y",
+                    [OneBodyElectronicIntegrals(ElectronicBasis.MO, (np.zeros((2, 2)), None))],
+                    shift={"ActiveSpaceTransformer": 0.0},
+                ),
+                DipoleMoment(
+                    "z",
+                    [
+                        OneBodyElectronicIntegrals(
+                            ElectronicBasis.MO,
+                            (np.asarray([[0.69447435, 0.0], [0.0, 0.69447435]]), None),
+                        )
+                    ],
+                    shift={"ActiveSpaceTransformer": 0.0},
+                ),
+            ]
         )
         self.assertDriverResult(driver_result_reduced, expected)
 
@@ -297,8 +289,8 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         )
         driver_result = driver.run()
 
-        driver_result.get_property("ElectronicEnergy")._shift["ActiveSpaceTransformer"] = 0.0
-        for prop in iter(driver_result.get_property("ElectronicDipoleMoment")):
+        driver_result.hamiltonian._shift["ActiveSpaceTransformer"] = 0.0
+        for prop in iter(driver_result.properties["ElectronicDipoleMoment"]):
             prop._shift["ActiveSpaceTransformer"] = 0.0
 
         trafo = ActiveSpaceTransformer(num_electrons=2, num_molecular_orbitals=2)
@@ -320,8 +312,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         )
         driver_result_reduced = trafo.transform(driver_result)
 
-        expected = ElectronicStructureDriverResult()
-        expected.add_property(
+        expected = ElectronicStructureProblem(
             ElectronicEnergy(
                 [
                     OneBodyElectronicIntegrals(
@@ -352,36 +343,32 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
                 energy_shift={"ActiveSpaceTransformer": 0.0},
             )
         )
-        expected.add_property(
-            ElectronicDipoleMoment(
-                [
-                    DipoleMoment(
-                        "x",
-                        [OneBodyElectronicIntegrals(ElectronicBasis.MO, (np.zeros((2, 2)), None))],
-                        shift={"ActiveSpaceTransformer": 0.0},
-                    ),
-                    DipoleMoment(
-                        "y",
-                        [OneBodyElectronicIntegrals(ElectronicBasis.MO, (np.zeros((2, 2)), None))],
-                        shift={"ActiveSpaceTransformer": 0.0},
-                    ),
-                    DipoleMoment(
-                        "z",
-                        [
-                            OneBodyElectronicIntegrals(
-                                ElectronicBasis.MO,
-                                (
-                                    np.asarray(
-                                        [[0.69447435, -1.01418298], [-1.01418298, 0.69447435]]
-                                    ),
-                                    None,
-                                ),
-                            )
-                        ],
-                        shift={"ActiveSpaceTransformer": 0.0},
-                    ),
-                ]
-            )
+        expected.properties["ElectronicDipoleMoment"] = ElectronicDipoleMoment(
+            [
+                DipoleMoment(
+                    "x",
+                    [OneBodyElectronicIntegrals(ElectronicBasis.MO, (np.zeros((2, 2)), None))],
+                    shift={"ActiveSpaceTransformer": 0.0},
+                ),
+                DipoleMoment(
+                    "y",
+                    [OneBodyElectronicIntegrals(ElectronicBasis.MO, (np.zeros((2, 2)), None))],
+                    shift={"ActiveSpaceTransformer": 0.0},
+                ),
+                DipoleMoment(
+                    "z",
+                    [
+                        OneBodyElectronicIntegrals(
+                            ElectronicBasis.MO,
+                            (
+                                np.asarray([[0.69447435, -1.01418298], [-1.01418298, 0.69447435]]),
+                                None,
+                            ),
+                        )
+                    ],
+                    shift={"ActiveSpaceTransformer": 0.0},
+                ),
+            ]
         )
 
         self.assertDriverResult(driver_result_reduced, expected)
@@ -411,7 +398,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
 
         self.assertTrue(
             np.allclose(
-                driver_result_reduced.get_property("ElectronicBasisTransform").coeff_alpha,
+                driver_result_reduced.electronic_basis_transform.coeff_alpha,
                 active_transform,
             )
         )
@@ -427,12 +414,12 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         )
         driver_result = driver.run()
 
-        particle_number = driver_result.get_property("ParticleNumber")
+        particle_number = driver_result.properties["ParticleNumber"]
         particle_number.num_alpha = np.int64(particle_number.num_alpha)
         particle_number.num_beta = np.int64(particle_number.num_beta)
         particle_number.num_spin_orbitals = np.int64(particle_number.num_spin_orbitals)
 
-        driver_result.add_property(particle_number)
+        driver_result.properties["ParticleNumber"] = particle_number
 
         trafo = ActiveSpaceTransformer(
             num_electrons=particle_number.num_particles, num_molecular_orbitals=2

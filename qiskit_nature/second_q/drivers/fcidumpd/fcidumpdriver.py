@@ -15,8 +15,8 @@
 from typing import List, Optional, cast
 
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.properties import (
-    ElectronicStructureDriverResult,
     ElectronicEnergy,
     ParticleNumber,
 )
@@ -58,8 +58,8 @@ class FCIDumpDriver(ElectronicStructureDriver):
             raise QiskitNatureError(f"The fcidump_input must be str, not '{fcidump_input}'")
         self._fcidump_input = fcidump_input
 
-    def run(self) -> ElectronicStructureDriverResult:
-        """Returns an ElectronicStructureDriverResult instance out of a FCIDump file."""
+    def run(self) -> ElectronicStructureProblem:
+        """Returns an ElectronicStructureProblem instance out of a FCIDump file."""
         fcidump_data = parse(self._fcidump_input)
 
         hij = fcidump_data.get("hij", None)
@@ -85,15 +85,14 @@ class FCIDumpDriver(ElectronicStructureDriver):
             nuclear_repulsion_energy=fcidump_data.get("ecore", None),
         )
 
-        driver_result = ElectronicStructureDriverResult()
-        driver_result.add_property(electronic_energy)
-        driver_result.add_property(particle_number)
+        driver_result = ElectronicStructureProblem(electronic_energy)
+        driver_result.properties["ParticleNumber"] = particle_number
 
         return driver_result
 
     @staticmethod
     def dump(
-        driver_result: ElectronicStructureDriverResult,
+        driver_result: ElectronicStructureProblem,
         outpath: str,
         orbsym: Optional[List[str]] = None,
         isym: int = 1,
@@ -102,14 +101,14 @@ class FCIDumpDriver(ElectronicStructureDriver):
 
         Args:
             outpath: Path to the output file.
-            driver_result: The ElectronicStructureDriverResult to be dumped. It is assumed that the
+            driver_result: The ElectronicStructureProblem to be dumped. It is assumed that the
                 nuclear_repulsion_energy contains the inactive core energy in its ElectronicEnergy
                 property.
             orbsym: A list of spatial symmetries of the orbitals.
             isym: The spatial symmetry of the wave function.
         """
-        particle_number = cast(ParticleNumber, driver_result.get_property(ParticleNumber))
-        electronic_energy = cast(ElectronicEnergy, driver_result.get_property(ElectronicEnergy))
+        particle_number = cast(ParticleNumber, driver_result.properties["ParticleNumber"])
+        electronic_energy = cast(ElectronicEnergy, driver_result.properties["ElectronicEnergy"])
         one_body_integrals = electronic_energy.get_electronic_integral(ElectronicBasis.MO, 1)
         two_body_integrals = electronic_energy.get_electronic_integral(ElectronicBasis.MO, 2)
         dump(

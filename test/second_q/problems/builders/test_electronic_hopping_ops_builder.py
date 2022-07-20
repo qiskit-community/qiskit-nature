@@ -19,7 +19,6 @@ from qiskit.utils import algorithm_globals
 
 from qiskit_nature.second_q.mappers import QubitConverter, JordanWignerMapper
 from qiskit_nature.second_q.drivers import PySCFDriver, UnitsType
-from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.problems.builders.electronic_hopping_ops_builder import (
     _build_qeom_hopping_ops,
 )
@@ -42,13 +41,8 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
         )
 
         self.qubit_converter = QubitConverter(JordanWignerMapper())
-        self.electronic_structure_problem = ElectronicStructureProblem(self.driver)
-        self.electronic_structure_problem.second_q_ops()
-        self.particle_number = (
-            self.electronic_structure_problem.grouped_property_transformed.get_property(
-                "ParticleNumber"
-            )
-        )
+        self.electronic_structure_problem = self.driver.run()
+        self.particle_number = self.electronic_structure_problem.properties["ParticleNumber"]
 
     def test_build_hopping_operators(self):
         """Tests that the correct hopping operator is built from QMolecule."""

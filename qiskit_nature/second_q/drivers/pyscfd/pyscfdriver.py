@@ -24,9 +24,9 @@ import numpy as np
 from qiskit.utils.validation import validate_min
 
 from qiskit_nature.exceptions import QiskitNatureError
+from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.properties.driver_metadata import DriverMetadata
 from qiskit_nature.second_q.properties import (
-    ElectronicStructureDriverResult,
     AngularMomentum,
     Magnetization,
     ParticleNumber,
@@ -362,10 +362,10 @@ class PySCFDriver(ElectronicStructureDriver):
         # supports all methods
         pass
 
-    def run(self) -> ElectronicStructureDriverResult:
+    def run(self) -> ElectronicStructureProblem:
         """
         Returns:
-            ElectronicStructureDriverResult produced by the run driver.
+            ElectronicStructureProblem produced by the run driver.
 
         Raises:
             QiskitNatureError: if an error during the PySCF setup or calculation occurred.
@@ -507,40 +507,40 @@ class PySCFDriver(ElectronicStructureDriver):
                 self._calc.e_tot,
             )
 
-    def _construct_driver_result(self) -> ElectronicStructureDriverResult:
-        driver_result = ElectronicStructureDriverResult()
+    def _construct_driver_result(self) -> ElectronicStructureProblem:
+        basis_transform = self._construct_basis_transform()
+        electronic_energy = self._construct_electronic_energy(basis_transform)
 
-        self._populate_driver_result_molecule(driver_result)
-        self._populate_driver_result_metadata(driver_result)
-        self._populate_driver_result_basis_transform(driver_result)
-        self._populate_driver_result_particle_number(driver_result)
-        self._populate_driver_result_electronic_energy(driver_result)
-        self._populate_driver_result_electronic_dipole_moment(driver_result)
+        driver_result = ElectronicStructureProblem(electronic_energy)
+        driver_result.electronic_basis_transform = basis_transform
+        driver_result.driver_metadata = self._construct_metadata()
+        driver_result.molecule = self._construct_molecule()
+
+        driver_result.properties["ParticleNumber"] = self._construct_particle_number()
+        driver_result.properties[
+            "ElectronicDipoleMoment"
+        ] = self._construct_electronic_dipole_moment(basis_transform)
 
         # TODO: once https://github.com/Qiskit/qiskit-nature/issues/312 is fixed we can stop adding
         # these properties by default.
         # if not settings.dict_aux_operators:
-        driver_result.add_property(AngularMomentum(self._mol.nao * 2))
-        driver_result.add_property(Magnetization(self._mol.nao * 2))
+        driver_result.properties["AngularMomentum"] = AngularMomentum(self._mol.nao * 2)
+        driver_result.properties["Magnetization"] = Magnetization(self._mol.nao * 2)
 
         return driver_result
 
-    def _populate_driver_result_molecule(
-        self, driver_result: ElectronicStructureDriverResult
-    ) -> None:
+    def _construct_molecule(self) -> Molecule:
         coords = self._mol.atom_coords(unit="Angstrom")
         geometry = [(self._mol.atom_pure_symbol(i), list(xyz)) for i, xyz in enumerate(coords)]
 
-        driver_result.molecule = Molecule(
+        return Molecule(
             geometry,
             multiplicity=self._spin + 1,
             charge=self._charge,
             masses=list(self._mol.atom_mass_list()),
         )
 
-    def _populate_driver_result_metadata(
-        self, driver_result: ElectronicStructureDriverResult
-    ) -> None:
+    def _construct_metadata(self) -> DriverMetadata:
         # pylint: disable=import-error
         from pyscf import __version__ as pyscf_version
 
@@ -565,11 +565,9 @@ class PySCFDriver(ElectronicStructureDriver):
                 ]
             )
 
-        driver_result.add_property(DriverMetadata("PYSCF", pyscf_version, "\n".join(cfg + [""])))
+        return DriverMetadata("PYSCF", pyscf_version, "\n".join(cfg + [""]))
 
-    def _populate_driver_result_basis_transform(
-        self, driver_result: ElectronicStructureDriverResult
-    ) -> None:
+    def _construct_basis_transform(self) -> ElectronicBasisTransform:
         # pylint: disable=import-error
         from pyscf.tools import dump_mat
 
@@ -588,36 +586,28 @@ class PySCFDriver(ElectronicStructureDriver):
                 dump_mat.dump_mo(self._mol, mo_coeff_b, digits=7, start=1)
             self._mol.stdout.flush()
 
-        driver_result.add_property(
-            ElectronicBasisTransform(
-                ElectronicBasis.AO,
-                ElectronicBasis.MO,
-                mo_coeff,
-                mo_coeff_b,
-            )
+        return ElectronicBasisTransform(
+            ElectronicBasis.AO,
+            ElectronicBasis.MO,
+            mo_coeff,
+            mo_coeff_b,
         )
 
-    def _populate_driver_result_particle_number(
-        self, driver_result: ElectronicStructureDriverResult
-    ) -> None:
+    def _construct_particle_number(self) -> ParticleNumber:
         mo_occ, mo_occ_b = self._extract_mo_data("mo_occ")
 
-        driver_result.add_property(
-            ParticleNumber(
-                num_spin_orbitals=self._mol.nao * 2,
-                num_particles=(self._mol.nelec[0], self._mol.nelec[1]),
-                occupation=mo_occ,
-                occupation_beta=mo_occ_b,
-            )
+        return ParticleNumber(
+            num_spin_orbitals=self._mol.nao * 2,
+            num_particles=(self._mol.nelec[0], self._mol.nelec[1]),
+            occupation=mo_occ,
+            occupation_beta=mo_occ_b,
         )
 
-    def _populate_driver_result_electronic_energy(
-        self, driver_result: ElectronicStructureDriverResult
-    ) -> None:
+    def _construct_electronic_energy(
+        self, basis_transform: ElectronicBasisTransform
+    ) -> ElectronicEnergy:
         # pylint: disable=import-error
         from pyscf import gto
-
-        basis_transform = driver_result.get_property(ElectronicBasisTransform)
 
         one_body_ao = OneBodyElectronicIntegrals(
             ElectronicBasis.AO,
@@ -653,13 +643,11 @@ class PySCFDriver(ElectronicStructureDriver):
         )
         electronic_energy.orbital_energies = np.asarray(orbital_energies)
 
-        driver_result.add_property(electronic_energy)
+        return electronic_energy
 
-    def _populate_driver_result_electronic_dipole_moment(
-        self, driver_result: ElectronicStructureDriverResult
-    ) -> None:
-        basis_transform = driver_result.get_property(ElectronicBasisTransform)
-
+    def _construct_electronic_dipole_moment(
+        self, basis_transform: ElectronicBasisTransform
+    ) -> ElectronicDipoleMoment:
         self._mol.set_common_orig((0, 0, 0))
         ao_dip = self._mol.intor_symmetric("int1e_r", comp=3)
 
@@ -685,12 +673,10 @@ class PySCFDriver(ElectronicStructureDriver):
         y_dipole = DipoleMoment("y", [y_dip_ints, y_dip_ints.transform_basis(basis_transform)])
         z_dipole = DipoleMoment("z", [z_dip_ints, z_dip_ints.transform_basis(basis_transform)])
 
-        driver_result.add_property(
-            ElectronicDipoleMoment(
-                [x_dipole, y_dipole, z_dipole],
-                nuclear_dipole_moment=nucl_dip,
-                reverse_dipole_sign=True,
-            )
+        return ElectronicDipoleMoment(
+            [x_dipole, y_dipole, z_dipole],
+            nuclear_dipole_moment=nucl_dip,
+            reverse_dipole_sign=True,
         )
 
     def _extract_mo_data(

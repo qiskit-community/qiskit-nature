@@ -25,9 +25,9 @@ from qiskit.utils.validation import validate_min
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.constants import BOHR, PERIODIC_TABLE
 from qiskit_nature.exceptions import UnsupportMethodError
+from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.properties.driver_metadata import DriverMetadata
 from qiskit_nature.second_q.properties import (
-    ElectronicStructureDriverResult,
     AngularMomentum,
     Magnetization,
     ParticleNumber,
@@ -280,10 +280,10 @@ class PyQuanteDriver(ElectronicStructureDriver):
         if method not in [MethodType.RHF, MethodType.ROHF, MethodType.UHF]:
             raise UnsupportMethodError(f"Invalid Pyquante method {method.value}.")
 
-    def run(self) -> ElectronicStructureDriverResult:
+    def run(self) -> ElectronicStructureProblem:
         """
         Returns:
-            ElectronicStructureDriverResult produced by the run driver.
+            ElectronicStructureProblem produced by the run driver.
 
         Raises:
             QiskitNatureError: if an error during the PyQuante setup or calculation occurred.
@@ -395,38 +395,33 @@ class PyQuanteDriver(ElectronicStructureDriver):
         self._calc.converge(tol=self.tol, maxiters=self.maxiters)
         logger.debug("PyQuante2 processing information:\n%s", self._calc)
 
-    def _construct_driver_result(self) -> ElectronicStructureDriverResult:
-        driver_result = ElectronicStructureDriverResult()
+    def _construct_driver_result(self) -> ElectronicStructureProblem:
+        basis_transform = self._construct_basis_transform()
+        electronic_energy = self._construct_electronic_energy(basis_transform)
 
-        self._populate_driver_result_molecule(driver_result)
-        self._populate_driver_result_metadata(driver_result)
-        self._populate_driver_result_basis_transform(driver_result)
-        self._populate_driver_result_particle_number(driver_result)
-        self._populate_driver_result_electronic_energy(driver_result)
+        driver_result = ElectronicStructureProblem(electronic_energy)
+        driver_result.electronic_basis_transform = basis_transform
+        driver_result.driver_metadata = self._construct_metadata()
+        driver_result.molecule = self._construct_molecule()
 
+        driver_result.properties["ParticleNumber"] = self._construct_particle_number()
         # TODO: once https://github.com/Qiskit/qiskit-nature/issues/312 is fixed we can stop adding
         # these properties by default.
         # if not settings.dict_aux_operators:
-        driver_result.add_property(AngularMomentum(self._nmo * 2))
-        driver_result.add_property(Magnetization(self._nmo * 2))
+        driver_result.properties["AngularMomentum"] = AngularMomentum(self._nmo * 2)
+        driver_result.properties["Magnetization"] = Magnetization(self._nmo * 2)
 
         return driver_result
 
-    def _populate_driver_result_molecule(
-        self, driver_result: ElectronicStructureDriverResult
-    ) -> None:
+    def _construct_molecule(self) -> Molecule:
         geometry: List[Tuple[str, List[float]]] = []
         for atom in self._mol.atoms:
             atuple = atom.atuple()
             geometry.append((PERIODIC_TABLE[atuple[0]], [a * BOHR for a in atuple[1:]]))
 
-        driver_result.molecule = Molecule(
-            geometry, multiplicity=self._mol.multiplicity, charge=self._mol.charge
-        )
+        return Molecule(geometry, multiplicity=self._mol.multiplicity, charge=self._mol.charge)
 
-    def _populate_driver_result_metadata(
-        self, driver_result: ElectronicStructureDriverResult
-    ) -> None:
+    def _construct_metadata(self) -> DriverMetadata:
         cfg = [
             f"atoms={self.atoms}",
             f"units={self.units.value}",
@@ -439,11 +434,9 @@ class PyQuanteDriver(ElectronicStructureDriver):
             "",
         ]
 
-        driver_result.add_property(DriverMetadata("PYQUANTE", "?", "\n".join(cfg)))
+        return DriverMetadata("PYQUANTE", "?", "\n".join(cfg))
 
-    def _populate_driver_result_basis_transform(
-        self, driver_result: ElectronicStructureDriverResult
-    ) -> None:
+    def _construct_basis_transform(self) -> ElectronicBasisTransform:
         if hasattr(self._calc, "orbs"):
             mo_coeff = self._calc.orbs
             mo_coeff_b = None
@@ -453,33 +446,25 @@ class PyQuanteDriver(ElectronicStructureDriver):
 
         self._nmo = len(mo_coeff)
 
-        driver_result.add_property(
-            ElectronicBasisTransform(
-                ElectronicBasis.AO,
-                ElectronicBasis.MO,
-                mo_coeff,
-                mo_coeff_b,
-            )
+        return ElectronicBasisTransform(
+            ElectronicBasis.AO,
+            ElectronicBasis.MO,
+            mo_coeff,
+            mo_coeff_b,
         )
 
-    def _populate_driver_result_particle_number(
-        self, driver_result: ElectronicStructureDriverResult
-    ) -> None:
-        driver_result.add_property(
-            ParticleNumber(
-                num_spin_orbitals=self._nmo * 2,
-                num_particles=(self._mol.nup(), self._mol.ndown()),
-            )
+    def _construct_particle_number(self) -> ParticleNumber:
+        return ParticleNumber(
+            num_spin_orbitals=self._nmo * 2,
+            num_particles=(self._mol.nup(), self._mol.ndown()),
         )
 
-    def _populate_driver_result_electronic_energy(
-        self, driver_result: ElectronicStructureDriverResult
-    ) -> None:
+    def _construct_electronic_energy(
+        self, basis_transform: ElectronicBasisTransform
+    ) -> ElectronicEnergy:
         # pylint: disable=import-error
         from pyquante2 import onee_integrals
         from pyquante2.ints.integrals import twoe_integrals
-
-        basis_transform = driver_result.get_property(ElectronicBasisTransform)
 
         integrals = onee_integrals(self._bfs, self._mol)
 
@@ -521,4 +506,4 @@ class PyQuanteDriver(ElectronicStructureDriver):
             ElectronicBasis.AO, (integrals.S, None)
         )
 
-        driver_result.add_property(electronic_energy)
+        return electronic_energy

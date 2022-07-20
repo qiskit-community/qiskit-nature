@@ -11,8 +11,11 @@
 # that they have been altered from the originals.
 
 """The Electronic Structure Problem class."""
+
+from __future__ import annotations
+
 from functools import partial
-from typing import cast, Callable, Dict, List, Optional, Tuple, Union
+from typing import cast, Callable, Dict, List, Optional, Tuple, Union, TYPE_CHECKING
 
 import numpy as np
 
@@ -20,21 +23,28 @@ from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 from qiskit.opflow import PauliSumOp
 from qiskit.opflow.primitive_ops import Z2Symmetries
 
-from qiskit_nature import ListOrDictType, QiskitNatureError
 from qiskit_nature.second_q.circuit.library.initial_states.hartree_fock import (
     hartree_fock_bitstring_mapped,
 )
-from qiskit_nature.second_q.drivers import ElectronicStructureDriver
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.properties import ParticleNumber
-from qiskit_nature.second_q.transformers.base_transformer import BaseTransformer
+from qiskit_nature.second_q.properties import (
+    ElectronicEnergy,
+    ElectronicStructureDriverResult,
+    ParticleNumber,
+)
+from qiskit_nature.second_q.properties.bases import ElectronicBasisTransform
+from qiskit_nature.second_q.properties.driver_metadata import DriverMetadata
+from qiskit_nature.second_q.properties.property import Interpretable
 
 from .electronic_structure_result import ElectronicStructureResult
 from .eigenstate_result import EigenstateResult
 
 from .builders.electronic_hopping_ops_builder import _build_qeom_hopping_ops
 from .base_problem import BaseProblem
+
+if TYPE_CHECKING:
+    from qiskit_nature.second_q.drivers import Molecule
 
 
 class ElectronicStructureProblem(BaseProblem):
@@ -47,8 +57,7 @@ class ElectronicStructureProblem(BaseProblem):
 
     def __init__(
         self,
-        driver: ElectronicStructureDriver,
-        transformers: Optional[List[BaseTransformer]] = None,
+        hamiltonian: ElectronicEnergy,
     ):
         """
 
@@ -56,28 +65,21 @@ class ElectronicStructureProblem(BaseProblem):
             driver: A fermionic driver encoding the molecule information.
             transformers: A list of transformations to be applied to the driver result.
         """
-        super().__init__(driver, transformers, "ElectronicEnergy")
+        super().__init__(hamiltonian)
+        self.molecule: "Molecule" = None
+        self.driver_metadata: DriverMetadata = None
+        self.electronic_basis_transform: ElectronicBasisTransform = None
 
     @property
     def num_particles(self) -> Tuple[int, int]:
-        if self._grouped_property_transformed is None:
-            raise QiskitNatureError(
-                "`num_particles` is only available _after_ `second_q_ops()` has been called! "
-                "Note, that if you run this manually, the method will run again during solving."
-            )
-        return self._grouped_property_transformed.get_property("ParticleNumber").num_particles
+        return cast(ParticleNumber, self.properties["ParticleNumber"]).num_particles
 
     @property
     def num_spin_orbitals(self) -> int:
         """Returns the number of spin orbitals."""
-        if self._grouped_property_transformed is None:
-            raise QiskitNatureError(
-                "`num_spin_orbitals` is only available _after_ `second_q_ops()` has been called! "
-                "Note, that if you run this manually, the method will run again during solving."
-            )
-        return self._grouped_property_transformed.get_property("ParticleNumber").num_spin_orbitals
+        return cast(ParticleNumber, self.properties["ParticleNumber"]).num_spin_orbitals
 
-    def second_q_ops(self) -> ListOrDictType[SecondQuantizedOp]:
+    def second_q_ops(self) -> Tuple[SecondQuantizedOp, Optional[Dict[str, SecondQuantizedOp]]]:
         """Returns the second quantized operators associated with this Property.
 
         If the arguments are returned as a `list`, the operators are in the following order: the
@@ -89,14 +91,12 @@ class ElectronicStructureProblem(BaseProblem):
         Returns:
             A `list` or `dict` of `SecondQuantizedOp` objects.
         """
-        driver_result = self.driver.run()
+        aux_ops: dict[str, SecondQuantizedOp] = {}
+        for prop in self.properties.values():
+            aux_ops.update(prop.second_q_ops())
 
-        self._grouped_property = driver_result
-        self._grouped_property_transformed = self._transform(self._grouped_property)
-
-        second_quantized_ops = self._grouped_property_transformed.second_q_ops()
-
-        return second_quantized_ops
+        # TODO: refactor once Hamiltonian base-class exposes single second_q_op() generator
+        return list(self.hamiltonian.second_q_ops().values())[0], aux_ops
 
     def hopping_qeom_ops(
         self,
@@ -134,7 +134,7 @@ class ElectronicStructureProblem(BaseProblem):
             A tuple containing the hopping operators, the types of commutativities and the
             excitation indices.
         """
-        particle_number = self.grouped_property_transformed.get_property("ParticleNumber")
+        particle_number = cast(ParticleNumber, self.properties["ParticleNumber"])
         return _build_qeom_hopping_ops(particle_number, qubit_converter, excitations)
 
     def interpret(
@@ -166,7 +166,10 @@ class ElectronicStructureProblem(BaseProblem):
             eigenstate_result.aux_operator_eigenvalues = [raw_result.aux_operator_eigenvalues]
         result = ElectronicStructureResult()
         result.combine(eigenstate_result)
-        self._grouped_property_transformed.interpret(result)
+        self.hamiltonian.interpret(result)  # type: ignore[union-attr]
+        for prop in self.properties.values():
+            if isinstance(prop, Interpretable):
+                prop.interpret(result)
         result.computed_energies = np.asarray([e.real for e in eigenstate_result.eigenenergies])
         return result
 
@@ -193,9 +196,7 @@ class ElectronicStructureProblem(BaseProblem):
                 total_angular_momentum_aux = aux_values["AngularMomentum"][0]
             except TypeError:
                 total_angular_momentum_aux = aux_values[1][0]
-            particle_number = cast(
-                ParticleNumber, self.grouped_property_transformed.get_property(ParticleNumber)
-            )
+            particle_number = cast(ParticleNumber, self.properties["ParticleNumber"])
             return np.isclose(
                 particle_number.num_alpha + particle_number.num_beta,
                 num_particles_aux,
@@ -241,3 +242,40 @@ class ElectronicStructureProblem(BaseProblem):
             taper_coeff.append(coeff)
 
         return taper_coeff
+
+    @classmethod
+    def from_legacy_driver_result(
+        cls, result: ElectronicStructureDriverResult
+    ) -> ElectronicStructureProblem:
+        """Converts a :class:`~qiskit_nature.second_q.drivers.QMolecule` into an
+        ``ElectronicStructureDriverResult``.
+
+        Args:
+            result: the :class:`~qiskit_nature.second_q.drivers.QMolecule` to convert.
+
+        Returns:
+            An instance of this property.
+
+        Raises:
+            QiskitNatureError: if a :class:`~qiskit_nature.second_q.drivers.WatsonHamiltonian`
+            is provided.
+        """
+        elec_energy = result.get_property(ElectronicEnergy)
+
+        ret = cls(elec_energy)
+
+        for prop in (
+            "ParticleNumber",
+            "AngularMomentum",
+            "Magnetization",
+            "ElectronicDipoleMoment",
+        ):
+            obj = result.get_property(prop)
+            if obj is not None:
+                ret.properties[obj.name] = obj
+
+        ret.electronic_basis_transform = result.get_property(ElectronicBasisTransform)
+        ret.driver_metadata = result.get_property(DriverMetadata)
+        ret.molecule = result.molecule
+
+        return ret

@@ -15,17 +15,19 @@
 import logging
 import pathlib
 import warnings
+from typing import Union
 
 import h5py
 
-from qiskit_nature import QiskitNatureError
-from qiskit_nature.deprecation import warn_deprecated, DeprecatedType
 from qiskit_nature.hdf5 import load_from_hdf5, save_to_hdf5
-from qiskit_nature.second_q.properties.second_quantized_property import (
-    GroupedSecondQuantizedProperty,
+from qiskit_nature.second_q.problems import (
+    BaseProblem,
+    ElectronicStructureProblem,
+    VibrationalStructureProblem,
 )
 from qiskit_nature.second_q.properties import (
     ElectronicStructureDriverResult,
+    VibrationalStructureDriverResult,
 )
 
 from qiskit_nature.second_q._qmolecule import QMolecule
@@ -105,7 +107,7 @@ class HDF5Driver(BaseDriver):
         warnings.filterwarnings("default", category=DeprecationWarning)
         save_to_hdf5(driver_result, str(new_hdf5_file), replace=replace)
 
-    def run(self) -> GroupedSecondQuantizedProperty:
+    def run(self) -> BaseProblem:
         """
         Returns:
             GroupedSecondQuantizedProperty re-constructed from the HDF5 file.
@@ -116,36 +118,23 @@ class HDF5Driver(BaseDriver):
         """
         hdf5_file = self._get_path()
 
-        legacy_hdf5_file = False
+        driver_result: Union[
+            ElectronicStructureDriverResult, VibrationalStructureDriverResult
+        ] = None
 
         with h5py.File(hdf5_file, "r") as file:
             if "origin_driver" in file.keys():
-                legacy_hdf5_file = True
-                warn_deprecated(
-                    "0.4.0",
-                    DeprecatedType.METHOD,
-                    "HDF5Driver.run with legacy HDF5 file",
-                    additional_msg=(
-                        ". Your HDF5 file contains the legacy QMolecule object! You should consider "
-                        "converting it to the new property framework. See also HDF5Driver.convert"
-                    ),
-                )
-
-        if legacy_hdf5_file:
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            try:
                 molecule = QMolecule(hdf5_file)
                 molecule.load()
-                return ElectronicStructureDriverResult.from_legacy_driver_result(molecule)
-            finally:
-                warnings.filterwarnings("default", category=DeprecationWarning)
+                driver_result = ElectronicStructureDriverResult.from_legacy_driver_result(molecule)
 
-        driver_result = load_from_hdf5(str(hdf5_file))
+        if driver_result is None:
+            driver_result = load_from_hdf5(str(hdf5_file))  # type: ignore[assignment]
 
-        if not isinstance(driver_result, GroupedSecondQuantizedProperty):
-            raise QiskitNatureError(
-                f"Expected a GroupedSecondQuantizedProperty but found a {type(driver_result)} "
-                "object instead."
-            )
+        problem: BaseProblem = None
+        if isinstance(driver_result, ElectronicStructureDriverResult):
+            problem = ElectronicStructureProblem.from_legacy_driver_result(driver_result)
+        elif isinstance(driver_result, VibrationalStructureDriverResult):
+            problem = VibrationalStructureProblem.from_legacy_driver_result(driver_result)
 
-        return driver_result
+        return problem

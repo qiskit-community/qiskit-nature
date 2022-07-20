@@ -27,7 +27,6 @@ from qiskit_nature.second_q.mappers import (
     ParityMapper,
 )
 from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.algorithms import (
     GroundStateEigensolver,
     VQEUCCFactory,
@@ -60,7 +59,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
             -1.8427016 + 1.5969296,
         ]
         self.qubit_converter = QubitConverter(JordanWignerMapper())
-        self.electronic_structure_problem = ElectronicStructureProblem(self.driver)
+        self.electronic_structure_problem = self.driver.run()
 
         solver = NumPyEigensolver()
         self.ref = solver

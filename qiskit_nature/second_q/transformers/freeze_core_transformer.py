@@ -12,16 +12,12 @@
 
 """The Freeze-Core Reduction interface."""
 
-from typing import List, Optional, Tuple
+from typing import cast, List, Optional, Tuple
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.constants import PERIODIC_TABLE
-from qiskit_nature.second_q.properties import (
-    ElectronicStructureDriverResult,
-)
-from qiskit_nature.second_q.properties.electronic_types import (
-    GroupedElectronicProperty,
-)
+from qiskit_nature.second_q.problems import ElectronicStructureProblem
+from qiskit_nature.second_q.properties import ParticleNumber
 
 from .active_space_transformer import ActiveSpaceTransformer
 
@@ -64,7 +60,7 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         pass
 
     def _determine_active_space(
-        self, grouped_property: GroupedElectronicProperty
+        self, grouped_property: ElectronicStructureProblem
     ) -> Tuple[List[int], List[int]]:
         """Determines the active and inactive orbital indices.
 
@@ -78,14 +74,14 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
             QiskitNatureError: if a GroupedElectronicProperty is provided which is not also an
                                ElectronicElectronicStructureDriverResult.
         """
-        if not isinstance(grouped_property, ElectronicStructureDriverResult):
+        if not isinstance(grouped_property, ElectronicStructureProblem):
             raise QiskitNatureError(
                 "The FreezeCoreTransformer requires an `ElectronicStructureDriverResult`, not a "
                 f"property of type {type(grouped_property)}."
             )
 
         molecule = grouped_property.molecule
-        particle_number = grouped_property.get_property("ParticleNumber")
+        particle_number = cast(ParticleNumber, grouped_property.properties["ParticleNumber"])
 
         inactive_orbs_idxs: List[int] = []
         if self._freeze_core:

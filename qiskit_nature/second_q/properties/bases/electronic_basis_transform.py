@@ -21,10 +21,10 @@ import h5py
 import numpy as np
 
 from .electronic_basis import ElectronicBasis
-from ..property import Property
+from ..second_quantized_property import SecondQuantizedProperty
 
 
-class ElectronicBasisTransform(Property):
+class ElectronicBasisTransform(SecondQuantizedProperty):
     """This class contains the coefficients required to map from one basis into another."""
 
     def __init__(
@@ -49,6 +49,13 @@ class ElectronicBasisTransform(Property):
         self.final_basis = final_basis
         self._coeff_alpha = coeff_alpha
         self._coeff_beta = coeff_beta
+
+    def second_q_ops(self):
+        return {}
+
+    @classmethod
+    def from_legacy_driver_result(cls, result):
+        pass
 
     @property
     def coeff_alpha(self) -> np.ndarray:

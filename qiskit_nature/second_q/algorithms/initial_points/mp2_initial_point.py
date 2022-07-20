@@ -20,13 +20,11 @@ import numpy as np
 from qiskit_nature.exceptions import QiskitNatureError
 
 from qiskit_nature.second_q.circuit.library import UCC
+from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.second_q.properties import ElectronicEnergy
 from qiskit_nature.second_q.properties.bases import ElectronicBasis
 from qiskit_nature.second_q.properties.integrals.electronic_integrals import (
     ElectronicIntegrals,
-)
-from qiskit_nature.second_q.properties.second_quantized_property import (
-    GroupedSecondQuantizedProperty,
 )
 
 from .initial_point import InitialPoint
@@ -120,7 +118,7 @@ class MP2InitialPoint(InitialPoint):
         self._excitation_list = excitations
 
     @property
-    def grouped_property(self) -> GroupedSecondQuantizedProperty | None:
+    def grouped_property(self) -> BaseProblem | None:
         """The grouped property.
 
         The grouped property is required to contain the
@@ -138,10 +136,9 @@ class MP2InitialPoint(InitialPoint):
         return self._grouped_property
 
     @grouped_property.setter
-    def grouped_property(self, grouped_property: GroupedSecondQuantizedProperty) -> None:
-
-        electronic_energy: ElectronicEnergy | None = grouped_property.get_property(ElectronicEnergy)
-        if electronic_energy is None:
+    def grouped_property(self, grouped_property: BaseProblem) -> None:
+        electronic_energy = grouped_property.hamiltonian
+        if electronic_energy is None or not isinstance(electronic_energy, ElectronicEnergy):
             raise QiskitNatureError(
                 "The ElectronicEnergy cannot be obtained from the grouped_property."
             )
@@ -199,7 +196,7 @@ class MP2InitialPoint(InitialPoint):
     def compute(
         self,
         ansatz: UCC | None = None,
-        grouped_property: GroupedSecondQuantizedProperty | None = None,
+        grouped_property: BaseProblem | None = None,
     ) -> None:
         """Compute the coefficients and energy corrections.
 

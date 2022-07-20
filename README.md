@@ -68,7 +68,6 @@ the ground-state (minimum) energy of a molecule.
 from qiskit_nature.settings import settings
 from qiskit_nature.second_q.drivers import UnitsType
 from qiskit_nature.second_q.drivers import PySCFDriver
-from qiskit_nature.second_q.problems import ElectronicStructureProblem
 
 settings.dict_aux_operators = True
 
@@ -78,13 +77,12 @@ settings.dict_aux_operators = True
 driver = PySCFDriver(atom='H .0 .0 .0; H .0 .0 0.735',
                      unit=UnitsType.ANGSTROM,
                      basis='sto3g')
-problem = ElectronicStructureProblem(driver)
+problem = driver.run()
 
 # generate the second-quantized operators
-second_q_ops = problem.second_q_ops()
-main_op = second_q_ops['ElectronicEnergy']
+main_op, aux_ops = problem.second_q_ops()
 
-particle_number = problem.grouped_property_transformed.get_property("ParticleNumber")
+particle_number = problem.properties["ParticleNumber"]
 
 num_particles = (particle_number.num_alpha, particle_number.num_beta)
 num_spin_orbitals = particle_number.num_spin_orbitals

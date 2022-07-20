@@ -38,7 +38,6 @@ from qiskit_nature.second_q.drivers import UnitsType
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import ParityMapper
 from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.properties import (
     ElectronicEnergy,
     ParticleNumber,
@@ -64,7 +63,7 @@ class TestAdaptVQE(QiskitNatureTestCase):
             atom="H .0 .0 .0; H .0 .0 0.735", unit=UnitsType.ANGSTROM, basis="sto3g"
         )
 
-        self.problem = ElectronicStructureProblem(self.driver)
+        self.problem = self.driver.run()
 
         self.expected = -1.85727503
 
@@ -131,7 +130,7 @@ class TestAdaptVQE(QiskitNatureTestCase):
             basis="sto3g",
         )
         transformer = ActiveSpaceTransformer(num_electrons=2, num_molecular_orbitals=3)
-        problem = ElectronicStructureProblem(driver, [transformer])
+        problem = transformer.transform(driver.run())
 
         solver = VQEUCCFactory(
             quantum_instance=QuantumInstance(BasicAer.get_backend("statevector_simulator"))
@@ -210,10 +209,7 @@ class TestAdaptVQE(QiskitNatureTestCase):
             """A custom MES Factory"""
 
             def get_solver(self, problem, qubit_converter):
-                particle_number = cast(
-                    ParticleNumber,
-                    problem.grouped_property_transformed.get_property(ParticleNumber),
-                )
+                particle_number = cast(ParticleNumber, problem.properties["ParticleNumber"])
                 num_spin_orbitals = particle_number.num_spin_orbitals
                 num_particles = (particle_number.num_alpha, particle_number.num_beta)
 

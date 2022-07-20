@@ -25,10 +25,12 @@ from typing import Any, Optional, Union, cast
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.exceptions import UnsupportMethodError
 from qiskit_nature.hdf5 import load_from_hdf5
+from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.properties import (
     AngularMomentum,
     ElectronicStructureDriverResult,
     Magnetization,
+    ParticleNumber,
 )
 import qiskit_nature.optionals as _optionals
 
@@ -137,7 +139,7 @@ class PSI4Driver(ElectronicStructureDriver):
         if method not in [MethodType.RHF, MethodType.ROHF, MethodType.UHF]:
             raise UnsupportMethodError(f"Invalid PSI4 method {method.value}.")
 
-    def run(self) -> ElectronicStructureDriverResult:
+    def run(self) -> ElectronicStructureProblem:
         cfg = self._config
 
         psi4d_directory = Path(__file__).resolve().parent
@@ -199,6 +201,7 @@ class PSI4Driver(ElectronicStructureDriver):
                 pass
 
         driver_result = cast(ElectronicStructureDriverResult, load_from_hdf5(hdf5_file))
+        problem = ElectronicStructureProblem.from_legacy_driver_result(driver_result)
 
         try:
             os.remove(hdf5_file)
@@ -208,15 +211,17 @@ class PSI4Driver(ElectronicStructureDriver):
         # TODO: once https://github.com/Qiskit/qiskit-nature/issues/312 is fixed we can stop adding
         # these properties by default.
         # if not settings.dict_aux_operators:
-        num_spin_orbitals = driver_result.get_property("ParticleNumber").num_spin_orbitals
-        driver_result.add_property(AngularMomentum(num_spin_orbitals))
-        driver_result.add_property(Magnetization(num_spin_orbitals))
+        num_spin_orbitals = cast(
+            ParticleNumber, problem.properties["ParticleNumber"]
+        ).num_spin_orbitals
+        problem.properties["AngularMomentum"] = AngularMomentum(num_spin_orbitals)
+        problem.properties["Magnetization"] = Magnetization(num_spin_orbitals)
 
         # inject Psi4 config (because it is not available at runtime inside the template)
-        driver_metadata = driver_result.get_property("DriverMetadata")
+        driver_metadata = problem.driver_metadata
         driver_metadata.config = cfg
 
-        return driver_result
+        return problem
 
     @staticmethod
     def _run_psi4(input_file, output_file):

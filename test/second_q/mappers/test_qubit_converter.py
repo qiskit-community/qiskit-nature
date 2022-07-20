@@ -24,7 +24,6 @@ from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.operators import FermionicOp
 from qiskit_nature.second_q.drivers import HDF5Driver
 from qiskit_nature.second_q.mappers import JordanWignerMapper, ParityMapper, QubitConverter
-from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.properties import ParticleNumber
 
 
@@ -87,9 +86,9 @@ class TestQubitConverter(QiskitNatureTestCase):
             hdf5_input=self.get_resource_path("test_driver_hdf5.hdf5", "second_q/drivers/hdf5d")
         )
         self.driver_result = driver.run()
-        particle_number = cast(ParticleNumber, self.driver_result.get_property(ParticleNumber))
+        particle_number = cast(ParticleNumber, self.driver_result.properties["ParticleNumber"])
         self.num_particles = (particle_number.num_alpha, particle_number.num_beta)
-        self.h2_op = self.driver_result.second_q_ops()["ElectronicEnergy"]
+        self.h2_op = self.driver_result.second_q_ops()[0]
 
     def test_mapping_basic(self):
         """Test mapping to qubit operator"""
@@ -267,12 +266,12 @@ class TestQubitConverter(QiskitNatureTestCase):
         driver = HDF5Driver(
             hdf5_input=self.get_resource_path("test_driver_hdf5.hdf5", "second_q/drivers/hdf5d")
         )
-        problem = ElectronicStructureProblem(driver)
+        problem = driver.run()
 
         mapper = JordanWignerMapper()
         qubit_conv = QubitConverter(mapper, two_qubit_reduction=True, z2symmetry_reduction="auto")
         qubit_op = qubit_conv.convert(
-            problem.second_q_ops()[problem.main_property_name],
+            problem.second_q_ops()[0],
             self.num_particles,
             sector_locator=problem.symmetry_sector_locator,
         )
