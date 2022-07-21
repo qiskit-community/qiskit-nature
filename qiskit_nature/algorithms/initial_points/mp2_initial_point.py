@@ -291,23 +291,7 @@ class MP2InitialPoint(InitialPoint):
         orbital_energies = self._orbital_energies
         threshold = self._threshold
 
-        num_mo = integral_matrix.shape[0]
-        num_occ = self._t2.shape[0]
-
-        # Occupied orbitals
-        i = excitation[0][0] % num_mo
-        j = excitation[0][1] % num_mo
-
-        # Virtual orbitals
-        a = excitation[1][0] % num_mo
-        b = excitation[1][1] % num_mo
-        a_vir = a - num_occ
-        b_vir = b - num_occ
-
-        if self._t2[i, j, a_vir, b_vir]:
-            # Check if this has already been computed for a symmetric counterpart.
-            # Do not duplicate equivalent corrections.
-            return _Correction(excitation=excitation)
+        [[i, j], [a, b]] = np.asarray(excitation) % integral_matrix.shape[0]
 
         t_iajb = integral_matrix[i, a, j, b]
         t_ibja = integral_matrix[i, b, j, a]
@@ -321,10 +305,6 @@ class MP2InitialPoint(InitialPoint):
 
         energy_correction = coefficient * t_iajb
         energy_correction = energy_correction if abs(energy_correction) > threshold else 0.0
-
-        if coefficient:
-            # Store coefficient in T2 tensor with indexing to match PySCF.
-            self._t2[i, j, a_vir, b_vir] += coefficient
 
         return _Correction(excitation=excitation, coefficient=coefficient, energy=energy_correction)
 
@@ -342,7 +322,11 @@ class MP2InitialPoint(InitialPoint):
 
     def get_energy_correction(self) -> float:
         """The overall energy correction."""
-        return self.get_energy_corrections().sum()
+        unique_corrections = {
+            str(np.asarray(exc) % self._integral_matrix.shape[0]): corr
+            for corr, exc in zip(self.get_energy_corrections(), self.excitation_list)
+        }
+        return sum(unique_corrections.values())
 
     def get_energy(self) -> float:
         """The absolute energy.
