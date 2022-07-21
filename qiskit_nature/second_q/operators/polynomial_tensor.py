@@ -56,20 +56,24 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin):
     def add(self, other: PolynomialTensor):
         """Addition of PolynomialTensors"""
 
-        sum_dict = {}
+        sum_dict = self._data.copy()
 
         if not isinstance(other, PolynomialTensor):
             raise TypeError("Incorrect argument type: other should be PolynomialTensor")
 
-        for key, value in self._data.items():
-            sum_dict[key] = value
-            if key in other._data.keys() and np.shape(value) == np.shape(other._data[key]):
-                sum_dict[key] = np.add(value, other._data[key])
-            else:
-                raise ValueError(
-                        f"Data value of shape {np.shape(value)} "
-                        f"does not match other value of shape {np.shape(other._data[key])}"
+        for other_key, other_value in other._data.items():
+            if other_key in sum_dict.keys():
+                if np.shape(other_value) == np.shape(sum_dict[other_key]):
+                    sum_dict[other_key] = np.add(other_value, sum_dict[other_key])
+                else:
+                    print("not same shape", np.shape(other_value), np.shape(sum_dict[other_key]))
+                    raise ValueError(
+                        f"For key {other_key} "
+                        f"corresponding data value of shape {np.shape(sum_dict[other_key])} "
+                        f"does not match value of shape {np.shape(other_value)}"
                     )
+            else:
+                sum_dict[other_key] = other_value
 
         return PolynomialTensor(sum_dict)
 
@@ -82,11 +86,26 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin):
             for key in self._data.keys():
                 if np.allclose(self._data[key], other._data[key], atol=self.atol, rtol=self.rtol):
                     return isinstance(other, PolynomialTensor)
+                else:
+                    return False
+        else:
+            return False
 
-    def conjugate(self, other):
+    def conjugate(self):
         """Conjugate of PolynomialTensors"""
-        pass
+        conj_dict = {}
+
+        for key, value in self._data.items():
+            conj_dict[key] = np.conjugate(value)
+
+        return PolynomialTensor(conj_dict)
 
     def transpose(self):
         """Transpose of PolynomialTensor"""
-        pass
+
+        transpose_dict = {}
+
+        for key, value in self._data.items():
+            transpose_dict[key] = np.transpose(value)
+
+        return PolynomialTensor(transpose_dict)

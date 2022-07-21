@@ -13,20 +13,19 @@
 """Test for Polynomial Tensor"""
 
 import unittest
-import warnings
-import numpy as np
 from functools import lru_cache
 from test import QiskitNatureTestCase
+import numpy as np
 from qiskit_nature.second_q.operators import PolynomialTensor
 from qiskit_nature.drivers import UnitsType
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.properties.bases.electronic_basis import ElectronicBasis
 
+
 @lru_cache
 def driver_results():
-    _driver = PySCFDriver(
-        atom="H .0 .0 .0; H .0 .0 0.735", unit=UnitsType.ANGSTROM, basis="sto3g"
-    )
+    """Caching driver results"""
+    _driver = PySCFDriver(atom="H .0 .0 .0; H .0 .0 0.735", unit=UnitsType.ANGSTROM, basis="sto3g")
     _elec_energy = _driver.run().get_property("ElectronicEnergy")
 
     _one = _elec_energy.get_electronic_integral(ElectronicBasis.MO, 1)
@@ -35,12 +34,10 @@ def driver_results():
     _two = _elec_energy.get_electronic_integral(ElectronicBasis.MO, 2)
     two_matrix = np.einsum("ijkl->iklj", _two.to_spin())
 
-    og_poly = {
-        "+-": one_matrix,
-        "++--": two_matrix
-    }
+    og_poly = {"+-": one_matrix, "++--": two_matrix}
 
     return og_poly
+
 
 class TestPolynomialTensor(QiskitNatureTestCase):
     """Tests for PolynomialTensor class"""
@@ -188,6 +185,7 @@ class TestPolynomialTensor(QiskitNatureTestCase):
     def transpose(self):
         """Test for transpose of Polynomial Tensor"""
         pass
+
 
 if __name__ == "__main__":
     unittest.main()
