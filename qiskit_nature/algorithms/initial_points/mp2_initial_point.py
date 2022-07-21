@@ -84,9 +84,6 @@ class MP2InitialPoint(InitialPoint):
         self._reference_energy: float = 0.0
         self._corrections: list[_Correction] | None = None
 
-        # Second order cluster operator amplitudes with PySCF indexing.
-        self._t2: np.ndarray | None = None
-
     @property
     def ansatz(self) -> UCC:
         """The UCC ansatz.
@@ -172,12 +169,6 @@ class MP2InitialPoint(InitialPoint):
         self._invalidate()
 
         self._orbital_energies = orbital_energies
-
-        # Create matrix to store second order cluster operator amplitudes.
-        num_mo = self._integral_matrix.shape[0]
-        num_occ = len(self._orbital_energies[self._orbital_energies < 0.0])
-        num_vir = num_mo - num_occ
-        self._t2 = np.zeros((num_occ, num_occ, num_vir, num_vir))
 
         self._reference_energy = electronic_energy.reference_energy if not None else 0.0
         self._grouped_property = grouped_property
