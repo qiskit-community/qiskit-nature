@@ -309,17 +309,17 @@ class MP2InitialPoint(InitialPoint):
             # Do not duplicate equivilent corrections.
             return _Correction(excitation=excitation)
 
-        expectation_value_iajb = integral_matrix[i, a, j, b]
-        expectation_value_ibja = integral_matrix[i, b, j, a]
+        t_iajb = integral_matrix[i, a, j, b]
+        t_ibja = integral_matrix[i, b, j, a]
 
-        expectation_value = 2 * expectation_value_iajb - expectation_value_ibja
-        orbital_energy_correction = (
+        t2 = 2 * t_iajb - t_ibja
+        energy_delta = (
             orbital_energies[b] + orbital_energies[a] - orbital_energies[i] - orbital_energies[j]
         )
-        coefficient = -expectation_value / orbital_energy_correction
+        coefficient = -t2 / energy_delta
         coefficient = coefficient if abs(coefficient) > threshold else 0.0
 
-        energy_correction = coefficient * expectation_value_iajb
+        energy_correction = coefficient * t_iajb
         energy_correction = energy_correction if abs(energy_correction) > threshold else 0.0
 
         if coefficient:
