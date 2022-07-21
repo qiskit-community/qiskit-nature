@@ -247,7 +247,7 @@ class SUCCD(UCC):
             excitations_dictionary[exc_level].append(exc)
 
         for exc_level, exc_level_items in excitations_dictionary.items():
-            ops: List[FermionicOp] = []
+            ops = []
             for exc in exc_level_items:
                 label = ["I"] * self.num_spin_orbitals
                 for occ in exc[0]:
