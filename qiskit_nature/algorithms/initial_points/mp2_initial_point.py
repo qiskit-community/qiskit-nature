@@ -306,7 +306,7 @@ class MP2InitialPoint(InitialPoint):
 
         if self._t2[i, j, a_vir, b_vir]:
             # Check if this has already been computed for a symmetric counterpart.
-            # Do not duplicate equivilent corrections.
+            # Do not duplicate equivalent corrections.
             return _Correction(excitation=excitation)
 
         t_iajb = integral_matrix[i, a, j, b]

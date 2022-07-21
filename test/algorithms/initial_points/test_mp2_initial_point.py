@@ -247,12 +247,12 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
 
         with self.subTest("Test overall MP2 energy correction."):
             np.testing.assert_array_almost_equal(
-                mp2_initial_point.get_energy_correction(), mp.e_corr, decimal=6
+                mp2_initial_point.get_energy_correction(), mp.e_corr, decimal=10
             )
 
         with self.subTest("Test absolute MP2 energy."):
             np.testing.assert_array_almost_equal(
-                mp2_initial_point.get_energy(), mp.e_tot, decimal=6
+                mp2_initial_point.get_energy(), mp.e_tot, decimal=10
             )
 
         # with self.subTest("Test MP2 initial point array."):
