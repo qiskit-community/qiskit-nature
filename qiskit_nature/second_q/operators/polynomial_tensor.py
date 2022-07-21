@@ -13,13 +13,17 @@
 """Polynomial Tensor class"""
 
 from __future__ import annotations
-import numpy as np
 from typing import Dict
-from qiskit.opflow.mixins import StarAlgebraMixin
-from qiskit.quantum_info.operators.mixins import TolerancesMixin
+from numbers import Number
+import numpy as np
+from qiskit.quantum_info.operators.mixins import (
+    LinearMixin,
+    AdjointMixin,
+    TolerancesMixin,
+)
 
 
-class PolynomialTensor(StarAlgebraMixin, TolerancesMixin):
+class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin):
     """Polynomial Tensor class"""
 
     def __init__(self, data: Dict[str, np.ndarray]):
@@ -30,45 +34,59 @@ class PolynomialTensor(StarAlgebraMixin, TolerancesMixin):
                 pass
             else:
                 raise ValueError(
-                    f"data key length {len(key)} and number of value dimensions {np.shape(value)} do not match"
+                    f"data key {key} of length {len(key)} does not match "
+                    f"data value of dimensions {np.shape(value)}"
                 )
 
     def mul(self, other: complex):
-        """scalar multiplication of PolynomialTensor with complex"""
+        """Scalar multiplication of PolynomialTensor with complex"""
 
-        # other might be float, int or etc. quantum info - typing is Number (check)
         prod_dict = {}
+
+        if not isinstance(other, Number):
+            raise TypeError(f"other {other} must be a number")
 
         for key, matrix in self._data.items():
             prod_dict[key] = matrix * other
         return PolynomialTensor(prod_dict)
 
+    def _multiply(self, other):
+        return self.mul(other)
+
     def add(self, other: PolynomialTensor):
-        """addition of PolynomialTensors"""
+        """Addition of PolynomialTensors"""
 
-        # Polynomial tensor immutable!
-        sum_dict = self._data  # or try empty dict {}
+        sum_dict = {}
 
-        if other is not isinstance(other, PolynomialTensor):
+        if not isinstance(other, PolynomialTensor):
             raise TypeError("Incorrect argument type: other should be PolynomialTensor")
 
-        for key, value in other.items():
-            if key in self._data.keys():
-                if np.shape(value) == np.shape(self._data[key]):
-                    print(f"key {key} of same dimension present in both")
-                    sum_dict[key] = np.add(value, self._data[key])
-                else:
-                    raise ValueError(
-                        f"Dictionary value dimensions {np.shape(value)} and {np.shape(self._data[key])} do not match"
-                    )
+        for key, value in self._data.items():
+            sum_dict[key] = value
+            if key in other._data.keys() and np.shape(value) == np.shape(other._data[key]):
+                sum_dict[key] = np.add(value, other._data[key])
             else:
-                print(f"adding a new key {key}")
-                sum_dict[key] = value
+                raise ValueError(
+                        f"Data value of shape {np.shape(value)} "
+                        f"does not match other value of shape {np.shape(other._data[key])}"
+                    )
 
         return PolynomialTensor(sum_dict)
 
-    def compose(self, other):
+    def _add(self, other, qargs=None):
+        return self.add(other)
+
+    def __eq__(self, other):
+        """Check equality of PolynomialTensors"""
+        if self._data.keys() == other._data.keys():
+            for key in self._data.keys():
+                if np.allclose(self._data[key], other._data[key], atol=self.atol, rtol=self.rtol):
+                    return isinstance(other, PolynomialTensor)
+
+    def conjugate(self, other):
+        """Conjugate of PolynomialTensors"""
         pass
 
-    def adjoint(self):
+    def transpose(self):
+        """Transpose of PolynomialTensor"""
         pass
