@@ -287,11 +287,11 @@ class MP2InitialPoint(InitialPoint):
         t_iajb = integral_matrix[i, a, j, b]
         t_ibja = integral_matrix[i, b, j, a]
 
-        t2 = 2 * t_iajb - t_ibja
+        t2_amplitude = 2 * t_iajb - t_ibja
         energy_delta = (
             orbital_energies[b] + orbital_energies[a] - orbital_energies[i] - orbital_energies[j]
         )
-        coefficient = -t2 / energy_delta
+        coefficient = -t2_amplitude / energy_delta
         coefficient = coefficient if abs(coefficient) > threshold else 0.0
 
         energy_correction = coefficient * t_iajb

@@ -20,17 +20,10 @@ from unittest.mock import Mock
 from test import QiskitNatureTestCase
 
 import numpy as np
-from ddt import ddt, data, unpack
-
-from pyscf import gto
+from ddt import ddt, data
 
 from qiskit.exceptions import MissingOptionalLibraryError
 
-from qiskit_nature.drivers.molecule import Molecule
-from qiskit_nature.drivers.second_quantization.electronic_structure_molecule_driver import (
-    ElectronicStructureDriverType,
-    ElectronicStructureMoleculeDriver,
-)
 from qiskit_nature.problems.second_quantization.electronic.electronic_structure_problem import (
     ElectronicStructureProblem,
 )
@@ -208,10 +201,11 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
     ):
         """Test MP2InitialPoint with real molecules."""
         try:
-            driver = PySCFDriver(atom=atom, basis="sto3g")
+            from pyscf import gto
         except MissingOptionalLibraryError:
             self.skipTest("PySCF driver does not appear to be installed.")
 
+        driver = PySCFDriver(atom=atom, basis="sto3g")
         problem = ElectronicStructureProblem(driver)
         problem.second_q_ops()
         grouped_property = problem.grouped_property_transformed
@@ -240,19 +234,19 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         mp2_initial_point.ansatz = ansatz
 
         # Compute the PySCF result
-        mol = gto.M(atom=atom, basis="sto3g")
-        mp = mol.MP2().run()
+        pyscf_mol = gto.M(atom=atom, basis="sto3g")
+        pyscf_mp = pyscf_mol.MP2().run()
         # t2 = mp.t2
         # t2[np.abs(t2) < 1e-10] = 0
 
         with self.subTest("Test overall MP2 energy correction."):
             np.testing.assert_array_almost_equal(
-                mp2_initial_point.get_energy_correction(), mp.e_corr, decimal=10
+                mp2_initial_point.get_energy_correction(), pyscf_mp.e_corr, decimal=10
             )
 
         with self.subTest("Test absolute MP2 energy."):
             np.testing.assert_array_almost_equal(
-                mp2_initial_point.get_energy(), mp.e_tot, decimal=10
+                mp2_initial_point.get_energy(), pyscf_mp.e_tot, decimal=10
             )
 
         # with self.subTest("Test MP2 initial point array."):
