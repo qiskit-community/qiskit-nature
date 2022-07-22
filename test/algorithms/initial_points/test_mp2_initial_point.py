@@ -206,8 +206,6 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
             # Compute the PySCF result
             pyscf_mol = gto.M(atom=atom, basis="sto3g", verbose=0)
             pyscf_mp = pyscf_mol.MP2().run(verbose=0)
-            # t2 = mp.t2
-            # t2[np.abs(t2) < 1e-10] = 0
 
             driver = PySCFDriver(atom=atom, basis="sto3g")
         except (ModuleNotFoundError, MissingOptionalLibraryError):
@@ -249,14 +247,6 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
             np.testing.assert_array_almost_equal(
                 mp2_initial_point.get_energy(), pyscf_mp.e_tot, decimal=10
             )
-
-        # with self.subTest("Test MP2 initial point array."):
-        #     np.testing.assert_array_almost_equal(mp2_initial_point._t2, t2, decimal=6)
-
-        # with self.subTest("Test MP2 energy corrections."):
-        #     np.testing.assert_array_almost_equal(
-        #         mp2_initial_point.get_energy_corrections(), energy_corrections, decimal=6
-        #     )
 
 
 if __name__ == "__main__":
