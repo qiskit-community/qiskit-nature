@@ -39,7 +39,17 @@ from .base_problem import BaseProblem
 from .electronic import ElectronicStructureProblem
 from .lattice.lattice_model_problem import LatticeModelProblem
 from .vibrational.vibrational_structure_problem import VibrationalStructureProblem
+from ...deprecation import warn_deprecated, DeprecatedType, NatureDeprecationWarning
 
+warn_deprecated(
+    "0.5.0",
+    old_type=DeprecatedType.PACKAGE,
+    old_name="qiskit_nature.problems.second_quantization",
+    new_type=DeprecatedType.PACKAGE,
+    new_name="qiskit_nature.second_q.problems",
+    stack_level=3,
+    category=NatureDeprecationWarning,
+)
 
 __all__ = [
     "BaseProblem",

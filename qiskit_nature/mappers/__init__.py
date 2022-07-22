@@ -22,3 +22,15 @@ Operator to Qubit Mappers (:mod:`qiskit_nature.mappers`)
 
    second_quantization
 """
+
+from ..deprecation import warn_deprecated, DeprecatedType, NatureDeprecationWarning
+
+warn_deprecated(
+    "0.5.0",
+    old_type=DeprecatedType.PACKAGE,
+    old_name="qiskit_nature.mappers",
+    new_type=DeprecatedType.PACKAGE,
+    new_name="qiskit_nature.second_q.mappers",
+    stack_level=3,
+    category=NatureDeprecationWarning,
+)
