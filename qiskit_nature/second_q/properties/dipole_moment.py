@@ -22,9 +22,8 @@ from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.deprecation import deprecate_method
 from qiskit_nature.second_q._qmolecule import QMolecule
 from qiskit_nature.second_q.operators import FermionicOp
+from qiskit_nature.hdf5 import _import_and_build_from_hdf5
 
-
-from .grouped_property import GroupedProperty
 from .second_quantized_property import LegacyDriverResult
 from .bases import ElectronicBasis
 from .integrals import ElectronicIntegrals, IntegralProperty, OneBodyElectronicIntegrals
@@ -137,7 +136,7 @@ class DipoleMoment(IntegralProperty):
         pass
 
 
-class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
+class ElectronicDipoleMoment(ElectronicProperty):
     """The ElectronicDipoleMoment property.
 
     This Property computes **purely** the electronic dipole moment (possibly minus additional shifts
@@ -166,9 +165,12 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
         self._dipole_shift = dipole_shift
         self._nuclear_dipole_moment = nuclear_dipole_moment
         self._reverse_dipole_sign = reverse_dipole_sign
+        self._dipole_axes = {}
         if dipole_axes is not None:
             for dipole in dipole_axes:
-                self.add_property(dipole)
+                # self.add_property(dipole)
+                self._dipole_axes[dipole.name] = dipole
+
 
     def to_hdf5(self, parent: h5py.Group) -> None:
         """Stores this instance in an HDF5 group inside of the provided parent group.
@@ -178,9 +180,10 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
         Args:
             parent: the parent HDF5 group.
         """
-        super().to_hdf5(parent)
-
         group = parent.require_group(self.name)
+
+        for prop in self._dipole_axes.values():
+            prop.to_hdf5(group)
 
         group.attrs["reverse_dipole_sign"] = self._reverse_dipole_sign
 
@@ -204,9 +207,10 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
         Returns:
             A new instance of this class.
         """
-        grouped_property = GroupedProperty.from_hdf5(h5py_group)
+        ret = ElectronicDipoleMoment()
 
-        ret = ElectronicDipoleMoment(list(grouped_property))
+        for prop in _import_and_build_from_hdf5(h5py_group):
+            ret._dipole_axes[prop.name] = prop
 
         ret.reverse_dipole_sign = h5py_group.attrs["reverse_dipole_sign"]
         ret.nuclear_dipole_moment = h5py_group.attrs.get("nuclear_dipole_moment", None)
@@ -281,30 +285,26 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
 
         ret = cls()
 
-        ret.add_property(
-            dipole_along_axis(
-                "x",
-                (qmol.x_dip_ints, None),
-                (qmol.x_dip_mo_ints, qmol.x_dip_mo_ints_b),
-                qmol.x_dip_energy_shift,
-            )
-        )
-        ret.add_property(
-            dipole_along_axis(
-                "y",
-                (qmol.y_dip_ints, None),
-                (qmol.y_dip_mo_ints, qmol.y_dip_mo_ints_b),
-                qmol.y_dip_energy_shift,
-            )
-        )
-        ret.add_property(
-            dipole_along_axis(
-                "z",
-                (qmol.z_dip_ints, None),
-                (qmol.z_dip_mo_ints, qmol.z_dip_mo_ints_b),
-                qmol.z_dip_energy_shift,
-            )
-        )
+        ret._dipole_axes["x"] = dipole_along_axis(
+                                        "x",
+                                        (qmol.x_dip_ints, None),
+                                        (qmol.x_dip_mo_ints, qmol.x_dip_mo_ints_b),
+                                        qmol.x_dip_energy_shift,
+                                    )
+
+        ret._dipole_axes["y"] = dipole_along_axis(
+                                        "y",
+                                        (qmol.y_dip_ints, None),
+                                        (qmol.y_dip_mo_ints, qmol.y_dip_mo_ints_b),
+                                        qmol.y_dip_energy_shift,
+                                    )
+
+        ret._dipole_axes["z"] = dipole_along_axis(
+                                        "z",
+                                        (qmol.z_dip_ints, None),
+                                        (qmol.z_dip_mo_ints, qmol.z_dip_mo_ints_b),
+                                        qmol.z_dip_energy_shift,
+                                    )
 
         ret.nuclear_dipole_moment = nuclear_dipole_moment
         ret.reverse_dipole_sign = qmol.reverse_dipole_sign
@@ -321,11 +321,11 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
         """
         ops: ListOrDictType[FermionicOp]
         if not settings.dict_aux_operators:
-            ops = [dip.second_q_ops()[0] for dip in self._properties.values()]
+            ops = [dip.second_q_ops()[0] for dip in self._dipole_axes.values()]
             return ops
 
         ops = {}
-        for prop in iter(self):
+        for prop in self._dipole_axes.values():
             ops.update(prop.second_q_ops())
         return ops
 
@@ -355,7 +355,7 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
 
             axes_order = {"x": 0, "y": 1, "z": 2}
             dipole_moment = [None] * 3
-            for prop in iter(self):
+            for prop in self._dipole_axes.values():
                 moment: Optional[tuple[complex, complex]]
                 try:
                     moment = aux_op_eigenvalues[axes_order[prop._axis] + 3]
@@ -366,7 +366,7 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
 
             result.computed_dipole_moment.append(cast(DipoleTuple, tuple(dipole_moment)))
             dipole_shifts: dict[str, dict[str, complex]] = {}
-            for prop in self._properties.values():
+            for prop in self._dipole_axes.values():
                 for name, shift in prop._shift.items():
                     if name not in dipole_shifts:
                         dipole_shifts[name] = {}
