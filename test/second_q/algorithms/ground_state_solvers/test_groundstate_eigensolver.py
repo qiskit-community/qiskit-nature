@@ -47,7 +47,6 @@ from qiskit_nature.second_q.properties.integrals import (
     TwoBodyElectronicIntegrals,
 )
 from qiskit_nature.second_q.transformers import FreezeCoreTransformer
-from qiskit_nature import settings
 from qiskit_nature.second_q.algorithms.initial_points import MP2InitialPoint
 
 
@@ -149,41 +148,6 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         assert all(
             frozenset(a.to_list()) == frozenset(b.to_list()) for a, b in zip(aux_ops, aux_ops_copy)
         )
-
-    def test_list_based_aux_ops(self):
-        """Test the list based aux ops variant"""
-        msg_ref = (
-            "List-based `aux_operators` are deprecated as of version 0.3.0 and support "
-            "for them will be removed no sooner than 3 months after the release. Instead, "
-            "use dict-based `aux_operators`. You can switch to the dict-based interface "
-            "immediately, by setting `qiskit_nature.settings.dict_aux_operators` to `True`."
-        )
-        with warnings.catch_warnings(record=True) as c_m:
-            warnings.simplefilter("always")
-            settings.dict_aux_operators = False
-            try:
-                solver = NumPyMinimumEigensolverFactory()
-                calc = GroundStateEigensolver(self.qubit_converter, solver)
-                res = calc.solve(self.electronic_structure_problem)
-                self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
-                self.assertTrue(
-                    np.all(isinstance(aux_op, dict) for aux_op in res.aux_operator_eigenvalues)
-                )
-                aux_op_eigenvalue = res.aux_operator_eigenvalues[0]
-                self.assertAlmostEqual(aux_op_eigenvalue[0][0], 2.0, places=6)
-                self.assertAlmostEqual(aux_op_eigenvalue[1][1], 0.0, places=6)
-                self.assertAlmostEqual(aux_op_eigenvalue[2][0], 0.0, places=6)
-                self.assertAlmostEqual(aux_op_eigenvalue[2][1], 0.0, places=6)
-                self.assertAlmostEqual(aux_op_eigenvalue[3][0], 0.0, places=6)
-                self.assertAlmostEqual(aux_op_eigenvalue[3][1], 0.0, places=6)
-                self.assertAlmostEqual(aux_op_eigenvalue[4][0], 0.0, places=6)
-                self.assertAlmostEqual(aux_op_eigenvalue[4][1], 0.0, places=6)
-                self.assertAlmostEqual(aux_op_eigenvalue[5][0], -1.3889487, places=6)
-                self.assertAlmostEqual(aux_op_eigenvalue[5][1], 0.0, places=6)
-            finally:
-                settings.dict_aux_operators = True
-            msg = str(c_m[0].message)
-            self.assertEqual(msg, msg_ref)
 
     def _setup_evaluation_operators(self):
         # first we run a ground state calculation
