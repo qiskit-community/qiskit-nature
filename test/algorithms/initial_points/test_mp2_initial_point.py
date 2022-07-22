@@ -202,10 +202,11 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         """Test MP2InitialPoint with real molecules."""
         try:
             from pyscf import gto
-        except MissingOptionalLibraryError:
+
+            driver = PySCFDriver(atom=atom, basis="sto3g")
+        except (ModuleNotFoundError, MissingOptionalLibraryError):
             self.skipTest("PySCF driver does not appear to be installed.")
 
-        driver = PySCFDriver(atom=atom, basis="sto3g")
         problem = ElectronicStructureProblem(driver)
         problem.second_q_ops()
         grouped_property = problem.grouped_property_transformed
@@ -234,8 +235,8 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         mp2_initial_point.ansatz = ansatz
 
         # Compute the PySCF result
-        pyscf_mol = gto.M(atom=atom, basis="sto3g")
-        pyscf_mp = pyscf_mol.MP2().run()
+        pyscf_mol = gto.M(atom=atom, basis="sto3g", verbose=0)
+        pyscf_mp = pyscf_mol.MP2().run(verbose=0)
         # t2 = mp.t2
         # t2[np.abs(t2) < 1e-10] = 0
 
