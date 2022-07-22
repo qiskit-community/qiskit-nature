@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fixed the MP2 energy correction to ensure it matches the result from PySCF. This was achieved 
+    by excluding corrections due to symmetric counterpart excitations from the summation.
+    
