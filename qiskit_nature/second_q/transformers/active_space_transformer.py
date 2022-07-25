@@ -359,7 +359,9 @@ class ActiveSpaceTransformer(BaseTransformer):
 
     # TODO: can we efficiently extract this into the base class? At least the logic dealing with
     # recursion is general and we should avoid having to duplicate it.
-    def _transform_property(self, prop: Property) -> Optional[Property]:
+    def _transform_property(self,
+                            prop: SecondQuantizedProperty
+     ) -> Optional[SecondQuantizedProperty]:
         """Transforms a Property object.
 
         This is a recursive reduction, iterating GroupedProperty objects when encountering one.
@@ -373,7 +375,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         Raises:
             TypeError: if an unexpected Property subtype is encountered.
         """
-        transformed_property: Optional[Property] = None
+        transformed_property: Optional[SecondQuantizedProperty] = None
         if isinstance(prop, GroupedProperty):
             transformed_property = prop.__class__()  # type: ignore[call-arg]
             transformed_property.name = prop.name
@@ -391,13 +393,29 @@ class ActiveSpaceTransformer(BaseTransformer):
                     )
                     continue
 
-            if isinstance(prop, ElectronicDipoleMoment):
-                transformed_property.reverse_dipole_sign = prop.reverse_dipole_sign
-                transformed_property.nuclear_dipole_moment = prop.nuclear_dipole_moment
-
             if len(list(transformed_property)) == 0:
                 # empty GroupedProperty instance
                 transformed_property = None
+
+        elif isinstance(prop, ElectronicDipoleMoment):
+            transformed_property = prop.__class__()  # type: ignore[call-arg]
+            transformed_property.name = prop.name
+
+            for internal_property in prop._dipole_axes.values():
+                try:
+                    transformed_internal_property = self._transform_property(internal_property)
+                    if transformed_internal_property is not None:
+                        transformed_property._dipole_axes[transformed_internal_property.name] = (transformed_internal_property)
+                except TypeError:
+                    logger.warning(
+                        "The Property %s of type %s could not be transformed 2!",
+                        internal_property.name,
+                        type(internal_property),
+                    )
+                    continue
+
+            transformed_property.reverse_dipole_sign = prop.reverse_dipole_sign
+            transformed_property.nuclear_dipole_moment = prop.nuclear_dipole_moment
 
         elif isinstance(prop, IntegralProperty):
             # get matrix operator of IntegralProperty
@@ -426,9 +444,6 @@ class ActiveSpaceTransformer(BaseTransformer):
                 active_occ_beta,
             )
 
-        elif isinstance(prop, SecondQuantizedProperty):
-            transformed_property = prop.__class__(len(self._active_orbs_indices) * 2)  # type: ignore
-
         elif isinstance(prop, ElectronicBasisTransform):
             # transformation done manually during `transform`
             transformed_property = self._transform_active
@@ -437,5 +452,9 @@ class ActiveSpaceTransformer(BaseTransformer):
             # for the time being we manually catch this to avoid unnecessary warnings
             # TODO: support storing transformer information in the DriverMetadata container
             transformed_property = prop
+
+        else:
+            transformed_property = prop.__class__(len(self._active_orbs_indices) * 2)  # type: ignore
+
 
         return transformed_property
