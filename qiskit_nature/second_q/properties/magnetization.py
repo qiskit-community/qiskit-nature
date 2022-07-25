@@ -14,17 +14,13 @@
 
 from __future__ import annotations
 
-from typing import cast, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 import h5py
 
 from qiskit_nature import ListOrDictType, settings
-from qiskit_nature.deprecation import deprecate_method
-from qiskit_nature.second_q._qmolecule import QMolecule
 from qiskit_nature.second_q.operators import FermionicOp
 
-
-from .second_quantized_property import LegacyDriverResult
 from .electronic_types import ElectronicProperty
 
 if TYPE_CHECKING:
@@ -84,30 +80,6 @@ class Magnetization(ElectronicProperty):
             A new instance of this class.
         """
         return Magnetization(int(h5py_group.attrs["num_spin_orbitals"]))
-
-    @classmethod
-    @deprecate_method("0.4.0")
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> Magnetization:
-        """Construct a Magnetization instance from a :class:`~qiskit_nature.second_q.drivers.QMolecule`.
-
-        Args:
-            result: the driver result from which to extract the raw data. For this property, a
-                :class:`~qiskit_nature.second_q.drivers.QMolecule` is required!
-
-        Returns:
-            An instance of this property.
-
-        Raises:
-            QiskitNatureError: if a :class:`~qiskit_nature.second_q.drivers.WatsonHamiltonian`
-            is provided.
-        """
-        cls._validate_input_type(result, QMolecule)
-
-        qmol = cast(QMolecule, result)
-
-        return cls(
-            qmol.num_molecular_orbitals * 2,
-        )
 
     def second_q_ops(self) -> ListOrDictType[FermionicOp]:
         """Returns the second quantized magnetization operator.

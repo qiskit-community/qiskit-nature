@@ -33,7 +33,6 @@ from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature import ListOrDict
 from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.second_q.problems import ElectronicStructureResult
-from qiskit_nature.deprecation import deprecate_arguments
 
 from .minimum_eigensolver_factories import MinimumEigensolverFactory
 from .ground_state_eigensolver import GroundStateEigensolver
@@ -48,28 +47,13 @@ class AdaptVQE(GroundStateEigensolver):
     `qiskit.opflow.gradients`) and its parameters such as `grad_method`, `qfi_method` (if
     applicable) and `epilson`.
 
-    To reproduce the default behavior of AdaptVQE prior to Qiskit Nature 0.4 you should supply
-    `delta=1` explicitly. This will use a finite difference scheme for the gradient evaluation
-    whereas after version 0.4 a parameter shift gradient will be used.
-    For more information refer to the gradient framework of Qiskit Terra:
-    https://qiskit.org/documentation/tutorials/operators/02_gradients_framework.html
     """
 
-    @deprecate_arguments(
-        "0.4.0",
-        {"delta": "gradient"},
-        additional_msg=(
-            "Instead of `delta=1.0` you have to construct a gradient, like so "
-            "`gradient=Gradient(grad_method='fin_diff', epsilon=1.0)`."
-        ),
-    )
-    # pylint: disable=unused-argument
     def __init__(
         self,
         qubit_converter: QubitConverter,
         solver: MinimumEigensolverFactory,
         threshold: float = 1e-5,
-        delta: float = 1.0,  # delta is copied into gradient by the deprecate_arguments wrapper
         max_iterations: Optional[int] = None,
         gradient: Optional[GradientBase] = None,
     ) -> None:
@@ -78,18 +62,11 @@ class AdaptVQE(GroundStateEigensolver):
             qubit_converter: a class that converts second quantized operator to qubit operator
             solver: a factory for the VQE solver employing a UCCSD ansatz.
             threshold: the energy convergence threshold. It has a minimum value of 1e-15.
-            delta: the finite difference step size for the gradient computation. It has a minimum
-                value of 1e-5.
             max_iterations: the maximum number of iterations of the AdaptVQE algorithm.
             gradient: a class that converts operator expression to the first-order gradient based
                 on the method mentioned.
         """
         validate_min("threshold", threshold, 1e-15)
-
-        if isinstance(gradient, float):
-            # this scenario can only occur while using the deprecate_arguments wrapper which will
-            # move any argument supplied to delta into gradient.
-            gradient = Gradient(grad_method="fin_diff", epsilon=gradient)
 
         super().__init__(qubit_converter, solver)
 

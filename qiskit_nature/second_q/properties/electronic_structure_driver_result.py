@@ -14,20 +14,15 @@
 
 from __future__ import annotations
 
-from typing import cast, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 import h5py
 
 from qiskit_nature import ListOrDictType, settings
-from qiskit_nature.constants import BOHR
-from qiskit_nature.deprecation import deprecate_method
-from qiskit_nature.second_q._qmolecule import QMolecule
 from qiskit_nature.second_q.operators import FermionicOp
 
-from .second_quantized_property import LegacyDriverResult, SecondQuantizedProperty
-from .driver_metadata import DriverMetadata
+from .second_quantized_property import SecondQuantizedProperty
 from .angular_momentum import AngularMomentum
-from .bases import ElectronicBasis, ElectronicBasisTransform
 from .dipole_moment import ElectronicDipoleMoment
 from .electronic_energy import ElectronicEnergy
 from .magnetization import Magnetization
@@ -93,61 +88,6 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
                 ret.molecule = prop
             else:
                 ret.add_property(prop)
-
-        return ret
-
-    @classmethod
-    @deprecate_method("0.4.0")
-    def from_legacy_driver_result(
-        cls, result: LegacyDriverResult
-    ) -> ElectronicStructureDriverResult:
-        """Converts a :class:`~qiskit_nature.second_q.drivers.QMolecule` into an
-        ``ElectronicStructureDriverResult``.
-
-        Args:
-            result: the :class:`~qiskit_nature.second_q.drivers.QMolecule` to convert.
-
-        Returns:
-            An instance of this property.
-
-        Raises:
-            QiskitNatureError: if a :class:`~qiskit_nature.second_q.drivers.WatsonHamiltonian`
-            is provided.
-        """
-        cls._validate_input_type(result, QMolecule)
-
-        qmol = cast(QMolecule, result)
-
-        ret = cls()
-
-        ret.add_property(ElectronicEnergy.from_legacy_driver_result(qmol))
-        ret.add_property(ParticleNumber.from_legacy_driver_result(qmol))
-        ret.add_property(AngularMomentum.from_legacy_driver_result(qmol))
-        ret.add_property(Magnetization.from_legacy_driver_result(qmol))
-        ret.add_property(ElectronicDipoleMoment.from_legacy_driver_result(qmol))
-
-        ret.add_property(
-            ElectronicBasisTransform(
-                ElectronicBasis.AO, ElectronicBasis.MO, qmol.mo_coeff, qmol.mo_coeff_b
-            )
-        )
-
-        geometry: list[tuple[str, list[float]]] = []
-        for atom, xyz in zip(qmol.atom_symbol, qmol.atom_xyz):
-            # QMolecule XYZ defaults to Bohr but Molecule requires Angstrom
-            geometry.append((atom, xyz * BOHR))
-
-        from qiskit_nature.second_q.drivers import Molecule
-
-        ret.molecule = Molecule(geometry, qmol.multiplicity, qmol.molecular_charge)
-
-        ret.add_property(
-            DriverMetadata(
-                qmol.origin_driver_name,
-                qmol.origin_driver_version,
-                qmol.origin_driver_config,
-            )
-        )
 
         return ret
 
