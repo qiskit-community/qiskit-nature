@@ -351,12 +351,6 @@ class TestFermionicOp(QiskitNatureTestCase):
             expected = [((("-", 0), ("+", 1)), -1)]
             self.assertEqual(simplified_op._data, expected)
 
-        with self.subTest("simplify zero"):
-            fer_op = FermionicOp("+") - FermionicOp("+")
-            simplified_op = fer_op.simplify()
-            targ = FermionicOp.zero(1)
-            self.assertFermionEqual(simplified_op, targ)
-
     def test_hermiticity(self):
         """test is_hermitian"""
         with self.subTest("operator hermitian"):
@@ -379,16 +373,6 @@ class TestFermionicOp(QiskitNatureTestCase):
                 - 1j * FermionicOp("-+NE", display_format="dense")
             )
             self.assertFalse(fer_op.is_hermitian())
-
-        with self.subTest("test require normal order"):
-            fer_op = FermionicOp("+_0 -_0 -_1") - FermionicOp("+_1 -_0 +_0") + FermionicOp("+_1")
-            self.assertTrue(fer_op.is_hermitian())
-
-        with self.subTest("test passing atol"):
-            fer_op = FermionicOp("+_0 -_1") + (1 + 1e-7) * FermionicOp("+_1 -_0")
-            self.assertFalse(fer_op.is_hermitian())
-            self.assertFalse(fer_op.is_hermitian(atol=1e-8))
-            self.assertTrue(fer_op.is_hermitian(atol=1e-6))
 
     @data(
         *product(

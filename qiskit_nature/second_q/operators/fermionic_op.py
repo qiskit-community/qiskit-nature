@@ -248,7 +248,10 @@ class FermionicOp(SecondQuantizedOp):
 
         self._data: list[tuple[tuple[tuple[str, int], ...], complex]]
 
-        if (
+        if not isinstance(data, str) and not data:
+            # empty list or tuple means zero operator
+            self._data = [((), 0j)]
+        elif (
             isinstance(data, list)
             and isinstance(data[0], tuple)
             and isinstance(data[0][0], tuple)
@@ -582,17 +585,6 @@ class FermionicOp(SecondQuantizedOp):
         )
 
     def simplify(self, atol: Optional[float] = None) -> FermionicOp:
-        """Simplify the operator.
-
-        Merges terms with same labels and eliminates terms with coefficients close to 0.
-        Returns a new operator (the original operator is not modified).
-
-        Args:
-            atol: Absolute tolerance for checking if coefficients are zero (Default: 1e-8).
-
-        Returns:
-            The simplified operator.
-        """
         if atol is None:
             atol = self.atol
 
@@ -766,3 +758,9 @@ class FermionicOp(SecondQuantizedOp):
             The unity-operator of the given length.
         """
         return FermionicOp(("", 1.0), register_length=register_length, display_format="sparse")
+
+    def is_hermitian(self, atol: Optional[float] = None) -> bool:
+        if atol is None:
+            atol = self.atol
+        diff = (self - self.adjoint()).normal_ordered().simplify(atol=atol)
+        return all(np.isclose(coeff, 0.0, atol=atol) for _, coeff in diff.to_list())

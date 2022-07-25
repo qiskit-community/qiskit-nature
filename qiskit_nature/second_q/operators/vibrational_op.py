@@ -276,17 +276,6 @@ class VibrationalOp(SecondQuantizedOp):
         return self.simplify(atol=atol)
 
     def simplify(self, atol: Optional[float] = None) -> "VibrationalOp":
-        """Simplify the operator.
-
-        Merges terms with same labels and eliminates terms with coefficients close to 0.
-        Returns a new operator (the original operator is not modified).
-
-        Args:
-            atol: Absolute tolerance for checking if coefficients are zero (Default: 1e-8).
-
-        Returns:
-            The simplified operator.
-        """
         if atol is None:
             atol = self.atol
 
@@ -295,7 +284,7 @@ class VibrationalOp(SecondQuantizedOp):
         np.add.at(coeff_list, indices, self._coeffs)
         is_zero = np.isclose(coeff_list, 0, atol=atol)
         if np.all(is_zero):
-            return VibrationalOp(("I_0*0", 0), self._num_modes, self._num_modals)
+            return VibrationalOp.zero(self._num_modes, self._num_modals)
         non_zero = np.logical_not(is_zero)
         return VibrationalOp(
             list(zip(label_list[non_zero], coeff_list[non_zero])),
