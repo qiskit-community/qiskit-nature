@@ -22,8 +22,7 @@ from test import QiskitNatureTestCase
 import numpy as np
 from ddt import ddt, data
 
-from qiskit.exceptions import MissingOptionalLibraryError
-
+from qiskit_nature import optionals
 from qiskit_nature.problems.second_quantization.electronic.electronic_structure_problem import (
     ElectronicStructureProblem,
 )
@@ -194,22 +193,20 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         with self.assertRaises(NotImplementedError):
             mp2_initial_point.compute(ansatz=self.mock_ansatz, grouped_property=grouped_property)
 
+    @unittest.skipIf(not optionals.HAS_PYSCF, "pyscf not available.")
     @data("H 0 0 0; H 0 0 0.7", "Li 0 0 0; H 0 0 1.6")
     def test_mp2_initial_point_with_real_molecules(
         self,
         atom,
     ):
         """Test MP2InitialPoint with real molecules."""
-        try:
-            from pyscf import gto  # pylint: disable=import-error
+        from pyscf import gto  # pylint: disable=import-error
 
-            # Compute the PySCF result
-            pyscf_mol = gto.M(atom=atom, basis="sto3g", verbose=0)
-            pyscf_mp = pyscf_mol.MP2().run(verbose=0)
+        # Compute the PySCF result
+        pyscf_mol = gto.M(atom=atom, basis="sto3g", verbose=0)
+        pyscf_mp = pyscf_mol.MP2().run(verbose=0)
 
-            driver = PySCFDriver(atom=atom, basis="sto3g")
-        except (ModuleNotFoundError, MissingOptionalLibraryError):
-            self.skipTest("PySCF driver does not appear to be installed.")
+        driver = PySCFDriver(atom=atom, basis="sto3g")
 
         problem = ElectronicStructureProblem(driver)
         problem.second_q_ops()
