@@ -20,7 +20,7 @@ from typing import List, Optional, Tuple, Union, cast
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_q.properties import GroupedProperty, Property
+from qiskit_nature.second_q.properties import GroupedProperty
 from qiskit_nature.second_q.properties import (
     SecondQuantizedProperty,
     GroupedSecondQuantizedProperty,
@@ -398,7 +398,7 @@ class ActiveSpaceTransformer(BaseTransformer):
                 transformed_property = None
 
         elif isinstance(prop, ElectronicDipoleMoment):
-            transformed_property = prop.__class__()  # type: ignore[call-arg]
+            transformed_property = prop.__class__()
             transformed_property.name = prop.name
 
             for internal_property in prop._dipole_axes.values():
@@ -407,7 +407,7 @@ class ActiveSpaceTransformer(BaseTransformer):
                     if transformed_internal_property is not None:
                         transformed_property._dipole_axes[
                             transformed_internal_property.name
-                        ] = transformed_internal_property
+                        ] = transformed_internal_property  # type: ignore[assignment]
                 except TypeError:
                     logger.warning(
                         "The Property %s of type %s could not be transformed 2!",
@@ -448,7 +448,7 @@ class ActiveSpaceTransformer(BaseTransformer):
 
         elif isinstance(prop, ElectronicBasisTransform):
             # transformation done manually during `transform`
-            transformed_property = self._transform_active
+            transformed_property = self._transform_active  # type: ignore[assignment]
 
         elif isinstance(prop, DriverMetadata):
             # for the time being we manually catch this to avoid unnecessary warnings
