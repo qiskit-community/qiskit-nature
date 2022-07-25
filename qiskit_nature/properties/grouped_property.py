@@ -22,6 +22,7 @@ import h5py
 from qiskit_nature.hdf5 import _import_and_build_from_hdf5
 from qiskit_nature.results import EigenstateResult
 from .property import Interpretable, Property
+from ..deprecation import warn_deprecated, DeprecatedType, NatureDeprecationWarning
 
 # pylint: disable=invalid-name
 T_co = TypeVar("T_co", bound=Property, covariant=True)
@@ -49,6 +50,14 @@ class GroupedProperty(Property, Iterable, Generic[T_co]):
         """
         super().__init__(name)
         self._properties: dict[str, T_co] = {}
+        warn_deprecated(
+            "0.5.0",
+            old_type=DeprecatedType.CLASS,
+            old_name="qiskit_nature.properties.GroupedProperty",
+            new_type=DeprecatedType.CLASS,
+            new_name="qiskit_nature.second_q.properties.GroupedProperty",
+            category=NatureDeprecationWarning,
+        )
 
     def __str__(self) -> str:
         string = [super().__str__() + ":"]

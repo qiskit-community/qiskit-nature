@@ -14,7 +14,7 @@
 
 from typing import Union, List
 
-from ..deprecation import DeprecatedType, warn_deprecated, NatureDeprecationWarning
+from ..deprecation import DeprecatedType, warn_deprecated
 
 
 class WatsonHamiltonian:
@@ -29,13 +29,15 @@ class WatsonHamiltonian:
             num_modes: number of modes
         """
         warn_deprecated(
-            "0.5.0",
-            old_type=DeprecatedType.CLASS,
-            old_name="qiskit_nature.drivers.WatsonHamiltonian",
-            new_type=DeprecatedType.CLASS,
-            new_name="qiskit_nature.second_q.WatsonHamiltonian",
-            stack_level=3,
-            category=NatureDeprecationWarning,
+            "0.2.0",
+            DeprecatedType.CLASS,
+            "WatsonHamiltonian",
+            additional_msg=(
+                "Instead look towards the qiskit_nature.properties.second_quantization.vibrational "
+                "module. The new return object for drivers is the VibrationalStructureDriverResult "
+                "which you can construct from a WatsonHamiltonian via the "
+                "`from_legacy_driver_result()` method."
+            ),
         )
         self._data = data
         self._num_modes = num_modes

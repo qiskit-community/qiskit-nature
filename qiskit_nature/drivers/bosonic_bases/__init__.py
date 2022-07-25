@@ -32,16 +32,5 @@ Bosonic Basis
 
 from .bosonic_basis import BosonicBasis
 from .harmonic_basis import HarmonicBasis
-from ...deprecation import warn_deprecated, DeprecatedType, NatureDeprecationWarning
-
-warn_deprecated(
-    "0.5.0",
-    old_type=DeprecatedType.PACKAGE,
-    old_name="qiskit_nature.drivers.bosonic_bases",
-    new_type=DeprecatedType.PACKAGE,
-    new_name="qiskit_nature.second_q.drivers.bosonic_bases",
-    stack_level=3,
-    category=NatureDeprecationWarning,
-)
 
 __all__ = ["BosonicBasis", "HarmonicBasis"]

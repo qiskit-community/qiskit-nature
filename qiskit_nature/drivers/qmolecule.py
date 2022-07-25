@@ -20,7 +20,7 @@ from typing import List
 
 import numpy
 from ..constants import BOHR, PERIODIC_TABLE
-from ..deprecation import DeprecatedType, warn_deprecated, NatureDeprecationWarning
+from ..deprecation import DeprecatedType, warn_deprecated
 
 TWOE_TO_SPIN_SUBSCRIPT = "ijkl->ljik"
 
@@ -49,13 +49,15 @@ class QMolecule:
 
     def __init__(self, filename=None):
         warn_deprecated(
-            "0.5.0",
-            old_type=DeprecatedType.CLASS,
-            old_name="qiskit_nature.drivers.QMolecule",
-            new_type=DeprecatedType.CLASS,
-            new_name="qiskit_nature.second_q.QMolecule",
-            stack_level=3,
-            category=NatureDeprecationWarning,
+            "0.2.0",
+            DeprecatedType.CLASS,
+            "QMolecule",
+            additional_msg=(
+                "Instead look towards the qiskit_nature.properties.second_quantization.electronic "
+                "module. The new return object for drivers is the ElectronicStructureDriverResult "
+                "which you can construct from a QMolecule via the `from_legacy_driver_result()` "
+                "method."
+            ),
         )
         self._filename = filename
 

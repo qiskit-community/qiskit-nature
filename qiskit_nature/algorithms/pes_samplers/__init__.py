@@ -77,6 +77,11 @@ warn_deprecated(
     "0.5.0",
     old_type=DeprecatedType.PACKAGE,
     old_name="qiskit_nature.algorithms.pes_sampler",
+    additional_msg=(
+        ". Please refer to "
+        "'https://github.com/Qiskit/qiskit-nature/issues/750'"
+        " for additional information regarding 'extrapolators'"
+    ),
     stack_level=3,
     category=NatureDeprecationWarning,
 )

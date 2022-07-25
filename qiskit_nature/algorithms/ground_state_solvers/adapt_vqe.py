@@ -33,10 +33,16 @@ from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.converters.second_quantization.utils import ListOrDict
 from qiskit_nature.problems.second_quantization import BaseProblem
 from qiskit_nature.results import ElectronicStructureResult
-from qiskit_nature.deprecation import deprecate_arguments
 
 from .minimum_eigensolver_factories import MinimumEigensolverFactory
 from .ground_state_eigensolver import GroundStateEigensolver
+from ...deprecation import (
+    deprecate_arguments,
+    warn_deprecated,
+    DeprecatedType,
+    NatureDeprecationWarning,
+)
+
 
 logger = logging.getLogger(__name__)
 
@@ -84,6 +90,14 @@ class AdaptVQE(GroundStateEigensolver):
             gradient: a class that converts operator expression to the first-order gradient based
                 on the method mentioned.
         """
+        warn_deprecated(
+            "0.5.0",
+            old_type=DeprecatedType.CLASS,
+            old_name="qiskit_nature.algorithms.ground_state_solvers.AdaptVQE",
+            new_type=DeprecatedType.CLASS,
+            new_name="qiskit_terra.algorithms.minimum_eigen_solvers.AdaptVQE",
+            category=NatureDeprecationWarning,
+        )
         validate_min("threshold", threshold, 1e-15)
 
         if isinstance(gradient, float):

@@ -25,6 +25,16 @@ Vibrational Bases (:mod:`qiskit_nature.properties.second_quantization.vibrationa
 
 from .harmonic_basis import HarmonicBasis
 from .vibrational_basis import VibrationalBasis
+from .....deprecation import warn_deprecated, DeprecatedType, NatureDeprecationWarning
+
+warn_deprecated(
+    "0.5.0",
+    old_type=DeprecatedType.PACKAGE,
+    old_name="qiskit_nature.properties.second_quantization.vibrational.basis",
+    new_type=DeprecatedType.PACKAGE,
+    new_name="qiskit_nature.second_q.properties.basis",
+    category=NatureDeprecationWarning,
+)
 
 __all__ = [
     "HarmonicBasis",

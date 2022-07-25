@@ -38,17 +38,6 @@ from .minimum_eigensolver_factories import (
     VQEUCCFactory,
     VQEUVCCFactory,
 )
-from ...deprecation import warn_deprecated, DeprecatedType, NatureDeprecationWarning
-
-warn_deprecated(
-    "0.5.0",
-    old_type=DeprecatedType.PACKAGE,
-    old_name="qiskit_nature.algorithms.ground_state_solvers",
-    new_type=DeprecatedType.PACKAGE,
-    new_name="qiskit_nature.second_q.algorithms.ground_state_solvers",
-    stack_level=3,
-    category=NatureDeprecationWarning,
-)
 
 __all__ = [
     "GroundStateSolver",
