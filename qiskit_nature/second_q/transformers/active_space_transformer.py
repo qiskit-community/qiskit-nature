@@ -392,10 +392,10 @@ class ActiveSpaceTransformer(BaseTransformer):
                     continue
 
             if isinstance(prop, ElectronicDipoleMoment):
-                transformed_property.reverse_dipole_sign = (  # type: ignore[attr-defined]
+                transformed_property.reverse_dipole_sign = (
                     prop.reverse_dipole_sign
                 )
-                transformed_property.nuclear_dipole_moment = (  # type: ignore[attr-defined]
+                transformed_property.nuclear_dipole_moment = (
                     prop.nuclear_dipole_moment
                 )
 

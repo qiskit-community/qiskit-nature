@@ -209,7 +209,7 @@ class ElectronicDipoleMoment(ElectronicProperty):
         ret = ElectronicDipoleMoment()
 
         for prop in _import_and_build_from_hdf5(h5py_group):
-            ret._dipole_axes[prop.name] = prop
+            ret._dipole_axes[prop.name] = prop# type: ignore[attr-defined, assignment]
 
         ret.reverse_dipole_sign = h5py_group.attrs["reverse_dipole_sign"]
         ret.nuclear_dipole_moment = h5py_group.attrs.get("nuclear_dipole_moment", None)
@@ -284,21 +284,21 @@ class ElectronicDipoleMoment(ElectronicProperty):
 
         ret = cls()
 
-        ret._dipole_axes["x"] = dipole_along_axis(
+        ret._dipole_axes["DipoleMomentX"] = dipole_along_axis(
             "x",
             (qmol.x_dip_ints, None),
             (qmol.x_dip_mo_ints, qmol.x_dip_mo_ints_b),
             qmol.x_dip_energy_shift,
         )
 
-        ret._dipole_axes["y"] = dipole_along_axis(
+        ret._dipole_axes["DipoleMomentY"] = dipole_along_axis(
             "y",
             (qmol.y_dip_ints, None),
             (qmol.y_dip_mo_ints, qmol.y_dip_mo_ints_b),
             qmol.y_dip_energy_shift,
         )
 
-        ret._dipole_axes["z"] = dipole_along_axis(
+        ret._dipole_axes["DipoleMomentZ"] = dipole_along_axis(
             "z",
             (qmol.z_dip_ints, None),
             (qmol.z_dip_mo_ints, qmol.z_dip_mo_ints_b),
