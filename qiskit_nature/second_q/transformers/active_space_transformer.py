@@ -392,12 +392,8 @@ class ActiveSpaceTransformer(BaseTransformer):
                     continue
 
             if isinstance(prop, ElectronicDipoleMoment):
-                transformed_property.reverse_dipole_sign = (
-                    prop.reverse_dipole_sign
-                )
-                transformed_property.nuclear_dipole_moment = (
-                    prop.nuclear_dipole_moment
-                )
+                transformed_property.reverse_dipole_sign = prop.reverse_dipole_sign
+                transformed_property.nuclear_dipole_moment = prop.nuclear_dipole_moment
 
             if len(list(transformed_property)) == 0:
                 # empty GroupedProperty instance
