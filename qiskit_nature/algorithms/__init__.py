@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 
 """
+============================================
 Algorithms (:mod:`qiskit_nature.algorithms`)
 ============================================
 
@@ -94,7 +95,7 @@ Algorithms that can compute potential energy surfaces.
    ~pes_samplers.BOPESSampler
 
 The samplers include extrapolators to facilitate convergence across a set of points and support
-of various potentials. More detail may be found in the sub-module linked below
+of various potentials. More detail may be found in the sub-module linked below.
 
 .. autosummary::
    :toctree:
@@ -102,26 +103,14 @@ of various potentials. More detail may be found in the sub-module linked below
    pes_samplers
 
 Initial Points
-+++++++++++++++++++++++++++++++++
-Algorithms that can compute initial points to use with particular ansatzes.
-
-.. currentmodule:: qiskit_nature.algorithms.initial_points
-
-The initial point interface.
+++++++++++++++
+The factories linked above make use of utility classes to compute initial points to use with
+specific ansatzes. More detail may be found in the sub-module linked below.
 
 .. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
+   :toctree:
 
-   InitialPoint
-
-The MP2 initial point algorithm.
-
-.. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
-
-   MP2InitialPoint
+   initial_points
 
 """
 
@@ -142,7 +131,6 @@ from .ground_state_solvers import (
     VQEUVCCFactory,
 )
 from .pes_samplers import BOPESSampler
-from .initial_points import InitialPoint, MP2InitialPoint
 
 __all__ = [
     "ExcitedStatesEigensolver",
@@ -158,6 +146,4 @@ __all__ = [
     "VQEUCCFactory",
     "VQEUVCCFactory",
     "BOPESSampler",
-    "InitialPoint",
-    "MP2InitialPoint",
 ]

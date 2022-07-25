@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fixes a bug where numpy integer objects were causing integer-based isinstance
+    checks to fail. This also avoids such problems by explicitly converting integer
+    values to Python integers when loading properties from HDF5 files.

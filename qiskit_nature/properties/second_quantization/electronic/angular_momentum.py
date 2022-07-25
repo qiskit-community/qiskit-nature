@@ -145,7 +145,7 @@ class AngularMomentum(ElectronicProperty):
             A new instance of this class.
         """
         return AngularMomentum(
-            h5py_group.attrs["num_spin_orbitals"],
+            int(h5py_group.attrs["num_spin_orbitals"]),
             h5py_group.attrs.get("spin", None),
             h5py_group.attrs["absolute_tolerance"],
             h5py_group.attrs["relative_tolerance"],

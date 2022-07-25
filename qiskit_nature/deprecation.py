@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021,2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -16,7 +16,7 @@ from abc import abstractmethod
 import warnings
 import functools
 import inspect
-from typing import NamedTuple, Optional, Callable, Dict, Set, cast, Any
+from typing import NamedTuple, Optional, Callable, Dict, Set, cast, Any, List
 from enum import Enum, EnumMeta
 
 
@@ -222,6 +222,66 @@ def deprecate_arguments(
                     stack_level,
                 )
             return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
+def deprecate_positional_arguments(
+    version: str,
+    func_name: str,
+    old_function_arguments: List[str],
+    additional_msg: Optional[str] = None,
+    stack_level: int = 3,
+) -> Callable:
+    """Decorator to convert positional arguments into keyword arguments and warn upon use.
+    If we had a function(a,b,c,d) and we now want the user to pass b and d as kwargs we
+    would do the following.
+    .. code-block:: python
+        def old_function(a,b,c,d):
+            return a+b+c+d
+
+        @deprecate_positional_arguments("0.1","function", ["a","b","c","d"])
+        def function(a, c, **kwargs):
+            returns a + c + sum(kwargs.values())
+
+        # The following two calls would be equivalent
+        function(1, 2, 3, 4)  # Would raise deprecation warning for arguments b and d.
+        function(a=1, b=2, c=3, d=4)  # Would not raise any warning.
+        function(1,3,b=2,d=4) #Would not raise any errors either.
+
+    Args:
+        version: Version to be used
+        func_name: Name of the function where the deprecation takes place will be used to
+        write the deprecation message.
+        old_function_arguments: List of arguments of the function before the deprecation.
+        additional_msg: any additional message
+        stack_level: stack level
+
+    Returns:
+        The decorated function
+    """
+
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+
+            new_function_arguments = inspect.getfullargspec(func)[0]
+
+            for i, arg in enumerate(args):
+                kwargs[old_function_arguments[i]] = arg
+                if old_function_arguments[i] not in new_function_arguments:
+                    msg = (
+                        f"{func_name}: {old_function_arguments[i]} is no longer a positional argument "
+                        f"as of version {version} and will be removed no sooner "
+                        "than 3 months after the release. Instead use it as a keyword argument"
+                    )
+                    if additional_msg:
+                        msg += f"{additional_msg}" + "."
+
+                    warnings.warn(msg, DeprecationWarning, stack_level)
+            return func(**kwargs)
 
         return wrapper
 

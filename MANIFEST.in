@@ -1,5 +1,6 @@
 include LICENSE.txt
 include requirements.txt
+include qiskit_nature/py.typed
 recursive-include qiskit_nature *.txt
 graft qiskit_nature/drivers/second_quantization/gaussiand/gauopen
 graft test

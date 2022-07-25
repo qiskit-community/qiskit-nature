@@ -20,6 +20,7 @@ antisymmetrized
 ao
 april
 arginine
+arg
 args
 arrowheads
 arrowstyle
@@ -52,6 +53,7 @@ cargs
 cartesian
 cbit
 ccx
+cdots
 cfg
 chc
 chiral
@@ -100,6 +102,7 @@ debye
 deepcopy
 dft
 diag
+diagonalization
 diagonalize
 diagonalizes
 diagonalizing
@@ -109,6 +112,7 @@ dimensionality
 discoverable
 distinguishability
 dll
+docstring
 dof
 doi
 dt
@@ -122,6 +126,7 @@ eigensolvers
 eigenstate
 eigenstateresult
 eigenstates
+eigenvector
 einact
 einsum
 endian
@@ -212,6 +217,7 @@ iten
 iterable
 iteratively
 itertools
+ivano
 iz
 james
 jb
@@ -234,6 +240,7 @@ kwargs
 kwds
 labelled
 lda
+ldots
 len
 leucine
 levinthal
@@ -248,6 +255,7 @@ ljik
 lk
 logfile
 lookback
+lvert
 lysine
 macos
 majorana
@@ -256,6 +264,7 @@ matplotlib
 maxdepth
 maxiter
 maxiters
+mazzola
 mcp
 mcrx
 mcry
@@ -274,6 +283,7 @@ moc
 mohij
 mohijkl
 mol
+moller
 morse
 mpl
 mul
@@ -323,6 +333,7 @@ ortho
 orthonormal
 otimes
 outpath
+overline
 pac
 param
 parameterized
@@ -336,6 +347,7 @@ perturbative
 pes
 phenylalanine
 phonons
+physrevd
 physik
 plesset
 pmatrix
@@ -351,6 +363,7 @@ preprint
 preprocesses
 proline
 ps
+pseudorandom
 pxd
 py
 pyquante
@@ -374,6 +387,7 @@ qubit
 qubits
 qutrit
 radians
+rangle
 rcccx
 rccx
 readme
@@ -403,6 +417,7 @@ ryy
 rz
 rzx
 rzz
+scalable
 scf
 schroedinger
 schur
@@ -416,6 +431,7 @@ setia
 setted
 shende
 sklearn
+slater
 spinop
 springer
 spsa
@@ -460,6 +476,7 @@ traceback
 tran
 translational
 transpilation
+transpile
 trotterization
 tryptophan
 tuple
@@ -497,6 +514,7 @@ verbatim
 versa
 vibrational
 vibrationalop
+vibrationalops
 vibro
 vmax
 vmin

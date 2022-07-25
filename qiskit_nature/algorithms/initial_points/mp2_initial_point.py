@@ -14,12 +14,14 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 import numpy as np
 from qiskit_nature.exceptions import QiskitNatureError
 
+from qiskit_nature.circuit.library import UCC
 from qiskit_nature.properties.second_quantization.electronic import ElectronicEnergy
 from qiskit_nature.properties.second_quantization.electronic.bases import ElectronicBasis
-from qiskit_nature.circuit.library import UCC
 from qiskit_nature.properties.second_quantization.electronic.integrals.electronic_integrals import (
     ElectronicIntegrals,
 )
@@ -30,8 +32,17 @@ from qiskit_nature.properties.second_quantization.second_quantized_property impo
 from .initial_point import InitialPoint
 
 
+@dataclass(frozen=True)
+class _Correction:
+    """Class for storing data about each MP2 correction term."""
+
+    excitation: tuple[tuple[int, ...], tuple[int, ...]]
+    coefficient: float = 0.0
+    energy: float = 0.0
+
+
 class MP2InitialPoint(InitialPoint):
-    """Compute second-order Møller-Plesset perturbation theory (MP2) corrections.
+    """Compute the second-order Møller-Plesset perturbation theory (MP2) initial point.
 
     The computed MP2 correction coefficients are intended for use as an initial point for the VQE
     parameters in combination with a :class:`~qiskit_nature.circuit.library.ansatzes.ucc.UCC`
@@ -41,39 +52,75 @@ class MP2InitialPoint(InitialPoint):
     requires the :attr:`grouped_property` and :attr:`ansatz` to be passed as arguments or the
     :attr:`grouped_property` and :attr:`excitation_list` attributes to be set already.
 
-    :class:`MP2InitialPoint` requires the
-    :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`,
-    which should be passed in via the :attr:`grouped_property` attribute.
-    From this it must obtain the two-body molecular orbital electronic integrals and orbital
-    energies. If the Hartree-Fock reference energy is also obtained, it will be used to compute the
-    absolute MP2 energy using the :meth:`get_energy` method.
+    ``MP2InitialPoint`` requires the
+    :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`, which should
+    be passed in via the :attr:`grouped_property` attribute. From this it must obtain the two-body
+    molecular orbital electronic integrals and orbital energies. If the Hartree-Fock reference
+    energy is also obtained, it will be used to compute the absolute MP2 energy using the
+    :meth:`get_energy` method.
 
-    :class:`MP2InitialPoint` also requires the :attr:`excitation_list` from the :attr:`ansatz` to
-    ensure that the coefficients map correctly to the initial point array. However, this can be
-    substituted by setting the :attr:`excitation_list` attribute directly.
+    ``MP2InitialPoint`` also requires the :attr:`excitation_list` from the :attr:`ansatz` to ensure
+    that the coefficients map correctly to the initial point array. However, this can be substituted
+    by setting the :attr:`excitation_list` attribute directly.
 
     Following computation, the initial point array can be extracted via the :meth:`to_numpy_array`
     method. The array of energy corrections indexed by excitation can be recovered using the
     :meth:`get_energy_corrections` method. The overall energy correction can be obtained via the
     :meth:`get_energy_correction` method.
+
+    Coefficient and energy correction array elements with indices corresponding to double
+    excitations in the :attr:`excitation_list` will have a value corresponding to the appropriate
+    MP2 energy correction while those that correspond to single, triple, or higher excitations will
+    have zero value.
     """
 
     def __init__(self, threshold: float = 1e-12) -> None:
         super().__init__()
+        self._ansatz: UCC | None = None
+        self._excitation_list: list[tuple[tuple[int, ...], tuple[int, ...]]] | None = None
         self.threshold: float = threshold
-
-        self._grouped_property: GroupedSecondQuantizedProperty | None = None
         self._integral_matrix: np.ndarray | None = None
         self._orbital_energies: np.ndarray | None = None
         self._reference_energy: float = 0.0
-
-        self._ansatz: UCC | None = None
-        self._excitation_list: list[tuple[tuple[int, ...], tuple[int, ...]]] | None = None
-
-        self._corrections: dict[str, tuple[float, float]] | None = None
+        self._corrections: list[_Correction] | None = None
 
     @property
-    def grouped_property(self) -> GroupedSecondQuantizedProperty:
+    def ansatz(self) -> UCC:
+        """The UCC ansatz.
+
+        This is used to ensure that the :attr:`excitation_list` matches with the UCC ansatz that
+        will be used with the VQE algorithm.
+        """
+        return self._ansatz
+
+    @ansatz.setter
+    def ansatz(self, ansatz: UCC) -> None:
+        # Operators must be built early to compute the excitation list.
+        _ = ansatz.operators
+
+        # Invalidate any previous computation.
+        self._corrections = None
+
+        self._excitation_list = ansatz.excitation_list
+        self._ansatz = ansatz
+
+    @property
+    def excitation_list(self) -> list[tuple[tuple[int, ...], tuple[int, ...]]]:
+        """The list of excitations.
+
+        Setting this will overwrite the excitation list from the ansatz.
+        """
+        return self._excitation_list
+
+    @excitation_list.setter
+    def excitation_list(self, excitations: list[tuple[tuple[int, ...], tuple[int, ...]]]):
+        # Invalidate any previous computation.
+        self._corrections = None
+
+        self._excitation_list = excitations
+
+    @property
+    def grouped_property(self) -> GroupedSecondQuantizedProperty | None:
         """The grouped property.
 
         The grouped property is required to contain the
@@ -92,60 +139,41 @@ class MP2InitialPoint(InitialPoint):
 
     @grouped_property.setter
     def grouped_property(self, grouped_property: GroupedSecondQuantizedProperty) -> None:
+
         electronic_energy: ElectronicEnergy | None = grouped_property.get_property(ElectronicEnergy)
-        if not isinstance(electronic_energy, ElectronicEnergy):
-            raise QiskitNatureError(f"ElectronicEnergy not in grouped property: {grouped_property}")
+        if electronic_energy is None:
+            raise QiskitNatureError(
+                "The ElectronicEnergy cannot be obtained from the grouped_property."
+            )
 
         two_body_mo_integral: ElectronicIntegrals | None = (
             electronic_energy.get_electronic_integral(ElectronicBasis.MO, 2)
         )
-        if not isinstance(two_body_mo_integral, ElectronicIntegrals):
+        if two_body_mo_integral is None:
             raise QiskitNatureError(
-                f"Two body MO electronic integral not in grouped property: {grouped_property}"
+                "The two body MO electronic integral cannot be obtained from the grouped property."
             )
 
         orbital_energies: np.ndarray | None = electronic_energy.orbital_energies
-        if not isinstance(orbital_energies, np.ndarray):
-            raise QiskitNatureError(f"Orbital energies not in grouped property: {grouped_property}")
-
-        # Invalidate any previous computation.
-        self._corrections = None
+        if orbital_energies is None:
+            raise QiskitNatureError(
+                "The orbital_energies cannot be obtained from the grouped property."
+            )
 
         self._integral_matrix = two_body_mo_integral.get_matrix()
         if not np.allclose(self._integral_matrix, two_body_mo_integral.get_matrix(2)):
-            raise NotImplementedError("MP2InitialPoint only supports restricted-spin setups.")
-        self._orbital_energies = orbital_energies
-        self._reference_energy = electronic_energy.reference_energy if not None else 0.0
-        self._grouped_property = grouped_property
-
-    @property
-    def ansatz(self) -> UCC:
-        """The UCC ansatz.
-
-        This is used to ensure that the :attr:`excitation_list` matches with the UCC ansatz that
-        will be used with the VQE algorithm.
-
-        Raises:
-            QiskitNatureError: If not set using a valid
-                :class:`~qiskit_nature.circuit.library.ansatzes.ucc.UCC` instance.
-        """
-        return self._ansatz
-
-    @ansatz.setter
-    def ansatz(self, ansatz: UCC) -> None:
-        if not isinstance(ansatz, UCC):
-            raise QiskitNatureError(
-                f"MP2InitialPoint requires a UCC ansatz, but got type: {type(ansatz)}."
+            raise NotImplementedError(
+                "MP2InitialPoint only supports restricted-spin setups. "
+                "Alpha and beta spin orbitals must be identical. "
+                "See https://github.com/Qiskit/qiskit-nature/issues/645."
             )
-
-        # Operators must be built early to compute the excitation list.
-        _ = ansatz.operators
 
         # Invalidate any previous computation.
         self._corrections = None
 
-        self._excitation_list = ansatz.excitation_list
-        self._ansatz = ansatz
+        self._orbital_energies = orbital_energies
+        self._reference_energy = electronic_energy.reference_energy if not None else 0.0
+        self._grouped_property = grouped_property
 
     @property
     def threshold(self) -> float:
@@ -168,154 +196,90 @@ class MP2InitialPoint(InitialPoint):
 
         self._threshold = threshold
 
-    @property
-    def excitation_list(self) -> list[tuple[tuple[int, ...], tuple[int, ...]]]:
-        """The list of excitations.
-
-        Setting this will overwrite the excitation list from the ansatz.
-        """
-        return self._excitation_list
-
-    @excitation_list.setter
-    def excitation_list(self, excitations: list[tuple[tuple[int, ...], tuple[int, ...]]]):
-        # Invalidate any previous computation.
-        self._corrections = None
-
-        self._excitation_list = excitations
-
-    def to_numpy_array(self) -> np.ndarray:
-        """The initial point as an array of MP2 coefficients.
-
-        Array elements with indices corresponding to double excitations in the
-        :attr:`excitation_list` will have a value corresponding to the appropriate MP2 coefficient,
-        while those that correspond to single, triple, or higher excitations will have zero value.
-        """
-        if self._corrections is None:
-            self.compute()
-        return np.asarray([value[0] for value in self._corrections.values()])
-
-    def get_energy_corrections(self) -> np.ndarray:
-        """The MP2 energy corrections for each excitation.
-
-        Array elements with indices corresponding to double excitations in the
-        :attr:`excitation_list` will have a value corresponding to the appropriate MP2 energy
-        correction while those that correspond to single, triple, or higher excitations will have
-        zero value.
-        """
-        if self._corrections is None:
-            self.compute()
-        return np.asarray([value[1] for value in self._corrections.values()])
-
-    def get_energy_correction(self) -> float:
-        """The overall MP2 energy correction."""
-        return self.get_energy_corrections().sum()
-
-    def get_energy(self) -> float:
-        """The absolute MP2 energy.
-
-        If the reference energy was not obtained from
-        :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`
-        this will be equal to :meth:`get_energy_correction`.
-        """
-        return self._reference_energy + self.get_energy_correction()
-
     def compute(
         self,
-        grouped_property: GroupedSecondQuantizedProperty | None = None,
         ansatz: UCC | None = None,
+        grouped_property: GroupedSecondQuantizedProperty | None = None,
     ) -> None:
-        """Compute the MP2 coefficients and energy corrections.
+        """Compute the coefficients and energy corrections.
 
-        See :class:`MP2InitialPoint` for more information.
+        See further up for more information.
 
         Args:
-            grouped_property: A grouped second-quantized property that is required to contain the
-                :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`.
-                From this we require the two-body molecular orbitals electronic integrals and orbital
-                energies. Optionally, it also obtain the Hartree-Fock reference energy to compute
-                the absolute MP2 energy.
+            grouped_property: A grouped second-quantized property that may optionally contain the
+                Hartree-Fock reference energy. This is for consistency with other initial points.
             ansatz: The UCC ansatz. Required to set the :attr:`excitation_list` to ensure that the
                 coefficients are mapped correctly in the initial point array.
 
         Raises:
-            QiskitNatureError: If :attr:`grouped_property` and/or :attr`ansatz` are not set.
+            QiskitNatureError: If :attr:`_excitation_list` or :attr:`_grouped_property` is not set.
         """
-        missing_input_error_message: str = (
-            "Not enough information has been provided to compute the MP2 corrections. "
-            "Set the grouped property and the ansatz or call compute with them as arguments. "
-            "The ansatz is not required if the excitation list has been set directly."
-        )
-
-        if isinstance(grouped_property, GroupedSecondQuantizedProperty):
+        if grouped_property is not None:
             self.grouped_property = grouped_property
-        elif not isinstance(self._grouped_property, GroupedSecondQuantizedProperty):
-            raise QiskitNatureError(
-                "The grouped property has not been set. " + missing_input_error_message
-            )
 
-        if isinstance(ansatz, UCC):
+        if self._grouped_property is None:
+            raise QiskitNatureError("The grouped_property has not been set.")
+
+        if ansatz is not None:
             self.ansatz = ansatz
-        elif not isinstance(self._excitation_list, list):
+
+        if self._excitation_list is None:
             raise QiskitNatureError(
                 "The excitation list has not been set directly or via the ansatz. "
-                + missing_input_error_message
+                "Not enough information has been provided to compute the initial point. "
+                "Set the ansatz or call compute with it as an argument. "
+                "The ansatz is not required if the excitation list has been set directly."
             )
 
-        self._corrections = self._compute_corrections()
+        self._compute()
 
-    def _compute_corrections(
-        self,
-    ) -> dict[str, tuple[float, float]]:
+    def _compute(self) -> None:
         """Compute the MP2 coefficients and energy corrections.
 
-        Tuples of the coefficients and energy corrections are stored in a dictionary with a string
-        of the corresponding excitation. This dictionary isn't directly exposed to the user, but is
-        retained for internal clarity and validation. Non-double excitations will have zero
-        coefficient and energy correction.
+        Non-double excitations will have zero coefficient and energy_correction.
 
         Returns:
             Dictionary with MP2 coefficients and energy_corrections for each excitation.
         """
-        corrections = {}
+        corrections: list[_Correction] = []
         for excitation in self._excitation_list:
             if len(excitation[0]) == 2:
                 # Compute MP2 corrections using double excitations.
-                coefficient, energy_correction = self._compute_correction(excitation)
+                corrections.append(self._compute_correction(excitation))
             else:
-                # No corrections for single, triple, and higher excitations.
-                coefficient, energy_correction = 0.0, 0.0
+                # No computation for single, triple, and higher excitations.
+                corrections.append(_Correction(excitation=excitation))
 
-            corrections[str(excitation)] = (coefficient, energy_correction)
-
-        return corrections
+        self._corrections = corrections
 
     def _compute_correction(
         self, excitation: tuple[tuple[int, ...], tuple[int, ...]]
-    ) -> tuple[float, float]:
-        """Compute the MP2 coefficient and energy correction given a double excitation.
+    ) -> _Correction:
+        r"""Compute the MP2 coefficient and energy correction for a single term.
 
-        Each double excitation indexed by ::math`i,a,j,b` has a correction coefficient,
+        Each double excitation indexed by :math:`i,a,j,b` has a correction coefficient,
 
         ..math::
-            c_{i,a,j,b} = -\\frac{2 T_{i,a,j,b} - T_{i,b,j,a}}{E_b + E_a - E_i - E_j},
 
-        where ::math::`E` is the orbital energy and ::math::`T` is the integral matrix.
-        And an energy correction,
+            c_{i,a,j,b} = -\frac{2 T_{i,a,j,b} - T_{i,b,j,a}}{E_b + E_a - E_i - E_j},
 
-        ..math..
-            correction = E_{i, a, j, b} = c_{i,a,j,b} T_{i,a,j,b}.
+        where :math:`E` is the orbital energy and :math:`T` is the integral matrix, and an energy
+        correction,
+
+        ..math::
+
+            \Delta E_{i, a, j, b} = c_{i,a,j,b} T_{i,a,j,b}.
 
         These computations use molecular orbitals, but the indices used in the excitation
         information passed in and out use the block spin orbital numbering common to Qiskit Nature:
-          - ::math::`\\alpha` runs from ``0`` to ``num_molecular_orbitals - 1``,
-          - ::math::`'\\'beta` runs from ``num_molecular_orbitals`` to
-            ``num_molecular_orbitals * 2 - 1``.
+          - :math:`\alpha` runs from `0` to `num_molecular_orbitals - 1`,
+          - :math:`\beta` runs from `num_molecular_orbitals` to `num_molecular_orbitals * 2 - 1`.
 
         Args:
             excitations: List of excitations.
 
         Returns:
-            Coefficient and energy correction for a given double excitation.
+            List of corrections.
         """
         integral_matrix = self._integral_matrix
         orbital_energies = self._orbital_energies
@@ -336,10 +300,35 @@ class MP2InitialPoint(InitialPoint):
         orbital_energy_correction = (
             orbital_energies[b] + orbital_energies[a] - orbital_energies[i] - orbital_energies[j]
         )
-        correction_coeff = -expectation_value / orbital_energy_correction
-        correction_coeff = correction_coeff if abs(correction_coeff) > threshold else 0.0
+        coefficient = -expectation_value / orbital_energy_correction
+        coefficient = coefficient if abs(coefficient) > threshold else 0.0
 
-        energy_correction = correction_coeff * expectation_value_iajb
+        energy_correction = coefficient * expectation_value_iajb
         energy_correction = energy_correction if abs(energy_correction) > threshold else 0.0
 
-        return correction_coeff, energy_correction
+        return _Correction(excitation=excitation, coefficient=coefficient, energy=energy_correction)
+
+    def to_numpy_array(self) -> np.ndarray:
+        """The initial point as an array."""
+        if self._corrections is None:
+            self.compute()
+        return np.asarray([correction.coefficient for correction in self._corrections])
+
+    def get_energy_corrections(self) -> np.ndarray:
+        """The energy corrections for each excitation."""
+        if self._corrections is None:
+            self.compute()
+        return np.asarray([correction.energy for correction in self._corrections])
+
+    def get_energy_correction(self) -> float:
+        """The overall energy correction."""
+        return self.get_energy_corrections().sum()
+
+    def get_energy(self) -> float:
+        """The absolute energy.
+
+        If the reference energy was not obtained from
+        :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`
+        this will be equal to :meth:`get_energy_correction`.
+        """
+        return self._reference_energy + self.get_energy_correction()

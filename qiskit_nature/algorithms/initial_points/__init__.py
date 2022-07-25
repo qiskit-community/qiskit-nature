@@ -11,34 +11,26 @@
 # that they have been altered from the originals.
 
 """
-====================================================================================
-Initial Points
-(:mod:`qiskit_nature.algorithms.initial_points`)
-====================================================================================
-
-Algorithms that can compute initial points to use with particular ansatzes.
+Initial Points (:mod:`qiskit_nature.algorithms.initial_points`)
+===============================================================
+Utility classes that provide initial points to use with specific ansatzes.
 
 .. currentmodule:: qiskit_nature.algorithms.initial_points
-
-The initial point generator interface.
 
 .. autosummary::
    :toctree: ../stubs/
    :nosignatures:
 
    InitialPoint
-
-The MP2 initial point generator.
-
-.. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
-
+   HFInitialPoint
    MP2InitialPoint
+   VSCFInitialPoint
 
 """
 
 from .initial_point import InitialPoint
+from .hf_initial_point import HFInitialPoint
 from .mp2_initial_point import MP2InitialPoint
+from .vscf_initial_point import VSCFInitialPoint
 
-__all__ = ["InitialPoint", "MP2InitialPoint"]
+__all__ = ["InitialPoint", "HFInitialPoint", "MP2InitialPoint", "VSCFInitialPoint"]

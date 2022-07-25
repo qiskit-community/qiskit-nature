@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -18,18 +18,26 @@ A collection of circuits used as building blocks or inputs for algorithms.
 
 .. currentmodule:: qiskit_nature.circuit.library
 
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   BogoliubovTransform
+
 Initial states
-==============
+--------------
 
 .. autosummary::
    :toctree: ../stubs/
    :nosignatures:
 
+   FermionicGaussianState
    HartreeFock
+   SlaterDeterminant
    VSCF
 
 Ansatzes
-========
+--------
 
 .. autosummary::
    :toctree: ../stubs/
@@ -44,7 +52,7 @@ Ansatzes
    UVCCSD
 
 Ansatz Utilities
-================
+----------------
 
 Utilities such as excitation generators for use with the ansatzes.
 
@@ -64,7 +72,9 @@ from .ansatzes import (
     UVCCSD,
 )
 
-from .initial_states import HartreeFock, VSCF
+from .initial_states import FermionicGaussianState, HartreeFock, SlaterDeterminant, VSCF
+
+from .bogoliubov_transform import BogoliubovTransform
 
 __all__ = [
     "UCC",
@@ -76,4 +86,7 @@ __all__ = [
     "UVCC",
     "UVCCSD",
     "VSCF",
+    "FermionicGaussianState",
+    "SlaterDeterminant",
+    "BogoliubovTransform",
 ]
