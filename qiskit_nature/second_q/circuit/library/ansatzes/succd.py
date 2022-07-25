@@ -161,7 +161,19 @@ class SUCCD(UCC):
         )
         logger.debug("Generated list of single alpha excitations: %s", alpha_excitations)
 
-        if self._mirror is False:
+        if self._mirror:
+
+            excitations.extend(
+                generate_fermionic_excitations(
+                    2,
+                    num_spin_orbitals,
+                    num_particles,
+                    max_spin_excitation=1,
+                    generalized=self._generalized,
+                )
+            )
+
+        else:
 
             # Find all possible double excitations constructed from the list of single excitations.
             # Note, that we use `combinations_with_replacement` here, in order to also get those
@@ -183,17 +195,6 @@ class SUCCD(UCC):
                 exc_tuple = (occ, unocc)
                 excitations.append(exc_tuple)
                 logger.debug("Added the excitation: %s", exc_tuple)
-
-        if self._mirror:
-
-            excitations.extend(
-                generate_fermionic_excitations(
-                    2,
-                    num_spin_orbitals,
-                    num_particles,
-                    max_spin_excitation=1,
-                )
-            )
 
         return excitations
 
@@ -247,7 +248,7 @@ class SUCCD(UCC):
             excitations_dictionary[exc_level].append(exc)
 
         for exc_level, exc_level_items in excitations_dictionary.items():
-            ops = []
+            ops: List[FermionicOp] = []
             for exc in exc_level_items:
                 label = ["I"] * self.num_spin_orbitals
                 for occ in exc[0]:
