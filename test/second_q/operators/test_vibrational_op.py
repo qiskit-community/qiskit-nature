@@ -114,6 +114,12 @@ class TestVibrationalOp(QiskitNatureTestCase):
             )
             self.assertFalse(test_op.is_hermitian())
 
+        with self.subTest("test passing atol"):
+            test_op = 1j * VibrationalOp("+-", 2, 1) - (1 + 1e-7) * 1j * VibrationalOp("-+", 2, 1)
+            self.assertFalse(test_op.is_hermitian())
+            self.assertFalse(test_op.is_hermitian(atol=1e-8))
+            self.assertTrue(test_op.is_hermitian(atol=1e-6))
+
     def test_simplify(self):
         """Test simplify"""
         test_op = (
