@@ -161,7 +161,7 @@ for idx, axis in enumerate(["x", "y", "z"]):
                     ElectronicBasis.AO,
                     (
                         numpy.asarray(_q_dip_ao),
-                        None,∂
+                        None,
                     ),
                 ),
                 OneBodyElectronicIntegrals(
@@ -173,5 +173,4 @@ for idx, axis in enumerate(["x", "y", "z"]):
                 ),
             ],
         )
-∂
 _q_driver_result.add_property(_q_dipole)
