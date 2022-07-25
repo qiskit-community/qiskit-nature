@@ -359,9 +359,9 @@ class ActiveSpaceTransformer(BaseTransformer):
 
     # TODO: can we efficiently extract this into the base class? At least the logic dealing with
     # recursion is general and we should avoid having to duplicate it.
-    def _transform_property(self,
-                            prop: SecondQuantizedProperty
-     ) -> Optional[SecondQuantizedProperty]:
+    def _transform_property(
+        self, prop: SecondQuantizedProperty
+    ) -> Optional[SecondQuantizedProperty]:
         """Transforms a Property object.
 
         This is a recursive reduction, iterating GroupedProperty objects when encountering one.
@@ -405,7 +405,9 @@ class ActiveSpaceTransformer(BaseTransformer):
                 try:
                     transformed_internal_property = self._transform_property(internal_property)
                     if transformed_internal_property is not None:
-                        transformed_property._dipole_axes[transformed_internal_property.name] = (transformed_internal_property)
+                        transformed_property._dipole_axes[
+                            transformed_internal_property.name
+                        ] = transformed_internal_property
                 except TypeError:
                     logger.warning(
                         "The Property %s of type %s could not be transformed 2!",
@@ -455,6 +457,5 @@ class ActiveSpaceTransformer(BaseTransformer):
 
         else:
             transformed_property = prop.__class__(len(self._active_orbs_indices) * 2)  # type: ignore
-
 
         return transformed_property
