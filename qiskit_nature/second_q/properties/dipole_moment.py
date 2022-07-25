@@ -171,7 +171,6 @@ class ElectronicDipoleMoment(ElectronicProperty):
                 # self.add_property(dipole)
                 self._dipole_axes[dipole.name] = dipole
 
-
     def to_hdf5(self, parent: h5py.Group) -> None:
         """Stores this instance in an HDF5 group inside of the provided parent group.
 
@@ -286,25 +285,25 @@ class ElectronicDipoleMoment(ElectronicProperty):
         ret = cls()
 
         ret._dipole_axes["x"] = dipole_along_axis(
-                                        "x",
-                                        (qmol.x_dip_ints, None),
-                                        (qmol.x_dip_mo_ints, qmol.x_dip_mo_ints_b),
-                                        qmol.x_dip_energy_shift,
-                                    )
+            "x",
+            (qmol.x_dip_ints, None),
+            (qmol.x_dip_mo_ints, qmol.x_dip_mo_ints_b),
+            qmol.x_dip_energy_shift,
+        )
 
         ret._dipole_axes["y"] = dipole_along_axis(
-                                        "y",
-                                        (qmol.y_dip_ints, None),
-                                        (qmol.y_dip_mo_ints, qmol.y_dip_mo_ints_b),
-                                        qmol.y_dip_energy_shift,
-                                    )
+            "y",
+            (qmol.y_dip_ints, None),
+            (qmol.y_dip_mo_ints, qmol.y_dip_mo_ints_b),
+            qmol.y_dip_energy_shift,
+        )
 
         ret._dipole_axes["z"] = dipole_along_axis(
-                                        "z",
-                                        (qmol.z_dip_ints, None),
-                                        (qmol.z_dip_mo_ints, qmol.z_dip_mo_ints_b),
-                                        qmol.z_dip_energy_shift,
-                                    )
+            "z",
+            (qmol.z_dip_ints, None),
+            (qmol.z_dip_mo_ints, qmol.z_dip_mo_ints_b),
+            qmol.z_dip_energy_shift,
+        )
 
         ret.nuclear_dipole_moment = nuclear_dipole_moment
         ret.reverse_dipole_sign = qmol.reverse_dipole_sign
