@@ -179,6 +179,7 @@ class ElectronicDipoleMoment(ElectronicProperty):
         Args:
             parent: the parent HDF5 group.
         """
+        super().to_hdf5(parent)
         group = parent.require_group(self.name)
 
         for prop in self._dipole_axes.values():

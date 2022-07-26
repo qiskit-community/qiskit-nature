@@ -153,8 +153,7 @@ for idx, axis in enumerate(["x", "y", "z"]):
     if _q_has_B:
         _q_dip_mo_b = _q_dip_ao.clone()
         _q_dip_mo_b.transform(_q_hf_wavefn.Cb())
-    dipole_name = "DipoleMoment"+axis.upper()
-    _q_dipole._dipole_axes[dipole_name] = DipoleMoment(
+    dip = DipoleMoment(
             axis,
             [
                 OneBodyElectronicIntegrals(
@@ -173,4 +172,5 @@ for idx, axis in enumerate(["x", "y", "z"]):
                 ),
             ],
         )
+    _q_dipole._dipole_axes[dip.name] = dip
 _q_driver_result.add_property(_q_dipole)
