@@ -236,13 +236,26 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         mp2_initial_point.ansatz = ansatz
 
         with self.subTest("Test overall MP2 energy correction."):
-            np.testing.assert_array_almost_equal(
+            np.testing.assert_almost_equal(
                 mp2_initial_point.get_energy_correction(), pyscf_mp.e_corr, decimal=10
             )
 
         with self.subTest("Test absolute MP2 energy."):
-            np.testing.assert_array_almost_equal(
+            np.testing.assert_almost_equal(
                 mp2_initial_point.get_energy(), pyscf_mp.e_tot, decimal=10
+            )
+
+        with self.subTest("Test absolute MP2 energy."):
+            print("pyscf", pyscf_mp.t2.shape)
+            print(pyscf_mp.t2)
+            print(pyscf_mp.t2.shape)
+            print("qiskit", mp2_initial_point._t2.shape)
+            diff = pyscf_mp.t2 - mp2_initial_point._t2
+            diff[np.abs(diff) < 1e-10] = 0
+            print(list(zip(*np.nonzero(diff))))
+            print(diff[np.nonzero(diff)])
+            np.testing.assert_array_almost_equal(
+                mp2_initial_point._t2, pyscf_mp.t2, decimal=10
             )
 
 

@@ -72,6 +72,9 @@ class MP2InitialPoint(InitialPoint):
     excitations in the :attr:`excitation_list` will have a value corresponding to the appropriate
     MP2 energy correction while those that correspond to single, triple, or higher excitations will
     have zero value.
+
+    t2 :
+        T amplitudes t2[i,j,a,b]  (i,j in occ, a,b in virt)
     """
 
     def __init__(self, threshold: float = 1e-12) -> None:
@@ -83,6 +86,8 @@ class MP2InitialPoint(InitialPoint):
         self._orbital_energies: np.ndarray | None = None
         self._reference_energy: float = 0.0
         self._corrections: list[_Correction] | None = None
+
+        self._t2: np.ndarray | None = None
 
     @property
     def ansatz(self) -> UCC:
@@ -158,8 +163,8 @@ class MP2InitialPoint(InitialPoint):
                 "The orbital_energies cannot be obtained from the grouped property."
             )
 
-        self._integral_matrix = two_body_mo_integral.get_matrix()
-        if not np.allclose(self._integral_matrix, two_body_mo_integral.get_matrix(2)):
+        integral_matrix = two_body_mo_integral.get_matrix()
+        if not np.allclose(integral_matrix, two_body_mo_integral.get_matrix(2)):
             raise NotImplementedError(
                 "MP2InitialPoint only supports restricted-spin setups. "
                 "Alpha and beta spin orbitals must be identical. "
@@ -168,8 +173,13 @@ class MP2InitialPoint(InitialPoint):
 
         self._invalidate()
 
-        self._orbital_energies = orbital_energies
+        num_mo = integral_matrix.shape[0]
+        num_occ = len(orbital_energies[orbital_energies < 0.0])
+        num_vir = num_mo - num_occ
 
+        self._t2 = np.zeros((num_occ, num_occ, num_vir, num_vir))
+        self._orbital_energies = orbital_energies
+        self._integral_matrix = integral_matrix
         self._reference_energy = electronic_energy.reference_energy if not None else 0.0
         self._grouped_property = grouped_property
 
@@ -280,6 +290,9 @@ class MP2InitialPoint(InitialPoint):
         """
         integral_matrix = self._integral_matrix
         orbital_energies = self._orbital_energies
+
+        print(orbital_energies)
+
         threshold = self._threshold
 
         [[i, j], [a, b]] = np.asarray(excitation) % integral_matrix.shape[0]
@@ -293,6 +306,10 @@ class MP2InitialPoint(InitialPoint):
         )
         coefficient = -t2_amplitude / energy_delta
         coefficient = coefficient if abs(coefficient) > threshold else 0.0
+
+        if coefficient:
+            num_occ = self._t2.shape[0]
+            self._t2[i, j, a - num_occ, b - num_occ] = coefficient
 
         energy_correction = coefficient * t_iajb
         energy_correction = energy_correction if abs(energy_correction) > threshold else 0.0
