@@ -48,7 +48,7 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
         self.num_modals = [self.basis_size] * self.watson_hamiltonian.num_modes
 
     def test_build_hopping_operators(self):
-        """Tests that the correct hopping operator is built from QMolecule."""
+        """Tests that the correct hopping operator is built."""
         # TODO extract it somewhere
         expected_hopping_operators = (
             {

@@ -152,3 +152,7 @@ class TestElectronicStructureProblemLegacyDrivers(QiskitNatureTestCase):
             sector_locator=es_problem.symmetry_sector_locator,
         )
         self.assertListEqual(qubit_conv.z2symmetries.tapering_values, [-1, 1])
+
+
+if __name__ == "__main__":
+    unittest.main()

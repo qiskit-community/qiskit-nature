@@ -12,7 +12,7 @@
 
 """Tests Vibrational Problem."""
 
-import warnings
+import unittest
 from test import QiskitNatureTestCase
 
 import numpy as np
@@ -47,10 +47,8 @@ class TestVibrationalStructureProblem(QiskitNatureTestCase):
             "test_driver_gaussian_log_C01.txt",
             "second_q/drivers/gaussiand",
         )
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            self.driver = GaussianForcesDriver(logfile=logfile)
-            self.props = self.driver.run()
+        self.driver = GaussianForcesDriver(logfile=logfile)
+        self.props = self.driver.run()
 
     def test_second_q_ops_without_transformers(self):
         """Tests that the list of second quantized operators is created if no transformers
@@ -92,3 +90,7 @@ class TestVibrationalStructureProblem(QiskitNatureTestCase):
         with self.subTest("Check types in the list of second quantized operators."):
             assert isinstance(vibrational_op, VibrationalOp)
             self.assertEqual(vibrational_op, _truncation_order_1_op)
+
+
+if __name__ == "__main__":
+    unittest.main()

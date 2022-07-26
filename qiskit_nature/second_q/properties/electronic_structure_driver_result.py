@@ -36,8 +36,7 @@ if TYPE_CHECKING:
 class ElectronicStructureDriverResult(GroupedElectronicProperty):
     """The ElectronicStructureDriverResult class.
 
-    This is a :class:`~qiskit_nature.properties.GroupedProperty` gathering all property objects
-    previously stored in Qiskit Nature's :class:`~qiskit_nature.second_q.drivers.QMolecule` object.
+    This is a :class:`~qiskit_nature.properties.GroupedProperty` gathering all property objects.
     """
 
     def __init__(self) -> None:

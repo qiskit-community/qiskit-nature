@@ -32,8 +32,7 @@ class HDF5Driver(BaseDriver):
     """
     Qiskit Nature driver for reading an HDF5 file.
 
-    The HDF5 file is one constructed with :func:`~qiskit_nature.hdf5.save_to_hdf5` or a file
-    containing a legacy :class:`~qiskit_nature.drivers.QMolecule` instance.
+    The HDF5 file is one constructed with :func:`~qiskit_nature.hdf5.save_to_hdf5`.
     """
 
     def __init__(self, hdf5_input: str = "molecule.hdf5") -> None:

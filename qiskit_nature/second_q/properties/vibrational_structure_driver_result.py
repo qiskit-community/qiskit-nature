@@ -28,9 +28,7 @@ from .vibrational_types import GroupedVibrationalProperty
 class VibrationalStructureDriverResult(GroupedVibrationalProperty):
     """The VibrationalStructureDriverResult class.
 
-    This is a :class:`~qiskit_nature.properties.GroupedProperty` gathering all property objects
-    previously stored in Qiskit Nature's
-    :class:`~qiskit_nature.second_q.drivers.WatsonHamiltonian` object.
+    This is a :class:`~qiskit_nature.properties.GroupedProperty` gathering all property objects.
     """
 
     def __init__(self) -> None:
