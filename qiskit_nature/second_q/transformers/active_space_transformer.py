@@ -20,7 +20,7 @@ from typing import List, Optional, Tuple, Union, cast
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_q.properties import GroupedProperty
+from qiskit_nature.second_q.properties import GroupedProperty, Property
 from qiskit_nature.second_q.properties import (
     SecondQuantizedProperty,
     GroupedSecondQuantizedProperty,
@@ -359,9 +359,7 @@ class ActiveSpaceTransformer(BaseTransformer):
 
     # TODO: can we efficiently extract this into the base class? At least the logic dealing with
     # recursion is general and we should avoid having to duplicate it.
-    def _transform_property(
-        self, prop: SecondQuantizedProperty
-    ) -> Optional[SecondQuantizedProperty]:
+    def _transform_property(self, prop: Property) -> Optional[Property]:
         """Transforms a Property object.
 
         This is a recursive reduction, iterating GroupedProperty objects when encountering one.
