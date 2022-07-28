@@ -94,6 +94,18 @@ class TestDriverGaussianLog(QiskitNatureTestCase):
         result = GaussianLogResult(line)
         self.assertListEqual(result.log, line.split("\n"))
 
+    def test_multi_line_data(self):
+        """Test if data is found on multiple lines.
+
+        This is a regression test against https://github.com/Qiskit/qiskit-nature/issues/737
+        """
+        polyyne_log = self.get_resource_path(
+            "test_driver_gaussian_log_polyyne_2.txt", "second_q/drivers/gaussiand"
+        )
+        result = GaussianLogResult(polyyne_log)
+        vib_energy = result.get_vibrational_energy()
+        self.assertTrue(isinstance(vib_energy, VibrationalEnergy))
+
     def test_quadratic_force_constants(self):
         """Test quadratic force constants"""
         result = GaussianLogResult(self.logfile)

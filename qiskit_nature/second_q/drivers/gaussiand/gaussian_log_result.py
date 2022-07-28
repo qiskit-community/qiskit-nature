@@ -173,6 +173,8 @@ class GaussianLogResult:
         found_section = False
         found_h = False
         found_a = False
+        h_nums = []
+        a_nums = []
         for line in self._log:
             if not found_section:
                 if re.search(r"Input/Output\sinformation", line) is not None:
@@ -182,13 +184,13 @@ class GaussianLogResult:
                 if re.search(r"\s+\(H\)\s+\|", line) is not None:
                     logger.debug(line)
                     found_h = True
-                    h_nums = [x.strip() for x in line.split("|") if x and "(H)" not in x]
+                    h_nums += [x.strip() for x in line.split("|") if x and "(H)" not in x]
                 elif re.search(r"\s+\(A\)\s+\|", line) is not None:
                     logger.debug(line)
                     found_a = True
-                    a_nums = [x.strip() for x in line.split("|") if x and "(A)" not in x]
+                    a_nums += [x.strip() for x in line.split("|") if x and "(A)" not in x]
 
-                if found_h and found_a:
+                if found_h and found_a and re.search(r"NOTE:", line) is not None:
                     for i, a_num in enumerate(a_nums):
                         a2h[a_num] = int(h_nums[i])
                     break
