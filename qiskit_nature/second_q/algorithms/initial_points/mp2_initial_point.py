@@ -45,18 +45,17 @@ class MP2InitialPoint(InitialPoint):
     """Compute the second-order Møller-Plesset perturbation theory (MP2) initial point.
 
     The computed MP2 correction coefficients are intended for use as an initial point for the VQE
-    parameters in combination with a :class:`~qiskit_nature.circuit.library.ansatzes.ucc.UCC`
-    ansatz.
+    parameters in combination with a
+    :class:`~qiskit_nature.second_q.circuit.library.ansatzes.ucc.UCC` ansatz.
 
     The coefficients and energy corrections are computed using the :meth:`compute` method, which
     requires the :attr:`grouped_property` and :attr:`ansatz` to be passed as arguments or the
     :attr:`grouped_property` and :attr:`excitation_list` attributes to be set already.
 
-    ``MP2InitialPoint`` requires the
-    :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`, which should
-    be passed in via the :attr:`grouped_property` attribute. From this it must obtain the two-body
-    molecular orbital electronic integrals and orbital energies. If the Hartree-Fock reference
-    energy is also obtained, it will be used to compute the absolute MP2 energy using the
+    ``MP2InitialPoint`` requires the :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`,
+    which should be passed in via the :attr:`grouped_property` attribute. From this it must obtain
+    the two-body molecular orbital electronic integrals and orbital energies. If the Hartree-Fock
+    reference energy is also obtained, it will be used to compute the absolute MP2 energy using the
     :meth:`get_energy` method.
 
     ``MP2InitialPoint`` also requires the :attr:`excitation_list` from the :attr:`ansatz` to ensure
@@ -127,13 +126,12 @@ class MP2InitialPoint(InitialPoint):
         """The grouped property.
 
         The grouped property is required to contain the
-        :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`, which
-        must contain the two-body molecular orbitals matrix and the orbital energies. Optionally,
-        it will also use the Hartree-Fock reference energy to compute the absolute energy.
+        :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`, which must contain the
+        two-body molecular orbitals matrix and the orbital energies. Optionally, it will also use
+        the Hartree-Fock reference energy to compute the absolute energy.
 
         Raises:
-            QiskitNatureError: If
-                :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`
+            QiskitNatureError: If :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`
                 is missing or the two-body molecular orbitals matrix or the orbital energies are not
                 found.
             NotImplementedError: If alpha and beta spin molecular orbitals are not identical.
@@ -340,8 +338,8 @@ class MP2InitialPoint(InitialPoint):
         """The absolute energy.
 
         If the reference energy was not obtained from
-        :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`
-        this will be equal to :meth:`get_energy_correction`.
+        :class:`~qiskit_nature.second_q.properties.ElectronicEnergy` this will be equal to
+        :meth:`get_energy_correction`.
         """
         return self._reference_energy + self.get_energy_correction()
 
