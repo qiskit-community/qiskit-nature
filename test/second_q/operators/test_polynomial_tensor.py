@@ -13,178 +13,103 @@
 """Test for Polynomial Tensor"""
 
 import unittest
-from functools import lru_cache
+from typing import Dict
 from test import QiskitNatureTestCase
+from ddt import ddt, data
 import numpy as np
 from qiskit_nature.second_q.operators import PolynomialTensor
-from qiskit_nature.drivers import UnitsType
-from qiskit_nature.second_q.drivers import PySCFDriver
-from qiskit_nature.second_q.properties.bases.electronic_basis import ElectronicBasis
 
 
-@lru_cache
-def driver_results():
-    """Caching driver results"""
-    _driver = PySCFDriver(atom="H .0 .0 .0; H .0 .0 0.735", unit=UnitsType.ANGSTROM, basis="sto3g")
-    _elec_energy = _driver.run().get_property("ElectronicEnergy")
+def gen_expected_prod_poly(og_poly, dim_size, other):
+    """Generate expected product Polynomial Tensors"""
 
-    _one = _elec_energy.get_electronic_integral(ElectronicBasis.MO, 1)
-    one_matrix = _one.to_spin()
+    expected_poly = {}
+    for key, value in og_poly.items():
+        num_dim = len(key)
+        expected_poly[key] = (np.arange(1, dim_size ** num_dim + 1) * other).reshape((dim_size,) * num_dim)
 
-    _two = _elec_energy.get_electronic_integral(ElectronicBasis.MO, 2)
-    two_matrix = np.einsum("ijkl->iklj", _two.to_spin())
+    return expected_poly
 
-    og_poly = {"+-": one_matrix, "++--": two_matrix}
+def gen_expected_transpose_poly(og_poly, dim_size):
+    """Generate expected transpose of Polynomial Tensor"""
 
-    return og_poly
+    expected_poly = {}
+    for key, value in og_poly.items():
+        num_dim = len(key)
+        expected_poly[key] = np.arange(1, dim_size ** num_dim + 1).reshape((dim_size,) * num_dim).transpose()
 
+    return expected_poly
 
+def gen_expected_conjugate_poly(og_poly, dim_size):
+    """Generate expected transpose of Polynomial Tensor"""
+
+    expected_poly = {}
+    for key, value in og_poly.items():
+        num_dim = len(key)
+        expected_poly[key] = np.arange(1, dim_size ** num_dim + 1).reshape((dim_size,) * num_dim).conjugate()
+
+    return expected_poly
+
+@ddt
 class TestPolynomialTensor(QiskitNatureTestCase):
     """Tests for PolynomialTensor class"""
 
     def setUp(self) -> None:
         super().setUp()
 
-        self.og_poly = driver_results()
-
-        self.expected_poly = {
-            "+-": np.array(
-                [
-                    [-2.51267815, 0.0, 0.0, 0.0],
-                    [0.0, -0.94379201, 0.0, 0.0],
-                    [0.0, 0.0, -2.51267815, 0.0],
-                    [0.0, 0.0, 0.0, -0.94379201],
-                ]
-            ),
-            "++--": np.array(
-                [
-                    [
-                        [
-                            [-0.67571015, 0.0, 0.0, 0.0],
-                            [0.0, -0.1809312, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                        ],
-                        [
-                            [0.0, -0.66458173, 0.0, 0.0],
-                            [-0.1809312, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                        ],
-                        [
-                            [0.0, 0.0, -0.67571015, 0.0],
-                            [0.0, 0.0, 0.0, -0.1809312],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                        ],
-                        [
-                            [0.0, 0.0, 0.0, -0.66458173],
-                            [0.0, 0.0, -0.1809312, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                        ],
-                    ],
-                    [
-                        [
-                            [0.0, -0.1809312, 0.0, 0.0],
-                            [-0.66458173, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                        ],
-                        [
-                            [-0.1809312, 0.0, 0.0, 0.0],
-                            [0.0, -0.69857372, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                        ],
-                        [
-                            [0.0, 0.0, 0.0, -0.1809312],
-                            [0.0, 0.0, -0.66458173, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                        ],
-                        [
-                            [0.0, 0.0, -0.1809312, 0.0],
-                            [0.0, 0.0, 0.0, -0.69857372],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                        ],
-                    ],
-                    [
-                        [
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [-0.67571015, 0.0, 0.0, 0.0],
-                            [0.0, -0.1809312, 0.0, 0.0],
-                        ],
-                        [
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, -0.66458173, 0.0, 0.0],
-                            [-0.1809312, 0.0, 0.0, 0.0],
-                        ],
-                        [
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, -0.67571015, 0.0],
-                            [0.0, 0.0, 0.0, -0.1809312],
-                        ],
-                        [
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, -0.66458173],
-                            [0.0, 0.0, -0.1809312, 0.0],
-                        ],
-                    ],
-                    [
-                        [
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, -0.1809312, 0.0, 0.0],
-                            [-0.66458173, 0.0, 0.0, 0.0],
-                        ],
-                        [
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [-0.1809312, 0.0, 0.0, 0.0],
-                            [0.0, -0.69857372, 0.0, 0.0],
-                        ],
-                        [
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, -0.1809312],
-                            [0.0, 0.0, -0.66458173, 0.0],
-                        ],
-                        [
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, 0.0, 0.0],
-                            [0.0, 0.0, -0.1809312, 0.0],
-                            [0.0, 0.0, 0.0, -0.69857372],
-                        ],
-                    ],
-                ]
-            ),
+        self.og_poly: Dict[str, np.ndarray] = {
+            "+-": np.arange(1, 17).reshape(4, 4),
+            "+++-": np.arange(1, 257).reshape(4, 4, 4, 4),
         }
 
-    def test_mul(self):
+        for value in self.og_poly.values():
+            self.dim_size = np.shape(value)
+
+        self.expected_sum_poly: Dict[str, np.ndarray] = {
+            "+-": (np.arange(1, 17) * 2).reshape(4, 4),
+            "+++-": (np.arange(1, 257) * 2).reshape(4, 4, 4, 4),
+        }
+
+
+    def test_init_dict(self):
+        """Test for input type in Polynomial Tensor class"""
+
+        if self.assertRaises(TypeError):
+            PolynomialTensor(self.og_poly)
+
+    def test_init_dimensions(self):
+        """Test for input matrix dimensions in Polynomial Tensor"""
+
+        if self.assertRaisesRegex(ValueError, "Dimensions of value matrices in data dictionary are not identical."):
+            PolynomialTensor(self.og_poly)
+
+    @data(2, 3, 4)
+    def test_mul(self, other):
         """Test for scalar multiplication"""
 
-        result = PolynomialTensor(self.og_poly).mul(2)
-        self.assertEqual(result, PolynomialTensor(self.expected_poly))
+        result = PolynomialTensor(self.og_poly).mul(other)
+        expected_prod_poly = gen_expected_prod_poly(self.og_poly, self.dim_size[0], other)
+        self.assertEqual(result, PolynomialTensor(expected_prod_poly))
 
     def test_add(self):
         """Test for addition of Polynomial Tensors"""
 
         result = PolynomialTensor(self.og_poly).add(PolynomialTensor(self.og_poly))
-        self.assertEqual(result, PolynomialTensor(self.expected_poly))
+        self.assertEqual(result, PolynomialTensor(self.expected_sum_poly))
 
     def test_conjugate(self):
         """Test for conjugate of Polynomial Tensor"""
-        pass
 
-    def transpose(self):
+        result = PolynomialTensor(self.og_poly).conjugate()
+        expected_conjugate_poly = gen_expected_conjugate_poly(self.og_poly, self.dim_size[0])
+        self.assertEqual(result, PolynomialTensor(expected_conjugate_poly))
+
+    def test_transpose(self):
         """Test for transpose of Polynomial Tensor"""
-        pass
+
+        result = PolynomialTensor(self.og_poly).transpose()
+        expected_transpose_poly = gen_expected_transpose_poly(self.og_poly, self.dim_size[0])
+        self.assertEqual(result, PolynomialTensor(expected_transpose_poly))
 
 
 if __name__ == "__main__":

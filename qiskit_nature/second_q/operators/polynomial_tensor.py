@@ -27,25 +27,34 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin):
     """Polynomial Tensor class"""
 
     def __init__(self, data: Dict[str, np.ndarray]):
+        if not isinstance(data, Dict):
+            raise TypeError(f"data {data} must be a Dictionary")
+
         self._data = data
 
+        shapes = ()
         for key, value in self._data.items():
-            if len(np.shape(value)) == len(key):
-                pass
-            else:
+            shapes += value.shape
+            if len(value.shape) != len(key):
                 raise ValueError(
                     f"data key {key} of length {len(key)} does not match "
-                    f"data value of dimensions {np.shape(value)}"
+                    f"data value matrix of dimensions {value.shape}"
                 )
+            if len(set(value.shape)) != 1:
+                raise ValueError(
+                    f"For key {key}: dimensions of value matrix are not identical {value.shape}"
+                )
+
+        if len(set(shapes)) != 1:
+            raise ValueError("Dimensions of value matrices in data dictionary are not identical.")
 
     def mul(self, other: complex):
         """Scalar multiplication of PolynomialTensor with complex"""
 
-        prod_dict = {}
-
         if not isinstance(other, Number):
             raise TypeError(f"other {other} must be a number")
 
+        prod_dict = {}
         for key, matrix in self._data.items():
             prod_dict[key] = matrix * other
         return PolynomialTensor(prod_dict)
@@ -56,21 +65,20 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin):
     def add(self, other: PolynomialTensor):
         """Addition of PolynomialTensors"""
 
-        sum_dict = self._data.copy()
-
         if not isinstance(other, PolynomialTensor):
             raise TypeError("Incorrect argument type: other should be PolynomialTensor")
 
+        sum_dict = self._data.copy()
         for other_key, other_value in other._data.items():
             if other_key in sum_dict.keys():
-                if np.shape(other_value) == np.shape(sum_dict[other_key]):
+                if other_value.shape == np.shape(sum_dict[other_key]):
                     sum_dict[other_key] = np.add(other_value, sum_dict[other_key])
                 else:
-                    print("not same shape", np.shape(other_value), np.shape(sum_dict[other_key]))
+                    print("not same shape", other_value.shape, np.shape(sum_dict[other_key]))
                     raise ValueError(
                         f"For key {other_key} "
                         f"corresponding data value of shape {np.shape(sum_dict[other_key])} "
-                        f"does not match value of shape {np.shape(other_value)}"
+                        f"does not match other value matrix of shape {other_value.shape}"
                     )
             else:
                 sum_dict[other_key] = other_value
@@ -82,6 +90,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin):
 
     def __eq__(self, other):
         """Check equality of PolynomialTensors"""
+
         if self._data.keys() == other._data.keys():
             for key in self._data.keys():
                 if np.allclose(self._data[key], other._data[key], atol=self.atol, rtol=self.rtol):
@@ -93,8 +102,8 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin):
 
     def conjugate(self):
         """Conjugate of PolynomialTensors"""
-        conj_dict = {}
 
+        conj_dict = {}
         for key, value in self._data.items():
             conj_dict[key] = np.conjugate(value)
 
@@ -104,7 +113,6 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin):
         """Transpose of PolynomialTensor"""
 
         transpose_dict = {}
-
         for key, value in self._data.items():
             transpose_dict[key] = np.transpose(value)
 
