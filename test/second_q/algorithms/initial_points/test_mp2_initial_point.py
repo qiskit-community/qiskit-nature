@@ -20,15 +20,9 @@ from unittest.mock import Mock
 from test import QiskitNatureTestCase
 
 import numpy as np
-from ddt import ddt, file_data
+from ddt import ddt, data
 
-from qiskit.exceptions import MissingOptionalLibraryError
-
-from qiskit_nature.second_q.drivers.molecule import Molecule
-from qiskit_nature.second_q.drivers.electronic_structure_molecule_driver import (
-    ElectronicStructureDriverType,
-    ElectronicStructureMoleculeDriver,
-)
+from qiskit_nature import optionals
 from qiskit_nature.second_q.problems.electronic_structure_problem import (
     ElectronicStructureProblem,
 )
@@ -39,6 +33,10 @@ from qiskit_nature.second_q.properties import ElectronicEnergy
 from qiskit_nature.second_q.properties.second_quantized_property import (
     GroupedSecondQuantizedProperty,
 )
+from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.drivers.second_quantization import PySCFDriver
+from qiskit_nature.mappers.second_quantization import JordanWignerMapper
+from qiskit_nature.circuit.library.initial_states import HartreeFock
 from qiskit_nature.settings import settings
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import UCC
@@ -253,9 +251,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
             diff[np.abs(diff) < 1e-10] = 0
             print(list(zip(*np.nonzero(diff))))
             print(diff[np.nonzero(diff)])
-            np.testing.assert_array_almost_equal(
-                mp2_initial_point._t2, pyscf_mp.t2, decimal=10
-            )
+            np.testing.assert_array_almost_equal(mp2_initial_point._t2, pyscf_mp.t2, decimal=10)
 
 
 if __name__ == "__main__":
