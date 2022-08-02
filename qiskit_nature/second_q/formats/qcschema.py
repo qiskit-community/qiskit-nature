@@ -39,15 +39,11 @@ class _QCBase:
         Returns:
             The dictionary representation of the schema object.
         """
-        return asdict(self)
 
-    def to_json(self) -> str:
-        """Converts the schema object to JSON.
+        def filter_none(d: list[tuple[str, Any]]) -> dict[str, Any]:
+            return {k: v for (k, v) in d if v is not None}
 
-        Returns:
-            The JSON representation of the schema object.
-        """
-        return json.dumps(self.to_dict(), indent=2)
+        return asdict(self, dict_factory=filter_none)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> _QCBase:
@@ -65,21 +61,32 @@ class _QCBase:
         """
         return cls(**data)
 
-    @classmethod
-    def from_json(cls, fp: str | Path) -> _QCBase:
-        """Constructs a schema object from a JSON file.
+    def to_json(self) -> str:
+        """Converts the schema object to JSON.
 
-        The JSON data stored in the file must match the latest standard as documented
+        Returns:
+            The JSON representation of the schema object.
+        """
+        return json.dumps(self.to_dict(), indent=2)
+
+    @classmethod
+    def from_json(cls, json_data: str | bytes | Path) -> _QCBase:
+        """Constructs a schema object from JSON.
+
+        The JSON data must match the latest standard as documented
         [here](https://molssi-qc-schema.readthedocs.io/en/latest/).
 
         Args:
-            fp: the path to the JSON file.
+            json_data: can be either the path to a file or the json data directly provided as a `str`.
 
         Returns:
             An instance of the schema object.
         """
-        with open(fp, "r", encoding="utf8") as file:
-            return cls.from_dict(json.load(file))
+        try:
+            return cls.from_dict(json.loads(json_data))  # type: ignore[arg-type]
+        except json.JSONDecodeError:
+            with open(json_data, "r", encoding="utf8") as file:
+                return cls.from_dict(json.load(file))
 
     def to_hdf5(self, group: h5py.Group) -> None:
         """Converts the schema object to HDF5.
