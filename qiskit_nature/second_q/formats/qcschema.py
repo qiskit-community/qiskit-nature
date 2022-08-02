@@ -487,19 +487,32 @@ class QCWavefunction(_QCBase):
     orbitals_b: str = None
     density_a: str = None
     density_b: str = None
+    density_mo_a: str = None
+    density_mo_b: str = None
     fock_a: str = None
     fock_b: str = None
+    fock_mo_a: str = None
+    fock_mo_b: str = None
     eigenvalues_a: str = None
     eigenvalues_b: str = None
     occupations_a: str = None
     occupations_b: str = None
+    eri: str = None
+    eri_mo_aa: str = None
+    eri_mo_ab: str = None
+    eri_mo_ba: str = None
+    eri_mo_bb: str = None
 
     scf_orbitals_a: list[float] = None
     scf_orbitals_b: list[float] = None
     scf_density_a: list[float] = None
     scf_density_b: list[float] = None
+    scf_density_mo_a: list[float] = None
+    scf_density_mo_b: list[float] = None
     scf_fock_a: list[float] = None
     scf_fock_b: list[float] = None
+    scf_fock_mo_a: list[float] = None
+    scf_fock_mo_b: list[float] = None
     scf_coulomb_a: list[float] = None
     scf_coulomb_b: list[float] = None
     scf_exchange_a: list[float] = None
@@ -508,6 +521,11 @@ class QCWavefunction(_QCBase):
     scf_eigenvalues_b: list[float] = None
     scf_occupations_a: list[float] = None
     scf_occupations_b: list[float] = None
+    scf_eri: str = None
+    scf_eri_mo_aa: str = None
+    scf_eri_mo_ab: str = None
+    scf_eri_mo_ba: str = None
+    scf_eri_mo_bb: str = None
 
     localized_orbitals_a: list[float] = None
     localized_orbitals_b: list[float] = None
