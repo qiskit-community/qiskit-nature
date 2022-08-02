@@ -96,6 +96,8 @@ cy
 cysteine
 cz
 das
+dataclass
+dataclasses
 dataset
 dcx
 debye
@@ -117,6 +119,7 @@ dof
 doi
 dt
 dtype
+ecp
 ecr
 eigen
 eigenfunctions
@@ -154,6 +157,7 @@ fmt
 fock
 formatter
 fortran
+fp
 fredkin
 für
 gauopen
@@ -205,6 +209,7 @@ interatomic
 internuclear
 interpretable
 ints
+io
 ising
 iso
 isoleucine
@@ -225,6 +230,7 @@ jernigan
 ji
 jl
 jordan
+json
 jupyter
 jw
 kanav
@@ -281,6 +287,7 @@ mohij
 mohijkl
 mol
 moller
+molssi
 morse
 mpl
 mul
@@ -374,6 +381,7 @@ qeom
 qfi
 qiskit
 qiskit's
+qc
 qmolecule
 qn
 qregs
@@ -388,6 +396,7 @@ rangle
 rcccx
 rccx
 readme
+readthedocs
 realise
 rebranding
 refactor
