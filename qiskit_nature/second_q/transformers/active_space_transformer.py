@@ -446,7 +446,7 @@ class ActiveSpaceTransformer(BaseTransformer):
 
         elif isinstance(prop, ElectronicBasisTransform):
             # transformation done manually during `transform`
-            transformed_property = self._transform_active  # type: ignore[assignment]
+            transformed_property = self._transform_active
 
         elif isinstance(prop, DriverMetadata):
             # for the time being we manually catch this to avoid unnecessary warnings
