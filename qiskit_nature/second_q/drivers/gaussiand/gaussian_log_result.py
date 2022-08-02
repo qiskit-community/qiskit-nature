@@ -15,14 +15,11 @@
 from __future__ import annotations
 
 import math
-import warnings
 from typing import List, Tuple, Union, cast
 import copy
 import logging
 import re
 
-from qiskit_nature.deprecation import deprecate_method, DeprecatedType
-from qiskit_nature.second_q._watson_hamiltonian import WatsonHamiltonian
 from qiskit_nature.second_q.properties import VibrationalEnergy
 from qiskit_nature.second_q.properties.integrals import (
     VibrationalIntegrals,
@@ -173,6 +170,8 @@ class GaussianLogResult:
         found_section = False
         found_h = False
         found_a = False
+        h_nums = []
+        a_nums = []
         for line in self._log:
             if not found_section:
                 if re.search(r"Input/Output\sinformation", line) is not None:
@@ -182,13 +181,13 @@ class GaussianLogResult:
                 if re.search(r"\s+\(H\)\s+\|", line) is not None:
                     logger.debug(line)
                     found_h = True
-                    h_nums = [x.strip() for x in line.split("|") if x and "(H)" not in x]
+                    h_nums += [x.strip() for x in line.split("|") if x and "(H)" not in x]
                 elif re.search(r"\s+\(A\)\s+\|", line) is not None:
                     logger.debug(line)
                     found_a = True
-                    a_nums = [x.strip() for x in line.split("|") if x and "(A)" not in x]
+                    a_nums += [x.strip() for x in line.split("|") if x and "(A)" not in x]
 
-                if found_h and found_a:
+                if found_h and found_a and re.search(r"NOTE:", line) is not None:
                     for i, a_num in enumerate(a_nums):
                         a2h[a_num] = int(h_nums[i])
                     break
@@ -265,55 +264,3 @@ class GaussianLogResult:
         return VibrationalEnergy(
             [VibrationalIntegrals(num_body, ints) for num_body, ints in sorted_integrals.items()]
         )
-
-    @deprecate_method(
-        "0.4.0",
-        DeprecatedType.METHOD,
-        "get_vibrational_energy",
-        "Construct a VibrationalEnergy instead of the deprecated WatsonHamiltonian directly",
-    )
-    def get_watson_hamiltonian(self, normalize: bool = True) -> WatsonHamiltonian:
-        """
-        Get the force constants as a WatsonHamiltonian
-        Args:
-            normalize: Whether to normalize the factors or not
-        Returns:
-            A WatsonHamiltonian
-        """
-        # Returns [value, idx0, idx1...] from 2 indices (quadratic) to 4 (quartic)
-        qua = self.quadratic_force_constants
-        cub = self.cubic_force_constants
-        qrt = self.quartic_force_constants
-        modes = []
-        for entry in qua:
-            indices = self._process_entry_indices(list(entry))
-            if indices:
-                factor = 2.0
-                factor *= self._multinomial(indices) if normalize else 1.0
-                line = [entry[2] / factor]
-                line.extend(indices)
-                modes.append(line)
-                modes.append([-x for x in line])
-        for entry_c in cub:
-            indices = self._process_entry_indices(list(entry_c))
-            if indices:
-                factor = 2.0 * math.sqrt(2.0)
-                factor *= self._multinomial(indices) if normalize else 1.0
-                line = [entry_c[3] / factor]
-                line.extend(indices)
-                modes.append(line)
-        for entry_q in qrt:
-            indices = self._process_entry_indices(list(entry_q))
-            if indices:
-                factor = 4.0
-                factor *= self._multinomial(indices) if normalize else 1.0
-                line = [entry_q[4] / factor]
-                line.extend(indices)
-                modes.append(line)
-
-        num_modes = len(self.a_to_h_numbering.keys())
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            watson = WatsonHamiltonian(modes, num_modes)
-
-        return watson

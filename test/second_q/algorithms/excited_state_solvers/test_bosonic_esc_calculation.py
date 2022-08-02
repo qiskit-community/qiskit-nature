@@ -15,7 +15,6 @@
 import contextlib
 import io
 import unittest
-import warnings
 
 from test import QiskitNatureTestCase
 
@@ -25,7 +24,6 @@ import qiskit
 from qiskit.utils import algorithm_globals, QuantumInstance
 from qiskit.algorithms.optimizers import COBYLA
 
-from qiskit_nature.second_q._watson_hamiltonian import WatsonHamiltonian
 from qiskit_nature.second_q.drivers import VibrationalStructureDriver
 from qiskit_nature.second_q.mappers import DirectMapper
 from qiskit_nature.second_q.mappers import QubitConverter
@@ -43,7 +41,10 @@ from qiskit_nature.second_q.algorithms import (
 )
 from qiskit_nature.second_q.properties import (
     VibrationalStructureDriverResult,
+    VibrationalEnergy,
+    OccupiedModals,
 )
+from qiskit_nature.second_q.properties.integrals import VibrationalIntegrals
 
 
 class _DummyBosonicDriver(VibrationalStructureDriver):
@@ -60,10 +61,22 @@ class _DummyBosonicDriver(VibrationalStructureDriver):
             [5.03965375, 2, 2, 1, 1],
             [0.43840625000000005, 2, 2, 2, 2],
         ]
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            watson = WatsonHamiltonian(modes, 2)
-            self._driver_result = VibrationalStructureDriverResult.from_legacy_driver_result(watson)
+        self._driver_result = VibrationalStructureDriverResult()
+        self._driver_result.num_modes = 2
+        sorted_integrals: dict[int, list[tuple[float, tuple[int, ...]]]] = {1: [], 2: [], 3: []}
+        for coeff, *indices in modes:
+            ints = [int(i) for i in indices]
+            num_body = len(set(ints))
+            sorted_integrals[num_body].append((coeff, tuple(ints)))
+
+        prop = VibrationalEnergy(
+            [VibrationalIntegrals(num_body, ints) for num_body, ints in sorted_integrals.items()]
+        )
+        prop.basis = 2
+        self._driver_result.add_property(prop)
+        prop = OccupiedModals()
+        prop.basis = 2
+        self._driver_result.add_property(prop)
 
     def run(self):
         """Run dummy driver to return test watson hamiltonian"""

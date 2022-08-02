@@ -12,13 +12,10 @@
 """ Test VQE UVCC MinimumEigensolver Factory """
 
 import unittest
-import warnings
 
 from test import QiskitNatureTestCase
 from qiskit import BasicAer
 from qiskit.utils import QuantumInstance
-from qiskit.opflow import AerPauliExpectation
-from qiskit.algorithms.optimizers import COBYLA, SLSQP
 from qiskit_nature.second_q.circuit.library import HartreeFock, UVCCSD
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.mappers import JordanWignerMapper
@@ -108,23 +105,6 @@ class TestVQEUVCCFactory(QiskitNatureTestCase):
             self.assertTrue(
                 isinstance(getattr(self._vqe_uvcc_factory.minimum_eigensolver, prop), cases[0])
             )
-
-    def deprecation_setters_getters(self):
-        """
-        Test Getter/Setter for the deprecated properties.
-        Can be removed once the properties are removed.
-        """
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            self.auxiliary_tester(
-                "Quantum Instance",
-                "quantum_instance",
-                (self.quantum_instance, self.quantum_instance_2),
-            )
-            self.auxiliary_tester("Expectation", "expectation", (None, AerPauliExpectation()))
-            self.auxiliary_tester("Include Custom", "include_custom", (False, True))
-            self.auxiliary_tester("Callback", "callback", (None, None))
-            self.auxiliary_tester_isinstance("Optimizer", "optimizer", (SLSQP, COBYLA))
 
     def test_setters_getters(self):
         """Test Getter/Setter"""

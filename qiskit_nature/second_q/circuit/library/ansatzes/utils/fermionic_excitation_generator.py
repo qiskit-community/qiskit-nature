@@ -160,7 +160,9 @@ def generate_fermionic_excitations(
         # generating the single excitations of an _interleaved_ spin orbital system.
         # For this, we can reuse the alpha single excitation generator in a system of double the
         # actual size.
-        single_excitations = get_alpha_excitations(sum(num_particles), num_spin_orbitals * 2, False)
+        single_excitations = get_alpha_excitations(
+            sum(num_particles), num_spin_orbitals * 2, generalized
+        )
 
         def interleaved2blocked(index: int, total: int) -> int:
             if index % 2 == 0:

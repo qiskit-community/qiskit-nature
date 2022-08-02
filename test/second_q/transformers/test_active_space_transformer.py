@@ -290,22 +290,6 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
                 active_orbitals=active_orbitals,
             ).transform(driver_result)
 
-    def test_active_space_for_q_molecule_v2(self):
-        """Test based on QMolecule v2 (mo_occ not available)."""
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("H2_sto3g_v2.hdf5", "second_q/transformers")
-        )
-        driver_result = driver.run()
-
-        driver_result.get_property("ElectronicEnergy")._shift["ActiveSpaceTransformer"] = 0.0
-        for prop in iter(driver_result.get_property("ElectronicDipoleMoment")):
-            prop._shift["ActiveSpaceTransformer"] = 0.0
-
-        trafo = ActiveSpaceTransformer(num_electrons=2, num_molecular_orbitals=2)
-        driver_result_reduced = trafo.transform(driver_result)
-
-        self.assertDriverResult(driver_result_reduced, driver_result)
-
     def test_tuple_num_electrons_with_manual_orbitals(self):
         """Regression test against https://github.com/Qiskit/qiskit-nature/issues/434."""
         driver = HDF5Driver(
