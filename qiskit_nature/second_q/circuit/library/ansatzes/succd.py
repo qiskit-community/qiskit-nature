@@ -13,7 +13,7 @@
 The SUCCD Ansatz.
 """
 
-from typing import List, Optional, Tuple, Sequence, Dict
+from typing import List, Optional, Tuple, Sequence, Dict, cast
 from collections import defaultdict
 
 import itertools
@@ -21,10 +21,10 @@ import logging
 
 from qiskit.circuit import QuantumCircuit
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter
 
-from qiskit_nature.circuit.library.ansatzes.ucc import UCC
-from qiskit_nature.circuit.library.ansatzes.utils.fermionic_excitation_generator import (
+from .ucc import UCC
+from .utils.fermionic_excitation_generator import (
     generate_fermionic_excitations,
     get_alpha_excitations,
 )
@@ -116,13 +116,12 @@ class SUCCD(UCC):
         """Sets whether to use SUCC_full."""
         self._mirror = mirror
 
-    @property
-    def excitation_list(self) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
-        """The excitation list that SUCC is using, in the required format."""
-        return self.generate_excitations(
+    def _check_length_excitations_list(self, operators, excitation_list):
+        self._excitation_list = self.generate_excitations(
             self.num_spin_orbitals,
             self.num_particles,
         )
+        self.operators = operators
 
     def generate_excitations(
         self, num_spin_orbitals: int, num_particles: Tuple[int, int]
@@ -261,7 +260,8 @@ class SUCCD(UCC):
                 # `PauliTrotterEvolution.convert`)
                 op *= 1j  # type: ignore
                 ops.append(op)
-            operators.append(sum(ops))
+                sum_ops = cast(FermionicOp, sum(ops))
+            operators.append(sum_ops)
         if not operators:
             return [FermionicOp.zero(self.num_spin_orbitals)]
         else:

@@ -265,7 +265,6 @@ class UCC(EvolvedOperatorAnsatz):
     @EvolvedOperatorAnsatz.operators.getter
     def operators(self):  # pylint: disable=invalid-overridden-method
         """The operators that are evolved in this circuit.
-
         Returns:
             list: The operators to be evolved contained in this ansatz or
                   None if the configuration is not complete
@@ -293,16 +292,21 @@ class UCC(EvolvedOperatorAnsatz):
                 # the ``excitation_list`` is transformed identically to the operators, we retain
                 # ``None`` for non-commuting operators in order to manually remove them in unison.
                 operators = self.qubit_converter.convert_match(excitation_ops, suppress_none=False)
-                valid_operators, valid_excitations = [], []
-                for op, ex in zip(operators, self._excitation_list):
-                    if op is not None:
-                        valid_operators.append(op)
-                        valid_excitations.append(ex)
-
-                self._excitation_list = valid_excitations
-                self.operators = valid_operators
+                self._check_length_excitations_list(
+                    operators=operators, excitation_list=self._excitation_list
+                )
 
         return super(UCC, self.__class__).operators.__get__(self)
+
+    def _check_length_excitations_list(self, operators, excitation_list):
+        valid_operators, valid_excitations = [], []
+        for op, ex in zip(operators, excitation_list):
+            if op is not None:
+                valid_operators.append(op)
+                valid_excitations.append(ex)
+
+        self._excitation_list = valid_excitations
+        self.operators = valid_operators
 
     def _invalidate(self):
         self._excitation_ops = None

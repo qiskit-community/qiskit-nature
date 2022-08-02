@@ -1,6 +1,6 @@
 ---
 prelude: >
-    For qiskit-nature issues #91
+
 features:
   - |
     Adds succ_full ansatz option to ``SUCCD`` objects. It can be used in the ``SUCCD`` function,
@@ -9,4 +9,4 @@ features:
       from qiskit_nature.converters.second_quantization import QubitConverter
       from qiskit_nature.mappers.second_quantization import JordanWignerMapper
       converter = QubitConverter(JordanWignerMapper())
-      ansatz = SUCCD(converter, (1, 1), 6, full=True)
+      ansatz = SUCCD(converter, (1, 1), 6, mirror=True)
