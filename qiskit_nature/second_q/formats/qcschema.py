@@ -24,6 +24,7 @@ from pathlib import Path
 from typing import Any, cast
 
 import json
+import h5py
 
 
 class _QCBase:
@@ -80,6 +81,60 @@ class _QCBase:
         with open(fp, "r", encoding="utf8") as file:
             return cls.from_dict(json.load(file))
 
+    def to_hdf5(self, group: h5py.Group) -> None:
+        """Converts the schema object to HDF5.
+
+        Args:
+            group: the h5py group into which to store the object.
+        """
+        # we use __dict__ here because we do not want the recursive behavior of asdict()
+        for key, value in self.__dict__.items():
+            if value is None:
+                continue
+            if hasattr(value, "to_hdf5"):
+                inner_group = group.require_group(key)
+                value.to_hdf5(inner_group)
+            else:
+                group.attrs[key] = value
+
+    @classmethod
+    def from_hdf5(cls, h5py_data: str | Path | h5py.Group) -> _QCBase:
+        """Constructs a schema object from an HDF5 object.
+
+        While the QCSchema is officially tailored to support JSON, HDF5 is supported as a more
+        high-performance alternative and considered the standard within Qiskit Nature. Due to its
+        similarities with JSON a 1-to-1 correspondence can be made between the two.
+
+        For more details refer to
+        [here](https://molssi-qc-schema.readthedocs.io/en/latest/tech_discussion.html#json-and-hdf5).
+
+        Args:
+            h5py_data: can be either the path to a file or an `h5py.Group`.
+
+        Returns:
+            An instance of the schema object.
+        """
+        if isinstance(h5py_data, h5py.Group):
+            return cls._from_hdf5_group(h5py_data)
+
+        with h5py.File(h5py_data, "r") as file:
+            return cls._from_hdf5_group(file)
+
+    @classmethod
+    def _from_hdf5_group(cls, h5py_group: h5py.Group) -> _QCBase:
+        """This internal method deals with actually constructing a schema object from an `h5py.Group`.
+
+        Args:
+            h5py_group: the actual `h5py.Group`.
+
+        Returns:
+            An instance of the schema object.
+        """
+        data = dict(h5py_group.attrs.items())
+        for key, value in h5py_group.items():
+            data[key] = value[...]
+        return cls(**data)
+
 
 @dataclass
 class QCError(_QCBase):
@@ -124,6 +179,28 @@ class QCModel(_QCBase):
             basis = QCBasisSet.from_dict(basis)
         return cls(**data, basis=basis)
 
+    def to_hdf5(self, group: h5py.Group) -> None:
+        if isinstance(self.basis, QCBasisSet):
+            basis_group = group.require_group("basis")
+            self.basis.to_hdf5(basis_group)
+        else:
+            group.attrs["basis"] = self.basis
+
+        group.attrs["method"] = self.method
+
+    @classmethod
+    def _from_hdf5_group(cls, h5py_group: h5py.Group) -> QCModel:
+        basis: str | QCBasisSet
+        if "basis" in h5py_group.keys():
+            basis = cast(QCBasisSet, QCBasisSet.from_hdf5(h5py_group["basis"]))
+        else:
+            basis = h5py_group.attrs["basis"]
+
+        return cls(
+            method=h5py_group.attrs["method"],
+            basis=basis,
+        )
+
 
 @dataclass
 class QCTopology(_QCBase):
@@ -162,6 +239,20 @@ class QCTopology(_QCBase):
             provenance = cast(QCProvenance, QCProvenance.from_dict(data.pop("provenance")))
         return cls(**data, provenance=provenance)
 
+    @classmethod
+    def _from_hdf5_group(cls, h5py_group: h5py.Group) -> QCTopology:
+        data = dict(h5py_group.attrs.items())
+
+        for key, value in h5py_group.items():
+            data[key] = value
+
+        if "provenance" in h5py_group.keys():
+            data["provenance"] = cast(
+                QCProvenance, QCProvenance.from_hdf5(h5py_group["provenance"])
+            )
+
+        return cls(**data)
+
 
 @dataclass
 class QCElectronShell(_QCBase):
@@ -175,6 +266,12 @@ class QCElectronShell(_QCBase):
     harmonic_type: str
     exponents: list[float | str]
     coefficients: list[list[float | str]]
+
+    def to_hdf5(self, group: h5py.Group) -> None:
+        group.attrs["angular_momentum"] = self.angular_momentum
+        group.attrs["harmonic_type"] = self.harmonic_type
+        group.create_dataset("exponents", data=self.exponents)
+        group.create_dataset("coefficients", data=self.coefficients)
 
 
 @dataclass
@@ -190,6 +287,13 @@ class QCECPPotential(_QCBase):
     r_exponents: list[int]
     gaussian_exponents: list[float | str]
     coefficients: list[list[float | str]]
+
+    def to_hdf5(self, group: h5py.Group) -> None:
+        group.attrs["angular_momentum"] = self.angular_momentum
+        group.attrs["ecp_type"] = self.ecp_type
+        group.create_dataset("r_exponents", data=self.r_exponents)
+        group.create_dataset("gaussian_exponents", data=self.gaussian_exponents)
+        group.create_dataset("coefficients", data=self.coefficients)
 
 
 @dataclass
@@ -220,6 +324,42 @@ class QCCenterData(_QCBase):
 
         return cls(**data, electron_shells=electron_shells, ecp_potentials=ecp_potentials)
 
+    def to_hdf5(self, group: h5py.Group) -> None:
+        if self.electron_shells:
+            electron_shells = group.require_group("electron_shells")
+            for idx, shell in enumerate(self.electron_shells):
+                idx_group = electron_shells.create_group(str(idx))
+                shell.to_hdf5(idx_group)
+
+        if self.ecp_electrons is not None:
+            group.attrs["ecp_electrons"] = self.ecp_electrons
+
+        if self.ecp_potentials:
+            ecp_potentials = group.require_group("ecp_potentials")
+            for idx, ecp in enumerate(self.ecp_potentials):
+                idx_group = ecp_potentials.create_group(str(idx))
+                ecp.to_hdf5(idx_group)
+
+    @classmethod
+    def _from_hdf5_group(cls, h5py_group: h5py.Group) -> QCCenterData:
+        electron_shells: list[QCElectronShell] = None
+        if "electron_shells" in h5py_group.keys():
+            electron_shells = []
+            for shell in h5py_group["electron_shells"].values():
+                electron_shells.append(cast(QCElectronShell, QCElectronShell.from_hdf5(shell)))
+
+        ecp_potentials: list[QCECPPotential] = None
+        if "ecp_potentials" in h5py_group.keys():
+            ecp_potentials = []
+            for ecp in h5py_group["ecp_potentials"].values():
+                ecp_potentials.append(cast(QCECPPotential, QCECPPotential.from_hdf5(ecp)))
+
+        return cls(
+            electron_shells=electron_shells,
+            ecp_electrons=h5py_group.attrs.get("ecp_electrons", None),
+            ecp_potentials=ecp_potentials,
+        )
+
 
 @dataclass
 class QCBasisSet(_QCBase):
@@ -240,6 +380,36 @@ class QCBasisSet(_QCBase):
     def from_dict(cls, data: dict[str, Any]) -> QCBasisSet:
         center_data = {k: QCCenterData.from_dict(v) for k, v in data.pop("center_data").items()}
         return cls(**data, center_data=center_data)
+
+    def to_hdf5(self, group: h5py.Group) -> None:
+        center_data = group.require_group("center_data")
+        for key, value in self.center_data.items():
+            key_group = center_data.require_group(key)
+            value.to_hdf5(key_group)
+
+        group.attrs["atom_map"] = self.atom_map
+        group.attrs["name"] = self.name
+        if self.schema_version is not None:
+            group.attrs["schema_version"] = self.schema_version
+        if self.schema_name is not None:
+            group.attrs["schema_name"] = self.schema_name
+        if self.description is not None:
+            group.attrs["description"] = self.description
+
+    @classmethod
+    def _from_hdf5_group(cls, h5py_group: h5py.Group) -> QCBasisSet:
+        center_data: dict[str, QCCenterData] = {}
+        for name, group in h5py_group["center_data"].items():
+            center_data[name] = cast(QCCenterData, QCCenterData.from_hdf5(group))
+
+        return cls(
+            center_data=center_data,
+            atom_map=h5py_group.attrs["atom_map"],
+            name=h5py_group.attrs["name"],
+            schema_version=h5py_group.attrs.get("schema_version", None),
+            schema_name=h5py_group.attrs.get("schema_name", None),
+            description=h5py_group.attrs.get("description", None),
+        )
 
 
 @dataclass
@@ -349,6 +519,30 @@ class QCWavefunction(_QCBase):
         basis = QCBasisSet.from_dict(data.pop("basis"))
         return cls(**data, basis=basis)
 
+    def to_hdf5(self, group: h5py.Group) -> None:
+        for key, value in self.__dict__.items():
+            if value is None:
+                continue
+            if key == "restricted":
+                group.attrs["restricted"] = self.restricted
+            elif hasattr(value, "to_hdf5"):
+                inner_group = group.require_group(key)
+                value.to_hdf5(inner_group)
+            else:
+                group.create_dataset(key, data=value)
+
+    @classmethod
+    def _from_hdf5_group(cls, h5py_group: h5py.Group) -> QCWavefunction:
+        data = dict(h5py_group.attrs.items())
+
+        for key, value in h5py_group.items():
+            if key == "basis":
+                data["basis"] = cast(QCBasisSet, QCBasisSet.from_hdf5(h5py_group["basis"]))
+            else:
+                data[key] = value[...]
+
+        return cls(**data)
+
 
 @dataclass
 class QCSchemaInput(_QCBase):
@@ -370,6 +564,31 @@ class QCSchemaInput(_QCBase):
         model = QCModel(**data.pop("model"))
         molecule = QCTopology(**data.pop("molecule"))
         return cls(**data, model=model, molecule=molecule)
+
+    def to_hdf5(self, group: h5py.Group) -> None:
+        group.attrs["schema_name"] = self.schema_name
+        group.attrs["schema_version"] = self.schema_version
+        group.attrs["driver"] = self.driver
+
+        molecule_group = group.require_group("molecule")
+        self.molecule.to_hdf5(molecule_group)
+
+        model_group = group.require_group("model")
+        self.model.to_hdf5(model_group)
+
+        keywords_group = group.require_group("keywords")
+        for key, value in self.keywords.items():
+            keywords_group.attrs[key] = value
+
+    @classmethod
+    def _from_hdf5_group(cls, h5py_group: h5py.Group) -> QCSchemaInput:
+        data = dict(h5py_group.attrs.items())
+
+        data["molecule"] = cast(QCTopology, QCTopology.from_hdf5(h5py_group["molecule"]))
+        data["model"] = cast(QCModel, QCModel.from_hdf5(h5py_group["model"]))
+        data["keywords"] = dict(h5py_group["keywords"].attrs.items())
+
+        return cls(**data)
 
 
 @dataclass
@@ -408,3 +627,55 @@ class QCSchema(QCSchemaInput):
             properties=properties,
             wavefunction=wavefunction,
         )
+
+    def to_hdf5(self, group: h5py.Group) -> None:
+        group.attrs["schema_name"] = self.schema_name
+        group.attrs["schema_version"] = self.schema_version
+        group.attrs["driver"] = self.driver
+        group.attrs["return_result"] = self.return_result
+        group.attrs["success"] = self.success
+
+        molecule_group = group.require_group("molecule")
+        self.molecule.to_hdf5(molecule_group)
+
+        model_group = group.require_group("model")
+        self.model.to_hdf5(model_group)
+
+        provenance_group = group.require_group("provenance")
+        self.provenance.to_hdf5(provenance_group)
+
+        properties_group = group.require_group("properties")
+        self.properties.to_hdf5(properties_group)
+
+        if self.error is not None:
+            error_group = group.require_group("error")
+            self.error.to_hdf5(error_group)
+
+        if self.wavefunction is not None:
+            wavefunction_group = group.require_group("wavefunction")
+            self.wavefunction.to_hdf5(wavefunction_group)
+
+        keywords_group = group.require_group("keywords")
+        for key, value in self.keywords.items():
+            keywords_group.attrs[key] = value
+
+    @classmethod
+    def _from_hdf5_group(cls, h5py_group: h5py.Group) -> QCSchemaInput:
+        data = dict(h5py_group.attrs.items())
+
+        data["molecule"] = cast(QCTopology, QCTopology.from_hdf5(h5py_group["molecule"]))
+        data["model"] = cast(QCModel, QCModel.from_hdf5(h5py_group["model"]))
+        data["provenance"] = cast(QCProvenance, QCProvenance.from_hdf5(h5py_group["provenance"]))
+        data["properties"] = cast(QCProperties, QCProperties.from_hdf5(h5py_group["properties"]))
+
+        if "error" in h5py_group.keys():
+            data["error"] = cast(QCError, QCError.from_hdf5(h5py_group["error"]))
+
+        if "wavefunction" in h5py_group.keys():
+            data["wavefunction"] = cast(
+                QCWavefunction, QCWavefunction.from_hdf5(h5py_group["wavefunction"])
+            )
+
+        data["keywords"] = dict(h5py_group["keywords"].attrs.items())
+
+        return cls(**data)
