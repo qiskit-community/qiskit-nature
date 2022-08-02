@@ -20,9 +20,9 @@ from typing import List, Optional, Tuple, Union, cast
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_q.properties import GroupedProperty, Property
 from qiskit_nature.second_q.properties import (
-    SecondQuantizedProperty,
+    Property,
+    GroupedProperty,
     GroupedSecondQuantizedProperty,
 )
 from qiskit_nature.second_q.properties.driver_metadata import DriverMetadata
