@@ -30,7 +30,7 @@ from .....deprecation import warn_deprecated, DeprecatedType, NatureDeprecationW
 warn_deprecated(
     "0.5.0",
     old_type=DeprecatedType.PACKAGE,
-    old_name="qiskit_nature.properties.second_quantization.electronic.basis",
+    old_name="qiskit_nature.properties.second_quantization.electronic.bases",
     new_type=DeprecatedType.PACKAGE,
     new_name="qiskit_nature.second_q.properties.basis",
     category=NatureDeprecationWarning,
