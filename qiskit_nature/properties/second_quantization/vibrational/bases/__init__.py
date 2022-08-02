@@ -32,7 +32,7 @@ warn_deprecated(
     old_type=DeprecatedType.PACKAGE,
     old_name="qiskit_nature.properties.second_quantization.vibrational.bases",
     new_type=DeprecatedType.PACKAGE,
-    new_name="qiskit_nature.second_q.properties.basis",
+    new_name="qiskit_nature.second_q.problems.bases",
     category=NatureDeprecationWarning,
 )
 
