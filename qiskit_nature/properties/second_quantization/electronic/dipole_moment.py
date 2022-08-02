@@ -171,6 +171,14 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
                 needs to be reversed in order to match the nuclear dipole moment direction.
         """
         super().__init__(self.__class__.__name__)
+        warn_deprecated(
+            "0.5.0",
+            old_type=DeprecatedType.CLASS,
+            old_name="qiskit_nature.properties.second_quantization.electronic.ElectronicDipoleMoment",
+            new_type=DeprecatedType.CLASS,
+            new_name="qiskit_nature.second_q.properties.ElectronicDipoleMoment",
+            category=NatureDeprecationWarning,
+        )
         self._dipole_shift = dipole_shift
         self._nuclear_dipole_moment = nuclear_dipole_moment
         self._reverse_dipole_sign = reverse_dipole_sign

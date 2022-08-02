@@ -42,8 +42,11 @@ class DriverMetadata(Property):
             "0.5.0",
             old_type=DeprecatedType.CLASS,
             old_name="qiskit_nature.properties.second_quantization.DriverMetadata",
-            new_type=DeprecatedType.CLASS,
-            new_name="qiskit_nature.second_q.problems.DriverMetadata",
+            additional_msg=(
+                ". Please refer to "
+                "'https://github.com/Qiskit/qiskit-nature/issues/705'"
+                " for additional information."
+            ),
             category=NatureDeprecationWarning,
         )
 
