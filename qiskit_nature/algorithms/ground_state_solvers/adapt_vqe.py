@@ -95,7 +95,7 @@ class AdaptVQE(GroundStateEigensolver):
             old_type=DeprecatedType.CLASS,
             old_name="qiskit_nature.algorithms.ground_state_solvers.AdaptVQE",
             new_type=DeprecatedType.CLASS,
-            new_name="qiskit_terra.algorithms.minimum_eigen_solvers.AdaptVQE",
+            new_name="qiskit.algorithms.minimum_eigen_solvers.AdaptVQE",
             category=NatureDeprecationWarning,
         )
         validate_min("threshold", threshold, 1e-15)
