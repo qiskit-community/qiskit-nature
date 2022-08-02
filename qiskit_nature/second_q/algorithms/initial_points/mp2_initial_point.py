@@ -45,7 +45,7 @@ class MP2InitialPoint(InitialPoint):
     """Compute the second-order Møller-Plesset perturbation theory (MP2) initial point.
 
     The computed MP2 correction coefficients are intended for use as an initial point for the VQE
-    parameters in combination with a :class:`~qiskit_nature.second_q.circuit.library.ansatzes.ucc.UCC`
+    parameters in combination with a :class:`~qiskit_nature.circuit.library.ansatzes.ucc.UCC`
     ansatz.
 
     The coefficients and energy corrections are computed using the :meth:`compute` method, which
@@ -53,7 +53,7 @@ class MP2InitialPoint(InitialPoint):
     :attr:`grouped_property` and :attr:`excitation_list` attributes to be set already.
 
     ``MP2InitialPoint`` requires the
-    :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`, which should
+    :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`, which should
     be passed in via the :attr:`grouped_property` attribute. From this it must obtain the two-body
     molecular orbital electronic integrals and orbital energies. If the Hartree-Fock reference
     energy is also obtained, it will be used to compute the absolute MP2 energy using the
@@ -72,6 +72,9 @@ class MP2InitialPoint(InitialPoint):
     excitations in the :attr:`excitation_list` will have a value corresponding to the appropriate
     MP2 energy correction while those that correspond to single, triple, or higher excitations will
     have zero value.
+
+    t2 :
+        T amplitudes t2[i,j,a,b]  (i,j in occ, a,b in virt)
     """
 
     def __init__(self, threshold: float = 1e-12) -> None:
@@ -83,6 +86,8 @@ class MP2InitialPoint(InitialPoint):
         self._orbital_energies: np.ndarray | None = None
         self._reference_energy: float = 0.0
         self._corrections: list[_Correction] | None = None
+
+        self._t2: np.ndarray | None = None
 
     @property
     def ansatz(self) -> UCC:
@@ -98,8 +103,7 @@ class MP2InitialPoint(InitialPoint):
         # Operators must be built early to compute the excitation list.
         _ = ansatz.operators
 
-        # Invalidate any previous computation.
-        self._corrections = None
+        self._invalidate()
 
         self._excitation_list = ansatz.excitation_list
         self._ansatz = ansatz
@@ -114,8 +118,7 @@ class MP2InitialPoint(InitialPoint):
 
     @excitation_list.setter
     def excitation_list(self, excitations: list[tuple[tuple[int, ...], tuple[int, ...]]]):
-        # Invalidate any previous computation.
-        self._corrections = None
+        self._invalidate()
 
         self._excitation_list = excitations
 
@@ -124,13 +127,13 @@ class MP2InitialPoint(InitialPoint):
         """The grouped property.
 
         The grouped property is required to contain the
-        :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`, which
+        :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`, which
         must contain the two-body molecular orbitals matrix and the orbital energies. Optionally,
         it will also use the Hartree-Fock reference energy to compute the absolute energy.
 
         Raises:
             QiskitNatureError: If
-                :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`
+                :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`
                 is missing or the two-body molecular orbitals matrix or the orbital energies are not
                 found.
             NotImplementedError: If alpha and beta spin molecular orbitals are not identical.
@@ -160,18 +163,23 @@ class MP2InitialPoint(InitialPoint):
                 "The orbital_energies cannot be obtained from the grouped property."
             )
 
-        self._integral_matrix = two_body_mo_integral.get_matrix()
-        if not np.allclose(self._integral_matrix, two_body_mo_integral.get_matrix(2)):
+        integral_matrix = two_body_mo_integral.get_matrix()
+        if not np.allclose(integral_matrix, two_body_mo_integral.get_matrix(2)):
             raise NotImplementedError(
                 "MP2InitialPoint only supports restricted-spin setups. "
                 "Alpha and beta spin orbitals must be identical. "
                 "See https://github.com/Qiskit/qiskit-nature/issues/645."
             )
 
-        # Invalidate any previous computation.
-        self._corrections = None
+        self._invalidate()
 
+        num_mo = integral_matrix.shape[0]
+        num_occ = len(orbital_energies[orbital_energies < 0.0])
+        num_vir = num_mo - num_occ
+
+        self._t2 = np.zeros((num_occ, num_occ, num_vir, num_vir))
         self._orbital_energies = orbital_energies
+        self._integral_matrix = integral_matrix
         self._reference_energy = electronic_energy.reference_energy if not None else 0.0
         self._grouped_property = grouped_property
 
@@ -191,8 +199,7 @@ class MP2InitialPoint(InitialPoint):
         except TypeError:
             threshold = 0.0
 
-        # Invalidate any previous computation.
-        self._corrections = None
+        self._invalidate()
 
         self._threshold = threshold
 
@@ -283,27 +290,28 @@ class MP2InitialPoint(InitialPoint):
         """
         integral_matrix = self._integral_matrix
         orbital_energies = self._orbital_energies
+
+        print(orbital_energies)
+
         threshold = self._threshold
 
-        # Infer the number of molecular orbitals from the MO matrix.
-        num_molecular_orbitals: int = integral_matrix.shape[0]
+        [[i, j], [a, b]] = np.asarray(excitation) % integral_matrix.shape[0]
 
-        i = excitation[0][0] % num_molecular_orbitals
-        j = excitation[0][1] % num_molecular_orbitals
-        a = excitation[1][0] % num_molecular_orbitals
-        b = excitation[1][1] % num_molecular_orbitals
+        t_iajb = integral_matrix[i, a, j, b]
+        t_ibja = integral_matrix[i, b, j, a]
 
-        expectation_value_iajb = integral_matrix[i, a, j, b]
-        expectation_value_ibja = integral_matrix[i, b, j, a]
-
-        expectation_value = 2 * expectation_value_iajb - expectation_value_ibja
-        orbital_energy_correction = (
+        t2_amplitude = 2 * t_iajb - t_ibja
+        energy_delta = (
             orbital_energies[b] + orbital_energies[a] - orbital_energies[i] - orbital_energies[j]
         )
-        coefficient = -expectation_value / orbital_energy_correction
+        coefficient = -t2_amplitude / energy_delta
         coefficient = coefficient if abs(coefficient) > threshold else 0.0
 
-        energy_correction = coefficient * expectation_value_iajb
+        if coefficient:
+            num_occ = self._t2.shape[0]
+            self._t2[i, j, a - num_occ, b - num_occ] = coefficient
+
+        energy_correction = coefficient * t_iajb
         energy_correction = energy_correction if abs(energy_correction) > threshold else 0.0
 
         return _Correction(excitation=excitation, coefficient=coefficient, energy=energy_correction)
@@ -322,13 +330,21 @@ class MP2InitialPoint(InitialPoint):
 
     def get_energy_correction(self) -> float:
         """The overall energy correction."""
-        return self.get_energy_corrections().sum()
+        unique_corrections = {
+            str(np.asarray(exc) % self._integral_matrix.shape[0]): corr
+            for corr, exc in zip(self.get_energy_corrections(), self.excitation_list)
+        }
+        return sum(unique_corrections.values())
 
     def get_energy(self) -> float:
         """The absolute energy.
 
         If the reference energy was not obtained from
-        :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`
+        :class:`~qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy`
         this will be equal to :meth:`get_energy_correction`.
         """
         return self._reference_energy + self.get_energy_correction()
+
+    def _invalidate(self):
+        """Invalidate any previous computation."""
+        self._corrections = None

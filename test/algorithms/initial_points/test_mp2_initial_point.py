@@ -20,9 +20,15 @@ from unittest.mock import Mock
 from test import QiskitNatureTestCase
 
 import numpy as np
-from ddt import ddt, data
+from ddt import ddt, file_data
 
-from qiskit_nature import optionals
+from qiskit.exceptions import MissingOptionalLibraryError
+
+from qiskit_nature.drivers.molecule import Molecule
+from qiskit_nature.drivers.second_quantization.electronic_structure_molecule_driver import (
+    ElectronicStructureDriverType,
+    ElectronicStructureMoleculeDriver,
+)
 from qiskit_nature.problems.second_quantization.electronic.electronic_structure_problem import (
     ElectronicStructureProblem,
 )
@@ -33,13 +39,6 @@ from qiskit_nature.properties.second_quantization.electronic import ElectronicEn
 from qiskit_nature.properties.second_quantization.second_quantized_property import (
     GroupedSecondQuantizedProperty,
 )
-
-from qiskit_nature.converters.second_quantization import QubitConverter
-from qiskit_nature.drivers.second_quantization import PySCFDriver
-from qiskit_nature.mappers.second_quantization import JordanWignerMapper
-
-from qiskit_nature.circuit.library.initial_states import HartreeFock
-
 from qiskit_nature.settings import settings
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.circuit.library import UCC
@@ -59,10 +58,10 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         self.mock_ansatz.excitation_list = self.excitation_list
 
         electronic_energy = Mock(spec=ElectronicEnergy)
-        electronic_energy.orbital_energies = np.asarray([0])
+        electronic_energy.orbital_energies = Mock(spec=np.ndarray)
         electronic_energy.reference_energy = 123.45
         electronic_integrals = Mock(spec=ElectronicIntegrals)
-        electronic_integrals.get_matrix = Mock(return_value=np.asarray([0]))
+        electronic_integrals.get_matrix = Mock(return_value=[0])
         electronic_energy.get_electronic_integral = Mock(return_value=electronic_integrals)
         self.mock_grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
         self.mock_grouped_property.get_property = Mock(return_value=electronic_energy)
@@ -131,12 +130,14 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         electronic_energy = Mock(spec=ElectronicEnergy)
         electronic_energy.get_electronic_integral = Mock(return_value=electronic_integrals)
         electronic_energy.orbital_energies = None
-        grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
-        grouped_property.get_property = Mock(return_value=electronic_energy)
+        self.mock_grouped_property.get_property = Mock(return_value=electronic_energy)
+
+        ansatz = Mock(spec=UCC)
+        ansatz.excitation_list = self.excitation_list
 
         mp2_initial_point = MP2InitialPoint()
         with self.assertRaises(QiskitNatureError):
-            mp2_initial_point.compute(ansatz=self.mock_ansatz, grouped_property=grouped_property)
+            mp2_initial_point.compute(ansatz=ansatz, grouped_property=self.mock_grouped_property)
 
     def test_set_excitations_directly(self):
         """Test when setting excitations directly."""
@@ -189,74 +190,78 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
         grouped_property.get_property = Mock(return_value=electronic_energy)
 
+        ansatz = Mock(spec=UCC)
+        ansatz.excitation_list = self.excitation_list
+
         mp2_initial_point = MP2InitialPoint()
         with self.assertRaises(NotImplementedError):
-            mp2_initial_point.compute(ansatz=self.mock_ansatz, grouped_property=grouped_property)
+            mp2_initial_point.compute(ansatz=ansatz, grouped_property=grouped_property)
 
-    @unittest.skipIf(not optionals.HAS_PYSCF, "pyscf not available.")
-    @data("H 0 0 0; H 0 0 0.7", "Li 0 0 0; H 0 0 1.6")
+    @file_data("./resources/test_mp2_initial_point.json")
     def test_mp2_initial_point_with_real_molecules(
         self,
-        atom,
+        atom1,
+        atom2,
+        distance,
+        coefficients,
+        energy_correction,
+        energy_corrections,
+        energy,
+        excitations,
     ):
-        """Test MP2InitialPoint with real molecules."""
-        from pyscf import gto  # pylint: disable=import-error
+        """Test MP2InitialPoint with real molecules.
 
-        # Compute the PySCF result
-        pyscf_mol = gto.M(atom=atom, basis="sto3g", verbose=0)
-        pyscf_mp = pyscf_mol.MP2().run(verbose=0)
+        Full excitation sequences generated using:
 
-        driver = PySCFDriver(atom=atom, basis="sto3g")
+        .. code-block:: python
 
-        problem = ElectronicStructureProblem(driver)
-        problem.second_q_ops()
-        grouped_property = problem.grouped_property_transformed
-        particle_number = grouped_property.get_property("ParticleNumber")
+            converter = QubitConverter(JordanWignerMapper()
+            ansatz = UCCSD(
+                qubit_converter=converter,
+                num_particles=num_particles,
+                num_spin_orbitals=num_spin_orbitals,
+            )
+            _ = ansatz.operators
+            excitations = ansatz.excitation_list
+        """
 
-        num_particles = (particle_number.num_alpha, particle_number.num_beta)
-        num_spin_orbitals = particle_number.num_spin_orbitals
+        molecule = Molecule(geometry=[[atom1, [0.0, 0.0, 0.0]], [atom2, [0.0, 0.0, distance]]])
 
-        qubit_converter = QubitConverter(mapper=JordanWignerMapper(), two_qubit_reduction=True)
+        try:
+            driver = ElectronicStructureMoleculeDriver(
+                molecule, basis="sto3g", driver_type=ElectronicStructureDriverType.PYSCF
+            )
+            problem = ElectronicStructureProblem(driver)
+            problem.second_q_ops()
+        except MissingOptionalLibraryError:
+            self.skipTest("PySCF driver does not appear to be installed.")
 
-        initial_state = HartreeFock(
-            num_spin_orbitals=num_spin_orbitals,
-            num_particles=num_particles,
-            qubit_converter=qubit_converter,
-        )
-        ansatz = UCC(
-            num_spin_orbitals=num_spin_orbitals,
-            num_particles=num_particles,
-            excitations="sd",
-            qubit_converter=qubit_converter,
-            initial_state=initial_state,
-        )
+        driver_result = problem.grouped_property_transformed
+
+        ansatz = Mock(spec=UCC)
+        ansatz.excitation_list = excitations
 
         mp2_initial_point = MP2InitialPoint()
-        mp2_initial_point.grouped_property = grouped_property
+        mp2_initial_point.grouped_property = driver_result
         mp2_initial_point.ansatz = ansatz
 
-        with self.subTest("Test overall MP2 energy correction."):
-            np.testing.assert_almost_equal(
-                mp2_initial_point.get_energy_correction(), pyscf_mp.e_corr, decimal=10
-            )
-
-        with self.subTest("Test absolute MP2 energy."):
-            np.testing.assert_almost_equal(
-                mp2_initial_point.get_energy(), pyscf_mp.e_tot, decimal=10
-            )
-
-        with self.subTest("Test absolute MP2 energy."):
-            print("pyscf", pyscf_mp.t2.shape)
-            print(pyscf_mp.t2)
-            print(pyscf_mp.t2.shape)
-            print("qiskit", mp2_initial_point._t2.shape)
-            diff = pyscf_mp.t2 - mp2_initial_point._t2
-            diff[np.abs(diff) < 1e-10] = 0
-            print(list(zip(*np.nonzero(diff))))
-            print(diff[np.nonzero(diff)])
+        with self.subTest("Test MP2 initial point array."):
             np.testing.assert_array_almost_equal(
-                mp2_initial_point._t2, pyscf_mp.t2, decimal=10
+                mp2_initial_point.to_numpy_array(), coefficients, decimal=6
             )
+
+        with self.subTest("Test MP2 energy corrections."):
+            np.testing.assert_array_almost_equal(
+                mp2_initial_point.get_energy_corrections(), energy_corrections, decimal=6
+            )
+
+        with self.subTest("Test overall MP2 energy correction."):
+            np.testing.assert_array_almost_equal(
+                mp2_initial_point.get_energy_correction(), energy_correction, decimal=6
+            )
+
+        with self.subTest("Test absolute MP2 energy."):
+            np.testing.assert_array_almost_equal(mp2_initial_point.get_energy(), energy, decimal=6)
 
 
 if __name__ == "__main__":
