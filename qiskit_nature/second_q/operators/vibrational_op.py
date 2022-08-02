@@ -20,7 +20,6 @@ from typing import List, Optional, Tuple, Union
 
 import numpy as np
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.deprecation import deprecate_function
 
 from .second_quantized_op import SecondQuantizedOp
 
@@ -262,18 +261,6 @@ class VibrationalOp(SecondQuantizedOp):
             self._num_modes,
             self._num_modals,
         )
-
-    @deprecate_function("0.4.0", new_name="simplify")
-    def reduce(
-        self,
-        atol: Optional[float] = None,
-        rtol: Optional[float] = None,  # pylint: disable=unused-argument
-    ) -> "VibrationalOp":
-        """Reduce the operator.
-
-        This method is deprecated. Use `simplify` instead.
-        """
-        return self.simplify(atol=atol)
 
     def simplify(self, atol: Optional[float] = None) -> "VibrationalOp":
         """Simplify the operator.

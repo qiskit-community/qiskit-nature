@@ -14,14 +14,12 @@
 
 import re
 import unittest
-import warnings
 from typing import cast
 
 from test import QiskitNatureTestCase
 from ddt import data, ddt, unpack
 
 from qiskit_nature.second_q.drivers import Molecule
-from qiskit_nature.second_q._watson_hamiltonian import WatsonHamiltonian
 from qiskit_nature.second_q.drivers import (
     GaussianForcesDriver,
     GaussianLogDriver,
@@ -30,6 +28,7 @@ from qiskit_nature.second_q.drivers import (
 )
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.properties import VibrationalEnergy
+from qiskit_nature.second_q.properties.integrals import VibrationalIntegrals
 import qiskit_nature.optionals as _optionals
 
 
@@ -171,10 +170,17 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
         self._check_driver_result(expected, result)
 
     def _check_driver_result(self, expected_watson_data, prop):
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            expected_watson = WatsonHamiltonian(expected_watson_data, 4)
-        expected = VibrationalEnergy.from_legacy_driver_result(expected_watson)
+        sorted_integrals: dict[int, list[tuple[float, tuple[int, ...]]]] = {1: [], 2: [], 3: []}
+        for coeff, *indices in expected_watson_data:
+            ints = [int(i) for i in indices]
+            num_body = len(set(ints))
+            sorted_integrals[num_body].append((coeff, tuple(ints)))
+
+        expected = VibrationalEnergy(
+            [VibrationalIntegrals(num_body, ints) for num_body, ints in sorted_integrals.items()]
+        )
+        expected.basis = 4
+
         true_vib_energy = cast(VibrationalEnergy, prop.get_property(VibrationalEnergy))
 
         with self.subTest("one-body terms"):

@@ -19,11 +19,8 @@ from typing import Optional, TYPE_CHECKING
 import h5py
 
 from qiskit_nature import ListOrDictType, settings
-from qiskit_nature.deprecation import deprecate_method
-from qiskit_nature.second_q._watson_hamiltonian import WatsonHamiltonian
 from qiskit_nature.second_q.operators import VibrationalOp
 
-from .second_quantized_property import LegacyDriverResult
 from .bases import VibrationalBasis
 from .vibrational_types import VibrationalProperty
 
@@ -61,26 +58,6 @@ class OccupiedModals(VibrationalProperty):
             A new instance of this class.
         """
         return OccupiedModals()
-
-    @classmethod
-    @deprecate_method("0.4.0")
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> OccupiedModals:
-        """Construct an OccupiedModals instance from a
-        :class:`~qiskit_nature.second_q.drivers.WatsonHamiltonian`.
-
-        Args:
-            result: the driver result from which to extract the raw data. For this property, a
-                :class:`~qiskit_nature.second_q.drivers.WatsonHamiltonian` is required!
-
-        Returns:
-            An instance of this property.
-
-        Raises:
-            QiskitNatureError: if a :class:`~qiskit_nature.second_q.drivers.QMolecule` is provided.
-        """
-        cls._validate_input_type(result, WatsonHamiltonian)
-
-        return cls()
 
     def second_q_ops(self) -> ListOrDictType[VibrationalOp]:
         """Returns the second quantized operators indicating the occupied modals per mode.
