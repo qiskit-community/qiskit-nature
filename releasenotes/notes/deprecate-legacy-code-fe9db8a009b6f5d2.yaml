@@ -1,0 +1,5 @@
+---
+deprecations:
+  - |
+    Deprecated all code that was migrated to `qiskit_nature/second_q` according to issue:
+    https://github.com/Qiskit/qiskit-nature/issues/749
