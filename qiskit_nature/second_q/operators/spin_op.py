@@ -375,17 +375,6 @@ class SpinOp(SecondQuantizedOp):
         return SpinOp((self._spin_array, self._coeffs.conjugate()), spin=self.spin)
 
     def simplify(self, atol: Optional[float] = None) -> "SpinOp":
-        """Simplify the operator.
-
-        Merges terms with same labels and eliminates terms with coefficients close to 0.
-        Returns a new operator (the original operator is not modified).
-
-        Args:
-            atol: Absolute tolerance for checking if coefficients are zero (Default: 1e-8).
-
-        Returns:
-            The simplified operator.
-        """
         if atol is None:
             atol = self.atol
 
