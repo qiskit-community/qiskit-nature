@@ -70,7 +70,7 @@ class VibrationalEnergy(VibrationalProperty):
             old_type=DeprecatedType.CLASS,
             old_name="qiskit_nature.properties.second_quantization.vibrational.VibrationalEnergy",
             new_type=DeprecatedType.CLASS,
-            new_name="qiskit_nature.second_q.hamiltonians.ElectronicEnergy",
+            new_name="qiskit_nature.second_q.hamiltonians.VibrationalEnergy",
             category=NatureDeprecationWarning,
         )
 
