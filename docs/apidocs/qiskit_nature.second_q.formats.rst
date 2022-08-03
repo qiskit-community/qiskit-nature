@@ -7,4 +7,16 @@
 
    .. autosummary::
 
+      QCBasisSet
+      QCCenterData
+      QCECPPotential
+      QCElectronShell
+      QCError
+      QCModel
+      QCProperties
+      QCProvenance
       QCSchema
+      QCSchemaInput
+      QCTopology
+      QCWavefunction
+
