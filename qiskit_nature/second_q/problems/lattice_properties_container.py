@@ -23,5 +23,3 @@ class LatticePropertiesContainer(PropertiesContainer):
     Right now, this is simply an empty subclass, but lattice-specific properties might be exposed
     as attributes in the future.
     """
-
-    ...
