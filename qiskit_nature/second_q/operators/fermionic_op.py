@@ -23,7 +23,6 @@ from typing import Optional, Union, cast
 import numpy as np
 from scipy.sparse import csc_matrix
 
-from qiskit_nature.deprecation import deprecate_function
 from .second_quantized_op import SecondQuantizedOp
 
 _ZERO_LABELS = {
@@ -555,35 +554,6 @@ class FermionicOp(SecondQuantizedOp):
             display_format=self.display_format,
         )
 
-    @deprecate_function(
-        "0.4.0",
-        additional_msg="Instead, use `simplify` and optionally `normal_ordered`.",
-    )
-    def reduce(self, atol: Optional[float] = None, rtol: Optional[float] = None) -> FermionicOp:
-        """Reduce the operator.
-
-        This method is deprecated. It is equivalent to `normal_ordered` followed by `simplify`.
-        """
-        if atol is None:
-            atol = self.atol
-        if rtol is None:
-            rtol = self.rtol
-
-        labels, coeffs = zip(*self.normal_ordered()._to_dense_label_data())
-        label_list, indices = np.unique(labels, return_inverse=True, axis=0)
-        coeff_list = np.zeros(len(coeffs), dtype=np.complex128)
-        for i, val in zip(indices, coeffs):
-            coeff_list[i] += val
-        non_zero = [
-            i for i, v in enumerate(coeff_list) if not np.isclose(v, 0, atol=atol, rtol=rtol)
-        ]
-        if not non_zero:
-            return FermionicOp(("", 0), self.register_length, display_format=self.display_format)
-        return FermionicOp(
-            list(zip(label_list[non_zero].tolist(), coeff_list[non_zero])),
-            display_format=self.display_format,
-        )
-
     def simplify(self, atol: Optional[float] = None) -> FermionicOp:
         if atol is None:
             atol = self.atol
@@ -636,55 +606,6 @@ class FermionicOp(SecondQuantizedOp):
         if not dense_label_data:
             return [("I" * self.register_length, 0j)]
         return dense_label_data
-
-    @deprecate_function(
-        "0.4.0",
-        additional_msg="Instead, use `normal_ordered`.",
-    )
-    def to_normal_order(self) -> FermionicOp:
-        """Convert to the equivalent operator with normal order.
-        The returned operator is a sparse label mode.
-
-        .. note::
-
-            This method implements the transformation of an operator to the normal ordered operator.
-            The transformation is calculated by considering all commutation relations between the
-            operators. For example, for the case :math:`\\colon c_0 c_0^\\dagger\\colon`
-            where :math:`c_0` is an annihilation operator,
-            this method returns :math:`1 - c_0^\\dagger c_0` due to commutation relations.
-            See the reference: https://en.wikipedia.org/wiki/Normal_order#Multiple_fermions.
-
-        """
-        temp_display_label = self.display_format
-        self.display_format = "dense"
-        ret = 0
-
-        for label, coeff in self.to_list():
-            splits = label.split("E")
-
-            for inter_ops in product("IN", repeat=len(splits) - 1):
-                label = splits[0]
-                label += "".join(link + next_base for link, next_base in zip(inter_ops, splits[1:]))
-
-                pluses = [it.start() for it in re.finditer(r"\+|N", label)]
-                minuses = [it.start() for it in re.finditer(r"-|N", label)]
-
-                count = sum(1 for plus in pluses for minus in minuses if plus > minus)
-                sign_swap = (-1) ** count
-                sign_n = (-1) ** inter_ops.count("N")
-                new_coeff = coeff * sign_n * sign_swap
-
-                ret += new_coeff * FermionicOp(
-                    " ".join([f"+_{i}" for i in pluses] + [f"-_{i}" for i in minuses]),
-                    self.register_length,
-                    "sparse",
-                )
-
-        self.display_format = temp_display_label
-
-        if isinstance(ret, FermionicOp):
-            return ret
-        return FermionicOp(("", 0), self.register_length, "sparse")
 
     def normal_ordered(self) -> FermionicOp:
         """Convert to the equivalent operator with normal order.

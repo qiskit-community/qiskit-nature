@@ -13,7 +13,6 @@
 """ Test Direct Mapper """
 
 import unittest
-import warnings
 
 from test import QiskitNatureTestCase
 
@@ -34,15 +33,13 @@ class TestDirectMapper(QiskitNatureTestCase):
         """Setup."""
         super().setUp()
 
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            driver = GaussianForcesDriver(
-                logfile=self.get_resource_path(
-                    "test_driver_gaussian_log_C01.txt",
-                    "second_q/drivers/gaussiand",
-                )
+        driver = GaussianForcesDriver(
+            logfile=self.get_resource_path(
+                "test_driver_gaussian_log_C01.txt",
+                "second_q/drivers/gaussiand",
             )
-            self.driver_result = driver.run()
+        )
+        self.driver_result = driver.run()
 
     def test_mapping(self):
         """Test mapping to qubit operator"""

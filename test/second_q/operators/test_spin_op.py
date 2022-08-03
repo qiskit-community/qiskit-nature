@@ -263,12 +263,6 @@ class TestSpinOp(QiskitNatureTestCase):
         #     print(actual.to_matrix())
         #     print(SpinOp("X_0 Y_0 Z_0").to_matrix().T.conjugate())
 
-    def test_reduce(self):
-        """Test reduce"""
-        with self.assertWarns(DeprecationWarning):
-            actual = (self.heisenberg - self.heisenberg).reduce()
-            self.assertListEqual(actual.to_list(), [("I_1", 0)])
-
     def test_simplify(self):
         """Test simplify"""
         with self.subTest("trivial reduce"):

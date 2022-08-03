@@ -17,7 +17,6 @@ from test.second_q.problems.resources.resource_reader import (
     read_expected_file,
 )
 
-import warnings
 import numpy as np
 
 from qiskit_nature.second_q.mappers import QubitConverter
@@ -60,13 +59,8 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
         electr_sec_quant_op = second_quantized_ops[electronic_structure_problem.main_property_name]
         second_quantized_ops = list(second_quantized_ops.values())
 
-        with self.subTest("Check that the correct properties are/aren't None"):
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=DeprecationWarning)
-                # new driver used, molecule_data* should be None
-                self.assertIsNone(electronic_structure_problem.molecule_data)
-                self.assertIsNone(electronic_structure_problem.molecule_data_transformed)
-            # converted properties should never be None
+        with self.subTest("Check that the correct properties aren't None"):
+            # properties should never be None
             self.assertIsNotNone(electronic_structure_problem.grouped_property)
             self.assertIsNotNone(electronic_structure_problem.grouped_property_transformed)
 
@@ -100,13 +94,8 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
         electr_sec_quant_op = second_quantized_ops[electronic_structure_problem.main_property_name]
         second_quantized_ops = list(second_quantized_ops.values())
 
-        with self.subTest("Check that the correct properties are/aren't None"):
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=DeprecationWarning)
-                # new driver used, molecule_data* should be None
-                self.assertIsNone(electronic_structure_problem.molecule_data)
-                self.assertIsNone(electronic_structure_problem.molecule_data_transformed)
-            # converted properties should never be None
+        with self.subTest("Check that the correct properties aren't None"):
+            # properties should never be None
             self.assertIsNotNone(electronic_structure_problem.grouped_property)
             self.assertIsNotNone(electronic_structure_problem.grouped_property_transformed)
 
@@ -163,3 +152,7 @@ class TestElectronicStructureProblemLegacyDrivers(QiskitNatureTestCase):
             sector_locator=es_problem.symmetry_sector_locator,
         )
         self.assertListEqual(qubit_conv.z2symmetries.tapering_values, [-1, 1])
+
+
+if __name__ == "__main__":
+    unittest.main()

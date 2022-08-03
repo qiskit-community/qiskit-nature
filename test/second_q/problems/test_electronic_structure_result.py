@@ -12,6 +12,7 @@
 
 """Tests for the ElectronicStructureResult."""
 
+import unittest
 import contextlib
 import io
 from itertools import zip_longest
@@ -78,3 +79,7 @@ class TestElectronicStructureResult(QiskitNatureTestCase):
                              (debye): [0.0  0.0  2.54174623+2.54174623j]  Total: 2.54174623+2.54174623j
         """
         self._assert_printed_result(res)
+
+
+if __name__ == "__main__":
+    unittest.main()

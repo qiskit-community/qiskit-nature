@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 """Test for VibrationalOp"""
 
+import unittest
 from test import QiskitNatureTestCase
 
 import numpy as np
@@ -131,14 +132,6 @@ class TestVibrationalOp(QiskitNatureTestCase):
         expected = [("+-", 2j), ("-+", -2j)]
         self.assertEqual(test_op.simplify().to_list(), expected)
 
-    def test_reduce(self):
-        """Test reduce"""
-        test_op = (
-            1j * VibrationalOp("+-", 2, 1)
-            + 1j * VibrationalOp("+-", 2, 1)
-            - 1j * VibrationalOp("-+", 2, 1)
-            - 1j * VibrationalOp("-+", 2, 1)
-        )
-        expected = [("+-", 2j), ("-+", -2j)]
-        with self.assertWarns(DeprecationWarning):
-            self.assertEqual(test_op.reduce().to_list(), expected)
+
+if __name__ == "__main__":
+    unittest.main()

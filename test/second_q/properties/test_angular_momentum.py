@@ -14,12 +14,10 @@
 
 import json
 import tempfile
-import warnings
 from test.second_q.properties.property_test import PropertyTest
 
 import h5py
 
-from qiskit_nature.second_q._qmolecule import QMolecule
 from qiskit_nature.second_q.properties import AngularMomentum
 from qiskit_nature.second_q.operators import FermionicOp
 
@@ -30,11 +28,8 @@ class TestAngularMomentum(PropertyTest):
     def setUp(self):
         """Setup."""
         super().setUp()
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            qmol = QMolecule()
-        qmol.num_molecular_orbitals = 4
-        self.prop = AngularMomentum.from_legacy_driver_result(qmol)
+        num_molecular_orbitals = 4
+        self.prop = AngularMomentum(num_molecular_orbitals * 2)
 
     def test_second_q_ops(self):
         """Test second_q_ops."""

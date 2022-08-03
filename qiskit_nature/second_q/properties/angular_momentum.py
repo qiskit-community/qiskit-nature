@@ -15,7 +15,7 @@
 from __future__ import annotations
 
 import logging
-from typing import cast, Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 import itertools
 
@@ -23,12 +23,8 @@ import h5py
 import numpy as np
 
 from qiskit_nature import ListOrDictType, settings
-from qiskit_nature.deprecation import deprecate_method
-from qiskit_nature.second_q._qmolecule import QMolecule
 from qiskit_nature.second_q.operators import FermionicOp
 
-
-from .second_quantized_property import LegacyDriverResult
 from .bases import ElectronicBasis
 from .integrals import (
     OneBodyElectronicIntegrals,
@@ -152,31 +148,6 @@ class AngularMomentum(ElectronicProperty):
             h5py_group.attrs.get("spin", None),
             h5py_group.attrs["absolute_tolerance"],
             h5py_group.attrs["relative_tolerance"],
-        )
-
-    @classmethod
-    @deprecate_method("0.4.0")
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> AngularMomentum:
-        """Construct an AngularMomentum instance from a
-        :class:`~qiskit_nature.second_q.drivers.QMolecule`.
-
-        Args:
-            result: the driver result from which to extract the raw data. For this property, a
-                :class:`~qiskit_nature.second_q.drivers.QMolecule` is required!
-
-        Returns:
-            An instance of this property.
-
-        Raises:
-            QiskitNatureError: if a :class:`~qiskit_nature.second_q.drivers.WatsonHamiltonian`
-            is provided.
-        """
-        cls._validate_input_type(result, QMolecule)
-
-        qmol = cast(QMolecule, result)
-
-        return cls(
-            qmol.num_molecular_orbitals * 2,
         )
 
     def second_q_ops(self) -> ListOrDictType[FermionicOp]:
