@@ -105,6 +105,7 @@ extensions = [
     "reno.sphinxext",
     "sphinx.ext.doctest",
     "nbsphinx",
+    "sphinx.ext.intersphinx",
 ]
 html_static_path = ["_static"]
 templates_path = ["_templates"]
@@ -204,6 +205,8 @@ html_theme_options = {
     "includehidden": True,
     "titles_only": False,
 }
+
+intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}
 
 # -- Extension configuration -------------------------------------------------
 
