@@ -10,7 +10,10 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The QCSchema format.
+"""
+=============================================================
+The QCSchema (:mod:`qiskit_nature.second_q.formats.qcschema`)
+=============================================================
 
 The documentation of this schema can be found
 [here](https://molssi-qc-schema.readthedocs.io/en/latest/).
@@ -152,7 +155,9 @@ class QCError(_QCBase):
     """
 
     error_type: str
+    """The type of error that was raised."""
     error_message: str
+    """A description of the error that was raised."""
 
 
 @dataclass
@@ -164,8 +169,11 @@ class QCProvenance(_QCBase):
     """
 
     creator: str
+    """The name of the creator of this object."""
     version: str
+    """The version of the creator of this object."""
     routine: str
+    """The routine that was used to create this object."""
 
 
 @dataclass
@@ -177,7 +185,10 @@ class QCModel(_QCBase):
     """
 
     method: str
+    """The method used for the computation of this object."""
     basis: str | QCBasisSet
+    """The basis set used during the computation. This can be either a simple string or a full
+    :class:`QCBasisSet` specification."""
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> QCModel:
@@ -218,26 +229,57 @@ class QCTopology(_QCBase):
     """
 
     symbols: list[str]
+    """The list of atom symbols in this topology."""
     geometry: list[float]
+    """The XYZ coordinates (in Bohr units) of the atoms. This is a flat list of three times the
+    length of the `symbols` list."""
     schema_name: str
+    """The name of this schema. This value is expected to be `qcschema_molecule`."""
     schema_version: int
+    """The version of this specific schema."""
     molecular_charge: int = None
+    """The overall charge of the molecule."""
     molecular_multiplicity: int = None
+    """The overall multiplicity of the molecule."""
     fix_com: bool = None
+    """Whether translation of the geometry is allowed (`False`) or not (`True`)."""
     real: list[bool] = None
+    """A list indicating whether each atom is real (`True`) or a ghost (`False`). Its length must
+    match that of the `symbols` list."""
     connectivity: list[tuple[int, int, int]] = None
+    """A list indicating the bonds between the atoms in the molecule. Each item of this list must be
+    a tuple of three integers, indicating the first atom index in the bond, the second atom index,
+    and finally the order of the bond."""
     fix_orientation: bool = None
+    """Whether rotation of the geometry is allowed (`False`) or not (`True`)."""
     atom_labels: list[str] = None
+    """A list of user-provided information for each atom. Its length must match that of the
+    `symbols` list."""
     fragment_multiplicities: list[int] = None
+    """The list of multiplicities associated with each fragment."""
     fix_symmetry: str = None
+    """The maximal point group symmetry at which the `geometry` should be treated."""
     fragment_charges: list[float] = None
+    """The list of charges associated with each fragment."""
     mass_numbers: list[int] = None
+    """The mass numbers of all atoms. If it is an unknown isotope, the value should be -1. Its
+    length must match that of the `symbols` list."""
     name: str = None
+    """The (user-given) name of the molecule."""
     masses: list[float] = None
+    """The masses (in atomic units) of all atoms. Canonical weights are assumed if this is not given
+    explicitly."""
     comment: str = None
+    """Any additional (user-provided) comment."""
     provenance: QCProvenance = None
+    """An instance of :class:`QCProvenance`."""
     fragments: list[tuple[int, ...]] = None
+    """The list of fragments. Each item of this list must be a tuple of integers with variable
+    length (greater than 1). The first number indicates the fragment index, all following numbers
+    refer to the (0-indexed) atom indices that constitute this fragment."""
     atomic_numbers: list[int] = None
+    """The atomic numbers of all atoms, indicating their nuclear charge. Its length must match that
+    of the `symbols` list."""
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> QCTopology:
@@ -270,9 +312,14 @@ class QCElectronShell(_QCBase):
     """
 
     angular_momentum: list[int]
+    """The angular momenta of this electron shell as a list of integers."""
     harmonic_type: str
+    """The type of this shell."""
     exponents: list[float | str]
+    """The exponents of this contracted shell. The official spec stores these values as strings."""
     coefficients: list[list[float | str]]
+    """The general contraction coefficients of this contracted shell. The official spec stores these
+    values as strings."""
 
     def to_hdf5(self, group: h5py.Group) -> None:
         group.attrs["angular_momentum"] = self.angular_momentum
@@ -290,10 +337,16 @@ class QCECPPotential(_QCBase):
     """
 
     ecp_type: str
+    """The type of this potential."""
     angular_momentum: list[int]
+    """The angular momenta of this potential as a list of integers."""
     r_exponents: list[int]
+    """The exponents of the `r` term."""
     gaussian_exponents: list[float | str]
+    """The exponents of the gaussian terms. The official spec stores these values as strings."""
     coefficients: list[list[float | str]]
+    """The general contraction coefficients of this potential. The official spec stores these values
+    as strings."""
 
     def to_hdf5(self, group: h5py.Group) -> None:
         group.attrs["angular_momentum"] = self.angular_momentum
@@ -312,8 +365,11 @@ class QCCenterData(_QCBase):
     """
 
     electron_shells: list[QCElectronShell] = None
+    """The list of electronic shells for this element."""
     ecp_electrons: int = None
+    """The number of electrons replaced by an ECP."""
     ecp_potentials: list[QCECPPotential] = None
+    """The list of effective core potentials for this element."""
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> QCCenterData:
@@ -377,11 +433,17 @@ class QCBasisSet(_QCBase):
     """
 
     center_data: dict[str, QCCenterData]
+    """A dictionary mapping the keys provided by `atom_map` to their basis center data."""
     atom_map: list[str]
+    """The list of atomic kinds, indicating the keys used to store the basis in `center_data`."""
     name: str
+    """The name of the basis set."""
     schema_version: int = None
+    """The version of this specific schema."""
     schema_name: str = None
+    """The name of this schema. This value is expected to be `qcschema_basis`."""
     description: str = None
+    """A description of this basis set."""
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> QCBasisSet:
@@ -428,116 +490,220 @@ class QCProperties(_QCBase):
     """
 
     calcinfo_nbasis: int = None
+    """The number of basis functions in the computation."""
     calcinfo_nmo: int = None
+    """The number of molecular orbitals in the computation."""
     calcinfo_nalpha: int = None
+    """The number of alpha-spin electrons in the computation."""
     calcinfo_nbeta: int = None
+    """The number of beta-spin electrons in the computation."""
     calcinfo_natom: int = None
+    """The number of atoms in the computation."""
     return_energy: float = None
+    """The returned energy of the computation. When :attr:`QCSchemaInput.driver` is `energy`, this
+    value is identical to :attr:`QCSchema.return_result`."""
 
     scf_one_electron_energy: float = None
+    """The one-electron energy contribution to the total SCF energy."""
     scf_two_electron_energy: float = None
+    """The two-electron energy contribution to the total SCF energy."""
     nuclear_repulsion_energy: float = None
+    """The nuclear repulsion energy contribution to the total SCF energy."""
     scf_vv10_energy: float = None
+    """The VV10 functional energy contribution to the total SCF energy."""
     scf_xc_energy: float = None
+    """The XC functional energy contribution to the total SCF energy."""
     scf_dispersion_correction_energy: float = None
+    """The dispersion correction appended to the underlying functional in a DFT-D method."""
     scf_dipole_moment: tuple[float, float, float] = None
+    """The total SCF X, Y, and Z dipole components."""
     scf_total_energy: float = None
+    """The total SCF energy."""
     scf_iterations: int = None
+    """The number of SCF iterations taken during the computation."""
 
     mp2_same_spin_correlation_energy: float = None
+    """The MP2 doubles correlation energy contribution from same-spin (e.g. triplet) correlations,
+    without any user scaling."""
     mp2_opposite_spin_correlation_energy: float = None
+    """The MP2 doubles correlation energy contribution from opposite-spin (e.g. singlet)
+    correlations, without any user scaling."""
     mp2_singles_energy: float = None
+    """The MP2 singles correlation energy. This value is `0.0` except in ROHF."""
     mp2_doubles_energy: float = None
+    """The total MP2 doubles correlation energy."""
     mp2_correlation_energy: float = None
+    """The total MP2 correlation energy."""
     mp2_total_energy: float = None
+    """The total MP2 energy (i.e. the sum of the SCF energy and MP2 correlation energy)."""
     mp2_dipole_moment: tuple[float, float, float] = None
+    """The total MP2 X, Y, and Z dipole components."""
 
     ccsd_same_spin_correlation_energy: float = None
+    """The CCSD doubles correlation energy contribution from same-spin (e.g. triplet) correlations,
+    without any user scaling."""
     ccsd_opposite_spin_correlation_energy: float = None
+    """The CCSD doubles correlation energy contribution from opposite-spin (e.g. singlet)
+    correlations, without any user scaling."""
     ccsd_singles_energy: float = None
+    """The CCSD singles correlation energy. This value is `0.0` except in ROHF."""
     ccsd_doubles_energy: float = None
+    """The total CCSD doubles correlation energy."""
     ccsd_correlation_energy: float = None
+    """The total CCSD correlation energy."""
     ccsd_total_energy: float = None
+    """The total CCSD energy (i.e. the sum of the SCF energy and CCSD correlation energy)."""
     ccsd_prt_pr_correlation_energy: float = None
+    """The total CCSD(T) correlation energy."""
     ccsd_prt_pr_total_energy: float = None
+    """The total CCSD(T) energy (i.e. the sum of the SCF energy and CCSD(T) correlation energy)."""
     ccsdt_correlation_energy: float = None
+    """The total CCSDT correlation energy."""
     ccsdt_total_energy: float = None
+    """The total CCSDT energy (i.e. the sum of the SCF energy and CCSDT correlation energy)."""
     ccsdtq_correlation_energy: float = None
+    """The total CCSDTQ correlation energy."""
     ccsdtq_total_energy: float = None
+    """The total CCSDTQ energy (i.e. the sum of the SCF energy and CCSDTQ correlation energy)."""
     ccsd_dipole_moment: tuple[float, float, float] = None
+    """The total CCSD X, Y, and Z dipole components."""
     ccsd_prt_pr_dipole_moment: tuple[float, float, float] = None
+    """The total CCSD(T) X, Y, and Z dipole components."""
     ccsdt_dipole_moment: tuple[float, float, float] = None
+    """The total CCSDT X, Y, and Z dipole components."""
     ccsdtq_dipole_moment: tuple[float, float, float] = None
+    """The total CCSDTQ X, Y, and Z dipole components."""
     ccsd_iterations: int = None
+    """The number of CCSD iterations taken during the computation."""
     ccsdt_iterations: int = None
+    """The number of CCSDT iterations taken during the computation."""
     ccsdtq_iterations: int = None
+    """The number of CCSDTQ iterations taken during the computation."""
 
 
 @dataclass
 class QCWavefunction(_QCBase):
     """A dataclass to store any additional computed wavefunction properties.
 
+    Matrix quantities are stored as flat, column-major arrays.
+
     For more information refer to
     [here](https://molssi-qc-schema.readthedocs.io/en/latest/auto_wf.html#wavefunction-schema).
     """
 
     basis: QCBasisSet
+    """An instance of :class:`QCBasisSet`."""
 
     orbitals_a: str = None
+    """The name of the alpha-spin orbitals in the AO basis."""
     orbitals_b: str = None
+    """The name of the beta-spin orbitals in the AO basis."""
     density_a: str = None
+    """The name of the alpha-spin density in the AO basis."""
     density_b: str = None
+    """The name of the beta-spin density in the AO basis."""
     density_mo_a: str = None
+    """The name of the alpha-spin density in the MO basis."""
     density_mo_b: str = None
+    """The name of the beta-spin density in the MO basis."""
     fock_a: str = None
+    """The name of the alpha-spin Fock matrix in the AO basis."""
     fock_b: str = None
+    """The name of the beta-spin Fock matrix in the AO basis."""
     fock_mo_a: str = None
+    """The name of the alpha-spin Fock matrix in the MO basis."""
     fock_mo_b: str = None
+    """The name of the beta-spin Fock matrix in the MO basis."""
     eigenvalues_a: str = None
+    """The name of the alpha-spin orbital eigenvalues."""
     eigenvalues_b: str = None
+    """The name of the beta-spin orbital eigenvalues."""
     occupations_a: str = None
+    """The name of the alpha-spin orbital occupations."""
     occupations_b: str = None
+    """The name of the beta-spin orbital occupations."""
     eri: str = None
+    """The name of the electron-repulsion integrals in the AO basis."""
     eri_mo_aa: str = None
+    """The name of the alpha-alpha electron-repulsion integrals in the MO basis."""
     eri_mo_ab: str = None
+    """The name of the alpha-beta electron-repulsion integrals in the MO basis."""
     eri_mo_ba: str = None
+    """The name of the beta-alpha electron-repulsion integrals in the MO basis."""
     eri_mo_bb: str = None
+    """The name of the beta-beta electron-repulsion integrals in the MO basis."""
 
     scf_orbitals_a: list[float] = None
+    """The SCF alpha-spin orbitals in the AO basis."""
     scf_orbitals_b: list[float] = None
+    """The SCF beta-spin orbitals in the AO basis."""
     scf_density_a: list[float] = None
+    """The SCF alpha-spin density in the AO basis."""
     scf_density_b: list[float] = None
+    """The SCF beta-spin density in the AO basis."""
     scf_density_mo_a: list[float] = None
+    """The SCF alpha-spin density in the MO basis."""
     scf_density_mo_b: list[float] = None
+    """The SCF beta-spin density in the MO basis."""
     scf_fock_a: list[float] = None
+    """The SCF alpha-spin Fock matrix in the AO basis."""
     scf_fock_b: list[float] = None
+    """The SCF beta-spin Fock matrix in the AO basis."""
     scf_fock_mo_a: list[float] = None
+    """The SCF alpha-spin Fock matrix in the MO basis."""
     scf_fock_mo_b: list[float] = None
+    """The SCF beta-spin Fock matrix in the MO basis."""
     scf_coulomb_a: list[float] = None
+    """The SCF alpha-spin Coulomb matrix in the AO basis."""
     scf_coulomb_b: list[float] = None
+    """The SCF beta-spin Coulomb matrix in the AO basis."""
     scf_exchange_a: list[float] = None
+    """The SCF alpha-spin Exchange matrix in the AO basis."""
     scf_exchange_b: list[float] = None
+    """The SCF beta-spin Exchange matrix in the AO basis."""
     scf_eigenvalues_a: list[float] = None
+    """The SCF alpha-spin orbital eigenvalues."""
     scf_eigenvalues_b: list[float] = None
+    """The SCF beta-spin orbital eigenvalues."""
     scf_occupations_a: list[float] = None
+    """The SCF alpha-spin orbital occupations."""
     scf_occupations_b: list[float] = None
+    """The SCF beta-spin orbital occupations."""
     scf_eri: str = None
+    """The SCF electron-repulsion integrals in the AO basis."""
     scf_eri_mo_aa: str = None
+    """The SCF alpha-alpha electron-repulsion integrals in the MO basis."""
     scf_eri_mo_ab: str = None
+    """The SCF alpha-beta electron-repulsion integrals in the MO basis."""
     scf_eri_mo_ba: str = None
+    """The SCF beta-alpha electron-repulsion integrals in the MO basis."""
     scf_eri_mo_bb: str = None
+    """The SCF beta-beta electron-repulsion integrals in the MO basis."""
 
     localized_orbitals_a: list[float] = None
+    """The localized alpha-spin orbitals. All `nmo` orbitals are included, even if only a subset
+    were localized."""
     localized_orbitals_b: list[float] = None
+    """The localized beta-spin orbitals. All `nmo` orbitals are included, even if only a subset were
+    localized."""
     localized_fock_a: list[float] = None
+    """The alpha-spin Fock matrix in the localized basis. All `nmo` orbitals are included, even if
+    only a subset were localized."""
     localized_fock_b: list[float] = None
+    """The beta-spin Fock matrix in the localized basis. All `nmo` orbitals are included, even if
+    only a subset were localized."""
 
     h_core_a: list[float] = None
+    """The alpha-spin core (one-electron) Hamiltonian matrix in the AO basis."""
     h_core_b: list[float] = None
+    """The beta-spin core (one-electron) Hamiltonian matrix in the AO basis."""
     h_effective_a: list[float] = None
+    """The effective alpha-spin core (one-electron) Hamiltonian matrix in the AO basis."""
     h_effective_b: list[float] = None
+    """The effective beta-spin core (one-electron) Hamiltonian matrix in the AO basis."""
 
     restricted: bool = None
+    """Whether the computation used restricted spin orbitals."""
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> QCWavefunction:
@@ -578,11 +744,17 @@ class QCSchemaInput(_QCBase):
     """
 
     schema_name: str
+    """The name of this schema. This value is expected to be `qcschema` or `qc_schema`."""
     schema_version: int
+    """The version of this specific schema."""
     molecule: QCTopology
+    """An instance of :class:`QCTopology`."""
     driver: str
+    """The type of computation. Example values are `energy`, `gradient`, and `hessian`."""
     model: QCModel
+    """An instance of :class:`QCModel`."""
     keywords: dict[str, Any]
+    """Any additional program-specific parameters."""
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> QCSchemaInput:
@@ -625,11 +797,18 @@ class QCSchema(QCSchemaInput):
     """
 
     provenance: QCProvenance
+    """An instance of :class:`QCProvenance`."""
     return_result: float | list[float]
+    """The primary result of the computation. Its value depends on the type of computation (see also
+    `driver`)."""
     success: bool
+    """Whether the computation was successful."""
     properties: QCProperties
+    """An instance of :class:`QCProperties`."""
     error: QCError = None
+    """An instance of :class:`QCError` if the computation was not successful (`success = False`)."""
     wavefunction: QCWavefunction = None
+    """An instance of :class:`QCWavefunction`."""
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> QCSchema:

@@ -50,6 +50,7 @@ bopes
 boson
 bosonic
 bravyi
+calcinfo
 cargs
 cartesian
 cbit
@@ -131,6 +132,7 @@ eigenstate
 eigenstateresult
 eigenstates
 eigenvector
+eigenvectors
 einact
 einsum
 endian
@@ -301,6 +303,7 @@ namelist
 nan
 nannichini
 natom
+nbasis
 nd
 ndarray
 nelec
@@ -377,7 +380,9 @@ qarg
 qargs
 qasm
 qbit
+qcbase
 qcmatrixio
+qcschema
 qeom
 qfi
 qiskit

@@ -22,6 +22,14 @@ I/O Formats (:mod:`qiskit_nature.second_q.formats`)
 
    QCSchema
 
+Submodules
+==========
+
+.. autosummary::
+   :toctree:
+
+   qcschema
+
 """
 
 from .qcschema import QCSchema
