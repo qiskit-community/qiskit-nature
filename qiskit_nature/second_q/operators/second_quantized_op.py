@@ -17,6 +17,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Optional
 
+import numpy as np
 from qiskit.opflow.mixins import StarAlgebraMixin
 from qiskit.quantum_info.operators.mixins import TolerancesMixin
 
@@ -48,8 +49,8 @@ class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
         Returns a new operator (the original operator is not modified).
 
         Args:
-            atol: Absolute tolerance for checking if coefficients are zero (Default: 1e-8).
-
+            atol: Absolute numerical tolerance. The default behavior is to use ``self.atol``,
+                which would be 1e-8 unless changed by the user.
         Returns:
             The simplified operator.
         """
@@ -60,8 +61,17 @@ class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
         """Returns the operators internal contents in list-format."""
         raise NotImplementedError
 
-    def is_hermitian(self) -> bool:
-        """Checks whether the operator is hermitian"""
-        return frozenset(self.simplify().to_list()) == frozenset(
-            self.adjoint().simplify().to_list()
-        )
+    def is_hermitian(self, atol: Optional[float] = None) -> bool:
+        """Checks whether the operator is hermitian.
+
+        Args:
+            atol: Absolute numerical tolerance. The default behavior is to use ``self.atol``,
+                which would be 1e-8 unless changed by the user.
+
+        Returns:
+            True if the operator is hermitian up to numerical tolerance, False otherwise.
+        """
+        if atol is None:
+            atol = self.atol
+        diff = (self - self.adjoint()).simplify(atol=atol)
+        return all(np.isclose(coeff, 0.0, atol=atol) for _, coeff in diff.to_list())
