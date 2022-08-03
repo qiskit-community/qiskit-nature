@@ -21,8 +21,6 @@ import h5py
 from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.second_q.operators import FermionicOp
 
-
-from ..second_quantized_property import LegacyDriverResult
 from ..bases import ElectronicBasis, ElectronicBasisTransform
 from ..electronic_types import ElectronicProperty
 from .electronic_integrals import ElectronicIntegrals
@@ -169,18 +167,6 @@ class IntegralProperty(ElectronicProperty):
             return [op]
 
         return {self.name: op}
-
-    @classmethod
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> IntegralProperty:
-        """This property does not support construction from a legacy driver result (yet).
-
-        Args:
-            result: ignored.
-
-        Raises:
-            NotImplementedError
-        """
-        raise NotImplementedError()
 
     def interpret(self, result: "EigenstateResult") -> None:
         """Interprets an :class:`~qiskit_nature.second_q.problems.EigenstateResult`

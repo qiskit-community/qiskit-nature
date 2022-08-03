@@ -15,18 +15,14 @@
 from __future__ import annotations
 
 import logging
-from typing import Optional, Union, cast, TYPE_CHECKING
+from typing import Optional, Union, TYPE_CHECKING
 
 import h5py
 import numpy as np
 
 from qiskit_nature import ListOrDictType, settings
-from qiskit_nature.deprecation import deprecate_method
-from qiskit_nature.second_q._qmolecule import QMolecule
 from qiskit_nature.second_q.operators import FermionicOp
 
-
-from .second_quantized_property import LegacyDriverResult
 from .electronic_types import ElectronicProperty
 
 if TYPE_CHECKING:
@@ -227,33 +223,6 @@ class ParticleNumber(ElectronicProperty):
             h5py_group["occupation_beta"][Ellipsis],
             h5py_group.attrs["absolute_tolerance"],
             h5py_group.attrs["relative_tolerance"],
-        )
-
-    @classmethod
-    @deprecate_method("0.4.0")
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> ParticleNumber:
-        """Construct a ParticleNumber instance from a :class:`~qiskit_nature.second_q.drivers.QMolecule`.
-
-        Args:
-            result: the driver result from which to extract the raw data. For this property, a
-                :class:`~qiskit_nature.second_q.drivers.QMolecule` is required!
-
-        Returns:
-            An instance of this property.
-
-        Raises:
-            QiskitNatureError: if a :class:`~qiskit_nature.second_q.drivers.WatsonHamiltonian`
-            is provided.
-        """
-        cls._validate_input_type(result, QMolecule)
-
-        qmol = cast(QMolecule, result)
-
-        return cls(
-            qmol.num_molecular_orbitals * 2,
-            (qmol.num_alpha, qmol.num_beta),
-            qmol.mo_occ,
-            qmol.mo_occ_b,
         )
 
     def second_q_ops(self) -> ListOrDictType[FermionicOp]:

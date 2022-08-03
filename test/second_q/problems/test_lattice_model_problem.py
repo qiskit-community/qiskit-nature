@@ -12,6 +12,7 @@
 
 """Tests Lattice Model Problem."""
 
+import unittest
 from test import QiskitNatureTestCase
 
 import numpy as np
@@ -89,3 +90,7 @@ class TestLatticeModelProblem(QiskitNatureTestCase):
         self.assertEqual(lmr.eigenenergies, np.asarray([mes_result.eigenvalue]))
         self.assertEqual(lmr.eigenstates, [mes_result.eigenstate])
         self.assertEqual(lmr.aux_operator_eigenvalues, [mes_result.aux_operator_eigenvalues])
+
+
+if __name__ == "__main__":
+    unittest.main()

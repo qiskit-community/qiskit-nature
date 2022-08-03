@@ -20,17 +20,12 @@ from qiskit.opflow import PauliSumOp, Z2Symmetries
 
 from qiskit_nature import ListOrDictType
 from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.deprecation import DeprecatedType, deprecate_property
-from qiskit_nature.second_q._qmolecule import QMolecule
-from qiskit_nature.second_q._watson_hamiltonian import WatsonHamiltonian
 from qiskit_nature.second_q.drivers import BaseDriver
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.properties import GroupedSecondQuantizedProperty
 from qiskit_nature.second_q.transformers.base_transformer import BaseTransformer
 
 from .eigenstate_result import EigenstateResult
-
-LegacyDriverResult = Union[QMolecule, WatsonHamiltonian]
 
 
 class BaseProblem(ABC):
@@ -53,33 +48,10 @@ class BaseProblem(ABC):
         self.driver = driver
         self.transformers = transformers or []
 
-        self._molecule_data: Optional[LegacyDriverResult] = None
-        self._molecule_data_transformed: Optional[LegacyDriverResult] = None
-
         self._grouped_property: Optional[GroupedSecondQuantizedProperty] = None
         self._grouped_property_transformed: Optional[GroupedSecondQuantizedProperty] = None
 
         self._main_property_name: str = main_property_name
-
-    @property  # type: ignore[misc]
-    @deprecate_property(
-        "0.2.0",
-        new_type=DeprecatedType.PROPERTY,
-        new_name="grouped_property",
-    )
-    def molecule_data(self) -> Optional[LegacyDriverResult]:
-        """Returns the raw molecule data object."""
-        return self._molecule_data
-
-    @property  # type: ignore[misc]
-    @deprecate_property(
-        "0.2.0",
-        new_type=DeprecatedType.PROPERTY,
-        new_name="grouped_property_transformed",
-    )
-    def molecule_data_transformed(self) -> Optional[LegacyDriverResult]:
-        """Returns the raw transformed molecule data object."""
-        return self._molecule_data_transformed
 
     @property
     def grouped_property(self) -> Optional[GroupedSecondQuantizedProperty]:

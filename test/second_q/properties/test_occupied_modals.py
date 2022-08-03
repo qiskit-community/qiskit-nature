@@ -13,12 +13,10 @@
 """Test OccupiedModals Property"""
 
 import tempfile
-import warnings
 from test.second_q.properties.property_test import PropertyTest
 
 import h5py
 
-from qiskit_nature.second_q._watson_hamiltonian import WatsonHamiltonian
 from qiskit_nature.second_q.properties import OccupiedModals
 from qiskit_nature.second_q.properties.bases import HarmonicBasis
 
@@ -29,11 +27,8 @@ class TestOccupiedModals(PropertyTest):
     def setUp(self):
         """Setup basis."""
         super().setUp()
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            watson = WatsonHamiltonian([], -1)
         basis = HarmonicBasis([2, 3, 4])
-        self.prop = OccupiedModals.from_legacy_driver_result(watson)
+        self.prop = OccupiedModals()
         self.prop.basis = basis
 
     def test_second_q_ops(self):

@@ -13,13 +13,11 @@
 """Test ParticleNumber Property"""
 
 import tempfile
-import warnings
 from test.second_q.properties.property_test import PropertyTest
 
 import h5py
 import numpy as np
 
-from qiskit_nature.second_q._qmolecule import QMolecule
 from qiskit_nature.second_q.properties import ParticleNumber
 
 
@@ -29,13 +27,13 @@ class TestParticleNumber(PropertyTest):
     def setUp(self):
         """Setup."""
         super().setUp()
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
-            qmol = QMolecule()
-        qmol.num_molecular_orbitals = 4
-        qmol.num_alpha = 2
-        qmol.num_beta = 2
-        self.prop = ParticleNumber.from_legacy_driver_result(qmol)
+        num_molecular_orbitals = 4
+        num_alpha = 2
+        num_beta = 2
+        self.prop = ParticleNumber(
+            num_molecular_orbitals * 2,
+            (num_alpha, num_beta),
+        )
 
     def test_second_q_ops(self):
         """Test second_q_ops."""

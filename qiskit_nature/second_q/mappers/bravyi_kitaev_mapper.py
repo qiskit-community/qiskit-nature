@@ -152,7 +152,7 @@ class BravyiKitaevMapper(FermionicMapper):  # pylint: disable=missing-class-docs
                 )
             )
 
-        # PauliList has the phase information unlike deprecated PauliTable.
+        # PauliList has the phase information.
         # Here, phase is unnecessary, so the following removes phase.
         for pauli1, pauli2 in pauli_table:
             pauli1.phase = 0
