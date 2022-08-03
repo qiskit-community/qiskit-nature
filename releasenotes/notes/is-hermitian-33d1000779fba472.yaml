@@ -2,9 +2,6 @@
 features:
   - |
     Adds `atol` parameter to :meth:`.SecondQuantizedOp.is_hermitian`.
-  - |
-    :class:`.FermionicOp` can now be initialized with an empty list. That is,
-    `FermionicOp([])` returns the zero operator instead of raising an error.
 fixes:
   - |
     Fixes a bug that caused :meth:`.FermionicOp.is_hermitian` to return false negatives
@@ -12,3 +9,6 @@ fixes:
   - |
     Fixes a bug that caused :meth:`.FermionicOp.simplify` to fail when the
     simplified operator is equal to zero.
+  - |
+    :class:`.FermionicOp` can now be initialized with an empty list. That is,
+    `FermionicOp([])` returns the zero operator instead of raising an error.
