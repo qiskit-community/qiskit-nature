@@ -51,7 +51,7 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
         )
 
     def test_build_hopping_operators(self):
-        """Tests that the correct hopping operator is built from QMolecule."""
+        """Tests that the correct hopping operator is built."""
         # TODO extract it somewhere
         expected_hopping_operators = (
             {

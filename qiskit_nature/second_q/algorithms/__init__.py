@@ -69,7 +69,6 @@ the solvers themselves
    :toctree: ../stubs/
    :nosignatures:
 
-   AdaptVQE
    GroundStateEigensolver
 
 and factories to provision Quantum and/or Classical algorithms upon which the above solvers may
@@ -103,7 +102,6 @@ from .excited_states_solvers import (
     NumPyEigensolverFactory,
 )
 from .ground_state_solvers import (
-    AdaptVQE,
     GroundStateEigensolver,
     GroundStateSolver,
     MinimumEigensolverFactory,
@@ -118,7 +116,6 @@ __all__ = [
     "QEOM",
     "EigensolverFactory",
     "NumPyEigensolverFactory",
-    "AdaptVQE",
     "GroundStateEigensolver",
     "GroundStateSolver",
     "MinimumEigensolverFactory",

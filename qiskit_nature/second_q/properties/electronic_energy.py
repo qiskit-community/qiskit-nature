@@ -19,11 +19,6 @@ from typing import Optional, cast, TYPE_CHECKING
 import h5py
 import numpy as np
 
-from qiskit_nature.deprecation import deprecate_method
-from qiskit_nature.second_q._qmolecule import QMolecule
-
-
-from .second_quantized_property import LegacyDriverResult
 from .bases import ElectronicBasis
 from .integrals import (
     ElectronicIntegrals,
@@ -186,72 +181,6 @@ class ElectronicEnergy(IntegralProperty):
     def overlap(self, overlap: Optional[ElectronicIntegrals]) -> None:
         """Sets the AO overlap integrals."""
         self._overlap = overlap
-
-    @classmethod
-    @deprecate_method("0.4.0")
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> ElectronicEnergy:
-        """Construct an ``ElectronicEnergy`` instance from a
-        :class:`~qiskit_nature.second_q.drivers.QMolecule`.
-
-        Args:
-            result: the driver result from which to extract the raw data. For this property, a
-                :class:`~qiskit_nature.second_q.drivers.QMolecule` is required!
-
-        Returns:
-            An instance of this property.
-
-        Raises:
-            QiskitNatureError: if a :class:`~qiskit_nature.second_q.drivers.WatsonHamiltonian`
-             is provided.
-        """
-        cls._validate_input_type(result, QMolecule)
-
-        qmol = cast(QMolecule, result)
-
-        energy_shift = qmol.energy_shift.copy()
-
-        integrals: list[ElectronicIntegrals] = []
-        if qmol.hcore is not None:
-            integrals.append(
-                OneBodyElectronicIntegrals(ElectronicBasis.AO, (qmol.hcore, qmol.hcore_b))
-            )
-        if qmol.eri is not None:
-            integrals.append(
-                TwoBodyElectronicIntegrals(ElectronicBasis.AO, (qmol.eri, None, None, None))
-            )
-        if qmol.mo_onee_ints is not None:
-            integrals.append(
-                OneBodyElectronicIntegrals(
-                    ElectronicBasis.MO, (qmol.mo_onee_ints, qmol.mo_onee_ints_b)
-                )
-            )
-        if qmol.mo_eri_ints is not None:
-            integrals.append(
-                TwoBodyElectronicIntegrals(
-                    ElectronicBasis.MO,
-                    (qmol.mo_eri_ints, qmol.mo_eri_ints_ba, qmol.mo_eri_ints_bb, None),
-                )
-            )
-
-        ret = cls(
-            integrals,
-            energy_shift=energy_shift,
-            nuclear_repulsion_energy=qmol.nuclear_repulsion_energy,
-            reference_energy=qmol.hf_energy,
-        )
-
-        orb_energies = qmol.orbital_energies
-        if qmol.orbital_energies_b is not None:
-            orb_energies = np.asarray((qmol.orbital_energies, qmol.orbital_energies_b))
-        ret.orbital_energies = orb_energies
-
-        if qmol.kinetic is not None:
-            ret.kinetic = OneBodyElectronicIntegrals(ElectronicBasis.AO, (qmol.kinetic, None))
-
-        if qmol.overlap is not None:
-            ret.overlap = OneBodyElectronicIntegrals(ElectronicBasis.AO, (qmol.overlap, None))
-
-        return ret
 
     # pylint: disable=invalid-name
     @classmethod
