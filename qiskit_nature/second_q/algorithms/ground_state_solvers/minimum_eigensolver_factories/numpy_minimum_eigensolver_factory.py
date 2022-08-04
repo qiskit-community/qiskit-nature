@@ -12,14 +12,7 @@
 
 """The numpy minimum eigensolver factory for ground state calculation algorithms."""
 
-from typing import Optional, Union, List, Callable
-import numpy as np
 from qiskit.algorithms import MinimumEigensolver, NumPyMinimumEigensolver
-from qiskit_nature.deprecation import (
-    DeprecatedType,
-    deprecate_property,
-    deprecate_positional_arguments,
-)
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.problems import BaseProblem
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
@@ -28,12 +21,6 @@ from .minimum_eigensolver_factory import MinimumEigensolverFactory
 class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
     """A factory to construct a NumPyMinimumEigensolver."""
 
-    @deprecate_positional_arguments(
-        version="0.4",
-        func_name="NumPyMinimumEigensolver Constructor",
-        old_function_arguments=["self", "filter_criterion", "use_default_filter_criterion"],
-        stack_level=2,
-    )
     def __init__(
         self,
         use_default_filter_criterion: bool = False,
@@ -42,58 +29,12 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
         """
         Args:
             use_default_filter_criterion: whether to use the transformation's default filter
-            criterion if ``filter_criterion`` is ``None``.
+            criterion.
             kwargs: keyword arguments passed to NumpyMinimumEigensolver to construct
-            the internal `MinimumEigensolver`. Note that filter_criterion is now accessed through
-            NumpyMinimumEigensolver.
+            the internal `MinimumEigensolver`.
         """
         self._use_default_filter_criterion = use_default_filter_criterion
         self._minimum_eigensolver = NumPyMinimumEigensolver(**kwargs)
-
-    @property  # type: ignore
-    @deprecate_property(
-        "0.4",
-        new_type=DeprecatedType.FUNCTION,
-        new_name="__init__",
-    )
-    def filter_criterion(
-        self,
-    ) -> Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]:
-        """returns filter criterion"""
-        return self.minimum_eigensolver.filter_criterion
-
-    @filter_criterion.setter  # type: ignore
-    @deprecate_property(
-        "0.4",
-        new_type=DeprecatedType.FUNCTION,
-        new_name="__init__",
-    )
-    def filter_criterion(
-        self,
-        value: Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool],
-    ) -> None:
-        """sets filter criterion"""
-        self.minimum_eigensolver.filter_criterion = value
-
-    @property  # type: ignore
-    @deprecate_property(
-        "0.4",
-        new_type=DeprecatedType.FUNCTION,
-        new_name="__init__",
-    )
-    def use_default_filter_criterion(self) -> bool:
-        """returns whether to use the default filter criterion"""
-        return self._use_default_filter_criterion
-
-    @use_default_filter_criterion.setter  # type: ignore
-    @deprecate_property(
-        "0.4",
-        new_type=DeprecatedType.FUNCTION,
-        new_name="__init__",
-    )
-    def use_default_filter_criterion(self, value: bool) -> None:
-        """sets whether to use the default filter criterion"""
-        self._use_default_filter_criterion = value
 
     def get_solver(
         self, problem: BaseProblem, qubit_converter: QubitConverter

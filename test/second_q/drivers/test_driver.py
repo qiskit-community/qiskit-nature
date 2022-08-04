@@ -175,7 +175,7 @@ class TestDriver(ABC):
             dipole = cast(ElectronicDipoleMoment, dipole)
 
             with self.subTest("x axis"):
-                mo_x_dip_ints = dipole.get_property("DipoleMomentX").get_electronic_integral(
+                mo_x_dip_ints = dipole._dipole_axes["DipoleMomentX"].get_electronic_integral(
                     ElectronicBasis.MO, 1
                 )
                 self.assertEqual(mo_x_dip_ints._matrices[0].shape, (2, 2))
@@ -184,7 +184,7 @@ class TestDriver(ABC):
                 )
 
             with self.subTest("y axis"):
-                mo_y_dip_ints = dipole.get_property("DipoleMomentY").get_electronic_integral(
+                mo_y_dip_ints = dipole._dipole_axes["DipoleMomentY"].get_electronic_integral(
                     ElectronicBasis.MO, 1
                 )
                 self.assertEqual(mo_y_dip_ints._matrices[0].shape, (2, 2))
@@ -193,7 +193,7 @@ class TestDriver(ABC):
                 )
 
             with self.subTest("z axis"):
-                mo_z_dip_ints = dipole.get_property("DipoleMomentZ").get_electronic_integral(
+                mo_z_dip_ints = dipole._dipole_axes["DipoleMomentZ"].get_electronic_integral(
                     ElectronicBasis.MO, 1
                 )
                 self.assertEqual(mo_z_dip_ints._matrices[0].shape, (2, 2))
