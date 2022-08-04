@@ -172,5 +172,5 @@ for idx, axis in enumerate(["x", "y", "z"]):
                 ),
             ],
         )
-    _q_dipole._dipole_axes[dip.name] = _q_dip
+    _q_dipole._dipole_axes[_q_dip.name] = _q_dip
 _q_driver_result.add_property(_q_dipole)
