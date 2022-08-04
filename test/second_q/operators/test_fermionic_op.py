@@ -376,6 +376,9 @@ class TestFermionicOp(QiskitNatureTestCase):
         self.assertFalse(op1.equiv(op3))
         self.assertTrue(op1.equiv(op3, atol=1e-6))
 
+        with self.assertRaisesRegex(NotImplementedError, "type"):
+            op1.equiv("a")
+
     @data(
         *product(
             (

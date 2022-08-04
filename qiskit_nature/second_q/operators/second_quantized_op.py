@@ -85,7 +85,9 @@ class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
             True if the operators are equal up to numerical tolerance, False otherwise.
         """
         if not isinstance(other, type(self)):
-            return NotImplemented
+            raise NotImplementedError(
+                f"Cannot compare objects of types {type(self)} and {type(other)}."
+            )
         if atol is None:
             atol = self.atol
         diff = (self - other).simplify(atol=atol)
