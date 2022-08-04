@@ -161,7 +161,7 @@ class MP2InitialPoint(InitialPoint):
                 "The orbital_energies cannot be obtained from the grouped property."
             )
 
-        integral_matrix = two_body_mo_integral.get_matrix()
+        integral_matrix: np.ndarray = two_body_mo_integral.get_matrix()
         if not np.allclose(integral_matrix, two_body_mo_integral.get_matrix(2)):
             raise NotImplementedError(
                 "MP2InitialPoint only supports restricted-spin setups. "

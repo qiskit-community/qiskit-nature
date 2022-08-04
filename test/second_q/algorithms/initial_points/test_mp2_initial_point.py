@@ -23,23 +23,18 @@ import numpy as np
 from ddt import ddt, data
 
 from qiskit_nature import optionals
-from qiskit_nature.second_q.problems.electronic_structure_problem import (
-    ElectronicStructureProblem,
-)
-from qiskit_nature.second_q.properties.integrals.electronic_integrals import (
-    ElectronicIntegrals,
-)
-from qiskit_nature.second_q.properties import ElectronicEnergy
-from qiskit_nature.second_q.properties.second_quantized_property import (
-    GroupedSecondQuantizedProperty,
-)
-from qiskit_nature.converters.second_quantization import QubitConverter
-from qiskit_nature.drivers.second_quantization import PySCFDriver
-from qiskit_nature.mappers.second_quantization import JordanWignerMapper
-from qiskit_nature.circuit.library.initial_states import HartreeFock
 from qiskit_nature.settings import settings
 from qiskit_nature.exceptions import QiskitNatureError
-from qiskit_nature.second_q.circuit.library import UCC
+from qiskit_nature.second_q.circuit.library import HartreeFock, UCC
+from qiskit_nature.second_q.drivers import PySCFDriver
+from qiskit_nature.second_q.problems import ElectronicStructureProblem
+from qiskit_nature.second_q.properties import (
+    ParticleNumber,
+    ElectronicEnergy,
+    GroupedSecondQuantizedProperty,
+)
+from qiskit_nature.second_q.properties.integrals import ElectronicIntegrals
+from qiskit_nature.second_q.mappers import QubitConverter, JordanWignerMapper
 from qiskit_nature.second_q.algorithms.initial_points import MP2InitialPoint
 
 
@@ -208,8 +203,8 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         problem = ElectronicStructureProblem(driver)
         problem.second_q_ops()
         grouped_property = problem.grouped_property_transformed
-        particle_number = grouped_property.get_property("ParticleNumber")
 
+        particle_number = grouped_property.get_property(ParticleNumber)
         num_particles = (particle_number.num_alpha, particle_number.num_beta)
         num_spin_orbitals = particle_number.num_spin_orbitals
 
