@@ -367,6 +367,15 @@ class TestFermionicOp(QiskitNatureTestCase):
             self.assertFalse(fer_op.is_hermitian(atol=1e-8))
             self.assertTrue(fer_op.is_hermitian(atol=1e-6))
 
+    def test_equiv(self):
+        """test equiv"""
+        op1 = FermionicOp("+_0 -_1") + FermionicOp("+_1 -_0")
+        op2 = FermionicOp("+_0 -_1")
+        op3 = FermionicOp("+_0 -_1") + (1 + 1e-7) * FermionicOp("+_1 -_0")
+        self.assertFalse(op1.equiv(op2))
+        self.assertFalse(op1.equiv(op3))
+        self.assertTrue(op1.equiv(op3, atol=1e-6))
+
     @data(
         *product(
             (

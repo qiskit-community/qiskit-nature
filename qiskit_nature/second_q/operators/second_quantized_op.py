@@ -15,7 +15,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Any, Optional
 
 import numpy as np
 from qiskit.opflow.mixins import StarAlgebraMixin
@@ -71,7 +71,22 @@ class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
         Returns:
             True if the operator is hermitian up to numerical tolerance, False otherwise.
         """
+        return self.equiv(self.adjoint(), atol=atol)
+
+    def equiv(self, other: Any, atol: Optional[float] = None) -> bool:
+        """Checks whether this operator is approximately equal to another operator.
+
+        Args:
+            other: The operator to compare to for approximate equality.
+            atol: Absolute numerical tolerance. The default behavior is to use ``self.atol``,
+                which would be 1e-8 unless changed by the user.
+
+        Returns:
+            True if the operators are equal up to numerical tolerance, False otherwise.
+        """
+        if not isinstance(other, type(self)):
+            return NotImplemented
         if atol is None:
             atol = self.atol
-        diff = (self - self.adjoint()).simplify(atol=atol)
+        diff = (self - other).simplify(atol=atol)
         return all(np.isclose(coeff, 0.0, atol=atol) for _, coeff in diff.to_list())
