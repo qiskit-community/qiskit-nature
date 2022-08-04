@@ -4,8 +4,9 @@ deprecations:
     Deprecated all code that was migrated to `qiskit_nature/second_q` according to issue:
     https://github.com/Qiskit/qiskit-nature/issues/749
 
-    | Migration by package:
-    | The following table gives a more detailed breakdown.
+    The following table provides a rough overview of the old and new package locations.
+    In certain cases, single classes might have been treated differently.
+    Be sure to check out the referenced issues or the migration guide for more details.
 
     +---------------------------------------+-----------------------------------------------------+
     |                   Old                 |                        New                          |
