@@ -67,8 +67,10 @@ class ElectronicStructureProblem(BaseProblem):
             num_particles_aux = aux_values["ParticleNumber"][0]
             total_angular_momentum_aux = aux_values["AngularMomentum"][0]
 
-            return np.isclose(expected_spin, total_angular_momentum_aux) and \
-                   np.isclose(expected_num_electrons, num_particles_aux)
+            return (
+                np.isclose(expected_spin, total_angular_momentum_aux) and
+                np.isclose(expected_num_electrons, num_particles_aux)
+            )
 
         solver = NumPyEigensolverFactory(filter_criterion=filter_criterion_spin)
 
