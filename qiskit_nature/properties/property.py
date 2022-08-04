@@ -72,7 +72,7 @@ class Property(ABC):
         logger = logging.getLogger(self.__module__ + "." + self.__class__.__name__)
         if not logger.isEnabledFor(logging.INFO):
             return
-        logger.info(self.__str__())
+        logger.info(str(self))
 
     def to_hdf5(self, parent: h5py.Group) -> None:
         """Stores this instance in an HDF5 group inside of the provided parent group.

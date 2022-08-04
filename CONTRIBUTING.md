@@ -10,7 +10,12 @@ https://qiskit.org/documentation/contributing_to_qiskit.html
 ## Contributing to Qiskit Nature
 
 In addition to the general guidelines above there are specific details for
-contributing to Qiskit Nature, these are documented below.
+contributing to Qiskit Nature.
+
+You should first install the python development libraries by running
+`pip install -r requirements-dev.txt` from the root of the
+Nature repository clone and then
+follow the  guidelines below.
 
 ### Project Code Style.
 
@@ -24,7 +29,7 @@ When submitting a pull request and you feel it is ready for review,
 please ensure that:
 
 1. The code follows the _code style_ of this project and successfully
-   passes the _unit tests_. Nature uses [Pylint](https://www.pylint.org) and
+   passes the _unit tests_. Nature uses [Pylint](https://pylint.pycqa.org/) and
    [PEP8](https://www.python.org/dev/peps/pep-0008) style guidelines.
    
    You can run
@@ -46,12 +51,13 @@ please ensure that:
    
    The documentation will be built/tested using Sphinx and should be free
    from errors and warnings.
-   
-   You can run
+   You will need to [install pandoc](https://pandoc.org/installing.html) first.
+
+   Then you can run
    ```shell script
     make html
    ```
-   in the 'docs' folder. You might also like to check the html output
+   from the root of the Nature repository clone. You might also like to check the html output
    to see the changes formatted output is as expected. You will find an index.html
    file in docs\_build\html and you can navigate from there.
    

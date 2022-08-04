@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    :class:`~qiskit_nature.circuit.library.ansatzes.UCC` and 
+    :class:`~qiskit_nature.circuit.library.ansatzes.UVCC` when
+    fully configured via the constructor failed to transpile and were not valid circuits.
+    This fixes that to ensure that if `UCC` / `UVCC` are fully configured then as circuits
+    they are are immediately valid from the get go.

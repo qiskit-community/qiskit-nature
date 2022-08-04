@@ -101,6 +101,13 @@ class UVCC(EvolvedOperatorAnsatz):
         # same reason!
         self._excitation_ops: list[SecondQuantizedOp] | None = None
 
+        # Our parent, EvolvedOperatorAnsatz, sets qregs when it knows the
+        # number of qubits, which it gets from the operators. Getting the
+        # operators here will build them if configuration already allows.
+        # This will allow the circuit to be fully built/valid when it's
+        # possible at this stage.
+        _ = self.operators
+
     @property
     def qubit_converter(self) -> QubitConverter | None:
         """The qubit operator converter."""

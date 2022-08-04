@@ -1,7 +1,7 @@
-﻿Settings
-========
+﻿
 
-.. _qiskit_nature-settings:
+settings
+======================
 
 .. automodule:: qiskit_nature.settings
 

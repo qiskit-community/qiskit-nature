@@ -241,9 +241,9 @@ class PSI4Driver(ElectronicStructureDriver):
             errmsg = ""
             if stdout is not None:
                 lines = stdout.splitlines()
-                for i, _ in enumerate(lines):
-                    logger.error(lines[i])
-                    errmsg += lines[i] + "\n"
+                for line in lines:
+                    logger.error(line)
+                    errmsg += line + "\n"
             raise QiskitNatureError(
                 f"{_optionals.PSI4} process return code {process.returncode}\n{errmsg}"
             )

@@ -13,12 +13,13 @@
 """Test the UVCC Ansatz."""
 
 from test import QiskitNatureTestCase
+from test.circuit.library.ansatzes.utils.vibrational_op_label_creator import _create_labels
 
 import unittest
 
 from ddt import ddt, data, unpack
 
-from qiskit import BasicAer
+from qiskit import BasicAer, transpile
 from qiskit.utils import QuantumInstance, algorithm_globals
 from qiskit.algorithms import VQE
 from qiskit.algorithms.optimizers import COBYLA
@@ -26,8 +27,6 @@ from qiskit_nature.circuit.library import UVCC, VSCF
 from qiskit_nature.mappers.second_quantization import DirectMapper
 from qiskit_nature.operators.second_quantization import VibrationalOp
 from qiskit_nature.converters.second_quantization import QubitConverter
-
-from .utils.vibrational_op_label_creator import _create_labels
 
 
 def assert_ucc_like_ansatz(test_case, ansatz, num_modals, expected_ops):
@@ -65,6 +64,15 @@ class TestUVCC(QiskitNatureTestCase):
         ansatz = UVCC(qubit_converter=converter, num_modals=num_modals, excitations=excitations)
 
         assert_ucc_like_ansatz(self, ansatz, num_modals, expect)
+
+    def test_transpile_no_parameters(self):
+        """Test transpilation without parameters"""
+
+        qubit_converter = QubitConverter(mapper=DirectMapper())
+
+        ansatz = UVCC(qubit_converter=qubit_converter, num_modals=[2], excitations="s")
+        ansatz = transpile(ansatz, optimization_level=3)
+        self.assertEqual(ansatz.num_qubits, 2)
 
 
 class TestUVCCVSCF(QiskitNatureTestCase):

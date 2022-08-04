@@ -123,7 +123,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         self._solve_with_vqe_mes(converter)
 
     def _solve_with_vqe_mes(self, converter: QubitConverter):
-        solver = VQEUCCFactory(self.quantum_instance)
+        solver = VQEUCCFactory(quantum_instance=self.quantum_instance)
         gsc = GroundStateEigensolver(converter, solver)
         esc = QEOM(gsc, "sd")
         results = esc.solve(self.electronic_structure_problem)

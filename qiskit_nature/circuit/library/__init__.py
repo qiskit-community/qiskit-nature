@@ -18,8 +18,14 @@ A collection of circuits used as building blocks or inputs for algorithms.
 
 .. currentmodule:: qiskit_nature.circuit.library
 
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   BogoliubovTransform
+
 Initial states
-==============
+--------------
 
 .. autosummary::
    :toctree: ../stubs/
@@ -31,7 +37,7 @@ Initial states
    VSCF
 
 Ansatzes
-========
+--------
 
 .. autosummary::
    :toctree: ../stubs/
@@ -46,7 +52,7 @@ Ansatzes
    UVCCSD
 
 Ansatz Utilities
-================
+----------------
 
 Utilities such as excitation generators for use with the ansatzes.
 
@@ -68,6 +74,8 @@ from .ansatzes import (
 
 from .initial_states import FermionicGaussianState, HartreeFock, SlaterDeterminant, VSCF
 
+from .bogoliubov_transform import BogoliubovTransform
+
 __all__ = [
     "UCC",
     "UCCSD",
@@ -80,4 +88,5 @@ __all__ = [
     "VSCF",
     "FermionicGaussianState",
     "SlaterDeterminant",
+    "BogoliubovTransform",
 ]

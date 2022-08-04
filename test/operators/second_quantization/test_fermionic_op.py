@@ -52,7 +52,9 @@ class TestFermionicOp(QiskitNatureTestCase):
         """Fail if two FermionicOps are different.
         Note that this equality check is approximated since the true equality check is costly.
         """
-        self.assertSetEqual(frozenset(first.to_list()), frozenset(second.to_list()))
+        self.assertSetEqual(
+            frozenset(first.to_list()), frozenset(second.to_list(first.display_format))
+        )
 
     @data(
         *product(
@@ -346,7 +348,7 @@ class TestFermionicOp(QiskitNatureTestCase):
         with self.subTest("simplify doesn't reorder"):
             fer_op = FermionicOp("+_1 -_0")
             simplified_op = fer_op.simplify()
-            expected = [((("+", 1), ("-", 0)), 1)]
+            expected = [((("-", 0), ("+", 1)), -1)]
             self.assertEqual(simplified_op._data, expected)
 
     def test_hermiticity(self):
@@ -460,7 +462,7 @@ class TestFermionicOp(QiskitNatureTestCase):
                 fer_op = orig.to_normal_order()
             targ = FermionicOp("+_0", display_format="sparse")
             self.assertFermionEqual(fer_op, targ)
-            self.assertEqual(orig.display_format, "dense")
+            self.assertEqual(orig.display_format, "sparse")
 
         with self.subTest("Test for annihilation operator"):
             with warnings.catch_warnings():
@@ -469,7 +471,7 @@ class TestFermionicOp(QiskitNatureTestCase):
             fer_op = orig.to_normal_order()
             targ = FermionicOp("-_0", display_format="sparse")
             self.assertFermionEqual(fer_op, targ)
-            self.assertEqual(orig.display_format, "dense")
+            self.assertEqual(orig.display_format, "sparse")
 
         with self.subTest("Test for number operator"):
             with warnings.catch_warnings():
@@ -478,7 +480,7 @@ class TestFermionicOp(QiskitNatureTestCase):
             fer_op = orig.to_normal_order()
             targ = FermionicOp("+_0 -_0", display_format="sparse")
             self.assertFermionEqual(fer_op, targ)
-            self.assertEqual(orig.display_format, "dense")
+            self.assertEqual(orig.display_format, "sparse")
 
         with self.subTest("Test for empty operator"):
             with warnings.catch_warnings():
@@ -487,7 +489,7 @@ class TestFermionicOp(QiskitNatureTestCase):
             fer_op = orig.to_normal_order()
             targ = FermionicOp([("", 1), ("+_0 -_0", -1)], display_format="sparse")
             self.assertFermionEqual(fer_op, targ)
-            self.assertEqual(orig.display_format, "dense")
+            self.assertEqual(orig.display_format, "sparse")
 
         with self.subTest("Test for multiple operators 1"):
             with warnings.catch_warnings():
@@ -496,7 +498,7 @@ class TestFermionicOp(QiskitNatureTestCase):
             fer_op = orig.to_normal_order()
             targ = FermionicOp([("+_1 -_0", -1)], display_format="sparse")
             self.assertFermionEqual(fer_op, targ)
-            self.assertEqual(orig.display_format, "dense")
+            self.assertEqual(orig.display_format, "sparse")
 
         with self.subTest("Test for multiple operators 2"):
             with warnings.catch_warnings():
@@ -505,7 +507,7 @@ class TestFermionicOp(QiskitNatureTestCase):
             fer_op = orig.to_normal_order()
             targ = FermionicOp([("+_1 -_2", 3), ("+_0 +_1 -_0 -_2", 3)], display_format="sparse")
             self.assertFermionEqual(fer_op, targ)
-            self.assertEqual(orig.display_format, "dense")
+            self.assertEqual(orig.display_format, "sparse")
 
     def test_normal_ordered(self):
         """test normal_ordered method"""
@@ -516,7 +518,7 @@ class TestFermionicOp(QiskitNatureTestCase):
             fer_op = orig.normal_ordered()
             targ = FermionicOp("+_0", display_format="sparse")
             self.assertFermionEqual(fer_op, targ)
-            self.assertEqual(orig.display_format, "dense")
+            self.assertEqual(orig.display_format, "sparse")
 
         with self.subTest("Test for annihilation operator"):
             with warnings.catch_warnings():
@@ -525,7 +527,7 @@ class TestFermionicOp(QiskitNatureTestCase):
             fer_op = orig.normal_ordered()
             targ = FermionicOp("-_0", display_format="sparse")
             self.assertFermionEqual(fer_op, targ)
-            self.assertEqual(orig.display_format, "dense")
+            self.assertEqual(orig.display_format, "sparse")
 
         with self.subTest("Test for number operator"):
             with warnings.catch_warnings():
@@ -534,7 +536,7 @@ class TestFermionicOp(QiskitNatureTestCase):
             fer_op = orig.normal_ordered()
             targ = FermionicOp("+_0 -_0", display_format="sparse")
             self.assertFermionEqual(fer_op, targ)
-            self.assertEqual(orig.display_format, "dense")
+            self.assertEqual(orig.display_format, "sparse")
 
         with self.subTest("Test for empty operator"):
             with warnings.catch_warnings():
@@ -543,32 +545,32 @@ class TestFermionicOp(QiskitNatureTestCase):
             fer_op = orig.normal_ordered()
             targ = FermionicOp([("", 1), ("+_0 -_0", -1)], display_format="sparse")
             self.assertFermionEqual(fer_op, targ)
-            self.assertEqual(orig.display_format, "dense")
+            self.assertEqual(orig.display_format, "sparse")
 
         with self.subTest("Test for multiple operators 1"):
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=UserWarning)
                 orig = FermionicOp("-+")
             fer_op = orig.normal_ordered()
-            targ = FermionicOp([("+_1 -_0", -1)], display_format="sparse")
+            targ = FermionicOp([("-_0 +_1", 1)], display_format="sparse")
             self.assertFermionEqual(fer_op, targ)
-            self.assertEqual(orig.display_format, "dense")
+            self.assertEqual(orig.display_format, "sparse")
 
         with self.subTest("Test for multiple operators 2"):
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=UserWarning)
                 orig = 3 * FermionicOp("E+-")
             fer_op = orig.normal_ordered()
-            targ = FermionicOp([("+_1 -_2", 3), ("+_0 +_1 -_0 -_2", 3)], display_format="sparse")
+            targ = FermionicOp([("+_1 -_2", 3), ("+_0 -_0 +_1 -_2", -3)], display_format="sparse")
             self.assertFermionEqual(fer_op, targ)
-            self.assertEqual(orig.display_format, "dense")
+            self.assertEqual(orig.display_format, "sparse")
 
         with self.subTest("Test normal ordering simplifies"):
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=UserWarning)
                 orig = FermionicOp([("-_1 +_2", 3), ("+_2 -_1", -3)], display_format="sparse")
             fer_op = orig.normal_ordered()
-            expected = [((("+", 2), ("-", 1)), -6)]
+            expected = [((("-", 1), ("+", 2)), 6)]
             self.assertEqual(fer_op._data, expected)
 
 
