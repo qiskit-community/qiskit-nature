@@ -24,7 +24,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, cast
+from typing import Any, Mapping, Sequence, cast
 
 import json
 import h5py
@@ -228,9 +228,9 @@ class QCTopology(_QCBase):
     [here](https://molssi-qc-schema.readthedocs.io/en/latest/spec_components.html#topology).
     """
 
-    symbols: list[str]
+    symbols: Sequence[str]
     """The list of atom symbols in this topology."""
-    geometry: list[float]
+    geometry: Sequence[float]
     """The XYZ coordinates (in Bohr units) of the atoms. This is a flat list of three times the
     length of the `symbols` list."""
     schema_name: str
@@ -243,41 +243,41 @@ class QCTopology(_QCBase):
     """The overall multiplicity of the molecule."""
     fix_com: bool = None
     """Whether translation of the geometry is allowed (`False`) or not (`True`)."""
-    real: list[bool] = None
+    real: Sequence[bool] = None
     """A list indicating whether each atom is real (`True`) or a ghost (`False`). Its length must
     match that of the `symbols` list."""
-    connectivity: list[tuple[int, int, int]] = None
+    connectivity: Sequence[tuple[int, int, int]] = None
     """A list indicating the bonds between the atoms in the molecule. Each item of this list must be
     a tuple of three integers, indicating the first atom index in the bond, the second atom index,
     and finally the order of the bond."""
     fix_orientation: bool = None
     """Whether rotation of the geometry is allowed (`False`) or not (`True`)."""
-    atom_labels: list[str] = None
+    atom_labels: Sequence[str] = None
     """A list of user-provided information for each atom. Its length must match that of the
     `symbols` list."""
-    fragment_multiplicities: list[int] = None
+    fragment_multiplicities: Sequence[int] = None
     """The list of multiplicities associated with each fragment."""
     fix_symmetry: str = None
     """The maximal point group symmetry at which the `geometry` should be treated."""
-    fragment_charges: list[float] = None
+    fragment_charges: Sequence[float] = None
     """The list of charges associated with each fragment."""
-    mass_numbers: list[int] = None
+    mass_numbers: Sequence[int] = None
     """The mass numbers of all atoms. If it is an unknown isotope, the value should be -1. Its
     length must match that of the `symbols` list."""
     name: str = None
     """The (user-given) name of the molecule."""
-    masses: list[float] = None
+    masses: Sequence[float] = None
     """The masses (in atomic units) of all atoms. Canonical weights are assumed if this is not given
     explicitly."""
     comment: str = None
     """Any additional (user-provided) comment."""
     provenance: QCProvenance = None
     """An instance of :class:`QCProvenance`."""
-    fragments: list[tuple[int, ...]] = None
+    fragments: Sequence[tuple[int, ...]] = None
     """The list of fragments. Each item of this list must be a tuple of integers with variable
     length (greater than 1). The first number indicates the fragment index, all following numbers
     refer to the (0-indexed) atom indices that constitute this fragment."""
-    atomic_numbers: list[int] = None
+    atomic_numbers: Sequence[int] = None
     """The atomic numbers of all atoms, indicating their nuclear charge. Its length must match that
     of the `symbols` list."""
 
@@ -311,13 +311,13 @@ class QCElectronShell(_QCBase):
     [here](https://github.com/MolSSI/QCSchema/blob/1d5ff3baa5/qcschema/dev/definitions.py#L43).
     """
 
-    angular_momentum: list[int]
+    angular_momentum: Sequence[int]
     """The angular momenta of this electron shell as a list of integers."""
     harmonic_type: str
     """The type of this shell."""
-    exponents: list[float | str]
+    exponents: Sequence[float | str]
     """The exponents of this contracted shell. The official spec stores these values as strings."""
-    coefficients: list[list[float | str]]
+    coefficients: Sequence[Sequence[float | str]]
     """The general contraction coefficients of this contracted shell. The official spec stores these
     values as strings."""
 
@@ -338,13 +338,13 @@ class QCECPPotential(_QCBase):
 
     ecp_type: str
     """The type of this potential."""
-    angular_momentum: list[int]
+    angular_momentum: Sequence[int]
     """The angular momenta of this potential as a list of integers."""
-    r_exponents: list[int]
+    r_exponents: Sequence[int]
     """The exponents of the `r` term."""
-    gaussian_exponents: list[float | str]
+    gaussian_exponents: Sequence[float | str]
     """The exponents of the gaussian terms. The official spec stores these values as strings."""
-    coefficients: list[list[float | str]]
+    coefficients: Sequence[Sequence[float | str]]
     """The general contraction coefficients of this potential. The official spec stores these values
     as strings."""
 
@@ -364,22 +364,22 @@ class QCCenterData(_QCBase):
     [here](https://github.com/MolSSI/QCSchema/blob/1d5ff3baa5/qcschema/dev/definitions.py#L146).
     """
 
-    electron_shells: list[QCElectronShell] = None
+    electron_shells: Sequence[QCElectronShell] = None
     """The list of electronic shells for this element."""
     ecp_electrons: int = None
     """The number of electrons replaced by an ECP."""
-    ecp_potentials: list[QCECPPotential] = None
+    ecp_potentials: Sequence[QCECPPotential] = None
     """The list of effective core potentials for this element."""
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> QCCenterData:
-        electron_shells: list[QCElectronShell] = None
+        electron_shells: Sequence[QCElectronShell] = None
         if "electron_shells" in data.keys():
             electron_shells = []
             for shell in data.pop("electron_shells", []):
                 electron_shells.append(cast(QCElectronShell, QCElectronShell.from_dict(shell)))
 
-        ecp_potentials: list[QCECPPotential] = None
+        ecp_potentials: Sequence[QCECPPotential] = None
         if "ecp_potentials" in data.keys():
             ecp_potentials = []
             for ecp in data.pop("ecp_potentials", []):
@@ -405,13 +405,13 @@ class QCCenterData(_QCBase):
 
     @classmethod
     def _from_hdf5_group(cls, h5py_group: h5py.Group) -> QCCenterData:
-        electron_shells: list[QCElectronShell] = None
+        electron_shells: Sequence[QCElectronShell] = None
         if "electron_shells" in h5py_group.keys():
             electron_shells = []
             for shell in h5py_group["electron_shells"].values():
                 electron_shells.append(cast(QCElectronShell, QCElectronShell.from_hdf5(shell)))
 
-        ecp_potentials: list[QCECPPotential] = None
+        ecp_potentials: Sequence[QCECPPotential] = None
         if "ecp_potentials" in h5py_group.keys():
             ecp_potentials = []
             for ecp in h5py_group["ecp_potentials"].values():
@@ -432,9 +432,9 @@ class QCBasisSet(_QCBase):
     [here](https://molssi-qc-schema.readthedocs.io/en/latest/auto_basis.html#basis-set-schema).
     """
 
-    center_data: dict[str, QCCenterData]
+    center_data: Mapping[str, QCCenterData]
     """A dictionary mapping the keys provided by `atom_map` to their basis center data."""
-    atom_map: list[str]
+    atom_map: Sequence[str]
     """The list of atomic kinds, indicating the keys used to store the basis in `center_data`."""
     name: str
     """The name of the basis set."""
@@ -633,41 +633,41 @@ class QCWavefunction(_QCBase):
     eri_mo_bb: str = None
     """The name of the beta-beta electron-repulsion integrals in the MO basis."""
 
-    scf_orbitals_a: list[float] = None
+    scf_orbitals_a: Sequence[float] = None
     """The SCF alpha-spin orbitals in the AO basis."""
-    scf_orbitals_b: list[float] = None
+    scf_orbitals_b: Sequence[float] = None
     """The SCF beta-spin orbitals in the AO basis."""
-    scf_density_a: list[float] = None
+    scf_density_a: Sequence[float] = None
     """The SCF alpha-spin density in the AO basis."""
-    scf_density_b: list[float] = None
+    scf_density_b: Sequence[float] = None
     """The SCF beta-spin density in the AO basis."""
-    scf_density_mo_a: list[float] = None
+    scf_density_mo_a: Sequence[float] = None
     """The SCF alpha-spin density in the MO basis."""
-    scf_density_mo_b: list[float] = None
+    scf_density_mo_b: Sequence[float] = None
     """The SCF beta-spin density in the MO basis."""
-    scf_fock_a: list[float] = None
+    scf_fock_a: Sequence[float] = None
     """The SCF alpha-spin Fock matrix in the AO basis."""
-    scf_fock_b: list[float] = None
+    scf_fock_b: Sequence[float] = None
     """The SCF beta-spin Fock matrix in the AO basis."""
-    scf_fock_mo_a: list[float] = None
+    scf_fock_mo_a: Sequence[float] = None
     """The SCF alpha-spin Fock matrix in the MO basis."""
-    scf_fock_mo_b: list[float] = None
+    scf_fock_mo_b: Sequence[float] = None
     """The SCF beta-spin Fock matrix in the MO basis."""
-    scf_coulomb_a: list[float] = None
+    scf_coulomb_a: Sequence[float] = None
     """The SCF alpha-spin Coulomb matrix in the AO basis."""
-    scf_coulomb_b: list[float] = None
+    scf_coulomb_b: Sequence[float] = None
     """The SCF beta-spin Coulomb matrix in the AO basis."""
-    scf_exchange_a: list[float] = None
+    scf_exchange_a: Sequence[float] = None
     """The SCF alpha-spin Exchange matrix in the AO basis."""
-    scf_exchange_b: list[float] = None
+    scf_exchange_b: Sequence[float] = None
     """The SCF beta-spin Exchange matrix in the AO basis."""
-    scf_eigenvalues_a: list[float] = None
+    scf_eigenvalues_a: Sequence[float] = None
     """The SCF alpha-spin orbital eigenvalues."""
-    scf_eigenvalues_b: list[float] = None
+    scf_eigenvalues_b: Sequence[float] = None
     """The SCF beta-spin orbital eigenvalues."""
-    scf_occupations_a: list[float] = None
+    scf_occupations_a: Sequence[float] = None
     """The SCF alpha-spin orbital occupations."""
-    scf_occupations_b: list[float] = None
+    scf_occupations_b: Sequence[float] = None
     """The SCF beta-spin orbital occupations."""
     scf_eri: str = None
     """The SCF electron-repulsion integrals in the AO basis."""
@@ -680,26 +680,26 @@ class QCWavefunction(_QCBase):
     scf_eri_mo_bb: str = None
     """The SCF beta-beta electron-repulsion integrals in the MO basis."""
 
-    localized_orbitals_a: list[float] = None
+    localized_orbitals_a: Sequence[float] = None
     """The localized alpha-spin orbitals. All `nmo` orbitals are included, even if only a subset
     were localized."""
-    localized_orbitals_b: list[float] = None
+    localized_orbitals_b: Sequence[float] = None
     """The localized beta-spin orbitals. All `nmo` orbitals are included, even if only a subset were
     localized."""
-    localized_fock_a: list[float] = None
+    localized_fock_a: Sequence[float] = None
     """The alpha-spin Fock matrix in the localized basis. All `nmo` orbitals are included, even if
     only a subset were localized."""
-    localized_fock_b: list[float] = None
+    localized_fock_b: Sequence[float] = None
     """The beta-spin Fock matrix in the localized basis. All `nmo` orbitals are included, even if
     only a subset were localized."""
 
-    h_core_a: list[float] = None
+    h_core_a: Sequence[float] = None
     """The alpha-spin core (one-electron) Hamiltonian matrix in the AO basis."""
-    h_core_b: list[float] = None
+    h_core_b: Sequence[float] = None
     """The beta-spin core (one-electron) Hamiltonian matrix in the AO basis."""
-    h_effective_a: list[float] = None
+    h_effective_a: Sequence[float] = None
     """The effective alpha-spin core (one-electron) Hamiltonian matrix in the AO basis."""
-    h_effective_b: list[float] = None
+    h_effective_b: Sequence[float] = None
     """The effective beta-spin core (one-electron) Hamiltonian matrix in the AO basis."""
 
     restricted: bool = None
@@ -753,7 +753,7 @@ class QCSchemaInput(_QCBase):
     """The type of computation. Example values are `energy`, `gradient`, and `hessian`."""
     model: QCModel
     """An instance of :class:`QCModel`."""
-    keywords: dict[str, Any]
+    keywords: Mapping[str, Any]
     """Any additional program-specific parameters."""
 
     @classmethod
@@ -798,7 +798,7 @@ class QCSchema(QCSchemaInput):
 
     provenance: QCProvenance
     """An instance of :class:`QCProvenance`."""
-    return_result: float | list[float]
+    return_result: float | Sequence[float]
     """The primary result of the computation. Its value depends on the type of computation (see also
     `driver`)."""
     success: bool
