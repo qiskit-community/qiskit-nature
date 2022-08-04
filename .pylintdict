@@ -1,4 +1,4 @@
-acknowledgement
+acknowledgment
 adjoint
 aer
 aij
@@ -181,7 +181,6 @@ gto
 hamiltonian
 hamiltonians
 hardcoded
-hardware
 hartree
 hartrees
 hcore
@@ -204,7 +203,6 @@ ifortvars
 ij
 ijkl
 ik
-information
 init
 initializer
 initio
