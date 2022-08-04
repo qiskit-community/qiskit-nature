@@ -77,7 +77,7 @@ class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
         return all(np.isclose(coeff, 0.0, atol=atol) for _, coeff in diff.to_list())
 
     def induced_norm(self, order: int = 1) -> float:
-        r"""Returns the induced p-norm of the operator.
+        r"""Returns the p-norm induced by the operator coefficients.
 
         If the operator is represented as a sum of terms
 
@@ -89,10 +89,19 @@ class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
         .. math::
             \left(\sum_i |w_i|^p \right)^{1/p}
 
+        This is the standard :math:`p`-norm of the operator coefficients
+        considered as a vector (see `https://en.wikipedia.org/wiki/Norm_(mathematics)#p-norm`_).
+        Note that this method does not normal-order or simplify the operator
+        before computing the norm; performing either of those operations
+        can affect the result.
+
         Args:
             order: Order :math:`p` of the norm. The default value is 1.
 
         Returns:
-            The induced p-norm of the operator.
+            The induced norm.
+
+        .. _https://en.wikipedia.org/wiki/Norm_(mathematics)#p-norm:
+            https://en.wikipedia.org/wiki/Norm_(mathematics)#p-norm
         """
         return sum(abs(coeff) ** order for _, coeff in self.to_list()) ** (1 / order)
