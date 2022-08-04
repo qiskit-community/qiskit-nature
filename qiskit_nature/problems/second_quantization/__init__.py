@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -24,6 +24,7 @@ Second-Quantization Problems (:mod:`qiskit_nature.problems.second_quantization`)
    BaseProblem
    ElectronicStructureProblem
    VibrationalStructureProblem
+   LatticeModelProblem
 
 Submodules
 ==========
@@ -36,10 +37,13 @@ Submodules
 
 from .base_problem import BaseProblem
 from .electronic import ElectronicStructureProblem
+from .lattice.lattice_model_problem import LatticeModelProblem
 from .vibrational.vibrational_structure_problem import VibrationalStructureProblem
+
 
 __all__ = [
     "BaseProblem",
     "ElectronicStructureProblem",
+    "LatticeModelProblem",
     "VibrationalStructureProblem",
 ]

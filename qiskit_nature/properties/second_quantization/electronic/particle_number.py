@@ -218,8 +218,8 @@ class ParticleNumber(ElectronicProperty):
             A new instance of this class.
         """
         return ParticleNumber(
-            h5py_group.attrs["num_spin_orbitals"],
-            (h5py_group.attrs["num_alpha"], h5py_group.attrs["num_beta"]),
+            int(h5py_group.attrs["num_spin_orbitals"]),
+            (int(h5py_group.attrs["num_alpha"]), int(h5py_group.attrs["num_beta"])),
             h5py_group["occupation_alpha"][Ellipsis],
             h5py_group["occupation_beta"][Ellipsis],
             h5py_group.attrs["absolute_tolerance"],

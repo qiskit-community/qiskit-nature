@@ -79,7 +79,7 @@ class Magnetization(ElectronicProperty):
         Returns:
             A new instance of this class.
         """
-        return Magnetization(h5py_group.attrs["num_spin_orbitals"])
+        return Magnetization(int(h5py_group.attrs["num_spin_orbitals"]))
 
     @classmethod
     @deprecate_method("0.4.0")

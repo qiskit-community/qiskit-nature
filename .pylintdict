@@ -379,6 +379,7 @@ proline
 protium
 proton
 ps
+pseudorandom
 pxd
 py
 pyquante
@@ -495,6 +496,7 @@ traceback
 tran
 translational
 transpilation
+transpile
 trotterization
 tryptophan
 tuple
@@ -532,6 +534,7 @@ verbatim
 versa
 vibrational
 vibrationalop
+vibrationalops
 vibro
 vienna
 vmax

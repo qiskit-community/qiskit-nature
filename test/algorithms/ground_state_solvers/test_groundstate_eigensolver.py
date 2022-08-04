@@ -116,7 +116,9 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
     def test_vqe_ucc_custom(self):
         """Test custom ansatz in Factory use case"""
-        solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
+        solver = VQEUCCFactory(
+            quantum_instance=QuantumInstance(BasicAer.get_backend("statevector_simulator"))
+        )
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
@@ -143,6 +145,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         aux_ops_copy = copy.deepcopy(aux_ops)
 
         _ = calc.solve(self.electronic_structure_problem)
+
         assert all(
             frozenset(a.to_list()) == frozenset(b.to_list()) for a, b in zip(aux_ops, aux_ops_copy)
         )
@@ -184,7 +187,9 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
     def _setup_evaluation_operators(self):
         # first we run a ground state calculation
-        solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
+        solver = VQEUCCFactory(
+            quantum_instance=QuantumInstance(BasicAer.get_backend("statevector_simulator"))
+        )
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
 
@@ -543,7 +548,9 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
     def test_default_initial_point(self):
         """Test when using the default initial point."""
 
-        solver = VQEUCCFactory(QuantumInstance(BasicAer.get_backend("statevector_simulator")))
+        solver = VQEUCCFactory(
+            quantum_instance=QuantumInstance(BasicAer.get_backend("statevector_simulator"))
+        )
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
 
@@ -555,7 +562,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
         initial_point = np.asarray([1.28074029e-19, 5.92226076e-08, 1.11762559e-01])
         solver = VQEUCCFactory(
-            QuantumInstance(BasicAer.get_backend("statevector_simulator")),
+            quantum_instance=QuantumInstance(BasicAer.get_backend("statevector_simulator")),
             initial_point=initial_point,
             optimizer=SLSQP(maxiter=1),
         )
@@ -569,7 +576,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         informed_start = MP2InitialPoint()
 
         solver = VQEUCCFactory(
-            QuantumInstance(BasicAer.get_backend("statevector_simulator")),
+            quantum_instance=QuantumInstance(BasicAer.get_backend("statevector_simulator")),
             initial_point=informed_start,
         )
         calc = GroundStateEigensolver(self.qubit_converter, solver)

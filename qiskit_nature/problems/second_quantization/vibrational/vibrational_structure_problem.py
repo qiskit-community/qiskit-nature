@@ -51,10 +51,9 @@ class VibrationalStructureProblem(BaseProblem):
             truncation_order: order at which an n-body expansion is truncated
             transformers: a list of transformations to be applied to the driver result.
         """
-        super().__init__(bosonic_driver, transformers)
+        super().__init__(bosonic_driver, transformers, "VibrationalEnergy")
         self.num_modals = num_modals
         self.truncation_order = truncation_order
-        self._main_property_name = "VibrationalEnergy"
 
     def second_q_ops(self) -> ListOrDictType[SecondQuantizedOp]:
         """Returns the second quantized operators created based on the driver and transformations.

@@ -18,10 +18,10 @@ import warnings
 from test.properties.property_test import PropertyTest
 
 import h5py
-import numpy as np
 
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.properties.second_quantization.electronic import AngularMomentum
+from qiskit_nature.operators.second_quantization import FermionicOp
 
 
 class TestAngularMomentum(PropertyTest):
@@ -38,8 +38,7 @@ class TestAngularMomentum(PropertyTest):
 
     def test_second_q_ops(self):
         """Test second_q_ops."""
-        ops = [self.prop.second_q_ops()["AngularMomentum"]]
-        self.assertEqual(len(ops), 1)
+        op = self.prop.second_q_ops()["AngularMomentum"]
         with open(
             self.get_resource_path(
                 "angular_momentum_op.json", "properties/second_quantization/electronic/resources"
@@ -48,9 +47,8 @@ class TestAngularMomentum(PropertyTest):
             encoding="utf8",
         ) as file:
             expected = json.load(file)
-        for op, expected_op in zip(ops[0].to_list(), expected):
-            self.assertEqual(op[0], expected_op[0])
-            self.assertTrue(np.isclose(op[1], expected_op[1]))
+            expected_op = FermionicOp(expected).simplify()
+        self.assertSetEqual(frozenset(op.to_list("dense")), frozenset(expected_op.to_list("dense")))
 
     def test_to_hdf5(self):
         """Test to_hdf5."""

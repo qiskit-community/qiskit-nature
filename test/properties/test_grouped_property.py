@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -58,7 +58,7 @@ class TestGroupedProperty(QiskitNatureTestCase):
         This method also asserts that the Iterator is indeed a Generator which supports `send`.
         """
         with self.subTest("Iterator 1"):
-            prop_list = list(self.prop.__iter__())
+            prop_list = list(iter(self.prop))
             self.assertEqual(prop_list, [self.dummy_prop_1, self.dummy_prop_2])
 
         with self.subTest("Iterator 2"):
