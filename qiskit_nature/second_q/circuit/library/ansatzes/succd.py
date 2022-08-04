@@ -23,12 +23,13 @@ from qiskit.circuit import QuantumCircuit
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.mappers import QubitConverter
 
+from qiskit_nature.operators.second_quantization import FermionicOp
+
 from .ucc import UCC
 from .utils.fermionic_excitation_generator import (
     generate_fermionic_excitations,
     get_alpha_excitations,
 )
-from qiskit_nature.operators.second_quantization import FermionicOp
 
 logger = logging.getLogger(__name__)
 
