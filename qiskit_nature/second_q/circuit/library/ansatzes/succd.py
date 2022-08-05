@@ -76,8 +76,10 @@ class SUCCD(UCC):
                 only determined from the number of spin orbitals and independent from the number of
                 particles.
             mirror: boolean flag whether or not to include the symmetrically mirrored double
-                  excitations (refer SUCC_full ansatz), while keeping the original number of circuit
+                  excitations, while keeping the original number of circuit
                   parameters. This results in mirrored excitations having identical parameter values.
+                  Enabling this parameter will result in the SUCCD ansatz referred to as
+                  "q-UCCSD0-full" in reference [1].
         Raises:
             QiskitNatureError: if the number of alpha and beta electrons is not equal.
         """
@@ -123,7 +125,7 @@ class SUCCD(UCC):
         for op, ex in zip(operators, self._excitation_dict.values()):
             if op is not None:
                 valid_operators.append(op)
-                valid_excitations += ex
+                valid_excitations.extend(ex)
 
         self._excitation_list = valid_excitations
         self.operators = valid_operators
@@ -159,14 +161,9 @@ class SUCCD(UCC):
         num_electrons = num_particles[0]
         beta_index_shift = num_spin_orbitals // 2
 
-        # generate alpha-spin orbital indices for occupied and unoccupied ones
-        alpha_excitations = get_alpha_excitations(
-            num_electrons, num_spin_orbitals, self._generalized
-        )
-        logger.debug("Generated list of single alpha excitations: %s", alpha_excitations)
-
-        if self._mirror:  # if include the symmetrically mirrored double excitations
-
+        if self._mirror:
+            # We can use `generate_fermionic_excitations` here because we want to include the
+            # symmetrically mirrored double excitations
             excitations.extend(
                 generate_fermionic_excitations(
                     2,
@@ -177,7 +174,12 @@ class SUCCD(UCC):
                 )
             )
 
-        else:  # do not include the symmetrically mirrored double excitations
+        else:
+            # generate alpha-spin orbital indices for occupied and unoccupied ones
+            alpha_excitations = get_alpha_excitations(
+                num_electrons, num_spin_orbitals, self._generalized
+            )
+            logger.debug("Generated list of single alpha excitations: %s", alpha_excitations)
 
             # Find all possible double excitations constructed from the list of single excitations.
             # Note, that we use `combinations_with_replacement` here, in order to also get those

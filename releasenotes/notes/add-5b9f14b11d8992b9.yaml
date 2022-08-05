@@ -3,8 +3,8 @@ features:
   - |
     Adds new keyword argument "mirror" to ``SUCCD`` class.
     .. code-block:: python
-    
-      from qiskit_nature.circuit.library.ansatzes import SUCCfull
+
+      from qiskit_nature.second_q.circuit.library.ansatzes import SUCCD
       from qiskit_nature.converters.second_quantization import QubitConverter
       from qiskit_nature.mappers.second_quantization import JordanWignerMapper
       converter = QubitConverter(JordanWignerMapper())
