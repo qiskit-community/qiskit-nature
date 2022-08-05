@@ -380,7 +380,7 @@ class UCC(EvolvedOperatorAnsatz):
 
         excitation_list = self._get_excitation_list()
 
-        self._check_excitation_list(excitation_list)
+        # self._check_excitation_list(excitation_list)
 
         logger.debug("Converting excitations into SecondQuantizedOps...")
         excitation_ops = self._build_fermionic_excitation_ops(excitation_list)

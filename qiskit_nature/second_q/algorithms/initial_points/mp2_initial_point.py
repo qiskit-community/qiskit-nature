@@ -32,15 +32,6 @@ from qiskit_nature.second_q.properties.second_quantized_property import (
 from .initial_point import InitialPoint
 
 
-@dataclass(frozen=True)
-class _Correction:
-    """Class for storing data about each MP2 correction term."""
-
-    excitation: tuple[tuple[int, ...], tuple[int, ...]]
-    coefficient: float = 0.0
-    energy: float = 0.0
-
-
 class MP2InitialPoint(InitialPoint):
     """Compute the second-order Møller-Plesset perturbation theory (MP2) initial point.
 
@@ -84,9 +75,10 @@ class MP2InitialPoint(InitialPoint):
         self._integral_matrix: np.ndarray | None = None
         self._orbital_energies: np.ndarray | None = None
         self._reference_energy: float = 0.0
-        self._corrections: list[_Correction] | None = None
 
+        self._amplitudes = None
         self._t2: np.ndarray | None = None
+        self._energy_correction: float = 0.0
 
     @property
     def ansatz(self) -> UCC:
@@ -99,6 +91,7 @@ class MP2InitialPoint(InitialPoint):
 
     @ansatz.setter
     def ansatz(self, ansatz: UCC) -> None:
+
         # Operators must be built early to compute the excitation list.
         _ = ansatz.operators
 
@@ -175,7 +168,27 @@ class MP2InitialPoint(InitialPoint):
         num_occ = len(orbital_energies[orbital_energies < 0.0])
         num_vir = num_mo - num_occ
 
-        self._t2 = np.zeros((num_occ, num_occ, num_vir, num_vir))
+        # Use NumPy broadcasting to compute all occupied-virtual energy deltas.
+        energy_deltas = (
+            orbital_energies[:num_occ, np.newaxis] - orbital_energies[np.newaxis, num_occ:]
+        )
+
+        # Create integral matrix that uses occupied and virtual indices rather than MO indices.
+        ovov = integral_matrix[:num_occ, num_occ:, :num_occ, num_occ:]
+
+        t2 = np.zeros((num_occ, num_occ, num_vir, num_vir))
+        energy_correction = 0.0
+        for i in range(num_occ):
+            gi = ovov[i]
+            gi = gi.reshape(num_vir, num_occ, num_vir).transpose(1, 0, 2)
+            di = energy_deltas[:, :, np.newaxis] + energy_deltas[i]
+            t2i = gi / di
+            t2[i] = t2i
+            energy_correction += np.einsum("jab,jab", t2i, gi) * 2
+            energy_correction -= np.einsum("jab,jba", t2i, gi)
+
+        self._t2 = t2
+        self._energy_correction = energy_correction
         self._orbital_energies = orbital_energies
         self._integral_matrix = integral_matrix
         self._reference_energy = electronic_energy.reference_energy if not None else 0.0
@@ -219,12 +232,6 @@ class MP2InitialPoint(InitialPoint):
         Raises:
             QiskitNatureError: If :attr:`_excitation_list` or :attr:`_grouped_property` is not set.
         """
-        if grouped_property is not None:
-            self.grouped_property = grouped_property
-
-        if self._grouped_property is None:
-            raise QiskitNatureError("The grouped_property has not been set.")
-
         if ansatz is not None:
             self.ansatz = ansatz
 
@@ -236,6 +243,12 @@ class MP2InitialPoint(InitialPoint):
                 "The ansatz is not required if the excitation list has been set directly."
             )
 
+        if grouped_property is not None:
+            self.grouped_property = grouped_property
+
+        if self._grouped_property is None:
+            raise QiskitNatureError("The grouped_property has not been set.")
+
         self._compute()
 
     def _compute(self) -> None:
@@ -246,93 +259,26 @@ class MP2InitialPoint(InitialPoint):
         Returns:
             Dictionary with MP2 coefficients and energy_corrections for each excitation.
         """
-        corrections: list[_Correction] = []
-        for excitation in self._excitation_list:
+        num_occ = self._t2.shape[0]
+        amplitudes = np.zeros(len(self.excitation_list))
+        for index, excitation in enumerate(self._excitation_list):
             if len(excitation[0]) == 2:
-                # Compute MP2 corrections using double excitations.
-                corrections.append(self._compute_correction(excitation))
-            else:
-                # No computation for single, triple, and higher excitations.
-                corrections.append(_Correction(excitation=excitation))
+                # Get the amplitude of the double excitation.
+                [[i, j], [a, b]] = np.asarray(excitation) % num_occ
+                amplitude = self._t2[i, j, a - num_occ, b - num_occ]
+                amplitudes[index] = amplitude if abs(amplitude) > self._threshold else 0.0
 
-        self._corrections = corrections
-
-    def _compute_correction(
-        self, excitation: tuple[tuple[int, ...], tuple[int, ...]]
-    ) -> _Correction:
-        r"""Compute the MP2 coefficient and energy correction for a single term.
-
-        Each double excitation indexed by :math:`i,a,j,b` has a correction coefficient,
-
-        ..math::
-
-            c_{i,a,j,b} = -\frac{2 T_{i,a,j,b} - T_{i,b,j,a}}{E_b + E_a - E_i - E_j},
-
-        where :math:`E` is the orbital energy and :math:`T` is the integral matrix, and an energy
-        correction,
-
-        ..math::
-
-            \Delta E_{i, a, j, b} = c_{i,a,j,b} T_{i,a,j,b}.
-
-        These computations use molecular orbitals, but the indices used in the excitation
-        information passed in and out use the block spin orbital numbering common to Qiskit Nature:
-          - :math:`\alpha` runs from `0` to `num_molecular_orbitals - 1`,
-          - :math:`\beta` runs from `num_molecular_orbitals` to `num_molecular_orbitals * 2 - 1`.
-
-        Args:
-            excitations: List of excitations.
-
-        Returns:
-            List of corrections.
-        """
-        integral_matrix = self._integral_matrix
-        orbital_energies = self._orbital_energies
-
-        print(orbital_energies)
-
-        threshold = self._threshold
-
-        [[i, j], [a, b]] = np.asarray(excitation) % integral_matrix.shape[0]
-
-        t_iajb = integral_matrix[i, a, j, b]
-        t_ibja = integral_matrix[i, b, j, a]
-
-        t2_amplitude = 2 * t_iajb - t_ibja
-        energy_delta = (
-            orbital_energies[b] + orbital_energies[a] - orbital_energies[i] - orbital_energies[j]
-        )
-        coefficient = -t2_amplitude / energy_delta
-        coefficient = coefficient if abs(coefficient) > threshold else 0.0
-
-        if coefficient:
-            num_occ = self._t2.shape[0]
-            self._t2[i, j, a - num_occ, b - num_occ] = coefficient
-
-        energy_correction = coefficient * t_iajb
-        energy_correction = energy_correction if abs(energy_correction) > threshold else 0.0
-
-        return _Correction(excitation=excitation, coefficient=coefficient, energy=energy_correction)
+        self._amplitudes = amplitudes
 
     def to_numpy_array(self) -> np.ndarray:
         """The initial point as an array."""
-        if self._corrections is None:
+        if self._amplitudes is None:
             self.compute()
-        return np.asarray([correction.coefficient for correction in self._corrections])
-
-    def get_energy_corrections(self) -> np.ndarray:
-        """The energy corrections for each excitation."""
-        if self._corrections is None:
-            self.compute()
-        return np.asarray([correction.energy for correction in self._corrections])
+        return self._amplitudes
 
     def get_energy_correction(self) -> float:
         """The overall energy correction."""
-        unique_corrections = {
-            str(np.asarray(exc) % self._integral_matrix.shape[0]): corr
-            for corr, exc in zip(self.get_energy_corrections(), self.excitation_list)
-        }
-        return sum(unique_corrections.values())
+        return self._energy_correction
 
     def get_energy(self) -> float:
         """The absolute energy.
@@ -345,4 +291,4 @@ class MP2InitialPoint(InitialPoint):
 
     def _invalidate(self):
         """Invalidate any previous computation."""
-        self._corrections = None
+        self._amplitudes = None
