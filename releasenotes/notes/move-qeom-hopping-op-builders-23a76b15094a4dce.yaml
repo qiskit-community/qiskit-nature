@@ -1,0 +1,11 @@
+---
+deprecations:
+  - |
+    The utility methods building out the `QEOM` hopping operators have been
+    moved away from the `BaseProblem` interface and have been attached to the
+    `QEOM` implementation itself.
+    From an end-user perspective, this should not change anything.
+fixes:
+  - |
+    The documentation of the supported `excitations` types in the QEOM code has
+    been corrected.

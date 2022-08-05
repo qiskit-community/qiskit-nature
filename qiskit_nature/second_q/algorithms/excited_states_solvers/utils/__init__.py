@@ -10,4 +10,12 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Utilities for building FermionicOp instances."""
+"""Excited state solver utilities."""
+
+from .electronic_hopping_ops_builder import _build_electronic_qeom_hopping_ops
+from .vibrational_hopping_ops_builder import _build_vibrational_qeom_hopping_ops
+
+__all__ = [
+    "_build_electronic_qeom_hopping_ops",
+    "_build_vibrational_qeom_hopping_ops",
+]

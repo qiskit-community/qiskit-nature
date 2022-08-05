@@ -12,7 +12,9 @@
 
 """Utility methods to build vibrational hopping operators."""
 
-from typing import cast, Callable, Dict, List, Tuple, Union
+from __future__ import annotations
+
+from typing import cast, Callable, Dict, List, Tuple
 
 from qiskit.opflow import PauliSumOp
 from qiskit.tools import parallel_map
@@ -23,14 +25,16 @@ from qiskit_nature.second_q.operators import VibrationalOp
 from qiskit_nature.second_q.mappers import QubitConverter
 
 
-def _build_qeom_hopping_ops(
+# pylint: disable=invalid-name
+def _build_vibrational_qeom_hopping_ops(
     num_modals: List[int],
     qubit_converter: QubitConverter,
-    excitations: Union[
-        str,
-        int,
-        List[int],
-        Callable[[int, Tuple[int, int]], List[Tuple[Tuple[int, ...], Tuple[int, ...]]]],
+    excitations: str
+    | int
+    | list[int]
+    | Callable[
+        [int, tuple[int, int]],
+        list[tuple[tuple[int, ...], tuple[int, ...]]],
     ] = "sd",
 ) -> Tuple[
     Dict[str, PauliSumOp],
