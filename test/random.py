@@ -12,7 +12,7 @@
 
 """Methods to sample random objects."""
 
-from typing import Any
+from typing import Any, Optional
 
 import numpy as np
 from qiskit.quantum_info import random_hermitian
@@ -30,7 +30,7 @@ def parse_random_seed(seed: Any) -> np.random.Generator:
     Args:
         seed: The pseudorandom number generator or seed. Should be an
             instance of `np.random.Generator` or else a valid input to
-            `np.random.default_rng`
+            `np.random.default_rng`.
 
     Returns:
         The np.random.Generator instance
@@ -49,7 +49,7 @@ def random_antisymmetric_matrix(dim: int, seed: Any = None) -> np.ndarray:
         dim: The width and height of the matrix.
         seed: The pseudorandom number generator or seed. Should be an
             instance of `np.random.Generator` or else a valid input to
-            `np.random.default_rng`
+            `np.random.default_rng`.
 
     Returns:
         The sampled antisymmetric matrix.
@@ -69,7 +69,7 @@ def random_quadratic_hamiltonian(
         num_conserving: whether the Hamiltonian should conserve particle number
         seed: The pseudorandom number generator or seed. Should be an
             instance of `np.random.Generator` or else a valid input to
-            `np.random.default_rng`
+            `np.random.default_rng`.
 
     Returns:
         The sampled QuadraticHamiltonian
@@ -83,6 +83,30 @@ def random_quadratic_hamiltonian(
     return QuadraticHamiltonian(
         hermitian_part=hermitian_part, antisymmetric_part=antisymmetric_part, constant=constant
     )
+
+
+def random_two_body_tensor(
+    n_orbitals: int, rank: Optional[int] = None, seed: Any = None
+) -> np.ndarray:
+    """Sample a random two-body tensor.
+
+    Args:
+        n_orbitals: The number of orbitals.
+        rank: Rank of the sampled tensor. The default behavior is to use
+            the maximum rank, which is `n_orbitals * (n_orbitals + 1) // 2`.
+        seed: The pseudorandom number generator or seed. Should be an
+            instance of `np.random.Generator` or else a valid input to
+            `np.random.default_rng`.
+
+    Returns:
+        The sampled two-body tensor.
+    """
+    rng = parse_random_seed(seed)
+    if rank is None:
+        rank = n_orbitals * (n_orbitals + 1) // 2
+    cholesky_vecs = rng.standard_normal((rank, n_orbitals, n_orbitals))
+    cholesky_vecs += cholesky_vecs.transpose((0, 2, 1))
+    return np.einsum("ipr,iqs->prqs", cholesky_vecs, cholesky_vecs)
 
 
 # pylint: disable=invalid-name

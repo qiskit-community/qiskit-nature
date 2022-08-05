@@ -25,11 +25,16 @@ Linear algebra utilities
 
    apply_matrix_to_slices
    givens_matrix
+   DoubleFactorizedHamiltonian
+   low_rank_decomposition
 """
 
 from .linalg import apply_matrix_to_slices, givens_matrix
+from .low_rank import DoubleFactorizedHamiltonian, low_rank_decomposition
 
 __all__ = [
     "apply_matrix_to_slices",
     "givens_matrix",
+    "DoubleFactorizedHamiltonian",
+    "low_rank_decomposition",
 ]

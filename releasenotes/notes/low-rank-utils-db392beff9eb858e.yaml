@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Adds :func:`.low_rank_decomposition` for performuing the low rank decomposition
+    of a molecular Hamiltonian, as described in `arXiv:1808.02625 <https://arxiv.org/abs/1808.02625>`_ and
+    `arXiv:2104.08957 <https://arxiv.org/abs/2104.08957>`_.
