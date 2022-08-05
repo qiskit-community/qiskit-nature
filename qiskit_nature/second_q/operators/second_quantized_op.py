@@ -76,6 +76,9 @@ class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
     def equiv(self, other: Any, atol: Optional[float] = None) -> bool:
         """Checks whether this operator is approximately equal to another operator.
 
+        Note that this method does not normal-order the operators before comparing them,
+        which may affect the result.
+
         Args:
             other: The operator to compare to for approximate equality.
             atol: Absolute numerical tolerance. The default behavior is to use ``self.atol``,
