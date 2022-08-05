@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Sequence, Tuple, Union
+from typing import TYPE_CHECKING, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 from qiskit import QuantumRegister
@@ -172,6 +172,47 @@ def fermionic_gaussian_decomposition_jw(  # pylint: disable=invalid-name
         left_unitary[i] *= current_matrix[i, n + i].conj()
 
     return decomposition, left_unitary
+
+
+def modified_cholesky(
+    two_body_tensor: np.ndarray, max_vecs: Optional[int] = None, threshold: float = 1e-8
+) -> np.ndarray:
+    r"""Modified Cholesky decomposition of a two-body tensor.
+
+    The modified Cholesky decomposition is a representation of a two-body tensor
+    :math:`h_{pqrs}` as
+
+    .. math::
+        h_{pqrs} = \sum_{t} L^{(t)}_{pq} L^{(t)}_{rs}
+
+    The number of terms :math:`t` in the decomposition can be limited by
+    specifying the `max_vecs` parameter, though this may introduce some error
+    in the decomposition.
+
+    Args:
+        two_body_tensor: The two-body tensor to decompose.
+        max_vecs: The maximum number of terms to include in the decomposition.
+        threshold: Threshold for convergence.
+    """
+    n_modes, _, _, _ = two_body_tensor.shape
+    reshaped_tensor = np.reshape(two_body_tensor, (n_modes**2, n_modes**2))
+    if max_vecs is None:
+        max_vecs = n_modes * (n_modes + 1) // 2
+    cholesky_vecs = np.zeros((max_vecs + 1, n_modes**2))
+    errors = np.diagonal(reshaped_tensor).copy()
+    for index in range(max_vecs + 1):
+        max_error_index = np.argmax(errors)
+        max_error = errors[max_error_index]
+        if max_error < threshold:
+            break
+        cholesky_vecs[index] = reshaped_tensor[:, max_error_index]
+        if index:
+            cholesky_vecs[index] -= (
+                cholesky_vecs[0:index].T @ cholesky_vecs[0:index, max_error_index]
+            )
+        cholesky_vecs[index] /= np.sqrt(max_error)
+        errors -= cholesky_vecs[index] ** 2
+    return cholesky_vecs[:index].reshape((index, n_modes, n_modes))
 
 
 def _swap_columns(matrix: np.ndarray, i: int, j: int) -> None:

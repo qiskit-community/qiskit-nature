@@ -26,6 +26,7 @@ import scipy.optimize
 
 from qiskit_nature.second_q.operators import FermionicOp
 from qiskit_nature.second_q.properties.electronic_energy import ElectronicBasis, ElectronicEnergy
+from qiskit_nature.utils.linalg import modified_cholesky
 
 
 @dataclasses.dataclass
@@ -354,31 +355,6 @@ def _low_rank_z_representation(
     )
     constant_correction = 0.25 * np.einsum("ijj->", core_tensors) - 0.5 * np.sum(core_tensors)
     return one_body_correction, constant_correction
-
-
-def modified_cholesky(
-    two_body_tensor: np.ndarray, threshold: float = 1e-8, max_vecs: Optional[int] = None
-) -> np.ndarray:
-    """Modified Cholesky decomposition of a two-body tensor."""
-    n_modes, _, _, _ = two_body_tensor.shape
-    reshaped_tensor = np.reshape(two_body_tensor, (n_modes**2, n_modes**2))
-    if max_vecs is None:
-        max_vecs = n_modes * (n_modes + 1) // 2
-    cholesky_vecs = np.zeros((max_vecs + 1, n_modes**2))
-    errors = np.diagonal(reshaped_tensor).copy()
-    for index in range(max_vecs + 1):
-        max_error_index = np.argmax(errors)
-        max_error = errors[max_error_index]
-        if max_error < threshold:
-            break
-        cholesky_vecs[index] = reshaped_tensor[:, max_error_index]
-        if index:
-            cholesky_vecs[index] -= (
-                cholesky_vecs[0:index].T @ cholesky_vecs[0:index, max_error_index]
-            )
-        cholesky_vecs[index] /= np.sqrt(max_error)
-        errors -= cholesky_vecs[index] ** 2
-    return cholesky_vecs[:index].reshape((index, n_modes, n_modes))
 
 
 def _low_rank_optimal_core_tensors(

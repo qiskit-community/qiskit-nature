@@ -13,10 +13,12 @@
 """Test linear algebra utilities."""
 
 from test import QiskitNatureTestCase
+from test.random import random_two_body_tensor
 
 import numpy as np
 from ddt import data, ddt, unpack
-from qiskit_nature.utils import givens_matrix
+
+from qiskit_nature.utils import givens_matrix, modified_cholesky
 
 
 @ddt
@@ -30,3 +32,14 @@ class TestGivensMatrix(QiskitNatureTestCase):
         givens_mat = givens_matrix(a, b)
         product = givens_mat @ np.array([a, b])
         np.testing.assert_allclose(product[1], 0.0, atol=1e-8)
+
+
+class TestModifiedCholesky(QiskitNatureTestCase):
+    """Tests for modified Cholesky decomposition."""
+
+    def test_modified_cholesky(self):
+        """Test modified Cholesky decomposition."""
+        two_body_tensor = random_two_body_tensor(5, seed=9766)
+        cholesky_vecs = modified_cholesky(two_body_tensor)
+        reconstructed = np.einsum("ipq,irs->pqrs", cholesky_vecs, cholesky_vecs)
+        np.testing.assert_allclose(reconstructed, two_body_tensor, atol=1e-8)

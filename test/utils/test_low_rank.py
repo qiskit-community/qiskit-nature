@@ -34,7 +34,6 @@ from qiskit_nature.utils.low_rank import (
     _low_rank_optimal_core_tensors,
     _low_rank_two_body_decomposition,
     low_rank_decomposition,
-    modified_cholesky,
 )
 
 qiskit_nature.settings.dict_aux_operators = True
@@ -314,15 +313,3 @@ class TestLowRank(QiskitNatureTestCase):
 
         diff = (actual - expected).normal_ordered().simplify()
         self.assertLess(diff.induced_norm(), 1e-3)
-
-    @data("H2_sto3g", "BeH_sto3g_reduced", "random_5")
-    def test_modified_cholesky(self, hamiltonian_name: str):
-        """Test modified Cholesky decomposition."""
-        electronic_energy = hamiltonians[hamiltonian_name]
-        two_body_tensor = electronic_energy.get_electronic_integral(
-            ElectronicBasis.MO, 2
-        ).get_matrix()
-
-        cholesky_vecs = modified_cholesky(two_body_tensor)
-        reconstructed = np.einsum("ipr,iqs->prqs", cholesky_vecs, cholesky_vecs)
-        np.testing.assert_allclose(reconstructed, two_body_tensor, atol=1e-8)
