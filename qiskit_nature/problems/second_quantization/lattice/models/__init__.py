@@ -25,4 +25,3 @@ warn_deprecated(
     stack_level=3,
     category=NatureDeprecationWarning,
 )
-
