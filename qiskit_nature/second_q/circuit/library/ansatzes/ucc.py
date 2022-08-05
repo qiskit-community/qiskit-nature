@@ -297,9 +297,8 @@ class UCC(EvolvedOperatorAnsatz):
         return super(UCC, self.__class__).operators.__get__(self)
 
     def _filter_operators(self, operators):
-        excitation_list = self._excitation_list
         valid_operators, valid_excitations = [], []
-        for op, ex in zip(operators, excitation_list):
+        for op, ex in zip(operators, self._excitation_list):
             if op is not None:
                 valid_operators.append(op)
                 valid_excitations.append(ex)
