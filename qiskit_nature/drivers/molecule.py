@@ -22,6 +22,7 @@ import numpy as np
 import scipy.linalg
 
 from .units_type import UnitsType
+from ..deprecation import warn_deprecated, DeprecatedType, NatureDeprecationWarning
 
 
 class Molecule:
@@ -67,6 +68,15 @@ class Molecule:
         Raises:
             ValueError: Length of masses must match length of geometries.
         """
+        warn_deprecated(
+            "0.5.0",
+            old_type=DeprecatedType.CLASS,
+            old_name="qiskit_nature.drivers.Molecule",
+            new_type=DeprecatedType.CLASS,
+            new_name="qiskit_nature.second_q.drivers.Molecule",
+            stack_level=3,
+            category=NatureDeprecationWarning,
+        )
         Molecule._check_consistency(geometry, masses)
 
         self._geometry = geometry

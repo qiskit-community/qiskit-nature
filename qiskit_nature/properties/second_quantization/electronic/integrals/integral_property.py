@@ -27,6 +27,7 @@ from ..bases import ElectronicBasis, ElectronicBasisTransform
 from ..types import ElectronicProperty
 from .electronic_integrals import ElectronicIntegrals
 from .one_body_electronic_integrals import OneBodyElectronicIntegrals
+from .....deprecation import warn_deprecated, DeprecatedType, NatureDeprecationWarning
 
 
 class IntegralProperty(ElectronicProperty):
@@ -59,6 +60,12 @@ class IntegralProperty(ElectronicProperty):
         for integral in electronic_integrals:
             self.add_electronic_integral(integral)
         self._shift = shift or {}
+        warn_deprecated(
+            "0.5.0",
+            old_type=DeprecatedType.CLASS,
+            old_name="qiskit_nature.properties.second_quantization.electronic.integrals.IntegralProperty",
+            category=NatureDeprecationWarning,
+        )
 
     def __str__(self) -> str:
         string = [super().__str__()]

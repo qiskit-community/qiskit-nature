@@ -30,7 +30,12 @@ from .integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )
-from ....deprecation import deprecate_method
+from ....deprecation import (
+    deprecate_method,
+    warn_deprecated,
+    DeprecatedType,
+    NatureDeprecationWarning,
+)
 
 
 class ElectronicEnergy(IntegralProperty):
@@ -70,6 +75,14 @@ class ElectronicEnergy(IntegralProperty):
         self._orbital_energies: np.ndarray = None
         self._kinetic: ElectronicIntegrals = None
         self._overlap: ElectronicIntegrals = None
+        warn_deprecated(
+            "0.5.0",
+            old_type=DeprecatedType.CLASS,
+            old_name="qiskit_nature.properties.second_quantization.electronic.ElectronicEnergy",
+            new_type=DeprecatedType.CLASS,
+            new_name="qiskit_nature.second_q.hamiltonians.ElectronicEnergy",
+            category=NatureDeprecationWarning,
+        )
 
     def to_hdf5(self, parent: h5py.Group) -> None:
         """Stores this instance in an HDF5 group inside of the provided parent group.
