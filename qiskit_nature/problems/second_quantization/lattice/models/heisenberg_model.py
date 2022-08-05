@@ -27,17 +27,20 @@ class HeisenbergModel(LatticeModel):
     """The Heisenberg model."""
 
     def __init__(
-        self, lattice: Lattice, J: Tuple = (1.0, 1.0, 1.0), B: Tuple = (0.0, 0.0, 0.0)
+        self,
+        lattice: Lattice,
+        coupling_constants: Tuple = (1.0, 1.0, 1.0),
+        ext_magnetic_field: Tuple = (0.0, 0.0, 0.0),
     ) -> None:
         """
         Args:
             lattice: Lattice on which the model is defined.
-            J (Tuple, optional): Coupling constants. Defaults to (1.0, 1.0, 1.0).
-            B (Tuple, optional): External magnetic field. Defaults to (0.0, 0.0, 0.0).
+            coupling_constants (Tuple, optional): Coupling constants. Defaults to (1.0, 1.0, 1.0).
+            ext_magnetic_field (Tuple, optional): External magnetic field. Defaults to (0.0, 0.0, 0.0).
         """
         super().__init__(lattice)
-        self.J = J
-        self.B = B
+        self.coupling_constants = coupling_constants
+        self.ext_magnetic_field = ext_magnetic_field
 
     def coupling_matrix(self) -> np.ndarray:
         """Return the coupling matrix."""
@@ -103,20 +106,26 @@ class HeisenbergModel(LatticeModel):
 
             if node_a == node_b:
                 index = node_a
-                if self.B[0] != 0:
-                    hamiltonian.append((f"X_{index}", self.B[0]))
-                if self.B[1] != 0:
-                    hamiltonian.append((f"Y_{index}", self.B[1]))
-                if self.B[2] != 0:
-                    hamiltonian.append((f"Z_{index}", self.B[2]))
+                if self.ext_magnetic_field[0] != 0:
+                    hamiltonian.append((f"X_{index}", self.ext_magnetic_field[0]))
+                if self.ext_magnetic_field[1] != 0:
+                    hamiltonian.append((f"Y_{index}", self.ext_magnetic_field[1]))
+                if self.ext_magnetic_field[2] != 0:
+                    hamiltonian.append((f"Z_{index}", self.ext_magnetic_field[2]))
             else:
                 index_left = node_a
                 index_right = node_b
-                if self.J[0] != 0:
-                    hamiltonian.append((f"X_{index_left} X_{index_right}", self.J[0]))
-                if self.J[1] != 0:
-                    hamiltonian.append((f"Y_{index_left} Y_{index_right}", self.J[1]))
-                if self.J[2] != 0:
-                    hamiltonian.append((f"Z_{index_left} Z_{index_right}", self.J[2]))
+                if self.coupling_constants[0] != 0:
+                    hamiltonian.append(
+                        (f"X_{index_left} X_{index_right}", self.coupling_constants[0])
+                    )
+                if self.coupling_constants[1] != 0:
+                    hamiltonian.append(
+                        (f"Y_{index_left} Y_{index_right}", self.coupling_constants[1])
+                    )
+                if self.coupling_constants[2] != 0:
+                    hamiltonian.append(
+                        (f"Z_{index_left} Z_{index_right}", self.coupling_constants[2])
+                    )
 
         return SpinOp(hamiltonian, spin=Fraction(1, 2), register_length=register_length)
