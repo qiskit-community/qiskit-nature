@@ -13,7 +13,9 @@
 """Test fermionic Gaussian state preparation circuits."""
 
 from test import QiskitNatureTestCase
-from test.random import random_legacy_quadratic_hamiltonian as random_quadratic_hamiltonian
+from qiskit_nature.utils.random import (
+    random_legacy_quadratic_hamiltonian as random_quadratic_hamiltonian,
+)
 
 import numpy as np
 from qiskit.quantum_info import Statevector

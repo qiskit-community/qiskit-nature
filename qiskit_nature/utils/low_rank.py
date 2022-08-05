@@ -17,7 +17,7 @@ from __future__ import annotations
 import dataclasses
 import functools
 import itertools
-from test.random import parse_random_seed
+from qiskit_nature.utils.random import parse_random_seed
 from typing import Any, Optional
 
 import numpy as np

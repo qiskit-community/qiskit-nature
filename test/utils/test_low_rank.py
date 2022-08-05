@@ -14,7 +14,7 @@
 
 import itertools
 from test import QiskitNatureTestCase
-from test.random import random_two_body_tensor
+from qiskit_nature.utils.random import random_two_body_tensor
 
 import numpy as np
 from ddt import data, ddt, unpack
