@@ -13,18 +13,19 @@
 """Low rank decomposition utilities."""
 
 from __future__ import annotations
-import functools
 
 import dataclasses
+import functools
 import itertools
-from typing import Optional
+from test.random import parse_random_seed
+from typing import Any, Optional
 
 import numpy as np
 import scipy.linalg
 import scipy.optimize
 
 from qiskit_nature.second_q.operators import FermionicOp
-from qiskit_nature.second_q.properties.electronic_energy import ElectronicEnergy, ElectronicBasis
+from qiskit_nature.second_q.properties.electronic_energy import ElectronicBasis, ElectronicEnergy
 
 
 @dataclasses.dataclass
@@ -145,6 +146,7 @@ def low_rank_decomposition(
     optimize: bool = False,
     method: str = "L-BFGS-B",
     options: Optional[dict] = None,
+    seed: Any = None,
     validate: bool = True,
     atol: float = 1e-8,
 ) -> DoubleFactorizedHamiltonian:
@@ -238,6 +240,10 @@ def low_rank_decomposition(
             `scipy.optimize.minimize`_ for possible values.
         options: Options for the optimization. See the documentation of
             `scipy.optimize.minimize`_ for usage.
+        seed: The pseudorandom number generator or seed. Randomness is used to generate
+            an initial guess for the optimization.
+            Should be an instance of `np.random.Generator` or else a valid input to
+            `np.random.default_rng`.
         validate: Whether to check that the input tensors have the correct symmetries.
         atol: Absolute numerical tolerance for input validation.
 
@@ -269,6 +275,7 @@ def low_rank_decomposition(
             truncation_threshold=truncation_threshold,
             method=method,
             options=options,
+            seed=seed,
             validate=validate,
             atol=atol,
         )
@@ -357,21 +364,21 @@ def modified_cholesky(
     reshaped_tensor = np.reshape(two_body_tensor, (n_modes**2, n_modes**2))
     if max_vecs is None:
         max_vecs = n_modes * (n_modes + 1) // 2
-    cholesky_vectors = np.zeros((max_vecs + 1, n_modes**2))
+    cholesky_vecs = np.zeros((max_vecs + 1, n_modes**2))
     errors = np.diagonal(reshaped_tensor).copy()
     for index in range(max_vecs + 1):
         max_error_index = np.argmax(errors)
         max_error = errors[max_error_index]
         if max_error < threshold:
             break
-        cholesky_vectors[index] = reshaped_tensor[:, max_error_index]
+        cholesky_vecs[index] = reshaped_tensor[:, max_error_index]
         if index:
-            cholesky_vectors[index] -= (
-                cholesky_vectors[0:index].T @ cholesky_vectors[0:index, max_error_index]
+            cholesky_vecs[index] -= (
+                cholesky_vecs[0:index].T @ cholesky_vecs[0:index, max_error_index]
             )
-        cholesky_vectors[index] /= np.sqrt(max_error)
-        errors -= cholesky_vectors[index] ** 2
-    return cholesky_vectors[:index].reshape((index, n_modes, n_modes))
+        cholesky_vecs[index] /= np.sqrt(max_error)
+        errors -= cholesky_vecs[index] ** 2
+    return cholesky_vecs[:index].reshape((index, n_modes, n_modes))
 
 
 def _low_rank_optimal_core_tensors(
@@ -414,9 +421,11 @@ def _low_rank_compressed_two_body_decomposition(  # pylint: disable=invalid-name
     max_rank: Optional[int] = None,
     method="L-BFGS-B",
     options: Optional[dict] = None,
+    seed: Any = None,
     validate: bool = True,
     atol: float = 1e-8,
 ):
+    rng = parse_random_seed(seed)
     leaf_tensors, _ = _low_rank_two_body_decomposition(
         two_body_tensor,
         truncation_threshold=truncation_threshold,
@@ -427,8 +436,7 @@ def _low_rank_compressed_two_body_decomposition(  # pylint: disable=invalid-name
     n_tensors, n_modes, _ = leaf_tensors.shape
 
     def fun(x):
-        leaf_tensors = _params_to_leaf_tensors(x, n_tensors, n_modes)
-        core_tensors = _low_rank_optimal_core_tensors(two_body_tensor, leaf_tensors)
+        leaf_tensors, core_tensors = _params_to_df_tensors(x, n_tensors, n_modes)
         diff = two_body_tensor - np.einsum(
             "tpk,tqk,tkl,trl,tsl->pqrs",
             leaf_tensors,
@@ -440,8 +448,7 @@ def _low_rank_compressed_two_body_decomposition(  # pylint: disable=invalid-name
         return 0.5 * np.sum(diff**2)
 
     def jac(x):
-        leaf_tensors = _params_to_leaf_tensors(x, n_tensors, n_modes)
-        core_tensors = _low_rank_optimal_core_tensors(two_body_tensor, leaf_tensors)
+        leaf_tensors, core_tensors = _params_to_df_tensors(x, n_tensors, n_modes)
         diff = two_body_tensor - np.einsum(
             "tpk,tqk,tkl,trl,tsl->pqrs",
             leaf_tensors,
@@ -450,7 +457,7 @@ def _low_rank_compressed_two_body_decomposition(  # pylint: disable=invalid-name
             leaf_tensors,
             leaf_tensors,
         )
-        grad_leaf = -4.0 * np.einsum(
+        grad_leaf = -4 * np.einsum(
             "pqrs,tqk,tkl,trl,tsl->tpk",
             diff,
             leaf_tensors,
@@ -459,24 +466,43 @@ def _low_rank_compressed_two_body_decomposition(  # pylint: disable=invalid-name
             leaf_tensors,
         )
         leaf_logs = _params_to_leaf_logs(x, n_tensors, n_modes)
-        return np.ravel([_gradient(log, grad) for log, grad in zip(leaf_logs, grad_leaf)])
+        grad_leaf_log = np.ravel(
+            [_grad_leaf_log(log, grad) for log, grad in zip(leaf_logs, grad_leaf)]
+        )
+        grad_core = -2 * np.einsum(
+            "pqrs,tpk,tqk,trl,tsl->tkl",
+            diff,
+            leaf_tensors,
+            leaf_tensors,
+            leaf_tensors,
+            leaf_tensors,
+        )
+        for mat in grad_core:
+            mat[range(n_modes), range(n_modes)] /= 2
+        triu_indices = np.triu_indices(n_modes)
+        grad_core = np.ravel([mat[triu_indices] for mat in grad_core])
+        return np.concatenate([grad_leaf_log, grad_core])
 
     # TODO see if we can improve the intial guess
+    core_tensors = _low_rank_optimal_core_tensors(two_body_tensor, leaf_tensors)
+    x0 = _df_tensors_to_params(leaf_tensors, core_tensors)
     # TODO allow seeding the randomness
-    x0 = _leaf_tensors_to_params(leaf_tensors)
-    x0 += 1e-2 * np.random.standard_normal(size=x0.shape)
+    x0 += 1e-2 * rng.standard_normal(size=x0.shape)
     result = scipy.optimize.minimize(fun, x0, method=method, jac=jac, options=options)
-    leaf_tensors = _params_to_leaf_tensors(result.x, n_tensors, n_modes)
+    leaf_tensors, _ = _params_to_df_tensors(result.x, n_tensors, n_modes)
     core_tensors = _low_rank_optimal_core_tensors(two_body_tensor, leaf_tensors)
 
     return leaf_tensors, core_tensors
 
 
-def _leaf_tensors_to_params(leaf_tensors: np.ndarray):
+def _df_tensors_to_params(leaf_tensors: np.ndarray, core_tensors: np.ndarray):
     _, n_modes, _ = leaf_tensors.shape
     leaf_logs = [scipy.linalg.logm(mat) for mat in leaf_tensors]
     triu_indices = np.triu_indices(n_modes, k=1)
-    return np.real(np.ravel([leaf_log[triu_indices] for leaf_log in leaf_logs]))
+    leaf_params = np.real(np.ravel([leaf_log[triu_indices] for leaf_log in leaf_logs]))
+    triu_indices = np.triu_indices(n_modes)
+    core_params = np.ravel([core_tensor[triu_indices] for core_tensor in core_tensors])
+    return np.concatenate([leaf_params, core_params])
 
 
 def _params_to_leaf_logs(params: np.ndarray, n_tensors: int, n_modes: int):
@@ -489,9 +515,20 @@ def _params_to_leaf_logs(params: np.ndarray, n_tensors: int, n_modes: int):
     return leaf_logs
 
 
-def _params_to_leaf_tensors(params: np.ndarray, n_tensors: int, n_modes: int):
+def _params_to_df_tensors(params: np.ndarray, n_tensors: int, n_modes: int):
     leaf_logs = _params_to_leaf_logs(params, n_tensors, n_modes)
-    return np.array([_expm_antisymmetric(mat) for mat in leaf_logs])
+    leaf_tensors = np.array([_expm_antisymmetric(mat) for mat in leaf_logs])
+
+    n_leaf_params = n_tensors * n_modes * (n_modes - 1) // 2
+    core_params = np.real(params[n_leaf_params:])
+    triu_indices = np.triu_indices(n_modes)
+    param_length = len(triu_indices[0])
+    core_tensors = np.zeros((n_tensors, n_modes, n_modes))
+    for i in range(n_tensors):
+        core_tensors[i][triu_indices] = core_params[i * param_length : (i + 1) * param_length]
+        core_tensors[i] += core_tensors[i].T
+        core_tensors[i][range(n_modes), range(n_modes)] /= 2
+    return leaf_tensors, core_tensors
 
 
 def _expm_antisymmetric(mat: np.ndarray) -> np.ndarray:
@@ -499,13 +536,13 @@ def _expm_antisymmetric(mat: np.ndarray) -> np.ndarray:
     return np.real(vecs @ np.diag(np.exp(1j * eigs)) @ vecs.T.conj())
 
 
-def _gradient(mat: np.ndarray, grad_factor: np.ndarray) -> np.ndarray:
+def _grad_leaf_log(mat: np.ndarray, grad_leaf: np.ndarray) -> np.ndarray:
     eigs, vecs = np.linalg.eigh(-1j * mat)
     eig_i, eig_j = np.meshgrid(eigs, eigs, indexing="ij")
     with np.errstate(divide="ignore", invalid="ignore"):
         coeffs = -1j * (np.exp(1j * eig_i) - np.exp(1j * eig_j)) / (eig_i - eig_j)
     coeffs[eig_i == eig_j] = np.exp(1j * eig_i[eig_i == eig_j])
-    grad = vecs.conj() @ (vecs.T @ grad_factor @ vecs.conj() * coeffs) @ vecs.T
+    grad = vecs.conj() @ (vecs.T @ grad_leaf @ vecs.conj() * coeffs) @ vecs.T
     grad -= grad.T
     n_modes, _ = mat.shape
     triu_indices = np.triu_indices(n_modes, k=1)

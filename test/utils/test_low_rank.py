@@ -13,7 +13,6 @@
 """Test low rank utilities."""
 
 import itertools
-
 from test import QiskitNatureTestCase
 from test.random import random_two_body_tensor
 
@@ -21,9 +20,11 @@ import numpy as np
 from ddt import data, ddt, unpack
 from qiskit.quantum_info import random_hermitian
 
+# TODO delete this when it's no longer needed
+import qiskit_nature.settings
 from qiskit_nature.hdf5 import load_from_hdf5
 from qiskit_nature.second_q.operators import FermionicOp
-from qiskit_nature.second_q.properties.electronic_energy import ElectronicEnergy, ElectronicBasis
+from qiskit_nature.second_q.properties.electronic_energy import ElectronicBasis, ElectronicEnergy
 from qiskit_nature.second_q.properties.integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
@@ -36,11 +37,9 @@ from qiskit_nature.utils.low_rank import (
     modified_cholesky,
 )
 
-# TODO delete this when it's no longer needed
-import qiskit_nature.settings
-
 qiskit_nature.settings.dict_aux_operators = True
 
+rng = np.random.default_rng(3091)
 hamiltonians = {}
 
 for molecule_name in ["H2_sto3g", "BeH_sto3g_reduced"]:
@@ -49,8 +48,8 @@ for molecule_name in ["H2_sto3g", "BeH_sto3g_reduced"]:
     hamiltonians[molecule_name] = electronic_energy
 
 for n_modes in [3, 5]:
-    one_body_tensor = np.array(random_hermitian(n_modes))
-    two_body_tensor = random_two_body_tensor(n_modes)
+    one_body_tensor = np.array(random_hermitian(n_modes, seed=rng))
+    two_body_tensor = random_two_body_tensor(n_modes, seed=rng)
     one_body_integrals = OneBodyElectronicIntegrals(ElectronicBasis.MO, (one_body_tensor,) * 2)
     two_body_integrals = TwoBodyElectronicIntegrals(ElectronicBasis.MO, (two_body_tensor,) * 4)
     electronic_energy = ElectronicEnergy([one_body_integrals, two_body_integrals])
@@ -246,7 +245,7 @@ class TestLowRank(QiskitNatureTestCase):
         np.testing.assert_allclose(reconstructed, two_body_tensor, atol=1e-8)
 
     @unpack
-    @data(("H2_sto3g", 2), ("BeH_sto3g_reduced", 3), ("random_5", None))
+    @data(("H2_sto3g", 2), ("BeH_sto3g_reduced", 4))
     def test_low_rank_compressed_two_body_decomposition(self, hamiltonian_name: str, max_rank: int):
         """Test low rank compressed two-body decomposition."""
         electronic_energy = hamiltonians[hamiltonian_name]
@@ -255,7 +254,7 @@ class TestLowRank(QiskitNatureTestCase):
         ).get_matrix()
 
         leaf_tensors, core_tensors = _low_rank_compressed_two_body_decomposition(
-            two_body_tensor, max_rank=max_rank
+            two_body_tensor, max_rank=max_rank, seed=rng
         )
         reconstructed = np.einsum(
             "tpk,tqk,tkl,trl,tsl->pqrs",
@@ -268,12 +267,14 @@ class TestLowRank(QiskitNatureTestCase):
         np.testing.assert_allclose(reconstructed, two_body_tensor, atol=1e-4)
 
     @unpack
-    @data(("H2_sto3g", 2), ("BeH_sto3g_reduced", 3))
+    @data(("H2_sto3g", 2), ("BeH_sto3g_reduced", 4))
     def test_low_rank_decomposition_compressed(self, hamiltonian_name: str, max_rank: int):
         """Test compressed low rank decomposition."""
         electronic_energy = hamiltonians[hamiltonian_name]
         expected = electronic_energy.second_q_ops()["ElectronicEnergy"]
-        df_hamiltonian = low_rank_decomposition(electronic_energy, max_rank=max_rank, optimize=True)
+        df_hamiltonian = low_rank_decomposition(
+            electronic_energy, max_rank=max_rank, optimize=True, seed=rng
+        )
         n_modes = df_hamiltonian.n_orbitals
         self.assertLessEqual(len(df_hamiltonian.leaf_tensors), max_rank)
         self.assertLessEqual(len(df_hamiltonian.core_tensors), max_rank)
