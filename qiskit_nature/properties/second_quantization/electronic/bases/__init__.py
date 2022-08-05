@@ -25,6 +25,16 @@ Electronic Bases (:mod:`qiskit_nature.properties.second_quantization.electronic.
 
 from .electronic_basis import ElectronicBasis
 from .electronic_basis_transform import ElectronicBasisTransform
+from .....deprecation import warn_deprecated, DeprecatedType, NatureDeprecationWarning
+
+warn_deprecated(
+    "0.5.0",
+    old_type=DeprecatedType.PACKAGE,
+    old_name="qiskit_nature.properties.second_quantization.electronic.bases",
+    new_type=DeprecatedType.PACKAGE,
+    new_name="qiskit_nature.second_q.problems.bases",
+    category=NatureDeprecationWarning,
+)
 
 __all__ = [
     "ElectronicBasis",

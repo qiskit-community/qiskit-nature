@@ -357,6 +357,15 @@ class TestSpinOp(QiskitNatureTestCase):
             self.assertFalse(test_op.is_hermitian(atol=1e-8))
             self.assertTrue(test_op.is_hermitian(atol=1e-6))
 
+    def test_equiv(self):
+        """test equiv"""
+        op1 = SpinOp("+ZXY") + SpinOp("-XXX")
+        op2 = SpinOp("+ZXY")
+        op3 = SpinOp("+ZXY") + (1 + 1e-7) * SpinOp("-XXX")
+        self.assertFalse(op1.equiv(op2))
+        self.assertFalse(op1.equiv(op3))
+        self.assertTrue(op1.equiv(op3, atol=1e-6))
+
 
 if __name__ == "__main__":
     unittest.main()

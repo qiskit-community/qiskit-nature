@@ -367,6 +367,18 @@ class TestFermionicOp(QiskitNatureTestCase):
             self.assertFalse(fer_op.is_hermitian(atol=1e-8))
             self.assertTrue(fer_op.is_hermitian(atol=1e-6))
 
+    def test_equiv(self):
+        """test equiv"""
+        op1 = FermionicOp("+_0 -_1") + FermionicOp("+_1 -_0")
+        op2 = FermionicOp("+_0 -_1")
+        op3 = FermionicOp("+_0 -_1") + (1 + 1e-7) * FermionicOp("+_1 -_0")
+        self.assertFalse(op1.equiv(op2))
+        self.assertFalse(op1.equiv(op3))
+        self.assertTrue(op1.equiv(op3, atol=1e-6))
+
+        with self.assertRaisesRegex(TypeError, "type"):
+            op1.equiv("a")
+
     @data(
         *product(
             (
@@ -508,6 +520,12 @@ class TestFermionicOp(QiskitNatureTestCase):
             fer_op = orig.normal_ordered()
             expected = [((("-", 1), ("+", 2)), 6)]
             self.assertEqual(fer_op._data, expected)
+
+    def test_induced_norm(self):
+        """Test induced norm."""
+        op = 3 * FermionicOp("+") + 4j * FermionicOp("-")
+        self.assertAlmostEqual(op.induced_norm(), 7.0)
+        self.assertAlmostEqual(op.induced_norm(2), 5.0)
 
 
 if __name__ == "__main__":
