@@ -26,7 +26,12 @@ from qiskit_nature.results import EigenstateResult
 from ..second_quantized_property import LegacyDriverResult
 from .bases import VibrationalBasis
 from .types import VibrationalProperty
-from ....deprecation import deprecate_method
+from ....deprecation import (
+    deprecate_method,
+    warn_deprecated,
+    DeprecatedType,
+    NatureDeprecationWarning,
+)
 
 
 class OccupiedModals(VibrationalProperty):
@@ -44,6 +49,14 @@ class OccupiedModals(VibrationalProperty):
                 be set before the second-quantized operator can be constructed.
         """
         super().__init__(self.__class__.__name__, basis)
+        warn_deprecated(
+            "0.5.0",
+            old_type=DeprecatedType.CLASS,
+            old_name="qiskit_nature.properties.second_quantization.vibrational.OccupiedModals",
+            new_type=DeprecatedType.CLASS,
+            new_name="qiskit_nature.second_q.properties.OccupiedModals",
+            category=NatureDeprecationWarning,
+        )
 
     @staticmethod
     def from_hdf5(h5py_group: h5py.Group) -> OccupiedModals:

@@ -28,7 +28,12 @@ from ..second_quantized_property import LegacyDriverResult
 from .bases import ElectronicBasis
 from .integrals import ElectronicIntegrals, IntegralProperty, OneBodyElectronicIntegrals
 from .types import ElectronicProperty
-from ....deprecation import deprecate_method
+from ....deprecation import (
+    deprecate_method,
+    warn_deprecated,
+    DeprecatedType,
+    NatureDeprecationWarning,
+)
 
 # A dipole moment, when present as X, Y and Z components will normally have float values for all the
 # components. However when using Z2Symmetries, if the dipole component operator does not commute
@@ -58,6 +63,14 @@ class DipoleMoment(IntegralProperty):
         self._axis = axis
         name = self.__class__.__name__ + axis.upper()
         super().__init__(name, electronic_integrals, shift=shift)
+        warn_deprecated(
+            "0.5.0",
+            old_type=DeprecatedType.CLASS,
+            old_name="qiskit_nature.properties.second_quantization.electronic.DipoleMoment",
+            new_type=DeprecatedType.CLASS,
+            new_name="qiskit_nature.second_q.properties.DipoleMoment",
+            category=NatureDeprecationWarning,
+        )
 
     @property
     def axis(self) -> str:
@@ -158,6 +171,14 @@ class ElectronicDipoleMoment(GroupedProperty[DipoleMoment], ElectronicProperty):
                 needs to be reversed in order to match the nuclear dipole moment direction.
         """
         super().__init__(self.__class__.__name__)
+        warn_deprecated(
+            "0.5.0",
+            old_type=DeprecatedType.CLASS,
+            old_name="qiskit_nature.properties.second_quantization.electronic.ElectronicDipoleMoment",
+            new_type=DeprecatedType.CLASS,
+            new_name="qiskit_nature.second_q.properties.ElectronicDipoleMoment",
+            category=NatureDeprecationWarning,
+        )
         self._dipole_shift = dipole_shift
         self._nuclear_dipole_moment = nuclear_dipole_moment
         self._reverse_dipole_sign = reverse_dipole_sign
