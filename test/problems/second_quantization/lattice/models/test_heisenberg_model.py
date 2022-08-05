@@ -34,8 +34,8 @@ class TestHeisenbergModel(QiskitNatureTestCase):
         lattice = Lattice(graph)
         ism_lattice = Lattice(ism_graph)
         heisenberg_model = HeisenbergModel(lattice)
-        J = (0.0, 0.0, 1.0)
-        B = (1.0, 0.0, 0.0)
+        J = (0.0, 0.0, -1.0)
+        B = (-1.0, 0.0, 0.0)
         hm_to_ism = HeisenbergModel(ism_lattice, J, B)
         ism = IsingModel(ism_lattice)
 
