@@ -17,34 +17,12 @@ I/O Formats (:mod:`qiskit_nature.second_q.formats`)
 
 .. currentmodule:: qiskit_nature.second_q.formats
 
+Submodules
+==========
+
+.. autosummary::
+   :toctree:
+
+   qcschema
+
 """
-
-from .qcschema import (
-    QCBasisSet,
-    QCCenterData,
-    QCECPPotential,
-    QCElectronShell,
-    QCError,
-    QCModel,
-    QCProperties,
-    QCProvenance,
-    QCSchema,
-    QCSchemaInput,
-    QCTopology,
-    QCWavefunction,
-)
-
-__all__ = [
-    "QCBasisSet",
-    "QCCenterData",
-    "QCECPPotential",
-    "QCElectronShell",
-    "QCError",
-    "QCModel",
-    "QCProperties",
-    "QCProvenance",
-    "QCSchema",
-    "QCSchemaInput",
-    "QCTopology",
-    "QCWavefunction",
-]
