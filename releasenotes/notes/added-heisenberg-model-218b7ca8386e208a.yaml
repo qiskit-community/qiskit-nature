@@ -20,7 +20,7 @@ features:
       J = (0.0, 0.0, -1.0)
       B = (1.0, 0.0, 0.0)
 
-      ising_model_hm = HeisenbergModel(lattice = line_lattice)
-      print(ising_model_hm.second_q_ops(J=J, B=B))
+      ising_model_hm = HeisenbergModel(lattice = line_lattice, J = J, B = B)
+      print(ising_model_hm.second_q_ops())
       # Output: Z_0 Z_1 * (1+0j) + X_0 * (1+0j) + X_1 * (1+0j)
 

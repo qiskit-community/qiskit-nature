@@ -27,21 +27,26 @@ class HeisenbergModel(LatticeModel):
     """The Heisenberg model."""
 
     def __init__(
-        self,
-        lattice: Lattice
+        self, lattice: Lattice, J: Tuple = (1.0, 1.0, 1.0), B: Tuple = (0.0, 0.0, 0.0)
     ) -> None:
         """
         Args:
             lattice: Lattice on which the model is defined.
+            J (Tuple, optional): Coupling constants. Defaults to (1.0, 1.0, 1.0).
+            B (Tuple, optional): External magnetic field. Defaults to (0.0, 0.0, 0.0).
         """
         super().__init__(lattice)
-    
+        self.J = J
+        self.B = B
+
     def coupling_matrix(self) -> np.ndarray:
         """Return the coupling matrix."""
         return self.interaction_matrix()
-        
+
     @classmethod
-    def uniform_parameters(cls, lattice: Lattice, uniform_interaction: complex, uniform_onsite_potential: complex) -> "HeisenbergModel":
+    def uniform_parameters(
+        cls, lattice: Lattice, uniform_interaction: complex, uniform_onsite_potential: complex
+    ) -> "HeisenbergModel":
         """Set a uniform interaction parameter and on-site potential over the input lattice.
 
         Args:
@@ -52,8 +57,12 @@ class HeisenbergModel(LatticeModel):
         Returns:
             HeisenbergModel: The Heisenberg model with uniform parameters.
         """
-        return cls(cls._generate_lattice_from_uniform_parameters(lattice, uniform_interaction, uniform_onsite_potential))
-    
+        return cls(
+            cls._generate_lattice_from_uniform_parameters(
+                lattice, uniform_interaction, uniform_onsite_potential
+            )
+        )
+
     @classmethod
     def from_parameters(cls, interaction_matrix: np.ndarray) -> "HeisenbergModel":
         """Return the Hamiltonian of the Heisenberg model
@@ -70,15 +79,11 @@ class HeisenbergModel(LatticeModel):
 
     def second_q_ops(
         self,
-        J: Tuple = (1.0, 1.0, 1.0),
-        B: Tuple = (0.0, 0.0, 0.0),
         display_format: Optional[str] = None,
     ) -> SpinOp:
         """Return the Hamiltonian of the Heisenberg model in terms of `SpinOp`.
 
         Args:
-            J (Tuple, optional): Coupling constants. Defaults to (1.0, 1.0, 1.0).
-            B (Tuple, optional): External magnetic field. Defaults to (0.0, 0.0, 0.0).
             display_format (Optional[str], optional): Not supported for Spin operators. If specified, it will be ignored. Defaults to None.
 
         Returns:
@@ -98,26 +103,20 @@ class HeisenbergModel(LatticeModel):
 
             if node_a == node_b:
                 index = node_a
-                if B[0] != 0:
-                    hamiltonian.append((f"X_{index}", B[0]))
-                if B[1] != 0:
-                    hamiltonian.append((f"Y_{index}", B[1]))
-                if B[2] != 0:
-                    hamiltonian.append((f"Z_{index}", B[2]))
+                if self.B[0] != 0:
+                    hamiltonian.append((f"X_{index}", self.B[0]))
+                if self.B[1] != 0:
+                    hamiltonian.append((f"Y_{index}", self.B[1]))
+                if self.B[2] != 0:
+                    hamiltonian.append((f"Z_{index}", self.B[2]))
             else:
                 index_left = node_a
                 index_right = node_b
-                if J[0] != 0:
-                    hamiltonian.append(
-                            (f"X_{index_left} X_{index_right}", J[0])
-                        )
-                if J[1] != 0:
-                    hamiltonian.append(
-                            (f"Y_{index_left} Y_{index_right}", J[1])
-                        )
-                if J[2] != 0:
-                    hamiltonian.append(
-                        (f"Z_{index_left} Z_{index_right}", J[2])
-                    )
+                if self.J[0] != 0:
+                    hamiltonian.append((f"X_{index_left} X_{index_right}", self.J[0]))
+                if self.J[1] != 0:
+                    hamiltonian.append((f"Y_{index_left} Y_{index_right}", self.J[1]))
+                if self.J[2] != 0:
+                    hamiltonian.append((f"Z_{index_left} Z_{index_right}", self.J[2]))
 
         return SpinOp(hamiltonian, spin=Fraction(1, 2), register_length=register_length)

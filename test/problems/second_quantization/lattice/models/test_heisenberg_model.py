@@ -36,7 +36,7 @@ class TestHeisenbergModel(QiskitNatureTestCase):
         heisenberg_model = HeisenbergModel(lattice)
         J = (0.0, 0.0, 1.0)
         B = (1.0, 0.0, 0.0)
-        hm_to_ism = HeisenbergModel(ism_lattice)
+        hm_to_ism = HeisenbergModel(ism_lattice, J, B)
         ism = IsingModel(ism_lattice)
 
         with self.subTest("Check the graph."):
@@ -57,5 +57,5 @@ class TestHeisenbergModel(QiskitNatureTestCase):
 
             self.assertSetEqual(
                 set(ism.second_q_ops().to_list()),
-                set(hm_to_ism.second_q_ops(J,B).to_list()),
+                set(hm_to_ism.second_q_ops().to_list()),
             )
