@@ -166,8 +166,8 @@ class TestSUCCD(QiskitNatureTestCase):
             ],
         ),
     )
-    def test_succ_full(self, num_spin_orbitals, num_particles, expect):
-        """Tests the SUCCD_full Ansatz."""
+    def test_succ_mirror(self, num_spin_orbitals, num_particles, expect):
+        """Tests the succ_mirror Ansatz."""
         converter = QubitConverter(JordanWignerMapper())
 
         ansatz = SUCCD(
@@ -229,10 +229,10 @@ class TestSUCCD(QiskitNatureTestCase):
             ],
         ),
     )
-    def test_succ_full_with_singles(
+    def test_succ_mirror_with_singles(
         self, num_spin_orbitals, num_particles, include_singles, expect
     ):
-        """Tests the SUCCD_full Ansatz with included single excitations."""
+        """Tests the succ_mirror Ansatz with included single excitations."""
         converter = QubitConverter(JordanWignerMapper())
 
         ansatz = SUCCD(
@@ -256,17 +256,21 @@ class TestSUCCD(QiskitNatureTestCase):
                     [("+-I+I-", 1j), ("-+I-I+", (-0 - 1j)), ("+I-+-I", 1j), ("-I+-+I", (-0 - 1j))],
                     display_format="dense",
                 ),
-                FermionicOp([("+-II+-", 1j), ("-+II-+", (-0 - 1j))], display_format="dense"),
+                FermionicOp(
+                    [("+-II+-", 1j), ("-+II-+", (-0 - 1j)), ("I+-+-I", 1j), ("I-+-+I", (-0 - 1j))],
+                    display_format="dense",
+                ),
                 FermionicOp([("+I-+I-", 1j), ("-I+-I+", (-0 - 1j))], display_format="dense"),
-                FermionicOp([("+I-I+-", 1j), ("-I+I-+", (-0 - 1j))], display_format="dense"),
-                FermionicOp([("I+-+-I", 1j), ("I-+-+I", (-0 - 1j))], display_format="dense"),
-                FermionicOp([("I+-+I-", 1j), ("I-+-I+", (-0 - 1j))], display_format="dense"),
+                FermionicOp(
+                    [("+I-I+-", 1j), ("-I+I-+", (-0 - 1j)), ("I+-+I-", 1j), ("I-+-I+", (-0 - 1j))],
+                    display_format="dense",
+                ),
                 FermionicOp([("I+-I+-", 1j), ("I-+I-+", (-0 - 1j))], display_format="dense"),
             ],
         )
     )
-    def test_succ_full_ansatz_generalized(self, num_spin_orbitals, num_particles, expect):
-        """Tests the generalized SUCC_full Ansatz."""
+    def test_succ_mirror_ansatz_generalized(self, num_spin_orbitals, num_particles, expect):
+        """Tests the generalized succ_mirror Ansatz."""
         converter = QubitConverter(JordanWignerMapper())
 
         ansatz = SUCCD(
