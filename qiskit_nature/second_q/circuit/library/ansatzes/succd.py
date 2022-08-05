@@ -119,9 +119,8 @@ class SUCCD(UCC):
         self._mirror = mirror
 
     def _filter_operators(self, operators):
-        excitation_dict = self._excitations_dict
         valid_operators, valid_excitations = [], []
-        for op, ex in zip(operators, excitation_dict.values()):
+        for op, ex in zip(operators, self._excitation_dict.values()):
             if op is not None:
                 valid_operators.append(op)
                 valid_excitations += ex
