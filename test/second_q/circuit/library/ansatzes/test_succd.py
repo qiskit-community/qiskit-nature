@@ -167,7 +167,7 @@ class TestSUCCD(QiskitNatureTestCase):
         ),
     )
     def test_succ_mirror(self, num_spin_orbitals, num_particles, expect):
-        """Tests the succ_mirror Ansatz."""
+        """Tests the `mirror` option of the SUCCD Ansatz."""
         converter = QubitConverter(JordanWignerMapper())
 
         ansatz = SUCCD(
