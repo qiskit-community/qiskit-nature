@@ -69,13 +69,13 @@ rst_prolog = """
 nbsphinx_prolog = """
 {% set docname = env.doc2path(env.docname, base=None) %}
 .. only:: html
-    
+
     .. role:: raw-html(raw)
         :format: html
-    
+
     .. note::
         This page was generated from `docs/{{ docname }}`__.
-        
+
         __"""
 
 vers = version.split(".")
@@ -98,7 +98,7 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.viewcode",
     "sphinx.ext.extlinks",
-    "sphinx_panels",
+    "sphinx_design",
     "jupyter_sphinx",
     "sphinx_autodoc_typehints",
     "reno.sphinxext",
@@ -148,7 +148,7 @@ numfig_format = {"table": "Table %s"}
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = "en"
 
 # For Adding Locale
 locale_dirs = ["locale/"]  # path is example but recommended.

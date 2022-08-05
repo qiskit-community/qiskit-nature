@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018, 2021.
+# (C) Copyright IBM 2018, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -157,6 +157,17 @@ from .hdf5d import HDF5Driver
 from .psi4d import PSI4Driver
 from .pyquanted import PyQuanteDriver, BasisType
 from .pyscfd import PySCFDriver, InitialGuess
+from ...deprecation import warn_deprecated, DeprecatedType, NatureDeprecationWarning
+
+warn_deprecated(
+    "0.5.0",
+    old_type=DeprecatedType.PACKAGE,
+    old_name="qiskit_nature.drivers.second_quantization",
+    new_type=DeprecatedType.PACKAGE,
+    new_name="qiskit_nature.second_q.drivers",
+    stack_level=3,
+    category=NatureDeprecationWarning,
+)
 
 __all__ = [
     "ElectronicStructureMoleculeDriver",

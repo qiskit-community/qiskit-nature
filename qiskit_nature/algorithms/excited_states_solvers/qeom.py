@@ -77,6 +77,17 @@ class QEOM(ExcitedStatesSolver):
             )
         self._excitations = excitations
 
+    @property
+    def solver(self):
+        return self._gsc.solver
+
+    def get_qubit_operators(
+        self,
+        problem: BaseProblem,
+        aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+    ) -> Tuple[PauliSumOp, Optional[ListOrDictType[PauliSumOp]]]:
+        return self._gsc.get_qubit_operators(problem, aux_operators)
+
     def solve(
         self,
         problem: BaseProblem,

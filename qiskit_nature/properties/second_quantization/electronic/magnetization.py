@@ -25,7 +25,12 @@ from qiskit_nature.results import EigenstateResult
 
 from ..second_quantized_property import LegacyDriverResult
 from .types import ElectronicProperty
-from ....deprecation import deprecate_method
+from ....deprecation import (
+    deprecate_method,
+    warn_deprecated,
+    DeprecatedType,
+    NatureDeprecationWarning,
+)
 
 
 class Magnetization(ElectronicProperty):
@@ -38,6 +43,14 @@ class Magnetization(ElectronicProperty):
         """
         super().__init__(self.__class__.__name__)
         self._num_spin_orbitals = num_spin_orbitals
+        warn_deprecated(
+            "0.5.0",
+            old_type=DeprecatedType.CLASS,
+            old_name="qiskit_nature.properties.second_quantization.electronic.Magnetization",
+            new_type=DeprecatedType.CLASS,
+            new_name="qiskit_nature.second_q.properties.Magnetization",
+            category=NatureDeprecationWarning,
+        )
 
     @property
     def num_spin_orbitals(self) -> int:
@@ -79,7 +92,7 @@ class Magnetization(ElectronicProperty):
         Returns:
             A new instance of this class.
         """
-        return Magnetization(h5py_group.attrs["num_spin_orbitals"])
+        return Magnetization(int(h5py_group.attrs["num_spin_orbitals"]))
 
     @classmethod
     @deprecate_method("0.4.0")

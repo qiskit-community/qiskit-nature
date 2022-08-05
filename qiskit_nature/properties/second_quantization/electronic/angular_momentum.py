@@ -34,7 +34,13 @@ from .integrals import (
     TwoBodyElectronicIntegrals,
 )
 from .types import ElectronicProperty
-from ....deprecation import deprecate_method
+from ....deprecation import (
+    deprecate_method,
+    warn_deprecated,
+    DeprecatedType,
+    NatureDeprecationWarning,
+)
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -67,6 +73,14 @@ class AngularMomentum(ElectronicProperty):
         self._spin = spin
         self._absolute_tolerance = absolute_tolerance
         self._relative_tolerance = relative_tolerance
+        warn_deprecated(
+            "0.5.0",
+            old_type=DeprecatedType.CLASS,
+            old_name="qiskit_nature.properties.second_quantization.electronic.AngularMomentum",
+            new_type=DeprecatedType.CLASS,
+            new_name="qiskit_nature.second_q.properties.AngularMomentum",
+            category=NatureDeprecationWarning,
+        )
 
     @property
     def num_spin_orbitals(self) -> int:
@@ -145,7 +159,7 @@ class AngularMomentum(ElectronicProperty):
             A new instance of this class.
         """
         return AngularMomentum(
-            h5py_group.attrs["num_spin_orbitals"],
+            int(h5py_group.attrs["num_spin_orbitals"]),
             h5py_group.attrs.get("spin", None),
             h5py_group.attrs["absolute_tolerance"],
             h5py_group.attrs["relative_tolerance"],

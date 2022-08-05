@@ -11,8 +11,6 @@
 # that they have been altered from the originals.
 
 """The Fermi-Hubbard model"""
-from typing import Optional
-
 import numpy as np
 
 from qiskit_nature.operators.second_quantization import FermionicOp

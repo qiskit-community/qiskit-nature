@@ -1,0 +1,20 @@
+features:
+  - |
+    The solver of :class:`~qiskit_nature.algorithms.pes_samplers.BOPESSampler` now accepts solvers of type
+    `Union[GroundStateSolver,ExcitedStatesSolver]` instead of only a `GroundStateSolver`. 
+    This generalizes to excited states the sampling 
+    of nuclear coordinates for Born Oppenheimer Potential Energy Surfaces.
+    Adds the `get_qubit_operators()` in :class:`qiskit_nature.algorithms.ExcitedStatesEigensolver`.
+    This matches the format of :class:`qiskit_nature.algorithms.GroundStateEigensolver`.
+    BOPESSampler now also accepts auxiliary operators to pass to the solver.
+    Geometry-dependent observable can also be defined as auxiliaries.
+    See the `Sampling the potential energy surface <tutorials/05_Sampling_potential_energy_surfaces.ipynb>`_ tutorial
+    for a demonstration of how to use this calculation of excited state Born Oppenheimer potential energy surfaces.
+deprecations:
+  - |
+    The argument `gss` of the constructor of :class:`~qiskit_nature.algorithms.pes_samplers.BOPESSampler` was deprecated 
+    and replaced by `state_solver` to match the extension of this class to 
+    :class:`qiskit_nature.algorithms.ExcitedStatesEigensolver`. 
+    Now the constructor has the following positional argument:
+    
+    * state_solver

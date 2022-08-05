@@ -32,5 +32,16 @@ from .initial_point import InitialPoint
 from .hf_initial_point import HFInitialPoint
 from .mp2_initial_point import MP2InitialPoint
 from .vscf_initial_point import VSCFInitialPoint
+from ...deprecation import warn_deprecated, DeprecatedType, NatureDeprecationWarning
+
+warn_deprecated(
+    "0.5.0",
+    old_type=DeprecatedType.PACKAGE,
+    old_name="qiskit_nature.algorithms.initial_points",
+    new_type=DeprecatedType.PACKAGE,
+    new_name="qiskit_nature.second_q.algorithms.initial_points",
+    stack_level=3,
+    category=NatureDeprecationWarning,
+)
 
 __all__ = ["InitialPoint", "HFInitialPoint", "MP2InitialPoint", "VSCFInitialPoint"]

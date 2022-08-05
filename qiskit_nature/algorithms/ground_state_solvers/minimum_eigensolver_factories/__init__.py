@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -36,6 +36,17 @@ from .minimum_eigensolver_factory import MinimumEigensolverFactory
 from .numpy_minimum_eigensolver_factory import NumPyMinimumEigensolverFactory
 from .vqe_ucc_factory import VQEUCCFactory
 from .vqe_uvcc_factory import VQEUVCCFactory
+from ....deprecation import warn_deprecated, DeprecatedType, NatureDeprecationWarning
+
+warn_deprecated(
+    "0.5.0",
+    old_type=DeprecatedType.PACKAGE,
+    old_name="qiskit_nature.algorithms.ground_state_solvers.minimum_eigensolver_factories",
+    new_type=DeprecatedType.PACKAGE,
+    new_name="qiskit_nature.second_q.algorithms.ground_state_solvers.minimum_eigensolver_factories",
+    stack_level=3,
+    category=NatureDeprecationWarning,
+)
 
 __all__ = [
     "MinimumEigensolverFactory",

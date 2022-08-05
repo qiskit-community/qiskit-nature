@@ -12,6 +12,7 @@
 
 """The minimum eigensolver factory for ground state calculation algorithms."""
 
+import logging
 from typing import Optional, Union, Callable, cast
 import numpy as np
 
@@ -29,31 +30,70 @@ from qiskit_nature.problems.second_quantization.vibrational import (
 from qiskit_nature.properties.second_quantization.vibrational import (
     VibrationalStructureDriverResult,
 )
+from qiskit_nature.deprecation import deprecate_property, deprecate_positional_arguments
 
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 from ...initial_points import InitialPoint, VSCFInitialPoint
 
+logger = logging.getLogger(__name__)
+
 
 class VQEUVCCFactory(MinimumEigensolverFactory):
-    """A factory to construct a VQE minimum eigensolver with UVCCSD ansatz wavefunction."""
+    """Factory to construct a :class:`VQE` minimum eigensolver with :class:`UVCCSD` ansatz
+    wavefunction.
 
+    .. note::
+
+       Any ansatz a user might directly set into VQE via the :attr:`minimum_eigensolver` will
+       be overwritten by the factory when producing a solver via :meth:`get_solver`. This is
+       due to the fact that the factory is designed to manage the ansatz and set it up according
+       to the problem. Always pass any custom ansatz to be used when constructing the factory or
+       by using its :attr:`ansatz` setter. The following code sample illustrates this behavior:
+
+    .. code-block:: python
+
+        from qiskit_nature.algorithms import VQEUVCCFactory
+        from qiskit_nature.circuit.library import UVCCSD, UVCC
+        factory = VQEUVCCFactory()
+        vqe1 = factory.get_solver(problem, qubit_converter)
+        print(type(vqe1.ansatz))  # UVCC()
+        # Here the minimum_eigensolver ansatz just gets overwritten
+        factory.minimum_eigensolver.ansatz = UVCC()
+        vqe2 = factory.get_solver(problem, qubit_converter)
+        print(type(vqe2.ansatz))  # UVCCSD
+        # Here we change the factory ansatz and thus new VQEs are created with the new ansatz
+        factory.ansatz = UVCC()
+        vqe3 = factory.get_solver(problem, qubit_converter)
+        print(type(vqe3.ansatz))  # UVCC
+
+    """
+
+    @deprecate_positional_arguments(
+        version="0.4",
+        func_name="VQEUVCCFactory Constructor",
+        old_function_arguments=[
+            "self",
+            "quantum_instance",
+            "optimizer",
+            "initial_point",
+            "gradient",
+            "expectation",
+            "include_custom",
+            "ansatz",
+            "initial_state",
+            "callback",
+        ],
+        stack_level=5,
+    )
     def __init__(
         self,
-        quantum_instance: QuantumInstance,
-        optimizer: Optional[Optimizer] = None,
         initial_point: Optional[Union[np.ndarray, InitialPoint]] = None,
-        gradient: Optional[Union[GradientBase, Callable]] = None,
-        expectation: Optional[ExpectationBase] = None,
-        include_custom: bool = False,
         ansatz: Optional[UVCC] = None,
         initial_state: Optional[QuantumCircuit] = None,
-        callback: Optional[Callable[[int, np.ndarray, float, float], None]] = None,
         **kwargs,
     ) -> None:
         """
         Args:
-            quantum_instance: The quantum instance used in the minimum eigensolver.
-            optimizer: A classical optimizer.
             initial_point: An optional initial point (i.e., initial parameter values for the VQE
                 optimizer). If ``None`` then VQE will use an all-zero initial point of the
                 appropriate length computed using
@@ -63,101 +103,111 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
                 :class:`~qiskit_nature.algorithms.initial_points.initial_point.InitialPoint`
                 instance, this is used to compute an initial point for the VQE ansatz parameters.
                 If a user-provided NumPy array, this is used directly.
-            gradient: An optional gradient function or operator for optimizer.
-            expectation: The Expectation converter for taking the average value of the
-                Observable over the ansatz state function. When ``None`` (the default) an
-                :class:`~qiskit.opflow.expectations.ExpectationFactory` is used to select
-                an appropriate expectation based on the operator and backend. When using Aer
-                qasm_simulator backend, with paulis, it is however much faster to leverage custom
-                Aer function for the computation but, although VQE performs much faster
-                with it, the outcome is ideal, with no shot noise, like using a state vector
-                simulator. If you are just looking for the quickest performance when choosing Aer
-                qasm_simulator and the lack of shot noise is not an issue then set `include_custom`
-                parameter here to ``True`` (defaults to ``False``).
-            include_custom: When `expectation` parameter here is None setting this to ``True`` will
-                allow the factory to include the custom Aer pauli expectation.
-            ansatz: Allows specification of a custom :class:`~.UVCC` instance. If this is never
-                set by the user, the factory will default to the :class:`~.UVCCSD` Ansatz.
             initial_state: Allows specification of a custom `QuantumCircuit` to be used as the
                 initial state of the ansatz. If this is never set by the user, the factory will
                 default to the :class:`~.VSCF` state.
-            callback: a callback that can access the intermediate data during the optimization.
-                Four parameter values are passed to the callback as follows during each evaluation
-                by the optimizer for its current set of parameters as it works towards the minimum.
-                These are: the evaluation count, the optimizer parameters for the
-                ansatz, the evaluated mean and the evaluated standard deviation.`
-            kwargs: any additional keyword arguments will be passed on to the VQE.
+            ansatz: Allows specification of a custom :class:`~.UCC` instance. This defaults to None
+                where the factory will internally create and use a :class:`~.UVCCSD` ansatz.
+            kwargs: Remaining keyword arguments are passed to the :class:`VQE`.
         """
-        self.quantum_instance = quantum_instance
-        self.optimizer = optimizer
-        self.initial_point = initial_point if initial_point is not None else VSCFInitialPoint()
-        self.gradient = gradient
-        self.expectation = expectation
-        self.include_custom = include_custom
-        self.ansatz = ansatz
-        self.initial_state = initial_state
-        self.callback = callback
-        self._kwargs = kwargs
 
-    @property
+        self._initial_state = initial_state
+        self._initial_point = initial_point if initial_point is not None else VSCFInitialPoint()
+        self._ansatz = ansatz
+
+        self._vqe = VQE(**kwargs)
+
+    @property  # type: ignore
+    @deprecate_property("0.4", additional_msg="Use `minimum_eigensolver.quantum_instance` instead.")
     def quantum_instance(self) -> QuantumInstance:
-        """Getter of the quantum instance."""
-        return self._quantum_instance
+        """DEPRECATED. Use ``minimum_eigensolver.quantum_instance`` instead.
+        Returns quantum instance."""
+        return self.minimum_eigensolver.quantum_instance
 
-    @quantum_instance.setter
+    @quantum_instance.setter  # type: ignore
+    @deprecate_property(
+        "0.4", additional_msg="Use `minimum_eigensolver.quantum_instance = q_instance` instead."
+    )
     def quantum_instance(self, q_instance: QuantumInstance) -> None:
-        """Setter of the quantum instance."""
-        self._quantum_instance = q_instance
+        """DEPRECATED. Use `minimum_eigensolver.quantum_instance` instead. Sets the quantum instance."""
+        self.minimum_eigensolver.quantum_instance = q_instance
 
-    @property
+    @property  # type: ignore
+    @deprecate_property("0.4", additional_msg="Use `minimum_eigensolver.optimizer` instead.")
     def optimizer(self) -> Optional[Optimizer]:
-        """Getter of the optimizer."""
-        return self._optimizer
+        """DEPRECATED. Use ``minimum_eigensolver.optimizer``  instead.
+        Returns optimizer."""
+        return self.minimum_eigensolver.optimizer
 
-    @optimizer.setter
+    @optimizer.setter  # type: ignore
+    @deprecate_property(
+        "0.4", additional_msg="Use `minimum_eigensolver.optimizer = optimizer` instead."
+    )
     def optimizer(self, optimizer: Optional[Optimizer]) -> None:
-        """Setter of the optimizer."""
-        self._optimizer = optimizer
+        """DEPRECATED. Use `minimum_eigensolver.optimizer = optimizer` instead. Sets the optimizer."""
+        self.minimum_eigensolver.optimizer = optimizer
 
-    @property
+    @property  # type: ignore
+    @deprecate_property("0.4", additional_msg="Use `minimum_eigensolver.gradient` instead.")
     def gradient(self) -> Optional[Union[GradientBase, Callable]]:
-        """Getter of the gradient function"""
-        return self._gradient
+        """DEPRECATED. Use ``minimum_eigensolver.gradient`` instead.
+        Returns gradient."""
+        return self.minimum_eigensolver.gradient
 
-    @gradient.setter
+    @gradient.setter  # type: ignore
+    @deprecate_property(
+        "0.4", additional_msg="Use `minimum_eigensolver.gradient = gradient` instead."
+    )
     def gradient(self, gradient: Optional[Union[GradientBase, Callable]]) -> None:
-        """Setter of the gradient function"""
-        self._gradient = gradient
+        """DEPRECATED. Use `minimum_eigensolver.gradient = gradient` instead. Sets the gradient."""
+        self.minimum_eigensolver.gradient = gradient
 
-    @property
+    @property  # type: ignore
+    @deprecate_property("0.4", additional_msg="Use `minimum_eigensolver.expectation` instead.")
     def expectation(self) -> Optional[ExpectationBase]:
-        """Getter of the expectation."""
-        return self._expectation
+        """DEPRECATED. Use ``minimum_eigensolver.expectation`` instead.
+        Returns expectation."""
+        return self.minimum_eigensolver.expectation
 
-    @expectation.setter
+    @expectation.setter  # type: ignore
+    @deprecate_property(
+        "0.4", additional_msg="Use `minimum_eigensolver.expectation = expectation` instead."
+    )
     def expectation(self, expectation: Optional[ExpectationBase]) -> None:
-        """Setter of the expectation."""
-        self._expectation = expectation
+        """DEPRECATED. Use `minimum_eigensolver.expectation = expectation` instead. Sets expectation."""
+        self.minimum_eigensolver.expectation = expectation
 
-    @property
+    @property  # type: ignore
+    @deprecate_property("0.4", additional_msg="Use `minimum_eigensolver.include_custom` instead.")
     def include_custom(self) -> bool:
-        """Getter of the ``include_custom`` setting for the ``expectation`` setting."""
-        return self._include_custom
+        """DEPRECATED. Use ``minimum_eigensolver.include_custom`` instead.
+        Getter of the ``include_custom`` setting for the ``expectation`` setting."""
+        return self.minimum_eigensolver.include_custom
 
-    @include_custom.setter
+    @include_custom.setter  # type: ignore
+    @deprecate_property(
+        "0.4", additional_msg="Use `minimum_eigensolver.include_custom = include_custom` instead."
+    )
     def include_custom(self, include_custom: bool) -> None:
-        """Setter of the ``include_custom`` setting for the ``expectation`` setting."""
-        self._include_custom = include_custom
+        """DEPRECATED. Use `minimum_eigensolver.include_custom = include_custom` instead.
+        Setter of the ``include_custom``
+        setting for the ``expectation`` setting."""
+        self.minimum_eigensolver.include_custom = include_custom
 
     @property
     def ansatz(self) -> Optional[UVCC]:
-        """Getter of the ansatz."""
+        """
+        Gets the user provided ansatz of future VQEs produced by the factory.
+        If value is ``None`` it defaults to :class:`~.UVCCSD`.
+        """
         return self._ansatz
 
     @ansatz.setter
     def ansatz(self, ansatz: Optional[UVCC]) -> None:
-        """Setter of the ansatz. If ``None`` is passed, this factory will default to using the
-        :class:`~.UVCCSD` Ansatz."""
+        """
+        Sets the ansatz of future VQEs produced by the factory.
+        If set to ``None`` it defaults to :class:`~.UVCCSD`.
+        """
         self._ansatz = ansatz
 
     @property
@@ -167,26 +217,43 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
 
     @initial_state.setter
     def initial_state(self, initial_state: Optional[QuantumCircuit]) -> None:
-        """Setter of the initial state. If ``None`` is passed, this factory will default to using
-        the :class:`~.VSCF`."""
+        """
+        Setter of the initial state.
+        If ``None`` is passed, this factory will default to using the :class:`~.VSCF`.
+        """
         self._initial_state = initial_state
 
     @property
+    def initial_point(self) -> Optional[Union[np.ndarray, InitialPoint]]:
+        """
+        Gets the initial point of future VQEs produced by the factory.
+        """
+        return self._initial_point
+
+    @initial_point.setter
+    def initial_point(self, initial_point: Optional[Union[np.ndarray, InitialPoint]]) -> None:
+        """Sets the initial point of future VQEs produced by the factory."""
+        self._initial_point = initial_point
+
+    @property  # type: ignore
+    @deprecate_property("0.4", additional_msg="Use `minimum_eigensolver.callback` instead.")
     def callback(self) -> Optional[Callable[[int, np.ndarray, float, float], None]]:
         """Returns the callback."""
-        return self._callback
+        return self.minimum_eigensolver.callback
 
-    @callback.setter
+    @callback.setter  # type: ignore
+    @deprecate_property("0.4", additional_msg="Use the constructor instead.")
     def callback(self, callback: Optional[Callable[[int, np.ndarray, float, float], None]]) -> None:
-        """Sets the callback."""
-        self._callback = callback
+        """DEPRECATED. Use the constructor instead.
+        Sets the callback."""
+        self.minimum_eigensolver.callback = callback
 
     def get_solver(  # type: ignore[override]
         self,
         problem: VibrationalStructureProblem,
         qubit_converter: QubitConverter,
     ) -> MinimumEigensolver:
-        """Returns a VQE with a UVCCSD wavefunction ansatz, based on ``qubit_converter``.
+        """Returns a VQE with a :class:`~.UVCCSD` wavefunction ansatz, based on ``qubit_converter``.
 
         Args:
             problem: a class encoding a problem to be solved.
@@ -208,7 +275,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         if initial_state is None:
             initial_state = VSCF(num_modals)
 
-        ansatz = self.ansatz
+        ansatz = self._ansatz
         if ansatz is None:
             ansatz = UVCCSD()
         ansatz.qubit_converter = qubit_converter
@@ -221,21 +288,14 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         else:
             initial_point = self.initial_point
 
-        # TODO: leverage re-usability of VQE after fixing
-        # https://github.com/Qiskit/qiskit-terra/issues/7093
-        vqe = VQE(
-            ansatz=ansatz,
-            quantum_instance=self.quantum_instance,
-            optimizer=self.optimizer,
-            initial_point=initial_point,
-            gradient=self.gradient,
-            expectation=self.expectation,
-            include_custom=self.include_custom,
-            callback=self.callback,
-            **self._kwargs,
-        )
-
-        return vqe
+        self.minimum_eigensolver.initial_point = initial_point
+        self.minimum_eigensolver.ansatz = ansatz
+        return self.minimum_eigensolver
 
     def supports_aux_operators(self):
         return VQE.supports_aux_operators()
+
+    @property
+    def minimum_eigensolver(self) -> VQE:
+        """Returns the solver instance."""
+        return self._vqe

@@ -205,6 +205,7 @@ interatomic
 internuclear
 interpretable
 ints
+isclose
 ising
 iso
 isoleucine
@@ -360,6 +361,7 @@ preprint
 preprocesses
 proline
 ps
+pseudorandom
 pxd
 py
 pyquante
@@ -510,6 +512,7 @@ verbatim
 versa
 vibrational
 vibrationalop
+vibrationalops
 vibro
 vmax
 vmin

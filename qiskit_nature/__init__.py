@@ -44,18 +44,9 @@ Submodules
 .. autosummary::
    :toctree:
 
-   algorithms
-   circuit
-   converters
-   drivers
    hdf5
-   mappers
-   operators
-   problems
-   properties
-   results
-   runtime
-   transformers
+   second_q
+   utils
 
 """
 
@@ -67,10 +58,11 @@ from .exceptions import QiskitNatureError, UnsupportMethodError
 from .logging import logging
 from .settings import settings
 from .version import __version__
-
+from .list_or_dict import ListOrDict
 
 __all__ = [
     "__version__",
+    "ListOrDict",
     "ListOrDictType",
     "QiskitNatureError",
     "UnsupportMethodError",

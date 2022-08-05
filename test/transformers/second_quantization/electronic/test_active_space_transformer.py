@@ -432,6 +432,31 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
             )
         )
 
+    def test_numpy_integer(self):
+        """Tests that numpy integer objects do not cause issues in `isinstance` checks.
+
+        This is a regression test against the fix applied by
+        https://github.com/Qiskit/qiskit-nature/pull/712
+        """
+        driver = HDF5Driver(
+            hdf5_input=self.get_resource_path(
+                "H2_631g.hdf5", "transformers/second_quantization/electronic"
+            )
+        )
+        driver_result = driver.run()
+
+        particle_number = driver_result.get_property("ParticleNumber")
+        particle_number.num_alpha = np.int64(particle_number.num_alpha)
+        particle_number.num_beta = np.int64(particle_number.num_beta)
+        particle_number.num_spin_orbitals = np.int64(particle_number.num_spin_orbitals)
+
+        driver_result.add_property(particle_number)
+
+        trafo = ActiveSpaceTransformer(
+            num_electrons=particle_number.num_particles, num_molecular_orbitals=2
+        )
+        _ = trafo.transform(driver_result)
+
 
 if __name__ == "__main__":
     unittest.main()

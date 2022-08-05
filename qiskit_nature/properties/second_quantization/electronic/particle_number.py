@@ -27,7 +27,12 @@ from qiskit_nature.results import EigenstateResult
 
 from ..second_quantized_property import LegacyDriverResult
 from .types import ElectronicProperty
-from ....deprecation import deprecate_method
+from ....deprecation import (
+    deprecate_method,
+    warn_deprecated,
+    DeprecatedType,
+    NatureDeprecationWarning,
+)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -69,6 +74,14 @@ class ParticleNumber(ElectronicProperty):
                 particle number matches the expected one.
         """
         super().__init__(self.__class__.__name__)
+        warn_deprecated(
+            "0.5.0",
+            old_type=DeprecatedType.CLASS,
+            old_name="qiskit_nature.properties.second_quantization.electronic.ParticleNumber",
+            new_type=DeprecatedType.CLASS,
+            new_name="qiskit_nature.second_q.properties.ParticleNumber",
+            category=NatureDeprecationWarning,
+        )
         self._num_spin_orbitals = num_spin_orbitals
         if isinstance(num_particles, int):
             self._num_alpha = num_particles // 2 + num_particles % 2
@@ -218,8 +231,8 @@ class ParticleNumber(ElectronicProperty):
             A new instance of this class.
         """
         return ParticleNumber(
-            h5py_group.attrs["num_spin_orbitals"],
-            (h5py_group.attrs["num_alpha"], h5py_group.attrs["num_beta"]),
+            int(h5py_group.attrs["num_spin_orbitals"]),
+            (int(h5py_group.attrs["num_alpha"]), int(h5py_group.attrs["num_beta"])),
             h5py_group["occupation_alpha"][Ellipsis],
             h5py_group["occupation_beta"][Ellipsis],
             h5py_group.attrs["absolute_tolerance"],
