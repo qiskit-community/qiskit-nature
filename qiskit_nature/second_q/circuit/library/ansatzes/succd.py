@@ -115,7 +115,7 @@ class SUCCD(UCC):
 
     @mirror.setter
     def mirror(self, mirror: bool) -> None:
-        """Sets whether include the symmetrically mirrored double excitations (SUCC_full)."""
+        """Sets whether include the symmetrically mirrored double excitations."""
         self._mirror = mirror
 
     def _filter_operators(self, operators):
