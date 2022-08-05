@@ -12,10 +12,11 @@
 
 """The Heisenberg model."""
 
+import numpy as np
 import logging
-from typing import Optional
+from typing import Optional, Tuple
 from fractions import Fraction
-from qiskit_nature.operators.second_quantization import SpinOp
+from qiskit_nature.second_q.operators import SpinOp
 from qiskit_nature.problems.second_quantization.lattice.lattices import Lattice
 from .lattice_model import LatticeModel
 
@@ -27,29 +28,59 @@ class HeisenbergModel(LatticeModel):
 
     def __init__(
         self,
-        lattice: Lattice,
-        model_constants: Optional[dict] = None,
-        ext_magnetic_field: Optional[dict] = None,
+        lattice: Lattice
     ) -> None:
         """
         Args:
             lattice: Lattice on which the model is defined.
-            model_constants: The constants that define the model.
-            ext_magnetic_field: Tell us which direction we have the external magnetic field.
         """
         super().__init__(lattice)
-        self.model_constants = model_constants
-        self.ext_magnetic_field = ext_magnetic_field
+    
+    def coupling_matrix(self) -> np.ndarray:
+        """Return the coupling matrix."""
+        return self.interaction_matrix()
+        
+    @classmethod
+    def uniform_parameters(cls, lattice: Lattice, uniform_interaction: complex, uniform_onsite_potential: complex) -> "HeisenbergModel":
+        """Set a uniform interaction parameter and on-site potential over the input lattice.
+
+        Args:
+            lattice (Lattice): Lattice on which the model is defined.
+            uniform_interaction (complex): The interaction parameter.
+            uniform_onsite_potential (complex): The on-site potential.
+
+        Returns:
+            HeisenbergModel: The Heisenberg model with uniform parameters.
+        """
+        return cls(cls._generate_lattice_from_uniform_parameters(lattice, uniform_interaction, uniform_onsite_potential))
+    
+    @classmethod
+    def from_parameters(cls, interaction_matrix: np.ndarray) -> "HeisenbergModel":
+        """Return the Hamiltonian of the Heisenberg model
+        from the given interaction matrix and on-site interaction.
+
+        Args:
+            interaction_matrix (np.ndarray): A real or complex valued squared matrix.
+
+        Returns:
+            HeisenbergModel: The Heisenberg model generated from the given interaction
+                matrix and on-site interaction.
+        """
+        return cls(cls._generate_lattice_from_parameters(interaction_matrix))
 
     def second_q_ops(
         self,
+        J: Tuple = (1.0, 1.0, 1.0),
+        B: Tuple = (0.0, 0.0, 0.0),
         display_format: Optional[str] = None,
     ) -> SpinOp:
-        """Return the Hamiltonian of the Heisenberg model in terms of 'SpinOp'.
+        """Return the Hamiltonian of the Heisenberg model in terms of `SpinOp`.
+
         Args:
-            display_format: Not supported for Spin operators. If specified, it will be ignored.
-        Raises:
-            ValueError: If model_constants or ext_magnectic_field are not None or dict type.
+            J (Tuple, optional): Coupling constants. Defaults to (1.0, 1.0, 1.0).
+            B (Tuple, optional): External magnetic field. Defaults to (0.0, 0.0, 0.0).
+            display_format (Optional[str], optional): Not supported for Spin operators. If specified, it will be ignored. Defaults to None.
+
         Returns:
             SpinOp: The Hamiltonian of the Heisenberg model.
         """
@@ -59,18 +90,6 @@ class HeisenbergModel(LatticeModel):
                 "parameter will be ignored."
             )
 
-        if self.model_constants is None or isinstance(self.model_constants, dict):
-            if self.model_constants is None:
-                self.model_constants = {"J_x": 1, "J_y": 1, "J_z": 1, "h": 0}
-        else:
-            raise ValueError("model_constants must be None or a dict.")
-
-        if self.ext_magnetic_field is None or isinstance(self.ext_magnetic_field, dict):
-            if self.ext_magnetic_field is None:
-                self.ext_magnetic_field = {"B_x": False, "B_y": False, "B_z": False}
-        else:
-            raise ValueError("ext_magnetic_field must be None or a dict.")
-
         hamiltonian = []
         weighted_edge_list = self.lattice.weighted_edge_list
         register_length = self.lattice.num_nodes
@@ -79,26 +98,26 @@ class HeisenbergModel(LatticeModel):
 
             if node_a == node_b:
                 index = node_a
-                if self.ext_magnetic_field["B_x"]:
-                    hamiltonian.append((f"X_{index}", -1 * self.model_constants["h"]))
-                if self.ext_magnetic_field["B_y"]:
-                    hamiltonian.append((f"Y_{index}", -1 * self.model_constants["h"]))
-                if self.ext_magnetic_field["B_z"]:
-                    hamiltonian.append((f"Z_{index}", -1 * self.model_constants["h"]))
+                if B[0] != 0:
+                    hamiltonian.append((f"X_{index}", B[0]))
+                if B[1] != 0:
+                    hamiltonian.append((f"Y_{index}", B[1]))
+                if B[2] != 0:
+                    hamiltonian.append((f"Z_{index}", B[2]))
             else:
                 index_left = node_a
                 index_right = node_b
-                if self.model_constants["J_x"] != 0:
+                if J[0] != 0:
                     hamiltonian.append(
-                        (f"X_{index_left} X_{index_right}", -1 * self.model_constants["J_x"])
-                    )
-                if self.model_constants["J_y"] != 0:
+                            (f"X_{index_left} X_{index_right}", J[0])
+                        )
+                if J[1] != 0:
                     hamiltonian.append(
-                        (f"Y_{index_left} Y_{index_right}", -1 * self.model_constants["J_y"])
-                    )
-                if self.model_constants["J_z"] != 0:
+                            (f"Y_{index_left} Y_{index_right}", J[1])
+                        )
+                if J[2] != 0:
                     hamiltonian.append(
-                        (f"Z_{index_left} Z_{index_right}", -1 * self.model_constants["J_z"])
+                        (f"Z_{index_left} Z_{index_right}", J[2])
                     )
 
         return SpinOp(hamiltonian, spin=Fraction(1, 2), register_length=register_length)

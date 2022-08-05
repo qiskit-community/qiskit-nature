@@ -34,9 +34,9 @@ class TestHeisenbergModel(QiskitNatureTestCase):
         lattice = Lattice(graph)
         ism_lattice = Lattice(ism_graph)
         heisenberg_model = HeisenbergModel(lattice)
-        model_constants = {"J_x": 0, "J_y": 0, "J_z": 1, "h": 1}
-        ext_magnetic_field = {"B_x": True, "B_y": False, "B_z": False}
-        hm_to_ism = HeisenbergModel(ism_lattice, model_constants, ext_magnetic_field)
+        J = (0.0, 0.0, 1.0)
+        B = (1.0, 0.0, 0.0)
+        hm_to_ism = HeisenbergModel(ism_lattice)
         ism = IsingModel(ism_lattice)
 
         with self.subTest("Check the graph."):
@@ -47,7 +47,7 @@ class TestHeisenbergModel(QiskitNatureTestCase):
             )
 
         with self.subTest("Check the second q op representation."):
-            coupling = [("X_0 X_1", -1.0), ("Y_0 Y_1", -1.0), ("Z_0 Z_1", -1.0)]
+            coupling = [("X_0 X_1", 1.0), ("Y_0 Y_1", 1.0), ("Z_0 Z_1", 1.0)]
 
             hamiltonian = coupling
 
@@ -57,5 +57,5 @@ class TestHeisenbergModel(QiskitNatureTestCase):
 
             self.assertSetEqual(
                 set(ism.second_q_ops().to_list()),
-                set(hm_to_ism.second_q_ops().to_list()),
+                set(hm_to_ism.second_q_ops(J,B).to_list()),
             )
