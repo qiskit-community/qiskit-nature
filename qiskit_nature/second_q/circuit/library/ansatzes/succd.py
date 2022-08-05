@@ -23,7 +23,7 @@ from qiskit.circuit import QuantumCircuit
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.mappers import QubitConverter
 
-from qiskit_nature.operators.second_quantization import FermionicOp
+from qiskit_nature.second_q.operators import FermionicOp
 
 from .ucc import UCC
 from .utils.fermionic_excitation_generator import (
