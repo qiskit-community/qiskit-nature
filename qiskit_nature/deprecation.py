@@ -16,8 +16,14 @@ from abc import abstractmethod
 import warnings
 import functools
 import inspect
-from typing import NamedTuple, Optional, Callable, Dict, Set, cast, Any, List
+from typing import NamedTuple, Optional, Callable, Dict, Set, cast, Any, List, Type
 from enum import Enum, EnumMeta
+
+
+class NatureDeprecationWarning(DeprecationWarning):
+    """Deprecation Category for Qiskit Nature."""
+
+    pass
 
 
 class DeprecatedEnum(Enum):
@@ -114,6 +120,7 @@ def warn_deprecated(
     new_name: Optional[str] = None,
     additional_msg: Optional[str] = None,
     stack_level: int = 2,
+    category: Type[Warning] = DeprecationWarning,
 ) -> None:
     """Emits deprecation warning the first time only
     Args:
@@ -124,6 +131,7 @@ def warn_deprecated(
         new_name: New name to be used
         additional_msg: any additional message
         stack_level: stack level
+        category: warning category
     """
     # skip if it was already added
     obj = _DeprecatedTypeName(version, old_type, old_name, new_type, new_name, additional_msg)
@@ -131,6 +139,9 @@ def warn_deprecated(
         return
 
     _DEPRECATED_OBJECTS.add(cast(NamedTuple, obj))
+    if category != DeprecationWarning:
+        # if special category, filter enabling it
+        warnings.filterwarnings("default", category=category)
 
     msg = (
         f"The {old_name} {old_type.value} is deprecated as of version {version} "
@@ -143,7 +154,7 @@ def warn_deprecated(
         msg += f" {additional_msg}"
     msg += "."
 
-    warnings.warn(msg, DeprecationWarning, stacklevel=stack_level + 1)
+    warnings.warn(msg, category=category, stacklevel=stack_level + 1)
 
 
 def warn_deprecated_same_type_name(
@@ -152,6 +163,7 @@ def warn_deprecated_same_type_name(
     new_name: str,
     additional_msg: Optional[str] = None,
     stack_level: int = 2,
+    category: Type[Warning] = DeprecationWarning,
 ) -> None:
     """Emits deprecation warning the first time only
        Used when the type and name remained the same.
@@ -161,9 +173,18 @@ def warn_deprecated_same_type_name(
         new_name: new name to be used
         additional_msg: any additional message
         stack_level: stack level
+        category: warning category
     """
+
     warn_deprecated(
-        version, new_type, new_name, new_type, new_name, additional_msg, stack_level + 1
+        version,
+        old_type=new_type,
+        old_name=new_name,
+        new_type=new_type,
+        new_name=new_name,
+        additional_msg=additional_msg,
+        stack_level=stack_level + 1,
+        category=category,
     )
 
 

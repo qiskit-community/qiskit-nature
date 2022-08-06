@@ -30,6 +30,7 @@ from qiskit_nature.problems.second_quantization import BaseProblem
 from qiskit_nature.results import EigenstateResult
 from .ground_state_solver import GroundStateSolver
 from .minimum_eigensolver_factories import MinimumEigensolverFactory
+from ...deprecation import warn_deprecated, DeprecatedType, NatureDeprecationWarning
 
 
 class GroundStateEigensolver(GroundStateSolver):
@@ -49,6 +50,14 @@ class GroundStateEigensolver(GroundStateSolver):
         """
         super().__init__(qubit_converter)
         self._solver = solver
+        warn_deprecated(
+            "0.5.0",
+            old_type=DeprecatedType.CLASS,
+            old_name="qiskit_nature.algorithms.ground_state_solvers.GroundStateEigensolver",
+            new_type=DeprecatedType.CLASS,
+            new_name="qiskit_nature.second_q.algorithms.ground_state_solvers.GroundStateEigensolver",
+            category=NatureDeprecationWarning,
+        )
 
     @property
     def solver(self) -> Union[MinimumEigensolver, MinimumEigensolverFactory]:

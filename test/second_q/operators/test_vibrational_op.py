@@ -132,6 +132,15 @@ class TestVibrationalOp(QiskitNatureTestCase):
         expected = [("+-", 2j), ("-+", -2j)]
         self.assertEqual(test_op.simplify().to_list(), expected)
 
+    def test_equiv(self):
+        """test equiv"""
+        op1 = VibrationalOp("+-", 2, 1) + VibrationalOp("-+", 2, 1)
+        op2 = VibrationalOp("+-", 2, 1)
+        op3 = VibrationalOp("+-", 2, 1) + (1 + 1e-7) * VibrationalOp("-+", 2, 1)
+        self.assertFalse(op1.equiv(op2))
+        self.assertFalse(op1.equiv(op3))
+        self.assertTrue(op1.equiv(op3, atol=1e-6))
+
 
 if __name__ == "__main__":
     unittest.main()
