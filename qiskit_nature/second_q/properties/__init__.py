@@ -64,6 +64,7 @@ __all__ = [
     "FermiHubbardModel",
     "IsingModel",
     "LatticeModel",
+    "HeisenbergModel",
     "BoundaryCondition",
     "HyperCubicLattice",
     "LatticeDrawStyle",

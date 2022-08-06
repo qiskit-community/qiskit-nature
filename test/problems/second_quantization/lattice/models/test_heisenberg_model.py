@@ -34,9 +34,9 @@ class TestHeisenbergModel(QiskitNatureTestCase):
         lattice = Lattice(graph)
         ism_lattice = Lattice(ism_graph)
         heisenberg_model = HeisenbergModel(lattice)
-        J = (0.0, 0.0, -1.0)
-        B = (-1.0, 0.0, 0.0)
-        hm_to_ism = HeisenbergModel(ism_lattice, J, B)
+        coupling_constants = (0.0, 0.0, -1.0)
+        ext_magnetic_field = (-1.0, 0.0, 0.0)
+        hm_to_ism = HeisenbergModel(ism_lattice, coupling_constants, ext_magnetic_field)
         ism = IsingModel(ism_lattice)
 
         with self.subTest("Check the graph."):

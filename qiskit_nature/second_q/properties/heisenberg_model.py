@@ -12,13 +12,13 @@
 
 """The Heisenberg model."""
 
-import numpy as np
 import logging
-from typing import Tuple
+from typing import Optional, Tuple
 from fractions import Fraction
+import numpy as np
 from qiskit_nature.second_q.operators import SpinOp
-from qiskit_nature.second_q.properties import LatticeModel
-from qiskit_nature.second_q.properties.lattices import Lattice
+from qiskit_nature.second_q.properties.lattice_model import LatticeModel
+from qiskit_nature.second_q.properties.lattices.lattice import Lattice
 
 logger = logging.getLogger(__name__)
 
@@ -76,18 +76,20 @@ class HeisenbergModel(LatticeModel):
         """
         return cls(cls._generate_lattice_from_parameters(interaction_matrix))
 
-    def second_q_ops(
-        self,
-    ) -> SpinOp:
+    def second_q_ops(self, display_format: Optional[str] = None) -> SpinOp:
         """Return the Hamiltonian of the Heisenberg model in terms of `SpinOp`.
 
         Args:
-            display_format (Optional[str], optional): Not supported for Spin operators. If specified, it will be ignored. Defaults to None.
+            display_format: Not supported for Spin operators. If specified, it will be ignored.
 
         Returns:
             SpinOp: The Hamiltonian of the Heisenberg model.
         """
-
+        if display_format is not None:
+            logger.warning(
+                "Spin operators do not support display-format. Provided display-format "
+                "parameter will be ignored."
+            )
         hamiltonian = []
         weighted_edge_list = self.lattice.weighted_edge_list
         register_length = self.lattice.num_nodes
