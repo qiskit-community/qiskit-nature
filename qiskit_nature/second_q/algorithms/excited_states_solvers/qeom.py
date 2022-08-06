@@ -118,11 +118,7 @@ class QEOM(ExcitedStatesSolver):
         groundstate_result = self._gsc.solve(problem, aux_operators)
 
         # 2. Prepare the excitation operators
-        second_q_ops = problem.second_q_ops()
-        if isinstance(second_q_ops, list):
-            main_second_q_op = second_q_ops[0]
-        elif isinstance(second_q_ops, dict):
-            main_second_q_op = second_q_ops.pop(problem.main_property_name)
+        main_second_q_op, _ = problem.second_q_ops()
 
         self._untapered_qubit_op_main = self._gsc.qubit_converter.convert_only(
             main_second_q_op, problem.num_particles

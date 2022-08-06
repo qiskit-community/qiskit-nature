@@ -157,9 +157,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
         # now we decide that we want to evaluate another operator
         # for testing simplicity, we just use some pre-constructed auxiliary operators
-        second_q_ops = self.electronic_structure_problem.second_q_ops()
-        # Remove main op to leave just aux ops
-        second_q_ops.pop(self.electronic_structure_problem.main_property_name)
+        _, second_q_ops = self.electronic_structure_problem.second_q_ops()
         aux_ops_dict = self.qubit_converter.convert_match(second_q_ops)
         return calc, res, aux_ops_dict
 
@@ -276,9 +274,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res_qasm = calc.solve(self.electronic_structure_problem)
 
-        hamiltonian = self.electronic_structure_problem.second_q_ops()[
-            self.electronic_structure_problem.main_property_name
-        ]
+        hamiltonian, _ = self.electronic_structure_problem.second_q_ops()
         qubit_op = self.qubit_converter.map(hamiltonian)
 
         ansatz = solver.get_solver(self.electronic_structure_problem, self.qubit_converter).ansatz
@@ -306,9 +302,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res_qasm = calc.solve(self.electronic_structure_problem)
 
-        hamiltonian = self.electronic_structure_problem.second_q_ops()[
-            self.electronic_structure_problem.main_property_name
-        ]
+        hamiltonian, _ = self.electronic_structure_problem.second_q_ops()
         qubit_op = self.qubit_converter.map(hamiltonian)
 
         ansatz = solver.get_solver(self.electronic_structure_problem, self.qubit_converter).ansatz

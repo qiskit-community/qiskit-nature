@@ -59,16 +59,12 @@ class VibrationalStructureProblem(BaseProblem):
         self.num_modals = num_modals
         self.truncation_order = truncation_order
 
-    def second_q_ops(self) -> dict[str, SecondQuantizedOp]:
-        """Returns the second quantized operators created based on the driver and transformations.
-
-        If the arguments are returned as a `list`, the operators are in the following order: the
-        Vibrational Hamiltonian operator, occupied modal operators for each mode.
-
-        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
+    def second_q_ops(self) -> tuple[SecondQuantizedOp, dict[str, SecondQuantizedOp]]:
+        """Returns the second quantized operators associated with this problem.
 
         Returns:
-            A `list` or `dict` of `SecondQuantizedOp` objects.
+            A tuple, with the first object being the main operator and the second being a dictionary
+            of auxiliary operators.
         """
         driver_result = self.driver.run()
 
@@ -94,8 +90,9 @@ class VibrationalStructureProblem(BaseProblem):
         self._grouped_property_transformed.basis = basis
 
         second_quantized_ops = self._grouped_property_transformed.second_q_ops()
+        main_op = second_quantized_ops.pop(self._main_property_name)
 
-        return second_quantized_ops
+        return main_op, second_quantized_ops
 
     def hopping_qeom_ops(
         self,

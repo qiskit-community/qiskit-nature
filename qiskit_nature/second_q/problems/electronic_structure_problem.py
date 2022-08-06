@@ -111,17 +111,12 @@ class ElectronicStructureProblem(BaseProblem):
             )
         return self._grouped_property_transformed.get_property("ParticleNumber").num_spin_orbitals
 
-    def second_q_ops(self) -> dict[str, SecondQuantizedOp]:
+    def second_q_ops(self) -> tuple[SecondQuantizedOp, dict[str, SecondQuantizedOp]]:
         """Returns the second quantized operators associated with this Property.
 
-        If the arguments are returned as a `list`, the operators are in the following order: the
-        Hamiltonian operator, total particle number operator, total angular momentum operator, total
-        magnetization operator, and (if available) x, y, z dipole operators.
-
-        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
-
         Returns:
-            A `list` or `dict` of `SecondQuantizedOp` objects.
+            A tuple, with the first object being the main operator and the second being a dictionary
+            of auxiliary operators.
         """
         driver_result = self.driver.run()
 
@@ -129,8 +124,9 @@ class ElectronicStructureProblem(BaseProblem):
         self._grouped_property_transformed = self._transform(self._grouped_property)
 
         second_quantized_ops = self._grouped_property_transformed.second_q_ops()
+        main_op = second_quantized_ops.pop(self._main_property_name)
 
-        return second_quantized_ops
+        return main_op, second_quantized_ops
 
     def hopping_qeom_ops(
         self,

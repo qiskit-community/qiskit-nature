@@ -41,16 +41,15 @@ class LatticeModelProblem(BaseProblem):
         super().__init__(main_property_name="LatticeEnergy")
         self._lattice_model = lattice_model
 
-    def second_q_ops(self) -> dict[str, SecondQuantizedOp]:
+    def second_q_ops(self) -> tuple[SecondQuantizedOp, dict[str, SecondQuantizedOp]]:
         """Returns the second quantized operators created based on the lattice models.
 
         Returns:
-            A ``list`` or ``dict`` of
-            :class:`~qiskit_nature.second_q.operators.SecondQuantizedOp`
+            A tuple, with the first object being the main operator and the second being a dictionary
+            of auxiliary operators.
         """
         second_q_op = self._lattice_model.second_q_ops()
-        second_q_ops = {self._main_property_name: second_q_op}
-        return second_q_ops
+        return second_q_op, {}
 
     def interpret(
         self,

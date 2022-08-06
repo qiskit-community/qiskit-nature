@@ -80,13 +80,12 @@ class BaseProblem(ABC):
         return None
 
     @abstractmethod
-    def second_q_ops(self) -> dict[str, SecondQuantizedOp]:
-        """Returns the second quantized operators associated with this Property.
-
-        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
+    def second_q_ops(self) -> tuple[SecondQuantizedOp, dict[str, SecondQuantizedOp]]:
+        """Returns the second quantized operators associated with this problem.
 
         Returns:
-            A `list` or `dict` of `SecondQuantizedOp` objects.
+            A tuple, with the first object being the main operator and the second being a dictionary
+            of auxiliary operators.
         """
         raise NotImplementedError()
 

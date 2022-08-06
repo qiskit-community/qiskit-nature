@@ -66,15 +66,7 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators"""
         # Note that ``aux_ops`` contains not only the transformed ``aux_operators`` passed by the
         # user but also additional ones from the transformation
-        second_q_ops = problem.second_q_ops()
-        name = problem.main_property_name
-        main_second_q_op = second_q_ops.pop(name, None)
-        if main_second_q_op is None:
-            raise ValueError(
-                f"The main `SecondQuantizedOp` associated with the {name} property cannot be "
-                "`None`."
-            )
-        aux_second_q_ops = second_q_ops
+        main_second_q_op, aux_second_q_ops = problem.second_q_ops()
 
         main_operator = self._qubit_converter.convert(
             main_second_q_op,
