@@ -14,13 +14,11 @@
 
 import itertools
 from test import QiskitNatureTestCase
-from qiskit_nature.utils.random import random_two_body_tensor
 
 import numpy as np
 from ddt import data, ddt, unpack
 from qiskit.quantum_info import random_hermitian
 
-# TODO delete this when it's no longer needed
 import qiskit_nature.settings
 from qiskit_nature.hdf5 import load_from_hdf5
 from qiskit_nature.second_q.operators import FermionicOp
@@ -35,7 +33,9 @@ from qiskit_nature.utils.low_rank import (
     _low_rank_two_body_decomposition,
     low_rank_decomposition,
 )
+from qiskit_nature.utils.random import random_two_body_tensor
 
+# TODO delete this when it's no longer needed
 qiskit_nature.settings.dict_aux_operators = True
 
 rng = np.random.default_rng(3091)
@@ -264,6 +264,36 @@ class TestLowRank(QiskitNatureTestCase):
             leaf_tensors,
         )
         np.testing.assert_allclose(reconstructed, two_body_tensor, atol=1e-4)
+
+    @unpack
+    @data(("H2_sto3g", 3), ("BeH_sto3g_reduced", 6))
+    def test_low_rank_compressed_two_body_decomposition_constrained(
+        self, hamiltonian_name: str, max_rank: int
+    ):
+        """Test low rank compressed two-body decomposition."""
+        electronic_energy = hamiltonians[hamiltonian_name]
+        two_body_tensor = electronic_energy.get_electronic_integral(
+            ElectronicBasis.MO, 2
+        ).get_matrix()
+
+        n_modes, _, _, _ = two_body_tensor.shape
+        core_tensor_mask = np.sum(
+            [np.diag(np.ones(n_modes - abs(k)), k=k) for k in range(-1, 2)], axis=0, dtype=bool
+        )
+        leaf_tensors, core_tensors = _low_rank_compressed_two_body_decomposition(
+            two_body_tensor, max_rank=max_rank, core_tensor_mask=core_tensor_mask, seed=rng
+        )
+        np.testing.assert_allclose(core_tensors, core_tensors * core_tensor_mask)
+
+        reconstructed = np.einsum(
+            "tpk,tqk,tkl,trl,tsl->pqrs",
+            leaf_tensors,
+            leaf_tensors,
+            core_tensors,
+            leaf_tensors,
+            leaf_tensors,
+        )
+        np.testing.assert_allclose(reconstructed, two_body_tensor, atol=1e-2)
 
     @unpack
     @data(("H2_sto3g", 2), ("BeH_sto3g_reduced", 4))

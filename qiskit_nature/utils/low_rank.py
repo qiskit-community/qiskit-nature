@@ -46,7 +46,7 @@ class DoubleFactorizedHamiltonian:
     one_body_tensor: np.ndarray
     leaf_tensors: np.ndarray
     core_tensors: np.ndarray
-    constant: float
+    constant: float = 0.0
     z_representation: bool = False
 
     @property
@@ -147,6 +147,7 @@ def low_rank_decomposition(
     optimize: bool = False,
     method: str = "L-BFGS-B",
     options: Optional[dict] = None,
+    core_tensor_mask: Optional[np.ndarray] = None,
     seed: Any = None,
     validate: bool = True,
     atol: float = 1e-8,
@@ -195,7 +196,12 @@ def low_rank_decomposition(
     The optimization attempts to minimize a least-squares objective function
     quantifying the error in the low rank decomposition.
     It uses `scipy.optimize.minimize`, passing both the objective function
-    and its gradient.
+    and its gradient. The core tensors returned by the optimization can be optionally constrained
+    to have only certain elements allowed to be nonzero. This is achieved by passing the
+    `core_tensor_mask` parameter, which is an :math:`N \times N` matrix of boolean values
+    where :math:`N` is the number of orbitals. The nonzero elements of this matrix indicate
+    where the core tensors are allowed to be nonzero. Only the upper triangular part of the matrix is used
+    because the core tensors are symmetric.
 
     **"Z" representation**
 
@@ -241,6 +247,10 @@ def low_rank_decomposition(
             `scipy.optimize.minimize`_ for possible values.
         options: Options for the optimization. See the documentation of
             `scipy.optimize.minimize`_ for usage.
+        core_tensor_mask: Core tensor mask to use in the optimization. This is a matrix of
+            boolean values where the nonzero elements indicate where the core tensors returned by
+            optimization are allowed to be nonzero. This parameter is only used if `optimize` is
+            set to `True`, and only the upper triangular part of the matrix is used.
         seed: The pseudorandom number generator or seed. Randomness is used to generate
             an initial guess for the optimization.
             Should be an instance of `np.random.Generator` or else a valid input to
@@ -276,6 +286,7 @@ def low_rank_decomposition(
             truncation_threshold=truncation_threshold,
             method=method,
             options=options,
+            core_tensor_mask=core_tensor_mask,
             seed=seed,
             validate=validate,
             atol=atol,
@@ -348,7 +359,6 @@ def _low_rank_two_body_decomposition(  # pylint: disable=invalid-name
 def _low_rank_z_representation(
     leaf_tensors: np.ndarray, core_tensors: np.ndarray
 ) -> tuple[np.ndarray, float]:
-    r"""Compute "Z" representation of low rank decomposition."""
     one_body_correction = 0.5 * (
         np.einsum("tij,tpi,tqi->pq", core_tensors, leaf_tensors, leaf_tensors.conj())
         + np.einsum("tij,tpj,tqj->pq", core_tensors, leaf_tensors, leaf_tensors.conj())
@@ -397,6 +407,7 @@ def _low_rank_compressed_two_body_decomposition(  # pylint: disable=invalid-name
     max_rank: Optional[int] = None,
     method="L-BFGS-B",
     options: Optional[dict] = None,
+    core_tensor_mask: Optional[np.ndarray] = None,
     seed: Any = None,
     validate: bool = True,
     atol: float = 1e-8,
@@ -410,9 +421,12 @@ def _low_rank_compressed_two_body_decomposition(  # pylint: disable=invalid-name
         atol=atol,
     )
     n_tensors, n_modes, _ = leaf_tensors.shape
+    if core_tensor_mask is None:
+        core_tensor_mask = np.ones((n_modes, n_modes), dtype=bool)
+    core_tensor_mask = np.triu(core_tensor_mask)
 
     def fun(x):
-        leaf_tensors, core_tensors = _params_to_df_tensors(x, n_tensors, n_modes)
+        leaf_tensors, core_tensors = _params_to_df_tensors(x, n_tensors, n_modes, core_tensor_mask)
         diff = two_body_tensor - np.einsum(
             "tpk,tqk,tkl,trl,tsl->pqrs",
             leaf_tensors,
@@ -424,7 +438,7 @@ def _low_rank_compressed_two_body_decomposition(  # pylint: disable=invalid-name
         return 0.5 * np.sum(diff**2)
 
     def jac(x):
-        leaf_tensors, core_tensors = _params_to_df_tensors(x, n_tensors, n_modes)
+        leaf_tensors, core_tensors = _params_to_df_tensors(x, n_tensors, n_modes, core_tensor_mask)
         diff = two_body_tensor - np.einsum(
             "tpk,tqk,tkl,trl,tsl->pqrs",
             leaf_tensors,
@@ -453,31 +467,32 @@ def _low_rank_compressed_two_body_decomposition(  # pylint: disable=invalid-name
             leaf_tensors,
             leaf_tensors,
         )
-        for mat in grad_core:
-            mat[range(n_modes), range(n_modes)] /= 2
-        triu_indices = np.triu_indices(n_modes)
-        grad_core = np.ravel([mat[triu_indices] for mat in grad_core])
+        grad_core[:, range(n_modes), range(n_modes)] /= 2
+        param_indices = np.nonzero(core_tensor_mask)
+        grad_core = np.ravel([mat[param_indices] for mat in grad_core])
         return np.concatenate([grad_leaf_log, grad_core])
 
     # TODO see if we can improve the intial guess
     core_tensors = _low_rank_optimal_core_tensors(two_body_tensor, leaf_tensors)
-    x0 = _df_tensors_to_params(leaf_tensors, core_tensors)
-    # TODO allow seeding the randomness
+    x0 = _df_tensors_to_params(leaf_tensors, core_tensors, core_tensor_mask)
     x0 += 1e-2 * rng.standard_normal(size=x0.shape)
     result = scipy.optimize.minimize(fun, x0, method=method, jac=jac, options=options)
-    leaf_tensors, _ = _params_to_df_tensors(result.x, n_tensors, n_modes)
-    core_tensors = _low_rank_optimal_core_tensors(two_body_tensor, leaf_tensors)
+    leaf_tensors, core_tensors = _params_to_df_tensors(
+        result.x, n_tensors, n_modes, core_tensor_mask
+    )
 
     return leaf_tensors, core_tensors
 
 
-def _df_tensors_to_params(leaf_tensors: np.ndarray, core_tensors: np.ndarray):
+def _df_tensors_to_params(
+    leaf_tensors: np.ndarray, core_tensors: np.ndarray, core_tensor_mask: np.ndarray
+):
     _, n_modes, _ = leaf_tensors.shape
     leaf_logs = [scipy.linalg.logm(mat) for mat in leaf_tensors]
-    triu_indices = np.triu_indices(n_modes, k=1)
-    leaf_params = np.real(np.ravel([leaf_log[triu_indices] for leaf_log in leaf_logs]))
-    triu_indices = np.triu_indices(n_modes)
-    core_params = np.ravel([core_tensor[triu_indices] for core_tensor in core_tensors])
+    param_indices = np.triu_indices(n_modes, k=1)
+    leaf_params = np.real(np.ravel([leaf_log[param_indices] for leaf_log in leaf_logs]))
+    param_indices = np.nonzero(core_tensor_mask)
+    core_params = np.ravel([core_tensor[param_indices] for core_tensor in core_tensors])
     return np.concatenate([leaf_params, core_params])
 
 
@@ -491,17 +506,19 @@ def _params_to_leaf_logs(params: np.ndarray, n_tensors: int, n_modes: int):
     return leaf_logs
 
 
-def _params_to_df_tensors(params: np.ndarray, n_tensors: int, n_modes: int):
+def _params_to_df_tensors(
+    params: np.ndarray, n_tensors: int, n_modes: int, core_tensor_mask: np.ndarray
+):
     leaf_logs = _params_to_leaf_logs(params, n_tensors, n_modes)
     leaf_tensors = np.array([_expm_antisymmetric(mat) for mat in leaf_logs])
 
     n_leaf_params = n_tensors * n_modes * (n_modes - 1) // 2
     core_params = np.real(params[n_leaf_params:])
-    triu_indices = np.triu_indices(n_modes)
-    param_length = len(triu_indices[0])
+    param_indices = np.nonzero(core_tensor_mask)
+    param_length = len(param_indices[0])
     core_tensors = np.zeros((n_tensors, n_modes, n_modes))
     for i in range(n_tensors):
-        core_tensors[i][triu_indices] = core_params[i * param_length : (i + 1) * param_length]
+        core_tensors[i][param_indices] = core_params[i * param_length : (i + 1) * param_length]
         core_tensors[i] += core_tensors[i].T
         core_tensors[i][range(n_modes), range(n_modes)] /= 2
     return leaf_tensors, core_tensors
