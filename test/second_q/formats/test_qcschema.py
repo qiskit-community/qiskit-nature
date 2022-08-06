@@ -12,9 +12,9 @@
 
 """Test the QCSchema implementation."""
 
-import os
 import unittest
-from tempfile import NamedTemporaryFile
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from test import QiskitNatureTestCase
 from test.second_q.formats.qcschema.he2_energy_VV10_input import EXPECTED as EXPECTED_HE2_INPUT
@@ -79,17 +79,12 @@ class TestQCSchemaHDF5(QiskitNatureTestCase):
 
         Note: this test relies on the `from_hdf5` parsing to work correctly.
         """
-        # pylint: disable=consider-using-with
-        tmp_file = NamedTemporaryFile(delete=False, suffix=".hdf5")
-        tmp_file.close()
-        os.unlink(tmp_file.name)
-        try:
-            with h5py.File(tmp_file.name, "w") as file:
+        with TemporaryDirectory() as tmp_dir:
+            file_path = Path(tmp_dir) / "tmp.hdf5"
+            with h5py.File(file_path, "w") as file:
                 EXPECTED_WATER_OUTPUT_V3.to_hdf5(file)
-            qcs = QCSchema.from_hdf5(tmp_file.name)
+            qcs = QCSchema.from_hdf5(file_path)
             self.assertEqual(qcs, EXPECTED_WATER_OUTPUT_V3)
-        finally:
-            os.unlink(tmp_file.name)
 
 
 if __name__ == "__main__":
