@@ -13,14 +13,14 @@
 """
 Test Nature logging methods
 """
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import List, Dict, Set
 import sys
 import unittest
 import logging
-import tempfile
 import contextlib
 import io
-import os
 from test import QiskitNatureTestCase
 from qiskit_nature import logging as nature_logging
 
@@ -110,22 +110,19 @@ class TestLogging(QiskitNatureTestCase):
     def test_logging_to_file(self):
         """logging test to file"""
         self._set_logging(False)
-        # pylint: disable=consider-using-with
-        tmp_file = tempfile.NamedTemporaryFile(delete=False)
-        tmp_file.close()
-        os.unlink(tmp_file.name)
-        file_handler = nature_logging.log_to_file(
-            self._logging_dict.keys(), path=tmp_file.name, mode="w"
-        )
-        try:
-            # ignore Qiskit TextProgressBar that prints to stderr
-            with contextlib.redirect_stderr(io.StringIO()):
-                TestLogging._run_test()
-        finally:
-            with open(tmp_file.name, encoding="utf8") as file:
-                lines = file.read()
-            file_handler.close()
-            os.unlink(tmp_file.name)
+        with TemporaryDirectory() as tmp_dir:
+            tmp_file = Path(tmp_dir) / "log_file"
+            file_handler = nature_logging.log_to_file(
+                self._logging_dict.keys(), path=tmp_file, mode="w"
+            )
+            try:
+                # ignore Qiskit TextProgressBar that prints to stderr
+                with contextlib.redirect_stderr(io.StringIO()):
+                    TestLogging._run_test()
+            finally:
+                with open(tmp_file, encoding="utf8") as file:
+                    lines = file.read()
+                file_handler.close()
 
         for name in self._logging_dict:
             self.assertTrue(f"{name}." in lines, msg=f"name {name} not found in log file.")
