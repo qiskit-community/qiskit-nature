@@ -14,11 +14,11 @@
 
 import numpy as np
 import logging
-from typing import Optional, Tuple
+from typing import Tuple
 from fractions import Fraction
 from qiskit_nature.second_q.operators import SpinOp
-from qiskit_nature.problems.second_quantization.lattice.lattices import Lattice
-from .lattice_model import LatticeModel
+from qiskit_nature.second_q.properties import LatticeModel
+from qiskit_nature.second_q.properties.lattices import Lattice
 
 logger = logging.getLogger(__name__)
 
@@ -41,10 +41,6 @@ class HeisenbergModel(LatticeModel):
         super().__init__(lattice)
         self.coupling_constants = coupling_constants
         self.ext_magnetic_field = ext_magnetic_field
-
-    def coupling_matrix(self) -> np.ndarray:
-        """Return the coupling matrix."""
-        return self.interaction_matrix()
 
     @classmethod
     def uniform_parameters(
@@ -82,7 +78,6 @@ class HeisenbergModel(LatticeModel):
 
     def second_q_ops(
         self,
-        display_format: Optional[str] = None,
     ) -> SpinOp:
         """Return the Hamiltonian of the Heisenberg model in terms of `SpinOp`.
 
@@ -92,11 +87,6 @@ class HeisenbergModel(LatticeModel):
         Returns:
             SpinOp: The Hamiltonian of the Heisenberg model.
         """
-        if display_format is not None:
-            logger.warning(
-                "Spin operators do not support display-format. Provided display-format "
-                "parameter will be ignored."
-            )
 
         hamiltonian = []
         weighted_edge_list = self.lattice.weighted_edge_list
@@ -106,26 +96,14 @@ class HeisenbergModel(LatticeModel):
 
             if node_a == node_b:
                 index = node_a
-                if self.ext_magnetic_field[0] != 0:
-                    hamiltonian.append((f"X_{index}", self.ext_magnetic_field[0]))
-                if self.ext_magnetic_field[1] != 0:
-                    hamiltonian.append((f"Y_{index}", self.ext_magnetic_field[1]))
-                if self.ext_magnetic_field[2] != 0:
-                    hamiltonian.append((f"Z_{index}", self.ext_magnetic_field[2]))
+                for axis, coeff in zip("XYZ", self.ext_magnetic_field):
+                    if not np.isclose(coeff, 0.0):
+                        hamiltonian.append((f"{axis}_{index}", coeff))
             else:
                 index_left = node_a
                 index_right = node_b
-                if self.coupling_constants[0] != 0:
-                    hamiltonian.append(
-                        (f"X_{index_left} X_{index_right}", self.coupling_constants[0])
-                    )
-                if self.coupling_constants[1] != 0:
-                    hamiltonian.append(
-                        (f"Y_{index_left} Y_{index_right}", self.coupling_constants[1])
-                    )
-                if self.coupling_constants[2] != 0:
-                    hamiltonian.append(
-                        (f"Z_{index_left} Z_{index_right}", self.coupling_constants[2])
-                    )
+                for axis, coeff in zip("XYZ", self.coupling_constants):
+                    if not np.isclose(coeff, 0.0):
+                        hamiltonian.append((f"{axis}_{index_left} {axis}_{index_right}", coeff))
 
         return SpinOp(hamiltonian, spin=Fraction(1, 2), register_length=register_length)

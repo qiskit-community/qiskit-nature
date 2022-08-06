@@ -14,8 +14,8 @@
 
 from test import QiskitNatureTestCase
 from retworkx import PyGraph, is_isomorphic
-from qiskit_nature.problems.second_quantization.lattice.lattices import Lattice
-from qiskit_nature.problems.second_quantization.lattice.models import HeisenbergModel, IsingModel
+from qiskit_nature.second_q.properties.lattices import Lattice
+from qiskit_nature.second_q.properties import HeisenbergModel, IsingModel
 
 
 class TestHeisenbergModel(QiskitNatureTestCase):
