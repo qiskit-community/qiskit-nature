@@ -11,6 +11,9 @@
 # that they have been altered from the originals.
 
 """The Electronic Structure Problem class."""
+
+from __future__ import annotations
+
 from functools import partial
 from typing import cast, Callable, Dict, List, Optional, Tuple, Union
 
@@ -20,7 +23,7 @@ from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 from qiskit.opflow import PauliSumOp
 from qiskit.opflow.primitive_ops import Z2Symmetries
 
-from qiskit_nature import ListOrDictType, QiskitNatureError
+from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.circuit.library.initial_states.hartree_fock import (
     hartree_fock_bitstring_mapped,
 )
@@ -108,7 +111,7 @@ class ElectronicStructureProblem(BaseProblem):
             )
         return self._grouped_property_transformed.get_property("ParticleNumber").num_spin_orbitals
 
-    def second_q_ops(self) -> ListOrDictType[SecondQuantizedOp]:
+    def second_q_ops(self) -> dict[str, SecondQuantizedOp]:
         """Returns the second quantized operators associated with this Property.
 
         If the arguments are returned as a `list`, the operators are in the following order: the
@@ -214,16 +217,8 @@ class ElectronicStructureProblem(BaseProblem):
 
         # pylint: disable=unused-argument
         def filter_criterion(self, eigenstate, eigenvalue, aux_values):
-            # the first aux_value is the evaluated number of particles
-            try:
-                num_particles_aux = aux_values["ParticleNumber"][0]
-            except TypeError:
-                num_particles_aux = aux_values[0][0]
-            # the second aux_value is the total angular momentum which (for singlets) should be zero
-            try:
-                total_angular_momentum_aux = aux_values["AngularMomentum"][0]
-            except TypeError:
-                total_angular_momentum_aux = aux_values[1][0]
+            num_particles_aux = aux_values["ParticleNumber"][0]
+            total_angular_momentum_aux = aux_values["AngularMomentum"][0]
             particle_number = cast(
                 ParticleNumber, self.grouped_property_transformed.get_property(ParticleNumber)
             )

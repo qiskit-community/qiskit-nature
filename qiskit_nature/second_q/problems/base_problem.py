@@ -10,7 +10,10 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 # This code is part of Qiskit.
+
 """The Base Problem class."""
+
+from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from typing import Callable, Dict, List, Optional, Tuple, Union
@@ -18,7 +21,6 @@ from typing import Callable, Dict, List, Optional, Tuple, Union
 import numpy as np
 from qiskit.opflow import PauliSumOp, Z2Symmetries
 
-from qiskit_nature import ListOrDictType
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.drivers import BaseDriver
 from qiskit_nature.second_q.operators import SecondQuantizedOp
@@ -78,7 +80,7 @@ class BaseProblem(ABC):
         return None
 
     @abstractmethod
-    def second_q_ops(self) -> ListOrDictType[SecondQuantizedOp]:
+    def second_q_ops(self) -> dict[str, SecondQuantizedOp]:
         """Returns the second quantized operators associated with this Property.
 
         The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.

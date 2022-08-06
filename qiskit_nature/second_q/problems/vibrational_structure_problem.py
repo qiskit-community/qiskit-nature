@@ -9,7 +9,10 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+
 """The Vibrational Structure Problem class."""
+
+from __future__ import annotations
 
 from functools import partial
 from typing import cast, Callable, Dict, List, Optional, Tuple, Union
@@ -19,7 +22,6 @@ import numpy as np
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 from qiskit.opflow import PauliSumOp
 
-from qiskit_nature import ListOrDictType
 from qiskit_nature.second_q.drivers import VibrationalStructureDriver
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.mappers import QubitConverter
@@ -57,7 +59,7 @@ class VibrationalStructureProblem(BaseProblem):
         self.num_modals = num_modals
         self.truncation_order = truncation_order
 
-    def second_q_ops(self) -> ListOrDictType[SecondQuantizedOp]:
+    def second_q_ops(self) -> dict[str, SecondQuantizedOp]:
         """Returns the second quantized operators created based on the driver and transformations.
 
         If the arguments are returned as a `list`, the operators are in the following order: the
@@ -184,8 +186,7 @@ class VibrationalStructureProblem(BaseProblem):
         def filter_criterion(self, eigenstate, eigenvalue, aux_values):
             # the first num_modes aux_value is the evaluated number of particles for the given mode
             for mode in range(self.grouped_property_transformed.num_modes):
-                _key = str(mode) if isinstance(aux_values, dict) else mode
-                if aux_values is None or not np.isclose(aux_values[_key][0], 1):
+                if aux_values is None or not np.isclose(aux_values[str(mode)][0], 1):
                     return False
             return True
 

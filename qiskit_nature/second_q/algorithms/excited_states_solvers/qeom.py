@@ -12,6 +12,8 @@
 
 """The calculation of excited states via the qEOM algorithm"""
 
+from __future__ import annotations
+
 from typing import List, Union, Optional, Tuple, Dict, cast
 import itertools
 import logging
@@ -30,7 +32,6 @@ from qiskit.opflow import (
     PauliSumOp,
 )
 
-from qiskit_nature import ListOrDictType
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.second_q.problems import EigenstateResult
@@ -84,14 +85,14 @@ class QEOM(ExcitedStatesSolver):
     def get_qubit_operators(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
-    ) -> Tuple[PauliSumOp, Optional[ListOrDictType[PauliSumOp]]]:
+        aux_operators: Optional[dict[str, Union[SecondQuantizedOp, PauliSumOp]]] = None,
+    ) -> Tuple[PauliSumOp, Optional[dict[str, PauliSumOp]]]:
         return self._gsc.get_qubit_operators(problem, aux_operators)
 
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[ListOrDictType[SecondQuantizedOp]] = None,
+        aux_operators: Optional[dict[str, SecondQuantizedOp]] = None,
     ) -> EigenstateResult:
         """Run the excited-states calculation.
 

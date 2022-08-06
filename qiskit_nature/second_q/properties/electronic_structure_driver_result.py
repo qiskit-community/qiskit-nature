@@ -18,15 +18,9 @@ from typing import TYPE_CHECKING
 
 import h5py
 
-from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.second_q.operators import FermionicOp
 
 from .second_quantized_property import SecondQuantizedProperty
-from .angular_momentum import AngularMomentum
-from .dipole_moment import ElectronicDipoleMoment
-from .electronic_energy import ElectronicEnergy
-from .magnetization import Magnetization
-from .particle_number import ParticleNumber
 from .electronic_types import GroupedElectronicProperty
 
 if TYPE_CHECKING:
@@ -90,31 +84,12 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
 
         return ret
 
-    def second_q_ops(self) -> ListOrDictType[FermionicOp]:
+    def second_q_ops(self) -> dict[str, FermionicOp]:
         """Returns the second quantized operators associated with the properties in this group.
 
-        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
-
         Returns:
-            A `list` or `dict` of `FermionicOp` objects.
+            A `dict` of `FermionicOp` objects.
         """
-        ops: ListOrDictType[FermionicOp]
-
-        if not settings.dict_aux_operators:
-            ops = []
-            for cls in [
-                ElectronicEnergy,
-                ParticleNumber,
-                AngularMomentum,
-                Magnetization,
-                ElectronicDipoleMoment,
-            ]:
-                prop = self.get_property(cls)  # type: ignore
-                if prop is None or not isinstance(prop, SecondQuantizedProperty):
-                    continue
-                ops.extend(prop.second_q_ops())
-            return ops
-
         ops = {}
         for prop in iter(self):
             if not isinstance(prop, SecondQuantizedProperty):

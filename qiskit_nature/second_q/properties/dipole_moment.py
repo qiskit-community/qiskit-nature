@@ -18,7 +18,6 @@ from typing import Optional, Tuple, cast, TYPE_CHECKING
 
 import h5py
 
-from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.second_q.operators import FermionicOp
 from qiskit_nature.hdf5 import _import_and_build_from_hdf5
 
@@ -239,19 +238,12 @@ class ElectronicDipoleMoment(ElectronicProperty):
         order to match the nuclear dipole moment direction."""
         self._reverse_dipole_sign = reverse_dipole_sign
 
-    def second_q_ops(self) -> ListOrDictType[FermionicOp]:
+    def second_q_ops(self) -> dict[str, FermionicOp]:
         """Returns the second quantized dipole moment operators.
 
-        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
-
         Returns:
-            A `list` or `dict` of `FermionicOp` objects.
+            A `dict` of `FermionicOp` objects.
         """
-        ops: ListOrDictType[FermionicOp]
-        if not settings.dict_aux_operators:
-            ops = [dip.second_q_ops()[0] for dip in self._dipole_axes.values()]
-            return ops
-
         ops = {}
         for prop in self._dipole_axes.values():
             ops.update(prop.second_q_ops())
@@ -284,11 +276,7 @@ class ElectronicDipoleMoment(ElectronicProperty):
             axes_order = {"x": 0, "y": 1, "z": 2}
             dipole_moment = [None] * 3
             for prop in self._dipole_axes.values():
-                moment: Optional[tuple[complex, complex]]
-                try:
-                    moment = aux_op_eigenvalues[axes_order[prop._axis] + 3]
-                except KeyError:
-                    moment = aux_op_eigenvalues.get(prop.name, None)
+                moment = aux_op_eigenvalues.get(prop.name, None)
                 if moment is not None:
                     dipole_moment[axes_order[prop._axis]] = moment[0].real  # type: ignore
 
