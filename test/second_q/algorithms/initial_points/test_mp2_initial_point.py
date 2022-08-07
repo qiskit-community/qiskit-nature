@@ -131,7 +131,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
             mp2_initial_point.compute(ansatz=self.mock_ansatz, grouped_property=grouped_property)
 
     def test_set_excitations_directly(self):
-        """Test when setting excitations directly."""
+        """Test when setting excitation_list directly."""
 
         mp2_initial_point = MP2InitialPoint()
         mp2_initial_point.excitation_list = self.excitation_list
@@ -192,7 +192,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         from pyscf import gto  # pylint: disable=import-error
 
         # Compute the PySCF result
-        pyscf_mol = gto.M(atom=atom, basis ="sto3g", verbose=0)
+        pyscf_mol = gto.M(atom=atom, basis="sto3g", verbose=0)
         pyscf_mp = pyscf_mol.MP2().run(verbose=0)
 
         driver = PySCFDriver(atom=atom, basis="sto3g")
@@ -236,7 +236,9 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
 
         with self.subTest("Test absolute MP2 energy."):
             mp2_initial_point.compute()
-            np.testing.assert_array_almost_equal(mp2_initial_point._t2, pyscf_mp.t2, decimal=4)
+            np.testing.assert_array_almost_equal(
+                mp2_initial_point._t2_amplitudes, pyscf_mp.t2, decimal=4
+            )
 
 
 if __name__ == "__main__":

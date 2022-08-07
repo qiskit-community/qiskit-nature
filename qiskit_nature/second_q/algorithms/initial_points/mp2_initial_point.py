@@ -14,20 +14,14 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-
 import numpy as np
-from qiskit_nature.exceptions import QiskitNatureError
 
+from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import UCC
-from qiskit_nature.second_q.properties import ElectronicEnergy
+from qiskit_nature.second_q.properties import ElectronicEnergy, GroupedSecondQuantizedProperty
 from qiskit_nature.second_q.properties.bases import ElectronicBasis
-from qiskit_nature.second_q.properties.integrals.electronic_integrals import (
-    ElectronicIntegrals,
-)
-from qiskit_nature.second_q.properties.second_quantized_property import (
-    GroupedSecondQuantizedProperty,
-)
+from qiskit_nature.second_q.properties.integrals import ElectronicIntegrals
+
 
 from .initial_point import InitialPoint
 
@@ -62,9 +56,6 @@ class MP2InitialPoint(InitialPoint):
     excitations in the :attr:`excitation_list` will have a value corresponding to the appropriate
     MP2 energy correction while those that correspond to single, triple, or higher excitations will
     have zero value.
-
-    t2 :
-        T amplitudes t2[i,j,a,b]  (i,j in occ, a,b in virt)
     """
 
     def __init__(self, threshold: float = 1e-12) -> None:
@@ -76,9 +67,10 @@ class MP2InitialPoint(InitialPoint):
         self._orbital_energies: np.ndarray | None = None
         self._reference_energy: float = 0.0
 
-        self._amplitudes = None
-        self._t2: np.ndarray | None = None
+        # T amplitudes t2[i,j,a,b]  (i,j in occ, a,b in vir)
+        self._t2_amplitudes: np.ndarray | None = None
         self._energy_correction: float = 0.0
+        self._amplitudes: np.ndarray | None = None
 
     @property
     def ansatz(self) -> UCC:
@@ -164,30 +156,25 @@ class MP2InitialPoint(InitialPoint):
 
         self._invalidate()
 
-        num_mo = integral_matrix.shape[0]
         num_occ = len(orbital_energies[orbital_energies < 0.0])
-        num_vir = num_mo - num_occ
 
         # Use NumPy broadcasting to compute all occupied-virtual energy deltas.
         energy_deltas = (
             orbital_energies[:num_occ, np.newaxis] - orbital_energies[np.newaxis, num_occ:]
         )
+        double_deltas = energy_deltas[:, :, np.newaxis, np.newaxis] + energy_deltas
 
         # Create integral matrix that uses occupied and virtual indices rather than MO indices.
-        ovov = integral_matrix[:num_occ, num_occ:, :num_occ, num_occ:]
+        integral_matrix_ovov = integral_matrix[:num_occ, num_occ:, :num_occ, num_occ:]
 
-        t2 = np.zeros((num_occ, num_occ, num_vir, num_vir))
-        energy_correction = 0.0
-        for i in range(num_occ):
-            gi = ovov[i]
-            gi = gi.reshape(num_vir, num_occ, num_vir).transpose(1, 0, 2)
-            di = energy_deltas[:, :, np.newaxis] + energy_deltas[i]
-            t2i = gi / di
-            t2[i] = t2i
-            energy_correction += np.einsum("jab,jab", t2i, gi) * 2
-            energy_correction -= np.einsum("jab,jba", t2i, gi)
+        # Compute T2 amplitudes and transpose to num_occ, num_occ, num_vir, num_vir.
+        t2_amplitudes = (integral_matrix_ovov / double_deltas).transpose(0, 2, 1, 3)
 
-        self._t2 = t2
+        # Compute MP2 energy correction.
+        energy_correction = np.einsum("ijab,iajb", t2_amplitudes, integral_matrix_ovov) * 2
+        energy_correction -= np.einsum("ijab,ibja", t2_amplitudes, integral_matrix_ovov)
+
+        self._t2_amplitudes = t2_amplitudes
         self._energy_correction = energy_correction
         self._orbital_energies = orbital_energies
         self._integral_matrix = integral_matrix
@@ -259,13 +246,13 @@ class MP2InitialPoint(InitialPoint):
         Returns:
             Dictionary with MP2 coefficients and energy_corrections for each excitation.
         """
-        num_occ = self._t2.shape[0]
+        num_occ = self._t2_amplitudes.shape[0]
         amplitudes = np.zeros(len(self.excitation_list))
         for index, excitation in enumerate(self._excitation_list):
             if len(excitation[0]) == 2:
                 # Get the amplitude of the double excitation.
                 [[i, j], [a, b]] = np.asarray(excitation) % num_occ
-                amplitude = self._t2[i, j, a - num_occ, b - num_occ]
+                amplitude = self._t2_amplitudes[i, j, a - num_occ, b - num_occ]
                 amplitudes[index] = amplitude if abs(amplitude) > self._threshold else 0.0
 
         self._amplitudes = amplitudes
