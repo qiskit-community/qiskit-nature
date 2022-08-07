@@ -89,16 +89,13 @@ class MP2InitialPoint(InitialPoint):
 
     def __init__(self, threshold: float = 1e-12) -> None:
         super().__init__()
+        self.threshold: float = threshold
         self._ansatz: UCC | None = None
         self._excitation_list: list[tuple[tuple[int, ...], tuple[int, ...]]] | None = None
-        self.threshold: float = threshold
-        self._integral_matrix: np.ndarray | None = None
-        self._orbital_energies: np.ndarray | None = None
-        self._reference_energy: float = 0.0
-
         self._t2_amplitudes: np.ndarray | None = None
-        self._energy_correction: float = 0.0
         self._amplitudes: np.ndarray | None = None
+        self._energy_correction: float = 0.0
+        self._energy: float = 0.0
 
     @property
     def ansatz(self) -> UCC:
@@ -182,24 +179,40 @@ class MP2InitialPoint(InitialPoint):
                 "See https://github.com/Qiskit/qiskit-nature/issues/645."
             )
 
+        reference_energy = electronic_energy.reference_energy if not None else 0.0
+
         self._invalidate()
         t2_amplitudes, energy_correction = _compute_mp2(integral_matrix, orbital_energies)
 
         # Save state.
+        self._grouped_property = grouped_property
         self._t2_amplitudes = t2_amplitudes
         self._energy_correction = energy_correction
-        self._orbital_energies = orbital_energies
-        self._integral_matrix = integral_matrix
-        self._reference_energy = electronic_energy.reference_energy if not None else 0.0
-        self._grouped_property = grouped_property
+        self._energy = reference_energy + energy_correction
+
+    @property
+    def t2_amplitudes(self) -> np.ndarray:
+        """T amplitudes t2[i, j, a, b] (i, j in occupied, a, b in virtual)."""
+        return self._t2_amplitudes
+
+    @property
+    def energy_correction(self) -> float:
+        """The MP2 energy correction."""
+        return self._energy_correction
+
+    @property
+    def energy(self) -> float:
+        """The total energy including the Hartree-Fock reference energy.
+
+        If the reference energy was not obtained from
+        :class:`~qiskit_nature.second_q.properties.ElectronicEnergy` this will be equal to
+        :meth:`get_energy_correction`.
+        """
+        return self._energy
 
     @property
     def threshold(self) -> float:
-        """The energy threshold for MP2 corrections.
-
-        Computed coefficients and energy corrections will be set to zero if their absolute value is
-        below this threshold's absolute value.
-        """
+        """Amplitudes with absolute value below this threshold will be set to zero."""
         return self._threshold
 
     @threshold.setter
@@ -274,19 +287,6 @@ class MP2InitialPoint(InitialPoint):
         if self._amplitudes is None:
             self.compute()
         return self._amplitudes
-
-    def get_energy_correction(self) -> float:
-        """The overall energy correction."""
-        return self._energy_correction
-
-    def get_energy(self) -> float:
-        """The absolute energy.
-
-        If the reference energy was not obtained from
-        :class:`~qiskit_nature.second_q.properties.ElectronicEnergy` this will be equal to
-        :meth:`get_energy_correction`.
-        """
-        return self._reference_energy + self.get_energy_correction()
 
     def _invalidate(self):
         """Invalidate any previous computation."""
