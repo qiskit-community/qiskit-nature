@@ -26,6 +26,39 @@ from qiskit_nature.second_q.properties.integrals import ElectronicIntegrals
 from .initial_point import InitialPoint
 
 
+def _compute_mp2(
+    integral_matrix: np.ndarray, orbital_energies: np.ndarray
+) -> tuple[np.ndarray, float]:
+    """Compute the T2 amplitudes and MP2 energy correction.
+
+    Args:
+        integral_matrix: The two-body molecular orbitals matrix.
+        orbital_energies: The orbital energies.
+
+    Returns:
+        T amplitudes t2[i,j,a,b]  (i,j in occ, a,b in vir).
+        The MP2 energy correction.
+
+    """
+    num_occ = len(orbital_energies[orbital_energies < 0.0])
+
+    # Use NumPy broadcasting to compute all occupied-virtual energy deltas.
+    energy_deltas = orbital_energies[:num_occ, np.newaxis] - orbital_energies[np.newaxis, num_occ:]
+    double_deltas = energy_deltas[:, :, np.newaxis, np.newaxis] + energy_deltas
+
+    # Create integral matrix that uses occupied and virtual indices rather than MO indices.
+    integral_matrix_ovov = integral_matrix[:num_occ, num_occ:, :num_occ, num_occ:]
+
+    # Compute T2 amplitudes and transpose to num_occ, num_occ, num_vir, num_vir.
+    t2_amplitudes = (integral_matrix_ovov / double_deltas).transpose(0, 2, 1, 3)
+
+    # Compute MP2 energy correction.
+    energy_correction = np.einsum("ijab,iajb", t2_amplitudes, integral_matrix_ovov) * 2
+    energy_correction -= np.einsum("ijab,ibja", t2_amplitudes, integral_matrix_ovov)
+
+    return t2_amplitudes, energy_correction
+
+
 class MP2InitialPoint(InitialPoint):
     """Compute the second-order Møller-Plesset perturbation theory (MP2) initial point.
 
@@ -155,25 +188,9 @@ class MP2InitialPoint(InitialPoint):
             )
 
         self._invalidate()
+        t2_amplitudes, energy_correction = _compute_mp2(integral_matrix, orbital_energies)
 
-        num_occ = len(orbital_energies[orbital_energies < 0.0])
-
-        # Use NumPy broadcasting to compute all occupied-virtual energy deltas.
-        energy_deltas = (
-            orbital_energies[:num_occ, np.newaxis] - orbital_energies[np.newaxis, num_occ:]
-        )
-        double_deltas = energy_deltas[:, :, np.newaxis, np.newaxis] + energy_deltas
-
-        # Create integral matrix that uses occupied and virtual indices rather than MO indices.
-        integral_matrix_ovov = integral_matrix[:num_occ, num_occ:, :num_occ, num_occ:]
-
-        # Compute T2 amplitudes and transpose to num_occ, num_occ, num_vir, num_vir.
-        t2_amplitudes = (integral_matrix_ovov / double_deltas).transpose(0, 2, 1, 3)
-
-        # Compute MP2 energy correction.
-        energy_correction = np.einsum("ijab,iajb", t2_amplitudes, integral_matrix_ovov) * 2
-        energy_correction -= np.einsum("ijab,ibja", t2_amplitudes, integral_matrix_ovov)
-
+        # Save state.
         self._t2_amplitudes = t2_amplitudes
         self._energy_correction = energy_correction
         self._orbital_energies = orbital_energies
