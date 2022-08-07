@@ -36,7 +36,7 @@ def _compute_mp2(
         orbital_energies: The orbital energies.
 
     Returns:
-        T amplitudes t2[i,j,a,b]  (i,j in occ, a,b in vir).
+        T amplitudes t2[i, j, a, b] (i, j in occupied, a, b in virtual).
         The MP2 energy correction.
 
     """
@@ -66,8 +66,8 @@ class MP2InitialPoint(InitialPoint):
     parameters in combination with a
     :class:`~qiskit_nature.second_q.circuit.library.ansatzes.ucc.UCC` ansatz.
 
-    The coefficients and energy corrections are computed using the :meth:`compute` method, which
-    requires the :attr:`grouped_property` and :attr:`ansatz` to be passed as arguments or the
+    The coefficients are computed using the :meth:`compute` method, which requires the
+    :attr:`grouped_property` and :attr:`ansatz` to be passed as arguments or the
     :attr:`grouped_property` and :attr:`excitation_list` attributes to be set already.
 
     ``MP2InitialPoint`` requires the :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`,
@@ -81,14 +81,10 @@ class MP2InitialPoint(InitialPoint):
     by setting the :attr:`excitation_list` attribute directly.
 
     Following computation, the initial point array can be extracted via the :meth:`to_numpy_array`
-    method. The array of energy corrections indexed by excitation can be recovered using the
-    :meth:`get_energy_corrections` method. The overall energy correction can be obtained via the
-    :meth:`get_energy_correction` method.
-
-    Coefficient and energy correction array elements with indices corresponding to double
-    excitations in the :attr:`excitation_list` will have a value corresponding to the appropriate
-    MP2 energy correction while those that correspond to single, triple, or higher excitations will
-    have zero value.
+    method. The overall energy correction can be obtained via the :meth:`get_energy_correction`
+    method. The initial point array elements with indices corresponding to double excitations in the
+    :attr:`excitation_list` will have a value corresponding to the appropriate MP2 coefficient,
+    while those that correspond to single, triple, or higher excitations will have zero value.
     """
 
     def __init__(self, threshold: float = 1e-12) -> None:
@@ -100,7 +96,6 @@ class MP2InitialPoint(InitialPoint):
         self._orbital_energies: np.ndarray | None = None
         self._reference_energy: float = 0.0
 
-        # T amplitudes t2[i,j,a,b]  (i,j in occ, a,b in vir)
         self._t2_amplitudes: np.ndarray | None = None
         self._energy_correction: float = 0.0
         self._amplitudes: np.ndarray | None = None
@@ -256,7 +251,7 @@ class MP2InitialPoint(InitialPoint):
         self._compute()
 
     def _compute(self) -> None:
-        """Compute the MP2 coefficients and energy corrections.
+        """Compute the MP2 amplitudes given an excitation list.
 
         Non-double excitations will have zero coefficient and energy_correction.
 
