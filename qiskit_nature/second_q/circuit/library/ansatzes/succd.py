@@ -250,7 +250,7 @@ class SUCCD(UCC):
             # exc_level is a 4-number string, which indicate alpha and beta occupied+unoccpied indices.
             # Thus, the level of an excitations is indicated by this string. The symmetrically
             # mirrored double excitations have the same exc_level string, and the
-            # excitaions with the same level will be assigned the same parameter.
+            # excitations with the same level will be assigned the same parameter.
 
             excitations_dictionary[exc_level].append(exc)
 
