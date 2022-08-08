@@ -230,7 +230,9 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
             )
 
         with self.subTest("Test the total MP2 energy."):
-            np.testing.assert_almost_equal(mp2_initial_point.total_energy, pyscf_mp.e_tot, decimal=4)
+            np.testing.assert_almost_equal(
+                mp2_initial_point.total_energy, pyscf_mp.e_tot, decimal=4
+            )
 
         with self.subTest("Test the T2 amplitudes."):
             mp2_initial_point.compute()
