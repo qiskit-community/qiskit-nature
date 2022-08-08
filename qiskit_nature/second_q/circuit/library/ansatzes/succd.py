@@ -243,7 +243,7 @@ class SUCCD(UCC):
             ]  # beta unoccupied indices. If include singles, then beta_unocc=alpha_unocc
             alpha_exc = int(
                 str(alpha_occ) + str(alpha_unocc)
-            )  # alpha occupied and unoccupied indice
+            )  # alpha occupied and unoccupied indices
             beta_exc = int(
                 str(abs(beta_occ - beta_index_shift)) + str(abs(beta_unocc - beta_index_shift))
             )  # beta occupied and unoccupied indices.
