@@ -112,7 +112,7 @@ class SUCCD(UCC):
 
     @property
     def mirror(self) -> bool:
-        """Whether include the symmetrically mirrored double excitations."""
+        """Whether to include the symmetrically mirrored double excitations."""
         return self._mirror
 
     @mirror.setter
