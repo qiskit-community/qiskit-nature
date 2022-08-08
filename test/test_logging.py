@@ -122,7 +122,8 @@ class TestLogging(QiskitNatureTestCase):
             finally:
                 with open(tmp_file, encoding="utf8") as file:
                     lines = file.read()
-                file_handler.close()
+                for name in self._logging_dict:
+                    nature_logging.remove_handler(name, file_handler)
 
         for name in self._logging_dict:
             self.assertTrue(f"{name}." in lines, msg=f"name {name} not found in log file.")
