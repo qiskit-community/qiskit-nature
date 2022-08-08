@@ -47,7 +47,7 @@ class HFInitialPoint(InitialPoint):
         self._ansatz: UCC | None = None
         self._excitation_list: list[tuple[tuple[int, ...], tuple[int, ...]]] | None = None
         self._reference_energy: float = 0.0
-        self._coefficients: np.ndarray | None = None
+        self._parameters: np.ndarray | None = None
 
     @property
     def grouped_property(self) -> GroupedSecondQuantizedProperty | None:
@@ -86,7 +86,7 @@ class HFInitialPoint(InitialPoint):
         _ = ansatz.operators
 
         # Invalidate any previous computation.
-        self._coefficients = None
+        self._parameters = None
 
         self._excitation_list = ansatz.excitation_list
         self._ansatz = ansatz
@@ -102,30 +102,30 @@ class HFInitialPoint(InitialPoint):
     @excitation_list.setter
     def excitation_list(self, excitations: list[tuple[tuple[int, ...], tuple[int, ...]]]):
         # Invalidate any previous computation.
-        self._coefficients = None
+        self._parameters = None
 
         self._excitation_list = excitations
 
     def to_numpy_array(self) -> np.ndarray:
         """The initial point as an array."""
-        if self._coefficients is None:
+        if self._parameters is None:
             self.compute()
-        return self._coefficients
+        return self._parameters
 
     def compute(
         self,
         ansatz: UCC | None = None,
         grouped_property: GroupedSecondQuantizedProperty | None = None,
     ) -> None:
-        """Compute the coefficients for each excitation.
+        """Compute the parameter for each excitation.
 
         See further up for more information.
 
         Args:
             grouped_property: A grouped second-quantized property that may optionally contain the
                 Hartree-Fock reference energy. This is for consistency with other initial points.
-            ansatz: The UCC ansatz. Required to set the :attr:`excitation_list` to ensure that the
-                coefficients are mapped correctly in the initial point array.
+            ansatz: The UCC ansatz. Required to set the :attr:`excitation_list` to ensure that the 
+                initial point array has the correct shape.
 
         Raises:
             QiskitNatureError: If :attr`ansatz` is not set.
@@ -154,7 +154,7 @@ class HFInitialPoint(InitialPoint):
         Returns:
             An all-zero array with the same length as the excitation list.
         """
-        self._coefficients = np.zeros(len(self._excitation_list))
+        self._parameters = np.zeros(len(self._excitation_list))
 
     @property
     def total_energy(self) -> float:

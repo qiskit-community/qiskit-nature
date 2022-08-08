@@ -77,7 +77,7 @@ class MP2InitialPoint(InitialPoint):
     parameters in combination with a
     :class:`~qiskit_nature.second_q.circuit.library.ansatzes.ucc.UCC` ansatz.
 
-    The coefficients are computed using the :meth:`compute` method, which requires the
+    The initial point parameters are computed using the :meth:`compute` method, which requires the
     :attr:`grouped_property` and :attr:`ansatz` to be passed as arguments or the
     :attr:`grouped_property` and :attr:`excitation_list` attributes to be set already.
 
@@ -103,7 +103,7 @@ class MP2InitialPoint(InitialPoint):
         self._ansatz: UCC | None = None
         self._excitation_list: list[tuple[tuple[int, ...], tuple[int, ...]]] | None = None
         self._t2_amplitudes: np.ndarray | None = None
-        self._coefficients: np.ndarray | None = None
+        self._parameters: np.ndarray | None = None
         self._energy_correction: float = 0.0
         self._total_energy: float = 0.0
 
@@ -290,14 +290,14 @@ class MP2InitialPoint(InitialPoint):
                 amplitude = self._t2_amplitudes[i, j, a - num_occ, b - num_occ]
                 amplitudes[index] = amplitude if abs(amplitude) > self._threshold else 0.0
 
-        self._coefficients = amplitudes
+        self._parameters = amplitudes
 
     def to_numpy_array(self) -> np.ndarray:
         """The initial point as an array."""
-        if self._coefficients is None:
+        if self._parameters is None:
             self.compute()
-        return self._coefficients
+        return self._parameters
 
     def _invalidate(self):
         """Invalidate any previous computation."""
-        self._coefficients = None
+        self._parameters = None
