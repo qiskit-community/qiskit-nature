@@ -473,7 +473,6 @@ def _low_rank_compressed_two_body_decomposition(  # pylint: disable=invalid-name
         grad_core = np.ravel([mat[param_indices] for mat in grad_core])
         return np.concatenate([grad_leaf_log, grad_core])
 
-    # TODO see if we can improve the intial guess
     core_tensors = _low_rank_optimal_core_tensors(two_body_tensor, leaf_tensors)
     x0 = _df_tensors_to_params(leaf_tensors, core_tensors, core_tensor_mask)
     x0 += 1e-2 * rng.standard_normal(size=x0.shape)
@@ -491,6 +490,7 @@ def _df_tensors_to_params(
     _, n_modes, _ = leaf_tensors.shape
     leaf_logs = [scipy.linalg.logm(mat) for mat in leaf_tensors]
     param_indices = np.triu_indices(n_modes, k=1)
+    # TODO this discards the imaginary part of the logarithm, see if we can do better
     leaf_params = np.real(np.ravel([leaf_log[param_indices] for leaf_log in leaf_logs]))
     param_indices = np.nonzero(core_tensor_mask)
     core_params = np.ravel([core_tensor[param_indices] for core_tensor in core_tensors])
