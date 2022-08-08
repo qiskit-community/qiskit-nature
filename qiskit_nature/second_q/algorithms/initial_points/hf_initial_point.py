@@ -124,7 +124,7 @@ class HFInitialPoint(InitialPoint):
         Args:
             grouped_property: A grouped second-quantized property that may optionally contain the
                 Hartree-Fock reference energy. This is for consistency with other initial points.
-            ansatz: The UCC ansatz. Required to set the :attr:`excitation_list` to ensure that the 
+            ansatz: The UCC ansatz. Required to set the :attr:`excitation_list` to ensure that the
                 initial point array has the correct shape.
 
         Raises:
