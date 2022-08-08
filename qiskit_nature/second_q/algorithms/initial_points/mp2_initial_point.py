@@ -43,8 +43,18 @@ def _compute_mp2(
     """
     num_occ = len(orbital_energies[orbital_energies < 0.0])
 
-    # Use NumPy broadcasting to compute all occupied-virtual energy deltas.
-    energy_deltas = orbital_energies[:num_occ, np.newaxis] - orbital_energies[np.newaxis, num_occ:]
+    # We use NumPy broadcasting to compute the matrix of occupied - virtual energy deltas with
+    # shape (num_occ, num_vir), such that
+    # energy_deltas[i, a] = orbital_energy[i] - orbital_energy[a].
+    # NOTE In the unrestricted-spin calculation, the orbital energies will be a 2D array, and this
+    # logic will need to be revisited.
+    energy_deltas = orbital_energies[:num_occ, np.newaxis] - orbital_energies[num_occ:]
+
+    # We now want to compute a 4D tensor of (occupied, occupied) - (virtual, virtual)
+    # energy deltas with shape (num_occ, num_vir, num_occ, num_vir), such that
+    # double_deltas[i, a, j, b] = orbital_energies[i] + orbital_energies[j]
+    #                             - orbital_energies[a] + orbital_energies[b].
+    # Again we can use NumPy broadcasting to speed this up.
     double_deltas = energy_deltas[:, :, np.newaxis, np.newaxis] + energy_deltas
 
     # Create integral matrix that uses occupied and virtual indices rather than MO indices.
