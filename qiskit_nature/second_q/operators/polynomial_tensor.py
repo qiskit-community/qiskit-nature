@@ -32,20 +32,24 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin):
 
         self._data = data
 
-        shapes = ()
+        shapes = set()
         for key, value in self._data.items():
-            shapes += value.shape
             if len(value.shape) != len(key):
                 raise ValueError(
                     f"data key {key} of length {len(key)} does not match "
                     f"data value matrix of dimensions {value.shape}"
                 )
-            if len(set(value.shape)) != 1:
+
+            shape = set(value.shape)
+
+            if len(shape) != 1:
                 raise ValueError(
                     f"For key {key}: dimensions of value matrix are not identical {value.shape}"
                 )
 
-        if len(set(shapes)) != 1:
+            shapes.update(shape)
+
+        if len(shapes) != 1:
             raise ValueError("Dimensions of value matrices in data dictionary are not identical.")
 
     def mul(self, other: complex):
