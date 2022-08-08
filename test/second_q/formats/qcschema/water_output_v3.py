@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -10,27 +10,13 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""
-===================================================
-Second Quantization (:mod:`qiskit_nature.second_q`)
-===================================================
+"""The expected water output v3 QCSchema."""
 
-.. currentmodule:: qiskit_nature.second_q
+from copy import deepcopy
 
-Submodules
-==========
+from .water_output import EXPECTED
 
-.. autosummary::
-   :toctree:
+EXPECTED = deepcopy(EXPECTED)
 
-   algorithms
-   circuit
-   drivers
-   formats
-   hamiltonians
-   mappers
-   operators
-   problems
-   properties
-   transformers
-"""
+EXPECTED.schema_version = 3
+EXPECTED.wavefunction.restricted = True
