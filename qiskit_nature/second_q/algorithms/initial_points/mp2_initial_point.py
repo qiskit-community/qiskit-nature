@@ -53,7 +53,7 @@ def _compute_mp2(
     # We now want to compute a 4D tensor of (occupied, occupied) - (virtual, virtual)
     # energy deltas with shape (num_occ, num_vir, num_occ, num_vir), such that
     # double_deltas[i, a, j, b] = orbital_energies[i] + orbital_energies[j]
-    #                             - orbital_energies[a] + orbital_energies[b].
+    #                             - orbital_energies[a] - orbital_energies[b].
     # Again we can use NumPy broadcasting to speed this up.
     double_deltas = energy_deltas[:, :, np.newaxis, np.newaxis] + energy_deltas
 
