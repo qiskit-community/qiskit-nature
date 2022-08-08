@@ -217,8 +217,10 @@ class SUCCD(UCC):
     def _build_fermionic_excitation_ops(self, excitations: Sequence) -> List[FermionicOp]:
         """Builds all possible excitation operators with the given number of excitations for the
         specified number of particles distributed in the number of orbitals.
+        
         Args:
             excitations: the list of excitations.
+            
         Returns:
             The list of excitation operators in the second quantized formalism.
         """
