@@ -193,6 +193,9 @@ def modified_cholesky(
         two_body_tensor: The two-body tensor to decompose.
         max_vecs: The maximum number of terms to include in the decomposition.
         threshold: Threshold for convergence.
+
+    Returns:
+        The Cholesky terms L^{(t)} as a list of matrices assembled into a Numpy array.
     """
     n_modes, _, _, _ = two_body_tensor.shape
     reshaped_tensor = np.reshape(two_body_tensor, (n_modes**2, n_modes**2))
