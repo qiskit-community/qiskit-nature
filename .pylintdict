@@ -28,6 +28,7 @@ args
 arrowheads
 arrowstyle
 arxiv
+asdict
 asparagine
 aspartic
 atol
@@ -52,6 +53,7 @@ bopes
 boson
 bosonic
 bravyi
+calcinfo
 cargs
 cartesian
 cbit
@@ -99,6 +101,8 @@ cy
 cysteine
 cz
 das
+dataclass
+dataclasses
 dataset
 dcx
 debye
@@ -124,6 +128,7 @@ doi
 dt
 dtype
 dumitrescu
+ecp
 ecr
 eigen
 eigenfunctions
@@ -134,6 +139,7 @@ eigenstate
 eigenstateresult
 eigenstates
 eigenvector
+eigenvectors
 einact
 einsum
 endian
@@ -163,6 +169,7 @@ fmt
 fock
 formatter
 fortran
+fp
 fredkin
 für
 gauopen
@@ -214,6 +221,7 @@ interatomic
 internuclear
 interpretable
 ints
+io
 isclose
 ising
 iso
@@ -236,6 +244,7 @@ ji
 jl
 jordan
 josé
+json
 jupyter
 jw
 kanav
@@ -295,6 +304,7 @@ mohij
 mohijkl
 mol
 moller
+molssi
 morse
 mpl
 mul
@@ -307,6 +317,7 @@ namelist
 nan
 nannichini
 natom
+nbasis
 nd
 ndarray
 nelec
@@ -389,11 +400,14 @@ qarg
 qargs
 qasm
 qbit
+qcbase
 qcmatrixio
+qcschema
 qeom
 qfi
 qiskit
 qiskit's
+qc
 qmolecule
 qn
 qregs
@@ -408,6 +422,7 @@ rangle
 rcccx
 rccx
 readme
+readthedocs
 realise
 rebranding
 refactor
