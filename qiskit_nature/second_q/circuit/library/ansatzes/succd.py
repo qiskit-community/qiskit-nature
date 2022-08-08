@@ -233,14 +233,12 @@ class SUCCD(UCC):
         # Reform the excitations list to a dictionary. Each items in the dictionary
         # corresponds to a parameter.
         for exc in excitations:
-            alpha_occ = exc[0][0]  # alpha occupied indices
-            beta_occ = exc[0][
-                -1
-            ]  # beta occupied indices. If include singles, then beta_occ=alpha_occ
-            alpha_unocc = exc[1][0]  # alpha unoccupied indices
-            beta_unocc = exc[1][
-                -1
-            ]  # beta unoccupied indices. If include singles, then beta_unocc=alpha_unocc
+            alpha_occ = exc[0][0]
+            # beta occupied indices. If include singles, then beta_occ=alpha_occ
+            beta_occ = exc[0][-1]
+            alpha_unocc = exc[1][0]
+            # beta unoccupied indices. If include singles, then beta_unocc=alpha_unocc
+            beta_unocc = exc[1][-1]
             alpha_exc = int(
                 str(alpha_occ) + str(alpha_unocc)
             )  # alpha occupied and unoccupied indices
