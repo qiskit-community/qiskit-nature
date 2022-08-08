@@ -5,7 +5,6 @@ features:
     .. code-block:: python
 
       from qiskit_nature.second_q.circuit.library.ansatzes import SUCCD
-      from qiskit_nature.converters.second_quantization import QubitConverter
-      from qiskit_nature.mappers.second_quantization import JordanWignerMapper
+      from qiskit_nature.second_q.mappers import JordanWignerMapper, QubitConverter
       converter = QubitConverter(JordanWignerMapper())
       ansatz = SUCCD(converter, (1, 1), 6, mirror=True)
