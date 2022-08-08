@@ -205,7 +205,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         num_particles = (particle_number.num_alpha, particle_number.num_beta)
         num_spin_orbitals = particle_number.num_spin_orbitals
 
-        qubit_converter = QubitConverter(mapper=JordanWignerMapper(), two_qubit_reduction=True)
+        qubit_converter = QubitConverter(mapper=JordanWignerMapper())
 
         initial_state = HartreeFock(
             num_spin_orbitals=num_spin_orbitals,
