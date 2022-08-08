@@ -36,8 +36,9 @@ def _compute_mp2(
         orbital_energies: The orbital energies.
 
     Returns:
-        T amplitudes t2[i, j, a, b] (i, j in occupied, a, b in virtual).
-        The MP2 energy correction.
+        A tuple consisting of the:
+        - T amplitudes t2[i, j, a, b] (i, j in occupied, a, b in virtual).
+        - The MP2 energy correction.
 
     """
     num_occ = len(orbital_energies[orbital_energies < 0.0])
