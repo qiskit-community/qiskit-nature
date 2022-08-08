@@ -1,7 +1,8 @@
 ---
 features:
   - |
-    Adds new keyword argument "mirror" to ``SUCCD`` class.
+    Adds the new keyword argument `mirror` to the ``SUCCD`` class.
+
     .. code-block:: python
 
       from qiskit_nature.second_q.circuit.library.ansatzes import SUCCD
