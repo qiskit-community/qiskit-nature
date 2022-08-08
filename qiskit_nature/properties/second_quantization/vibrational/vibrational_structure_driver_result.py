@@ -27,7 +27,12 @@ from .bases import VibrationalBasis
 from .occupied_modals import OccupiedModals
 from .vibrational_energy import VibrationalEnergy
 from .types import GroupedVibrationalProperty
-from ....deprecation import deprecate_method
+from ....deprecation import (
+    deprecate_method,
+    warn_deprecated,
+    DeprecatedType,
+    NatureDeprecationWarning,
+)
 
 
 class VibrationalStructureDriverResult(GroupedVibrationalProperty):
@@ -43,6 +48,17 @@ class VibrationalStructureDriverResult(GroupedVibrationalProperty):
         """
         super().__init__(self.__class__.__name__)
         self._num_modes: int = None
+        warn_deprecated(
+            "0.5.0",
+            old_type=DeprecatedType.CLASS,
+            old_name=(
+                "qiskit_nature.properties.second_quantization.vibrational."
+                "VibrationalStructureDriverResult"
+            ),
+            new_type=DeprecatedType.CLASS,
+            new_name="qiskit_nature.second_q.problems.VibrationalStructureProblem",
+            category=NatureDeprecationWarning,
+        )
 
     @property
     def num_modes(self) -> int:

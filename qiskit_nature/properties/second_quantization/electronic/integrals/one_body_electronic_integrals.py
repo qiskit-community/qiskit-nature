@@ -22,6 +22,7 @@ from qiskit_nature import QiskitNatureError
 
 from .electronic_integrals import ElectronicIntegrals
 from ..bases import ElectronicBasis, ElectronicBasisTransform
+from .....deprecation import warn_deprecated, DeprecatedType, NatureDeprecationWarning
 
 
 class OneBodyElectronicIntegrals(ElectronicIntegrals):
@@ -52,6 +53,14 @@ class OneBodyElectronicIntegrals(ElectronicIntegrals):
         """
         num_body_terms = 1
         super().__init__(num_body_terms, basis, matrices, threshold)
+        warn_deprecated(
+            "0.5.0",
+            old_type=DeprecatedType.CLASS,
+            old_name="qiskit_nature.properties.second_quantization.electronic.integrals.OneBodyElectronicIntegrals",
+            new_type=DeprecatedType.CLASS,
+            new_name="qiskit_nature.second_q.operators.PolynomialTensor",
+            category=NatureDeprecationWarning,
+        )
 
     def transform_basis(self, transform: ElectronicBasisTransform) -> OneBodyElectronicIntegrals:
         # pylint: disable=line-too-long
