@@ -86,7 +86,7 @@ class SUCCD(UCC):
         self._validate_num_particles(num_particles)
         self._include_singles = include_singles
         self._mirror = mirror
-        self._excitations_dict: Dict[str, List[Tuple[Tuple[int, ...], Tuple[int, ...]]]] = None
+        self._excitation_dict: Dict[str, List[Tuple[Tuple[int, ...], Tuple[int, ...]]]] = None
         super().__init__(
             qubit_converter=qubit_converter,
             num_particles=num_particles,
