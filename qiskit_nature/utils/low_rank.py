@@ -54,7 +54,8 @@ class DoubleFactorizedHamiltonian:
         """The number of spatial orbitals."""
         return self.one_body_tensor.shape[0]
 
-    @functools.cached_property
+    # TODO: use cached_property when it is available (Python 3.8)
+    @property
     def two_body_tensor(self):
         """The two-body tensor."""
         return np.einsum(
