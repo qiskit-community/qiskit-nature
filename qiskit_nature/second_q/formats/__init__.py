@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,10 +12,10 @@
 
 """
 ===================================================
-Second Quantization (:mod:`qiskit_nature.second_q`)
+I/O Formats (:mod:`qiskit_nature.second_q.formats`)
 ===================================================
 
-.. currentmodule:: qiskit_nature.second_q
+.. currentmodule:: qiskit_nature.second_q.formats
 
 Submodules
 ==========
@@ -23,14 +23,6 @@ Submodules
 .. autosummary::
    :toctree:
 
-   algorithms
-   circuit
-   drivers
-   formats
-   hamiltonians
-   mappers
-   operators
-   problems
-   properties
-   transformers
+   qcschema
+
 """
