@@ -18,7 +18,11 @@ import numpy as np
 
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import UCC
-from qiskit_nature.second_q.properties import ElectronicEnergy, GroupedSecondQuantizedProperty
+from qiskit_nature.second_q.properties import (
+    ParticleNumber,
+    ElectronicEnergy,
+    GroupedSecondQuantizedProperty,
+)
 from qiskit_nature.second_q.properties.bases import ElectronicBasis
 from qiskit_nature.second_q.properties.integrals import ElectronicIntegrals
 
@@ -27,11 +31,12 @@ from .initial_point import InitialPoint
 
 
 def _compute_mp2(
-    integral_matrix: np.ndarray, orbital_energies: np.ndarray
+    num_occ: int, integral_matrix: np.ndarray, orbital_energies: np.ndarray
 ) -> tuple[np.ndarray, float]:
     """Compute the T2 amplitudes and MP2 energy correction.
 
     Args:
+        num_occ: The number of occupied molecular orbitals.
         integral_matrix: The two-body molecular orbitals matrix.
         orbital_energies: The orbital energies.
 
@@ -41,8 +46,6 @@ def _compute_mp2(
         - The MP2 energy correction.
 
     """
-    num_occ = len(orbital_energies[orbital_energies < 0.0])
-
     # We use NumPy broadcasting to compute the matrix of occupied - virtual energy deltas with
     # shape (num_occ, num_vir), such that
     # energy_deltas[i, a] = orbital_energy[i] - orbital_energy[a].
@@ -191,8 +194,11 @@ class MP2InitialPoint(InitialPoint):
 
         reference_energy = electronic_energy.reference_energy if not None else 0.0
 
+        # Only valid for restricted-spin setups.
+        num_occ = np.count_nonzero(grouped_property.get_property(ParticleNumber).occupation_alpha)
+
         self._invalidate()
-        t2_amplitudes, energy_correction = _compute_mp2(integral_matrix, orbital_energies)
+        t2_amplitudes, energy_correction = _compute_mp2(num_occ, integral_matrix, orbital_energies)
 
         # Save state.
         self._grouped_property = grouped_property

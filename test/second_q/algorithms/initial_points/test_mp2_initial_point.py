@@ -29,6 +29,7 @@ from qiskit_nature.second_q.circuit.library import HartreeFock, UCC
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.properties import (
+    Property,
     ParticleNumber,
     ElectronicEnergy,
     GroupedSecondQuantizedProperty,
@@ -50,6 +51,8 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         self.mock_ansatz = Mock(spec=UCC)
         self.mock_ansatz.excitation_list = self.excitation_list
 
+        particle_number = Mock(spec=ParticleNumber)
+        particle_number.occupation_alpha = [1, 0]
         electronic_energy = Mock(spec=ElectronicEnergy)
         electronic_energy.orbital_energies = np.zeros(2)
         electronic_energy.reference_energy = 123.45
@@ -57,7 +60,16 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         electronic_integrals.get_matrix = Mock(return_value=np.zeros((1, 1, 1, 1)))
         electronic_energy.get_electronic_integral = Mock(return_value=electronic_integrals)
         self.mock_grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
-        self.mock_grouped_property.get_property = Mock(return_value=electronic_energy)
+
+        def get_property(prop: Property) -> Property | None:
+            if prop == ParticleNumber:
+                return particle_number
+            elif prop == ElectronicEnergy:
+                return electronic_energy
+            else:
+                return None
+
+        self.mock_grouped_property.get_property = get_property
 
     def test_no_threshold(self):
         """Test when no threshold is provided."""
