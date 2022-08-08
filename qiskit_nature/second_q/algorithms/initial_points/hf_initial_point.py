@@ -147,12 +147,12 @@ class HFInitialPoint(InitialPoint):
         self._compute()
 
     def _compute(self) -> None:
-        """Compute the coefficients given an excitation list.
+        """Computes the HF initial point array for a given excitation list.
 
-        All excitations will have zero coefficient.
+        In the Hartree-Fock case this is simply an all-zero array.
 
         Returns:
-            The coefficients for each excitation.
+            An all-zero array with the same length as the excitation list.
         """
         self._coefficients = np.zeros(len(self._excitation_list))
 
