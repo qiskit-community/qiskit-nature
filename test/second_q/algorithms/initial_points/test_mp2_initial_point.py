@@ -161,7 +161,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
             np.testing.assert_array_equal(mp2_initial_point.energy_correction, 0.0)
         with self.subTest("Test energy is computed on demand."):
             mp2_initial_point._corrections = None
-            np.testing.assert_array_equal(mp2_initial_point.energy, 123.45)
+            np.testing.assert_array_equal(mp2_initial_point.total_energy, 123.45)
 
     def test_raises_error_for_non_restricted_spins(self):
         """Test when grouped_property and ansatz are set via compute."""
@@ -224,15 +224,15 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         mp2_initial_point.grouped_property = grouped_property
         mp2_initial_point.ansatz = ansatz
 
-        with self.subTest("Test overall MP2 energy correction."):
+        with self.subTest("Test the MP2 energy correction."):
             np.testing.assert_almost_equal(
                 mp2_initial_point.energy_correction, pyscf_mp.e_corr, decimal=4
             )
 
-        with self.subTest("Test absolute MP2 energy."):
-            np.testing.assert_almost_equal(mp2_initial_point.energy, pyscf_mp.e_tot, decimal=4)
+        with self.subTest("Test the total MP2 energy."):
+            np.testing.assert_almost_equal(mp2_initial_point.total_energy, pyscf_mp.e_tot, decimal=4)
 
-        with self.subTest("Test absolute MP2 energy."):
+        with self.subTest("Test the T2 amplitudes."):
             mp2_initial_point.compute()
             np.testing.assert_array_almost_equal(
                 mp2_initial_point.t2_amplitudes, pyscf_mp.t2, decimal=4

@@ -73,16 +73,15 @@ class MP2InitialPoint(InitialPoint):
     ``MP2InitialPoint`` requires the :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`,
     which should be passed in via the :attr:`grouped_property` attribute. From this it must obtain
     the two-body molecular orbital electronic integrals and orbital energies. If the Hartree-Fock
-    reference energy is also obtained, it will be used to compute the absolute MP2 energy using the
-    :meth:`get_energy` method.
+    reference energy is also obtained, it will be used to compute the total MP2 energy. Once
 
     ``MP2InitialPoint`` also requires the :attr:`excitation_list` from the :attr:`ansatz` to ensure
     that the coefficients map correctly to the initial point array. However, this can be substituted
     by setting the :attr:`excitation_list` attribute directly.
 
     Following computation, the initial point array can be extracted via the :meth:`to_numpy_array`
-    method. The overall energy correction can be obtained via the :meth:`get_energy_correction`
-    method. The initial point array elements with indices corresponding to double excitations in the
+    method. The overall energy correction can be obtained via the :attr:`energy_correction`
+    property. The initial point array elements with indices corresponding to double excitations in the
     :attr:`excitation_list` will have a value corresponding to the appropriate MP2 coefficient,
     while those that correspond to single, triple, or higher excitations will have zero value.
     """
@@ -93,9 +92,9 @@ class MP2InitialPoint(InitialPoint):
         self._ansatz: UCC | None = None
         self._excitation_list: list[tuple[tuple[int, ...], tuple[int, ...]]] | None = None
         self._t2_amplitudes: np.ndarray | None = None
-        self._amplitudes: np.ndarray | None = None
+        self._coefficients: np.ndarray | None = None
         self._energy_correction: float = 0.0
-        self._energy: float = 0.0
+        self._total_energy: float = 0.0
 
     @property
     def ansatz(self) -> UCC:
@@ -188,7 +187,7 @@ class MP2InitialPoint(InitialPoint):
         self._grouped_property = grouped_property
         self._t2_amplitudes = t2_amplitudes
         self._energy_correction = energy_correction
-        self._energy = reference_energy + energy_correction
+        self._total_energy = reference_energy + energy_correction
 
     @property
     def t2_amplitudes(self) -> np.ndarray:
@@ -201,14 +200,14 @@ class MP2InitialPoint(InitialPoint):
         return self._energy_correction
 
     @property
-    def energy(self) -> float:
+    def total_energy(self) -> float:
         """The total energy including the Hartree-Fock reference energy.
 
         If the reference energy was not obtained from
         :class:`~qiskit_nature.second_q.properties.ElectronicEnergy` this will be equal to
-        :meth:`get_energy_correction`.
+        :attr:`energy_correction`.
         """
-        return self._energy
+        return self._total_energy
 
     @property
     def threshold(self) -> float:
@@ -231,7 +230,7 @@ class MP2InitialPoint(InitialPoint):
         ansatz: UCC | None = None,
         grouped_property: GroupedSecondQuantizedProperty | None = None,
     ) -> None:
-        """Compute the coefficients and energy corrections.
+        """Compute the coefficients for each excitation.
 
         See further up for more information.
 
@@ -266,10 +265,10 @@ class MP2InitialPoint(InitialPoint):
     def _compute(self) -> None:
         """Compute the MP2 amplitudes given an excitation list.
 
-        Non-double excitations will have zero coefficient and energy_correction.
+        Non-double excitations will have zero coefficient.
 
         Returns:
-            Dictionary with MP2 coefficients and energy_corrections for each excitation.
+            The MP2 T2 amplitudes for each excitation.
         """
         num_occ = self._t2_amplitudes.shape[0]
         amplitudes = np.zeros(len(self.excitation_list))
@@ -280,14 +279,14 @@ class MP2InitialPoint(InitialPoint):
                 amplitude = self._t2_amplitudes[i, j, a - num_occ, b - num_occ]
                 amplitudes[index] = amplitude if abs(amplitude) > self._threshold else 0.0
 
-        self._amplitudes = amplitudes
+        self._coefficients = amplitudes
 
     def to_numpy_array(self) -> np.ndarray:
         """The initial point as an array."""
-        if self._amplitudes is None:
+        if self._coefficients is None:
             self.compute()
-        return self._amplitudes
+        return self._coefficients
 
     def _invalidate(self):
         """Invalidate any previous computation."""
-        self._amplitudes = None
+        self._coefficients = None

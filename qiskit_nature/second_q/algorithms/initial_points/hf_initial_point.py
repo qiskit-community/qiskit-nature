@@ -47,7 +47,7 @@ class HFInitialPoint(InitialPoint):
         self._ansatz: UCC | None = None
         self._excitation_list: list[tuple[tuple[int, ...], tuple[int, ...]]] | None = None
         self._reference_energy: float = 0.0
-        self._parameters: np.ndarray | None = None
+        self._coefficients: np.ndarray | None = None
 
     @property
     def grouped_property(self) -> GroupedSecondQuantizedProperty | None:
@@ -86,7 +86,7 @@ class HFInitialPoint(InitialPoint):
         _ = ansatz.operators
 
         # Invalidate any previous computation.
-        self._parameters = None
+        self._coefficients = None
 
         self._excitation_list = ansatz.excitation_list
         self._ansatz = ansatz
@@ -102,22 +102,22 @@ class HFInitialPoint(InitialPoint):
     @excitation_list.setter
     def excitation_list(self, excitations: list[tuple[tuple[int, ...], tuple[int, ...]]]):
         # Invalidate any previous computation.
-        self._parameters = None
+        self._coefficients = None
 
         self._excitation_list = excitations
 
     def to_numpy_array(self) -> np.ndarray:
         """The initial point as an array."""
-        if self._parameters is None:
+        if self._coefficients is None:
             self.compute()
-        return self._parameters
+        return self._coefficients
 
     def compute(
         self,
         ansatz: UCC | None = None,
         grouped_property: GroupedSecondQuantizedProperty | None = None,
     ) -> None:
-        """Compute the coefficients and energy corrections.
+        """Compute the coefficients for each excitation.
 
         See further up for more information.
 
@@ -147,10 +147,18 @@ class HFInitialPoint(InitialPoint):
         self._compute()
 
     def _compute(self) -> None:
-        self._parameters = np.zeros(len(self._excitation_list))
+        """Compute the coefficients given an excitation list.
 
-    def get_energy(self) -> float:
-        """The reference energy.
+        All excitations will have zero coefficient.
+
+        Returns:
+            The coefficients for each excitation.
+        """
+        self._coefficients = np.zeros(len(self._excitation_list))
+
+    @property
+    def total_energy(self) -> float:
+        """The Hartree-Fock reference energy.
 
         If the reference energy was not obtained from
         :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`
