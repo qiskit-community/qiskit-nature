@@ -15,6 +15,7 @@ import contextlib
 import copy
 import io
 import unittest
+import warnings
 
 from typing import cast
 
@@ -108,7 +109,9 @@ class TestAdaptVQE(QiskitNatureTestCase):
             quantum_instance=QuantumInstance(BasicAer.get_backend("statevector_simulator"))
         )
         delta1 = 0.01
-        calc = AdaptVQE(self.qubit_converter, solver, delta=delta1)
+        with warnings.catch_warnings(record=True):
+            warnings.simplefilter("always")
+            calc = AdaptVQE(self.qubit_converter, solver, delta=delta1)
         res = calc.solve(self.problem)
         self.assertAlmostEqual(res.electronic_energies[0], self.expected, places=6)
 
