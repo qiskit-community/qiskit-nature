@@ -43,6 +43,7 @@ class QiskitNatureSettings:
                 ),
                 stacklevel=3,
             )
+            warnings.filterwarnings("ignore", category=ListAuxOpsDeprecationWarning)
             self._deprecation_shown = True
 
         return self._dict_aux_operators
@@ -61,6 +62,7 @@ class QiskitNatureSettings:
                 ),
                 stacklevel=3,
             )
+            warnings.filterwarnings("ignore", category=ListAuxOpsDeprecationWarning)
             self._deprecation_shown = True
 
         self._dict_aux_operators = dict_aux_operators

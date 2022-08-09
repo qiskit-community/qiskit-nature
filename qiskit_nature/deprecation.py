@@ -139,9 +139,6 @@ def warn_deprecated(
         return
 
     _DEPRECATED_OBJECTS.add(cast(NamedTuple, obj))
-    if category != DeprecationWarning:
-        # if special category, filter enabling it
-        warnings.filterwarnings("default", category=category)
 
     msg = (
         f"The {old_name} {old_type.value} is deprecated as of version {version} "
