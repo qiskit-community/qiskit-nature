@@ -86,7 +86,7 @@ class SUCCD(UCC):
         self._validate_num_particles(num_particles)
         self._include_singles = include_singles
         self._mirror = mirror
-        self._excitation_dict: Dict[str, List[Tuple[Tuple[int, ...], Tuple[int, ...]]]] = None
+        self._excitations_dict: Dict[str, List[Tuple[Tuple[int, ...], Tuple[int, ...]]]] = None
         super().__init__(
             qubit_converter=qubit_converter,
             num_particles=num_particles,
@@ -122,7 +122,7 @@ class SUCCD(UCC):
 
     def _filter_operators(self, operators):
         valid_operators, valid_excitations = [], []
-        for op, ex in zip(operators, self._excitation_dict.values()):
+        for op, ex in zip(operators, self._excitations_dict.values()):
             if op is not None:
                 valid_operators.append(op)
                 valid_excitations.extend(ex)
@@ -217,10 +217,10 @@ class SUCCD(UCC):
     def _build_fermionic_excitation_ops(self, excitations: Sequence) -> List[FermionicOp]:
         """Builds all possible excitation operators with the given number of excitations for the
         specified number of particles distributed in the number of orbitals.
-        
+
         Args:
             excitations: the list of excitations.
-            
+
         Returns:
             The list of excitation operators in the second quantized formalism.
         """
@@ -247,7 +247,7 @@ class SUCCD(UCC):
             )  # beta occupied and unoccupied indices.
 
             exc_level = str(abs(alpha_exc - beta_exc)) + str(alpha_exc + beta_exc)
-            # exc_level is a 4-number string, which indicate alpha and beta occupied+unoccpied indices.
+            # exc_level is a 4-number string, which indicate alpha and beta occupied+unoccupied indices.
             # Thus, the level of an excitations is indicated by this string. The symmetrically
             # mirrored double excitations have the same exc_level string, and the
             # excitations with the same level will be assigned the same parameter.
