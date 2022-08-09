@@ -12,12 +12,14 @@
 
 """Tests for the HDF5 methods."""
 
-import os
-import tempfile
+from pathlib import Path
+from tempfile import NamedTemporaryFile, TemporaryDirectory
 from test import QiskitNatureTestCase
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.hdf5 import load_from_hdf5, save_to_hdf5
-from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
+from qiskit_nature.second_q.properties import (
+    ElectronicStructureDriverResult,
+)
 
 
 class TestHDF5(QiskitNatureTestCase):
@@ -29,7 +31,7 @@ class TestHDF5(QiskitNatureTestCase):
             driver_result = load_from_hdf5(
                 self.get_resource_path(
                     "electronic_structure_driver_result.hdf5",
-                    "properties/second_quantization/electronic/resources",
+                    "second_q/properties/resources",
                 )
             )
             self.assertTrue(isinstance(driver_result, ElectronicStructureDriverResult))
@@ -71,34 +73,24 @@ class TestHDF5(QiskitNatureTestCase):
         driver_result = load_from_hdf5(
             self.get_resource_path(
                 "electronic_structure_driver_result.hdf5",
-                "properties/second_quantization/electronic/resources",
+                "second_q/properties/resources",
             )
         )
 
         with self.subTest("Normal behavior"):
-            # pylint: disable=consider-using-with
-            tmp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".hdf5")
-            tmp_file.close()
-            os.unlink(tmp_file.name)
-            save_to_hdf5(driver_result, tmp_file.name)
-            try:
-                self.assertTrue(os.path.exists(tmp_file.name))
-            finally:
-                os.unlink(tmp_file.name)
+            with TemporaryDirectory() as tmp_dir:
+                tmp_file = Path(tmp_dir) / "tmp.hdf5"
+                save_to_hdf5(driver_result, tmp_file)
+                self.assertTrue(tmp_file.exists())
 
         with self.subTest("FileExistsError"):
-            with tempfile.NamedTemporaryFile() as tmp_file:
+            with NamedTemporaryFile() as tmp_file:
                 with self.assertRaises(FileExistsError):
                     save_to_hdf5(driver_result, tmp_file.name)
 
         with self.subTest("replace=True"):
-            # pylint: disable=consider-using-with
-            tmp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".hdf5")
-            # we need to use delete=False here because on Windows it is not possible to open an
-            # existing file a second time:
-            # https://docs.python.org/3.9/library/tempfile.html#tempfile.NamedTemporaryFile
-            tmp_file.close()
-            try:
-                save_to_hdf5(driver_result, tmp_file.name, replace=True)
-            finally:
-                os.unlink(tmp_file.name)
+            with TemporaryDirectory() as tmp_dir:
+                tmp_file = Path(tmp_dir) / "tmp.hdf5"
+                tmp_file.touch()
+                self.assertTrue(tmp_file.exists())
+                save_to_hdf5(driver_result, tmp_file, replace=True)

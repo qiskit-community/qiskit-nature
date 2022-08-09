@@ -2,15 +2,21 @@
 
 [![License](https://img.shields.io/github/license/Qiskit/qiskit-nature.svg?style=popout-square)](https://opensource.org/licenses/Apache-2.0)<!--- long-description-skip-begin -->[![Build Status](https://github.com/Qiskit/qiskit-nature/workflows/Nature%20Unit%20Tests/badge.svg?branch=main)](https://github.com/Qiskit/qiskit-nature/actions?query=workflow%3A"Nature%20Unit%20Tests"+branch%3Amain+event%3Apush)[![](https://img.shields.io/github/release/Qiskit/qiskit-nature.svg?style=popout-square)](https://github.com/Qiskit/qiskit-nature/releases)[![](https://img.shields.io/pypi/dm/qiskit-nature.svg?style=popout-square)](https://pypi.org/project/qiskit-nature/)[![Coverage Status](https://coveralls.io/repos/github/Qiskit/qiskit-nature/badge.svg?branch=main)](https://coveralls.io/github/Qiskit/qiskit-nature?branch=main)<!--- long-description-skip-end -->
 
-**Qiskit Nature** is an open-source framework that supports problems including ground state energy computations,
-excited states and dipole moments of molecule, both open and closed-shell.
+**Qiskit Nature** is an open-source framework which supports solving quantum mechanical natural
+science problems using quantum computing algorithms. This includes finding ground and excited
+states of electronic and vibrational structure problems, measuring the dipole moments of molecular
+systems, solving the Ising and Fermi-Hubbard models on lattices, and much more.
 
 The code comprises chemistry drivers, which when provided with a molecular
-configuration will return one and two-body integrals as well as other data that is efficiently
+configuration will return one- and two-body integrals as well as other data that is efficiently
 computed classically. This output data from a driver can then be used as input in Qiskit
 Nature that contains logic which is able to translate this into a form that is suitable
-for quantum algorithms. The conversion first creates a FermionicOperator which must then be mapped,
-e.g. by a Jordan Wigner mapping, to a qubit operator in readiness for the quantum computation.
+for quantum algorithms.
+
+For the solution of electronic structure problems, the problem Hamiltonian is first expressed in
+the second quantization formalism, comprising fermionic excitation and annihilation operators.
+These can then be mapped to the qubit formalism using a variety of mappings such as Jordan-Wigner,
+Parity, and more, in readiness for the quantum computation.
 
 ## Installation
 
@@ -36,17 +42,17 @@ Several, as listed below, are supported, and while logic to interface these prog
 Qiskit Nature via the above pip installation, the dependent programs/libraries themselves need
 to be installed separately.
 
-1. [Gaussian 16&trade;](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.drivers.second_quantization.gaussiand.html), a commercial chemistry program
-2. [PSI4](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.drivers.second_quantization.psi4d.html), a chemistry program that exposes a Python interface allowing for accessing internal objects
-3. [PyQuante](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.drivers.second_quantization.pyquanted.html), a pure cross-platform open-source Python chemistry program
-4. [PySCF](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.drivers.second_quantization.pyscfd.html), an open-source Python chemistry program
+1. [Gaussian 16&trade;](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.second_q.drivers.gaussiand.html), a commercial chemistry program
+2. [PSI4](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.second_q.drivers.psi4d.html), a chemistry program that exposes a Python interface allowing for accessing internal objects
+3. [PyQuante](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.second_q.drivers.pyquanted.html), a pure cross-platform open-source Python chemistry program
+4. [PySCF](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.second_q.drivers.pyscfd.html), an open-source Python chemistry program
 
 ### HDF5 Driver
 
 A useful functionality integrated into Qiskit Nature is its ability to serialize a file
 in hierarchical Data Format 5 (HDF5) format representing all the output data from a chemistry driver.
 
-The [HDF5 driver](https://qiskit.org/documentation/nature/stubs/qiskit_nature.drivers.second_quantization.HDF5Driver.html#qiskit_nature.drivers.second_quantization.HDF5Driver)
+The [HDF5 driver](https://qiskit.org/documentation/nature/stubs/qiskit_nature.second_q.drivers.HDF5Driver.html#qiskit_nature.second_q.drivers.HDF5Driver)
 accepts such HDF5 files as input so molecular experiments can be run, albeit on the fixed data
 as stored in the file. As such, if you have some pre-created HDF5 files created from Qiskit
 Nature, you can use these with the HDF5 driver even if you do not install one of the classical
@@ -60,9 +66,9 @@ the ground-state (minimum) energy of a molecule.
 
 ```python
 from qiskit_nature.settings import settings
-from qiskit_nature.drivers import UnitsType
-from qiskit_nature.drivers.second_quantization import PySCFDriver
-from qiskit_nature.problems.second_quantization.electronic import ElectronicStructureProblem
+from qiskit_nature.second_q.drivers import UnitsType
+from qiskit_nature.second_q.drivers import PySCFDriver
+from qiskit_nature.second_q.problems import ElectronicStructureProblem
 
 settings.dict_aux_operators = True
 
@@ -89,8 +95,8 @@ from qiskit.algorithms.optimizers import L_BFGS_B
 optimizer = L_BFGS_B()
 
 # setup the mapper and qubit converter
-from qiskit_nature.mappers.second_quantization import ParityMapper
-from qiskit_nature.converters.second_quantization import QubitConverter
+from qiskit_nature.second_q.mappers import ParityMapper
+from qiskit_nature.second_q.mappers import QubitConverter
 
 mapper = ParityMapper()
 converter = QubitConverter(mapper=mapper, two_qubit_reduction=True)
@@ -99,7 +105,7 @@ converter = QubitConverter(mapper=mapper, two_qubit_reduction=True)
 qubit_op = converter.convert(main_op, num_particles=num_particles)
 
 # setup the initial state for the ansatz
-from qiskit_nature.circuit.library import HartreeFock
+from qiskit_nature.second_q.circuit.library import HartreeFock
 
 init_state = HartreeFock(num_spin_orbitals, num_particles, converter)
 
@@ -112,9 +118,9 @@ ansatz = TwoLocal(num_spin_orbitals, ['ry', 'rz'], 'cz')
 ansatz.compose(init_state, front=True, inplace=True)
 
 # set the backend for the quantum computation
-from qiskit import Aer
+import qiskit
 
-backend = Aer.get_backend('aer_simulator_statevector')
+backend = qiskit.providers.aer.Aer.get_backend('aer_simulator_statevector')
 
 # setup and run VQE
 from qiskit.algorithms import VQE
@@ -197,6 +203,6 @@ This project uses the [Apache License 2.0](https://github.com/Qiskit/qiskit-natu
 
 However there is some code that is included under other licensing as follows:
 
-* The [Gaussian 16 driver](https://github.com/Qiskit/qiskit-nature/tree/main/qiskit_nature/drivers/second_quantization/gaussiand) in `qiskit-nature`
-  contains [work](https://github.com/Qiskit/qiskit-nature/tree/main/qiskit_nature/drivers/second_quantization/gaussiand/gauopen) licensed under the
-  [Gaussian Open-Source Public License](https://github.com/Qiskit/qiskit-nature/blob/main/qiskit_nature/drivers/second_quantization/gaussiand/gauopen/LICENSE.txt).
+* The [Gaussian 16 driver](https://github.com/Qiskit/qiskit-nature/tree/main/qiskit_nature/second_q/drivers/gaussiand) in `qiskit-nature`
+  contains [work](https://github.com/Qiskit/qiskit-nature/tree/main/qiskit_nature/second_q/drivers/gaussiand/gauopen) licensed under the
+  [Gaussian Open-Source Public License](https://github.com/Qiskit/qiskit-nature/blob/main/qiskit_nature/second_q/drivers/gaussiand/gauopen/LICENSE.txt).

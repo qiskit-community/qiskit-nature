@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2021.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -14,11 +14,29 @@
 This module declares the Unit Types.
 """
 
-from enum import Enum
+from ..deprecation import (
+    warn_deprecated,
+    DeprecatedType,
+    NatureDeprecationWarning,
+    DeprecatedEnum,
+    DeprecatedEnumMeta,
+)
 
 
-class UnitsType(Enum):
+class UnitsType(DeprecatedEnum, metaclass=DeprecatedEnumMeta):
     """Units Type Enum"""
 
     ANGSTROM = "Angstrom"
     BOHR = "Bohr"
+
+    def deprecate(self):
+        """show deprecate message"""
+        warn_deprecated(
+            "0.5.0",
+            old_type=DeprecatedType.ENUM,
+            old_name="qiskit_nature.drivers.UnitsType",
+            new_type=DeprecatedType.ENUM,
+            new_name="qiskit_nature.second_q.drivers.UnitsType",
+            stack_level=3,
+            category=NatureDeprecationWarning,
+        )

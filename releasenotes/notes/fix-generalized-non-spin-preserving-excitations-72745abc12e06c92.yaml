@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fixes the compatibility of the fermionic excitation generator options which
+    disables spin preserving while also enabling generalized behavior.

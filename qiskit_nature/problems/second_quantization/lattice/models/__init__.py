@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -13,3 +13,14 @@
 """Models"""
 from .fermi_hubbard_model import FermiHubbardModel
 from .ising_model import IsingModel
+from .....deprecation import warn_deprecated, DeprecatedType, NatureDeprecationWarning
+
+warn_deprecated(
+    "0.5.0",
+    old_type=DeprecatedType.PACKAGE,
+    old_name="qiskit_nature.problems.second_quantization.lattice.models",
+    new_type=DeprecatedType.PACKAGE,
+    new_name="qiskit_nature.second_q.hamiltonians",
+    stack_level=3,
+    category=NatureDeprecationWarning,
+)

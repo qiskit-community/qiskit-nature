@@ -12,10 +12,9 @@
 
 """ Test Driver HDF5 """
 
-import os
-import pathlib
+from pathlib import Path
+from tempfile import TemporaryDirectory
 import shutil
-import tempfile
 import unittest
 import warnings
 
@@ -44,18 +43,12 @@ class TestDriverHDF5(QiskitNatureTestCase, TestDriver):
             "test_driver_hdf5_legacy.hdf5", "drivers/second_quantization/hdf5d"
         )
         with self.subTest("replace=True"):
-            # pylint: disable=consider-using-with
-            tmp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".hdf5")
-            tmp_file.close()
-            os.unlink(tmp_file.name)
-            shutil.copy(legacy_file_path, tmp_file.name)
-            try:
-                driver = HDF5Driver(tmp_file.name)
+            with TemporaryDirectory() as tmp_dir:
+                tmp_file = Path(tmp_dir) / "tmp.hdf5"
+                shutil.copy(legacy_file_path, tmp_file)
+                driver = HDF5Driver(tmp_file)
                 # replacing file won't trigger deprecation on run
                 driver.convert(replace=True)
-                driver.run()
-            finally:
-                os.unlink(tmp_file.name)
 
         msg_mol_ref = (
             "The HDF5Driver.run with legacy HDF5 file method is deprecated as of version 0.4.0 "
@@ -64,16 +57,11 @@ class TestDriverHDF5(QiskitNatureTestCase, TestDriver):
             "consider converting it to the new property framework. See also HDF5Driver.convert."
         )
         with self.subTest("replace=False"):
-            # pylint: disable=consider-using-with
-            tmp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".hdf5")
-            tmp_file.close()
-            new_file_name = pathlib.Path(tmp_file.name).with_name(
-                str(pathlib.Path(tmp_file.name).stem) + "_new.hdf5"
-            )
-            os.unlink(tmp_file.name)
-            shutil.copy(legacy_file_path, tmp_file.name)
-            try:
-                driver = HDF5Driver(tmp_file.name)
+            with TemporaryDirectory() as tmp_dir:
+                tmp_file = Path(tmp_dir) / "tmp.hdf5"
+                new_file_name = Path(tmp_dir) / "tmp_new.hdf5"
+                shutil.copy(legacy_file_path, tmp_file)
+                driver = HDF5Driver(tmp_file)
                 # not replacing file will trigger deprecation on run
                 driver.convert(replace=False)
                 with warnings.catch_warnings(record=True) as c_m:
@@ -83,9 +71,6 @@ class TestDriverHDF5(QiskitNatureTestCase, TestDriver):
 
                 # using new file won't trigger deprecation
                 HDF5Driver(new_file_name).run()
-            finally:
-                os.unlink(tmp_file.name)
-                os.unlink(new_file_name)
 
 
 class TestDriverHDF5Legacy(QiskitNatureTestCase, TestDriver):
