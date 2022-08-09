@@ -52,7 +52,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         self.mock_ansatz.excitation_list = self.excitation_list
 
         particle_number = Mock(spec=ParticleNumber)
-        particle_number.occupation_alpha = [1, 0]
+        particle_number.num_particles = (1, 1)
         electronic_energy = Mock(spec=ElectronicEnergy)
         electronic_energy.orbital_energies = np.zeros(2)
         electronic_energy.reference_energy = 123.45

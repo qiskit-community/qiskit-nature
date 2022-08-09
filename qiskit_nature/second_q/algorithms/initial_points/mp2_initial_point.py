@@ -194,8 +194,8 @@ class MP2InitialPoint(InitialPoint):
 
         reference_energy = electronic_energy.reference_energy if not None else 0.0
 
-        # Only valid for restricted-spin setups.
-        num_occ = np.count_nonzero(grouped_property.get_property(ParticleNumber).occupation_alpha)
+        # Get number of alpha particles. Only valid for restricted-spin setups.
+        num_occ = grouped_property.get_property(ParticleNumber).num_particles[0]
 
         self._invalidate()
         t2_amplitudes, energy_correction = _compute_mp2(num_occ, integral_matrix, orbital_energies)
