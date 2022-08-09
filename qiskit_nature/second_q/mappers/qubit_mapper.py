@@ -34,7 +34,7 @@ class QubitMapper(ABC):
                 number of qubits in the mapped operator can be reduced accordingly.
         """
         self._allows_two_qubit_reduction = allows_two_qubit_reduction
-        self.times_creation_op = []
+        self.times_creation_op: list[SparsePauliOp] = []
         self.times_annihilation_op = []
         self.times_occupation_number_op = []
         self.times_emptiness_number_op = []
