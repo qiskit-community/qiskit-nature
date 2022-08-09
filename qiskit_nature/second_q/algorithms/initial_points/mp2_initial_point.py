@@ -194,7 +194,8 @@ class MP2InitialPoint(InitialPoint):
 
         reference_energy = electronic_energy.reference_energy if not None else 0.0
 
-        # Get number of alpha particles. Only valid for restricted-spin setups.
+        # Get number of occupied molecular orbitals as the number of alpha particles.
+        # Only valid for restricted-spin setups.
         num_occ = grouped_property.get_property(ParticleNumber).num_particles[0]
 
         self._invalidate()
