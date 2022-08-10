@@ -13,7 +13,7 @@
 """Polynomial Tensor class"""
 
 from __future__ import annotations
-from typing import Dict
+from typing import Dict, Mapping
 from numbers import Number
 import numpy as np
 from qiskit.quantum_info.operators.mixins import (
@@ -26,31 +26,35 @@ from qiskit.quantum_info.operators.mixins import (
 class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin):
     """Polynomial Tensor class"""
 
-    def __init__(self, data: Dict[str, np.ndarray]):
-        if not isinstance(data, Dict):
-            raise TypeError(f"data {data} must be a Dictionary")
-
-        self._data = data
+    def __init__(self, data: Mapping[str, np.ndarray | Number]):
+        copy_dict: Dict[str, np.ndarray] = {}
 
         shapes = set()
-        for key, value in self._data.items():
+        for key, value in data.items():
+            if isinstance(value, Number):
+                value = np.asarray(value)
+
             if len(value.shape) != len(key):
                 raise ValueError(
-                    f"data key {key} of length {len(key)} does not match "
+                    f"Data key {key} of length {len(key)} does not match "
                     f"data value matrix of dimensions {value.shape}"
                 )
 
-            shape = set(value.shape)
+            dims = set(value.shape)
 
-            if len(shape) != 1:
+            if len(dims) > 1:
                 raise ValueError(
                     f"For key {key}: dimensions of value matrix are not identical {value.shape}"
                 )
 
-            shapes.update(shape)
+            shapes.update(dims)
+            copy_dict[key] = value
 
         if len(shapes) != 1:
+            print(shapes)
             raise ValueError("Dimensions of value matrices in data dictionary are not identical.")
+
+        self._data = copy_dict
 
     def mul(self, other: complex):
         """Scalar multiplication of PolynomialTensor with complex"""
@@ -58,9 +62,9 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin):
         if not isinstance(other, Number):
             raise TypeError(f"other {other} must be a number")
 
-        prod_dict = {}
+        prod_dict: Dict[str, np.ndarray] = {}
         for key, matrix in self._data.items():
-            prod_dict[key] = matrix * other
+            prod_dict[key] = np.multiply(matrix, other)
         return PolynomialTensor(prod_dict)
 
     def _multiply(self, other):
@@ -72,7 +76,8 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin):
         if not isinstance(other, PolynomialTensor):
             raise TypeError("Incorrect argument type: other should be PolynomialTensor")
 
-        sum_dict = self._data.copy()
+        # Copy values from data to sum dict one by one.
+        sum_dict: Dict[str, np.ndarray] = self._data.copy()
         for other_key, other_value in other._data.items():
             if other_key in sum_dict.keys():
                 if other_value.shape == np.shape(sum_dict[other_key]):
@@ -96,8 +101,8 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin):
         """Check equality of PolynomialTensors"""
 
         if self._data.keys() == other._data.keys():
-            for key in self._data.keys():
-                if np.allclose(self._data[key], other._data[key], atol=self.atol, rtol=self.rtol):
+            for key, value in self._data.items():
+                if np.allclose(value, other._data[key], atol=self.atol, rtol=self.rtol):
                     return isinstance(other, PolynomialTensor)
                 else:
                     return False
@@ -107,7 +112,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin):
     def conjugate(self):
         """Conjugate of PolynomialTensors"""
 
-        conj_dict = {}
+        conj_dict: Dict[str, np.ndarray] = {}
         for key, value in self._data.items():
             conj_dict[key] = np.conjugate(value)
 
@@ -116,7 +121,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin):
     def transpose(self):
         """Transpose of PolynomialTensor"""
 
-        transpose_dict = {}
+        transpose_dict: Dict[str, np.ndarray] = {}
         for key, value in self._data.items():
             transpose_dict[key] = np.transpose(value)
 
