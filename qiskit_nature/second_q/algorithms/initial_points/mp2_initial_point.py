@@ -194,11 +194,18 @@ class MP2InitialPoint(InitialPoint):
 
         reference_energy = electronic_energy.reference_energy if not None else 0.0
 
+        particle_number: ParticleNumber | None = grouped_property.get_property(ParticleNumber)
+        if particle_number is None:
+            raise QiskitNatureError(
+                "ParticleNumber is required to obtain the number of occupied orbitals."
+            )
+
         # Get number of occupied molecular orbitals as the number of alpha particles.
         # Only valid for restricted-spin setups.
-        num_occ = grouped_property.get_property(ParticleNumber).num_particles[0]
+        num_occ = particle_number.num_particles[0]
 
         self._invalidate()
+
         t2_amplitudes, energy_correction = _compute_mp2(num_occ, integral_matrix, orbital_energies)
 
         # Save state.

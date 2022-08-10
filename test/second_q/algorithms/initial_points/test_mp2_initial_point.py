@@ -51,148 +51,27 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         self.mock_ansatz = Mock(spec=UCC)
         self.mock_ansatz.excitation_list = self.excitation_list
 
-        particle_number = Mock(spec=ParticleNumber)
-        particle_number.num_particles = (1, 1)
-        electronic_energy = Mock(spec=ElectronicEnergy)
-        electronic_energy.orbital_energies = np.zeros(2)
-        electronic_energy.reference_energy = 123.45
-        electronic_integrals = Mock(spec=ElectronicIntegrals)
-        electronic_integrals.get_matrix = Mock(return_value=np.zeros((1, 1, 1, 1)))
-        electronic_energy.get_electronic_integral = Mock(return_value=electronic_integrals)
+        self.particle_number = Mock(spec=ParticleNumber)
+        self.particle_number.num_particles = (1, 1)
+        self.electronic_energy = Mock(spec=ElectronicEnergy)
+        self.electronic_energy.orbital_energies = np.zeros(2)
+        self.electronic_energy.reference_energy = 123.45
+        self.electronic_integrals = Mock(spec=ElectronicIntegrals)
+        self.electronic_integrals.get_matrix = Mock(return_value=np.zeros((1, 1, 1, 1)))
+        self.electronic_energy.get_electronic_integral = Mock(
+            return_value=self.electronic_integrals
+        )
         self.mock_grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
 
         def get_property(prop: Property) -> Property | None:
             if prop == ParticleNumber:
-                return particle_number
+                return self.particle_number
             elif prop == ElectronicEnergy:
-                return electronic_energy
+                return self.electronic_energy
             else:
                 return None
 
         self.mock_grouped_property.get_property = get_property
-
-    def test_no_threshold(self):
-        """Test when no threshold is provided."""
-
-        mp2_initial_point = MP2InitialPoint(threshold=None)
-        self.assertEqual(mp2_initial_point.threshold, 0.0)
-
-    def test_negative_threshold(self):
-        """Test when a negative threshold is provided."""
-
-        mp2_initial_point = MP2InitialPoint(threshold=-3.0)
-        self.assertEqual(mp2_initial_point.threshold, 3.0)
-
-    def test_no_grouped_property_and_no_ansatz(self):
-        """Test when no grouped property and no ansatz are provided."""
-
-        mp2_initial_point = MP2InitialPoint()
-        with self.assertRaises(QiskitNatureError):
-            mp2_initial_point.compute(ansatz=None, grouped_property=None)
-
-    def test_no_grouped_property(self):
-        """Test when no grouped property is provided."""
-
-        mp2_initial_point = MP2InitialPoint()
-        with self.assertRaises(QiskitNatureError):
-            mp2_initial_point.compute(ansatz=self.mock_ansatz, grouped_property=None)
-
-    def test_no_ansatz(self):
-        """Test when no ansatz is provided."""
-
-        mp2_initial_point = MP2InitialPoint()
-        with self.assertRaises(QiskitNatureError):
-            mp2_initial_point.compute(ansatz=None, grouped_property=self.mock_grouped_property)
-
-    def test_no_electronic_energy(self):
-        """Test when the electronic energy is missing."""
-
-        self.mock_grouped_property.get_property = Mock(return_value=None)
-        mp2_initial_point = MP2InitialPoint()
-        with self.assertRaises(QiskitNatureError):
-            mp2_initial_point.compute(
-                ansatz=self.mock_ansatz, grouped_property=self.mock_grouped_property
-            )
-
-    def test_no_two_body_mo_integrals(self):
-        """Test when the two body MO integrals are missing."""
-
-        electronic_energy = Mock(spec=ElectronicEnergy)
-        electronic_energy.orbital_energies = Mock(np.ndarray)
-        electronic_energy.get_electronic_integral = Mock(return_value=None)
-        self.mock_grouped_property.get_property = Mock(return_value=electronic_energy)
-
-        mp2_initial_point = MP2InitialPoint()
-        with self.assertRaises(QiskitNatureError):
-            mp2_initial_point.compute(
-                ansatz=self.mock_ansatz, grouped_property=self.mock_grouped_property
-            )
-
-    def test_no_orbital_energies(self):
-        """Test when the orbital energies are missing."""
-
-        electronic_integrals = Mock(spec=ElectronicIntegrals)
-        electronic_energy = Mock(spec=ElectronicEnergy)
-        electronic_energy.get_electronic_integral = Mock(return_value=electronic_integrals)
-        electronic_energy.orbital_energies = None
-        grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
-        grouped_property.get_property = Mock(return_value=electronic_energy)
-
-        mp2_initial_point = MP2InitialPoint()
-        with self.assertRaises(QiskitNatureError):
-            mp2_initial_point.compute(ansatz=self.mock_ansatz, grouped_property=grouped_property)
-
-    def test_set_excitations_directly(self):
-        """Test when setting excitation_list directly."""
-
-        mp2_initial_point = MP2InitialPoint()
-        mp2_initial_point.excitation_list = self.excitation_list
-        mp2_initial_point.compute(ansatz=None, grouped_property=self.mock_grouped_property)
-        self.assertEqual(mp2_initial_point.excitation_list, self.excitation_list)
-        self.assertEqual(mp2_initial_point.to_numpy_array(), [0.0])
-
-    def test_compute(self):
-        """Test when grouped_property and ansatz are set via compute."""
-
-        mp2_initial_point = MP2InitialPoint()
-        mp2_initial_point.compute(
-            ansatz=self.mock_ansatz, grouped_property=self.mock_grouped_property
-        )
-
-        with self.subTest("Test grouped property is set."):
-            self.assertEqual(self.mock_grouped_property, mp2_initial_point.grouped_property)
-        with self.subTest("Test ansatz is set."):
-            self.assertEqual(self.mock_ansatz, mp2_initial_point.ansatz)
-        with self.subTest("Test initial_point array is computed."):
-            np.testing.assert_array_equal(mp2_initial_point.to_numpy_array(), [0.0])
-        with self.subTest("Test initial_point array is computed on demand."):
-            mp2_initial_point._corrections = None
-            np.testing.assert_array_equal(mp2_initial_point.to_numpy_array(), [0.0])
-        with self.subTest("Test energy correction is computed on demand."):
-            mp2_initial_point._corrections = None
-            np.testing.assert_array_equal(mp2_initial_point.energy_correction, 0.0)
-        with self.subTest("Test energy is computed on demand."):
-            mp2_initial_point._corrections = None
-            np.testing.assert_array_equal(mp2_initial_point.total_energy, 123.45)
-
-    def test_raises_error_for_non_restricted_spins(self):
-        """Test when grouped_property and ansatz are set via compute."""
-
-        def get_matrix(value: int | None = None) -> np.ndarray:
-            matrix = [1] if value == 2 else [0]
-            return np.asarray(matrix)
-
-        electronic_integrals = Mock(spec=ElectronicIntegrals)
-        electronic_integrals.get_matrix = get_matrix
-        electronic_energy = Mock(spec=ElectronicEnergy)
-        electronic_energy.orbital_energies = Mock(spec=np.ndarray)
-        electronic_energy.get_electronic_integral = Mock(return_value=electronic_integrals)
-        grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
-        grouped_property.get_property = Mock(return_value=electronic_energy)
-
-        mp2_initial_point = MP2InitialPoint()
-        with self.assertRaises(NotImplementedError):
-            mp2_initial_point.compute(ansatz=self.mock_ansatz, grouped_property=grouped_property)
 
     @unittest.skipIf(not optionals.HAS_PYSCF, "pyscf not available.")
     @data("H 0 0 0; H 0 0 0.7", "Li 0 0 0; H 0 0 1.6")
@@ -251,6 +130,155 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
             np.testing.assert_array_almost_equal(
                 mp2_initial_point.t2_amplitudes, pyscf_mp.t2, decimal=4
             )
+
+    def test_no_threshold(self):
+        """Test when no threshold is provided."""
+
+        mp2_initial_point = MP2InitialPoint(threshold=None)
+        self.assertEqual(mp2_initial_point.threshold, 0.0)
+
+    def test_negative_threshold(self):
+        """Test when a negative threshold is provided."""
+
+        mp2_initial_point = MP2InitialPoint(threshold=-3.0)
+        self.assertEqual(mp2_initial_point.threshold, 3.0)
+
+    def test_no_grouped_property_and_no_ansatz(self):
+        """Test when no grouped property and no ansatz are provided."""
+
+        mp2_initial_point = MP2InitialPoint()
+        with self.assertRaises(QiskitNatureError):
+            mp2_initial_point.compute(ansatz=None, grouped_property=None)
+
+    def test_no_grouped_property(self):
+        """Test when no grouped property is provided."""
+
+        mp2_initial_point = MP2InitialPoint()
+        with self.assertRaises(QiskitNatureError):
+            mp2_initial_point.compute(ansatz=self.mock_ansatz, grouped_property=None)
+
+    def test_no_ansatz(self):
+        """Test when no ansatz is provided."""
+
+        mp2_initial_point = MP2InitialPoint()
+        with self.assertRaises(QiskitNatureError):
+            mp2_initial_point.compute(ansatz=None, grouped_property=self.mock_grouped_property)
+
+    def test_no_electronic_energy(self):
+        """Test when the electronic energy is missing."""
+
+        def get_property(prop: Property) -> Property | None:
+            if prop == ParticleNumber:
+                return self.particle_number
+            elif prop == ElectronicEnergy:
+                return None
+            else:
+                return None
+
+        self.mock_grouped_property.get_property = get_property
+        mp2_initial_point = MP2InitialPoint()
+        with self.assertRaises(QiskitNatureError):
+            mp2_initial_point.compute(
+                ansatz=self.mock_ansatz, grouped_property=self.mock_grouped_property
+            )
+
+    def test_no_two_body_mo_integrals(self):
+        """Test when the two body MO integrals are missing."""
+
+        electronic_energy = Mock(spec=ElectronicEnergy)
+        electronic_energy.orbital_energies = Mock(np.ndarray)
+        electronic_energy.get_electronic_integral = Mock(return_value=None)
+        self.mock_grouped_property.get_property = Mock(return_value=electronic_energy)
+
+        mp2_initial_point = MP2InitialPoint()
+        with self.assertRaises(QiskitNatureError):
+            mp2_initial_point.compute(
+                ansatz=self.mock_ansatz, grouped_property=self.mock_grouped_property
+            )
+
+    def test_no_orbital_energies(self):
+        """Test when the orbital energies are missing."""
+
+        electronic_integrals = Mock(spec=ElectronicIntegrals)
+        electronic_energy = Mock(spec=ElectronicEnergy)
+        electronic_energy.get_electronic_integral = Mock(return_value=electronic_integrals)
+        electronic_energy.orbital_energies = None
+        grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
+        grouped_property.get_property = Mock(return_value=electronic_energy)
+
+        mp2_initial_point = MP2InitialPoint()
+        with self.assertRaises(QiskitNatureError):
+            mp2_initial_point.compute(ansatz=self.mock_ansatz, grouped_property=grouped_property)
+
+    def test_no_particle_number(self):
+        """Test when the particle number is missing."""
+
+        def get_property(prop: Property) -> Property | None:
+            if prop == ParticleNumber:
+                return None
+            elif prop == ElectronicEnergy:
+                return self.electronic_energy
+            else:
+                return None
+
+        self.mock_grouped_property.get_property = get_property
+        mp2_initial_point = MP2InitialPoint()
+        with self.assertRaises(QiskitNatureError):
+            mp2_initial_point.compute(
+                ansatz=self.mock_ansatz, grouped_property=self.mock_grouped_property
+            )
+
+    def test_set_excitations_directly(self):
+        """Test when setting excitation_list directly."""
+
+        mp2_initial_point = MP2InitialPoint()
+        mp2_initial_point.excitation_list = self.excitation_list
+        mp2_initial_point.compute(ansatz=None, grouped_property=self.mock_grouped_property)
+        self.assertEqual(mp2_initial_point.excitation_list, self.excitation_list)
+        self.assertEqual(mp2_initial_point.to_numpy_array(), [0.0])
+
+    def test_compute(self):
+        """Test when grouped_property and ansatz are set via compute."""
+
+        mp2_initial_point = MP2InitialPoint()
+        mp2_initial_point.compute(
+            ansatz=self.mock_ansatz, grouped_property=self.mock_grouped_property
+        )
+
+        with self.subTest("Test grouped property is set."):
+            self.assertEqual(self.mock_grouped_property, mp2_initial_point.grouped_property)
+        with self.subTest("Test ansatz is set."):
+            self.assertEqual(self.mock_ansatz, mp2_initial_point.ansatz)
+        with self.subTest("Test initial_point array is computed."):
+            np.testing.assert_array_equal(mp2_initial_point.to_numpy_array(), [0.0])
+        with self.subTest("Test initial_point array is computed on demand."):
+            mp2_initial_point._corrections = None
+            np.testing.assert_array_equal(mp2_initial_point.to_numpy_array(), [0.0])
+        with self.subTest("Test energy correction is computed on demand."):
+            mp2_initial_point._corrections = None
+            np.testing.assert_array_equal(mp2_initial_point.energy_correction, 0.0)
+        with self.subTest("Test energy is computed on demand."):
+            mp2_initial_point._corrections = None
+            np.testing.assert_array_equal(mp2_initial_point.total_energy, 123.45)
+
+    def test_raises_error_for_non_restricted_spins(self):
+        """Test when grouped_property and ansatz are set via compute."""
+
+        def get_matrix(value: int | None = None) -> np.ndarray:
+            matrix = [1] if value == 2 else [0]
+            return np.asarray(matrix)
+
+        electronic_integrals = Mock(spec=ElectronicIntegrals)
+        electronic_integrals.get_matrix = get_matrix
+        electronic_energy = Mock(spec=ElectronicEnergy)
+        electronic_energy.orbital_energies = Mock(spec=np.ndarray)
+        electronic_energy.get_electronic_integral = Mock(return_value=electronic_integrals)
+        grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
+        grouped_property.get_property = Mock(return_value=electronic_energy)
+
+        mp2_initial_point = MP2InitialPoint()
+        with self.assertRaises(NotImplementedError):
+            mp2_initial_point.compute(ansatz=self.mock_ansatz, grouped_property=grouped_property)
 
 
 if __name__ == "__main__":
