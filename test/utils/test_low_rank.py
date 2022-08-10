@@ -112,7 +112,7 @@ class TestLowRank(QiskitNatureTestCase):
 
         self.assertTrue(actual.normal_ordered().equiv(expected.normal_ordered(), atol=1e-8))
 
-    @data("H2_sto3g", "BeH_sto3g_reduced", "random_3")
+    @data("H2_sto3g", "random_3")
     def test_low_rank_decomposition(self, hamiltonian_name: str):
         """Test low rank decomposition."""
         electronic_energy = hamiltonians[hamiltonian_name]
@@ -155,7 +155,7 @@ class TestLowRank(QiskitNatureTestCase):
 
         self.assertTrue(actual.normal_ordered().equiv(expected.normal_ordered(), atol=1e-8))
 
-    @data("H2_sto3g", "BeH_sto3g_reduced", "random_3")
+    @data("H2_sto3g", "random_3")
     def test_low_rank_decomposition_z_representation(self, hamiltonian_name: str):
         """Test low rank decomposition equation "Z" representation."""
         electronic_energy = hamiltonians[hamiltonian_name]
@@ -224,7 +224,7 @@ class TestLowRank(QiskitNatureTestCase):
         )
         np.testing.assert_allclose(reconstructed, two_body_tensor, atol=1e-8)
 
-    @data("H2_sto3g", "BeH_sto3g_reduced", "random_5")
+    @data("H2_sto3g", "random_5")
     def test_low_rank_two_body_decomposition(self, hamiltonian_name: str):
         """Test low rank two-body decomposition."""
         electronic_energy = hamiltonians[hamiltonian_name]
@@ -296,7 +296,7 @@ class TestLowRank(QiskitNatureTestCase):
         np.testing.assert_allclose(reconstructed, two_body_tensor, atol=1e-2)
 
     @unpack
-    @data(("H2_sto3g", 2), ("BeH_sto3g_reduced", 4))
+    @data(("H2_sto3g", 2), ("BeH_sto3g_reduced", 5))
     def test_low_rank_decomposition_compressed(self, hamiltonian_name: str, max_rank: int):
         """Test compressed low rank decomposition."""
         electronic_energy = hamiltonians[hamiltonian_name]
