@@ -72,8 +72,9 @@ class QEOM(ExcitedStatesSolver):
                     + `s` for singles
                     + `d` for doubles
                 :`int`: a single, positive integer which denotes the number of excitations
-                    (1 == `s`, etc.)
-                :`list[int]`: a list of positive integers generalizing the above
+                    (1 == `s`, 2 == `d`, etc.)
+                :`list[int]`: a list of positive integers generalizing the above to multiple numbers
+                    of excitations ([1, 2] == `sd`, etc.)
                 :`Callable`: a function which can be used to specify a custom list of excitations.
                     For more details on how to write such a function refer to one of the default
                     methods, :meth:`generate_fermionic_excitations` or
