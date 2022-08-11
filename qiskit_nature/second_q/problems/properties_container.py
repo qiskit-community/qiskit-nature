@@ -80,3 +80,24 @@ class PropertiesContainer(MutableSet):
     def __iter__(self) -> Generator[Property, None, None]:
         for prop in self._properties.values():
             yield prop
+
+    def _setter(self, _property: Property | None, _type: type) -> None:
+        """An internal utility method to handle the attribute setter implementation.
+
+        Args:
+            _property: the Property to set. If `None`, the internally stored property of the
+                indicated type (see next argument) will be discarded instead of set.
+            _type: the target Property type of this setter.
+
+        Raises:
+            TypeError: if the provided Property does not match the indicate type.
+        """
+        if _property is None:
+            self.discard(_type)
+            return
+
+        if not isinstance(_property, _type):
+            raise TypeError(
+                f"Only objects of type '{_type.__name__}' are supported, not {type(_property)}."
+            )
+        self.add(_property)

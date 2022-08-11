@@ -37,15 +37,7 @@ class ElectronicPropertiesContainer(PropertiesContainer):
     @angular_momentum.setter
     def angular_momentum(self, angular_momentum: AngularMomentum | None) -> None:
         """Sets the :class:`qiskit_nature.second_q.properties.AngularMomentum` property."""
-        if angular_momentum is None:
-            self._properties.pop("AngularMomentum", None)
-            return
-
-        if not isinstance(angular_momentum, AngularMomentum):
-            raise TypeError(
-                f"Only objects of type 'AngularMomentum' are supported, not {type(angular_momentum)}."
-            )
-        self._properties["AngularMomentum"] = angular_momentum
+        self._setter(angular_momentum, AngularMomentum)
 
     @property
     def electronic_dipole_moment(self) -> ElectronicDipoleMoment | None:
@@ -57,16 +49,7 @@ class ElectronicPropertiesContainer(PropertiesContainer):
         self, electronic_dipole_moment: ElectronicDipoleMoment | None
     ) -> None:
         """Sets the :class:`qiskit_nature.second_q.properties.ElectronicDipoleMoment` property."""
-        if electronic_dipole_moment is None:
-            self._properties.pop("ElectronicDipoleMoment", None)
-            return
-
-        if not isinstance(electronic_dipole_moment, ElectronicDipoleMoment):
-            raise TypeError(
-                "Only objects of type 'ElectronicDipoleMoment' are supported, not "
-                f"{type(electronic_dipole_moment)}."
-            )
-        self._properties["ElectronicDipoleMoment"] = electronic_dipole_moment
+        self._setter(electronic_dipole_moment, ElectronicDipoleMoment)
 
     @property
     def magnetization(self) -> Magnetization | None:
@@ -76,15 +59,7 @@ class ElectronicPropertiesContainer(PropertiesContainer):
     @magnetization.setter
     def magnetization(self, magnetization: Magnetization | None) -> None:
         """Sets the :class:`qiskit_nature.second_q.properties.Magnetization` property."""
-        if magnetization is None:
-            self._properties.pop("Magnetization", None)
-            return
-
-        if not isinstance(magnetization, Magnetization):
-            raise TypeError(
-                f"Only objects of type 'Magnetization' are supported, not {type(magnetization)}."
-            )
-        self._properties["Magnetization"] = magnetization
+        self._setter(magnetization, Magnetization)
 
     @property
     def particle_number(self) -> ParticleNumber | None:
@@ -94,12 +69,4 @@ class ElectronicPropertiesContainer(PropertiesContainer):
     @particle_number.setter
     def particle_number(self, particle_number: ParticleNumber | None) -> None:
         """Sets the :class:`qiskit_nature.second_q.properties.ParticleNumber` property."""
-        if particle_number is None:
-            self._properties.pop("ParticleNumber", None)
-            return
-
-        if not isinstance(particle_number, ParticleNumber):
-            raise TypeError(
-                f"Only objects of type 'ParticleNumber' are supported, not {type(particle_number)}."
-            )
-        self._properties["ParticleNumber"] = particle_number
+        self._setter(particle_number, ParticleNumber)

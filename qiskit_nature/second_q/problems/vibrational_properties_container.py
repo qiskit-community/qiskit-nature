@@ -32,12 +32,4 @@ class VibrationalPropertiesContainer(PropertiesContainer):
     @occupied_modals.setter
     def occupied_modals(self, occupied_modals: OccupiedModals | None) -> None:
         """Sets the :class:`qiskit_nature.second_q.properties.OccupiedModals` property."""
-        if occupied_modals is None:
-            self._properties.pop("OccupiedModals", None)
-            return
-
-        if not isinstance(occupied_modals, OccupiedModals):
-            raise TypeError(
-                f"Only objects of type 'OccupiedModals' are supported, not {type(occupied_modals)}."
-            )
-        self._properties["OccupiedModals"] = occupied_modals
+        self._setter(occupied_modals, OccupiedModals)
