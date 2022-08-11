@@ -266,13 +266,11 @@ class MP2InitialPoint(InitialPoint):
     ) -> None:
         """Compute the coefficients for each excitation.
 
-        See further up for more information.
+        See class documentation for more information.
 
         Args:
-            grouped_property: A grouped second-quantized property that may optionally contain the
-                Hartree-Fock reference energy. This is for consistency with other initial points.
-            ansatz: The UCC ansatz. Required to set the :attr:`excitation_list` to ensure that the
-                coefficients are mapped correctly in the initial point array.
+            grouped_property: A grouped second-quantized property. See :attr:`grouped_property`.
+            ansatz: The UCC ansatz. See :attr:`ansatz`.
 
         Raises:
             QiskitNatureError: If :attr:`_excitation_list` or :attr:`_grouped_property` is not set.
