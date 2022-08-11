@@ -265,7 +265,7 @@ class UCC(EvolvedOperatorAnsatz):
     @EvolvedOperatorAnsatz.operators.getter
     def operators(self):  # pylint: disable=invalid-overridden-method
         """The operators that are evolved in this circuit.
-        
+
         Returns:
             list: The operators to be evolved contained in this ansatz or
                   None if the configuration is not complete
