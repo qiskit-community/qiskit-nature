@@ -35,8 +35,8 @@ class HeisenbergModel(LatticeModel):
         """
         Args:
             lattice: Lattice on which the model is defined.
-            coupling_constants (Tuple, optional): Coupling constants. Defaults to (1.0, 1.0, 1.0).
-            ext_magnetic_field (Tuple, optional): External magnetic field. Defaults to (0.0, 0.0, 0.0).
+            coupling_constants (Tuple, optional): The coupling constants in each Cartesian axes. Defaults to (1.0, 1.0, 1.0).
+            ext_magnetic_field (Tuple, optional): Represents a magnetic field in Cartesian coordinates. Defaults to (0.0, 0.0, 0.0).
         """
         super().__init__(lattice)
         self.coupling_constants = coupling_constants
