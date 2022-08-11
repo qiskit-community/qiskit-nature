@@ -165,7 +165,7 @@ class MP2InitialPoint(InitialPoint):
         Raises:
             QiskitNatureError: If :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`,
                 :class:`~qiskit_nature.second_q.properties.ParticleNumber`, the two-body MO
-                `electronic_integral` or the `orbital_energies` are not found.
+                ``electronic_integral`` or the ``orbital_energies`` are not found.
             NotImplementedError: If alpha and beta spin molecular orbitals are not identical.
         """
         return self._grouped_property
