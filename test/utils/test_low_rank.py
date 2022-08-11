@@ -310,12 +310,22 @@ class TestLowRank(QiskitNatureTestCase):
         """Test compressed low rank decomposition."""
         electronic_energy = hamiltonians[hamiltonian_name]
         expected = electronic_energy.second_q_ops()["ElectronicEnergy"]
+
         df_hamiltonian = low_rank_decomposition(
-            electronic_energy, max_rank=max_rank, optimize=True, seed=rng
+            electronic_energy,
+            max_rank=max_rank,
+            optimize=True,
+            seed=rng,
+            options=dict(ftol=1e-12, gtol=1e-12),
         )
-        n_modes = df_hamiltonian.n_orbitals
+        two_body_tensor = electronic_energy.get_electronic_integral(
+            ElectronicBasis.MO, 2
+        ).get_matrix()
+        np.testing.assert_allclose(df_hamiltonian.two_body_tensor, two_body_tensor, atol=1e-4)
         self.assertLessEqual(len(df_hamiltonian.leaf_tensors), max_rank)
         self.assertLessEqual(len(df_hamiltonian.core_tensors), max_rank)
+
+        n_modes = df_hamiltonian.n_orbitals
 
         actual = FermionicOp.zero(register_length=n_modes)
         for p, q in itertools.product(range(n_modes), repeat=2):
