@@ -41,7 +41,8 @@ from qiskit_nature.second_q.problems import (
 )
 from qiskit_nature.second_q.problems import EigenstateResult
 
-from .utils import _build_electronic_qeom_hopping_ops, _build_vibrational_qeom_hopping_ops
+from .qeom_electronic_ops_builder import build_electronic_ops
+from .qeom_vibrational_ops_builder import build_vibrational_ops
 from .excited_states_solver import ExcitedStatesSolver
 from ..ground_state_solvers import GroundStateSolver
 
@@ -249,13 +250,13 @@ class QEOM(ExcitedStatesSolver):
             Dict of hopping operators, dict of commutativity types and dict of excitation indices
         """
         if isinstance(problem, ElectronicStructureProblem):
-            return _build_electronic_qeom_hopping_ops(
+            return build_electronic_ops(
                 problem.grouped_property_transformed.get_property("ParticleNumber"),
                 self._gsc.qubit_converter,
                 self.excitations,
             )
         elif isinstance(problem, VibrationalStructureProblem):
-            return _build_vibrational_qeom_hopping_ops(
+            return build_vibrational_ops(
                 problem.num_modals,
                 self._gsc.qubit_converter,
                 self.excitations,

@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Utility methods to build vibrational hopping operators."""
+"""Utility methods to build fermionic hopping operators."""
 
 from __future__ import annotations
 
@@ -20,14 +20,15 @@ from qiskit.opflow import PauliSumOp
 from qiskit.tools import parallel_map
 from qiskit.utils import algorithm_globals
 
-from qiskit_nature.second_q.circuit.library import UVCC
-from qiskit_nature.second_q.operators import VibrationalOp
+from qiskit_nature import QiskitNatureError
+from qiskit_nature.second_q.circuit.library import UCC
+from qiskit_nature.second_q.operators import FermionicOp
 from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.properties import ParticleNumber
 
 
-# pylint: disable=invalid-name
-def _build_vibrational_qeom_hopping_ops(
-    num_modals: List[int],
+def build_electronic_ops(
+    particle_number: ParticleNumber,
     qubit_converter: QubitConverter,
     excitations: str
     | int
@@ -41,9 +42,10 @@ def _build_vibrational_qeom_hopping_ops(
     Dict[str, List[bool]],
     Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]],
 ]:
-    """
+    """Builds the product of raising and lowering operators (basic excitation operators)
+
     Args:
-        num_modals: the number of modals per mode.
+        particle_number: the `ParticleNumber` property containing relevant sector information.
         qubit_converter: the `QubitConverter` to use for mapping and symmetry reduction. The Z2
                          symmetries stored in this instance are the basis for the commutativity
                          information returned by this method.
@@ -53,62 +55,90 @@ def _build_vibrational_qeom_hopping_ops(
             - a list of positive integers.
             - and finally a callable which can be used to specify a custom list of excitations.
               For more details on how to write such a function refer to the default method,
-              :meth:`generate_vibrational_excitations`.
+              :meth:`generate_fermionic_excitations`.
+
     Returns:
-        Dict of hopping operators, dict of commutativity types and dict of excitation indices
+        A tuple containing the hopping operators, the types of commutativities and the excitation
+        indices.
     """
+
+    num_alpha, num_beta = particle_number.num_alpha, particle_number.num_beta
+    num_spin_orbitals = particle_number.num_spin_orbitals
 
     excitations_list: List[Tuple[Tuple[int, ...], Tuple[int, ...]]]
     if isinstance(excitations, (str, int)) or (
         isinstance(excitations, list) and all(isinstance(exc, int) for exc in excitations)
     ):
-        ansatz = UVCC(qubit_converter, num_modals, excitations)
+        ansatz = UCC(qubit_converter, (num_alpha, num_beta), num_spin_orbitals, excitations)
         excitations_list = ansatz._get_excitation_list()
     else:
         excitations_list = cast(List[Tuple[Tuple[int, ...], Tuple[int, ...]]], excitations)
 
     size = len(excitations_list)
 
+    # build all hopping operators
     hopping_operators: Dict[str, PauliSumOp] = {}
+    type_of_commutativities: Dict[str, List[bool]] = {}
     excitation_indices: Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]] = {}
     to_be_executed_list = []
     for idx in range(size):
         to_be_executed_list += [excitations_list[idx], excitations_list[idx][::-1]]
         hopping_operators[f"E_{idx}"] = None
         hopping_operators[f"Edag_{idx}"] = None
+        type_of_commutativities[f"E_{idx}"] = None
+        type_of_commutativities[f"Edag_{idx}"] = None
         excitation_indices[f"E_{idx}"] = excitations_list[idx]
         excitation_indices[f"Edag_{idx}"] = excitations_list[idx][::-1]
 
     result = parallel_map(
         _build_single_hopping_operator,
         to_be_executed_list,
-        task_args=(num_modals, qubit_converter),
+        task_args=(num_spin_orbitals, qubit_converter),
         num_processes=algorithm_globals.num_processes,
     )
 
     for key, res in zip(hopping_operators.keys(), result):
-        hopping_operators[key] = res
-
-    # This variable is required for compatibility with the ElectronicStructureProblem
-    # at the moment we do not have any type of commutativity in the bosonic case.
-    type_of_commutativities: Dict[str, List[bool]] = {}
+        hopping_operators[key] = res[0]
+        type_of_commutativities[key] = res[1]
 
     return hopping_operators, type_of_commutativities, excitation_indices
 
 
 def _build_single_hopping_operator(
     excitation: Tuple[Tuple[int, ...], Tuple[int, ...]],
-    num_modals: List[int],
+    num_spin_orbitals: int,
     qubit_converter: QubitConverter,
-) -> PauliSumOp:
-    sum_modes = sum(num_modals)
-
-    label = ["I"] * sum_modes
+) -> Tuple[PauliSumOp, List[bool]]:
+    label = ["I"] * num_spin_orbitals
     for occ in excitation[0]:
         label[occ] = "+"
     for unocc in excitation[1]:
         label[unocc] = "-"
-    vibrational_op = VibrationalOp("".join(label), len(num_modals), num_modals)
-    qubit_op: PauliSumOp = qubit_converter.convert_match(vibrational_op)
+    fer_op = FermionicOp(("".join(label), 4.0 ** len(excitation[0])), display_format="sparse")
 
-    return qubit_op
+    qubit_op: PauliSumOp = qubit_converter.convert_only(fer_op, qubit_converter.num_particles)
+    z2_symmetries = qubit_converter.z2symmetries
+
+    commutativities = []
+    if not z2_symmetries.is_empty():
+        for symmetry in z2_symmetries.symmetries:
+            symmetry_op = PauliSumOp.from_list([(symmetry.to_label(), 1.0)])
+            paulis = qubit_op.primitive.paulis
+            len_paulis = len(paulis)
+            commuting = len(paulis.commutes_with_all(symmetry_op.primitive.paulis)) == len_paulis
+            anticommuting = (
+                len(paulis.anticommutes_with_all(symmetry_op.primitive.paulis)) == len_paulis
+            )
+
+            if commuting != anticommuting:  # only one of them is True
+                if commuting:
+                    commutativities.append(True)
+                elif anticommuting:
+                    commutativities.append(False)
+            else:
+                raise QiskitNatureError(
+                    f"Symmetry {symmetry.to_label()} neither commutes nor anti-commutes "
+                    "with excitation operator."
+                )
+
+    return qubit_op, commutativities
