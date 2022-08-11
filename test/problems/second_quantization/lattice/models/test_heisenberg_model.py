@@ -87,7 +87,7 @@ class TestHeisenbergModel(QiskitNatureTestCase):
             self.assertSetEqual(set(hamiltonian), set(xy_test_hm.second_q_ops().to_list()))
             
         with self.subTest("Check if if x, y and z params are being applied."):
-            coupling = [("X_0 X_1", 1.0), ("Y_0 Y_1", 1.0), ("Z_0 Z_1", 1.0), ("X_0", 1.0), ("X_1", 1.0), ("X_2", 1.0), ("Y_0", 1.0), ("Y_1", 1.0), ("Y_2", 1.0), ("Z_0", 1.0), ("Z_1", 1.0), ("Z_2", 1.0)]
+            coupling = [("X_0 X_1", 1.0), ("Y_0 Y_1", 1.0), ("Z_0 Z_1", 1.0), ("X_0", 1.0), ("X_1", 1.0), ("Y_0", 1.0), ("Y_1", 1.0), ("Z_0", 1.0), ("Z_1", 1.0)]
 
             hamiltonian = coupling
 
