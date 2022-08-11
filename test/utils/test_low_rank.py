@@ -43,16 +43,14 @@ hamiltonians = {}
 
 for molecule_name in ["H2_sto3g", "BeH_sto3g_reduced"]:
     result = load_from_hdf5(f"test/second_q/transformers/{molecule_name}.hdf5")
-    electronic_energy = result.get_property("ElectronicEnergy")
-    hamiltonians[molecule_name] = electronic_energy
+    hamiltonians[molecule_name] = result.get_property("ElectronicEnergy")
 
-for n_modes in [3, 5]:
-    one_body_tensor = np.array(random_hermitian(n_modes, seed=rng))
-    two_body_tensor = random_two_body_tensor(n_modes, seed=rng)
-    one_body_integrals = OneBodyElectronicIntegrals(ElectronicBasis.MO, (one_body_tensor,) * 2)
-    two_body_integrals = TwoBodyElectronicIntegrals(ElectronicBasis.MO, (two_body_tensor,) * 4)
-    electronic_energy = ElectronicEnergy([one_body_integrals, two_body_integrals])
-    hamiltonians[f"random_{n_modes}"] = electronic_energy
+for n_modes_ in [3, 5]:
+    one_body_tensor_ = np.array(random_hermitian(n_modes_, seed=rng))
+    two_body_tensor_ = random_two_body_tensor(n_modes_, seed=rng)
+    one_body_integrals = OneBodyElectronicIntegrals(ElectronicBasis.MO, (one_body_tensor_,) * 2)
+    two_body_integrals = TwoBodyElectronicIntegrals(ElectronicBasis.MO, (two_body_tensor_,) * 4)
+    hamiltonians[f"random_{n_modes_}"] = ElectronicEnergy([one_body_integrals, two_body_integrals])
 
 
 @ddt

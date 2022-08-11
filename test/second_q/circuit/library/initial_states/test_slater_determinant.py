@@ -13,17 +13,13 @@
 """Test Slater determinant state preparation circuits."""
 
 from test import QiskitNatureTestCase
-from qiskit_nature.utils.random import random_quadratic_hamiltonian
 
 import numpy as np
 from qiskit.quantum_info import Statevector
 
 from qiskit_nature.second_q.circuit.library import SlaterDeterminant
-from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.mappers import (
-    BravyiKitaevMapper,
-    JordanWignerMapper,
-)
+from qiskit_nature.second_q.mappers import BravyiKitaevMapper, JordanWignerMapper, QubitConverter
+from qiskit_nature.utils.random import random_quadratic_hamiltonian
 
 
 class TestSlaterDeterminant(QiskitNatureTestCase):

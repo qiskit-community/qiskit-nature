@@ -14,7 +14,6 @@
 
 import itertools
 from test import QiskitNatureTestCase
-from qiskit_nature.utils.random import random_two_body_tensor
 
 import numpy as np
 
@@ -22,6 +21,7 @@ from qiskit_nature.properties.second_quantization.electronic.bases import Electr
 from qiskit_nature.properties.second_quantization.electronic.integrals import (
     TwoBodyElectronicIntegrals,
 )
+from qiskit_nature.utils.random import random_two_body_tensor
 
 
 class TestRandomTwoBodyTensor(QiskitNatureTestCase):

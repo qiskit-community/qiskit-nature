@@ -13,12 +13,12 @@
 """Test linear algebra utilities."""
 
 from test import QiskitNatureTestCase
-from qiskit_nature.utils.random import random_two_body_tensor
 
 import numpy as np
 from ddt import data, ddt, unpack
 
 from qiskit_nature.utils import givens_matrix, modified_cholesky
+from qiskit_nature.utils.random import random_two_body_tensor
 
 
 @ddt

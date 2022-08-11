@@ -15,9 +15,7 @@
 from __future__ import annotations
 
 import dataclasses
-import functools
 import itertools
-from qiskit_nature.utils.random import parse_random_seed
 from typing import Any, Optional
 
 import numpy as np
@@ -27,6 +25,7 @@ import scipy.optimize
 from qiskit_nature.second_q.operators import FermionicOp
 from qiskit_nature.second_q.properties.electronic_energy import ElectronicBasis, ElectronicEnergy
 from qiskit_nature.utils.linalg import modified_cholesky
+from qiskit_nature.utils.random import parse_random_seed
 
 
 @dataclasses.dataclass
@@ -160,7 +159,8 @@ def low_rank_decomposition(
     .. math::
 
         H = \sum_{pq, \sigma} h_{pq} a^\dagger_{p, \sigma} a_{q, \sigma}
-            + \frac12 \sum_{pqrs, \sigma} h_{pqrs, \sigma\tau} a^\dagger_{p, \sigma} a^\dagger_{r, \tau} a_{s, \tau} a_{q, \sigma}.
+            + \frac12 \sum_{pqrs, \sigma} h_{pqrs, \sigma\tau}
+            a^\dagger_{p, \sigma} a^\dagger_{r, \tau} a_{s, \tau} a_{q, \sigma}.
 
     The Hamiltonian is decomposed into the double-factorized form
 
@@ -174,7 +174,8 @@ def low_rank_decomposition(
 
     .. math::
 
-        n^{(t)}_{i, \sigma} = \sum_{pq} U^{(t)}_{pi} a^\dagger_{p, \sigma} a^\dagger_{q, \sigma} U^{(t)}_{qi}.
+        n^{(t)}_{i, \sigma} = \sum_{pq} U^{(t)}_{pi}
+        a^\dagger_{p, \sigma} a^\dagger_{q, \sigma} U^{(t)}_{qi}.
 
     Here :math:`U^{(t)}_{ij}` and :math:`Z^{(t)}_{ij}` are tensors that are output by the decomposition,
     and :math:`\kappa_{pq}` is an updated one-body tensor.
@@ -201,8 +202,8 @@ def low_rank_decomposition(
     to have only certain elements allowed to be nonzero. This is achieved by passing the
     `core_tensor_mask` parameter, which is an :math:`N \times N` matrix of boolean values
     where :math:`N` is the number of orbitals. The nonzero elements of this matrix indicate
-    where the core tensors are allowed to be nonzero. Only the upper triangular part of the matrix is used
-    because the core tensors are symmetric.
+    where the core tensors are allowed to be nonzero. Only the upper triangular part of the
+    matrix is used because the core tensors are symmetric.
 
     **"Z" representation**
 
@@ -269,7 +270,8 @@ def low_rank_decomposition(
 
     .. _arXiv:1808.02625: https://arxiv.org/abs/1808.02625
     .. _arXiv:2104.08957: https://arxiv.org/abs/2104.08957
-    .. _scipy.optimize.minimize: https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
+    .. _scipy.optimize.minimize:
+       https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html
     """
     one_body_tensor = hamiltonian.get_electronic_integral(ElectronicBasis.MO, 1).get_matrix().copy()
     two_body_tensor = hamiltonian.get_electronic_integral(ElectronicBasis.MO, 2).get_matrix().copy()
