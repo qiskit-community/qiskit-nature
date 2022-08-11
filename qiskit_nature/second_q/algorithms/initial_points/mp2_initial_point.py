@@ -156,7 +156,7 @@ class MP2InitialPoint(InitialPoint):
         The grouped property is required to contain
         :class:`~qiskit_nature.second_q.properties.ParticleNumber` and
         :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`.
-        
+
         From :class:`~qiskit_nature.second_q.properties.ParticleNumber` we obtain the
         ``particle_number`` to extract the number of occupied orbitals.
         :class:`~qiskit_nature.second_q.properties.ElectronicEnergy` must contain the two-body,
