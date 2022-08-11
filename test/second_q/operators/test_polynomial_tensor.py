@@ -61,27 +61,30 @@ class TestPolynomialTensor(QiskitNatureTestCase):
 
         return (np.arange(1, dim_size**num_dim + 1) * val).reshape((dim_size,) * num_dim)
 
-    def test_init_val_dimen(self):
-        """Test for value dimensions of data input"""
-
-        self.assertRaisesRegex(
-            ValueError, r"For key .* dimensions of value matrix are not identical \d+"
-        )
-
     def test_init_key_len(self):
         """Test for key length and value dimensions of data input"""
 
-        self.assertRaisesRegex(
+        with self.assertRaisesRegex(
             ValueError,
-            r"Data key .* of length \d does not match data value matrix of dimensions \((\d+), (\d+)\)",
-        )
+            r"Data key (.*?) of length (.*?) does not match data value matrix of dimensions (.*?)",
+        ):
+            poly_tensor = PolynomialTensor(self.og_poly)
+
+    def test_init_val_dimen(self):
+        """Test for value dimensions of data input"""
+
+        with self.assertRaisesRegex(
+            ValueError, r"For key (.*?) dimensions of value matrix are not identical (.*?)"
+        ):
+            poly_tensor = PolynomialTensor(self.og_poly)
 
     def test_init_all_val_dimen(self):
-        """Test for dimesnions of all values of data input"""
+        """Test for dimensions of all values of data input"""
 
-        self.assertRaisesRegex(
+        with self.assertRaisesRegex(
             ValueError, r"Dimensions of value matrices in data dictionary are not identical."
-        )
+        ):
+            poly_tensor = PolynomialTensor(self.og_poly)
 
     @idata(np.linspace(2, 3, 5))
     def test_mul(self, other):

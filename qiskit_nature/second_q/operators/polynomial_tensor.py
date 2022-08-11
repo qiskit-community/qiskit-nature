@@ -76,7 +76,6 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin):
         if not isinstance(other, PolynomialTensor):
             raise TypeError("Incorrect argument type: other should be PolynomialTensor")
 
-        # Copy values from data to sum dict one by one.
         sum_dict: Dict[str, np.ndarray] = self._data.copy()
         for other_key, other_value in other._data.items():
             if other_key in sum_dict.keys():
@@ -100,14 +99,12 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin):
     def __eq__(self, other):
         """Check equality of PolynomialTensors"""
 
-        if self._data.keys() == other._data.keys():
-            for key, value in self._data.items():
-                if np.allclose(value, other._data[key], atol=self.atol, rtol=self.rtol):
-                    return isinstance(other, PolynomialTensor)
-                else:
-                    return False
-        else:
+        if self._data.keys() != other._data.keys():
             return False
+        for key, value in self._data.items():
+            if not np.allclose(value, other._data[key], atol=self.atol, rtol=self.rtol):
+                return False
+        return True
 
     def conjugate(self):
         """Conjugate of PolynomialTensors"""
