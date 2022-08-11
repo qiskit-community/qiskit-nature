@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018, 2022.
+# (C) Copyright IBM 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -11,26 +11,18 @@
 # that they have been altered from the originals.
 
 """
-Bosonic basis (:mod:`qiskit_nature.drivers.bosonic_bases`)
-==========================================================
+===================================================
+I/O Formats (:mod:`qiskit_nature.second_q.formats`)
+===================================================
 
-Basis for bosonic operations.
+.. currentmodule:: qiskit_nature.second_q.formats
 
-.. currentmodule:: qiskit_nature.drivers.bosonic_bases
-
-Bosonic Basis
-=============
+Submodules
+==========
 
 .. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
+   :toctree:
 
-   BosonicBasis
-   HarmonicBasis
+   qcschema
 
 """
-
-from .bosonic_basis import BosonicBasis
-from .harmonic_basis import HarmonicBasis
-
-__all__ = ["BosonicBasis", "HarmonicBasis"]

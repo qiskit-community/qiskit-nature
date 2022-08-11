@@ -33,7 +33,12 @@ from .electronic_energy import ElectronicEnergy
 from .magnetization import Magnetization
 from .particle_number import ParticleNumber
 from .types import GroupedElectronicProperty
-from ....deprecation import deprecate_method
+from ....deprecation import (
+    deprecate_method,
+    warn_deprecated,
+    DeprecatedType,
+    NatureDeprecationWarning,
+)
 
 
 class ElectronicStructureDriverResult(GroupedElectronicProperty):
@@ -49,6 +54,17 @@ class ElectronicStructureDriverResult(GroupedElectronicProperty):
         """
         super().__init__(self.__class__.__name__)
         self.molecule: Molecule = None
+        warn_deprecated(
+            "0.5.0",
+            old_type=DeprecatedType.CLASS,
+            old_name=(
+                "qiskit_nature.properties.second_quantization.electronic."
+                "ElectronicStructureDriverResult"
+            ),
+            new_type=DeprecatedType.CLASS,
+            new_name="qiskit_nature.second_q.problems.ElectronicStructureProblem",
+            category=NatureDeprecationWarning,
+        )
 
     def __str__(self) -> str:
         string = [super().__str__()]

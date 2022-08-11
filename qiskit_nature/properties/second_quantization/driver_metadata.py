@@ -17,6 +17,7 @@ from __future__ import annotations
 import h5py
 
 from ..property import Property
+from ...deprecation import warn_deprecated, DeprecatedType, NatureDeprecationWarning
 
 
 class DriverMetadata(Property):
@@ -37,6 +38,17 @@ class DriverMetadata(Property):
         self.program = program
         self.version = version
         self.config = config
+        warn_deprecated(
+            "0.5.0",
+            old_type=DeprecatedType.CLASS,
+            old_name="qiskit_nature.properties.second_quantization.DriverMetadata",
+            additional_msg=(
+                ". Please refer to "
+                "'https://github.com/Qiskit/qiskit-nature/issues/705'"
+                " for additional information."
+            ),
+            category=NatureDeprecationWarning,
+        )
 
     def __str__(self) -> str:
         string = [super().__str__() + ":"]

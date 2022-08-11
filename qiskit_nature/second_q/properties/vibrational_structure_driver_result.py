@@ -14,16 +14,11 @@
 
 from __future__ import annotations
 
-from typing import cast
-
 import h5py
 
 from qiskit_nature import ListOrDictType, settings
-from qiskit_nature.deprecation import deprecate_method
-from qiskit_nature.second_q._watson_hamiltonian import WatsonHamiltonian
 from qiskit_nature.second_q.operators import VibrationalOp
 
-from .second_quantized_property import LegacyDriverResult
 from .bases import VibrationalBasis
 from .occupied_modals import OccupiedModals
 from .vibrational_energy import VibrationalEnergy
@@ -33,9 +28,7 @@ from .vibrational_types import GroupedVibrationalProperty
 class VibrationalStructureDriverResult(GroupedVibrationalProperty):
     """The VibrationalStructureDriverResult class.
 
-    This is a :class:`~qiskit_nature.properties.GroupedProperty` gathering all property objects
-    previously stored in Qiskit Nature's
-    :class:`~qiskit_nature.second_q.drivers.WatsonHamiltonian` object.
+    This is a :class:`~qiskit_nature.properties.GroupedProperty` gathering all property objects.
     """
 
     def __init__(self) -> None:
@@ -97,35 +90,6 @@ class VibrationalStructureDriverResult(GroupedVibrationalProperty):
 
         if basis is not None:
             ret.basis = basis
-
-        return ret
-
-    @classmethod
-    @deprecate_method("0.4.0")
-    def from_legacy_driver_result(
-        cls, result: LegacyDriverResult
-    ) -> VibrationalStructureDriverResult:
-        """Converts a :class:`~qiskit_nature.second_q.drivers.WatsonHamiltonian` into an
-        ``VibrationalStructureDriverResult``.
-
-        Args:
-            result: the :class:`~qiskit_nature.second_q.drivers.WatsonHamiltonian` to convert.
-
-        Returns:
-            An instance of this property.
-
-        Raises:
-            QiskitNatureError: if a :class:`~qiskit_nature.second_q.drivers.QMolecule` is provided.
-        """
-        cls._validate_input_type(result, WatsonHamiltonian)
-
-        ret = cls()
-
-        watson = cast(WatsonHamiltonian, result)
-
-        ret.num_modes = watson.num_modes
-        ret.add_property(VibrationalEnergy.from_legacy_driver_result(watson))
-        ret.add_property(OccupiedModals.from_legacy_driver_result(watson))
 
         return ret
 

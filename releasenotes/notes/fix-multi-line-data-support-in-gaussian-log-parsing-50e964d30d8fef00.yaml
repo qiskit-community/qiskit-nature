@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fixes an issue in the Gaussian Log parsing when the A to H data is provided
+    across multiple instead of on a single line in the file.

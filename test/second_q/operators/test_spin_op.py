@@ -263,12 +263,6 @@ class TestSpinOp(QiskitNatureTestCase):
         #     print(actual.to_matrix())
         #     print(SpinOp("X_0 Y_0 Z_0").to_matrix().T.conjugate())
 
-    def test_reduce(self):
-        """Test reduce"""
-        with self.assertWarns(DeprecationWarning):
-            actual = (self.heisenberg - self.heisenberg).reduce()
-            self.assertListEqual(actual.to_list(), [("I_1", 0)])
-
     def test_simplify(self):
         """Test simplify"""
         with self.subTest("trivial reduce"):
@@ -356,6 +350,21 @@ class TestSpinOp(QiskitNatureTestCase):
         with self.subTest("operator not hermitian"):
             test_op = SpinOp("+ZXY") - SpinOp("-ZXY")
             self.assertFalse(test_op.is_hermitian())
+
+        with self.subTest("test passing atol"):
+            test_op = SpinOp("+ZXY") + (1 + 1e-7) * SpinOp("-ZXY")
+            self.assertFalse(test_op.is_hermitian())
+            self.assertFalse(test_op.is_hermitian(atol=1e-8))
+            self.assertTrue(test_op.is_hermitian(atol=1e-6))
+
+    def test_equiv(self):
+        """test equiv"""
+        op1 = SpinOp("+ZXY") + SpinOp("-XXX")
+        op2 = SpinOp("+ZXY")
+        op3 = SpinOp("+ZXY") + (1 + 1e-7) * SpinOp("-XXX")
+        self.assertFalse(op1.equiv(op2))
+        self.assertFalse(op1.equiv(op3))
+        self.assertTrue(op1.equiv(op3, atol=1e-6))
 
 
 if __name__ == "__main__":
