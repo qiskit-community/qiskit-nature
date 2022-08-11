@@ -34,18 +34,18 @@ from .utils.fermionic_excitation_generator import (
 logger = logging.getLogger(__name__)
 
 
-# TODO: figure out how to implement `succ_full`: a variant of this class, which does include also
-# the symmetrically mirrored double excitations, but assigns the same circuit parameter to them.
-
-
 class SUCCD(UCC):
     """The SUCCD Ansatz.
+
     The SUCCD Ansatz (by default) only contains double excitations. Furthermore, it only considers
     the set of excitations which is symmetrically invariant with respect to spin-flips of both
     particles. For more information see also [1].
+
     Note, that this Ansatz can only work for singlet-spin systems. Therefore, the number of alpha
     and beta electrons must be equal.
+
     This is a convenience subclass of the UCC Ansatz. For more information refer to :class:`UCC`.
+
     References:
         [1] https://arxiv.org/abs/1911.10864
     """
@@ -134,12 +134,15 @@ class SUCCD(UCC):
         self, num_spin_orbitals: int, num_particles: Tuple[int, int]
     ) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
         """Generates the excitations for the SUCCD Ansatz.
+
         Args:
             num_spin_orbitals: the number of spin orbitals.
             num_particles: the number of alpha and beta electrons. Note, these must be identical
-            for this class.
+                for this class.
+
         Raises:
             QiskitNatureError: if the number of alpha and beta electrons is not equal.
+
         Returns:
             The list of excitations encoded as tuples of tuples. Each tuple in the list is a pair
             of tuples. The first tuple contains the occupied spin orbital indices whereas the
