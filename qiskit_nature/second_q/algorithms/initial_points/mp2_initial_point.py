@@ -155,18 +155,22 @@ class MP2InitialPoint(InitialPoint):
 
         The grouped property is required to contain
         :class:`~qiskit_nature.second_q.properties.ParticleNumber` and
-        :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`. From
-        :class:`~qiskit_nature.second_q.properties.ParticleNumber` we obtain the ``particle_number``
-        to extract the number of occupied orbitals.
+        :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`.
+        
+        From :class:`~qiskit_nature.second_q.properties.ParticleNumber` we obtain the
+        ``particle_number`` to extract the number of occupied orbitals.
         :class:`~qiskit_nature.second_q.properties.ElectronicEnergy` must contain the two-body,
         molecular-orbital ``electronic_integral`` and the ``orbital_energies``. Optionally, the
         method will use the Hartree-Fock ``reference_energy`` to compute the :attr:`total_energy`.
 
         Raises:
-            QiskitNatureError: If :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`,
-                :class:`~qiskit_nature.second_q.properties.ParticleNumber`, the two-body MO
-                ``electronic_integral`` or the ``orbital_energies`` are not found.
-            NotImplementedError: If alpha and beta spin molecular orbitals are not identical.
+            QiskitNatureError: If :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`
+                is missing or the two-body molecular orbitals matrix or the orbital energies are not
+                found.
+            QiskitNatureError: If :class:`~qiskit_nature.second_q.properties.ParticleNumber` is
+                missing.
+            NotImplementedError: If alpha and beta spin molecular orbitals are not
+                identical.
         """
         return self._grouped_property
 
