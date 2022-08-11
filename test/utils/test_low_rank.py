@@ -14,6 +14,7 @@
 
 import itertools
 from test import QiskitNatureTestCase
+from typing import cast
 
 import numpy as np
 from ddt import data, ddt, unpack
@@ -22,6 +23,7 @@ from qiskit.quantum_info import random_hermitian
 import qiskit_nature.settings
 from qiskit_nature.hdf5 import load_from_hdf5
 from qiskit_nature.second_q.operators import FermionicOp
+from qiskit_nature.second_q.problems import ElectronicStructureResult
 from qiskit_nature.second_q.properties.electronic_energy import ElectronicBasis, ElectronicEnergy
 from qiskit_nature.second_q.properties.integrals import (
     OneBodyElectronicIntegrals,
@@ -42,7 +44,10 @@ rng = np.random.default_rng(3091)
 hamiltonians = {}
 
 for molecule_name in ["H2_sto3g", "BeH_sto3g_reduced"]:
-    result = load_from_hdf5(f"test/second_q/transformers/{molecule_name}.hdf5")
+    result = cast(
+        ElectronicStructureResult,
+        load_from_hdf5(f"test/second_q/transformers/{molecule_name}.hdf5"),
+    )
     hamiltonians[molecule_name] = result.get_property("ElectronicEnergy")
 
 for n_modes_ in [3, 5]:
@@ -80,7 +85,7 @@ class TestLowRank(QiskitNatureTestCase):
         for p, q, r, s in itertools.product(range(n_modes), repeat=4):
             coeff = two_body_tensor[p, q, r, s]
             for sigma, tau in itertools.product(range(2), repeat=2):
-                actual += 0.5 * FermionicOp(
+                actual += FermionicOp(
                     [
                         (
                             [
@@ -89,7 +94,7 @@ class TestLowRank(QiskitNatureTestCase):
                                 ("-", s + tau * n_modes),
                                 ("-", q + sigma * n_modes),
                             ],
-                            coeff,
+                            0.5 * coeff,
                         )
                     ]
                 )
@@ -161,7 +166,10 @@ class TestLowRank(QiskitNatureTestCase):
         df_hamiltonian = low_rank_decomposition(electronic_energy, z_representation=True)
         n_modes = df_hamiltonian.n_orbitals
 
-        actual = df_hamiltonian.constant * FermionicOp.one(register_length=n_modes)
+        # TODO: this cast should be unnecessary
+        actual = cast(
+            FermionicOp, df_hamiltonian.constant * FermionicOp.one(register_length=n_modes)
+        )
         for p, q in itertools.product(range(n_modes), repeat=2):
             coeff = df_hamiltonian.one_body_tensor[p, q]
             for sigma in range(2):
@@ -193,7 +201,10 @@ class TestLowRank(QiskitNatureTestCase):
                 z2 = (  # pylint: disable=invalid-name
                     FermionicOp.one(register_length=n_modes) - 2 * num_ops[j + tau * n_modes]
                 )
-                actual += 0.125 * (core_tensor[i, j] + core_tensor[j, i]) * z1 @ z2
+                # TODO: this cast should be unnecessary
+                actual += cast(
+                    FermionicOp, 0.125 * (core_tensor[i, j] + core_tensor[j, i]) * z1 @ z2
+                )
 
         self.assertTrue(actual.normal_ordered().equiv(expected.normal_ordered(), atol=1e-8))
 
@@ -294,7 +305,7 @@ class TestLowRank(QiskitNatureTestCase):
         np.testing.assert_allclose(reconstructed, two_body_tensor, atol=1e-2)
 
     @unpack
-    @data(("H2_sto3g", 2), ("BeH_sto3g_reduced", 5))
+    @data(("H2_sto3g", 2), ("BeH_sto3g_reduced", 4))
     def test_low_rank_decomposition_compressed(self, hamiltonian_name: str, max_rank: int):
         """Test compressed low rank decomposition."""
         electronic_energy = hamiltonians[hamiltonian_name]

@@ -491,11 +491,11 @@ def _df_tensors_to_params(
 ):
     _, n_modes, _ = leaf_tensors.shape
     leaf_logs = [scipy.linalg.logm(mat) for mat in leaf_tensors]
-    param_indices = np.triu_indices(n_modes, k=1)
+    leaf_param_indices = np.triu_indices(n_modes, k=1)
     # TODO this discards the imaginary part of the logarithm, see if we can do better
-    leaf_params = np.real(np.ravel([leaf_log[param_indices] for leaf_log in leaf_logs]))
-    param_indices = np.nonzero(core_tensor_mask)
-    core_params = np.ravel([core_tensor[param_indices] for core_tensor in core_tensors])
+    leaf_params = np.real(np.ravel([leaf_log[leaf_param_indices] for leaf_log in leaf_logs]))
+    core_param_indices = np.nonzero(core_tensor_mask)
+    core_params = np.ravel([core_tensor[core_param_indices] for core_tensor in core_tensors])
     return np.concatenate([leaf_params, core_params])
 
 
