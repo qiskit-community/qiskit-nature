@@ -351,4 +351,4 @@ class TestLowRank(QiskitNatureTestCase):
                     )
 
         diff = (actual - expected).normal_ordered().simplify()
-        self.assertLess(diff.induced_norm(), 1e-3)
+        self.assertLess(diff.induced_norm(), 1e-2)
