@@ -84,19 +84,21 @@ class MP2InitialPoint(InitialPoint):
     :attr:`grouped_property` and :attr:`ansatz` to be passed as arguments or the
     :attr:`grouped_property` and :attr:`excitation_list` attributes to be set already.
 
-    ``MP2InitialPoint`` requires the :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`,
-    which should be passed in via the :attr:`grouped_property` attribute. From this it must obtain
-    the two-body molecular orbital electronic integrals and orbital energies. If the Hartree-Fock
-    reference energy is also obtained, it will be used to compute the total MP2 energy. Once
+    An ``MP2InitialPoint`` requires the :class:`~qiskit_nature.second_q.properties.ParticleNumber` and
+    :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`, which should be passed in via the
+    :attr:`grouped_property` attribute. The
+    :class:`~qiskit_nature.second_q.properties.ElectronicEnergy` must contain the two-body molecular
+    orbital ``electronic_integral`` and ``orbital_energies``. Optionally, the
+    method will use the Hartree-Fock ``reference_energy`` to compute the :attr:``total_energy``.
 
-    ``MP2InitialPoint`` also requires the :attr:`excitation_list` from the :attr:`ansatz` to ensure
+    An ``MP2InitialPoint`` also requires the :attr:`excitation_list` from the :attr:`ansatz` to ensure
     that the coefficients map correctly to the initial point array. However, this can be substituted
     by setting the :attr:`excitation_list` attribute directly.
 
     Following computation, the initial point array can be extracted via the :meth:`to_numpy_array`
     method. The overall energy correction can be obtained via the :attr:`energy_correction`
-    property. The initial point array elements with indices corresponding to double excitations in the
-    :attr:`excitation_list` will have a value corresponding to the appropriate MP2 coefficient,
+    property. The initial point array elements with indices corresponding to double excitations in
+    the :attr:`excitation_list` will have a value corresponding to the appropriate MP2 coefficient,
     while those that correspond to single, triple, or higher excitations will have zero value.
     """
 
@@ -148,15 +150,22 @@ class MP2InitialPoint(InitialPoint):
     def grouped_property(self) -> GroupedSecondQuantizedProperty | None:
         """The grouped property.
 
-        The grouped property is required to contain the
-        :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`, which must contain the
-        two-body molecular orbitals matrix and the orbital energies. Optionally, it will also use
-        the Hartree-Fock reference energy to compute the absolute energy.
+        Setting :attr:`grouped_property` will also compute the T2 amplitudes and
+        attr:`energy_correction:`.
+
+        The grouped property is required to contain
+        :class:`~qiskit_nature.second_q.properties.ParticleNumber` and
+        :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`. From
+        :class:`~qiskit_nature.second_q.properties.ParticleNumber` we obtain the ``particle_number``
+        to extract the number of occupied orbitals.
+        :class:`~qiskit_nature.second_q.properties.ElectronicEnergy` must contain the two-body,
+        molecular-orbital ``electronic_integral`` and the ``orbital_energies``. Optionally, the
+        method will use the Hartree-Fock ``reference_energy`` to compute the :attr:`total_energy`.
 
         Raises:
-            QiskitNatureError: If :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`
-                is missing or the two-body molecular orbitals matrix or the orbital energies are not
-                found.
+            QiskitNatureError: If :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`,
+                :class:`~qiskit_nature.second_q.properties.ParticleNumber`, the two-body MO
+                `electronic_integral` or the `orbital_energies` are not found.
             NotImplementedError: If alpha and beta spin molecular orbitals are not identical.
         """
         return self._grouped_property
@@ -167,7 +176,7 @@ class MP2InitialPoint(InitialPoint):
         electronic_energy: ElectronicEnergy | None = grouped_property.get_property(ElectronicEnergy)
         if electronic_energy is None:
             raise QiskitNatureError(
-                "The ElectronicEnergy cannot be obtained from the grouped_property."
+                "The `ElectronicEnergy` cannot be obtained from the `grouped_property`."
             )
 
         two_body_mo_integral: ElectronicIntegrals | None = (
@@ -175,19 +184,19 @@ class MP2InitialPoint(InitialPoint):
         )
         if two_body_mo_integral is None:
             raise QiskitNatureError(
-                "The two body MO electronic integral cannot be obtained from the grouped property."
+                "The two body MO `electronic_integral` cannot be obtained from the `grouped_property`."
             )
 
         orbital_energies: np.ndarray | None = electronic_energy.orbital_energies
         if orbital_energies is None:
             raise QiskitNatureError(
-                "The orbital_energies cannot be obtained from the grouped property."
+                "The `orbital_energies` cannot be obtained from the `grouped_property`."
             )
 
         integral_matrix: np.ndarray = two_body_mo_integral.get_matrix()
         if not np.allclose(integral_matrix, two_body_mo_integral.get_matrix(2)):
             raise NotImplementedError(
-                "MP2InitialPoint only supports restricted-spin setups. "
+                "`MP2InitialPoint` only supports restricted-spin setups. "
                 "Alpha and beta spin orbitals must be identical. "
                 "See https://github.com/Qiskit/qiskit-nature/issues/645."
             )
@@ -197,7 +206,7 @@ class MP2InitialPoint(InitialPoint):
         particle_number: ParticleNumber | None = grouped_property.get_property(ParticleNumber)
         if particle_number is None:
             raise QiskitNatureError(
-                "ParticleNumber is required to obtain the number of occupied orbitals."
+                "The `ParticleNumber` is required to obtain the number of occupied orbitals."
             )
 
         # Get number of occupied molecular orbitals as the number of alpha particles.
