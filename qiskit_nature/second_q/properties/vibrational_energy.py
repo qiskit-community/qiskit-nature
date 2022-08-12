@@ -14,11 +14,10 @@
 
 from __future__ import annotations
 
-from typing import Generator, Optional, TYPE_CHECKING
+from typing import cast, Generator, Optional, TYPE_CHECKING
 
 import h5py
 
-from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.second_q.operators import VibrationalOp
 
 from .bases import VibrationalBasis
@@ -156,13 +155,11 @@ class VibrationalEnergy(VibrationalProperty):
         """
         return self._vibrational_integrals.get(num_body_terms, None)
 
-    def second_q_ops(self) -> ListOrDictType[VibrationalOp]:
+    def second_q_ops(self) -> dict[str, VibrationalOp]:
         """Returns the second quantized vibrational energy operator.
 
-        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
-
         Returns:
-            A `list` or `dict` of `VibrationalOp` objects.
+            A `dict` of `VibrationalOp` objects.
         """
         ops = []
         for num_body, ints in self._vibrational_integrals.items():
@@ -171,10 +168,7 @@ class VibrationalEnergy(VibrationalProperty):
             ints.basis = self.basis
             ops.append(ints.to_second_q_op())
 
-        if not settings.dict_aux_operators:
-            return [sum(ops)]
-
-        return {self.name: sum(ops)}
+        return {self.name: cast(VibrationalOp, sum(ops))}
 
     def interpret(self, result: "EigenstateResult") -> None:
         """Interprets an :class:`~qiskit_nature.second_q.problems.EigenstateResult`

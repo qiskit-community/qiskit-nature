@@ -53,15 +53,14 @@ class TestVibrationalStructureProblem(QiskitNatureTestCase):
     def test_second_q_ops_without_transformers(self):
         """Tests that the list of second quantized operators is created if no transformers
         provided."""
-        expected_num_of_sec_quant_ops = 5
+        expected_num_of_sec_quant_ops = 4
         expected_len_of_vibrational_op = 47
         num_modals = 2
         truncation_order = 3
         num_modes = self.props.num_modes
         num_modals = [num_modals] * num_modes
         vibrational_problem = VibrationalStructureProblem(self.driver, num_modals, truncation_order)
-        second_quantized_ops = vibrational_problem.second_q_ops()
-        vibrational_op = second_quantized_ops[vibrational_problem.main_property_name]
+        vibrational_op, second_quantized_ops = vibrational_problem.second_q_ops()
 
         with self.subTest("Check expected length of the list of second quantized operators."):
             assert len(second_quantized_ops) == expected_num_of_sec_quant_ops
@@ -73,15 +72,14 @@ class TestVibrationalStructureProblem(QiskitNatureTestCase):
 
     def test_truncation_order(self):
         """Tests that the truncation_order is being respected."""
-        expected_num_of_sec_quant_ops = 5
+        expected_num_of_sec_quant_ops = 4
         expected_len_of_vibrational_op = 10
         num_modals = 2
         truncation_order = 1
         num_modes = self.props.num_modes
         num_modals = [num_modals] * num_modes
         vibrational_problem = VibrationalStructureProblem(self.driver, num_modals, truncation_order)
-        second_quantized_ops = vibrational_problem.second_q_ops()
-        vibrational_op = second_quantized_ops[vibrational_problem.main_property_name]
+        vibrational_op, second_quantized_ops = vibrational_problem.second_q_ops()
 
         with self.subTest("Check expected length of the list of second quantized operators."):
             assert len(second_quantized_ops) == expected_num_of_sec_quant_ops

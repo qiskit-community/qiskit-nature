@@ -22,7 +22,6 @@ import itertools
 import h5py
 import numpy as np
 
-from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.second_q.operators import FermionicOp
 
 from .bases import ElectronicBasis
@@ -150,13 +149,11 @@ class AngularMomentum(ElectronicProperty):
             h5py_group.attrs["relative_tolerance"],
         )
 
-    def second_q_ops(self) -> ListOrDictType[FermionicOp]:
+    def second_q_ops(self) -> dict[str, FermionicOp]:
         """Returns the second quantized angular momentum operator.
 
-        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
-
         Returns:
-            A `list` or `dict` of `FermionicOp` objects.
+            A `dict` of `FermionicOp` objects.
         """
         x_h1, x_h2 = _calc_s_x_squared_ints(self._num_spin_orbitals)
         y_h1, y_h2 = _calc_s_y_squared_ints(self._num_spin_orbitals)
@@ -168,9 +165,6 @@ class AngularMomentum(ElectronicProperty):
         h2_ints = TwoBodyElectronicIntegrals(ElectronicBasis.SO, h_2)
 
         op = (h1_ints.to_second_q_op() + h2_ints.to_second_q_op()).simplify()
-
-        if not settings.dict_aux_operators:
-            return [op]
 
         return {self.name: op}
 

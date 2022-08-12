@@ -9,7 +9,10 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+
 """The Vibrational Structure Problem class."""
+
+from __future__ import annotations
 
 from functools import partial
 from typing import cast, Callable, List, Optional, Union
@@ -18,7 +21,6 @@ import numpy as np
 
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 
-from qiskit_nature import ListOrDictType
 from qiskit_nature.second_q.drivers import VibrationalStructureDriver
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.properties import (
@@ -66,16 +68,12 @@ class VibrationalStructureProblem(BaseProblem):
             num_modals = self._num_modals
         return num_modals
 
-    def second_q_ops(self) -> ListOrDictType[SecondQuantizedOp]:
-        """Returns the second quantized operators created based on the driver and transformations.
-
-        If the arguments are returned as a `list`, the operators are in the following order: the
-        Vibrational Hamiltonian operator, occupied modal operators for each mode.
-
-        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
+    def second_q_ops(self) -> tuple[SecondQuantizedOp, dict[str, SecondQuantizedOp]]:
+        """Returns the second quantized operators associated with this problem.
 
         Returns:
-            A `list` or `dict` of `SecondQuantizedOp` objects.
+            A tuple, with the first object being the main operator and the second being a dictionary
+            of auxiliary operators.
         """
         driver_result = self.driver.run()
 
@@ -95,8 +93,9 @@ class VibrationalStructureProblem(BaseProblem):
         self._grouped_property_transformed.basis = basis
 
         second_quantized_ops = self._grouped_property_transformed.second_q_ops()
+        main_op = second_quantized_ops.pop(self._main_property_name)
 
-        return second_quantized_ops
+        return main_op, second_quantized_ops
 
     def interpret(
         self,
@@ -143,8 +142,7 @@ class VibrationalStructureProblem(BaseProblem):
         def filter_criterion(self, eigenstate, eigenvalue, aux_values):
             # the first num_modes aux_value is the evaluated number of particles for the given mode
             for mode in range(self.grouped_property_transformed.num_modes):
-                _key = str(mode) if isinstance(aux_values, dict) else mode
-                if aux_values is None or not np.isclose(aux_values[_key][0], 1):
+                if aux_values is None or not np.isclose(aux_values[str(mode)][0], 1):
                     return False
             return True
 

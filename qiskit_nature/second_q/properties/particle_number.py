@@ -20,7 +20,6 @@ from typing import Optional, Union, TYPE_CHECKING
 import h5py
 import numpy as np
 
-from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.second_q.operators import FermionicOp
 
 from .electronic_types import ElectronicProperty
@@ -225,22 +224,17 @@ class ParticleNumber(ElectronicProperty):
             h5py_group.attrs["relative_tolerance"],
         )
 
-    def second_q_ops(self) -> ListOrDictType[FermionicOp]:
+    def second_q_ops(self) -> dict[str, FermionicOp]:
         """Returns the second quantized particle number operator.
 
-        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
-
         Returns:
-            A `list` or `dict` of `FermionicOp` objects.
+            A `dict` of `FermionicOp` objects.
         """
         op = FermionicOp(
             [(f"N_{o}", 1.0) for o in range(self._num_spin_orbitals)],
             register_length=self._num_spin_orbitals,
             display_format="sparse",
         )
-
-        if not settings.dict_aux_operators:
-            return [op]
 
         return {self.name: op}
 
