@@ -25,24 +25,40 @@ Second-Quantization Problems (:mod:`qiskit_nature.second_q.problems`)
    VibrationalStructureProblem
    LatticeModelProblem
 
+   PropertiesContainer
+   ElectronicPropertiesContainer
+   VibrationalPropertiesContainer
+   LatticePropertiesContainer
+
 """
 
 from .base_problem import BaseProblem, EigenstateResult
+from .properties_container import PropertiesContainer
+
+from .electronic_properties_container import ElectronicPropertiesContainer
 from .electronic_structure_problem import ElectronicStructureProblem
 from .electronic_structure_result import DipoleTuple, ElectronicStructureResult
+
 from .lattice_model_problem import LatticeModelProblem
 from .lattice_model_result import LatticeModelResult
+from .lattice_properties_container import LatticePropertiesContainer
+
+from .vibrational_properties_container import VibrationalPropertiesContainer
 from .vibrational_structure_problem import VibrationalStructureProblem
 from .vibrational_structure_result import VibrationalStructureResult
 
 __all__ = [
     "BaseProblem",
-    "ElectronicStructureProblem",
-    "DipoleTuple",
-    "ElectronicStructureResult",
-    "LatticeModelProblem",
-    "VibrationalStructureProblem",
     "EigenstateResult",
-    "VibrationalStructureResult",
+    "PropertiesContainer",
+    "ElectronicStructureProblem",
+    "ElectronicStructureResult",
+    "ElectronicPropertiesContainer",
+    "DipoleTuple",
+    "LatticeModelProblem",
     "LatticeModelResult",
+    "LatticePropertiesContainer",
+    "VibrationalPropertiesContainer",
+    "VibrationalStructureProblem",
+    "VibrationalStructureResult",
 ]
