@@ -167,7 +167,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
     def test_no_electronic_energy(self):
         """Test when the electronic energy is missing."""
 
-        def get_property(prop: Property) -> Property | None:
+        def get_property(prop: type[Property]) -> Property | None:
             if prop == ParticleNumber:
                 return self.particle_number
             elif prop == ElectronicEnergy:
@@ -213,7 +213,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
     def test_no_particle_number(self):
         """Test when the particle number is missing."""
 
-        def get_property(prop: Property) -> Property | None:
+        def get_property(prop: type[Property]) -> Property | None:
             if prop == ParticleNumber:
                 return None
             elif prop == ElectronicEnergy:
