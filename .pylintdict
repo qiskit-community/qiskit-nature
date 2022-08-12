@@ -1,3 +1,4 @@
+acknowledgment
 adjoint
 aer
 aij
@@ -12,7 +13,9 @@ ancilla
 ancillas
 ang
 anharmonic
+annihilation
 ansatz
+ansatze
 ansatzes
 anticommutation
 antisymmetric
@@ -104,6 +107,8 @@ dataset
 dcx
 debye
 deepcopy
+deuterium
+deuteron
 dft
 diag
 diagonalization
@@ -113,6 +118,7 @@ diagonalizing
 dicts
 dimens
 dimensionality
+dirac
 discoverable
 distinguishability
 dll
@@ -121,6 +127,7 @@ dof
 doi
 dt
 dtype
+dumitrescu
 ecp
 ecr
 eigen
@@ -142,6 +149,7 @@ eom
 eq
 eri
 et
+eta
 eugene
 excitations
 extrapolator
@@ -155,6 +163,7 @@ fermion
 fermionic
 fermionicop
 fermions
+feynman
 filename
 fmt
 fock
@@ -234,6 +243,7 @@ jernigan
 ji
 jl
 jordan
+josé
 json
 jupyter
 jw
@@ -242,11 +252,13 @@ ket
 kitaev
 knowles
 kohn
+kronecker
 kwarg
 kwargs
 kwds
 labelled
 lda
+leighton
 ldots
 len
 leucine
@@ -279,6 +291,7 @@ mcrz
 mct
 mcu
 mcx
+mentorship
 metadata
 meth
 methionine
@@ -308,11 +321,13 @@ nbasis
 nd
 ndarray
 nelec
+neutron
 neq
 networkx
 neuropeptide
 nicholas
 nielsen
+nisq
 nmodes
 noancilla
 noint
@@ -323,6 +338,7 @@ nosignatures
 np
 npj
 ns
+nucleus
 num
 numpy
 numpyeigensolver
@@ -352,6 +368,7 @@ paulis
 paulische
 pca
 peptide
+performant
 perturbative
 pes
 phenylalanine
@@ -371,6 +388,8 @@ prepended
 preprint
 preprocesses
 proline
+protium
+proton
 ps
 pseudorandom
 pxd
@@ -443,7 +462,9 @@ serine
 setia
 setted
 shende
+siddhartha
 sklearn
+soham
 slater
 spinop
 springer
@@ -480,6 +501,8 @@ tdg
 tensored
 terra
 th
+thermostabilization
+theta
 threonine
 timestamp
 toctree
@@ -529,6 +552,7 @@ vibrational
 vibrationalop
 vibrationalops
 vibro
+vienna
 vmax
 vmin
 vqe
