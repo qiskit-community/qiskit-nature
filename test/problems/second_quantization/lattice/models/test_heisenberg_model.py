@@ -93,7 +93,7 @@ class TestHeisenbergModel(QiskitNatureTestCase):
 
     def test_ising(self):
         """Test Ising."""
-        line = LineLattice(num_nodes=2)
+        line = LineLattice(num_nodes=2, onsite_parameter=1)
         ism = IsingModel(lattice=line)
         coupling_constants = (0.0, 0.0, 1.0)
         ext_magnetic_field = (1.0, 0.0, 0.0)
