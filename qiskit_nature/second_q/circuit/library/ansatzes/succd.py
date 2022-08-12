@@ -260,20 +260,10 @@ class SUCCD(UCC):
         self._excitations_dict = excitations_dictionary
 
         for exc_level, exc_level_items in excitations_dictionary.items():
-            ops: List[FermionicOp] = []
-            for exc in exc_level_items:
-                label = ["I"] * self.num_spin_orbitals
-                for occ in exc[0]:
-                    label[occ] = "+"
-                for unocc in exc[1]:
-                    label[unocc] = "-"
-                op = FermionicOp("".join(label), display_format="dense")
-                op -= op.adjoint()
-                # we need to account for an additional imaginary phase in the exponent (see also
-                # `PauliTrotterEvolution.convert`)
-                op *= 1j  # type: ignore
-                ops.append(op)
-                sum_ops = cast(FermionicOp, sum(ops))
+            sum_ops = cast(
+                FermionicOp,
+                sum(self._build_a_fermionic_excitation_op(exc_level_items))
+            )
             operators.append(sum_ops)
         if not operators:
             return [FermionicOp.zero(self.num_spin_orbitals)]
