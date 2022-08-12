@@ -12,12 +12,11 @@
 
 """The Electronic Structure Problem class."""
 from functools import partial
-from typing import cast, Callable, Dict, List, Optional, Tuple, Union
+from typing import cast, Callable, List, Optional, Tuple, Union
 
 import numpy as np
 
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
-from qiskit.opflow import PauliSumOp
 from qiskit.opflow.primitive_ops import Z2Symmetries
 
 from qiskit_nature import ListOrDictType, QiskitNatureError
@@ -33,7 +32,6 @@ from qiskit_nature.second_q.transformers.base_transformer import BaseTransformer
 from .electronic_structure_result import ElectronicStructureResult
 from .eigenstate_result import EigenstateResult
 
-from .builders.electronic_hopping_ops_builder import _build_qeom_hopping_ops
 from .base_problem import BaseProblem
 
 
@@ -128,45 +126,6 @@ class ElectronicStructureProblem(BaseProblem):
         second_quantized_ops = self._grouped_property_transformed.second_q_ops()
 
         return second_quantized_ops
-
-    def hopping_qeom_ops(
-        self,
-        qubit_converter: QubitConverter,
-        excitations: Union[
-            str,
-            int,
-            List[int],
-            Callable[[int, Tuple[int, int]], List[Tuple[Tuple[int, ...], Tuple[int, ...]]]],
-        ] = "sd",
-    ) -> Tuple[
-        Dict[str, PauliSumOp],
-        Dict[str, List[bool]],
-        Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]],
-    ]:
-        """Generates the hopping operators and their commutativity information for the specified set
-        of excitations.
-
-        This method should can be used after calling `second_q_ops()`.
-
-        Args:
-            qubit_converter: the `QubitConverter` to use for mapping and symmetry reduction. The
-                             Z2 symmetries stored in this instance are the basis for the
-                             commutativity information returned by this method.
-            excitations: the types of excitations to consider. The simple cases for this input are
-
-                :`str`: containing any of the following characters: `s`, `d`, `t` or `q`.
-                :`int`: a single, positive integer denoting the excitation type (1 == `s`, etc.).
-                :`List[int]`: a list of positive integers.
-                :`Callable`: a function which is used to generate the excitations.
-                    For more details on how to write such a function refer to the default method,
-                    :meth:`generate_fermionic_excitations`.
-
-        Returns:
-            A tuple containing the hopping operators, the types of commutativities and the
-            excitation indices.
-        """
-        particle_number = self.grouped_property_transformed.get_property("ParticleNumber")
-        return _build_qeom_hopping_ops(particle_number, qubit_converter, excitations)
 
     def interpret(
         self,

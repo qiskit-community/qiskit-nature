@@ -147,8 +147,9 @@ class UCC(EvolvedOperatorAnsatz):
                     + `t` for triples
                     + `q` for quadruples
                 :`int`: a single, positive integer which denotes the number of excitations
-                    (1 == `s`, etc.)
-                :`list[int]`: a list of positive integers generalizing the above
+                    (1 == `s`, 2 == `d`, etc.)
+                :`list[int]`: a list of positive integers generalizing the above to multiple numbers
+                    of excitations ([1, 2] == `sd`, etc.)
                 :`Callable`: a function which is used to generate the excitations.
                     The callable must take the __keyword__ arguments `num_spin_orbitals` and
                     `num_particles` (with identical types to those explained above) and must return
