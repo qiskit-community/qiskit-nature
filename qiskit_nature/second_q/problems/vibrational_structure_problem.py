@@ -15,23 +15,20 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import cast, Callable, Dict, List, Optional, Tuple, Union
+from typing import cast, Callable, List, Optional, Union
 
 import numpy as np
 
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
-from qiskit.opflow import PauliSumOp
 
 from qiskit_nature.second_q.drivers import VibrationalStructureDriver
 from qiskit_nature.second_q.operators import SecondQuantizedOp
-from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.properties import (
     VibrationalStructureDriverResult,
 )
 from qiskit_nature.second_q.properties.bases import HarmonicBasis
 from qiskit_nature.second_q.transformers.base_transformer import BaseTransformer
 
-from .builders.vibrational_hopping_ops_builder import _build_qeom_hopping_ops
 from .base_problem import BaseProblem
 
 from .vibrational_structure_result import VibrationalStructureResult
@@ -56,8 +53,20 @@ class VibrationalStructureProblem(BaseProblem):
             transformers: a list of transformations to be applied to the driver result.
         """
         super().__init__(bosonic_driver, transformers, "VibrationalEnergy")
-        self.num_modals = num_modals
+        self._num_modals = num_modals
         self.truncation_order = truncation_order
+
+    @property
+    def num_modals(self) -> List[int]:
+        """Returns the number of modals, always expanded as a list."""
+        num_modes = cast(
+            VibrationalStructureDriverResult, self._grouped_property_transformed
+        ).num_modes
+        if isinstance(self._num_modals, int):
+            num_modals = [self._num_modals] * num_modes
+        else:
+            num_modals = self._num_modals
+        return num_modals
 
     def second_q_ops(self) -> tuple[SecondQuantizedOp, dict[str, SecondQuantizedOp]]:
         """Returns the second quantized operators associated with this problem.
@@ -79,64 +88,14 @@ class VibrationalStructureProblem(BaseProblem):
             if hasattr(prop, "truncation_order"):
                 prop.truncation_order = self.truncation_order
 
-        num_modes = self._grouped_property_transformed.num_modes
-        if isinstance(self.num_modals, int):
-            num_modals = [self.num_modals] * num_modes
-        else:
-            num_modals = self.num_modals
-
         # TODO: expose this as an argument in __init__
-        basis = HarmonicBasis(num_modals)
+        basis = HarmonicBasis(self.num_modals)
         self._grouped_property_transformed.basis = basis
 
         second_quantized_ops = self._grouped_property_transformed.second_q_ops()
         main_op = second_quantized_ops.pop(self._main_property_name)
 
         return main_op, second_quantized_ops
-
-    def hopping_qeom_ops(
-        self,
-        qubit_converter: QubitConverter,
-        excitations: Union[
-            str,
-            int,
-            List[int],
-            Callable[[int, Tuple[int, int]], List[Tuple[Tuple[int, ...], Tuple[int, ...]]]],
-        ] = "sd",
-    ) -> Tuple[
-        Dict[str, PauliSumOp],
-        Dict[str, List[bool]],
-        Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]],
-    ]:
-        """Generates the hopping operators and their commutativity information for the specified set
-        of excitations.
-
-        Args:
-            qubit_converter: the `QubitConverter` to use for mapping and symmetry reduction. The
-                             Z2 symmetries stored in this instance are the basis for the
-                             commutativity information returned by this method.
-            excitations: the types of excitations to consider. The simple cases for this input are
-
-                :`str`: containing any of the following characters: `s`, `d`, `t` or `q`.
-                :`int`: a single, positive integer denoting the excitation type (1 == `s`, etc.).
-                :`List[int]`: a list of positive integers.
-                :`Callable`: a function which is used to generate the excitations.
-                    For more details on how to write such a function refer to the default method,
-                    :meth:`generate_vibrational_excitations`.
-
-        Returns:
-            A tuple containing the hopping operators, the types of commutativities and the
-            excitation indices.
-        """
-
-        if isinstance(self.num_modals, int):
-            num_modals = [self.num_modals] * cast(
-                VibrationalStructureDriverResult, self._grouped_property_transformed
-            ).num_modes
-        else:
-            num_modals = self.num_modals
-
-        return _build_qeom_hopping_ops(num_modals, qubit_converter, excitations)
 
     def interpret(
         self,

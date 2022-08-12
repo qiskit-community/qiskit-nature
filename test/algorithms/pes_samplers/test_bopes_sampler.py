@@ -135,7 +135,7 @@ class TestBOPES(QiskitNatureTestCase):
         """Test with VQE and bootstrapping."""
         qubit_converter = QubitConverter(JordanWignerMapper())
         quantum_instance = QuantumInstance(
-            backend=qiskit.Aer.get_backend("aer_simulator_statevector"),
+            backend=qiskit.providers.aer.Aer.get_backend("aer_simulator_statevector"),
             seed_simulator=self.seed,
             seed_transpiler=self.seed,
         )
@@ -171,7 +171,7 @@ class TestBOPES(QiskitNatureTestCase):
     def test_h2_bopes_sampler_with_factory(self):
         """Test BOPES Sampler with Factory"""
         quantum_instance = QuantumInstance(
-            backend=qiskit.Aer.get_backend("aer_simulator_statevector"),
+            backend=qiskit.providers.aer.Aer.get_backend("aer_simulator_statevector"),
             seed_simulator=self.seed,
             seed_transpiler=self.seed,
         )
@@ -267,7 +267,7 @@ class TestBOPES(QiskitNatureTestCase):
 
         qubit_converter = QubitConverter(JordanWignerMapper(), z2symmetry_reduction=None)
         quantum_instance = QuantumInstance(
-            backend=qiskit.Aer.get_backend("aer_simulator_statevector"),
+            backend=qiskit.providers.aer.Aer.get_backend("aer_simulator_statevector"),
             seed_simulator=self.seed,
             seed_transpiler=self.seed,
         )
@@ -313,7 +313,7 @@ class TestBOPES(QiskitNatureTestCase):
 
         qubit_converter = QubitConverter(JordanWignerMapper(), z2symmetry_reduction=None)
         quantum_instance = QuantumInstance(
-            backend=qiskit.Aer.get_backend("aer_simulator_statevector"),
+            backend=qiskit.providers.aer.Aer.get_backend("aer_simulator_statevector"),
             seed_simulator=self.seed,
             seed_transpiler=self.seed,
         )

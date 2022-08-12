@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -10,4 +10,19 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Utilities for building FermionicOp instances."""
+"""
+===================================================
+I/O Formats (:mod:`qiskit_nature.second_q.formats`)
+===================================================
+
+.. currentmodule:: qiskit_nature.second_q.formats
+
+Submodules
+==========
+
+.. autosummary::
+   :toctree:
+
+   qcschema
+
+"""

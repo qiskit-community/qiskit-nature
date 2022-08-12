@@ -14,13 +14,11 @@
 
 from __future__ import annotations
 
-from typing import Callable, Dict, List, Optional, Tuple, Union
+from typing import Callable, List, Optional, Union
 
 import numpy as np
 
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
-from qiskit.opflow import PauliSumOp
-from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 
 from qiskit_nature.second_q.properties.lattice_model import LatticeModel
@@ -82,48 +80,6 @@ class LatticeModelProblem(BaseProblem):
         result.combine(eigenstate_result)
         result.computed_lattice_energies = eigenstate_result.eigenenergies
         return result
-
-    def hopping_qeom_ops(
-        self,
-        qubit_converter: QubitConverter,
-        excitations: Union[
-            str,
-            int,
-            List[int],
-            Callable[[int, Tuple[int, int]], List[Tuple[Tuple[int, ...], Tuple[int, ...]]]],
-        ] = "sd",
-    ) -> Optional[
-        Tuple[
-            Dict[str, PauliSumOp],
-            Dict[str, List[bool]],
-            Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]],
-        ]
-    ]:
-        """Generates the hopping operators and their commutativity information
-        for the specified set of excitations. Raises `NotImplementedError` for the
-        `LatticeProblemModel` class, currently.
-
-        Args:
-            qubit_converter: the `QubitConverter` to use for mapping and symmetry reduction. The
-                             Z2 symmetries stored in this instance are the basis for the
-                             commutativity information returned by this method.
-            excitations: the types of excitations to consider. The simple cases for this input are
-
-                :`str`: containing any of the following characters: `s`, `d`, `t` or `q`.
-                :`int`: a single, positive integer denoting the excitation type (1 == `s`, etc.).
-                :`List[int]`: a list of positive integers.
-                :`Callable`: a function which is used to generate the excitations.
-                    For more details on how to write such a function refer to one of the default
-                    methods, :meth:`generate_fermionic_excitations` or
-                    :meth:`generate_vibrational_excitations`.
-
-        Raises:
-            Currently, this function is not implemented in the `LatticeProblemModel` class and
-            always raises `NotImplementedError`.
-        """
-        raise NotImplementedError(
-            "Currently, it's not implemented in the `LatticeProblemModel` class."
-        )
 
     def get_default_filter_criterion(
         self,
