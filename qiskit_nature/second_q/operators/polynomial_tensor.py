@@ -51,7 +51,6 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin):
             copy_dict[key] = value
 
         if len(shapes) != 1:
-            print(shapes)
             raise ValueError("Dimensions of value matrices in data dictionary are not identical.")
 
         self._data = copy_dict
@@ -82,9 +81,8 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin):
                 if other_value.shape == np.shape(sum_dict[other_key]):
                     sum_dict[other_key] = np.add(other_value, sum_dict[other_key])
                 else:
-                    print("not same shape", other_value.shape, np.shape(sum_dict[other_key]))
                     raise ValueError(
-                        f"For key {other_key} "
+                        f"For key {other_key}: "
                         f"corresponding data value of shape {np.shape(sum_dict[other_key])} "
                         f"does not match other value matrix of shape {other_value.shape}"
                     )

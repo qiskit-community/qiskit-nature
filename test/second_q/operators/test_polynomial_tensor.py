@@ -34,6 +34,34 @@ class TestPolynomialTensor(QiskitNatureTestCase):
             "++--": self.build_matrix(4, 4),
         }
 
+        self.sample_poly_1 = {
+            "": 1.0,
+            "++": self.build_matrix(4, 1),
+            "+-": self.build_matrix(4, 2),
+            "++--": self.build_matrix(4, 4),
+        }
+
+        self.sample_poly_2 = {
+            "": 1.0,
+            "+": self.build_matrix(4, 1),
+            "+-": self.build_matrix(4, 2),
+            "++--": np.arange(1, 13).reshape(1, 2, 3, 2),
+        }
+
+        self.sample_poly_3 = {
+            "": 1.0,
+            "+": self.build_matrix(4, 1),
+            "+-": self.build_matrix(2, 2),
+            "++--": self.build_matrix(4, 4),
+        }
+
+        self.sample_poly_4 = {
+            "": 1.0,
+            "+": self.build_matrix(2, 1),
+            "+-": self.build_matrix(2, 2),
+            "++--": self.build_matrix(2, 4),
+        }
+
         self.expected_conjugate_poly = {
             "": 1.0,
             "+": self.build_matrix(4, 1).conjugate(),
@@ -61,30 +89,24 @@ class TestPolynomialTensor(QiskitNatureTestCase):
 
         return (np.arange(1, dim_size**num_dim + 1) * val).reshape((dim_size,) * num_dim)
 
-    def test_init_key_len(self):
-        """Test for key length and value dimensions of data input"""
+    def test_init(self):
+        """Test for errors in constructor for Polynomial Tensor"""
 
         with self.assertRaisesRegex(
             ValueError,
-            r"Data key (.*?) of length (.*?) does not match data value matrix of dimensions (.*?)",
+            r"Data key .* of length \d does not match data value matrix of dimensions \(\d+, *\)",
         ):
-            poly_tensor = PolynomialTensor(self.og_poly)
-
-    def test_init_val_dimen(self):
-        """Test for value dimensions of data input"""
+            _ = PolynomialTensor(self.sample_poly_1)
 
         with self.assertRaisesRegex(
-            ValueError, r"For key (.*?) dimensions of value matrix are not identical (.*?)"
+            ValueError, r"For key (.*): dimensions of value matrix are not identical \(\d+, .*\)"
         ):
-            poly_tensor = PolynomialTensor(self.og_poly)
-
-    def test_init_all_val_dimen(self):
-        """Test for dimensions of all values of data input"""
+            _ = PolynomialTensor(self.sample_poly_2)
 
         with self.assertRaisesRegex(
             ValueError, r"Dimensions of value matrices in data dictionary are not identical."
         ):
-            poly_tensor = PolynomialTensor(self.og_poly)
+            _ = PolynomialTensor(self.sample_poly_3)
 
     @idata(np.linspace(2, 3, 5))
     def test_mul(self, other):
@@ -100,11 +122,26 @@ class TestPolynomialTensor(QiskitNatureTestCase):
         result = PolynomialTensor(self.og_poly).mul(other)
         self.assertEqual(result, PolynomialTensor(expected_prod_poly))
 
+        with self.assertRaisesRegex(TypeError, r"other .* must be a number"):
+            _ = PolynomialTensor(self.og_poly).mul(PolynomialTensor(self.og_poly))
+
     def test_add(self):
         """Test for addition of Polynomial Tensors"""
 
         result = PolynomialTensor(self.og_poly).add(PolynomialTensor(self.og_poly))
         self.assertEqual(result, PolynomialTensor(self.expected_sum_poly))
+
+        with self.assertRaisesRegex(
+            TypeError, "Incorrect argument type: other should be PolynomialTensor"
+        ):
+            _ = PolynomialTensor(self.og_poly).add(5)
+
+        with self.assertRaisesRegex(
+            ValueError,
+            r"For key (.*): corresponding data value of shape \(\d+, *\) "
+            r"does not match other value matrix of shape \(\d+, *\)",
+        ):
+            _ = PolynomialTensor(self.og_poly).add(PolynomialTensor(self.sample_poly_4))
 
     def test_conjugate(self):
         """Test for conjugate of Polynomial Tensor"""
