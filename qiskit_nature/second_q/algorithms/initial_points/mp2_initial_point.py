@@ -84,22 +84,23 @@ class MP2InitialPoint(InitialPoint):
     :attr:`grouped_property` and :attr:`ansatz` to be passed as arguments or the
     :attr:`grouped_property` and :attr:`excitation_list` attributes to be set already.
 
-    An ``MP2InitialPoint`` requires the :class:`~qiskit_nature.second_q.properties.ParticleNumber` and
-    :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`, which should be passed in via the
-    :attr:`grouped_property` attribute. The
-    :class:`~qiskit_nature.second_q.properties.ElectronicEnergy` must contain the two-body molecular
-    orbital ``electronic_integral`` and ``orbital_energies``. Optionally, the
-    method will use the Hartree-Fock ``reference_energy`` to compute the :attr:``total_energy``.
+    The :attr:`grouped_property` is required to contain
+    :class:`~qiskit_nature.second_q.properties.particle_number.ParticleNumber` and
+    :class:`~qiskit_nature.second_q.properties.electronic_energy.ElectronicEnergy`. From
+    :class:`~qiskit_nature.second_q.properties.particle_number.ParticleNumber` we obtain the
+    ``num_particles`` to infer the number of occupied orbitals.
+    :class:`~qiskit_nature.second_q.properties.electronic_energy.ElectronicEnergy` must contain the
+    two-body, molecular-orbital ``electronic_integrals`` and the ``orbital_energies``. Optionally,
+    the setter will obtain the Hartree-Fock ``reference_energy`` to compute the
+    :attr:`total_energy`.
 
-    An ``MP2InitialPoint`` also requires the :attr:`excitation_list` from the :attr:`ansatz` to ensure
-    that the coefficients map correctly to the initial point array. However, this can be substituted
-    by setting the :attr:`excitation_list` attribute directly.
+    Setting the :attr:`grouped_property` will compute the :attr:`t2_amplitudes` and
+    :attr:`energy_correction`.
 
-    Following computation, the initial point array can be extracted via the :meth:`to_numpy_array`
-    method. The overall energy correction can be obtained via the :attr:`energy_correction`
-    property. The initial point array elements with indices corresponding to double excitations in
-    the :attr:`excitation_list` will have a value corresponding to the appropriate MP2 coefficient,
-    while those that correspond to single, triple, or higher excitations will have zero value.
+    Following computation, one can obtain the initial point array via the :meth:`to_numpy_array`
+    method. The initial point parameters that correspond to double excitations in the
+    :attr:`excitation_list` will equal the appropriate T2 amplitude, while those below
+    :attr:`threshold` or that correspond to single, triple, or higher excitations will be zero.
     """
 
     def __init__(self, threshold: float = 1e-12) -> None:
@@ -134,9 +135,9 @@ class MP2InitialPoint(InitialPoint):
 
     @property
     def excitation_list(self) -> list[tuple[tuple[int, ...], tuple[int, ...]]]:
-        """The list of excitations.
+        """The list of excitations that the UCC ansatz is using.
 
-        Setting this will overwrite the excitation list from the ansatz.
+        Setting this directly will overwrite any excitation list from the ansatz.
         """
         return self._excitation_list
 
@@ -150,24 +151,17 @@ class MP2InitialPoint(InitialPoint):
     def grouped_property(self) -> GroupedSecondQuantizedProperty | None:
         """The grouped property.
 
-        Setting :attr:`grouped_property` will also compute the T2 amplitudes and
-        attr:`energy_correction:`.
-
-        The grouped property is required to contain
-        :class:`~qiskit_nature.second_q.properties.ParticleNumber` and
-        :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`.
-
-        From :class:`~qiskit_nature.second_q.properties.ParticleNumber` we obtain the
-        ``particle_number`` to extract the number of occupied orbitals.
-        :class:`~qiskit_nature.second_q.properties.ElectronicEnergy` must contain the two-body,
-        molecular-orbital ``electronic_integral`` and the ``orbital_energies``. Optionally, the
-        method will use the Hartree-Fock ``reference_energy`` to compute the :attr:`total_energy`.
+        See
+        :class:`~qiskit_nature.second_q.algorithms.initial_points.mp2_initial_point.MP2InitialPoint`
+        for information on the required properties.
 
         Raises:
-            QiskitNatureError: If :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`
-                is missing or the two-body molecular orbitals matrix or the orbital energies are not
+            QiskitNatureError: If
+                :class:`~qiskit_nature.second_q.properties.electronic_energy.ElectronicEnergy` is
+                missing or the two-body molecular orbitals matrix or the orbital energies are not
                 found.
-            QiskitNatureError: If :class:`~qiskit_nature.second_q.properties.ParticleNumber` is
+            QiskitNatureError: If
+                :class:`~qiskit_nature.second_q.properties.particle_number.ParticleNumber` is
                 missing.
             NotImplementedError: If alpha and beta spin molecular orbitals are not
                 identical.
@@ -188,7 +182,7 @@ class MP2InitialPoint(InitialPoint):
         )
         if two_body_mo_integral is None:
             raise QiskitNatureError(
-                "The two body MO `electronic_integral` cannot be obtained from the `grouped_property`."
+                "The two-body MO `electronic_integrals` cannot be obtained from the `grouped_property`."
             )
 
         orbital_energies: np.ndarray | None = electronic_energy.orbital_energies
@@ -210,7 +204,7 @@ class MP2InitialPoint(InitialPoint):
         particle_number: ParticleNumber | None = grouped_property.get_property(ParticleNumber)
         if particle_number is None:
             raise QiskitNatureError(
-                "The `ParticleNumber` is required to obtain the number of occupied orbitals."
+                "The `ParticleNumber` cannot be obtained from the `grouped_property`."
             )
 
         # Get number of occupied molecular orbitals as the number of alpha particles.
@@ -229,7 +223,11 @@ class MP2InitialPoint(InitialPoint):
 
     @property
     def t2_amplitudes(self) -> np.ndarray:
-        """T amplitudes t2[i, j, a, b] (i, j in occupied, a, b in virtual)."""
+        """T2 amplitudes.
+
+        Given ``t2[i, j, a, b]`` ``i, j`` carry virtual indices, while ``a, b`` carry occupied
+        indices.
+        """
         return self._t2_amplitudes
 
     @property
@@ -239,7 +237,7 @@ class MP2InitialPoint(InitialPoint):
 
     @property
     def total_energy(self) -> float:
-        """The total energy including the Hartree-Fock reference energy.
+        """The total energy including the Hartree-Fock energy.
 
         If the reference energy was not obtained from
         :class:`~qiskit_nature.second_q.properties.ElectronicEnergy` this will be equal to
@@ -249,7 +247,7 @@ class MP2InitialPoint(InitialPoint):
 
     @property
     def threshold(self) -> float:
-        """Amplitudes with absolute value below this threshold will be set to zero."""
+        """Amplitudes below this vanish in the initial point array."""
         return self._threshold
 
     @threshold.setter
@@ -268,7 +266,7 @@ class MP2InitialPoint(InitialPoint):
         ansatz: UCC | None = None,
         grouped_property: GroupedSecondQuantizedProperty | None = None,
     ) -> None:
-        """Compute the coefficients for each excitation.
+        """Compute the initial point parameter for each excitation.
 
         See class documentation for more information.
 
@@ -318,7 +316,7 @@ class MP2InitialPoint(InitialPoint):
         self._parameters = amplitudes
 
     def to_numpy_array(self) -> np.ndarray:
-        """The initial point as an array."""
+        """The initial point as a NumPy array."""
         if self._parameters is None:
             self.compute()
         return self._parameters
