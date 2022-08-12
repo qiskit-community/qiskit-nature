@@ -15,6 +15,7 @@
 from test import QiskitNatureTestCase
 from retworkx import PyGraph, is_isomorphic
 from qiskit_nature.second_q.properties.lattices import Lattice
+from qiskit_nature.second_q.properties.lattices import LineLattice
 from qiskit_nature.second_q.properties import HeisenbergModel, IsingModel
 
 
@@ -23,54 +24,84 @@ class TestHeisenbergModel(QiskitNatureTestCase):
 
     def test_init(self):
         """Test init."""
-        graph = PyGraph(multigraph=False)
-        graph.add_nodes_from(range(2))
-        weighted_edge_list = [(0, 1, 1.0)]
-        graph.add_edges_from(weighted_edge_list)
-        ism_graph = PyGraph(multigraph=False)
-        ism_graph.add_nodes_from(range(2))
-        ism_weighted_edge_list = [(0, 1, -1.0), (0, 0, -1.0), (1, 1, -1.0)]
-        ism_graph.add_edges_from(ism_weighted_edge_list)
-        triangle_graph = PyGraph(multigraph=False)
-        triangle_graph.add_nodes_from(range(3))
-        triangle_weighted_edge_list = [(0, 1, 1.0), (0, 2, 1.0), (1, 2, 1.0), (0, 0, 1.0), (1, 1, 1.0), (2, 2, 1.0)]
-        triangle_graph.add_edges_from(triangle_weighted_edge_list)
-        lattice = Lattice(graph)
-        ism_lattice = Lattice(ism_graph)
-        ism = IsingModel(ism_lattice)
-        heisenberg_model = HeisenbergModel(lattice)
-        coupling_constants = (0.0, 0.0, -1.0)
-        ext_magnetic_field = (-1.0, 0.0, 0.0)
-        hm_to_ism = HeisenbergModel(ism_lattice, coupling_constants, ext_magnetic_field)
-        xy_coupling = (0.5, 0.5, 0.0)
-        xy_ext_magnetic_field = (-0.75, 0.25, 0.0)
-        xy_test_hm = HeisenbergModel(lattice, xy_coupling, xy_ext_magnetic_field)
-        triangle_lattice = Lattice(triangle_graph)
-        ext_magnetic_field_y = (0.0, 1.0, 0.0)
-        triangle_y_heisenberg_model = HeisenbergModel(triangle_lattice, ext_magnetic_field=ext_magnetic_field_y)
-        xyz_ext_magnetic_field = (1.0, 1.0, 1.0)
-        xyz_test_hm = HeisenbergModel(lattice, ext_magnetic_field=xyz_ext_magnetic_field)
+        line = LineLattice(num_nodes=2)
+        heisenberg_model = HeisenbergModel(lattice=line)
 
         with self.subTest("Check the graph."):
             self.assertTrue(
                 is_isomorphic(
-                    heisenberg_model.lattice.graph, lattice.graph, edge_matcher=lambda x, y: x == y
-                )
-            )
-            
-        with self.subTest("Check the graph of triangular model."):
-            self.assertTrue(
-                is_isomorphic(
-                    triangle_y_heisenberg_model.lattice.graph, triangle_lattice.graph, edge_matcher=lambda x, y: x == y
+                    heisenberg_model.lattice.graph, line.graph, edge_matcher=lambda x, y: x == y
                 )
             )
 
         with self.subTest("Check the second q op representation."):
-            coupling = [("X_0 X_1", 1.0), ("Y_0 Y_1", 1.0), ("Z_0 Z_1", 1.0)]
+            terms = [("X_0 X_1", 1.0), ("Y_0 Y_1", 1.0), ("Z_0 Z_1", 1.0)]
 
-            hamiltonian = coupling
+            hamiltonian = terms
 
             self.assertSetEqual(set(hamiltonian), set(heisenberg_model.second_q_ops().to_list()))
+
+    def test_triangular(self):
+        """Test triangular lattice."""
+        triangle_graph = PyGraph(multigraph=False)
+        triangle_graph.add_nodes_from(range(3))
+        triangle_weighted_edge_list = [
+            (0, 1, 1.0),
+            (0, 2, 1.0),
+            (1, 2, 1.0),
+            (0, 0, 1.0),
+            (1, 1, 1.0),
+            (2, 2, 1.0),
+        ]
+        triangle_graph.add_edges_from(triangle_weighted_edge_list)
+        triangle_lattice = Lattice(triangle_graph)
+        ext_magnetic_field_y = (0.0, 1.0, 0.0)
+        triangle_y_heisenberg_model = HeisenbergModel(
+            triangle_lattice, ext_magnetic_field=ext_magnetic_field_y
+        )
+
+        with self.subTest("Check the graph of triangular model."):
+            self.assertTrue(
+                is_isomorphic(
+                    triangle_y_heisenberg_model.lattice.graph,
+                    triangle_lattice.graph,
+                    edge_matcher=lambda x, y: x == y,
+                )
+            )
+
+        with self.subTest("Check the second q ops in the triangular lattice with param in y axis."):
+            terms = [
+                ("X_0 X_1", 1.0),
+                ("Y_0 Y_1", 1.0),
+                ("Z_0 Z_1", 1.0),
+                ("X_0 X_2", 1.0),
+                ("Y_0 Y_2", 1.0),
+                ("Z_0 Z_2", 1.0),
+                ("X_1 X_2", 1.0),
+                ("Y_1 Y_2", 1.0),
+                ("Z_1 Z_2", 1.0),
+                ("Y_0", 1.0),
+                ("Y_1", 1.0),
+                ("Y_2", 1.0),
+            ]
+
+            hamiltonian = terms
+
+            self.assertSetEqual(
+                set(hamiltonian), set(triangle_y_heisenberg_model.second_q_ops().to_list())
+            )
+
+    def test_ising(self):
+        """Test Ising."""
+        line = LineLattice(num_nodes=2)
+        ism = IsingModel(lattice=line)
+        coupling_constants = (0.0, 0.0, -1.0)
+        ext_magnetic_field = (-1.0, 0.0, 0.0)
+        hm_to_ism = HeisenbergModel(
+            lattice=line,
+            coupling_constants=coupling_constants,
+            ext_magnetic_field=ext_magnetic_field,
+        )
 
         with self.subTest("Check if the HeisenbergModel reproduce IsingModel in a special case."):
 
@@ -78,26 +109,49 @@ class TestHeisenbergModel(QiskitNatureTestCase):
                 set(ism.second_q_ops().to_list()),
                 set(hm_to_ism.second_q_ops().to_list()),
             )
-            
-        with self.subTest("Check if if x and y params are being applied."):
-            coupling = [("X_0 X_1", 0.5), ("Y_0 Y_1", 0.5), ("X_0", -0.75), ("X_1", -0.75), ("Y_0", 0.25), ("Y_1", 0.25)]
 
-            hamiltonian = coupling
+    def test_xy(self):
+        """Test x and y directions."""
+        line = LineLattice(num_nodes=2)
+        xy_coupling = (0.5, 0.5, 0.0)
+        xy_ext_magnetic_field = (-0.75, 0.25, 0.0)
+        xy_test_hm = HeisenbergModel(
+            lattice=line, coupling_constants=xy_coupling, ext_magnetic_field=xy_ext_magnetic_field
+        )
+
+        with self.subTest("Check if if x and y params are being applied."):
+            terms = [
+                ("X_0 X_1", 0.5),
+                ("Y_0 Y_1", 0.5),
+                ("X_0", -0.75),
+                ("Y_0", 0.25),
+                ("X_1", -0.75),
+                ("Y_1", 0.25),
+            ]
+
+            hamiltonian = terms
 
             self.assertSetEqual(set(hamiltonian), set(xy_test_hm.second_q_ops().to_list()))
-            
+
+    def test_xyz_ext_field(self):
+        """Test external field."""
+        line = LineLattice(num_nodes=2)
+        xyz_ext_magnetic_field = (1.0, 1.0, 1.0)
+        xyz_test_hm = HeisenbergModel(lattice=line, ext_magnetic_field=xyz_ext_magnetic_field)
+
         with self.subTest("Check if if x, y and z params are being applied."):
-            coupling = [("X_0 X_1", 1.0), ("Y_0 Y_1", 1.0), ("Z_0 Z_1", 1.0), ("X_0", 1.0), ("X_1", 1.0), ("Y_0", 1.0), ("Y_1", 1.0), ("Z_0", 1.0), ("Z_1", 1.0)]
+            terms = [
+                ("X_0 X_1", 1.0),
+                ("Y_0 Y_1", 1.0),
+                ("Z_0 Z_1", 1.0),
+                ("X_0", 1.0),
+                ("X_1", 1.0),
+                ("Y_0", 1.0),
+                ("Y_1", 1.0),
+                ("Z_0", 1.0),
+                ("Z_1", 1.0),
+            ]
 
-            hamiltonian = coupling
+            hamiltonian = terms
 
-            self.assertSetEqual(set(hamiltonian), set(xyz_test_hm.second_q_ops().to_list()))  
-            
-        with self.subTest("Check the second q ops in the triangular lattice with param in y axis."):
-            coupling = [("X_0 X_1", 1.0), ("Y_0 Y_1", 1.0), ("Z_0 Z_1", 1.0), ("X_0 X_2", 1.0), ("Y_0 Y_2", 1.0), ("Z_0 Z_2", 1.0), ("X_1 X_2", 1.0), ("Y_1 Y_2", 1.0), ("Z_1 Z_2", 1.0), ("Y_0", 1.0), ("Y_1", 1.0), ("Y_2", 1.0)]
-
-            hamiltonian = coupling
-
-            self.assertSetEqual(set(hamiltonian), set(triangle_y_heisenberg_model.second_q_ops().to_list()))
-            
-        
+            self.assertSetEqual(set(hamiltonian), set(xyz_test_hm.second_q_ops().to_list()))
