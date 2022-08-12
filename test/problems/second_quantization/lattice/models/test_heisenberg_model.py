@@ -95,8 +95,8 @@ class TestHeisenbergModel(QiskitNatureTestCase):
         """Test Ising."""
         line = LineLattice(num_nodes=2)
         ism = IsingModel(lattice=line)
-        coupling_constants = (0.0, 0.0, -1.0)
-        ext_magnetic_field = (-1.0, 0.0, 0.0)
+        coupling_constants = (0.0, 0.0, 1.0)
+        ext_magnetic_field = (1.0, 0.0, 0.0)
         hm_to_ism = HeisenbergModel(
             lattice=line,
             coupling_constants=coupling_constants,
