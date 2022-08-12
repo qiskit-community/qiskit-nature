@@ -81,8 +81,7 @@ driver = PySCFDriver(atom='H .0 .0 .0; H .0 .0 0.735',
 problem = ElectronicStructureProblem(driver)
 
 # generate the second-quantized operators
-second_q_ops = problem.second_q_ops()
-main_op = second_q_ops['ElectronicEnergy']
+main_op, _ = problem.second_q_ops()
 
 particle_number = problem.grouped_property_transformed.get_property("ParticleNumber")
 

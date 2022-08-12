@@ -12,7 +12,9 @@
 
 """The calculation of excited states via the qEOM algorithm"""
 
-from typing import List, Union, Optional, Tuple, Dict, cast
+from __future__ import annotations
+
+from typing import Callable, List, Union, Optional, Tuple, Dict, cast
 import itertools
 import logging
 import sys
@@ -30,10 +32,16 @@ from qiskit.opflow import (
     PauliSumOp,
 )
 
-from qiskit_nature import ListOrDictType
 from qiskit_nature.second_q.operators import SecondQuantizedOp
-from qiskit_nature.second_q.problems import BaseProblem
+from qiskit_nature.second_q.problems import (
+    BaseProblem,
+    ElectronicStructureProblem,
+    VibrationalStructureProblem,
+)
 from qiskit_nature.second_q.problems import EigenstateResult
+
+from .qeom_electronic_ops_builder import build_electronic_ops
+from .qeom_vibrational_ops_builder import build_vibrational_ops
 from .excited_states_solver import ExcitedStatesSolver
 from ..ground_state_solvers import GroundStateSolver
 
@@ -46,15 +54,33 @@ class QEOM(ExcitedStatesSolver):
     def __init__(
         self,
         ground_state_solver: GroundStateSolver,
-        excitations: Union[str, List[List[int]]] = "sd",
+        excitations: str
+        | int
+        | list[int]
+        | Callable[
+            [int, tuple[int, int]],
+            list[tuple[tuple[int, ...], tuple[int, ...]]],
+        ] = "sd",
     ) -> None:
         """
         Args:
             ground_state_solver: a GroundStateSolver object. The qEOM algorithm
                 will use this ground state to compute the EOM matrix elements
             excitations: The excitations to be included in the eom pseudo-eigenvalue problem.
-                If a string ('s', 'd' or 'sd') then all excitations of the given type will be used.
-                Otherwise a list of custom excitations can directly be provided.
+
+                :`str`: which contains the types of excitations. Allowed characters are
+                    + `s` for singles
+                    + `d` for doubles
+                :`int`: a single, positive integer which denotes the number of excitations
+                    (1 == `s`, 2 == `d`, etc.)
+                :`list[int]`: a list of positive integers generalizing the above to multiple numbers
+                    of excitations ([1, 2] == `sd`, etc.)
+                :`Callable`: a function which can be used to specify a custom list of excitations.
+                    For more details on how to write such a function refer to one of the default
+                    methods, :meth:`generate_fermionic_excitations` or
+                    :meth:`generate_vibrational_excitations`, when solving a
+                    :class:`.ElectronicStructureProblem` or :class:`.VibrationalStructureProblem`,
+                    respectively.
         """
         self._gsc = ground_state_solver
         self.excitations = excitations
@@ -62,12 +88,22 @@ class QEOM(ExcitedStatesSolver):
         self._untapered_qubit_op_main: PauliSumOp = None
 
     @property
-    def excitations(self) -> Union[str, List[List[int]]]:
+    def excitations(
+        self,
+    ) -> str | int | list[int] | Callable[
+        [int, tuple[int, int]], list[tuple[tuple[int, ...], tuple[int, ...]]]
+    ]:
         """Returns the excitations to be included in the eom pseudo-eigenvalue problem."""
         return self._excitations
 
     @excitations.setter
-    def excitations(self, excitations: Union[str, List[List[int]]]) -> None:
+    def excitations(
+        self,
+        excitations: str
+        | int
+        | list[int]
+        | Callable[[int, tuple[int, int]], list[tuple[tuple[int, ...], tuple[int, ...]]]],
+    ) -> None:
         """The excitations to be included in the eom pseudo-eigenvalue problem. If a string then
         all excitations of given type will be used. Otherwise a list of custom excitations can
         directly be provided."""
@@ -84,14 +120,14 @@ class QEOM(ExcitedStatesSolver):
     def get_qubit_operators(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
-    ) -> Tuple[PauliSumOp, Optional[ListOrDictType[PauliSumOp]]]:
+        aux_operators: Optional[dict[str, Union[SecondQuantizedOp, PauliSumOp]]] = None,
+    ) -> Tuple[PauliSumOp, Optional[dict[str, PauliSumOp]]]:
         return self._gsc.get_qubit_operators(problem, aux_operators)
 
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[ListOrDictType[SecondQuantizedOp]] = None,
+        aux_operators: Optional[dict[str, SecondQuantizedOp]] = None,
     ) -> EigenstateResult:
         """Run the excited-states calculation.
 
@@ -117,11 +153,7 @@ class QEOM(ExcitedStatesSolver):
         groundstate_result = self._gsc.solve(problem, aux_operators)
 
         # 2. Prepare the excitation operators
-        second_q_ops = problem.second_q_ops()
-        if isinstance(second_q_ops, list):
-            main_second_q_op = second_q_ops[0]
-        elif isinstance(second_q_ops, dict):
-            main_second_q_op = second_q_ops.pop(problem.main_property_name)
+        main_second_q_op, _ = problem.second_q_ops()
 
         self._untapered_qubit_op_main = self._gsc.qubit_converter.convert_only(
             main_second_q_op, problem.num_particles
@@ -176,14 +208,14 @@ class QEOM(ExcitedStatesSolver):
 
         return result
 
-    def _prepare_matrix_operators(self, problem) -> Tuple[dict, int]:
+    def _prepare_matrix_operators(self, problem: BaseProblem) -> Tuple[dict, int]:
         """Construct the excitation operators for each matrix element.
 
         Returns:
             a dictionary of all matrix elements operators and the number of excitations
             (or the size of the qEOM pseudo-eigenvalue problem)
         """
-        data = problem.hopping_qeom_ops(self._gsc.qubit_converter, self._excitations)
+        data = self._build_hopping_ops(problem)
         hopping_operators, type_of_commutativities, excitation_indices = data
 
         size = int(len(list(excitation_indices.keys())) // 2)
@@ -193,6 +225,42 @@ class QEOM(ExcitedStatesSolver):
         )
 
         return eom_matrix_operators, size
+
+    def _build_hopping_ops(
+        self, problem: BaseProblem
+    ) -> Tuple[
+        Dict[str, PauliSumOp],
+        Dict[str, List[bool]],
+        Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]],
+    ]:
+        """Builds the product of raising and lowering operators for a given problem.
+
+        Args:
+            problem: the problem for which to build out the operators.
+
+        Raises:
+            NotImplementedError: for an unsupported problem type.
+
+        Returns:
+            Dict of hopping operators, dict of commutativity types and dict of excitation indices
+        """
+        if isinstance(problem, ElectronicStructureProblem):
+            return build_electronic_ops(
+                problem.grouped_property_transformed.get_property("ParticleNumber"),
+                self._gsc.qubit_converter,
+                self.excitations,
+            )
+        elif isinstance(problem, VibrationalStructureProblem):
+            return build_vibrational_ops(
+                problem.num_modals,
+                self._gsc.qubit_converter,
+                self.excitations,
+            )
+        else:
+            raise NotImplementedError(
+                "The building of QEOM hopping operators is not yet implemented for a problem of "
+                f"type {type(problem)}"
+            )
 
     def _build_all_commutators(
         self, hopping_operators: dict, type_of_commutativities: dict, size: int

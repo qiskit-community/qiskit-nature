@@ -25,7 +25,7 @@ class QiskitNatureSettings:
     """Global settings for Qiskit Nature."""
 
     def __init__(self):
-        self._dict_aux_operators: bool = False
+        self._dict_aux_operators: bool = True
         self._optimize_einsum: bool = True
         self._deprecation_shown: bool = False
 

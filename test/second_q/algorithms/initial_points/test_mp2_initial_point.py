@@ -39,7 +39,6 @@ from qiskit_nature.second_q.properties import ElectronicEnergy
 from qiskit_nature.second_q.properties.second_quantized_property import (
     GroupedSecondQuantizedProperty,
 )
-from qiskit_nature.settings import settings
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import UCC
 from qiskit_nature.second_q.algorithms.initial_points import MP2InitialPoint
@@ -51,8 +50,6 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
 
     def setUp(self):
         super().setUp()
-        settings.dict_aux_operators = True
-
         self.excitation_list = [[[0], [1]]]
         self.mock_ansatz = Mock(spec=UCC)
         self.mock_ansatz.excitation_list = self.excitation_list
