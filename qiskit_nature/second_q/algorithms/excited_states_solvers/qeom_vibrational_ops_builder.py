@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import cast, Callable, Dict, List, Tuple
+from typing import Callable, Dict, List, Tuple
 
 from qiskit.opflow import PauliSumOp
 from qiskit.tools import parallel_map
@@ -57,15 +57,8 @@ def build_vibrational_ops(
         Dict of hopping operators, dict of commutativity types and dict of excitation indices
     """
 
-    excitations_list: List[Tuple[Tuple[int, ...], Tuple[int, ...]]]
-    if isinstance(excitations, (str, int)) or (
-        isinstance(excitations, list) and all(isinstance(exc, int) for exc in excitations)
-    ):
-        ansatz = UVCC(qubit_converter, num_modals, excitations)
-        excitations_list = ansatz._get_excitation_list()
-    else:
-        excitations_list = cast(List[Tuple[Tuple[int, ...], Tuple[int, ...]]], excitations)
-
+    ansatz = UVCC(qubit_converter, num_modals, excitations)
+    excitations_list = ansatz._get_excitation_list()
     size = len(excitations_list)
 
     hopping_operators: Dict[str, PauliSumOp] = {}

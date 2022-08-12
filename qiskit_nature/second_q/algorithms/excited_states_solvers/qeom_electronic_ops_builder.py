@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import cast, Callable, Dict, List, Tuple
+from typing import Callable, Dict, List, Tuple
 
 from qiskit.opflow import PauliSumOp
 from qiskit.tools import parallel_map
@@ -65,15 +65,8 @@ def build_electronic_ops(
     num_alpha, num_beta = particle_number.num_alpha, particle_number.num_beta
     num_spin_orbitals = particle_number.num_spin_orbitals
 
-    excitations_list: List[Tuple[Tuple[int, ...], Tuple[int, ...]]]
-    if isinstance(excitations, (str, int)) or (
-        isinstance(excitations, list) and all(isinstance(exc, int) for exc in excitations)
-    ):
-        ansatz = UCC(qubit_converter, (num_alpha, num_beta), num_spin_orbitals, excitations)
-        excitations_list = ansatz._get_excitation_list()
-    else:
-        excitations_list = cast(List[Tuple[Tuple[int, ...], Tuple[int, ...]]], excitations)
-
+    ansatz = UCC(qubit_converter, (num_alpha, num_beta), num_spin_orbitals, excitations)
+    excitations_list = ansatz._get_excitation_list()
     size = len(excitations_list)
 
     # build all hopping operators
