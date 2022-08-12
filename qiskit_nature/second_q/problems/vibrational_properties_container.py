@@ -26,10 +26,10 @@ class VibrationalPropertiesContainer(PropertiesContainer):
 
     @property
     def occupied_modals(self) -> OccupiedModals | None:
-        """Returns the :class:`qiskit_nature.second_q.properties.OccupiedModals` property."""
+        """Returns the occupied modals property."""
         return cast(OccupiedModals, self._properties.get("OccupiedModals", None))
 
     @occupied_modals.setter
     def occupied_modals(self, occupied_modals: OccupiedModals | None) -> None:
-        """Sets the :class:`qiskit_nature.second_q.properties.OccupiedModals` property."""
+        """Sets the occupied modals property."""
         self._setter(occupied_modals, OccupiedModals)

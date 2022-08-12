@@ -31,42 +31,42 @@ class ElectronicPropertiesContainer(PropertiesContainer):
 
     @property
     def angular_momentum(self) -> AngularMomentum | None:
-        """Returns the :class:`qiskit_nature.second_q.properties.AngularMomentum` property."""
+        """Returns the angular momentum property."""
         return cast(AngularMomentum, self._properties.get("AngularMomentum", None))
 
     @angular_momentum.setter
     def angular_momentum(self, angular_momentum: AngularMomentum | None) -> None:
-        """Sets the :class:`qiskit_nature.second_q.properties.AngularMomentum` property."""
+        """Sets the angular momentum property."""
         self._setter(angular_momentum, AngularMomentum)
 
     @property
     def electronic_dipole_moment(self) -> ElectronicDipoleMoment | None:
-        """Returns the :class:`qiskit_nature.second_q.properties.ElectronicDipoleMoment` property."""
+        """Returns the electronic dipole moment property."""
         return cast(ElectronicDipoleMoment, self._properties.get("ElectronicDipoleMoment", None))
 
     @electronic_dipole_moment.setter
     def electronic_dipole_moment(
         self, electronic_dipole_moment: ElectronicDipoleMoment | None
     ) -> None:
-        """Sets the :class:`qiskit_nature.second_q.properties.ElectronicDipoleMoment` property."""
+        """Sets the electronic dipole moment property."""
         self._setter(electronic_dipole_moment, ElectronicDipoleMoment)
 
     @property
     def magnetization(self) -> Magnetization | None:
-        """Returns the :class:`qiskit_nature.second_q.properties.Magnetization` property."""
+        """Returns the magnetization property."""
         return cast(Magnetization, self._properties.get("Magnetization", None))
 
     @magnetization.setter
     def magnetization(self, magnetization: Magnetization | None) -> None:
-        """Sets the :class:`qiskit_nature.second_q.properties.Magnetization` property."""
+        """Sets the magnetization property."""
         self._setter(magnetization, Magnetization)
 
     @property
     def particle_number(self) -> ParticleNumber | None:
-        """Returns the :class:`qiskit_nature.second_q.properties.ParticleNumber` property."""
+        """Returns the particle number property."""
         return cast(ParticleNumber, self._properties.get("ParticleNumber", None))
 
     @particle_number.setter
     def particle_number(self, particle_number: ParticleNumber | None) -> None:
-        """Sets the :class:`qiskit_nature.second_q.properties.ParticleNumber` property."""
+        """Sets the particle number property."""
         self._setter(particle_number, ParticleNumber)
