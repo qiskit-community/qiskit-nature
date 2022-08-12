@@ -23,7 +23,6 @@ import numpy as np
 from ddt import ddt, data
 
 from qiskit_nature import optionals
-from qiskit_nature.settings import settings
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import HartreeFock, UCC
 from qiskit_nature.second_q.drivers import PySCFDriver
@@ -45,8 +44,6 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
 
     def setUp(self):
         super().setUp()
-        settings.dict_aux_operators = True
-
         self.excitation_list = [[[0], [1]]]
         self.mock_ansatz = Mock(spec=UCC)
         self.mock_ansatz.excitation_list = self.excitation_list

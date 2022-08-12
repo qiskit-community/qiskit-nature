@@ -10,15 +10,17 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 # This code is part of Qiskit.
+
 """The Base Problem class."""
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import Callable, Dict, List, Optional, Tuple, Union
+from typing import Callable, List, Optional, Tuple, Union
 
 import numpy as np
-from qiskit.opflow import PauliSumOp, Z2Symmetries
+from qiskit.opflow import Z2Symmetries
 
-from qiskit_nature import ListOrDictType
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.drivers import BaseDriver
 from qiskit_nature.second_q.operators import SecondQuantizedOp
@@ -78,13 +80,12 @@ class BaseProblem(ABC):
         return None
 
     @abstractmethod
-    def second_q_ops(self) -> ListOrDictType[SecondQuantizedOp]:
-        """Returns the second quantized operators associated with this Property.
-
-        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
+    def second_q_ops(self) -> tuple[SecondQuantizedOp, dict[str, SecondQuantizedOp]]:
+        """Returns the second quantized operators associated with this problem.
 
         Returns:
-            A `list` or `dict` of `SecondQuantizedOp` objects.
+            A tuple, with the first object being the main operator and the second being a dictionary
+            of auxiliary operators.
         """
         raise NotImplementedError()
 
@@ -135,45 +136,5 @@ class BaseProblem(ABC):
 
         In the fermionic case the default filter ensures that the number of particles is being
         preserved.
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def hopping_qeom_ops(
-        self,
-        qubit_converter: QubitConverter,
-        excitations: Union[
-            str,
-            int,
-            List[int],
-            Callable[[int, Tuple[int, int]], List[Tuple[Tuple[int, ...], Tuple[int, ...]]]],
-        ] = "sd",
-    ) -> Optional[
-        Tuple[
-            Dict[str, PauliSumOp],
-            Dict[str, List[bool]],
-            Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]],
-        ]
-    ]:
-        """Generates the hopping operators and their commutativity information for the specified set
-        of excitations.
-
-        Args:
-            qubit_converter: the `QubitConverter` to use for mapping and symmetry reduction. The
-                             Z2 symmetries stored in this instance are the basis for the
-                             commutativity information returned by this method.
-            excitations: the types of excitations to consider. The simple cases for this input are
-
-                :`str`: containing any of the following characters: `s`, `d`, `t` or `q`.
-                :`int`: a single, positive integer denoting the excitation type (1 == `s`, etc.).
-                :`List[int]`: a list of positive integers.
-                :`Callable`: a function which is used to generate the excitations.
-                    For more details on how to write such a function refer to one of the default
-                    methods, :meth:`generate_fermionic_excitations` or
-                    :meth:`generate_vibrational_excitations`.
-
-        Returns:
-            A tuple containing the hopping operators, the types of commutativities and the
-            excitation indices.
         """
         raise NotImplementedError()
