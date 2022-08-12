@@ -81,6 +81,17 @@ class PropertiesContainer(MutableSet):
         for prop in self._properties.values():
             yield prop
 
+    def _getter(self, _type: type) -> Property | None:
+        """An internal utility method to handle the attribute getter implementation.
+
+        Args:
+            _type: the target Property type of this getter.
+
+        Returns:
+            The property of the corresponding type or `None` if it is not available.
+        """
+        return self._properties.get(_type.__name__, None)
+
     def _setter(self, _property: Property | None, _type: type) -> None:
         """An internal utility method to handle the attribute setter implementation.
 

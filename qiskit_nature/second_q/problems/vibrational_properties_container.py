@@ -27,7 +27,7 @@ class VibrationalPropertiesContainer(PropertiesContainer):
     @property
     def occupied_modals(self) -> OccupiedModals | None:
         """Returns the occupied modals property."""
-        return cast(OccupiedModals, self._properties.get("OccupiedModals", None))
+        return cast(OccupiedModals, self._getter(OccupiedModals))
 
     @occupied_modals.setter
     def occupied_modals(self, occupied_modals: OccupiedModals | None) -> None:

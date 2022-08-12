@@ -32,7 +32,7 @@ class ElectronicPropertiesContainer(PropertiesContainer):
     @property
     def angular_momentum(self) -> AngularMomentum | None:
         """Returns the angular momentum property."""
-        return cast(AngularMomentum, self._properties.get("AngularMomentum", None))
+        return cast(AngularMomentum, self._getter(AngularMomentum))
 
     @angular_momentum.setter
     def angular_momentum(self, angular_momentum: AngularMomentum | None) -> None:
@@ -42,7 +42,7 @@ class ElectronicPropertiesContainer(PropertiesContainer):
     @property
     def electronic_dipole_moment(self) -> ElectronicDipoleMoment | None:
         """Returns the electronic dipole moment property."""
-        return cast(ElectronicDipoleMoment, self._properties.get("ElectronicDipoleMoment", None))
+        return cast(ElectronicDipoleMoment, self._getter(ElectronicDipoleMoment))
 
     @electronic_dipole_moment.setter
     def electronic_dipole_moment(
@@ -54,7 +54,7 @@ class ElectronicPropertiesContainer(PropertiesContainer):
     @property
     def magnetization(self) -> Magnetization | None:
         """Returns the magnetization property."""
-        return cast(Magnetization, self._properties.get("Magnetization", None))
+        return cast(Magnetization, self._getter(Magnetization))
 
     @magnetization.setter
     def magnetization(self, magnetization: Magnetization | None) -> None:
@@ -64,7 +64,7 @@ class ElectronicPropertiesContainer(PropertiesContainer):
     @property
     def particle_number(self) -> ParticleNumber | None:
         """Returns the particle number property."""
-        return cast(ParticleNumber, self._properties.get("ParticleNumber", None))
+        return cast(ParticleNumber, self._getter(ParticleNumber))
 
     @particle_number.setter
     def particle_number(self, particle_number: ParticleNumber | None) -> None:
