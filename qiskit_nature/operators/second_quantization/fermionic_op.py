@@ -248,7 +248,10 @@ class FermionicOp(SecondQuantizedOp):
 
         self._data: list[tuple[tuple[tuple[str, int], ...], complex]]
 
-        if (
+        if not isinstance(data, str) and not data:
+            # empty list or tuple means zero operator
+            self._data = [((), 0j)]
+        elif (
             isinstance(data, list)
             and isinstance(data[0], tuple)
             and isinstance(data[0][0], tuple)

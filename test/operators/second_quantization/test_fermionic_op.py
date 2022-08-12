@@ -351,6 +351,12 @@ class TestFermionicOp(QiskitNatureTestCase):
             expected = [((("-", 0), ("+", 1)), -1)]
             self.assertEqual(simplified_op._data, expected)
 
+        with self.subTest("simplify zero"):
+            fer_op = FermionicOp("+") - FermionicOp("+")
+            simplified_op = fer_op.simplify()
+            targ = FermionicOp.zero(1)
+            self.assertFermionEqual(simplified_op, targ)
+
     def test_hermiticity(self):
         """test is_hermitian"""
         with self.subTest("operator hermitian"):
