@@ -63,7 +63,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         )
         self.mock_grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
 
-        def get_property(prop: Property) -> Property | None:
+        def get_property(prop: type[Property]) -> Property | None:
             if prop == ParticleNumber:
                 return self.particle_number
             elif prop == ElectronicEnergy:
