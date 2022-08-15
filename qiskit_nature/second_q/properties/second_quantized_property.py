@@ -15,12 +15,11 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import Any, Type, TypeVar
+from typing import Any, Type
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 
-from .grouped_property import GroupedProperty
 from .property import Property
 
 
@@ -47,20 +46,3 @@ class SecondQuantizedProperty(Property):
                 f"You cannot construct an {cls.__name__} from a {result.__class__.__name__}. "
                 f"Please provide an object of type {valid_type} instead."
             )
-
-
-# pylint: disable=invalid-name
-T_co = TypeVar("T_co", bound=SecondQuantizedProperty, covariant=True)
-
-
-class GroupedSecondQuantizedProperty(GroupedProperty[T_co], SecondQuantizedProperty):
-    """A :class:`~qiskit_nature.properties.GroupedProperty` subtype containing purely
-    second-quantized properties."""
-
-    @abstractmethod
-    def second_q_ops(self) -> dict[str, SecondQuantizedOp]:
-        """Returns the second quantized operators associated with the properties in this group.
-
-        Returns:
-            A `dict` of `SecondQuantizedOp` objects.
-        """

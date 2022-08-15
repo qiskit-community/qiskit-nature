@@ -14,12 +14,12 @@
 
 import json
 import tempfile
+import unittest
 from test.second_q.properties.property_test import PropertyTest
 
 import h5py
 import numpy as np
 
-from qiskit_nature.second_q.drivers import HDF5Driver
 from qiskit_nature.second_q.properties import ElectronicDipoleMoment
 from qiskit_nature.second_q.properties.bases import ElectronicBasis
 from qiskit_nature.second_q.properties.dipole_moment import (
@@ -30,6 +30,7 @@ from qiskit_nature.second_q.properties.integrals import (
 )
 
 
+@unittest.skip("migration path")
 class TestElectronicDipoleMoment(PropertyTest):
     """Test ElectronicDipoleMoment Property"""
 
@@ -39,7 +40,7 @@ class TestElectronicDipoleMoment(PropertyTest):
         driver = HDF5Driver(
             hdf5_input=self.get_resource_path("test_driver_hdf5.hdf5", "second_q/drivers/hdf5d")
         )
-        self.prop = driver.run().get_property(ElectronicDipoleMoment)
+        self.prop = driver.run().properties.get("ElectronicDipoleMoment", None)
 
     def test_second_q_ops(self):
         """Test second_q_ops."""
@@ -111,3 +112,7 @@ class TestDipoleMoment(PropertyTest):
                 read_prop = DipoleMoment.from_hdf5(file["DipoleMomentX"])
 
                 self.assertEqual(prop, read_prop)
+
+
+if __name__ == "__main__":
+    unittest.main()

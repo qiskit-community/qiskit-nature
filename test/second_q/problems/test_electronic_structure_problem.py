@@ -22,7 +22,6 @@ import numpy as np
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.drivers import Molecule
 from qiskit_nature.second_q.drivers import (
-    HDF5Driver,
     PySCFDriver,
     ElectronicStructureMoleculeDriver,
     ElectronicStructureDriverType,
@@ -37,6 +36,7 @@ from qiskit_nature.second_q.transformers import (
 import qiskit_nature.optionals as _optionals
 
 
+@unittest.skip("migration path")
 class TestElectronicStructureProblem(QiskitNatureTestCase):
     """Tests Electronic Structure Problem."""
 
@@ -53,7 +53,7 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
         driver = HDF5Driver(
             hdf5_input=self.get_resource_path("H2_631g.hdf5", "second_q/transformers")
         )
-        electronic_structure_problem = ElectronicStructureProblem(driver)
+        electronic_structure_problem = driver.run()
 
         electr_sec_quant_op, second_quantized_ops = electronic_structure_problem.second_q_ops()
 
@@ -87,7 +87,7 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
         )
         trafo = ActiveSpaceTransformer(num_electrons=2, num_molecular_orbitals=2)
 
-        electronic_structure_problem = ElectronicStructureProblem(driver, [trafo])
+        electronic_structure_problem = trafo.transform(driver.run())
         electr_sec_quant_op, second_quantized_ops = electronic_structure_problem.second_q_ops()
 
         with self.subTest("Check that the correct properties aren't None"):
@@ -117,7 +117,7 @@ class TestElectronicStructureProblemLegacyDrivers(QiskitNatureTestCase):
             atom="O 0.0000 0.0000 0.1173; H 0.0000 0.07572 -0.4692;H 0.0000 -0.07572 -0.4692",
             basis="sto-3g",
         )
-        es_problem = ElectronicStructureProblem(driver)
+        es_problem = driver.run()
         qubit_conv = QubitConverter(
             mapper=ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto"
         )
@@ -139,7 +139,7 @@ class TestElectronicStructureProblemLegacyDrivers(QiskitNatureTestCase):
         driver = ElectronicStructureMoleculeDriver(
             molecule, basis="sto3g", driver_type=ElectronicStructureDriverType.PYSCF
         )
-        es_problem = ElectronicStructureProblem(driver, transformers=[freeze_core_transformer])
+        es_problem = freeze_core_transformer.transform(driver.run())
         qubit_conv = QubitConverter(
             mapper=ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto"
         )

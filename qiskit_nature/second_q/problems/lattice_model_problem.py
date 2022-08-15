@@ -36,8 +36,7 @@ class LatticeModelProblem(BaseProblem):
         Args:
             lattice_model: A lattice model class to create second quantized operators.
         """
-        super().__init__(main_property_name="LatticeEnergy")
-        self._lattice_model = lattice_model
+        super().__init__(lattice_model)
 
     def second_q_ops(self) -> tuple[SecondQuantizedOp, dict[str, SecondQuantizedOp]]:
         """Returns the second quantized operators created based on the lattice models.
@@ -46,7 +45,7 @@ class LatticeModelProblem(BaseProblem):
             A tuple, with the first object being the main operator and the second being a dictionary
             of auxiliary operators.
         """
-        second_q_op = self._lattice_model.second_q_ops()
+        second_q_op = self.hamiltonian.second_q_ops()
         return second_q_op, {}
 
     def interpret(

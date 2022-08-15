@@ -21,11 +21,11 @@ from qiskit.algorithms import VQE
 from qiskit.algorithms.optimizers import COBYLA
 from qiskit.circuit.library import TwoLocal
 from qiskit.utils import algorithm_globals, QuantumInstance
-from qiskit_nature.second_q.drivers import HDF5Driver
 from qiskit_nature.second_q.mappers import ParityMapper, QubitConverter
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
 
 
+@unittest.skip("migration path")
 class TestEnd2End(QiskitNatureTestCase):
     """End2End VQE tests."""
 

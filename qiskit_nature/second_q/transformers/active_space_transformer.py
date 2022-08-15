@@ -20,14 +20,9 @@ from typing import List, Optional, Tuple, Union, cast
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.second_q.problems import BaseProblem, ElectronicStructureProblem
+from qiskit_nature.second_q.properties import Property
 from qiskit_nature.second_q.properties import (
-    Property,
-    GroupedProperty,
-    GroupedSecondQuantizedProperty,
-)
-from qiskit_nature.second_q.properties.driver_metadata import DriverMetadata
-from qiskit_nature.second_q.properties import (
-    ElectronicStructureDriverResult,
     ElectronicDipoleMoment,
     ParticleNumber,
 )
@@ -38,9 +33,6 @@ from qiskit_nature.second_q.properties.bases import (
 from qiskit_nature.second_q.properties.integrals import (
     IntegralProperty,
     OneBodyElectronicIntegrals,
-)
-from qiskit_nature.second_q.properties.electronic_types import (
-    GroupedElectronicProperty,
 )
 
 from .base_transformer import BaseTransformer
@@ -178,9 +170,7 @@ class ActiveSpaceTransformer(BaseTransformer):
                 str(self._num_electrons),
             )
 
-    def transform(
-        self, grouped_property: GroupedSecondQuantizedProperty
-    ) -> GroupedElectronicProperty:
+    def transform(self, grouped_property: BaseProblem) -> BaseProblem:
         """Reduces the given `GroupedElectronicProperty` to a given active space.
 
         Args:
@@ -196,13 +186,13 @@ class ActiveSpaceTransformer(BaseTransformer):
                                number of selected active orbital indices does not match
                                `num_molecular_orbitals`.
         """
-        if not isinstance(grouped_property, GroupedElectronicProperty):
+        if not isinstance(grouped_property, ElectronicStructureProblem):
             raise QiskitNatureError(
                 "Only `GroupedElectronicProperty` objects can be transformed by this Transformer, "
                 f"not objects of type, {type(grouped_property)}."
             )
 
-        particle_number = grouped_property.get_property(ParticleNumber)
+        particle_number = grouped_property.properties.get("ParticleNumber", None)
         if particle_number is None:
             raise QiskitNatureError(
                 "The provided `GroupedElectronicProperty` does not contain a `ParticleNumber` "
@@ -210,13 +200,12 @@ class ActiveSpaceTransformer(BaseTransformer):
             )
         particle_number = cast(ParticleNumber, particle_number)
 
-        electronic_basis_transform = grouped_property.get_property(ElectronicBasisTransform)
+        electronic_basis_transform = grouped_property.basis_transform
         if electronic_basis_transform is None:
             raise QiskitNatureError(
                 "The provided `GroupedElectronicProperty` does not contain an "
                 "`ElectronicBasisTransform` property, which is required by this transformer!"
             )
-        electronic_basis_transform = cast(ElectronicBasisTransform, electronic_basis_transform)
 
         # get molecular orbital occupation numbers
         occupation_alpha = particle_number.occupation_alpha
@@ -255,9 +244,18 @@ class ActiveSpaceTransformer(BaseTransformer):
             ),
         )
 
+        electronic_energy = self._transform_property(grouped_property.hamiltonian)
+
         # construct new GroupedElectronicProperty
-        grouped_property_transformed = ElectronicStructureDriverResult()
-        grouped_property_transformed = self._transform_property(grouped_property)  # type: ignore
+        grouped_property_transformed = ElectronicStructureProblem(electronic_energy)
+        for prop in grouped_property.properties.values():
+            transformed_property = self._transform_property(prop)
+
+            if transformed_property is not None:
+                grouped_property_transformed.properties[
+                    transformed_property.name
+                ] = transformed_property
+
         grouped_property_transformed.molecule = (
             grouped_property.molecule  # type: ignore[attr-defined]
         )
@@ -265,7 +263,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         return grouped_property_transformed
 
     def _determine_active_space(
-        self, grouped_property: GroupedElectronicProperty
+        self, grouped_property: ElectronicStructureProblem
     ) -> Tuple[List[int], List[int]]:
         """Determines the active and inactive orbital indices.
 
@@ -275,7 +273,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         Returns:
             The list of active and inactive orbital indices.
         """
-        particle_number = grouped_property.get_property(ParticleNumber)
+        particle_number = grouped_property.properties["ParticleNumber"]
         if isinstance(self._num_electrons, tuple):
             num_alpha, num_beta = self._num_electrons
         elif isinstance(self._num_electrons, (int, np.integer)):
@@ -374,28 +372,7 @@ class ActiveSpaceTransformer(BaseTransformer):
             TypeError: if an unexpected Property subtype is encountered.
         """
         transformed_property: Optional[Property] = None
-        if isinstance(prop, GroupedProperty):
-            transformed_property = prop.__class__()  # type: ignore[call-arg]
-            transformed_property.name = prop.name
-
-            for internal_property in iter(prop):
-                try:
-                    transformed_internal_property = self._transform_property(internal_property)
-                    if transformed_internal_property is not None:
-                        transformed_property.add_property(transformed_internal_property)
-                except TypeError:
-                    logger.warning(
-                        "The Property %s of type %s could not be transformed!",
-                        internal_property.name,
-                        type(internal_property),
-                    )
-                    continue
-
-            if len(list(transformed_property)) == 0:
-                # empty GroupedProperty instance
-                transformed_property = None
-
-        elif isinstance(prop, ElectronicDipoleMoment):
+        if isinstance(prop, ElectronicDipoleMoment):
             transformed_property = prop.__class__()
             transformed_property.name = prop.name
 
@@ -447,11 +424,6 @@ class ActiveSpaceTransformer(BaseTransformer):
         elif isinstance(prop, ElectronicBasisTransform):
             # transformation done manually during `transform`
             transformed_property = self._transform_active
-
-        elif isinstance(prop, DriverMetadata):
-            # for the time being we manually catch this to avoid unnecessary warnings
-            # TODO: support storing transformer information in the DriverMetadata container
-            transformed_property = prop
 
         else:
             transformed_property = prop.__class__(len(self._active_orbs_indices) * 2)  # type: ignore

@@ -12,18 +12,8 @@
 
 """Electronic property types."""
 
-from typing import TypeVar
-
-from .second_quantized_property import SecondQuantizedProperty, GroupedSecondQuantizedProperty
+from .second_quantized_property import SecondQuantizedProperty
 
 
 class ElectronicProperty(SecondQuantizedProperty):
     """The electronic Property type."""
-
-
-# pylint: disable=invalid-name
-T_co = TypeVar("T_co", bound=ElectronicProperty, covariant=True)
-
-
-class GroupedElectronicProperty(GroupedSecondQuantizedProperty[T_co], ElectronicProperty):
-    """A GroupedProperty subtype containing purely electronic properties."""

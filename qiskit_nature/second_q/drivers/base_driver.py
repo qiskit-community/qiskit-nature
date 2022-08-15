@@ -16,7 +16,7 @@ This module implements the abstract base class for driver modules.
 
 from abc import ABC, abstractmethod
 
-from qiskit_nature.second_q.properties import GroupedSecondQuantizedProperty
+from qiskit_nature.second_q.problems import BaseProblem
 
 
 class BaseDriver(ABC):
@@ -25,6 +25,6 @@ class BaseDriver(ABC):
     """
 
     @abstractmethod
-    def run(self) -> GroupedSecondQuantizedProperty:
+    def run(self) -> BaseProblem:
         """Returns a GroupedSecondQuantizedProperty output as produced by the driver."""
         raise NotImplementedError()

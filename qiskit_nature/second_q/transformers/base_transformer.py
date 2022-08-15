@@ -14,7 +14,7 @@
 
 from abc import ABC, abstractmethod
 
-from qiskit_nature.second_q.properties import GroupedSecondQuantizedProperty
+from qiskit_nature.second_q.problems import BaseProblem
 
 
 class BaseTransformer(ABC):
@@ -24,9 +24,7 @@ class BaseTransformer(ABC):
     """
 
     @abstractmethod
-    def transform(
-        self, grouped_property: GroupedSecondQuantizedProperty
-    ) -> GroupedSecondQuantizedProperty:
+    def transform(self, grouped_property: BaseProblem) -> BaseProblem:
         """Transforms one :class:`~qiskit_nature.properties.GroupedProperty` into another one.
         This may or may not affect the size of the Hilbert space.
 

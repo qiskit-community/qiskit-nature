@@ -40,7 +40,6 @@ from qiskit_nature.second_q.algorithms import (
     NumPyEigensolverFactory,
 )
 from qiskit_nature.second_q.properties import (
-    VibrationalStructureDriverResult,
     VibrationalEnergy,
     OccupiedModals,
 )
@@ -61,8 +60,6 @@ class _DummyBosonicDriver(VibrationalStructureDriver):
             [5.03965375, 2, 2, 1, 1],
             [0.43840625000000005, 2, 2, 2, 2],
         ]
-        self._driver_result = VibrationalStructureDriverResult()
-        self._driver_result.num_modes = 2
         sorted_integrals: dict[int, list[tuple[float, tuple[int, ...]]]] = {1: [], 2: [], 3: []}
         for coeff, *indices in modes:
             ints = [int(i) for i in indices]
@@ -72,11 +69,13 @@ class _DummyBosonicDriver(VibrationalStructureDriver):
         prop = VibrationalEnergy(
             [VibrationalIntegrals(num_body, ints) for num_body, ints in sorted_integrals.items()]
         )
-        prop.basis = 2
-        self._driver_result.add_property(prop)
+        self._driver_result = VibrationalStructureProblem(
+            prop,
+            num_modes=2,
+            num_modals=2,
+        )
         prop = OccupiedModals()
-        prop.basis = 2
-        self._driver_result.add_property(prop)
+        self._driver_result.properties["OccupiedModals"] = prop
 
     def run(self):
         """Run dummy driver to return test watson hamiltonian"""
@@ -101,9 +100,9 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
         self.basis_size = 2
         self.truncation_order = 2
 
-        self.vibrational_problem = VibrationalStructureProblem(
-            self.driver, self.basis_size, self.truncation_order
-        )
+        self.vibrational_problem = self.driver.run()
+        self.vibrational_problem._num_modals = 2
+        self.vibrational_problem.truncation_order = self.truncation_order
 
     def test_numpy_mes(self):
         """Test with NumPyMinimumEigensolver"""

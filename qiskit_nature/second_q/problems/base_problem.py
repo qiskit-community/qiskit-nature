@@ -22,23 +22,18 @@ import numpy as np
 from qiskit.opflow import Z2Symmetries
 
 from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.drivers import BaseDriver
 from qiskit_nature.second_q.operators import SecondQuantizedOp
-from qiskit_nature.second_q.properties import GroupedSecondQuantizedProperty
-from qiskit_nature.second_q.transformers.base_transformer import BaseTransformer
+from qiskit_nature.second_q.properties import LatticeModel, SecondQuantizedProperty
 
 from .eigenstate_result import EigenstateResult
+
+Hamiltonian = Union[SecondQuantizedProperty, LatticeModel]
 
 
 class BaseProblem(ABC):
     """Base Problem"""
 
-    def __init__(
-        self,
-        driver: Optional[BaseDriver] = None,
-        transformers: Optional[List[BaseTransformer]] = None,
-        main_property_name: str = "",
-    ):
+    def __init__(self, hamiltonian: Hamiltonian) -> None:
         """
 
         Args:
@@ -46,33 +41,8 @@ class BaseProblem(ABC):
             transformers: A list of transformations to be applied to the driver result.
             main_property_name: A main property name for the problem
         """
-
-        self.driver = driver
-        self.transformers = transformers or []
-
-        self._grouped_property: Optional[GroupedSecondQuantizedProperty] = None
-        self._grouped_property_transformed: Optional[GroupedSecondQuantizedProperty] = None
-
-        self._main_property_name: str = main_property_name
-
-    @property
-    def grouped_property(self) -> Optional[GroupedSecondQuantizedProperty]:
-        """Returns the
-        :class:`~qiskit_nature.second_q.properties.GroupedSecondQuantizedProperty`
-        object."""
-        return self._grouped_property
-
-    @property
-    def grouped_property_transformed(self) -> Optional[GroupedSecondQuantizedProperty]:
-        """Returns the transformed
-        :class:`~qiskit_nature.second_q.properties.GroupedSecondQuantizedProperty`
-        object."""
-        return self._grouped_property_transformed
-
-    @property
-    def main_property_name(self) -> str:
-        """Returns the name of the property producing the main operator."""
-        return self._main_property_name
+        self.hamiltonian = hamiltonian
+        self.properties: dict[str, SecondQuantizedProperty] = {}
 
     @property
     def num_particles(self) -> Optional[Tuple[int, int]]:
@@ -88,11 +58,6 @@ class BaseProblem(ABC):
             of auxiliary operators.
         """
         raise NotImplementedError()
-
-    def _transform(self, data):
-        for transformer in self.transformers:
-            data = transformer.transform(data)
-        return data
 
     def symmetry_sector_locator(
         self,

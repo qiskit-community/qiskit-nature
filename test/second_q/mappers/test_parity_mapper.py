@@ -17,11 +17,11 @@ from test import QiskitNatureTestCase
 
 from qiskit.opflow import I, PauliSumOp, X, Z
 
-from qiskit_nature.second_q.drivers import HDF5Driver
 from qiskit_nature.second_q.mappers import ParityMapper
 from qiskit_nature.second_q.operators import FermionicOp
 
 
+@unittest.skip("migration path")
 class TestParityMapper(QiskitNatureTestCase):
     """Test Parity Mapper"""
 

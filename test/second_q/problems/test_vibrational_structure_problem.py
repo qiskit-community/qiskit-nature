@@ -59,7 +59,9 @@ class TestVibrationalStructureProblem(QiskitNatureTestCase):
         truncation_order = 3
         num_modes = self.props.num_modes
         num_modals = [num_modals] * num_modes
-        vibrational_problem = VibrationalStructureProblem(self.driver, num_modals, truncation_order)
+        vibrational_problem = self.props
+        vibrational_problem._num_modals = num_modals
+        vibrational_problem.truncation_order = truncation_order
         vibrational_op, second_quantized_ops = vibrational_problem.second_q_ops()
 
         with self.subTest("Check expected length of the list of second quantized operators."):
@@ -78,7 +80,9 @@ class TestVibrationalStructureProblem(QiskitNatureTestCase):
         truncation_order = 1
         num_modes = self.props.num_modes
         num_modals = [num_modals] * num_modes
-        vibrational_problem = VibrationalStructureProblem(self.driver, num_modals, truncation_order)
+        vibrational_problem = self.props
+        vibrational_problem._num_modals = num_modals
+        vibrational_problem.truncation_order = truncation_order
         vibrational_op, second_quantized_ops = vibrational_problem.second_q_ops()
 
         with self.subTest("Check expected length of the list of second quantized operators."):

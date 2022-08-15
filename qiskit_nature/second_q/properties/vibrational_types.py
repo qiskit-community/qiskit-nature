@@ -12,10 +12,10 @@
 
 """Vibrational property types."""
 
-from typing import Optional, TypeVar
+from typing import Optional
 
 from .bases import VibrationalBasis
-from .second_quantized_property import SecondQuantizedProperty, GroupedSecondQuantizedProperty
+from .second_quantized_property import SecondQuantizedProperty
 
 
 class VibrationalProperty(SecondQuantizedProperty):
@@ -51,24 +51,3 @@ class VibrationalProperty(SecondQuantizedProperty):
         string = [super().__str__() + ":"]
         string += [f"\t{line}" for line in str(self.basis).split("\n")]
         return "\n".join(string)
-
-
-# pylint: disable=invalid-name
-T = TypeVar("T", bound=VibrationalProperty)
-
-
-class GroupedVibrationalProperty(GroupedSecondQuantizedProperty[T], VibrationalProperty):
-    """A GroupedProperty subtype containing purely vibrational properties."""
-
-    @property
-    def basis(self) -> Optional[VibrationalBasis]:
-        """Returns the basis."""
-        for prop in self._properties.values():
-            return prop.basis
-        return None
-
-    @basis.setter
-    def basis(self, basis: VibrationalBasis) -> None:
-        """Sets the basis."""
-        for prop in self._properties.values():
-            prop.basis = basis

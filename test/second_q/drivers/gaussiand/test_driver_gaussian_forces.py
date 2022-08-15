@@ -181,7 +181,7 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
         )
         expected.basis = 4
 
-        true_vib_energy = cast(VibrationalEnergy, prop.get_property(VibrationalEnergy))
+        true_vib_energy = cast(VibrationalEnergy, prop.hamiltonian)
 
         with self.subTest("one-body terms"):
             expected_one_body = expected.get_vibrational_integral(1)

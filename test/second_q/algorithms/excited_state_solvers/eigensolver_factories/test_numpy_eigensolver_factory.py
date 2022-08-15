@@ -40,7 +40,7 @@ class TestNumPyEigensolverFactory(QiskitNatureTestCase):
             basis="sto3g",
         )
 
-        self.electronic_structure_problem = ElectronicStructureProblem(self.driver)
+        self.electronic_structure_problem = self.driver.run()
 
         # pylint: disable=unused-argument
         def filter_criterion(eigenstate, eigenvalue, aux_values):

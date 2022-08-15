@@ -16,12 +16,7 @@ from typing import List, Optional, Tuple
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.constants import PERIODIC_TABLE
-from qiskit_nature.second_q.properties import (
-    ElectronicStructureDriverResult,
-)
-from qiskit_nature.second_q.properties.electronic_types import (
-    GroupedElectronicProperty,
-)
+from qiskit_nature.second_q.problems import ElectronicStructureProblem
 
 from .active_space_transformer import ActiveSpaceTransformer
 
@@ -34,7 +29,7 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         freeze_core: bool = True,
         remove_orbitals: Optional[List[int]] = None,
     ):
-        """Initializes a transformer which can reduce an `ElectronicStructureDriverResult` to a
+        """Initializes a transformer which can reduce an `ElectronicStructureProblem` to a
         configured active space.
 
         The orbitals to be removed are specified in two ways:
@@ -64,28 +59,28 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         pass
 
     def _determine_active_space(
-        self, grouped_property: GroupedElectronicProperty
+        self, grouped_property: ElectronicStructureProblem
     ) -> Tuple[List[int], List[int]]:
         """Determines the active and inactive orbital indices.
 
         Args:
-            grouped_property: the `ElectronicStructureDriverResult` to be transformed.
+            grouped_property: the `ElectronicStructureProblem` to be transformed.
 
         Returns:
             The list of active and inactive orbital indices.
 
         Raises:
             QiskitNatureError: if a GroupedElectronicProperty is provided which is not also an
-                               ElectronicElectronicStructureDriverResult.
+                               ElectronicStructureProblem.
         """
-        if not isinstance(grouped_property, ElectronicStructureDriverResult):
+        if not isinstance(grouped_property, ElectronicStructureProblem):
             raise QiskitNatureError(
-                "The FreezeCoreTransformer requires an `ElectronicStructureDriverResult`, not a "
+                "The FreezeCoreTransformer requires an `ElectronicStructureProblem`, not a "
                 f"property of type {type(grouped_property)}."
             )
 
         molecule = grouped_property.molecule
-        particle_number = grouped_property.get_property("ParticleNumber")
+        particle_number = grouped_property.properties.get("ParticleNumber", None)
 
         inactive_orbs_idxs: List[int] = []
         if self._freeze_core:

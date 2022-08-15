@@ -18,10 +18,10 @@ import numpy as np
 
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import UCC
+from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.second_q.properties import (
     ParticleNumber,
     ElectronicEnergy,
-    GroupedSecondQuantizedProperty,
 )
 from qiskit_nature.second_q.properties.bases import ElectronicBasis
 from qiskit_nature.second_q.properties.integrals import ElectronicIntegrals
@@ -148,7 +148,7 @@ class MP2InitialPoint(InitialPoint):
         self._excitation_list = excitations
 
     @property
-    def grouped_property(self) -> GroupedSecondQuantizedProperty | None:
+    def grouped_property(self) -> BaseProblem | None:
         """The grouped property.
 
         See
@@ -169,9 +169,9 @@ class MP2InitialPoint(InitialPoint):
         return self._grouped_property
 
     @grouped_property.setter
-    def grouped_property(self, grouped_property: GroupedSecondQuantizedProperty) -> None:
+    def grouped_property(self, grouped_property: BaseProblem) -> None:
 
-        electronic_energy: ElectronicEnergy | None = grouped_property.get_property(ElectronicEnergy)
+        electronic_energy: ElectronicEnergy | None = grouped_property.hamiltonian
         if electronic_energy is None:
             raise QiskitNatureError(
                 "The `ElectronicEnergy` cannot be obtained from the `grouped_property`."
@@ -201,7 +201,9 @@ class MP2InitialPoint(InitialPoint):
 
         reference_energy = electronic_energy.reference_energy if not None else 0.0
 
-        particle_number: ParticleNumber | None = grouped_property.get_property(ParticleNumber)
+        particle_number: ParticleNumber | None = grouped_property.propreties.get(
+            "ParticleNumber", None
+        )
         if particle_number is None:
             raise QiskitNatureError(
                 "The `ParticleNumber` cannot be obtained from the `grouped_property`."
@@ -264,7 +266,7 @@ class MP2InitialPoint(InitialPoint):
     def compute(
         self,
         ansatz: UCC | None = None,
-        grouped_property: GroupedSecondQuantizedProperty | None = None,
+        grouped_property: BaseProblem | None = None,
     ) -> None:
         """Compute the initial point parameter for each excitation.
 

@@ -78,12 +78,12 @@ settings.dict_aux_operators = True
 driver = PySCFDriver(atom='H .0 .0 .0; H .0 .0 0.735',
                      unit=UnitsType.ANGSTROM,
                      basis='sto3g')
-problem = ElectronicStructureProblem(driver)
+problem = driver.run()
 
 # generate the second-quantized operators
 main_op, _ = problem.second_q_ops()
 
-particle_number = problem.grouped_property_transformed.get_property("ParticleNumber")
+particle_number = problem.properties["ParticleNumber"]
 
 num_particles = (particle_number.num_alpha, particle_number.num_beta)
 num_spin_orbitals = particle_number.num_spin_orbitals

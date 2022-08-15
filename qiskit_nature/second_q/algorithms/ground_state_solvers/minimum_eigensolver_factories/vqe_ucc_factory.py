@@ -153,8 +153,8 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         Returns:
             A VQE suitable to compute the ground state of the molecule.
         """
-        driver_result = problem.grouped_property_transformed
-        particle_number = cast(ParticleNumber, driver_result.get_property(ParticleNumber))
+        driver_result = problem
+        particle_number = cast(ParticleNumber, driver_result.properties.get("ParticleNumber", None))
         num_spin_orbitals = particle_number.num_spin_orbitals
         num_particles = particle_number.num_alpha, particle_number.num_beta
 

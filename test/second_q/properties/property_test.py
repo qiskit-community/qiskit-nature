@@ -16,7 +16,6 @@ from test import QiskitNatureTestCase
 
 import numpy as np
 
-from qiskit_nature.second_q.properties.driver_metadata import DriverMetadata
 from qiskit_nature.second_q.properties import (
     AngularMomentum,
     DipoleMoment,
@@ -125,17 +124,6 @@ class PropertyTest(QiskitNatureTestCase):
         if not np.isclose(first.relative_tolerance, second.relative_tolerance):
             raise self.failureException(msg)
 
-    def compare_driver_metadata(
-        self, first: DriverMetadata, second: DriverMetadata, msg: str = None
-    ) -> None:
-        """Compares two DriverMetadata instances."""
-        if first.program != second.program:
-            raise self.failureException(msg)
-        if first.version != second.version:
-            raise self.failureException(msg)
-        if first.config != second.config:
-            raise self.failureException(msg)
-
     def compare_electronic_basis_transform(
         self, first: ElectronicBasisTransform, second: ElectronicBasisTransform, msg: str = None
     ) -> None:
@@ -209,7 +197,6 @@ class PropertyTest(QiskitNatureTestCase):
         self.addTypeEqualityFunc(ElectronicEnergy, self.compare_electronic_energy)
         self.addTypeEqualityFunc(Magnetization, self.compare_magnetization)
         self.addTypeEqualityFunc(ParticleNumber, self.compare_particle_number)
-        self.addTypeEqualityFunc(DriverMetadata, self.compare_driver_metadata)
         self.addTypeEqualityFunc(ElectronicBasisTransform, self.compare_electronic_basis_transform)
         self.addTypeEqualityFunc(ElectronicIntegrals, self.compare_electronic_integral)
         self.addTypeEqualityFunc(OneBodyElectronicIntegrals, self.compare_electronic_integral)

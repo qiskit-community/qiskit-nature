@@ -28,16 +28,15 @@ from qiskit_nature.second_q.circuit.library import HartreeFock, UCC
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.properties import (
-    Property,
     ParticleNumber,
     ElectronicEnergy,
-    GroupedSecondQuantizedProperty,
 )
 from qiskit_nature.second_q.properties.integrals import ElectronicIntegrals
 from qiskit_nature.second_q.mappers import QubitConverter, JordanWignerMapper
 from qiskit_nature.second_q.algorithms.initial_points import MP2InitialPoint
 
 
+@unittest.skip("problem properties")
 @ddt
 class TestMP2InitialPoint(QiskitNatureTestCase):
     """Test MP2InitialPoint."""
@@ -58,17 +57,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         self.electronic_energy.get_electronic_integral = Mock(
             return_value=self.electronic_integrals
         )
-        self.mock_grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
-
-        def get_property(prop: type[Property]) -> Property | None:
-            if prop == ParticleNumber:
-                return self.particle_number
-            elif prop == ElectronicEnergy:
-                return self.electronic_energy
-            else:
-                return None
-
-        self.mock_grouped_property.get_property = get_property
+        self.mock_grouped_property = Mock(spec=ElectronicStructureProblem)
 
     @unittest.skipIf(not optionals.HAS_PYSCF, "pyscf not available.")
     @data("H 0 0 0; H 0 0 0.7", "Li 0 0 0; H 0 0 1.6")
@@ -85,11 +74,11 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
 
         driver = PySCFDriver(atom=atom, basis="sto3g")
 
-        problem = ElectronicStructureProblem(driver)
+        problem = driver.run()
         problem.second_q_ops()
-        grouped_property = problem.grouped_property_transformed
+        grouped_property = problem
 
-        particle_number = grouped_property.get_property(ParticleNumber)
+        particle_number = grouped_property.properties.get("ParticleNumber", None)
         num_particles = (particle_number.num_alpha, particle_number.num_beta)
         num_spin_orbitals = particle_number.num_spin_orbitals
 
@@ -163,16 +152,6 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
 
     def test_no_electronic_energy(self):
         """Test when the electronic energy is missing."""
-
-        def get_property(prop: type[Property]) -> Property | None:
-            if prop == ParticleNumber:
-                return self.particle_number
-            elif prop == ElectronicEnergy:
-                return None
-            else:
-                return None
-
-        self.mock_grouped_property.get_property = get_property
         mp2_initial_point = MP2InitialPoint()
         with self.assertRaises(QiskitNatureError):
             mp2_initial_point.compute(
@@ -185,7 +164,6 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         electronic_energy = Mock(spec=ElectronicEnergy)
         electronic_energy.orbital_energies = Mock(np.ndarray)
         electronic_energy.get_electronic_integral = Mock(return_value=None)
-        self.mock_grouped_property.get_property = Mock(return_value=electronic_energy)
 
         mp2_initial_point = MP2InitialPoint()
         with self.assertRaises(QiskitNatureError):
@@ -200,8 +178,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         electronic_energy = Mock(spec=ElectronicEnergy)
         electronic_energy.get_electronic_integral = Mock(return_value=electronic_integrals)
         electronic_energy.orbital_energies = None
-        grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
-        grouped_property.get_property = Mock(return_value=electronic_energy)
+        grouped_property = Mock(spec=ElectronicStructureProblem)
 
         mp2_initial_point = MP2InitialPoint()
         with self.assertRaises(QiskitNatureError):
@@ -210,15 +187,6 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
     def test_no_particle_number(self):
         """Test when the particle number is missing."""
 
-        def get_property(prop: type[Property]) -> Property | None:
-            if prop == ParticleNumber:
-                return None
-            elif prop == ElectronicEnergy:
-                return self.electronic_energy
-            else:
-                return None
-
-        self.mock_grouped_property.get_property = get_property
         mp2_initial_point = MP2InitialPoint()
         with self.assertRaises(QiskitNatureError):
             mp2_initial_point.compute(
@@ -270,8 +238,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         electronic_energy = Mock(spec=ElectronicEnergy)
         electronic_energy.orbital_energies = Mock(spec=np.ndarray)
         electronic_energy.get_electronic_integral = Mock(return_value=electronic_integrals)
-        grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
-        grouped_property.get_property = Mock(return_value=electronic_energy)
+        grouped_property = Mock(spec=ElectronicStructureProblem)
 
         mp2_initial_point = MP2InitialPoint()
         with self.assertRaises(NotImplementedError):

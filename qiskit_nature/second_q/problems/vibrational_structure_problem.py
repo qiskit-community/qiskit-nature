@@ -15,21 +15,16 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import cast, Callable, List, Optional, Union
+from typing import Callable, List, Optional, Union
 
 import numpy as np
 
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 
-from qiskit_nature.second_q.drivers import VibrationalStructureDriver
 from qiskit_nature.second_q.operators import SecondQuantizedOp
-from qiskit_nature.second_q.properties import (
-    VibrationalStructureDriverResult,
-)
 from qiskit_nature.second_q.properties.bases import HarmonicBasis
-from qiskit_nature.second_q.transformers.base_transformer import BaseTransformer
 
-from .base_problem import BaseProblem
+from .base_problem import BaseProblem, Hamiltonian
 
 from .vibrational_structure_result import VibrationalStructureResult
 from .eigenstate_result import EigenstateResult
@@ -40,10 +35,10 @@ class VibrationalStructureProblem(BaseProblem):
 
     def __init__(
         self,
-        bosonic_driver: VibrationalStructureDriver,
-        num_modals: Union[int, List[int]],
-        truncation_order: int,
-        transformers: Optional[List[BaseTransformer]] = None,
+        hamiltonian: Hamiltonian,
+        num_modes: int,
+        num_modals: Union[int, List[int]] = [],
+        truncation_order: int = None,
     ):
         """
         Args:
@@ -52,18 +47,17 @@ class VibrationalStructureProblem(BaseProblem):
             truncation_order: order at which an n-body expansion is truncated
             transformers: a list of transformations to be applied to the driver result.
         """
-        super().__init__(bosonic_driver, transformers, "VibrationalEnergy")
+        super().__init__(hamiltonian)
+        self.num_modes = num_modes
         self._num_modals = num_modals
         self.truncation_order = truncation_order
+        self.basis: HarmonicBasis = None
 
     @property
     def num_modals(self) -> List[int]:
         """Returns the number of modals, always expanded as a list."""
-        num_modes = cast(
-            VibrationalStructureDriverResult, self._grouped_property_transformed
-        ).num_modes
         if isinstance(self._num_modals, int):
-            num_modals = [self._num_modals] * num_modes
+            num_modals = [self._num_modals] * self.num_modes
         else:
             num_modals = self._num_modals
         return num_modals
@@ -75,27 +69,23 @@ class VibrationalStructureProblem(BaseProblem):
             A tuple, with the first object being the main operator and the second being a dictionary
             of auxiliary operators.
         """
-        driver_result = self.driver.run()
+        # TODO: expose this as an argument in __init__
+        self.basis = HarmonicBasis(self.num_modals)
 
-        self._grouped_property = driver_result
-        self._grouped_property_transformed = self._transform(self._grouped_property)
+        self.hamiltonian.truncation_order = self.truncation_order
+        self.hamiltonian.basis = self.basis
+        main_op = self.hamiltonian.second_q_ops()["VibrationalEnergy"]
 
-        self._grouped_property_transformed = cast(
-            VibrationalStructureDriverResult, self._grouped_property_transformed
-        )
-
-        for prop in self._grouped_property_transformed:
+        aux_ops = {}
+        for prop in self.properties.values():
             if hasattr(prop, "truncation_order"):
                 prop.truncation_order = self.truncation_order
 
-        # TODO: expose this as an argument in __init__
-        basis = HarmonicBasis(self.num_modals)
-        self._grouped_property_transformed.basis = basis
+            prop.basis = self.basis
 
-        second_quantized_ops = self._grouped_property_transformed.second_q_ops()
-        main_op = second_quantized_ops.pop(self._main_property_name)
+            aux_ops.update(prop.second_q_ops())
 
-        return main_op, second_quantized_ops
+        return main_op, aux_ops
 
     def interpret(
         self,
@@ -124,7 +114,9 @@ class VibrationalStructureProblem(BaseProblem):
             eigenstate_result.aux_operator_eigenvalues = [raw_result.aux_operator_eigenvalues]
         result = VibrationalStructureResult()
         result.combine(eigenstate_result)
-        self._grouped_property_transformed.interpret(result)
+        self.hamiltonian.interpret(result)
+        for prop in self.properties.values():
+            prop.interpret(result)
         result.computed_vibrational_energies = eigenstate_result.eigenenergies
         return result
 
@@ -141,7 +133,7 @@ class VibrationalStructureProblem(BaseProblem):
         # pylint: disable=unused-argument
         def filter_criterion(self, eigenstate, eigenvalue, aux_values):
             # the first num_modes aux_value is the evaluated number of particles for the given mode
-            for mode in range(self.grouped_property_transformed.num_modes):
+            for mode in range(self.num_modes):
                 if aux_values is None or not np.isclose(aux_values[str(mode)][0], 1):
                     return False
             return True

@@ -48,7 +48,7 @@ class TestDriverPySCF(QiskitNatureTestCase, TestDriver):
         atom = "H 0 0 0; H 0 0 1; H 0 0 2"
         driver = PySCFDriver(atom=atom, unit=UnitsType.ANGSTROM, charge=0, spin=1, basis="sto3g")
         driver_result = driver.run()
-        electronic_energy = cast(ElectronicEnergy, driver_result.get_property(ElectronicEnergy))
+        electronic_energy = cast(ElectronicEnergy, driver_result.hamiltonian)
         self.assertAlmostEqual(electronic_energy.reference_energy, -1.523996200246108, places=5)
 
     def test_h4(self):
@@ -56,7 +56,7 @@ class TestDriverPySCF(QiskitNatureTestCase, TestDriver):
         atom = "H 0 0 0; H 0 0 1; H 0 0 2; H 0 0 3"
         driver = PySCFDriver(atom=atom, unit=UnitsType.ANGSTROM, charge=0, spin=0, basis="sto3g")
         driver_result = driver.run()
-        electronic_energy = cast(ElectronicEnergy, driver_result.get_property(ElectronicEnergy))
+        electronic_energy = cast(ElectronicEnergy, driver_result.hamiltonian)
         self.assertAlmostEqual(electronic_energy.reference_energy, -2.09854593699776, places=5)
 
     def test_invalid_atom_type(self):
@@ -69,7 +69,7 @@ class TestDriverPySCF(QiskitNatureTestCase, TestDriver):
         atom = ["H 0 0 0", "H 0 0 1"]
         driver = PySCFDriver(atom=atom, unit=UnitsType.ANGSTROM, charge=0, spin=0, basis="sto3g")
         driver_result = driver.run()
-        electronic_energy = cast(ElectronicEnergy, driver_result.get_property(ElectronicEnergy))
+        electronic_energy = cast(ElectronicEnergy, driver_result.hamiltonian)
         self.assertAlmostEqual(electronic_energy.reference_energy, -1.0661086493179366, places=5)
 
     def test_zmatrix(self):
@@ -77,7 +77,7 @@ class TestDriverPySCF(QiskitNatureTestCase, TestDriver):
         atom = "H; H 1 1.0"
         driver = PySCFDriver(atom=atom, unit=UnitsType.ANGSTROM, charge=0, spin=0, basis="sto3g")
         driver_result = driver.run()
-        electronic_energy = cast(ElectronicEnergy, driver_result.get_property(ElectronicEnergy))
+        electronic_energy = cast(ElectronicEnergy, driver_result.hamiltonian)
         self.assertAlmostEqual(electronic_energy.reference_energy, -1.0661086493179366, places=5)
 
 
