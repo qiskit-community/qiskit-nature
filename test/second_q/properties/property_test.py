@@ -87,8 +87,11 @@ class PropertyTest(QiskitNatureTestCase):
         self, first: ElectronicEnergy, second: ElectronicEnergy, msg: str = None
     ) -> None:
         """Compares two ElectronicEnergy instances."""
-        for f_ints, s_ints in zip(first, second):
-            self.compare_electronic_integral(f_ints, s_ints)
+        for f_ints, s_ints in zip(
+            first._electronic_integrals.values(), second._electronic_integrals.values()
+        ):
+            for nf_int, ns_int in zip(f_ints.values(), s_ints.values()):
+                self.compare_electronic_integral(nf_int, ns_int)
 
         if not np.isclose(first.nuclear_repulsion_energy, second.nuclear_repulsion_energy):
             raise self.failureException(msg)

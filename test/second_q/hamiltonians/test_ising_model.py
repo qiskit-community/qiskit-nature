@@ -12,7 +12,6 @@
 
 """Test IsingModel."""
 
-from typing import cast
 from test import QiskitNatureTestCase
 
 import numpy as np

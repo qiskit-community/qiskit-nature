@@ -19,8 +19,7 @@ import warnings
 import numpy as np
 
 from qiskit_nature.second_q.circuit.library import UCC
-from qiskit_nature.second_q.problems import BaseProblem
-from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
+from qiskit_nature.second_q.problems import BaseProblem, ElectronicStructureProblem
 from qiskit_nature.exceptions import QiskitNatureError
 
 from .initial_point import InitialPoint
@@ -58,7 +57,10 @@ class HFInitialPoint(InitialPoint):
 
     @grouped_property.setter
     def grouped_property(self, grouped_property: BaseProblem) -> None:
-        electronic_energy: ElectronicEnergy | None = grouped_property.hamiltonian
+        if not isinstance(grouped_property, ElectronicStructureProblem):
+            raise QiskitNatureError("TODO.")
+
+        electronic_energy = grouped_property.hamiltonian
         if electronic_energy is None:
             warnings.warn(
                 "The ElectronicEnergy was not obtained from the grouped_property. "

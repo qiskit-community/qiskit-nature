@@ -12,6 +12,8 @@
 
 """The Active-Space Reduction interface."""
 
+from __future__ import annotations
+
 import logging
 
 from copy import deepcopy
@@ -24,6 +26,7 @@ from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.problems import BaseProblem, ElectronicStructureProblem
 from qiskit_nature.second_q.properties import Property
 from qiskit_nature.second_q.properties import (
+    DipoleMoment,
     ElectronicDipoleMoment,
     ParticleNumber,
 )
@@ -199,7 +202,6 @@ class ActiveSpaceTransformer(BaseTransformer):
                 "The provided `GroupedElectronicProperty` does not contain a `ParticleNumber` "
                 "property, which is required by this transformer!"
             )
-        particle_number = cast(ParticleNumber, particle_number)
 
         electronic_basis_transform = grouped_property.basis_transform
         if electronic_basis_transform is None:
@@ -245,17 +247,19 @@ class ActiveSpaceTransformer(BaseTransformer):
             ),
         )
 
-        electronic_energy = self._transform_property(grouped_property.hamiltonian)
+        electronic_energy = cast(
+            ElectronicEnergy, self._transform_property(grouped_property.hamiltonian)
+        )
 
         # construct new GroupedElectronicProperty
         grouped_property_transformed = ElectronicStructureProblem(electronic_energy)
+        grouped_property_transformed.molecule = grouped_property.molecule
+        grouped_property_transformed.basis_transform = self._transform_active
+
         for prop in grouped_property.properties:
             transformed_property = self._transform_property(prop)
-            grouped_property_transformed.properties.add(transformed_property)
-
-        grouped_property_transformed.molecule = (
-            grouped_property.molecule  # type: ignore[attr-defined]
-        )
+            if isinstance(transformed_property, Property):
+                grouped_property_transformed.properties.add(transformed_property)
 
         return grouped_property_transformed
 
@@ -354,7 +358,9 @@ class ActiveSpaceTransformer(BaseTransformer):
 
     # TODO: can we efficiently extract this into the base class? At least the logic dealing with
     # recursion is general and we should avoid having to duplicate it.
-    def _transform_property(self, prop: Property) -> Optional[Property]:
+    def _transform_property(
+        self, prop: Property | ElectronicEnergy
+    ) -> Property | ElectronicEnergy | None:
         """Transforms a Property object.
 
         This is a recursive reduction, iterating GroupedProperty objects when encountering one.
@@ -368,7 +374,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         Raises:
             TypeError: if an unexpected Property subtype is encountered.
         """
-        transformed_property: Optional[Property] = None
+        transformed_property: Optional[Union[Property, ElectronicEnergy]] = None
         if isinstance(prop, ElectronicDipoleMoment):
             transformed_property = prop.__class__()
             transformed_property.name = prop.name
@@ -376,10 +382,10 @@ class ActiveSpaceTransformer(BaseTransformer):
             for internal_property in prop._dipole_axes.values():
                 try:
                     transformed_internal_property = self._transform_property(internal_property)
-                    if transformed_internal_property is not None:
+                    if isinstance(transformed_internal_property, DipoleMoment):
                         transformed_property._dipole_axes[
                             transformed_internal_property.name
-                        ] = transformed_internal_property  # type: ignore[assignment]
+                        ] = transformed_internal_property
                 except TypeError:
                     logger.warning(
                         "The Property %s of type %s could not be transformed 2!",
@@ -417,10 +423,6 @@ class ActiveSpaceTransformer(BaseTransformer):
                 active_occ_alpha,
                 active_occ_beta,
             )
-
-        elif isinstance(prop, ElectronicBasisTransform):
-            # transformation done manually during `transform`
-            transformed_property = self._transform_active
 
         else:
             transformed_property = prop.__class__(len(self._active_orbs_indices) * 2)  # type: ignore

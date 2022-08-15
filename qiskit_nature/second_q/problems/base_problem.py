@@ -18,6 +18,7 @@ from __future__ import annotations
 from typing import Callable, List, Optional, Union
 
 import numpy as np
+from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 from qiskit.opflow import Z2Symmetries
 
 from qiskit_nature.second_q.mappers import QubitConverter
@@ -39,8 +40,13 @@ class BaseProblem:
             transformers: A list of transformations to be applied to the driver result.
             main_property_name: A main property name for the problem
         """
-        self.hamiltonian = hamiltonian
+        self._hamiltonian = hamiltonian
         self.properties = PropertiesContainer()
+
+    @property
+    def hamiltonian(self) -> Hamiltonian:
+        """Returns the hamiltonian wrapped by this problem."""
+        return self._hamiltonian
 
     @property
     def num_particles(self) -> tuple[int, int] | None:
@@ -81,7 +87,10 @@ class BaseProblem:
         """
         return None
 
-    def interpret(self, raw_result: EigenstateResult) -> EigenstateResult:
+    def interpret(
+        self,
+        raw_result: Union[EigenstateResult, EigensolverResult, MinimumEigensolverResult],
+    ) -> EigenstateResult:
         """Interprets an EigenstateResult in the context of this problem.
 
         Args:
@@ -91,7 +100,23 @@ class BaseProblem:
             An interpreted `EigenstateResult` in the form of a subclass of it. The actual type
             depends on the problem that implements this method.
         """
-        raise NotImplementedError()
+        eigenstate_result = None
+        if isinstance(raw_result, EigenstateResult):
+            eigenstate_result = raw_result
+        elif isinstance(raw_result, EigensolverResult):
+            eigenstate_result = EigenstateResult()
+            eigenstate_result.raw_result = raw_result
+            eigenstate_result.eigenenergies = raw_result.eigenvalues
+            eigenstate_result.eigenstates = raw_result.eigenstates
+            eigenstate_result.aux_operator_eigenvalues = raw_result.aux_operator_eigenvalues
+        elif isinstance(raw_result, MinimumEigensolverResult):
+            eigenstate_result = EigenstateResult()
+            eigenstate_result.raw_result = raw_result
+            eigenstate_result.eigenenergies = np.asarray([raw_result.eigenvalue])
+            eigenstate_result.eigenstates = [raw_result.eigenstate]
+            eigenstate_result.aux_operator_eigenvalues = [raw_result.aux_operator_eigenvalues]
+
+        return eigenstate_result
 
     def get_default_filter_criterion(
         self,

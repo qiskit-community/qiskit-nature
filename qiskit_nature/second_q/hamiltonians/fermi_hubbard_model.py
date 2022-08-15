@@ -42,10 +42,6 @@ class FermiHubbardModel(LatticeModel):
     def second_q_op(self) -> FermionicOp:
         """Return the Hamiltonian of the Fermi-Hubbard model in terms of `FermionicOp`.
 
-        Args:
-            display_format: If sparse, the label is represented sparsely during output.
-                If dense, the label is represented densely during output. Defaults to "dense".
-
         Returns:
             FermionicOp: The Hamiltonian of the Fermi-Hubbard model.
         """

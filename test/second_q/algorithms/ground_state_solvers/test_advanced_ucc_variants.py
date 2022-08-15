@@ -27,7 +27,6 @@ from qiskit_nature.second_q.circuit.library import HartreeFock, SUCCD, PUCCD
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import ParityMapper
 from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.transformers import FreezeCoreTransformer
 import qiskit_nature.optionals as _optionals
 

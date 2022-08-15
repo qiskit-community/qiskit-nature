@@ -19,7 +19,6 @@ import numpy as np
 from qiskit_nature.second_q.operators import SpinOp
 
 from .lattice_model import LatticeModel
-from .lattices import Lattice
 
 logger = logging.getLogger(__name__)
 
@@ -37,9 +36,6 @@ class IsingModel(LatticeModel):
 
     def second_q_op(self) -> SpinOp:
         """Return the Hamiltonian of the Ising model in terms of `SpinOp`.
-
-        Args:
-            display_format: Not supported for Spin operators. If specified, it will be ignored.
 
         Returns:
             SpinOp: The Hamiltonian of the Ising model.

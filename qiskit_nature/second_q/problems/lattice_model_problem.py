@@ -14,12 +14,10 @@
 
 from __future__ import annotations
 
-from typing import Union
-
-import numpy as np
+from typing import cast, Union
 
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
-from qiskit_nature.second_q.hamiltonians import LatticeModel
+from qiskit_nature.second_q.hamiltonians import Hamiltonian, LatticeModel
 
 from .base_problem import BaseProblem
 from .lattice_model_result import LatticeModelResult
@@ -30,13 +28,23 @@ from .eigenstate_result import EigenstateResult
 class LatticeModelProblem(BaseProblem):
     """Lattice Model Problem class to create second quantized operators from a lattice model."""
 
-    def __init__(self, hamiltonian: LatticeModel) -> None:
+    def __init__(self, hamiltonian: Hamiltonian) -> None:
         """
         Args:
-            lattice_model: A lattice model class to create second quantized operators.
+            hamiltonian: A lattice model class to create second quantized operators.
+
+        Raises:
+            TypeError: TODO.
         """
+        if not isinstance(hamiltonian, LatticeModel):
+            raise TypeError("TODO.")
         super().__init__(hamiltonian)
         self.properties: LatticePropertiesContainer = LatticePropertiesContainer()
+
+    @property
+    def hamiltonian(self) -> LatticeModel:
+        """Returns the hamiltonian wrapped by this problem."""
+        return cast(LatticeModel, self._hamiltonian)
 
     def interpret(
         self,
@@ -50,22 +58,11 @@ class LatticeModelProblem(BaseProblem):
         Returns:
             A lattice model result.
         """
-        eigenstate_result = None
-        if isinstance(raw_result, EigenstateResult):
-            eigenstate_result = raw_result
-        elif isinstance(raw_result, EigensolverResult):
-            eigenstate_result = EigenstateResult()
-            eigenstate_result.raw_result = raw_result
-            eigenstate_result.eigenenergies = raw_result.eigenvalues
-            eigenstate_result.eigenstates = raw_result.eigenstates
-            eigenstate_result.aux_operator_eigenvalues = raw_result.aux_operator_eigenvalues
-        elif isinstance(raw_result, MinimumEigensolverResult):
-            eigenstate_result = EigenstateResult()
-            eigenstate_result.raw_result = raw_result
-            eigenstate_result.eigenenergies = np.asarray([raw_result.eigenvalue])
-            eigenstate_result.eigenstates = [raw_result.eigenstate]
-            eigenstate_result.aux_operator_eigenvalues = [raw_result.aux_operator_eigenvalues]
+        eigenstate_result = super().interpret(raw_result)
         result = LatticeModelResult()
         result.combine(eigenstate_result)
+        for prop in self.properties:
+            if hasattr(prop, "interpret"):
+                prop.interpret(result)  # type: ignore[attr-defined]
         result.computed_lattice_energies = eigenstate_result.eigenenergies
         return result

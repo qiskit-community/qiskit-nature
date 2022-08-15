@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod, abstractproperty
+from abc import ABC, abstractmethod
 
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 
@@ -27,7 +27,8 @@ class Hamiltonian(ABC):
         """TODO."""
         raise NotImplementedError()
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def register_length(self) -> int:
         """TODO."""
         raise NotImplementedError()

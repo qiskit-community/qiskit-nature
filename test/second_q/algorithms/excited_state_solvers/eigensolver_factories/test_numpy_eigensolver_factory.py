@@ -18,7 +18,6 @@ from qiskit.algorithms import NumPyEigensolver
 from qiskit_nature.second_q.algorithms import NumPyEigensolverFactory
 from qiskit_nature.second_q.drivers import UnitsType
 from qiskit_nature.second_q.drivers import PySCFDriver
-from qiskit_nature.second_q.problems import ElectronicStructureProblem
 import qiskit_nature.optionals as _optionals
 
 

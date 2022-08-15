@@ -29,7 +29,6 @@ from qiskit_nature.second_q.mappers import (
     ParityMapper,
 )
 from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.algorithms import (
     GroundStateEigensolver,
     VQEUCCFactory,

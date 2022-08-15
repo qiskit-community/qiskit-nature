@@ -195,6 +195,15 @@ class Lattice:
         uniform_interaction: complex,
         uniform_onsite_potential: complex,
     ) -> Lattice:
+        """TODO.
+
+        Args:
+            uniform_interaction: TODO.
+            uniform_onsite_potential: TODO.
+
+        Returns:
+            TODO.
+        """
         graph = self.graph
         for node_a, node_b, _ in graph.weighted_edge_list():
             if node_a != node_b:
@@ -210,6 +219,17 @@ class Lattice:
 
     @classmethod
     def from_adjacency_matrix(cls, interaction_matrix: np.ndarray) -> Lattice:
+        """TODO.
+
+        Args:
+            interaction_matrix: TODO.
+
+        Raises:
+            ValueError: TODO.
+
+        Returns:
+            TODO.
+        """
         # make a graph from the interaction matrix.
         # This should be replaced by from_adjacency_matrix of retworkx.
         shape = interaction_matrix.shape

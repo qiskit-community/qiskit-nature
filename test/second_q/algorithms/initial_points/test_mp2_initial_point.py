@@ -76,7 +76,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         problem.second_q_ops()
         grouped_property = problem
 
-        particle_number = grouped_property.properties.get("ParticleNumber", None)
+        particle_number = grouped_property.properties.particle_number
         num_particles = (particle_number.num_alpha, particle_number.num_beta)
         num_spin_orbitals = particle_number.num_spin_orbitals
 

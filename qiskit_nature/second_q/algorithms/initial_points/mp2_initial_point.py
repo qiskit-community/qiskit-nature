@@ -18,9 +18,7 @@ import numpy as np
 
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import UCC
-from qiskit_nature.second_q.problems import BaseProblem
-from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
-from qiskit_nature.second_q.properties import ParticleNumber
+from qiskit_nature.second_q.problems import BaseProblem, ElectronicStructureProblem
 from qiskit_nature.second_q.properties.bases import ElectronicBasis
 from qiskit_nature.second_q.properties.integrals import ElectronicIntegrals
 
@@ -168,8 +166,10 @@ class MP2InitialPoint(InitialPoint):
 
     @grouped_property.setter
     def grouped_property(self, grouped_property: BaseProblem) -> None:
+        if not isinstance(grouped_property, ElectronicStructureProblem):
+            raise QiskitNatureError("TODO.")
 
-        electronic_energy: ElectronicEnergy | None = grouped_property.hamiltonian
+        electronic_energy = grouped_property.hamiltonian
         if electronic_energy is None:
             raise QiskitNatureError(
                 "The `ElectronicEnergy` cannot be obtained from the `grouped_property`."
@@ -199,9 +199,7 @@ class MP2InitialPoint(InitialPoint):
 
         reference_energy = electronic_energy.reference_energy if not None else 0.0
 
-        particle_number: ParticleNumber | None = grouped_property.propreties.get(
-            "ParticleNumber", None
-        )
+        particle_number = grouped_property.properties.particle_number
         if particle_number is None:
             raise QiskitNatureError(
                 "The `ParticleNumber` cannot be obtained from the `grouped_property`."

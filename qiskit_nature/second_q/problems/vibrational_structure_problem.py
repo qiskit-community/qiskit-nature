@@ -15,16 +15,17 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import Callable, List, Optional, Union
+from typing import cast, Callable, List, Optional, Union
 
 import numpy as np
 
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 
+from qiskit_nature.second_q.hamiltonians import Hamiltonian, VibrationalEnergy
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.properties.bases import HarmonicBasis
 
-from .base_problem import BaseProblem, Hamiltonian
+from .base_problem import BaseProblem
 
 from .vibrational_structure_result import VibrationalStructureResult
 from .vibrational_properties_container import VibrationalPropertiesContainer
@@ -38,22 +39,31 @@ class VibrationalStructureProblem(BaseProblem):
         self,
         hamiltonian: Hamiltonian,
         num_modes: int,
-        num_modals: Union[int, List[int]] = [],
+        num_modals: Union[int, List[int]] = None,
         truncation_order: int = None,
     ):
         """
         Args:
-            bosonic_driver: a bosonic driver encoding the molecule information.
+            hamiltonian: TODO.
+            num_modes: the number of modes.
             num_modals: the number of modals per mode.
             truncation_order: order at which an n-body expansion is truncated
-            transformers: a list of transformations to be applied to the driver result.
+
+        Raises:
+            TypeError: TODO.
         """
+        if not isinstance(hamiltonian, VibrationalEnergy):
+            raise TypeError("TODO.")
         super().__init__(hamiltonian)
         self.properties: VibrationalPropertiesContainer = VibrationalPropertiesContainer()
         self.num_modes = num_modes
-        self._num_modals = num_modals
+        self._num_modals = num_modals if num_modals is not None else []
         self.truncation_order = truncation_order
         self.basis: HarmonicBasis = None
+
+    @property
+    def hamiltonian(self) -> VibrationalEnergy:
+        return cast(VibrationalEnergy, self._hamiltonian)
 
     @property
     def num_modals(self) -> List[int]:
@@ -78,9 +88,7 @@ class VibrationalStructureProblem(BaseProblem):
         self.hamiltonian.basis = self.basis
 
         for prop in self.properties:
-            if hasattr(prop, "truncation_order"):
-                prop.truncation_order = self.truncation_order
-            prop.basis = self.basis
+            prop.basis = self.basis  # type: ignore[attr-defined]
 
         return super().second_q_ops()
 
@@ -94,26 +102,13 @@ class VibrationalStructureProblem(BaseProblem):
         Returns:
             An vibrational structure result.
         """
-        eigenstate_result = None
-        if isinstance(raw_result, EigenstateResult):
-            eigenstate_result = raw_result
-        elif isinstance(raw_result, EigensolverResult):
-            eigenstate_result = EigenstateResult()
-            eigenstate_result.raw_result = raw_result
-            eigenstate_result.eigenenergies = raw_result.eigenvalues
-            eigenstate_result.eigenstates = raw_result.eigenstates
-            eigenstate_result.aux_operator_eigenvalues = raw_result.aux_operator_eigenvalues
-        elif isinstance(raw_result, MinimumEigensolverResult):
-            eigenstate_result = EigenstateResult()
-            eigenstate_result.raw_result = raw_result
-            eigenstate_result.eigenenergies = np.asarray([raw_result.eigenvalue])
-            eigenstate_result.eigenstates = [raw_result.eigenstate]
-            eigenstate_result.aux_operator_eigenvalues = [raw_result.aux_operator_eigenvalues]
+        eigenstate_result = super().interpret(raw_result)
         result = VibrationalStructureResult()
         result.combine(eigenstate_result)
         self.hamiltonian.interpret(result)
         for prop in self.properties:
-            prop.interpret(result)
+            if hasattr(prop, "interpret"):
+                prop.interpret(result)  # type: ignore[attr-defined]
         result.computed_vibrational_energies = eigenstate_result.eigenenergies
         return result
 

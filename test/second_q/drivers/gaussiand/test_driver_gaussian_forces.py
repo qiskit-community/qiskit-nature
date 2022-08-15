@@ -12,7 +12,6 @@
 
 """ Test Gaussian Forces Driver """
 
-import contextlib
 import re
 import unittest
 from typing import cast

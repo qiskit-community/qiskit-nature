@@ -15,7 +15,7 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import Callable, List, Optional, Tuple, Union
+from typing import cast, Callable, List, Optional, Tuple, Union, TYPE_CHECKING
 
 import numpy as np
 
@@ -26,13 +26,17 @@ from qiskit_nature.second_q.circuit.library.initial_states.hartree_fock import (
     hartree_fock_bitstring_mapped,
 )
 from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.hamiltonians import Hamiltonian, ElectronicEnergy
 from qiskit_nature.second_q.properties.bases import ElectronicBasisTransform
 
 from .electronic_structure_result import ElectronicStructureResult
 from .electronic_properties_container import ElectronicPropertiesContainer
 from .eigenstate_result import EigenstateResult
 
-from .base_problem import BaseProblem, Hamiltonian
+from .base_problem import BaseProblem
+
+if TYPE_CHECKING:
+    from qiskit_nature.second_q.drivers import Molecule
 
 
 class ElectronicStructureProblem(BaseProblem):
@@ -78,13 +82,21 @@ class ElectronicStructureProblem(BaseProblem):
         """
 
         Args:
-            driver: A fermionic driver encoding the molecule information.
-            transformers: A list of transformations to be applied to the driver result.
+            hamiltonian: TODO.
+
+        Raises:
+            TypeError: TODO.
         """
+        if not isinstance(hamiltonian, ElectronicEnergy):
+            raise TypeError("TODO.")
         super().__init__(hamiltonian)
         self.properties: ElectronicPropertiesContainer = ElectronicPropertiesContainer()
         self.molecule: "Molecule" = None
         self.basis_transform: ElectronicBasisTransform = None
+
+    @property
+    def hamiltonian(self) -> ElectronicEnergy:
+        return cast(ElectronicEnergy, self._hamiltonian)
 
     @property
     def num_particles(self) -> Tuple[int, int]:
@@ -107,26 +119,12 @@ class ElectronicStructureProblem(BaseProblem):
         Returns:
             An electronic structure result.
         """
-        eigenstate_result = None
-        if isinstance(raw_result, EigenstateResult):
-            eigenstate_result = raw_result
-        elif isinstance(raw_result, EigensolverResult):
-            eigenstate_result = EigenstateResult()
-            eigenstate_result.raw_result = raw_result
-            eigenstate_result.eigenenergies = raw_result.eigenvalues
-            eigenstate_result.eigenstates = raw_result.eigenstates
-            eigenstate_result.aux_operator_eigenvalues = raw_result.aux_operator_eigenvalues
-        elif isinstance(raw_result, MinimumEigensolverResult):
-            eigenstate_result = EigenstateResult()
-            eigenstate_result.raw_result = raw_result
-            eigenstate_result.eigenenergies = np.asarray([raw_result.eigenvalue])
-            eigenstate_result.eigenstates = [raw_result.eigenstate]
-            eigenstate_result.aux_operator_eigenvalues = [raw_result.aux_operator_eigenvalues]
+        eigenstate_result = super().interpret(raw_result)
         result = ElectronicStructureResult()
         result.combine(eigenstate_result)
-        self.hamiltonian.interpret(result)
         for prop in self.properties:
-            prop.interpret(result)
+            if hasattr(prop, "interpret"):
+                prop.interpret(result)  # type: ignore[attr-defined]
         result.computed_energies = np.asarray([e.real for e in eigenstate_result.eigenenergies])
         return result
 
