@@ -19,7 +19,6 @@ Second-Quantization Properties (:mod:`qiskit_nature.second_q.properties`)
 """
 
 from .property import Property
-from .second_quantized_property import SecondQuantizedProperty
 
 from .angular_momentum import AngularMomentum
 from .dipole_moment import DipoleMoment, ElectronicDipoleMoment
@@ -31,7 +30,6 @@ from .occupied_modals import OccupiedModals
 
 __all__ = [
     "Property",
-    "SecondQuantizedProperty",
     "AngularMomentum",
     "DipoleMoment",
     "ElectronicDipoleMoment",

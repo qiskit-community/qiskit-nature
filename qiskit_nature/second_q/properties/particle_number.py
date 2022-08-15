@@ -22,7 +22,7 @@ import numpy as np
 
 from qiskit_nature.second_q.operators import FermionicOp
 
-from .electronic_types import ElectronicProperty
+from .property import Property
 
 if TYPE_CHECKING:
     from qiskit_nature.second_q.problems import EigenstateResult
@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 LOGGER = logging.getLogger(__name__)
 
 
-class ParticleNumber(ElectronicProperty):
+class ParticleNumber(Property):
     """The ParticleNumber property.
 
     Note that this Property serves a two purposes:

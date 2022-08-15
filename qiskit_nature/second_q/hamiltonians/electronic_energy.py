@@ -19,7 +19,7 @@ from typing import Optional, cast, TYPE_CHECKING
 import numpy as np
 
 from qiskit_nature.second_q.operators import FermionicOp
-from qiskit_nature.second_q.properties.bases import ElectronicBasis
+from qiskit_nature.second_q.properties.bases import ElectronicBasis, ElectronicBasisTransform
 from qiskit_nature.second_q.properties.integrals import (
     ElectronicIntegrals,
     OneBodyElectronicIntegrals,
@@ -246,7 +246,7 @@ class ElectronicEnergy(Hamiltonian):
         return cast(OneBodyElectronicIntegrals, op)
 
     @property
-    def register_length(self) -> None:
+    def register_length(self) -> int:
         ints = None
         if ElectronicBasis.SO in self._electronic_integrals:
             ints = self._electronic_integrals[ElectronicBasis.SO]

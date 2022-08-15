@@ -21,7 +21,7 @@ import h5py
 from qiskit_nature.second_q.operators import FermionicOp
 
 from ..bases import ElectronicBasis, ElectronicBasisTransform
-from ..electronic_types import ElectronicProperty
+from ..property import Property
 from .electronic_integrals import ElectronicIntegrals
 from .one_body_electronic_integrals import OneBodyElectronicIntegrals
 
@@ -29,7 +29,7 @@ if TYPE_CHECKING:
     from qiskit_nature.second_q.problems import EigenstateResult
 
 
-class IntegralProperty(ElectronicProperty):
+class IntegralProperty(Property):
     """A common Property object based on
     :class:`~qiskit_nature.second_q.properties.integrals.ElectronicIntegrals`
     as its raw data.
