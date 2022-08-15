@@ -19,8 +19,7 @@ from typing import Union
 import numpy as np
 
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
-
-from qiskit_nature.second_q.hamiltonians.lattice_model import LatticeModel
+from qiskit_nature.second_q.hamiltonians import LatticeModel
 
 from .base_problem import BaseProblem
 from .lattice_model_result import LatticeModelResult
@@ -31,12 +30,12 @@ from .eigenstate_result import EigenstateResult
 class LatticeModelProblem(BaseProblem):
     """Lattice Model Problem class to create second quantized operators from a lattice model."""
 
-    def __init__(self, lattice_model: LatticeModel) -> None:
+    def __init__(self, hamiltonian: LatticeModel) -> None:
         """
         Args:
             lattice_model: A lattice model class to create second quantized operators.
         """
-        super().__init__(lattice_model)
+        super().__init__(hamiltonian)
         self.properties: LatticePropertiesContainer = LatticePropertiesContainer()
 
     def interpret(

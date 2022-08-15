@@ -18,8 +18,8 @@ import numpy as np
 
 from qiskit_nature.second_q.operators import SpinOp
 
-from .lattices import Lattice
 from .lattice_model import LatticeModel
+from .lattices import Lattice
 
 logger = logging.getLogger(__name__)
 
@@ -31,52 +31,9 @@ class IsingModel(LatticeModel):
         """Return the coupling matrix."""
         return self.interaction_matrix()
 
-    @classmethod
-    def uniform_parameters(
-        cls,
-        lattice: Lattice,
-        uniform_interaction: complex,
-        uniform_onsite_potential: complex,
-    ) -> "IsingModel":
-        """Set a uniform interaction parameter and on-site potential over the input lattice.
-
-        Args:
-            lattice: Lattice on which the model is defined.
-            uniform_interaction: The interaction parameter.
-            uniform_onsite_potential: The on-site potential.
-
-        Returns:
-            The Lattice model with uniform parameters.
-        """
-        return cls(
-            cls._generate_lattice_from_uniform_parameters(
-                lattice, uniform_interaction, uniform_onsite_potential
-            )
-        )
-
-    @classmethod
-    def from_parameters(
-        cls,
-        interaction_matrix: np.ndarray,
-    ) -> "IsingModel":
-        """Return the Hamiltonian of the Lattice model
-        from the given interaction matrix and on-site interaction.
-
-        Args:
-            interaction_matrix: A real or complex valued square matrix.
-
-        Returns:
-            LatticeModel: The Lattice model generated from the given interaction
-                matrix and on-site interaction.
-
-        Raises:
-            ValueError: If the interaction matrix is not square matrix, it is invalid.
-        """
-        return cls(cls._generate_lattice_from_parameters(interaction_matrix))
-
     @property
     def register_length(self) -> int:
-        return self._lattice.num_modes
+        return self._lattice.num_nodes
 
     def second_q_op(self) -> SpinOp:
         """Return the Hamiltonian of the Ising model in terms of `SpinOp`.

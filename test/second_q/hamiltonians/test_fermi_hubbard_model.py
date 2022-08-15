@@ -84,10 +84,11 @@ class TestFermiHubbardModel(QiskitNatureTestCase):
         ]
         graph.add_edges_from(weighted_edge_list)
         lattice = Lattice(graph)
-        uniform_fhm = FermiHubbardModel.uniform_parameters(
-            lattice,
-            uniform_interaction=1.0 + 1.0j,
-            uniform_onsite_potential=0.0,
+        uniform_fhm = FermiHubbardModel(
+            lattice.uniform_parameters(
+                uniform_interaction=1.0 + 1.0j,
+                uniform_onsite_potential=0.0,
+            ),
             onsite_interaction=10.0,
         )
         with self.subTest("Check the graph."):
@@ -148,7 +149,7 @@ class TestFermiHubbardModel(QiskitNatureTestCase):
         )
 
         onsite_interaction = 10.0
-        fhm = FermiHubbardModel.from_parameters(hopping_matrix, onsite_interaction)
+        fhm = FermiHubbardModel(Lattice.from_adjacency_matrix(hopping_matrix), onsite_interaction)
         with self.subTest("Check the graph."):
             target_graph = PyGraph(multigraph=False)
             target_graph.add_nodes_from(range(3))

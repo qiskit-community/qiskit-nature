@@ -15,14 +15,14 @@ import numpy as np
 
 from qiskit_nature.second_q.operators import FermionicOp
 
-from .lattices import Lattice
 from .lattice_model import LatticeModel
+from .lattices import Lattice
 
 
 class FermiHubbardModel(LatticeModel):
     """The Fermi-Hubbard model."""
 
-    def __init__(self, lattice: Lattice, onsite_interaction: complex):
+    def __init__(self, lattice: Lattice, onsite_interaction: complex) -> None:
         """
         Args:
             lattice: Lattice on which the model is defined.
@@ -35,50 +35,9 @@ class FermiHubbardModel(LatticeModel):
         """Return the hopping matrix."""
         return self.interaction_matrix()
 
-    @classmethod
-    def uniform_parameters(
-        cls,
-        lattice: Lattice,
-        uniform_interaction: complex,
-        uniform_onsite_potential: complex,
-        onsite_interaction: complex,
-    ) -> "FermiHubbardModel":
-        """Set a uniform hopping parameter and on-site potential over the input lattice.
-        Args:
-            lattice: Lattice on which the model is defined.
-            uniform_interaction: The interaction parameter.
-            uniform_onsite_potential: The on-site potential.
-            onsite_interaction: The strength of the on-site interaction.
-        Returns:
-            The Fermi-Hubbard model with uniform parameters.
-        """
-        return cls(
-            cls._generate_lattice_from_uniform_parameters(
-                lattice, uniform_interaction, uniform_onsite_potential
-            ),
-            onsite_interaction,
-        )
-
-    @classmethod
-    def from_parameters(
-        cls, interaction_matrix: np.ndarray, onsite_interaction: complex
-    ) -> "FermiHubbardModel":
-        """Return the Hamiltonian of the Fermi-Hubbard model
-        from the given hopping matrix and on-site interaction.
-        Args:
-            interaction_matrix: A real or complex valued square matrix.
-            onsite_interaction: The strength of the on-site interaction.
-        Returns:
-            FermiHubbardModel: The Fermi-Hubbard model generated
-                from the given hopping matrix and on-site interaction.
-        Raises:
-            ValueError: If the hopping matrix is not square matrix, it is invalid.
-        """
-        return cls(cls._generate_lattice_from_parameters(interaction_matrix), onsite_interaction)
-
     @property
     def register_length(self) -> int:
-        return 2 * self._lattice.num_modes
+        return 2 * self._lattice.num_nodes
 
     def second_q_op(self) -> FermionicOp:
         """Return the Hamiltonian of the Fermi-Hubbard model in terms of `FermionicOp`.

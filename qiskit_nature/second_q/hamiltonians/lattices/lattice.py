@@ -12,6 +12,8 @@
 
 """General Lattice."""
 
+from __future__ import annotations
+
 from copy import deepcopy
 from dataclasses import asdict, dataclass
 from typing import Callable, List, Optional, Sequence, Tuple, Union
@@ -186,6 +188,44 @@ class Lattice:
         graph = PyGraph(multigraph=False)
         graph.add_nodes_from(range(num_nodes))
         graph.add_edges_from(weighted_edges)
+        return cls(graph)
+
+    def uniform_parameters(
+        self,
+        uniform_interaction: complex,
+        uniform_onsite_potential: complex,
+    ) -> Lattice:
+        graph = self.graph
+        for node_a, node_b, _ in graph.weighted_edge_list():
+            if node_a != node_b:
+                graph.update_edge(node_a, node_b, uniform_interaction)
+
+        for node_a in graph.node_indexes():
+            if graph.has_edge(node_a, node_a):
+                graph.update_edge(node_a, node_a, uniform_onsite_potential)
+            else:
+                graph.add_edge(node_a, node_a, uniform_onsite_potential)
+
+        return Lattice(graph)
+
+    @classmethod
+    def from_adjacency_matrix(cls, interaction_matrix: np.ndarray) -> Lattice:
+        # make a graph from the interaction matrix.
+        # This should be replaced by from_adjacency_matrix of retworkx.
+        shape = interaction_matrix.shape
+        if len(shape) != 2 or shape[0] != shape[1]:
+            raise ValueError(
+                f"Invalid shape of `interaction_matrix`, {shape},  is given."
+                "It must be a square matrix."
+            )
+
+        graph = PyGraph(multigraph=False)
+        graph.add_nodes_from(range(shape[0]))
+        for source_index in range(shape[0]):
+            for target_index in range(source_index, shape[0]):
+                weight = interaction_matrix[source_index, target_index]
+                if not weight == 0.0:
+                    graph.add_edge(source_index, target_index, weight)
         return cls(graph)
 
     def to_adjacency_matrix(self, weighted: bool = False) -> np.ndarray:

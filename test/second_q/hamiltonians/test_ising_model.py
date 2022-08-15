@@ -73,13 +73,11 @@ class TestIsingModel(QiskitNatureTestCase):
         ]
         graph.add_edges_from(weighted_edge_list)
         lattice = Lattice(graph)
-        uniform_ism = cast(
-            IsingModel,
-            IsingModel.uniform_parameters(
-                lattice,
+        uniform_ism = IsingModel(
+            lattice.uniform_parameters(
                 uniform_interaction=1.0 + 1.0j,
                 uniform_onsite_potential=0.0,
-            ),
+            )
         )
         with self.subTest("Check the graph."):
             target_graph = PyGraph(multigraph=False)
@@ -123,7 +121,7 @@ class TestIsingModel(QiskitNatureTestCase):
             [[1.0, 1.0 + 1.0j, 2.0 - 2.0j], [1.0 - 1.0j, 0.0, 0.0], [2.0 + 2.0j, 0.0, 1.0]]
         )
 
-        ism = cast(IsingModel, IsingModel.from_parameters(coupling_matrix))
+        ism = IsingModel(Lattice.from_adjacency_matrix(coupling_matrix))
         with self.subTest("Check the graph."):
             target_graph = PyGraph(multigraph=False)
             target_graph.add_nodes_from(range(3))
