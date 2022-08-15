@@ -32,7 +32,7 @@ class HyperCubicLattice(Lattice):
 
     .. jupyter-execute::
 
-        from qiskit_nature.second_q.problems import (
+        from qiskit_nature.second_q.hamiltonians.lattices import (
             BoundaryCondition,
             HyperCubicLattice,
             )

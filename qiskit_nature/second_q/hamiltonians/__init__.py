@@ -28,7 +28,7 @@ Submodules
 ==========
 
 .. autosummary::
-   :toctree: ../stubs/
+   :toctree:
 
    lattices
 
