@@ -20,7 +20,7 @@ import numpy as np
 
 from qiskit_nature.second_q.circuit.library import UCC
 from qiskit_nature.second_q.problems import BaseProblem
-from qiskit_nature.second_q.properties import ElectronicEnergy
+from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.exceptions import QiskitNatureError
 
 from .initial_point import InitialPoint

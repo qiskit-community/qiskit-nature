@@ -19,7 +19,6 @@ import numpy as np
 
 from qiskit_nature.second_q.drivers import GaussianForcesDriver
 from qiskit_nature.second_q.operators import VibrationalOp
-from qiskit_nature.second_q.problems import VibrationalStructureProblem
 
 from .resources.expected_ops import _truncation_order_1_op, _truncation_order_2_op
 

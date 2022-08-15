@@ -13,13 +13,12 @@
 """Test VibrationalEnergy Property"""
 
 import json
-import tempfile
+import unittest
 from test.second_q.properties.property_test import PropertyTest
 
-import h5py
 import numpy as np
 
-from qiskit_nature.second_q.properties import VibrationalEnergy
+from qiskit_nature.second_q.hamiltonians import VibrationalEnergy
 from qiskit_nature.second_q.properties.integrals import VibrationalIntegrals
 from qiskit_nature.second_q.properties.bases import HarmonicBasis
 
@@ -69,33 +68,19 @@ class TestVibrationalEnergy(PropertyTest):
         )
         self.prop.basis = basis
 
-    def test_second_q_ops(self):
-        """Test second_q_ops."""
-        ops = self.prop.second_q_ops()
-        self.assertEqual(len(ops), 1)
+    def test_second_q_op(self):
+        """Test second_q_op."""
+        op = self.prop.second_q_op()
         with open(
             self.get_resource_path("vibrational_energy_op.json", "second_q/properties/resources"),
             "r",
             encoding="utf8",
         ) as file:
             expected = json.load(file)
-        for op, expected_op in zip(ops["VibrationalEnergy"].to_list(), expected):
+        for op, expected_op in zip(op.to_list(), expected):
             self.assertEqual(op[0], expected_op[0])
             self.assertTrue(np.isclose(op[1], expected_op[1]))
 
-    def test_to_hdf5(self):
-        """Test to_hdf5."""
-        with tempfile.TemporaryFile() as tmp_file:
-            with h5py.File(tmp_file, "w") as file:
-                self.prop.to_hdf5(file)
 
-    def test_from_hdf5(self):
-        """Test from_hdf5."""
-        with tempfile.TemporaryFile() as tmp_file:
-            with h5py.File(tmp_file, "w") as file:
-                self.prop.to_hdf5(file)
-
-            with h5py.File(tmp_file, "r") as file:
-                read_prop = VibrationalEnergy.from_hdf5(file["VibrationalEnergy"])
-
-                self.assertEqual(self.prop, read_prop)
+if __name__ == "__main__":
+    unittest.main()

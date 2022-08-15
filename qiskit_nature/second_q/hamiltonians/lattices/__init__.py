@@ -10,10 +10,36 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""A class containing information about the Lattice."""
+"""
+Second-Quantization Lattices (:mod:`qiskit_nature.second_q.hamiltonians.lattices`)
+==================================================================================
+
+.. autosummary::
+   :toctree: ../stubs/
+
+   BoundaryCondition
+   Lattice
+   LatticeDrawStyle
+   LineLattice
+   SquareLattice
+   TriangularLattice
+   HyperCubicLattice
+
+"""
+
 from .boundary_condition import BoundaryCondition
 from .hyper_cubic_lattice import HyperCubicLattice
 from .lattice import LatticeDrawStyle, Lattice
 from .line_lattice import LineLattice
 from .square_lattice import SquareLattice
 from .triangular_lattice import TriangularLattice
+
+__all__ = [
+    "BoundaryCondition",
+    "Lattice",
+    "LatticeDrawStyle",
+    "LineLattice",
+    "SquareLattice",
+    "TriangularLattice",
+    "HyperCubicLattice",
+]

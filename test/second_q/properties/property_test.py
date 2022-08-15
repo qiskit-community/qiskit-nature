@@ -16,11 +16,14 @@ from test import QiskitNatureTestCase
 
 import numpy as np
 
+from qiskit_nature.second_q.hamiltonians import (
+    ElectronicEnergy,
+    VibrationalEnergy,
+)
 from qiskit_nature.second_q.properties import (
     AngularMomentum,
     DipoleMoment,
     ElectronicDipoleMoment,
-    ElectronicEnergy,
     Magnetization,
     ParticleNumber,
 )
@@ -34,7 +37,6 @@ from qiskit_nature.second_q.properties.integrals import (
 )
 from qiskit_nature.second_q.properties import (
     OccupiedModals,
-    VibrationalEnergy,
 )
 from qiskit_nature.second_q.properties.integrals import (
     VibrationalIntegrals,

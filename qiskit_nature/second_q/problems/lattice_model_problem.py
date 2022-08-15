@@ -20,7 +20,7 @@ import numpy as np
 
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 
-from qiskit_nature.second_q.properties.lattice_model import LatticeModel
+from qiskit_nature.second_q.hamiltonians.lattice_model import LatticeModel
 
 from .base_problem import BaseProblem
 from .lattice_model_result import LatticeModelResult

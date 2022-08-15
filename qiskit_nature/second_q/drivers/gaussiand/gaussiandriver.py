@@ -27,12 +27,12 @@ from qiskit_nature import QiskitNatureError
 from qiskit_nature.constants import BOHR, PERIODIC_TABLE
 from qiskit_nature.exceptions import UnsupportMethodError
 import qiskit_nature.optionals as _optionals
+from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.properties import (
     AngularMomentum,
     Magnetization,
     ParticleNumber,
-    ElectronicEnergy,
     DipoleMoment,
     ElectronicDipoleMoment,
 )

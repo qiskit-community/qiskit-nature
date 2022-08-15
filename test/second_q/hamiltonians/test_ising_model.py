@@ -19,8 +19,8 @@ import numpy as np
 from numpy.testing import assert_array_equal
 from retworkx import PyGraph, is_isomorphic
 
-from qiskit_nature.second_q.properties.lattices import Lattice
-from qiskit_nature.second_q.properties import IsingModel
+from qiskit_nature.second_q.hamiltonians.lattices import Lattice
+from qiskit_nature.second_q.hamiltonians import IsingModel
 
 
 class TestIsingModel(QiskitNatureTestCase):
@@ -60,7 +60,7 @@ class TestIsingModel(QiskitNatureTestCase):
 
             ham = coupling
 
-            self.assertSetEqual(set(ham), set(ism.second_q_ops().to_list()))
+            self.assertSetEqual(set(ham), set(ism.second_q_op().to_list()))
 
     def test_uniform_parameters(self):
         """Test uniform_parameters."""
@@ -115,7 +115,7 @@ class TestIsingModel(QiskitNatureTestCase):
 
             ham = coupling
 
-            self.assertSetEqual(set(ham), set(uniform_ism.second_q_ops().to_list()))
+            self.assertSetEqual(set(ham), set(uniform_ism.second_q_op().to_list()))
 
     def test_from_parameters(self):
         """Test from_parameters."""
@@ -146,4 +146,4 @@ class TestIsingModel(QiskitNatureTestCase):
 
             ham = coupling
 
-            self.assertSetEqual(set(ham), set(ism.second_q_ops().to_list()))
+            self.assertSetEqual(set(ham), set(ism.second_q_op().to_list()))

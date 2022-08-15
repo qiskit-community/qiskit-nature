@@ -12,6 +12,7 @@
 
 """ Test Gaussian Forces Driver """
 
+import contextlib
 import re
 import unittest
 from typing import cast
@@ -27,7 +28,7 @@ from qiskit_nature.second_q.drivers import (
     VibrationalStructureDriverType,
 )
 from qiskit_nature.exceptions import QiskitNatureError
-from qiskit_nature.second_q.properties import VibrationalEnergy
+from qiskit_nature.second_q.hamiltonians import VibrationalEnergy
 from qiskit_nature.second_q.properties.integrals import VibrationalIntegrals
 import qiskit_nature.optionals as _optionals
 

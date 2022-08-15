@@ -13,13 +13,12 @@
 """The Ising model"""
 import logging
 from fractions import Fraction
-from typing import Optional
 
 import numpy as np
 
 from qiskit_nature.second_q.operators import SpinOp
-from qiskit_nature.second_q.properties.lattices import Lattice
 
+from .lattices import Lattice
 from .lattice_model import LatticeModel
 
 logger = logging.getLogger(__name__)
@@ -75,7 +74,11 @@ class IsingModel(LatticeModel):
         """
         return cls(cls._generate_lattice_from_parameters(interaction_matrix))
 
-    def second_q_ops(self, display_format: Optional[str] = None) -> SpinOp:
+    @property
+    def register_length(self) -> int:
+        return self._lattice.num_modes
+
+    def second_q_op(self) -> SpinOp:
         """Return the Hamiltonian of the Ising model in terms of `SpinOp`.
 
         Args:
@@ -84,11 +87,6 @@ class IsingModel(LatticeModel):
         Returns:
             SpinOp: The Hamiltonian of the Ising model.
         """
-        if display_format is not None:
-            logger.warning(
-                "Spin operators do not support display-format. Provided display-format "
-                "parameter will be ignored."
-            )
         ham = []
         weighted_edge_list = self._lattice.weighted_edge_list
         register_length = self._lattice.num_nodes

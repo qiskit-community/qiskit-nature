@@ -16,19 +16,18 @@ from __future__ import annotations
 
 from typing import cast, Generator, Optional, TYPE_CHECKING
 
-import h5py
-
 from qiskit_nature.second_q.operators import VibrationalOp
 
-from .bases import VibrationalBasis
-from .integrals import VibrationalIntegrals
-from .vibrational_types import VibrationalProperty
+from qiskit_nature.second_q.properties.bases import VibrationalBasis
+from qiskit_nature.second_q.properties.integrals import VibrationalIntegrals
+
+from .hamiltonian import Hamiltonian
 
 if TYPE_CHECKING:
     from qiskit_nature.second_q.problems import EigenstateResult
 
 
-class VibrationalEnergy(VibrationalProperty):
+class VibrationalEnergy(Hamiltonian):
     """The VibrationalEnergy property.
 
     This is the main property of any vibrational structure problem. It constructs the Hamiltonian
@@ -53,11 +52,21 @@ class VibrationalEnergy(VibrationalProperty):
                 through which to map the integrals into second quantization. This attribute **MUST**
                 be set before the second-quantized operator can be constructed.
         """
-        super().__init__(self.__class__.__name__, basis)
         self._vibrational_integrals: dict[int, VibrationalIntegrals] = {}
         for integral in vibrational_integrals:
             self.add_vibrational_integral(integral)
         self._truncation_order = truncation_order
+        self._basis: VibrationalBasis = basis
+
+    @property
+    def basis(self) -> VibrationalBasis:
+        """Returns the basis."""
+        return self._basis
+
+    @basis.setter
+    def basis(self, basis: VibrationalBasis) -> None:
+        """Sets the basis."""
+        self._basis = basis
 
     @property
     def truncation_order(self) -> int:
@@ -70,46 +79,11 @@ class VibrationalEnergy(VibrationalProperty):
         self._truncation_order = truncation_order
 
     def __str__(self) -> str:
-        string = [super().__str__()]
+        string = ["VibrationalEnergy:"]
+        string += [f"\t{line}" for line in str(self.basis).split("\n")]
         for ints in self._vibrational_integrals.values():
             string += [f"\t{ints}"]
         return "\n".join(string)
-
-    def to_hdf5(self, parent: h5py.Group) -> None:
-        """Stores this instance in an HDF5 group inside of the provided parent group.
-
-        See also :func:`~qiskit_nature.hdf5.HDF5Storable.to_hdf5` for more details.
-
-        Args:
-            parent: the parent HDF5 group.
-        """
-        super().to_hdf5(parent)
-        group = parent.require_group(self.name)
-
-        ints_group = group.create_group("vibrational_integrals")
-        for integral in self._vibrational_integrals.values():
-            integral.to_hdf5(ints_group)
-
-        if self.truncation_order:
-            group.attrs["truncation_order"] = self.truncation_order
-
-    @staticmethod
-    def from_hdf5(h5py_group: h5py.Group) -> VibrationalEnergy:
-        """Constructs a new instance from the data stored in the provided HDF5 group.
-
-        See also :func:`~qiskit_nature.hdf5.HDF5Storable.from_hdf5` for more details.
-
-        Args:
-            h5py_group: the HDF5 group from which to load the data.
-
-        Returns:
-            A new instance of this class.
-        """
-        ints = []
-        for int_group in h5py_group["vibrational_integrals"].values():
-            ints.append(VibrationalIntegrals.from_hdf5(int_group))
-
-        return VibrationalEnergy(ints, h5py_group.attrs.get("truncation_order", None))
 
     def __iter__(self) -> Generator[VibrationalIntegrals, None, None]:
         """Returns the generator-iterator method."""
@@ -155,7 +129,11 @@ class VibrationalEnergy(VibrationalProperty):
         """
         return self._vibrational_integrals.get(num_body_terms, None)
 
-    def second_q_ops(self) -> dict[str, VibrationalOp]:
+    @property
+    def register_length(self) -> int:
+        return sum(self.basis._num_modals_per_mode)
+
+    def second_q_op(self) -> VibrationalOp:
         """Returns the second quantized vibrational energy operator.
 
         Returns:
@@ -168,7 +146,7 @@ class VibrationalEnergy(VibrationalProperty):
             ints.basis = self.basis
             ops.append(ints.to_second_q_op())
 
-        return {self.name: cast(VibrationalOp, sum(ops))}
+        return cast(VibrationalOp, sum(ops))
 
     def interpret(self, result: "EigenstateResult") -> None:
         """Interprets an :class:`~qiskit_nature.second_q.problems.EigenstateResult`

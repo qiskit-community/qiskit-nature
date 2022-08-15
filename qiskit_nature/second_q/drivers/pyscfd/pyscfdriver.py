@@ -25,11 +25,11 @@ from qiskit.utils.validation import validate_min
 
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
+from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.properties import (
     AngularMomentum,
     Magnetization,
     ParticleNumber,
-    ElectronicEnergy,
     DipoleMoment,
     ElectronicDipoleMoment,
 )

@@ -16,22 +16,23 @@ from __future__ import annotations
 
 from typing import Optional, cast, TYPE_CHECKING
 
-import h5py
 import numpy as np
 
-from .bases import ElectronicBasis
-from .integrals import (
+from qiskit_nature.second_q.operators import FermionicOp
+from qiskit_nature.second_q.properties.bases import ElectronicBasis
+from qiskit_nature.second_q.properties.integrals import (
     ElectronicIntegrals,
-    IntegralProperty,
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )
+
+from .hamiltonian import Hamiltonian
 
 if TYPE_CHECKING:
     from qiskit_nature.second_q.problems import EigenstateResult
 
 
-class ElectronicEnergy(IntegralProperty):
+class ElectronicEnergy(Hamiltonian):
     """The ElectronicEnergy property.
 
     This is the main property of any electronic structure problem. It constructs the Hamiltonian
@@ -60,7 +61,10 @@ class ElectronicEnergy(IntegralProperty):
             nuclear_repulsion_energy: the optional nuclear repulsion energy.
             reference_energy: an optional reference energy (such as the HF energy).
         """
-        super().__init__(self.__class__.__name__, electronic_integrals, shift=energy_shift)
+        self._electronic_integrals: dict[ElectronicBasis, dict[int, ElectronicIntegrals]] = {}
+        for integral in electronic_integrals:
+            self.add_electronic_integral(integral)
+        self._shift = energy_shift or {}
         self._nuclear_repulsion_energy = nuclear_repulsion_energy
         self._reference_energy = reference_energy
 
@@ -68,66 +72,6 @@ class ElectronicEnergy(IntegralProperty):
         self._orbital_energies: np.ndarray = None
         self._kinetic: ElectronicIntegrals = None
         self._overlap: ElectronicIntegrals = None
-
-    def to_hdf5(self, parent: h5py.Group) -> None:
-        """Stores this instance in an HDF5 group inside of the provided parent group.
-
-        See also :func:`~qiskit_nature.hdf5.HDF5Storable.to_hdf5` for more details.
-
-        Args:
-            parent: the parent HDF5 group.
-        """
-        super().to_hdf5(parent)
-        group = parent.require_group(self.name)
-
-        if self.nuclear_repulsion_energy is not None:
-            group.attrs["nuclear_repulsion_energy"] = self.nuclear_repulsion_energy
-
-        if self.reference_energy is not None:
-            group.attrs["reference_energy"] = self.reference_energy
-
-        if self.orbital_energies is not None:
-            group.attrs["orbital_energies"] = self.orbital_energies
-
-        if self.kinetic is not None:
-            kinetic_group = group.create_group("kinetic")
-            self.kinetic.to_hdf5(kinetic_group)
-
-        if self.overlap is not None:
-            overlap_group = group.create_group("overlap")
-            self.overlap.to_hdf5(overlap_group)
-
-    @staticmethod
-    def from_hdf5(h5py_group: h5py.Group) -> ElectronicEnergy:
-        """Constructs a new instance from the data stored in the provided HDF5 group.
-
-        See also :func:`~qiskit_nature.hdf5.HDF5Storable.from_hdf5` for more details.
-
-        Args:
-            h5py_group: the HDF5 group from which to load the data.
-
-        Returns:
-            A new instance of this class.
-        """
-        integral_property = IntegralProperty.from_hdf5(h5py_group)
-
-        ret = ElectronicEnergy(list(integral_property), energy_shift=integral_property._shift)
-
-        ret.nuclear_repulsion_energy = h5py_group.attrs.get("nuclear_repulsion_energy", None)
-        ret.reference_energy = h5py_group.attrs.get("reference_energy", None)
-        ret.orbital_energies = h5py_group.attrs.get("orbital_energies", None)
-
-        if "kinetic" in h5py_group.keys():
-            ret.kinetic = ElectronicIntegrals.from_hdf5(
-                h5py_group["kinetic"]["OneBodyElectronicIntegrals"]
-            )
-
-        if "overlap" in h5py_group.keys():
-            ret.overlap = ElectronicIntegrals.from_hdf5(
-                h5py_group["overlap"]["OneBodyElectronicIntegrals"]
-            )
-
-        return ret
 
     @property
     def nuclear_repulsion_energy(self) -> Optional[float]:
@@ -227,6 +171,46 @@ class ElectronicEnergy(IntegralProperty):
 
         return cls([one_body, two_body])
 
+    def add_electronic_integral(self, integral: ElectronicIntegrals) -> None:
+        """Adds an ElectronicIntegrals instance to the internal storage.
+
+        Internally, the ElectronicIntegrals are stored in a nested dictionary sorted by their basis
+        and number of body terms. This simplifies access based on these properties (see
+        ``get_electronic_integral``) and avoids duplicate, inconsistent entries.
+
+        Args:
+            integral: the ElectronicIntegrals to add.
+        """
+        if integral._basis not in self._electronic_integrals:
+            self._electronic_integrals[integral._basis] = {}
+        self._electronic_integrals[integral._basis][integral._num_body_terms] = integral
+
+    def get_electronic_integral(
+        self, basis: ElectronicBasis, num_body_terms: int
+    ) -> Optional[ElectronicIntegrals]:
+        """Gets an ElectronicIntegrals given the basis and number of body terms.
+
+        Args:
+            basis: the ElectronicBasis of the queried integrals.
+            num_body_terms: the number of body terms of the queried integrals.
+
+        Returns:
+            The queried integrals object (or None if unavailable).
+        """
+        ints_basis = self._electronic_integrals.get(basis, None)
+        if ints_basis is None:
+            return None
+        return ints_basis.get(num_body_terms, None)
+
+    def transform_basis(self, transform: ElectronicBasisTransform) -> None:
+        """Applies an ElectronicBasisTransform to the internal integrals.
+
+        Args:
+            transform: the ElectronicBasisTransform to apply.
+        """
+        for integral in self._electronic_integrals[transform.initial_basis].values():
+            self.add_electronic_integral(integral.transform_basis(transform))
+
     def integral_operator(self, density: OneBodyElectronicIntegrals) -> OneBodyElectronicIntegrals:
         """Constructs the Fock operator resulting from this
         :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`.
@@ -260,6 +244,32 @@ class ElectronicEnergy(IntegralProperty):
         op += coulomb + coulomb_inv - exchange
 
         return cast(OneBodyElectronicIntegrals, op)
+
+    @property
+    def register_length(self) -> None:
+        ints = None
+        if ElectronicBasis.SO in self._electronic_integrals:
+            ints = self._electronic_integrals[ElectronicBasis.SO]
+        elif ElectronicBasis.MO in self._electronic_integrals:
+            ints = self._electronic_integrals[ElectronicBasis.MO]
+
+        return len(list(ints.values())[0].to_spin())
+
+    def second_q_op(self) -> FermionicOp:
+        """Returns the second quantized operator constructed from the contained electronic integrals.
+
+        Returns:
+            A `dict` of `FermionicOp` objects.
+        """
+        ints = None
+        if ElectronicBasis.SO in self._electronic_integrals:
+            ints = self._electronic_integrals[ElectronicBasis.SO]
+        elif ElectronicBasis.MO in self._electronic_integrals:
+            ints = self._electronic_integrals[ElectronicBasis.MO]
+
+        op = cast(FermionicOp, sum(int.to_second_q_op() for int in ints.values()))
+
+        return op
 
     def interpret(self, result: "EigenstateResult") -> None:
         """Interprets an :class:`~qiskit_nature.second_q.problems.EigenstateResult`

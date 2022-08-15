@@ -22,12 +22,10 @@ from qiskit.opflow import Z2Symmetries
 
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.operators import SecondQuantizedOp
-from qiskit_nature.second_q.properties import LatticeModel, SecondQuantizedProperty
+from qiskit_nature.second_q.hamiltonians import Hamiltonian
 
 from .eigenstate_result import EigenstateResult
 from .properties_container import PropertiesContainer
-
-Hamiltonian = Union[SecondQuantizedProperty, LatticeModel]
 
 
 class BaseProblem:
@@ -56,10 +54,7 @@ class BaseProblem:
             A tuple, with the first object being the main operator and the second being a dictionary
             of auxiliary operators.
         """
-        main_op = self.hamiltonian.second_q_ops()
-        if isinstance(main_op, dict):
-            # TODO: change Hamiltonian interface to produce single operator
-            main_op = list(main_op.values())[0]
+        main_op = self.hamiltonian.second_q_op()
 
         aux_ops: dict[str, SecondQuantizedOp] = {}
         for prop in self.properties:

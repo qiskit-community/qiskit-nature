@@ -39,10 +39,8 @@ from qiskit_nature.second_q.algorithms import (
     ExcitedStatesEigensolver,
     NumPyEigensolverFactory,
 )
-from qiskit_nature.second_q.properties import (
-    VibrationalEnergy,
-    OccupiedModals,
-)
+from qiskit_nature.second_q.hamiltonians import VibrationalEnergy
+from qiskit_nature.second_q.properties import OccupiedModals
 from qiskit_nature.second_q.properties.integrals import VibrationalIntegrals
 
 

@@ -19,10 +19,8 @@ import numpy as np
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import UCC
 from qiskit_nature.second_q.problems import BaseProblem
-from qiskit_nature.second_q.properties import (
-    ParticleNumber,
-    ElectronicEnergy,
-)
+from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
+from qiskit_nature.second_q.properties import ParticleNumber
 from qiskit_nature.second_q.properties.bases import ElectronicBasis
 from qiskit_nature.second_q.properties.integrals import ElectronicIntegrals
 

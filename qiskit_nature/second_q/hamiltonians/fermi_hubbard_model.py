@@ -14,8 +14,8 @@
 import numpy as np
 
 from qiskit_nature.second_q.operators import FermionicOp
-from qiskit_nature.second_q.properties.lattices import Lattice
 
+from .lattices import Lattice
 from .lattice_model import LatticeModel
 
 
@@ -76,7 +76,11 @@ class FermiHubbardModel(LatticeModel):
         """
         return cls(cls._generate_lattice_from_parameters(interaction_matrix), onsite_interaction)
 
-    def second_q_ops(self, display_format: str = "sparse") -> FermionicOp:
+    @property
+    def register_length(self) -> int:
+        return 2 * self._lattice.num_modes
+
+    def second_q_op(self) -> FermionicOp:
         """Return the Hamiltonian of the Fermi-Hubbard model in terms of `FermionicOp`.
 
         Args:
@@ -118,4 +122,4 @@ class FermiHubbardModel(LatticeModel):
 
         ham = kinetic_ham + interaction_ham
 
-        return FermionicOp(ham, register_length=register_length, display_format=display_format)
+        return FermionicOp(ham, register_length=register_length)

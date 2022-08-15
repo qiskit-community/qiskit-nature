@@ -20,15 +20,11 @@ from ddt import ddt, idata, unpack
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
-from qiskit_nature.second_q.properties import (
-    ElectronicEnergy,
-    ElectronicDipoleMoment,
-)
+from qiskit_nature.second_q.properties import ElectronicDipoleMoment
 from qiskit_nature.second_q.properties.bases import ElectronicBasis
-from qiskit_nature.second_q.properties.dipole_moment import (
-    DipoleMoment,
-)
+from qiskit_nature.second_q.properties.dipole_moment import DipoleMoment
 from qiskit_nature.second_q.properties.integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,

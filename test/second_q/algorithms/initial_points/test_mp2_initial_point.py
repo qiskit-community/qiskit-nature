@@ -27,10 +27,8 @@ from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import HartreeFock, UCC
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
-from qiskit_nature.second_q.properties import (
-    ParticleNumber,
-    ElectronicEnergy,
-)
+from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
+from qiskit_nature.second_q.properties import ParticleNumber
 from qiskit_nature.second_q.properties.integrals import ElectronicIntegrals
 from qiskit_nature.second_q.mappers import QubitConverter, JordanWignerMapper
 from qiskit_nature.second_q.algorithms.initial_points import MP2InitialPoint

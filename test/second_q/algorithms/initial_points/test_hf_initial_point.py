@@ -23,9 +23,7 @@ from qiskit_nature.second_q.algorithms.initial_points import HFInitialPoint
 from qiskit_nature.second_q.circuit.library import UCC
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
-from qiskit_nature.second_q.properties.electronic_energy import (
-    ElectronicEnergy,
-)
+from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 
 
 @unittest.skip("problem properties")

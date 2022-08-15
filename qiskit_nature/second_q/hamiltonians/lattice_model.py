@@ -12,17 +12,14 @@
 
 """The Lattice Model class."""
 
-from abc import ABC, abstractmethod
-from typing import Optional
-
 import numpy as np
 from retworkx import PyGraph
 
-from qiskit_nature.second_q.operators import SecondQuantizedOp
-from qiskit_nature.second_q.properties.lattices import Lattice
+from .hamiltonian import Hamiltonian
+from .lattices import Lattice
 
 
-class LatticeModel(ABC):
+class LatticeModel(Hamiltonian):
     """Lattice Model"""
 
     def __init__(self, lattice: Lattice) -> None:
@@ -83,15 +80,3 @@ class LatticeModel(ABC):
                 if not weight == 0.0:
                     graph.add_edge(source_index, target_index, weight)
         return Lattice(graph)
-
-    @abstractmethod
-    def second_q_ops(self, display_format: Optional[str] = None) -> SecondQuantizedOp:
-        """Return the Hamiltonian of the Lattice model in terms of `SecondQuantizedOp`.
-
-        Args:
-            display_format: If sparse, the label is represented sparsely during output.
-                If dense, the label is represented densely during output. Defaults to "dense".
-
-        Returns:
-            SecondQuantizedOp: The Hamiltonian of the Lattice model.
-        """

@@ -20,6 +20,7 @@ from typing import List, Optional, Tuple, Union, cast
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.problems import BaseProblem, ElectronicStructureProblem
 from qiskit_nature.second_q.properties import Property
 from qiskit_nature.second_q.properties import (
@@ -390,7 +391,7 @@ class ActiveSpaceTransformer(BaseTransformer):
             transformed_property.reverse_dipole_sign = prop.reverse_dipole_sign
             transformed_property.nuclear_dipole_moment = prop.nuclear_dipole_moment
 
-        elif isinstance(prop, IntegralProperty):
+        elif isinstance(prop, (IntegralProperty, ElectronicEnergy)):
             # get matrix operator of IntegralProperty
             fock_operator = prop.integral_operator(self._density_inactive)
             # the total operator equals the AO-1-body-term + the inactive matrix operator

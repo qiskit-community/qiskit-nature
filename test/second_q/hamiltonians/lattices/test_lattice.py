@@ -21,7 +21,7 @@ from retworkx import PyGraph, is_isomorphic
 
 from qiskit.utils import optionals as _optionals
 
-from qiskit_nature.second_q.properties.lattices import Lattice
+from qiskit_nature.second_q.hamiltonians.lattices import Lattice
 
 if _optionals.HAS_NETWORKX:
     import networkx as nx

@@ -34,7 +34,7 @@ from qiskit_nature.second_q.drivers import (
 from qiskit_nature.second_q.drivers import Molecule
 
 from qiskit_nature.exceptions import UnsupportMethodError
-from qiskit_nature.second_q.properties import ElectronicEnergy, VibrationalEnergy
+from qiskit_nature.second_q.hamiltonians import ElectronicEnergy, VibrationalEnergy
 from qiskit_nature.second_q.properties.integrals import (
     VibrationalIntegrals,
 )

@@ -19,7 +19,7 @@ import numpy as np
 
 from qiskit_nature.second_q.drivers import Molecule
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
-from qiskit_nature.second_q.properties import ElectronicEnergy
+from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.properties.bases import ElectronicBasis
 
 

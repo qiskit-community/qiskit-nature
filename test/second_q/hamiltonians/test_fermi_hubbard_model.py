@@ -17,8 +17,8 @@ import numpy as np
 from numpy.testing import assert_array_equal
 from retworkx import PyGraph, is_isomorphic
 
-from qiskit_nature.second_q.properties import FermiHubbardModel
-from qiskit_nature.second_q.properties.lattices import Lattice
+from qiskit_nature.second_q.hamiltonians import FermiHubbardModel
+from qiskit_nature.second_q.hamiltonians.lattices import Lattice
 
 
 class TestFermiHubbardModel(QiskitNatureTestCase):
@@ -71,7 +71,7 @@ class TestFermiHubbardModel(QiskitNatureTestCase):
 
             ham = hopping + interaction
 
-            self.assertSetEqual(set(ham), set(fhm.second_q_ops(display_format="sparse").to_list()))
+            self.assertSetEqual(set(ham), set(fhm.second_q_op().to_list()))
 
     def test_uniform_parameters(self):
         """Test uniform_parameters."""
@@ -139,9 +139,7 @@ class TestFermiHubbardModel(QiskitNatureTestCase):
 
             ham = hopping + interaction
 
-            self.assertSetEqual(
-                set(ham), set(uniform_fhm.second_q_ops(display_format="sparse").to_list())
-            )
+            self.assertSetEqual(set(ham), set(uniform_fhm.second_q_op().to_list()))
 
     def test_from_parameters(self):
         """Test from_parameters."""
@@ -187,4 +185,4 @@ class TestFermiHubbardModel(QiskitNatureTestCase):
 
             ham = hopping + interaction
 
-            self.assertSetEqual(set(ham), set(fhm.second_q_ops(display_format="sparse").to_list()))
+            self.assertSetEqual(set(ham), set(fhm.second_q_op().to_list()))
