@@ -260,7 +260,9 @@ class SUCCD(UCC):
         self._excitations_dict = excitations_dictionary
 
         for exc_level, exc_level_items in excitations_dictionary.items():
-            sum_ops = cast(FermionicOp, sum(self._build_a_fermionic_excitation_op(exc_level_items)))
+            sum_ops = cast(
+                FermionicOp, sum(super()._build_fermionic_excitation_ops(exc_level_items))
+            )
             operators.append(sum_ops)
         if not operators:
             return [FermionicOp.zero(self.num_spin_orbitals)]

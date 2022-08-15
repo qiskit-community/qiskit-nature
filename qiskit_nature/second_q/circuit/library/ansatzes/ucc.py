@@ -496,19 +496,6 @@ class UCC(EvolvedOperatorAnsatz):
         Returns:
             The list of excitation operators in the second quantized formalism.
         """
-
-        return self._build_a_fermionic_excitation_op(excitations)
-
-    def _build_a_fermionic_excitation_op(self, excitations: Sequence) -> list[FermionicOp]:
-        """Builds all possible excitation operators with the given number of excitations for the
-        specified number of particles distributed in the number of orbitals.
-
-        Args:
-            excitations: the list of excitations.
-
-        Returns:
-            The list of excitation operators in the second quantized formalism.
-        """
         operators = []
 
         for exc in excitations:
