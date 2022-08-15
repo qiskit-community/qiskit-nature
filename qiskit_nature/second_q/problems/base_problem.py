@@ -15,8 +15,7 @@
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
-from typing import Callable, List, Optional, Tuple, Union
+from typing import Callable, List, Optional, Union
 
 import numpy as np
 from qiskit.opflow import Z2Symmetries
@@ -30,7 +29,7 @@ from .eigenstate_result import EigenstateResult
 Hamiltonian = Union[SecondQuantizedProperty, LatticeModel]
 
 
-class BaseProblem(ABC):
+class BaseProblem:
     """Base Problem"""
 
     def __init__(self, hamiltonian: Hamiltonian) -> None:
@@ -45,11 +44,10 @@ class BaseProblem(ABC):
         self.properties: dict[str, SecondQuantizedProperty] = {}
 
     @property
-    def num_particles(self) -> Optional[Tuple[int, int]]:
+    def num_particles(self) -> tuple[int, int] | None:
         """Returns the number of particles, if available."""
         return None
 
-    @abstractmethod
     def second_q_ops(self) -> tuple[SecondQuantizedOp, dict[str, SecondQuantizedOp]]:
         """Returns the second quantized operators associated with this problem.
 
@@ -57,7 +55,16 @@ class BaseProblem(ABC):
             A tuple, with the first object being the main operator and the second being a dictionary
             of auxiliary operators.
         """
-        raise NotImplementedError()
+        main_op = self.hamiltonian.second_q_ops()
+        if isinstance(main_op, dict):
+            # TODO: change Hamiltonian interface to produce single operator
+            main_op = list(main_op.values())[0]
+
+        aux_ops: dict[str, SecondQuantizedOp] = {}
+        for prop in self.properties.values():
+            aux_ops.update(prop.second_q_ops())
+
+        return main_op, aux_ops
 
     def symmetry_sector_locator(
         self,
@@ -78,7 +85,6 @@ class BaseProblem(ABC):
         """
         return None
 
-    @abstractmethod
     def interpret(self, raw_result: EigenstateResult) -> EigenstateResult:
         """Interprets an EigenstateResult in the context of this problem.
 
@@ -91,7 +97,6 @@ class BaseProblem(ABC):
         """
         raise NotImplementedError()
 
-    @abstractmethod
     def get_default_filter_criterion(
         self,
     ) -> Optional[Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]]:
@@ -102,4 +107,4 @@ class BaseProblem(ABC):
         In the fermionic case the default filter ensures that the number of particles is being
         preserved.
         """
-        raise NotImplementedError()
+        return None

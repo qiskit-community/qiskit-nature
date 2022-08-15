@@ -25,7 +25,6 @@ from qiskit.opflow.primitive_ops import Z2Symmetries
 from qiskit_nature.second_q.circuit.library.initial_states.hartree_fock import (
     hartree_fock_bitstring_mapped,
 )
-from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.properties.bases import ElectronicBasisTransform
 
@@ -93,21 +92,6 @@ class ElectronicStructureProblem(BaseProblem):
     def num_spin_orbitals(self) -> int:
         """Returns the number of spin orbitals."""
         return self.properties["ParticleNumber"].num_spin_orbitals
-
-    def second_q_ops(self) -> tuple[SecondQuantizedOp, dict[str, SecondQuantizedOp]]:
-        """Returns the second quantized operators associated with this Property.
-
-        Returns:
-            A tuple, with the first object being the main operator and the second being a dictionary
-            of auxiliary operators.
-        """
-        main_op = self.hamiltonian.second_q_ops()["ElectronicEnergy"]
-
-        aux_ops = {}
-        for prop in self.properties.values():
-            aux_ops.update(prop.second_q_ops())
-
-        return main_op, aux_ops
 
     def interpret(
         self,

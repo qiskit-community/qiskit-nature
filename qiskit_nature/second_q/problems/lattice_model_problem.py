@@ -14,12 +14,11 @@
 
 from __future__ import annotations
 
-from typing import Callable, List, Optional, Union
+from typing import Union
 
 import numpy as np
 
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
-from qiskit_nature.second_q.operators import SecondQuantizedOp
 
 from qiskit_nature.second_q.properties.lattice_model import LatticeModel
 
@@ -37,16 +36,6 @@ class LatticeModelProblem(BaseProblem):
             lattice_model: A lattice model class to create second quantized operators.
         """
         super().__init__(lattice_model)
-
-    def second_q_ops(self) -> tuple[SecondQuantizedOp, dict[str, SecondQuantizedOp]]:
-        """Returns the second quantized operators created based on the lattice models.
-
-        Returns:
-            A tuple, with the first object being the main operator and the second being a dictionary
-            of auxiliary operators.
-        """
-        second_q_op = self.hamiltonian.second_q_ops()
-        return second_q_op, {}
 
     def interpret(
         self,
@@ -79,8 +68,3 @@ class LatticeModelProblem(BaseProblem):
         result.combine(eigenstate_result)
         result.computed_lattice_energies = eigenstate_result.eigenenergies
         return result
-
-    def get_default_filter_criterion(
-        self,
-    ) -> Optional[Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]]:
-        return None

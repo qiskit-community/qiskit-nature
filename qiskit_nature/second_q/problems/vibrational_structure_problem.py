@@ -74,18 +74,13 @@ class VibrationalStructureProblem(BaseProblem):
 
         self.hamiltonian.truncation_order = self.truncation_order
         self.hamiltonian.basis = self.basis
-        main_op = self.hamiltonian.second_q_ops()["VibrationalEnergy"]
 
-        aux_ops = {}
         for prop in self.properties.values():
             if hasattr(prop, "truncation_order"):
                 prop.truncation_order = self.truncation_order
-
             prop.basis = self.basis
 
-            aux_ops.update(prop.second_q_ops())
-
-        return main_op, aux_ops
+        return super().second_q_ops()
 
     def interpret(
         self,
