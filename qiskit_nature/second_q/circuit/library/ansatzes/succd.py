@@ -137,16 +137,16 @@ class SUCCD(UCC):
 
         Args:
             num_spin_orbitals: the number of spin orbitals.
-            num_particles: the number of alpha and beta electrons. Note, these must be identical
-                for this class.
+            num_particles: the number of alpha and beta electrons. Note, these must be identical for
+                this class.
 
         Raises:
             QiskitNatureError: if the number of alpha and beta electrons is not equal.
 
         Returns:
-            The list of excitations encoded as tuples of tuples. Each tuple in the list is a pair
-            of tuples. The first tuple contains the occupied spin orbital indices whereas the
-            second one contains the indices of the unoccupied spin orbitals.
+            The list of excitations encoded as tuples of tuples. Each tuple in the list is a pair of
+            tuples. The first tuple contains the occupied spin orbital indices whereas the second
+            one contains the indices of the unoccupied spin orbitals.
         """
         self._validate_num_particles(num_particles)
 
