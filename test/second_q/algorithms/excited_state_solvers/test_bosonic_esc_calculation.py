@@ -75,7 +75,7 @@ class _DummyBosonicDriver(VibrationalStructureDriver):
             num_modals=2,
         )
         prop = OccupiedModals()
-        self._driver_result.properties["OccupiedModals"] = prop
+        self._driver_result.properties.occupied_modals = prop
 
     def run(self):
         """Run dummy driver to return test watson hamiltonian"""

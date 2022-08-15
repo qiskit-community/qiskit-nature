@@ -80,7 +80,7 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
             )
 
         molecule = grouped_property.molecule
-        particle_number = grouped_property.properties.get("ParticleNumber", None)
+        particle_number = grouped_property.properties.particle_number
 
         inactive_orbs_idxs: List[int] = []
         if self._freeze_core:

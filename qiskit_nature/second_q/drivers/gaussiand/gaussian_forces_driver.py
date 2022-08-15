@@ -141,6 +141,6 @@ class GaussianForcesDriver(VibrationalStructureDriver):
             glr.get_vibrational_energy(self._normalize),
             num_modes=len(glr.a_to_h_numbering),
         )
-        driver_result.properties["OccupiedModals"] = OccupiedModals()
+        driver_result.properties.occupied_modals = OccupiedModals()
 
         return driver_result

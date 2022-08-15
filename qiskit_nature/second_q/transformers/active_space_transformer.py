@@ -192,7 +192,7 @@ class ActiveSpaceTransformer(BaseTransformer):
                 f"not objects of type, {type(grouped_property)}."
             )
 
-        particle_number = grouped_property.properties.get("ParticleNumber", None)
+        particle_number = grouped_property.properties.particle_number
         if particle_number is None:
             raise QiskitNatureError(
                 "The provided `GroupedElectronicProperty` does not contain a `ParticleNumber` "
@@ -248,13 +248,9 @@ class ActiveSpaceTransformer(BaseTransformer):
 
         # construct new GroupedElectronicProperty
         grouped_property_transformed = ElectronicStructureProblem(electronic_energy)
-        for prop in grouped_property.properties.values():
+        for prop in grouped_property.properties:
             transformed_property = self._transform_property(prop)
-
-            if transformed_property is not None:
-                grouped_property_transformed.properties[
-                    transformed_property.name
-                ] = transformed_property
+            grouped_property_transformed.properties.add(transformed_property)
 
         grouped_property_transformed.molecule = (
             grouped_property.molecule  # type: ignore[attr-defined]
@@ -273,7 +269,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         Returns:
             The list of active and inactive orbital indices.
         """
-        particle_number = grouped_property.properties["ParticleNumber"]
+        particle_number = grouped_property.properties.particle_number
         if isinstance(self._num_electrons, tuple):
             num_alpha, num_beta = self._num_electrons
         elif isinstance(self._num_electrons, (int, np.integer)):

@@ -25,6 +25,7 @@ from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.properties import LatticeModel, SecondQuantizedProperty
 
 from .eigenstate_result import EigenstateResult
+from .properties_container import PropertiesContainer
 
 Hamiltonian = Union[SecondQuantizedProperty, LatticeModel]
 
@@ -41,7 +42,7 @@ class BaseProblem:
             main_property_name: A main property name for the problem
         """
         self.hamiltonian = hamiltonian
-        self.properties: dict[str, SecondQuantizedProperty] = {}
+        self.properties = PropertiesContainer()
 
     @property
     def num_particles(self) -> tuple[int, int] | None:
@@ -61,7 +62,7 @@ class BaseProblem:
             main_op = list(main_op.values())[0]
 
         aux_ops: dict[str, SecondQuantizedOp] = {}
-        for prop in self.properties.values():
+        for prop in self.properties:
             aux_ops.update(prop.second_q_ops())
 
         return main_op, aux_ops

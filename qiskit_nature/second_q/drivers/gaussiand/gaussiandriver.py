@@ -404,7 +404,7 @@ class GaussianDriver(ElectronicStructureDriver):
         num_alpha = (mel.ne + mel.multip - 1) // 2
         num_beta = (mel.ne - mel.multip + 1) // 2
 
-        driver_result.properties["ParticleNumber"] = ParticleNumber(
+        driver_result.properties.particle_number = ParticleNumber(
             num_spin_orbitals=nmo * 2, num_particles=(num_alpha, num_beta)
         )
 
@@ -423,14 +423,14 @@ class GaussianDriver(ElectronicStructureDriver):
         nucl_dip = np.einsum("i,ix->x", mel.ian, coords)
         nucl_dip = np.round(nucl_dip, decimals=8)
 
-        driver_result.properties["ElectronicDipoleMoment"] = ElectronicDipoleMoment(
+        driver_result.properties.electronic_dipole_moment = ElectronicDipoleMoment(
             [x_dipole, y_dipole, z_dipole],
             nuclear_dipole_moment=nucl_dip,
             reverse_dipole_sign=True,
         )
 
-        driver_result.properties["AngularMomentum"] = AngularMomentum(nmo * 2)
-        driver_result.properties["Magnetization"] = Magnetization(nmo * 2)
+        driver_result.properties.angular_momentum = AngularMomentum(nmo * 2)
+        driver_result.properties.magnetization = Magnetization(nmo * 2)
 
         return driver_result
 

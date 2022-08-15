@@ -29,6 +29,7 @@ from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.properties.bases import ElectronicBasisTransform
 
 from .electronic_structure_result import ElectronicStructureResult
+from .electronic_properties_container import ElectronicPropertiesContainer
 from .eigenstate_result import EigenstateResult
 
 from .base_problem import BaseProblem, Hamiltonian
@@ -81,17 +82,18 @@ class ElectronicStructureProblem(BaseProblem):
             transformers: A list of transformations to be applied to the driver result.
         """
         super().__init__(hamiltonian)
+        self.properties: ElectronicPropertiesContainer = ElectronicPropertiesContainer()
         self.molecule: "Molecule" = None
         self.basis_transform: ElectronicBasisTransform = None
 
     @property
     def num_particles(self) -> Tuple[int, int]:
-        return self.properties["ParticleNumber"].num_particles
+        return self.properties.particle_number.num_particles
 
     @property
     def num_spin_orbitals(self) -> int:
         """Returns the number of spin orbitals."""
-        return self.properties["ParticleNumber"].num_spin_orbitals
+        return self.properties.particle_number.num_spin_orbitals
 
     def interpret(
         self,
@@ -123,7 +125,7 @@ class ElectronicStructureProblem(BaseProblem):
         result = ElectronicStructureResult()
         result.combine(eigenstate_result)
         self.hamiltonian.interpret(result)
-        for prop in self.properties.values():
+        for prop in self.properties:
             prop.interpret(result)
         result.computed_energies = np.asarray([e.real for e in eigenstate_result.eigenenergies])
         return result
@@ -143,7 +145,7 @@ class ElectronicStructureProblem(BaseProblem):
         def filter_criterion(self, eigenstate, eigenvalue, aux_values):
             num_particles_aux = aux_values["ParticleNumber"][0]
             total_angular_momentum_aux = aux_values["AngularMomentum"][0]
-            particle_number = self.properties["ParticleNumber"]
+            particle_number = self.properties.particle_number
             return np.isclose(
                 particle_number.num_alpha + particle_number.num_beta,
                 num_particles_aux,

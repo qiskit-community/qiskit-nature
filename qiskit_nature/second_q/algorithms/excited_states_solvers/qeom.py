@@ -246,7 +246,7 @@ class QEOM(ExcitedStatesSolver):
         """
         if isinstance(problem, ElectronicStructureProblem):
             return build_electronic_ops(
-                problem.properties.get("ParticleNumber", None),
+                problem.properties.particle_number,
                 self._gsc.qubit_converter,
                 self.excitations,
             )

@@ -12,7 +12,7 @@
 
 """The minimum eigensolver factory for ground state calculation algorithms."""
 
-from typing import Optional, Union, cast
+from typing import Optional, Union
 import logging
 import numpy as np
 
@@ -24,7 +24,6 @@ from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.problems import (
     ElectronicStructureProblem,
 )
-from qiskit_nature.second_q.properties import ParticleNumber
 
 from ...initial_points import InitialPoint, HFInitialPoint
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
@@ -154,7 +153,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             A VQE suitable to compute the ground state of the molecule.
         """
         driver_result = problem
-        particle_number = cast(ParticleNumber, driver_result.properties.get("ParticleNumber", None))
+        particle_number = driver_result.properties.particle_number
         num_spin_orbitals = particle_number.num_spin_orbitals
         num_particles = particle_number.num_alpha, particle_number.num_beta
 

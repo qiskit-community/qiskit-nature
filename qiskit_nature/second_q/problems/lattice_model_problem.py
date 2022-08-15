@@ -24,6 +24,7 @@ from qiskit_nature.second_q.properties.lattice_model import LatticeModel
 
 from .base_problem import BaseProblem
 from .lattice_model_result import LatticeModelResult
+from .lattice_properties_container import LatticePropertiesContainer
 from .eigenstate_result import EigenstateResult
 
 
@@ -36,6 +37,7 @@ class LatticeModelProblem(BaseProblem):
             lattice_model: A lattice model class to create second quantized operators.
         """
         super().__init__(lattice_model)
+        self.properties: LatticePropertiesContainer = LatticePropertiesContainer()
 
     def interpret(
         self,

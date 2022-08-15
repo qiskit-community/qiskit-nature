@@ -27,6 +27,7 @@ from qiskit_nature.second_q.properties.bases import HarmonicBasis
 from .base_problem import BaseProblem, Hamiltonian
 
 from .vibrational_structure_result import VibrationalStructureResult
+from .vibrational_properties_container import VibrationalPropertiesContainer
 from .eigenstate_result import EigenstateResult
 
 
@@ -48,6 +49,7 @@ class VibrationalStructureProblem(BaseProblem):
             transformers: a list of transformations to be applied to the driver result.
         """
         super().__init__(hamiltonian)
+        self.properties: VibrationalPropertiesContainer = VibrationalPropertiesContainer()
         self.num_modes = num_modes
         self._num_modals = num_modals
         self.truncation_order = truncation_order
@@ -75,7 +77,7 @@ class VibrationalStructureProblem(BaseProblem):
         self.hamiltonian.truncation_order = self.truncation_order
         self.hamiltonian.basis = self.basis
 
-        for prop in self.properties.values():
+        for prop in self.properties:
             if hasattr(prop, "truncation_order"):
                 prop.truncation_order = self.truncation_order
             prop.basis = self.basis
@@ -110,7 +112,7 @@ class VibrationalStructureProblem(BaseProblem):
         result = VibrationalStructureResult()
         result.combine(eigenstate_result)
         self.hamiltonian.interpret(result)
-        for prop in self.properties.values():
+        for prop in self.properties:
             prop.interpret(result)
         result.computed_vibrational_energies = eigenstate_result.eigenenergies
         return result

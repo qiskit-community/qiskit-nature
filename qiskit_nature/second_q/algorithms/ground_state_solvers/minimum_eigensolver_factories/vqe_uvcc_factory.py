@@ -13,7 +13,7 @@
 """The minimum eigensolver factory for ground state calculation algorithms."""
 
 import logging
-from typing import Optional, Union, cast
+from typing import Optional, Union
 import numpy as np
 
 from qiskit.algorithms import MinimumEigensolver, VQE

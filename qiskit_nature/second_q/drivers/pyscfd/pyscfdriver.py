@@ -584,7 +584,7 @@ class PySCFDriver(ElectronicStructureDriver):
 
         mo_occ, mo_occ_b = self._extract_mo_data("mo_occ")
 
-        driver_result.properties["ParticleNumber"] = ParticleNumber(
+        driver_result.properties.particle_number = ParticleNumber(
             num_spin_orbitals=self._mol.nao * 2,
             num_particles=(self._mol.nelec[0], self._mol.nelec[1]),
             occupation=mo_occ,
@@ -616,14 +616,14 @@ class PySCFDriver(ElectronicStructureDriver):
         y_dipole = DipoleMoment("y", [y_dip_ints, y_dip_ints.transform_basis(basis_transform)])
         z_dipole = DipoleMoment("z", [z_dip_ints, z_dip_ints.transform_basis(basis_transform)])
 
-        driver_result.properties["ElectronicDipoleMoment"] = ElectronicDipoleMoment(
+        driver_result.properties.electronic_dipole_moment = ElectronicDipoleMoment(
             [x_dipole, y_dipole, z_dipole],
             nuclear_dipole_moment=nucl_dip,
             reverse_dipole_sign=True,
         )
 
-        driver_result.properties["AngularMomentum"] = AngularMomentum(self._mol.nao * 2)
-        driver_result.properties["Magnetization"] = Magnetization(self._mol.nao * 2)
+        driver_result.properties.angular_momentum = AngularMomentum(self._mol.nao * 2)
+        driver_result.properties.magnetization = Magnetization(self._mol.nao * 2)
 
         return driver_result
 

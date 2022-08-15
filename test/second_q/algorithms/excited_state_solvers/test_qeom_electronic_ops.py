@@ -44,9 +44,7 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
         self.qubit_converter = QubitConverter(JordanWignerMapper())
         self.electronic_structure_problem = self.driver.run()
         self.electronic_structure_problem.second_q_ops()
-        self.particle_number = self.electronic_structure_problem.properties.get(
-            "ParticleNumber", None
-        )
+        self.particle_number = self.electronic_structure_problem.properties.particle_number
 
     def test_build_hopping_operators(self):
         """Tests that the correct hopping operator is built."""
