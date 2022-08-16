@@ -184,8 +184,18 @@ class TestSparseLabelOp(QiskitNatureTestCase):
             test_op = SparseLabelOp(op1) == SparseLabelOp(op2)
             self.assertFalse(test_op)
 
+        with self.subTest("not equal - tolerance"):
+            test_op = SparseLabelOp(op1) == SparseLabelOp(
+                {
+                    "+_0 -_1": 0.000000001,
+                    "+_0 -_2": 1.0,
+                }
+            )
+
+            self.assertFalse(test_op)
+
     def test_equiv(self):
-        """test __eq__ method"""
+        """test equiv method"""
         with self.subTest("not equivalent - tolerances"):
             test_op = SparseLabelOp(op1).equiv(
                 SparseLabelOp(

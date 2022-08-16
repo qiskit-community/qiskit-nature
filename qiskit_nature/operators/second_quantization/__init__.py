@@ -26,6 +26,7 @@ Second-Quantization Operators
    QuadraticHamiltonian
    SpinOp
    SecondQuantizedOp
+   SparseLabelOp
    VibrationalOp
 """
 
