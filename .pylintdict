@@ -28,6 +28,7 @@ args
 arrowheads
 arrowstyle
 arxiv
+asarray
 asdict
 asparagine
 aspartic
@@ -120,6 +121,7 @@ dimens
 dimensionality
 dirac
 discoverable
+distanceunit
 distinguishability
 dll
 docstring

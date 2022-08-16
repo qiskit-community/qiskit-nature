@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Tranlator methods for the QCSchema."""
+"""Translator methods for the QCSchema."""
 
 from __future__ import annotations
 
