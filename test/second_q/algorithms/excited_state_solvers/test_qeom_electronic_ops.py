@@ -17,8 +17,9 @@ from test import QiskitNatureTestCase
 from qiskit.opflow import PauliSumOp
 from qiskit.utils import algorithm_globals
 
+from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.mappers import QubitConverter, JordanWignerMapper
-from qiskit_nature.second_q.drivers import PySCFDriver, UnitsType
+from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.algorithms.excited_states_solvers.qeom_electronic_ops_builder import (
     build_electronic_ops,
 )
@@ -34,7 +35,7 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
         algorithm_globals.random_seed = 8
         self.driver = PySCFDriver(
             atom="H .0 .0 .0; H .0 .0 0.75",
-            unit=UnitsType.ANGSTROM,
+            unit=DistanceUnit.ANGSTROM,
             charge=0,
             spin=0,
             basis="sto3g",

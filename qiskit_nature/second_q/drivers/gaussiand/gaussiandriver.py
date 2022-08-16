@@ -24,9 +24,11 @@ from typing import Any, Optional, Union
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.constants import BOHR, PERIODIC_TABLE
+from qiskit_nature.constants import PERIODIC_TABLE
+from qiskit_nature.units import DistanceUnit
 from qiskit_nature.exceptions import UnsupportMethodError
 import qiskit_nature.optionals as _optionals
+from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.properties import (
@@ -47,8 +49,6 @@ from qiskit_nature.second_q.properties.integrals import (
 
 from .gaussian_utils import run_g16
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
-from ..molecule import Molecule
-from ..units_type import UnitsType
 
 
 logger = logging.getLogger(__name__)
@@ -92,7 +92,7 @@ class GaussianDriver(ElectronicStructureDriver):
     @staticmethod
     @_optionals.HAS_GAUSSIAN.require_in_call
     def from_molecule(
-        molecule: Molecule,
+        molecule: MoleculeInfo,
         basis: str = "sto-3g",
         method: MethodType = MethodType.RHF,
         driver_kwargs: Optional[dict[str, Any]] = None,
@@ -113,16 +113,19 @@ class GaussianDriver(ElectronicStructureDriver):
         GaussianDriver.check_method_supported(method)
         basis = GaussianDriver.to_driver_basis(basis)
 
-        if molecule.units == UnitsType.ANGSTROM:
+        if molecule.units == DistanceUnit.ANGSTROM:
             units = "Angstrom"
-        elif molecule.units == UnitsType.BOHR:
+        elif molecule.units == DistanceUnit.BOHR:
             units = "Bohr"
         else:
             raise QiskitNatureError(f"Unknown unit '{molecule.units.value}'")
         cfg1 = f"# {method.value}/{basis} UNITS={units} scf(conventional)\n\n"
-        name = "".join([name for (name, _) in molecule.geometry])
+        name = "".join(molecule.symbols)
         geom = "\n".join(
-            [name + " " + " ".join(map(str, coord)) for (name, coord) in molecule.geometry]
+            [
+                name + " " + " ".join(map(str, coord))
+                for (name, coord) in zip(molecule.symbols, molecule.coords)
+            ]
         )
         cfg2 = f"{name} molecule\n\n"
         cfg3 = f"{molecule.charge} {molecule.multiplicity}\n{geom}\n\n"
@@ -386,12 +389,15 @@ class GaussianDriver(ElectronicStructureDriver):
 
         # molecule
         coords = np.reshape(mel.c, (len(mel.ian), 3))
-        geometry: list[tuple[str, list[float]]] = []
+        symbols: list[str] = []
+        geometry: list[list[float]] = []
         for atom, xyz in zip(mel.ian, coords):
-            geometry.append((PERIODIC_TABLE[atom], BOHR * xyz))
+            symbols.append(PERIODIC_TABLE[atom])
+            geometry.append(xyz)
 
-        driver_result.molecule = Molecule(
-            geometry,
+        driver_result.molecule = MoleculeInfo(
+            symbols,
+            np.asarray(geometry),
             multiplicity=mel.multip,
             charge=mel.icharg,
         )

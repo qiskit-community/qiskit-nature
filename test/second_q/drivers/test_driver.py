@@ -17,7 +17,7 @@ from typing import cast
 
 import numpy as np
 
-from qiskit_nature.second_q.drivers import Molecule
+from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.properties.bases import ElectronicBasis
@@ -26,8 +26,9 @@ from qiskit_nature.second_q.properties.bases import ElectronicBasis
 class TestDriver(ABC):
     """Common driver tests. For H2 @ 0.735, sto3g"""
 
-    MOLECULE = Molecule(
-        geometry=[("H", [0.0, 0.0, 0.0]), ("H", [0.0, 0.0, 0.735])],
+    MOLECULE = MoleculeInfo(
+        symbols=["H", "H"],
+        coords=np.asarray([[0.0, 0.0, 0.0], [0.0, 0.0, 0.735]]),
         multiplicity=1,
         charge=0,
     )
@@ -123,15 +124,15 @@ class TestDriver(ABC):
             self.assertEqual(molecule.multiplicity, 1)
 
         with self.subTest("atom number"):
-            self.log.debug("num atoms %s", len(molecule.geometry))
-            self.assertEqual(len(molecule.geometry), 2)
+            self.log.debug("num atoms %s", len(molecule.symbols))
+            self.assertEqual(len(molecule.symbols), 2)
 
         with self.subTest("atoms"):
-            self.log.debug("atom symbol %s", molecule.atoms)
-            self.assertSequenceEqual(molecule.atoms, ["H", "H"])
+            self.log.debug("atom symbol %s", molecule.symbols)
+            self.assertSequenceEqual(molecule.symbols, ["H", "H"])
 
         with self.subTest("coordinates"):
-            coords = [coord for _, coord in molecule.geometry]
+            coords = molecule.coords.tolist()
             self.log.debug("atom xyz %s", coords)
             np.testing.assert_array_almost_equal(
                 coords, [[0.0, 0.0, 0.0], [0.0, 0.0, 0.735]], decimal=4

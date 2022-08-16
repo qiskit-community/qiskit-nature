@@ -104,7 +104,7 @@ class TestHartreeFock(QiskitNatureTestCase):
         # below. The sector [1, -1] is the correct ground sector.
         # PySCFDriver(
         #    atom="O 0.0000 0.0000 0.1173; H 0.0000 0.07572 -0.4692;H 0.0000 -0.07572 -0.4692",
-        #    unit=UnitsType.ANGSTROM,
+        #    unit=DistanceUnit.ANGSTROM,
         #    charge=0,
         #    spin=0,
         #    basis='sto-3g',

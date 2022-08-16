@@ -17,12 +17,8 @@ from typing import cast
 import unittest
 from test import QiskitNatureTestCase
 from test.second_q.drivers.test_driver import TestDriver
-from qiskit_nature.second_q.drivers import UnitsType
-from qiskit_nature.second_q.drivers import (
-    PySCFDriver,
-    ElectronicStructureDriverType,
-    ElectronicStructureMoleculeDriver,
-)
+from qiskit_nature.units import DistanceUnit
+from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 import qiskit_nature.optionals as _optionals
@@ -36,7 +32,7 @@ class TestDriverPySCF(QiskitNatureTestCase, TestDriver):
         super().setUp()
         driver = PySCFDriver(
             atom="H .0 .0 .0; H .0 .0 0.735",
-            unit=UnitsType.ANGSTROM,
+            unit=DistanceUnit.ANGSTROM,
             charge=0,
             spin=0,
             basis="sto3g",
@@ -46,7 +42,7 @@ class TestDriverPySCF(QiskitNatureTestCase, TestDriver):
     def test_h3(self):
         """Test for H3 chain, see also https://github.com/Qiskit/qiskit-aqua/issues/1148."""
         atom = "H 0 0 0; H 0 0 1; H 0 0 2"
-        driver = PySCFDriver(atom=atom, unit=UnitsType.ANGSTROM, charge=0, spin=1, basis="sto3g")
+        driver = PySCFDriver(atom=atom, unit=DistanceUnit.ANGSTROM, charge=0, spin=1, basis="sto3g")
         driver_result = driver.run()
         electronic_energy = cast(ElectronicEnergy, driver_result.hamiltonian)
         self.assertAlmostEqual(electronic_energy.reference_energy, -1.523996200246108, places=5)
@@ -54,7 +50,7 @@ class TestDriverPySCF(QiskitNatureTestCase, TestDriver):
     def test_h4(self):
         """Test for H4 chain"""
         atom = "H 0 0 0; H 0 0 1; H 0 0 2; H 0 0 3"
-        driver = PySCFDriver(atom=atom, unit=UnitsType.ANGSTROM, charge=0, spin=0, basis="sto3g")
+        driver = PySCFDriver(atom=atom, unit=DistanceUnit.ANGSTROM, charge=0, spin=0, basis="sto3g")
         driver_result = driver.run()
         electronic_energy = cast(ElectronicEnergy, driver_result.hamiltonian)
         self.assertAlmostEqual(electronic_energy.reference_energy, -2.09854593699776, places=5)
@@ -67,7 +63,7 @@ class TestDriverPySCF(QiskitNatureTestCase, TestDriver):
     def test_list_atom(self):
         """Check input with list of strings"""
         atom = ["H 0 0 0", "H 0 0 1"]
-        driver = PySCFDriver(atom=atom, unit=UnitsType.ANGSTROM, charge=0, spin=0, basis="sto3g")
+        driver = PySCFDriver(atom=atom, unit=DistanceUnit.ANGSTROM, charge=0, spin=0, basis="sto3g")
         driver_result = driver.run()
         electronic_energy = cast(ElectronicEnergy, driver_result.hamiltonian)
         self.assertAlmostEqual(electronic_energy.reference_energy, -1.0661086493179366, places=5)
@@ -75,22 +71,10 @@ class TestDriverPySCF(QiskitNatureTestCase, TestDriver):
     def test_zmatrix(self):
         """Check z-matrix input"""
         atom = "H; H 1 1.0"
-        driver = PySCFDriver(atom=atom, unit=UnitsType.ANGSTROM, charge=0, spin=0, basis="sto3g")
+        driver = PySCFDriver(atom=atom, unit=DistanceUnit.ANGSTROM, charge=0, spin=0, basis="sto3g")
         driver_result = driver.run()
         electronic_energy = cast(ElectronicEnergy, driver_result.hamiltonian)
         self.assertAlmostEqual(electronic_energy.reference_energy, -1.0661086493179366, places=5)
-
-
-class TestDriverPySCFMolecule(QiskitNatureTestCase, TestDriver):
-    """PYSCF Driver Molecule tests."""
-
-    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
-    def setUp(self):
-        super().setUp()
-        driver = ElectronicStructureMoleculeDriver(
-            TestDriver.MOLECULE, driver_type=ElectronicStructureDriverType.PYSCF
-        )
-        self.driver_result = driver.run()
 
 
 if __name__ == "__main__":

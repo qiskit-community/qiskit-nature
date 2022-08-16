@@ -12,7 +12,7 @@
 
 """The Freeze-Core Reduction interface."""
 
-from typing import List, Optional, Tuple
+from typing import List, Optional, Sequence, Tuple
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.constants import PERIODIC_TABLE
@@ -84,7 +84,7 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
 
         inactive_orbs_idxs: List[int] = []
         if self._freeze_core:
-            inactive_orbs_idxs.extend(range(self.count_core_orbitals(molecule.atoms)))
+            inactive_orbs_idxs.extend(range(self.count_core_orbitals(molecule.symbols)))
         if self._remove_orbitals is not None:
             inactive_orbs_idxs.extend(self._remove_orbitals)
         active_orbs_idxs = [
@@ -95,7 +95,7 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
 
         return (active_orbs_idxs, inactive_orbs_idxs)
 
-    def count_core_orbitals(self, atoms: List[str]) -> int:
+    def count_core_orbitals(self, atoms: Sequence[str]) -> int:
         """Counts the number of core orbitals in a list of atoms.
 
         Args:

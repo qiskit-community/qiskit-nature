@@ -19,13 +19,9 @@ from test.second_q.problems.resources.resource_reader import (
 
 import numpy as np
 
+from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
 from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.drivers import Molecule
-from qiskit_nature.second_q.drivers import (
-    PySCFDriver,
-    ElectronicStructureMoleculeDriver,
-    ElectronicStructureDriverType,
-)
+from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import ParityMapper
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.transformers import (
@@ -104,51 +100,6 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
                 s[0] == t[0] and np.isclose(s[1], t[1])
                 for s, t in zip(expected_fermionic_op, electr_sec_quant_op.to_list())
             )
-
-
-class TestElectronicStructureProblemLegacyDrivers(QiskitNatureTestCase):
-    """Tests Electronic Structure Problem."""
-
-    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
-    def test_sector_locator_h2o(self):
-        """Test sector locator."""
-        driver = PySCFDriver(
-            atom="O 0.0000 0.0000 0.1173; H 0.0000 0.07572 -0.4692;H 0.0000 -0.07572 -0.4692",
-            basis="sto-3g",
-        )
-        es_problem = driver.run()
-        qubit_conv = QubitConverter(
-            mapper=ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto"
-        )
-        main_op, _ = es_problem.second_q_ops()
-        qubit_conv.convert(
-            main_op,
-            num_particles=es_problem.num_particles,
-            sector_locator=es_problem.symmetry_sector_locator,
-        )
-        self.assertListEqual(qubit_conv.z2symmetries.tapering_values, [1, -1])
-
-    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
-    def test_sector_locator_homonuclear(self):
-        """Test sector locator."""
-        molecule = Molecule(
-            geometry=[("Li", [0.0, 0.0, 0.0]), ("Li", [0.0, 0.0, 2.771])], charge=0, multiplicity=1
-        )
-        freeze_core_transformer = FreezeCoreTransformer(True)
-        driver = ElectronicStructureMoleculeDriver(
-            molecule, basis="sto3g", driver_type=ElectronicStructureDriverType.PYSCF
-        )
-        es_problem = freeze_core_transformer.transform(driver.run())
-        qubit_conv = QubitConverter(
-            mapper=ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto"
-        )
-        main_op, _ = es_problem.second_q_ops()
-        qubit_conv.convert(
-            main_op,
-            num_particles=es_problem.num_particles,
-            sector_locator=es_problem.symmetry_sector_locator,
-        )
-        self.assertListEqual(qubit_conv.z2symmetries.tapering_values, [-1, 1])
 
 
 if __name__ == "__main__":

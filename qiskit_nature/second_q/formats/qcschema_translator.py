@@ -17,8 +17,7 @@ from __future__ import annotations
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_q.drivers.molecule import Molecule
-from qiskit_nature.second_q.drivers.units_type import UnitsType
+from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.properties import (
@@ -33,6 +32,7 @@ from qiskit_nature.second_q.properties.integrals import (
     TwoBodyElectronicIntegrals,
 )
 
+from .molecule_info import MoleculeInfo
 from .qcschema import QCSchema
 
 
@@ -139,23 +139,13 @@ def qcschema_to_problem(
         reference_energy=e_ref,
     )
 
-    geometry: list[tuple[str, list[float]]] = []
-    for natm, atom in enumerate(qcschema.molecule.symbols):
-        coord = [qcschema.molecule.geometry[3 * natm + xyz] for xyz in range(3)]
-        geometry.append((atom, coord))
-
-    multiplicity = 1
-    if qcschema.molecule.molecular_multiplicity is not None:
-        multiplicity = qcschema.molecule.molecular_multiplicity
-    charge = 0
-    if qcschema.molecule.molecular_charge is not None:
-        charge = qcschema.molecule.molecular_charge
-
-    molecule = Molecule(
-        geometry,
-        multiplicity=multiplicity,
-        charge=charge,
-        units=UnitsType.BOHR,
+    natm = len(qcschema.molecule.symbols)
+    molecule = MoleculeInfo(
+        symbols=qcschema.molecule.symbols,
+        coords=np.asarray(qcschema.molecule.geometry).reshape((natm, 3)),
+        multiplicity=qcschema.molecule.molecular_multiplicity or 1,
+        charge=qcschema.molecule.molecular_charge or 0,
+        units=DistanceUnit.BOHR,
         masses=qcschema.molecule.masses,
     )
 

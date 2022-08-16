@@ -20,8 +20,8 @@ from qiskit import BasicAer
 from qiskit.utils import algorithm_globals, QuantumInstance
 from qiskit.algorithms import NumPyMinimumEigensolver, NumPyEigensolver
 
+from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.transformers import ActiveSpaceTransformer
-from qiskit_nature.second_q.drivers import UnitsType
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import (
     BravyiKitaevMapper,
@@ -48,7 +48,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         algorithm_globals.random_seed = 8
         self.driver = PySCFDriver(
             atom="H .0 .0 .0; H .0 .0 0.75",
-            unit=UnitsType.ANGSTROM,
+            unit=DistanceUnit.ANGSTROM,
             charge=0,
             spin=0,
             basis="sto3g",
@@ -158,7 +158,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
 
         driver = PySCFDriver(
             atom="Be .0 .0 .0; H .0 .0 0.75",
-            unit=UnitsType.ANGSTROM,
+            unit=DistanceUnit.ANGSTROM,
             charge=0,
             spin=1,
             basis="sto3g",

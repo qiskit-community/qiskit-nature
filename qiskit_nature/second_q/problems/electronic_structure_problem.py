@@ -15,7 +15,7 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import cast, Callable, List, Optional, Tuple, Union, TYPE_CHECKING
+from typing import cast, Callable, List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -25,6 +25,7 @@ from qiskit.opflow.primitive_ops import Z2Symmetries
 from qiskit_nature.second_q.circuit.library.initial_states.hartree_fock import (
     hartree_fock_bitstring_mapped,
 )
+from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.hamiltonians import Hamiltonian, ElectronicEnergy
 from qiskit_nature.second_q.properties.bases import ElectronicBasisTransform
@@ -34,9 +35,6 @@ from .electronic_properties_container import ElectronicPropertiesContainer
 from .eigenstate_result import EigenstateResult
 
 from .base_problem import BaseProblem
-
-if TYPE_CHECKING:
-    from qiskit_nature.second_q.drivers import Molecule
 
 
 class ElectronicStructureProblem(BaseProblem):
@@ -91,7 +89,7 @@ class ElectronicStructureProblem(BaseProblem):
             raise TypeError("TODO.")
         super().__init__(hamiltonian)
         self.properties: ElectronicPropertiesContainer = ElectronicPropertiesContainer()
-        self.molecule: "Molecule" = None
+        self.molecule: MoleculeInfo = None
         self.basis_transform: ElectronicBasisTransform = None
 
     @property

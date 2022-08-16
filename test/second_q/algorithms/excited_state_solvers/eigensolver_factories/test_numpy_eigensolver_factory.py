@@ -15,8 +15,8 @@ from test import QiskitNatureTestCase
 import numpy as np
 
 from qiskit.algorithms import NumPyEigensolver
+from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.algorithms import NumPyEigensolverFactory
-from qiskit_nature.second_q.drivers import UnitsType
 from qiskit_nature.second_q.drivers import PySCFDriver
 import qiskit_nature.optionals as _optionals
 
@@ -33,7 +33,7 @@ class TestNumPyEigensolverFactory(QiskitNatureTestCase):
 
         self.driver = PySCFDriver(
             atom="H .0 .0 .0; H .0 .0 0.75",
-            unit=UnitsType.ANGSTROM,
+            unit=DistanceUnit.ANGSTROM,
             charge=0,
             spin=0,
             basis="sto3g",

@@ -17,12 +17,12 @@ from __future__ import annotations
 from typing import Any, Optional, Union
 from qiskit_nature import QiskitNatureError
 
+from qiskit_nature.units import DistanceUnit
+from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
 from qiskit_nature.second_q.problems import VibrationalStructureProblem
 from qiskit_nature.second_q.properties import OccupiedModals
 import qiskit_nature.optionals as _optionals
-from ..units_type import UnitsType
 from ..vibrational_structure_driver import VibrationalStructureDriver
-from ..molecule import Molecule
 from .gaussian_log_driver import GaussianLogDriver
 from .gaussian_log_result import GaussianLogResult
 
@@ -81,7 +81,7 @@ class GaussianForcesDriver(VibrationalStructureDriver):
     @staticmethod
     @_optionals.HAS_GAUSSIAN.require_in_call
     def from_molecule(
-        molecule: Molecule,
+        molecule: MoleculeInfo,
         basis: str = "sto-3g",
         driver_kwargs: Optional[dict[str, Any]] = None,
     ) -> "GaussianForcesDriver":
@@ -102,16 +102,19 @@ class GaussianForcesDriver(VibrationalStructureDriver):
         del driver_kwargs
         basis = GaussianForcesDriver.to_driver_basis(basis)
 
-        if molecule.units == UnitsType.ANGSTROM:
+        if molecule.units == DistanceUnit.ANGSTROM:
             units = "Angstrom"
-        elif molecule.units == UnitsType.BOHR:
+        elif molecule.units == DistanceUnit.BOHR:
             units = "Bohr"
         else:
             raise QiskitNatureError(f"Unknown unit '{molecule.units.value}'")
         cfg1 = f"#p B3LYP/{basis} UNITS={units} Freq=(Anharm) Int=Ultrafine SCF=VeryTight\n\n"
-        name = "".join([name for (name, _) in molecule.geometry])
+        name = "".join(molecule.symbols)
         geom = "\n".join(
-            [name + " " + " ".join(map(str, coord)) for (name, coord) in molecule.geometry]
+            [
+                name + " " + " ".join(map(str, coord))
+                for (name, coord) in zip(molecule.symbols, molecule.coords)
+            ]
         )
         cfg2 = f"{name} geometry optimization\n\n"
         cfg3 = f"{molecule.charge} {molecule.multiplicity}\n{geom}\n\n"

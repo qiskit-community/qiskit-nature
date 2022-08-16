@@ -23,7 +23,9 @@ from typing import List, Optional, Tuple, Union, Any, Dict
 import numpy as np
 from qiskit.utils.validation import validate_min
 
+from qiskit_nature.units import DistanceUnit
 from qiskit_nature.exceptions import QiskitNatureError
+from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
 from qiskit_nature.second_q.formats.qcschema import QCSchema
 from qiskit_nature.second_q.formats.qcschema_translator import qcschema_to_problem
 
@@ -35,8 +37,6 @@ from qiskit_nature.settings import settings
 import qiskit_nature.optionals as _optionals
 
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
-from ..molecule import Molecule
-from ..units_type import UnitsType
 
 logger = logging.getLogger(__name__)
 
@@ -63,7 +63,7 @@ class PySCFDriver(ElectronicStructureDriver):
     def __init__(
         self,
         atom: Union[str, List[str]] = "H 0.0 0.0 0.0; H 0.0 0.0 0.735",
-        unit: UnitsType = UnitsType.ANGSTROM,
+        unit: DistanceUnit = DistanceUnit.ANGSTROM,
         charge: int = 0,
         spin: int = 0,
         basis: str = "sto3g",
@@ -172,12 +172,12 @@ class PySCFDriver(ElectronicStructureDriver):
         self._atom = atom.replace("\n", ";")
 
     @property
-    def unit(self) -> UnitsType:
+    def unit(self) -> DistanceUnit:
         """Returns the unit."""
         return self._unit
 
     @unit.setter
-    def unit(self, unit: UnitsType) -> None:
+    def unit(self, unit: DistanceUnit) -> None:
         """Sets the unit."""
         self._unit = unit
 
@@ -298,7 +298,7 @@ class PySCFDriver(ElectronicStructureDriver):
     @staticmethod
     @_optionals.HAS_PYSCF.require_in_call
     def from_molecule(
-        molecule: Molecule,
+        molecule: MoleculeInfo,
         basis: str = "sto3g",
         method: MethodType = MethodType.RHF,
         driver_kwargs: Optional[Dict[str, Any]] = None,
@@ -320,10 +320,13 @@ class PySCFDriver(ElectronicStructureDriver):
                 if key not in ["self"] and key in args:
                     kwargs[key] = value
 
-        kwargs["atom"] = [" ".join(map(str, (name, *coord))) for (name, coord) in molecule.geometry]
+        kwargs["atom"] = [
+            " ".join(map(str, (name, *coord)))
+            for name, coord in zip(molecule.symbols, molecule.coords)
+        ]
         kwargs["charge"] = molecule.charge
         kwargs["spin"] = molecule.multiplicity - 1
-        kwargs["unit"] = molecule.units
+        kwargs["unit"] = molecule.units.value
         kwargs["basis"] = PySCFDriver.to_driver_basis(basis)
         kwargs["method"] = method
         return PySCFDriver(**kwargs)
@@ -393,7 +396,7 @@ class PySCFDriver(ElectronicStructureDriver):
 
             self._mol = gto.Mole(
                 atom=atom,
-                unit=self._unit.value,
+                unit=self._unit,
                 basis=self._basis,
                 max_memory=self._max_memory,
                 verbose=verbose,

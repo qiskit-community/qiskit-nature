@@ -61,7 +61,8 @@ class LatticeModelProblem(BaseProblem):
         eigenstate_result = super().interpret(raw_result)
         result = LatticeModelResult()
         result.combine(eigenstate_result)
-        self.hamiltonian.interpret(result)
+        if hasattr(self.hamiltonian, "interpret"):
+            self.hamiltonian.interpret(result)
         for prop in self.properties:
             if hasattr(prop, "interpret"):
                 prop.interpret(result)  # type: ignore[attr-defined]
