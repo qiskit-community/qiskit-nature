@@ -12,14 +12,15 @@
 
 """The calculation of excited states via an Eigensolver algorithm"""
 
+from __future__ import annotations
+
 from typing import Union, Optional, Tuple
 
 from qiskit.algorithms import Eigensolver
 from qiskit.opflow import PauliSumOp
 
-from qiskit_nature import ListOrDictType, QiskitNatureError
+from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature import ListOrDict
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.second_q.problems import EigenstateResult
@@ -60,25 +61,12 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
     def get_qubit_operators(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
-    ) -> Tuple[PauliSumOp, Optional[ListOrDictType[PauliSumOp]]]:
+        aux_operators: Optional[dict[str, Union[SecondQuantizedOp, PauliSumOp]]] = None,
+    ) -> Tuple[PauliSumOp, Optional[dict[str, PauliSumOp]]]:
         """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators"""
         # Note that ``aux_ops`` contains not only the transformed ``aux_operators`` passed by the
         # user but also additional ones from the transformation
-        second_q_ops = problem.second_q_ops()
-        aux_second_q_ops: ListOrDictType[SecondQuantizedOp]
-        if isinstance(second_q_ops, list):
-            main_second_q_op = second_q_ops[0]
-            aux_second_q_ops = second_q_ops[1:]
-        elif isinstance(second_q_ops, dict):
-            name = problem.main_property_name
-            main_second_q_op = second_q_ops.pop(name, None)
-            if main_second_q_op is None:
-                raise ValueError(
-                    f"The main `SecondQuantizedOp` associated with the {name} property cannot be "
-                    "`None`."
-                )
-            aux_second_q_ops = second_q_ops
+        main_second_q_op, aux_second_q_ops = problem.second_q_ops()
 
         main_operator = self._qubit_converter.convert(
             main_second_q_op,
@@ -88,24 +76,18 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         aux_ops = self._qubit_converter.convert_match(aux_second_q_ops)
 
         if aux_operators is not None:
-            wrapped_aux_operators: ListOrDict[Union[SecondQuantizedOp, PauliSumOp]] = ListOrDict(
-                aux_operators
-            )
-            for name_aux, aux_op in iter(wrapped_aux_operators):
+            for name_aux, aux_op in aux_operators.items():
                 if isinstance(aux_op, SecondQuantizedOp):
                     converted_aux_op = self._qubit_converter.convert_match(aux_op, True)
                 else:
                     converted_aux_op = aux_op
-                if isinstance(aux_ops, list):
-                    aux_ops.append(converted_aux_op)
-                elif isinstance(aux_ops, dict):
-                    if name_aux in aux_ops.keys():
-                        raise QiskitNatureError(
-                            f"The key '{name_aux}' is already taken by an internally constructed "
-                            "auxiliary operator! Please use a different name for your custom "
-                            "operator."
-                        )
-                    aux_ops[name_aux] = converted_aux_op
+                if name_aux in aux_ops.keys():
+                    raise QiskitNatureError(
+                        f"The key '{name_aux}' is already taken by an internally constructed "
+                        "auxiliary operator! Please use a different name for your custom "
+                        "operator."
+                    )
+                aux_ops[name_aux] = converted_aux_op
 
         if isinstance(self._solver, EigensolverFactory):
             # this must be called after transformation.transform
@@ -119,7 +101,7 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+        aux_operators: Optional[dict[str, Union[SecondQuantizedOp, PauliSumOp]]] = None,
     ) -> EigenstateResult:
         """Compute Ground and Excited States properties.
 

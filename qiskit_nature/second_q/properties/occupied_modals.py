@@ -18,7 +18,6 @@ from typing import Optional, TYPE_CHECKING
 
 import h5py
 
-from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.second_q.operators import VibrationalOp
 
 from .bases import VibrationalBasis
@@ -59,19 +58,14 @@ class OccupiedModals(VibrationalProperty):
         """
         return OccupiedModals()
 
-    def second_q_ops(self) -> ListOrDictType[VibrationalOp]:
+    def second_q_ops(self) -> dict[str, VibrationalOp]:
         """Returns the second quantized operators indicating the occupied modals per mode.
 
-        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
-
         Returns:
-            A `list` or `dict` of `VibrationalOp` objects.
+            A `dict` of `VibrationalOp` objects.
         """
         num_modals_per_mode = self.basis._num_modals_per_mode
         num_modes = len(num_modals_per_mode)
-
-        if not settings.dict_aux_operators:
-            return [self._get_mode_op(mode) for mode in range(num_modes)]
 
         return {str(mode): self._get_mode_op(mode) for mode in range(num_modes)}
 

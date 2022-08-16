@@ -109,7 +109,7 @@ class TestHFInitialPoint(QiskitNatureTestCase):
         grouped_property.get_property = Mock(return_value=electronic_energy)
         self.hf_initial_point.grouped_property = grouped_property
         self.hf_initial_point.excitation_list = self.excitation_list
-        energy = self.hf_initial_point.get_energy()
+        energy = self.hf_initial_point.total_energy
         self.assertEqual(energy, 123.0)
 
 

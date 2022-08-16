@@ -12,7 +12,9 @@
 
 """Utility methods to build fermionic hopping operators."""
 
-from typing import cast, Callable, Dict, List, Tuple, Union
+from __future__ import annotations
+
+from typing import Callable, Dict, List, Tuple
 
 from qiskit.opflow import PauliSumOp
 from qiskit.tools import parallel_map
@@ -25,14 +27,15 @@ from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.properties import ParticleNumber
 
 
-def _build_qeom_hopping_ops(
+def build_electronic_ops(
     particle_number: ParticleNumber,
     qubit_converter: QubitConverter,
-    excitations: Union[
-        str,
-        int,
-        List[int],
-        Callable[[int, Tuple[int, int]], List[Tuple[Tuple[int, ...], Tuple[int, ...]]]],
+    excitations: str
+    | int
+    | list[int]
+    | Callable[
+        [int, tuple[int, int]],
+        list[tuple[tuple[int, ...], tuple[int, ...]]],
     ] = "sd",
 ) -> Tuple[
     Dict[str, PauliSumOp],
@@ -62,15 +65,8 @@ def _build_qeom_hopping_ops(
     num_alpha, num_beta = particle_number.num_alpha, particle_number.num_beta
     num_spin_orbitals = particle_number.num_spin_orbitals
 
-    excitations_list: List[Tuple[Tuple[int, ...], Tuple[int, ...]]]
-    if isinstance(excitations, (str, int)) or (
-        isinstance(excitations, list) and all(isinstance(exc, int) for exc in excitations)
-    ):
-        ansatz = UCC(qubit_converter, (num_alpha, num_beta), num_spin_orbitals, excitations)
-        excitations_list = ansatz._get_excitation_list()
-    else:
-        excitations_list = cast(List[Tuple[Tuple[int, ...], Tuple[int, ...]]], excitations)
-
+    ansatz = UCC(qubit_converter, (num_alpha, num_beta), num_spin_orbitals, excitations)
+    excitations_list = ansatz._get_excitation_list()
     size = len(excitations_list)
 
     # build all hopping operators

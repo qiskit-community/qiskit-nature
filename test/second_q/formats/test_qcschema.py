@@ -87,5 +87,37 @@ class TestQCSchemaHDF5(QiskitNatureTestCase):
             self.assertEqual(qcs, EXPECTED_WATER_OUTPUT_V3)
 
 
+class TestQCSchemaLegacy(QiskitNatureTestCase):
+    """Tests the QCSchema.from_legacy_hdf5 method."""
+
+    def test_legacy_from_hdf5(self):
+        """Tests the legacy_from_hdf5 method."""
+        with self.subTest("ElectronicStructureDriverResult"):
+            qcschema = QCSchema.from_legacy_hdf5(
+                self.get_resource_path(
+                    "electronic_structure_driver_result.hdf5",
+                    "properties/second_quantization/electronic/resources",
+                )
+            )
+
+            expected = QCSchema.from_json(
+                self.get_resource_path(
+                    "legacy_electronic_structure_driver_result.json",
+                    "second_q/formats/qcschema",
+                )
+            )
+
+            self.assertEqual(qcschema, expected)
+
+        with self.subTest("Error on non-electronic case"):
+            with self.assertRaises(ValueError):
+                qcschema = QCSchema.from_legacy_hdf5(
+                    self.get_resource_path(
+                        "vibrational_structure_driver_result.hdf5",
+                        "properties/second_quantization/vibrational/resources",
+                    )
+                )
+
+
 if __name__ == "__main__":
     unittest.main()
