@@ -14,6 +14,7 @@
 
 from __future__ import annotations
 from typing import Dict, Iterator
+from numbers import Number
 import cmath
 import numpy as np
 
@@ -64,7 +65,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin):
         Raises:
             TypeError: if ``other`` is not compatible type (int, float or complex)
         """
-        if not isinstance(other, (int, float, complex)):
+        if not isinstance(other, Number):
             raise TypeError(
                 f"Unsupported operand type(s) for *: 'SparseLabelOp' and '{type(other).__name__}'"
             )
