@@ -22,6 +22,7 @@ from enum import Enum
 from qiskit.exceptions import MissingOptionalLibraryError
 
 from qiskit_nature.exceptions import UnsupportMethodError
+from qiskit_nature.second_q.formats.qcschema import QCSchema
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from .electronic_structure_driver import ElectronicStructureDriver, MethodType
 from .molecule import Molecule
@@ -179,3 +180,21 @@ class ElectronicStructureMoleculeDriver(ElectronicStructureDriver):
             self.molecule, self.basis, self.method, self.driver_kwargs
         )
         return driver.run()
+
+    def to_problem(self) -> ElectronicStructureProblem:
+        driver_class = ElectronicStructureDriverType.driver_class_from_type(
+            self.driver_type, self.method
+        )
+        driver = driver_class.from_molecule(  # type: ignore
+            self.molecule, self.basis, self.method, self.driver_kwargs
+        )
+        return driver.to_problem()
+
+    def to_qcschema(self) -> QCSchema:
+        driver_class = ElectronicStructureDriverType.driver_class_from_type(
+            self.driver_type, self.method
+        )
+        driver = driver_class.from_molecule(  # type: ignore
+            self.molecule, self.basis, self.method, self.driver_kwargs
+        )
+        return driver.to_qcschema()

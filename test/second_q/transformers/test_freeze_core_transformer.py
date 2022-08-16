@@ -18,11 +18,12 @@ from test import QiskitNatureTestCase
 from ddt import ddt, idata
 import numpy as np
 
+from qiskit_nature.second_q.formats.qcschema import QCSchema
+from qiskit_nature.second_q.formats.qcschema_translator import qcschema_to_problem
 from qiskit_nature.second_q.transformers import FreezeCoreTransformer
 from qiskit_nature.second_q.properties.bases import ElectronicBasis
 
 
-@unittest.skip("migration path")
 @ddt
 class TestFreezeCoreTransformer(QiskitNatureTestCase):
     """FreezeCoreTransformer tests."""
@@ -41,15 +42,15 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
     )
     def test_full_active_space(self, kwargs):
         """Test that transformer has no effect when all orbitals are active."""
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("H2_sto3g.hdf5", "second_q/transformers")
+        qcschema = QCSchema.from_legacy_hdf5(
+            self.get_resource_path("H2_sto3g.hdf5", "transformers/second_quantization/electronic")
         )
-        driver_result = driver.run()
+        driver_result = qcschema_to_problem(qcschema)
 
         # The references which we compare too were produced by the `ActiveSpaceTransformer` and,
         # thus, the key here needs to stay the same as in that test case.
         driver_result.hamiltonian._shift["ActiveSpaceTransformer"] = 0.0
-        for prop in driver_result.properties["ElectronicDipoleMoment"]._dipole_axes.values():
+        for prop in driver_result.properties.electronic_dipole_moment._dipole_axes.values():
             prop._shift["ActiveSpaceTransformer"] = 0.0
 
         trafo = FreezeCoreTransformer(**kwargs)
@@ -61,34 +62,40 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
 
     def test_freeze_core(self):
         """Test the `freeze_core` convenience argument."""
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("LiH_sto3g.hdf5", "second_q/transformers")
+        qcschema = QCSchema.from_legacy_hdf5(
+            self.get_resource_path("LiH_sto3g.hdf5", "transformers/second_quantization/electronic")
         )
-        driver_result = driver.run()
+        driver_result = qcschema_to_problem(qcschema)
 
         trafo = FreezeCoreTransformer(freeze_core=True)
         driver_result_reduced = trafo.transform(driver_result)
 
-        expected = HDF5Driver(
-            hdf5_input=self.get_resource_path("LiH_sto3g_reduced.hdf5", "second_q/transformers")
-        ).run()
+        qcschema_exp = QCSchema.from_legacy_hdf5(
+            self.get_resource_path(
+                "LiH_sto3g_reduced.hdf5", "transformers/second_quantization/electronic"
+            )
+        )
+        expected = qcschema_to_problem(qcschema_exp)
 
         self.assertDriverResult(driver_result_reduced, expected, dict_key="FreezeCoreTransformer")
 
     def test_freeze_core_with_remove_orbitals(self):
         """Test the `freeze_core` convenience argument in combination with `remove_orbitals`."""
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("BeH_sto3g.hdf5", "second_q/transformers")
+        qcschema = QCSchema.from_legacy_hdf5(
+            self.get_resource_path("BeH_sto3g.hdf5", "transformers/second_quantization/electronic")
         )
-        driver_result = driver.run()
+        driver_result = qcschema_to_problem(qcschema)
 
         trafo = FreezeCoreTransformer(freeze_core=True, remove_orbitals=[4, 5])
         driver_result_reduced = trafo.transform(driver_result)
 
-        expected = HDF5Driver(
-            hdf5_input=self.get_resource_path("BeH_sto3g_reduced.hdf5", "second_q/transformers")
-        ).run()
-        expected.properties["ParticleNumber"]._num_spin_orbitals = 6
+        qcschema_exp = QCSchema.from_legacy_hdf5(
+            self.get_resource_path(
+                "BeH_sto3g_reduced.hdf5", "transformers/second_quantization/electronic"
+            )
+        )
+        expected = qcschema_to_problem(qcschema_exp)
+        expected.properties.particle_number.num_spin_orbitals = 6
 
         self.assertDriverResult(driver_result_reduced, expected, dict_key="FreezeCoreTransformer")
 
@@ -97,10 +104,10 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
 
         Regression test against https://github.com/Qiskit/qiskit-nature/issues/652
         """
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("LiH_sto3g.hdf5", "second_q/transformers")
+        qcschema = QCSchema.from_legacy_hdf5(
+            self.get_resource_path("LiH_sto3g.hdf5", "transformers/second_quantization/electronic")
         )
-        driver_result = driver.run()
+        driver_result = qcschema_to_problem(qcschema)
 
         trafo = FreezeCoreTransformer(freeze_core=False)
         driver_result_reduced = trafo.transform(driver_result)

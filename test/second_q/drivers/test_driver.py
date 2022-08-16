@@ -71,12 +71,6 @@ class TestDriver(ABC):
             )
             self.assertAlmostEqual(electronic_energy.nuclear_repulsion_energy, 0.72, places=2)
 
-        with self.subTest("orbital energies"):
-            self.log.debug("orbital energies %s", electronic_energy.orbital_energies)
-            np.testing.assert_array_almost_equal(
-                electronic_energy.orbital_energies, [-0.5806, 0.6763], decimal=4
-            )
-
         with self.subTest("1-body integrals"):
             mo_onee_ints = electronic_energy.get_electronic_integral(ElectronicBasis.MO, 1)
             self.log.debug("MO one electron integrals %s", mo_onee_ints)

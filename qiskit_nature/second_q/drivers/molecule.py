@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import Callable, Tuple, List, Optional, cast
+from typing import Callable, Tuple, List, Optional, Sequence, cast
 import copy
 
 import h5py
@@ -41,12 +41,12 @@ class Molecule:
 
     def __init__(
         self,
-        geometry: List[Tuple[str, List[float]]],
+        geometry: Sequence[Tuple[str, Sequence[float]]],
         multiplicity: int = 1,
         charge: int = 0,
         units: UnitsType = UnitsType.ANGSTROM,
-        degrees_of_freedom: Optional[List[Callable]] = None,
-        masses: Optional[List[float]] = None,
+        degrees_of_freedom: List[Callable] | None = None,
+        masses: Sequence[float] | None = None,
     ) -> None:
         """
         Args:
@@ -159,7 +159,9 @@ class Molecule:
         return "\n".join(string)
 
     @staticmethod
-    def _check_consistency(geometry: List[Tuple[str, List[float]]], masses: Optional[List[float]]):
+    def _check_consistency(
+        geometry: Sequence[Tuple[str, Sequence[float]]], masses: Sequence[float] | None
+    ):
         if masses is not None and len(masses) != len(geometry):
             raise ValueError(
                 f"Length of masses {len(masses)} must match length of geometries {len(geometry)}"
