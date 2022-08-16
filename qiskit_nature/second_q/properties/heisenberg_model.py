@@ -13,6 +13,7 @@
 """The Heisenberg model."""
 
 import logging
+from __future__ import annotations
 from typing import Optional, Tuple
 from fractions import Fraction
 import numpy as np
@@ -34,11 +35,11 @@ class HeisenbergModel(LatticeModel):
     ) -> None:
         """
         Args:
-            lattice (Lattice): Lattice on which the model is defined.
-            coupling_constants (Tuple, optional): The coupling constants in each Cartesian axes.
-                                                  Defaults to (1.0, 1.0, 1.0).
-            ext_magnetic_field (Tuple, optional): Represents a magnetic field in Cartesian coordinates.
-                                                  Defaults to (0.0, 0.0, 0.0).
+            lattice: Lattice on which the model is defined.
+            coupling_constants: The coupling constants in each Cartesian axes.
+                                Defaults to (1.0, 1.0, 1.0).
+            ext_magnetic_field: Represents a magnetic field in Cartesian coordinates.
+                                Defaults to (0.0, 0.0, 0.0).
         """
         super().__init__(lattice)
         self.coupling_constants = coupling_constants
@@ -47,7 +48,7 @@ class HeisenbergModel(LatticeModel):
     @classmethod
     def uniform_parameters(
         cls, lattice: Lattice, uniform_interaction: complex, uniform_onsite_potential: complex
-    ) -> "HeisenbergModel":
+    ) -> HeisenbergModel:
         """Set a uniform interaction parameter and on-site potential over the input lattice.
 
         Args:
@@ -65,7 +66,7 @@ class HeisenbergModel(LatticeModel):
         )
 
     @classmethod
-    def from_parameters(cls, interaction_matrix: np.ndarray) -> "HeisenbergModel":
+    def from_parameters(cls, interaction_matrix: np.ndarray) -> HeisenbergModel:
         """Return the Hamiltonian of the Heisenberg model
         from the given interaction matrix and on-site interaction.
 
