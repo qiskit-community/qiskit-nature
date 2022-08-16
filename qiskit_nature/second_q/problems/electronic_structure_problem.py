@@ -122,6 +122,7 @@ class ElectronicStructureProblem(BaseProblem):
         eigenstate_result = super().interpret(raw_result)
         result = ElectronicStructureResult()
         result.combine(eigenstate_result)
+        self.hamiltonian.interpret(result)
         for prop in self.properties:
             if hasattr(prop, "interpret"):
                 prop.interpret(result)  # type: ignore[attr-defined]
