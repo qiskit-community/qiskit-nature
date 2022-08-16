@@ -113,7 +113,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin):
                 return False
         return True
 
-    def __eq__(self, other: SparseLabelOp) -> bool:
+    def __eq__(self, other: object) -> bool:
         """Check exact equality of two ``SparseLabelOp`` instances
 
         Args:
@@ -122,6 +122,8 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin):
         Returns:
             bool: True if operators are equal, False if not.
         """
+        if not isinstance(other, SparseLabelOp):
+            return NotImplemented
         if set(self._data.keys()) != set(other._data.keys()):
             return False
         for key, val in self._data.items():
