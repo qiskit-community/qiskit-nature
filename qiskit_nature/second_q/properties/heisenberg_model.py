@@ -52,9 +52,9 @@ class HeisenbergModel(LatticeModel):
         """Set a uniform interaction parameter and on-site potential over the input lattice.
 
         Args:
-            lattice (Lattice): Lattice on which the model is defined.
-            uniform_interaction (complex): The interaction parameter.
-            uniform_onsite_potential (complex): The on-site potential.
+            lattice: Lattice on which the model is defined.
+            uniform_interaction: The interaction parameter.
+            uniform_onsite_potential: The on-site potential.
 
         Returns:
             HeisenbergModel: The Heisenberg model with uniform parameters.
@@ -71,7 +71,7 @@ class HeisenbergModel(LatticeModel):
         from the given interaction matrix and on-site interaction.
 
         Args:
-            interaction_matrix (np.ndarray): A real or complex valued squared matrix.
+            interaction_matrix: A real or complex valued squared matrix.
 
         Returns:
             HeisenbergModel: The Heisenberg model generated from the given interaction
