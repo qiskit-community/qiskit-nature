@@ -14,7 +14,6 @@
 
 from __future__ import annotations
 from typing import Dict, Iterator
-from numbers import Number
 import cmath
 import numpy as np
 
@@ -53,7 +52,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin):
 
         return SparseLabelOp(new_data)
 
-    def _multiply(self, other: Number) -> SparseLabelOp:
+    def _multiply(self, other: complex) -> SparseLabelOp:
         """Return scalar multiplication of self and other.
 
         Args:
@@ -65,7 +64,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin):
         Raises:
             TypeError: if ``other`` is not compatible type (int, float or complex)
         """
-        if not isinstance(other, Number):
+        if not isinstance(other, (int, float, complex)):
             raise TypeError(
                 f"Unsupported operand type(s) for *: 'SparseLabelOp' and '{type(other).__name__}'"
             )
@@ -131,7 +130,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin):
                 return False
         return True
 
-    def __iter__(self) -> Iterator[tuple[str, Number]]:
+    def __iter__(self) -> Iterator[tuple[str, complex]]:
         """Iterate through ``SparseLabelOp`` items"""
         for key, value in self._data.items():
             yield key, value
