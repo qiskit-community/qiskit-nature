@@ -396,7 +396,7 @@ class PySCFDriver(ElectronicStructureDriver):
 
             self._mol = gto.Mole(
                 atom=atom,
-                unit=self._unit,
+                unit=self._unit.value,
                 basis=self._basis,
                 max_memory=self._max_memory,
                 verbose=verbose,
