@@ -12,8 +12,8 @@
 
 """The Heisenberg model."""
 
-import logging
 from __future__ import annotations
+import logging
 from typing import Optional, Tuple
 from fractions import Fraction
 import numpy as np
