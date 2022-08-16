@@ -66,9 +66,9 @@ the ground-state (minimum) energy of a molecule.
 
 ```python
 from qiskit_nature.settings import settings
-from qiskit_nature.second_q.drivers import UnitsType
-from qiskit_nature.second_q.drivers import PySCFDriver
-from qiskit_nature.second_q.problems import ElectronicStructureProblem
+from qiskit_nature.drivers import UnitsType
+from qiskit_nature.drivers.second_quantization import PySCFDriver
+from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
 
 settings.dict_aux_operators = True
 
@@ -81,7 +81,7 @@ driver = PySCFDriver(atom='H .0 .0 .0; H .0 .0 0.735',
 problem = ElectronicStructureProblem(driver)
 
 # generate the second-quantized operators
-main_op, _ = problem.second_q_ops()
+main_op = problem.second_q_ops()
 
 particle_number = problem.grouped_property_transformed.get_property("ParticleNumber")
 
@@ -94,17 +94,17 @@ from qiskit.algorithms.optimizers import L_BFGS_B
 optimizer = L_BFGS_B()
 
 # setup the mapper and qubit converter
-from qiskit_nature.second_q.mappers import ParityMapper
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.mappers.second_quantization import ParityMapper
+from qiskit_nature.converters.second_quantization import QubitConverter
 
 mapper = ParityMapper()
 converter = QubitConverter(mapper=mapper, two_qubit_reduction=True)
 
 # map to qubit operators
-qubit_op = converter.convert(main_op, num_particles=num_particles)
+qubit_op = converter.convert(main_op["ElectronicEnergy"], num_particles=num_particles)
 
 # setup the initial state for the ansatz
-from qiskit_nature.second_q.circuit.library import HartreeFock
+from qiskit_nature.circuit.library import HartreeFock
 
 init_state = HartreeFock(num_spin_orbitals, num_particles, converter)
 
@@ -119,7 +119,7 @@ ansatz.compose(init_state, front=True, inplace=True)
 # set the backend for the quantum computation
 import qiskit
 
-backend = qiskit.providers.aer.Aer.get_backend('aer_simulator_statevector')
+backend = qiskit.Aer.get_backend('aer_simulator_statevector')
 
 # setup and run VQE
 from qiskit.algorithms import VQE
