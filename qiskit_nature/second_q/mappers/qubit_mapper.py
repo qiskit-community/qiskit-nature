@@ -39,6 +39,14 @@ class QubitMapper(ABC):
         self.times_occupation_number_op = []
         self.times_emptiness_number_op = []
 
+    def invalidate_cache(self):
+        """Resets cached lists to be empty
+        """
+        self.times_creation_op = []
+        self.times_annihilation_op = []
+        self.times_occupation_number_op = []
+        self.times_emptiness_number_op = []
+
     @property
     def allows_two_qubit_reduction(self) -> bool:
         """
