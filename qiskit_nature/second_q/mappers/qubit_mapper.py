@@ -70,6 +70,37 @@ class QubitMapper(ABC):
         """
         raise NotImplementedError()
 
+    def _cache_pauli_table(self, pauli_table: List[Tuple[Pauli, Pauli]]):
+        """
+        Args: 
+            pauli_table: a table of paulis built according to the modes of the operator
+
+        """
+        if not (self.times_creation_op and self.times_annihilation_op \
+        and self.times_occupation_number_op and self.times_emptiness_number_op):
+
+            for paulis in pauli_table:
+                real_part = SparsePauliOp(paulis[0], coeffs=[0.5])
+                imag_part = SparsePauliOp(paulis[1], coeffs=[0.5j])
+
+                # The creation operator is given by 0.5*(X - 1j*Y)
+                creation_op = real_part - imag_part
+                self.times_creation_op.append(creation_op)
+
+                # The annihilation operator is given by 0.5*(X + 1j*Y)
+                annihilation_op = real_part + imag_part
+                self.times_annihilation_op.append(annihilation_op)
+
+                # The occupation number operator N is given by `+-`.
+                self.times_occupation_number_op.append(
+                    creation_op.compose(annihilation_op, front=True).simplify()
+                )
+
+                # The `emptiness number` operator E is given by `-+` = (I - N).
+                self.times_emptiness_number_op.append(
+                    annihilation_op.compose(creation_op, front=True).simplify()
+                )
+
     def mode_based_mapping(
         self, second_q_op: SecondQuantizedOp, pauli_table: List[Tuple[Pauli, Pauli]]
     ) -> PauliSumOp:
@@ -95,30 +126,7 @@ class QubitMapper(ABC):
 
         # 0. Some utilities
 
-        if not (self.times_creation_op and self.times_annihilation_op \
-        and self.times_occupation_number_op and self.times_emptiness_number_op):
-
-            for paulis in pauli_table:
-                real_part = SparsePauliOp(paulis[0], coeffs=[0.5])
-                imag_part = SparsePauliOp(paulis[1], coeffs=[0.5j])
-
-                # The creation operator is given by 0.5*(X - 1j*Y)
-                creation_op = real_part - imag_part
-                self.times_creation_op.append(creation_op)
-
-                # The annihilation operator is given by 0.5*(X + 1j*Y)
-                annihilation_op = real_part + imag_part
-                self.times_annihilation_op.append(annihilation_op)
-
-                # The occupation number operator N is given by `+-`.
-                self.times_occupation_number_op.append(
-                    creation_op.compose(annihilation_op, front=True).simplify()
-                )
-
-                # The `emptiness number` operator E is given by `-+` = (I - N).
-                self.times_emptiness_number_op.append(
-                    annihilation_op.compose(creation_op, front=True).simplify()
-                )
+        self._cache_pauli_table(pauli_table)
 
         # make sure ret_op_list is not empty by including a zero op
         ret_op_list = [SparsePauliOp("I" * nmodes, coeffs=[0])]
