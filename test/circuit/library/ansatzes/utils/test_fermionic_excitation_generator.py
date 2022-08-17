@@ -203,3 +203,63 @@ class TestFermionicExcitationGenerator(QiskitNatureTestCase):
             num_excitations, num_spin_orbitals, num_particles, preserve_spin=False
         )
         self.assertEqual(excitations, expect)
+
+    @unpack
+    @data(
+        (1, 4, [1, 1], [((0,), (1,)), ((0,), (3,)), ((2,), (1,)), ((2,), (3,))]),
+        (1, 4, [2, 1], [((0,), (1,)), ((0,), (3,)), ((2,), (1,)), ((2,), (3,))]),
+        (1, 4, [2, 2], [((0,), (1,)), ((0,), (3,)), ((2,), (1,)), ((2,), (3,))]),
+        (2, 4, [1, 1], [((0, 2), (1, 3))]),
+        (
+            1,
+            6,
+            [1, 1],
+            [
+                ((0,), (1,)),
+                ((0,), (2,)),
+                ((0,), (4,)),
+                ((0,), (5,)),
+                ((1,), (2,)),
+                ((1,), (5,)),
+                ((3,), (1,)),
+                ((3,), (2,)),
+                ((3,), (4,)),
+                ((3,), (5,)),
+                ((4,), (2,)),
+                ((4,), (5,)),
+            ],
+        ),
+        (
+            2,
+            6,
+            [1, 1],
+            [
+                ((0, 3), (1, 2)),
+                ((0, 3), (1, 4)),
+                ((0, 3), (1, 5)),
+                ((0, 4), (1, 2)),
+                ((0, 4), (1, 5)),
+                ((0, 1), (2, 5)),
+                ((0, 3), (2, 4)),
+                ((0, 3), (2, 5)),
+                ((0, 4), (2, 5)),
+                ((0, 3), (4, 5)),
+                ((1, 3), (2, 4)),
+                ((1, 3), (2, 5)),
+                ((1, 4), (2, 5)),
+                ((1, 3), (5, 4)),
+                ((3, 4), (2, 5)),
+            ],
+        ),
+    )
+    def test_generalized_preserve_spin_excitations(
+        self, num_excitations, num_spin_orbitals, num_particles, expect
+    ):
+        """Test combining generalized and preserve_spin settings.
+
+        This is a regression-test against https://github.com/Qiskit/qiskit-nature/issues/788
+        """
+        excitations = generate_fermionic_excitations(
+            num_excitations, num_spin_orbitals, num_particles, preserve_spin=False, generalized=True
+        )
+        self.assertEqual(excitations, expect)
