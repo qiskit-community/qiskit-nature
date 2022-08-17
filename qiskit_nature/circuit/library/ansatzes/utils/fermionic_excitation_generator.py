@@ -156,33 +156,68 @@ def generate_fermionic_excitations(
             logger.debug("Generated list of single beta excitations: %s", beta_excitations)
 
     else:
-        # We can reuse our existing implementation for the scenario involving spin flips by
-        # generating the single excitations of an _interleaved_ spin orbital system.
-        # For this, we can reuse the alpha single excitation generator in a system of double the
-        # actual size.
-        single_excitations = get_alpha_excitations(sum(num_particles), num_spin_orbitals * 2, False)
+        if generalized:
+            # Combining generalized=True with preserve_spin=False results in all possible
+            # excitations, regardless of both, orbital occupancy and orbital spin species.
+            # This effectively amounts to all permutations of available orbitals. However,
+            # this does _not_ include de-excitations, which need to be filtered!
 
-        def interleaved2blocked(index: int, total: int) -> int:
-            if index % 2 == 0:
-                return index // 2
+            # First, we get the generalized alpha-spin single excitations
+            single_excitations = get_alpha_excitations(sum(num_particles), num_spin_orbitals, True)
 
-            return (index - 1 + total) // 2
+            half_spin_orbitals = num_spin_orbitals // 2
 
-        # we now split the generated single excitations into separate spin species
-        for (occ_interleaved, unocc_interleaved) in single_excitations:
-            # we map from interleaved to blocked spin orbital indices
-            occ_blocked = interleaved2blocked(occ_interleaved, num_spin_orbitals)
-            unocc_blocked = interleaved2blocked(unocc_interleaved, num_spin_orbitals)
+            # We can now obtain the alpha excitations by complementing the previously generated list
+            # of single excitations with the non-spin-preserving excitations.
+            alpha_excitations = sorted(
+                itertools.chain.from_iterable(
+                    itertools.starmap(
+                        lambda i, a: [(i, a), (i, a + half_spin_orbitals)], single_excitations
+                    )
+                )
+            )
+            # The beta excitations are identical but starting from beta-spin indices
+            beta_excitations = sorted(
+                itertools.chain.from_iterable(
+                    itertools.starmap(
+                        lambda i, a: [
+                            (i + half_spin_orbitals, a),
+                            (i + half_spin_orbitals, a + half_spin_orbitals),
+                        ],
+                        single_excitations,
+                    )
+                )
+            )
+        else:
+            # We can reuse our existing implementation for the scenario involving spin flips by
+            # generating the single excitations of an _interleaved_ spin orbital system.
+            # For this, we can reuse the alpha single excitation generator in a system of double the
+            # actual size.
+            single_excitations = get_alpha_excitations(
+                sum(num_particles), num_spin_orbitals * 2, False
+            )
 
-            if occ_interleaved % 2 == 0:
-                # the originally occupied orbital was of alpha-spin character
-                alpha_excitations.append((occ_blocked, unocc_blocked))
-            else:
-                beta_excitations.append((occ_blocked, unocc_blocked))
+            def interleaved2blocked(index: int, total: int) -> int:
+                if index % 2 == 0:
+                    return index // 2
 
-        # NOTE: we sort the lists to ensure that non-spin flipped variants take higher precedence
-        alpha_excitations = sorted(alpha_excitations)
-        beta_excitations = sorted(beta_excitations)
+                return (index - 1 + total) // 2
+
+            # we now split the generated single excitations into separate spin species
+            for (occ_interleaved, unocc_interleaved) in single_excitations:
+                # we map from interleaved to blocked spin orbital indices
+                occ_blocked = interleaved2blocked(occ_interleaved, num_spin_orbitals)
+                unocc_blocked = interleaved2blocked(unocc_interleaved, num_spin_orbitals)
+
+                if occ_interleaved % 2 == 0:
+                    # the originally occupied orbital was of alpha-spin character
+                    alpha_excitations.append((occ_blocked, unocc_blocked))
+                else:
+                    beta_excitations.append((occ_blocked, unocc_blocked))
+
+            # NOTE: we sort the lists to ensure that non-spin flipped variants take higher precedence
+            alpha_excitations = sorted(alpha_excitations)
+            beta_excitations = sorted(beta_excitations)
 
     if not alpha_excitations and not beta_excitations:
         # nothing to do, let's return early
