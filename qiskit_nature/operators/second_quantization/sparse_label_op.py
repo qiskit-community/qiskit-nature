@@ -13,7 +13,7 @@
 """The Sparse Label Operator base class."""
 
 from __future__ import annotations
-from typing import Dict, Iterator
+from typing import Mapping, Iterator
 from numbers import Number
 import cmath
 import numpy as np
@@ -24,7 +24,7 @@ from qiskit.quantum_info.operators.mixins import LinearMixin, AdjointMixin, Tole
 class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin):
     """The Sparse Label Operator base class."""
 
-    def __init__(self, data: Dict[str, complex], register_length: int | None = None):
+    def __init__(self, data: Mapping[str, Number], register_length: int):
         self._data = data
         self._register_length = register_length
 
@@ -35,7 +35,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin):
             other: the second ``SparseLabelOp`` to add to the first.
 
         Returns:
-            SparseLabelOp: the new summed ``SparseLabelOp``.
+            the new summed ``SparseLabelOp``.
 
         Raises:
             ValueError: when ``qargs`` argument is not ``None``
@@ -51,7 +51,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin):
             else:
                 new_data[key] = value
 
-        return SparseLabelOp(new_data)
+        return SparseLabelOp(new_data, self._register_length)
 
     def _multiply(self, other: complex) -> SparseLabelOp:
         """Return scalar multiplication of self and other.
@@ -60,7 +60,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin):
             other: the number to multiply the ``SparseLabelOp`` values by.
 
         Returns:
-            SparseLabelOp: the newly multiplied ``SparseLabelOp``.
+            the newly multiplied ``SparseLabelOp``.
 
         Raises:
             TypeError: if ``other`` is not compatible type (int, float or complex)
@@ -74,26 +74,26 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin):
         for key, value in self._data.items():
             new_data[key] = value * other
 
-        return SparseLabelOp(new_data)
+        return SparseLabelOp(new_data, self._register_length)
 
     def conjugate(self) -> SparseLabelOp:
-        """Return the conjugate of the ``SparseLabelOp``
+        """Returns the conjugate of the ``SparseLabelOp``
 
         Returns:
-            SparseLabelOp: the complex conjugate of the starting ``SparseLabelOp``.
+            the complex conjugate of the starting ``SparseLabelOp``.
         """
         new_data = {}
 
         for key, value in self._data.items():
             new_data[key] = np.conjugate(value)
 
-        return SparseLabelOp(new_data)
+        return SparseLabelOp(new_data, self._register_length)
 
     def transpose(self) -> SparseLabelOp:
         """This method has no effect on ``SparseLabelOp`` and returns itself.
 
         Returns:
-            SparseLabelOp: the initial ``SparseLabelOp``.
+            the initial ``SparseLabelOp``.
         """
         return self
 
@@ -101,10 +101,10 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin):
         """Check equivalence of two ``SparseLabelOp`` instances to an accepted tolerance
 
         Args:
-            other: the second ``SparseLabelOp`` to compare the first with.
+            other: the second ``SparseLabelOp`` to compare with this instance.
 
         Returns:
-            bool: True if operators are equal to, False if not.
+            True if operators are equal to, False if not.
         """
         if set(self._data.keys()) != set(other._data.keys()):
             return False
@@ -117,10 +117,10 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin):
         """Check exact equality of two ``SparseLabelOp`` instances
 
         Args:
-            other: the second ``SparseLabelOp`` to compare the first with.
+            other: the second ``SparseLabelOp`` to compare with this instance.
 
         Returns:
-            bool: True if operators are equal, False if not.
+            True if operators are equal, False if not.
         """
         if not isinstance(other, SparseLabelOp):
             return NotImplemented

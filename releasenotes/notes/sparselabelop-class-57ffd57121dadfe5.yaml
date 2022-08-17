@@ -1,4 +1,4 @@
 ---
 features:
   - |
-    Adds :class:`.SparseLabelOp`.
+    Adds :class:`.SparseLabelOp` which maps sparse labels to coefficient values. This will form a base class for other operator types in future.
