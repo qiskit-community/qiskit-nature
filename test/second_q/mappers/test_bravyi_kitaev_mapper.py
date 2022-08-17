@@ -17,11 +17,11 @@ from test import QiskitNatureTestCase
 
 from qiskit.opflow import I, PauliSumOp, X, Z
 
+from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import BravyiKitaevMapper
 from qiskit_nature.second_q.operators import FermionicOp
 
 
-@unittest.skip("migration path")
 class TestBravyiKitaevMapper(QiskitNatureTestCase):
     """Test Bravyi-Kitaev Mapper"""
 
@@ -45,11 +45,9 @@ class TestBravyiKitaevMapper(QiskitNatureTestCase):
 
     def test_mapping(self):
         """Test mapping to qubit operator"""
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("test_driver_hdf5.hdf5", "second_q/drivers/hdf5d")
-        )
+        driver = PySCFDriver()
         driver_result = driver.run()
-        fermionic_op = driver_result.second_q_ops()["ElectronicEnergy"]
+        fermionic_op, _ = driver_result.second_q_ops()
         mapper = BravyiKitaevMapper()
         qubit_op = mapper.map(fermionic_op)
 

@@ -21,11 +21,10 @@ from qiskit.algorithms import VQE
 from qiskit.algorithms.optimizers import COBYLA
 from qiskit.circuit.library import TwoLocal
 from qiskit.utils import algorithm_globals, QuantumInstance
+from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import ParityMapper, QubitConverter
-from qiskit_nature.second_q.problems import ElectronicStructureProblem
 
 
-@unittest.skip("migration path")
 class TestEnd2End(QiskitNatureTestCase):
     """End2End VQE tests."""
 
@@ -33,15 +32,13 @@ class TestEnd2End(QiskitNatureTestCase):
         super().setUp()
         algorithm_globals.random_seed = 42
 
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("test_driver_hdf5.hdf5", "second_q/drivers/hdf5d")
-        )
-        problem = ElectronicStructureProblem(driver)
+        driver = PySCFDriver()
+        problem = driver.run()
         main_op, aux_ops = problem.second_q_ops()
         converter = QubitConverter(mapper=ParityMapper(), two_qubit_reduction=True)
         num_particles = (
-            problem.grouped_property_transformed.get_property("ParticleNumber").num_alpha,
-            problem.grouped_property_transformed.get_property("ParticleNumber").num_beta,
+            problem.properties.particle_number.num_alpha,
+            problem.properties.particle_number.num_beta,
         )
         self.qubit_op = converter.convert(main_op, num_particles)
         self.aux_ops = converter.convert_match(aux_ops)

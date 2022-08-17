@@ -138,6 +138,8 @@ def qcschema_to_problem(
         nuclear_repulsion_energy=e_nuc,
         reference_energy=e_ref,
     )
+    if qcschema.wavefunction.scf_eigenvalues_a is not None:
+        hamiltonian.orbital_energies = np.asarray(qcschema.wavefunction.scf_eigenvalues_a)
 
     natm = len(qcschema.molecule.symbols)
     molecule = MoleculeInfo(

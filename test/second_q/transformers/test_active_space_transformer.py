@@ -20,6 +20,7 @@ from ddt import ddt, idata, unpack
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.properties import ElectronicDipoleMoment
@@ -32,7 +33,6 @@ from qiskit_nature.second_q.properties.integrals import (
 from qiskit_nature.second_q.transformers import ActiveSpaceTransformer
 
 
-@unittest.skip("migration path")
 @ddt
 class TestActiveSpaceTransformer(QiskitNatureTestCase):
     """ActiveSpaceTransformer tests."""
@@ -43,13 +43,17 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         electronic_energy_exp = expected.hamiltonian
         with self.subTest("MO 1-electron integrals"):
             np.testing.assert_array_almost_equal(
-                electronic_energy.get_electronic_integral(ElectronicBasis.MO, 1).to_spin(),
-                electronic_energy_exp.get_electronic_integral(ElectronicBasis.MO, 1).to_spin(),
+                np.abs(electronic_energy.get_electronic_integral(ElectronicBasis.MO, 1).to_spin()),
+                np.abs(
+                    electronic_energy_exp.get_electronic_integral(ElectronicBasis.MO, 1).to_spin()
+                ),
             )
         with self.subTest("MO 2-electron integrals"):
             np.testing.assert_array_almost_equal(
-                electronic_energy.get_electronic_integral(ElectronicBasis.MO, 2).to_spin(),
-                electronic_energy_exp.get_electronic_integral(ElectronicBasis.MO, 2).to_spin(),
+                np.abs(electronic_energy.get_electronic_integral(ElectronicBasis.MO, 2).to_spin()),
+                np.abs(
+                    electronic_energy_exp.get_electronic_integral(ElectronicBasis.MO, 2).to_spin()
+                ),
             )
         with self.subTest("Inactive energy"):
             self.assertAlmostEqual(
@@ -57,20 +61,21 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
                 electronic_energy_exp._shift["ActiveSpaceTransformer"],
             )
 
-        for dipole, dipole_exp in zip(
-            driver_result.properties["ElectronicDipoleMoment"]._dipole_axes.values(),
-            expected.properties["ElectronicDipoleMoment"]._dipole_axes.values(),
-        ):
-            with self.subTest(f"MO 1-electron {dipole._axis} dipole integrals"):
-                np.testing.assert_array_almost_equal(
-                    dipole.get_electronic_integral(ElectronicBasis.MO, 1).to_spin(),
-                    dipole_exp.get_electronic_integral(ElectronicBasis.MO, 1).to_spin(),
-                )
-            with self.subTest(f"{dipole._axis} dipole energy shift"):
-                self.assertAlmostEqual(
-                    dipole._shift[dict_key],
-                    dipole_exp._shift["ActiveSpaceTransformer"],
-                )
+        if expected.properties.electronic_dipole_moment is not None:
+            for dipole, dipole_exp in zip(
+                driver_result.properties.electronic_dipole_moment._dipole_axes.values(),
+                expected.properties.electronic_dipole_moment._dipole_axes.values(),
+            ):
+                with self.subTest(f"MO 1-electron {dipole._axis} dipole integrals"):
+                    np.testing.assert_array_almost_equal(
+                        np.abs(dipole.get_electronic_integral(ElectronicBasis.MO, 1).to_spin()),
+                        np.abs(dipole_exp.get_electronic_integral(ElectronicBasis.MO, 1).to_spin()),
+                    )
+                with self.subTest(f"{dipole._axis} dipole energy shift"):
+                    self.assertAlmostEqual(
+                        dipole._shift[dict_key],
+                        dipole_exp._shift["ActiveSpaceTransformer"],
+                    )
 
     @idata(
         [
@@ -79,13 +84,11 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
     )
     def test_full_active_space(self, kwargs):
         """test that transformer has no effect when all orbitals are active."""
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("H2_sto3g.hdf5", "second_q/transformers")
-        )
+        driver = PySCFDriver()
         driver_result = driver.run()
 
         driver_result.hamiltonian._shift["ActiveSpaceTransformer"] = 0.0
-        for prop in driver_result.properties["ElectronicDipoleMoment"]._dipole_axes.values():
+        for prop in driver_result.properties.electronic_dipole_moment._dipole_axes.values():
             prop._shift["ActiveSpaceTransformer"] = 0.0
 
         trafo = ActiveSpaceTransformer(**kwargs)
@@ -95,9 +98,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
 
     def test_minimal_active_space(self):
         """Test a minimal active space manually."""
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("H2_631g.hdf5", "second_q/transformers")
-        )
+        driver = PySCFDriver(basis="631g")
         driver_result = driver.run()
 
         trafo = ActiveSpaceTransformer(num_electrons=2, num_molecular_orbitals=2)
@@ -134,7 +135,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
                 energy_shift={"ActiveSpaceTransformer": 0.0},
             )
         )
-        expected.properties["ElectronicDipoleMoment"] = ElectronicDipoleMoment(
+        expected.properties.electronic_dipole_moment = ElectronicDipoleMoment(
             [
                 DipoleMoment(
                     "x",
@@ -166,25 +167,101 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
 
     def test_unpaired_electron_active_space(self):
         """Test an active space with an unpaired electron."""
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("BeH_sto3g.hdf5", "second_q/transformers")
-        )
+        driver = PySCFDriver(atom="Be 0 0 0; H 0 0 1.3", basis="sto3g", spin=1)
         driver_result = driver.run()
 
         trafo = ActiveSpaceTransformer(num_electrons=(2, 1), num_molecular_orbitals=3)
         driver_result_reduced = trafo.transform(driver_result)
 
-        expected = HDF5Driver(
-            hdf5_input=self.get_resource_path("BeH_sto3g_reduced.hdf5", "second_q/transformers")
-        ).run()
+        expected = ElectronicStructureProblem(
+            ElectronicEnergy(
+                [
+                    OneBodyElectronicIntegrals(
+                        ElectronicBasis.MO,
+                        (
+                            np.asarray(
+                                [
+                                    [-1.30228816, 0.03573328, 0.0],
+                                    [0.03573328, -0.86652349, 0.0],
+                                    [0.0, 0.0, -0.84868407],
+                                ]
+                            ),
+                            None,
+                        ),
+                    ),
+                    TwoBodyElectronicIntegrals(
+                        ElectronicBasis.MO,
+                        (
+                            np.asarray(
+                                [
+                                    [
+                                        [
+                                            [0.5723742128971601, -0.055935974537879886, 0.0],
+                                            [-0.0559359745378799, 0.3042842626235253, 0.0],
+                                            [0.0, 0.0, 0.3665082095336567],
+                                        ],
+                                        [
+                                            [-0.05593597453787989, 0.01937528764526897, 0.0],
+                                            [0.019375287645268975, 0.020202367947773765, 0.0],
+                                            [0.0, 0.0, 0.014056764993693264],
+                                        ],
+                                        [
+                                            [0.0, 0.0, 0.036007006646053566],
+                                            [0.0, 0.0, 0.02824399694443206],
+                                            [0.03600700664605357, 0.028243996944432068, 0.0],
+                                        ],
+                                    ],
+                                    [
+                                        [
+                                            [-0.05593597453787985, 0.01937528764526898, 0.0],
+                                            [0.019375287645269, 0.020202367947773803, 0.0],
+                                            [0.0, 0.0, 0.014056764993693242],
+                                        ],
+                                        [
+                                            [0.30428426262352537, 0.020202367947773744, 0.0],
+                                            [0.020202367947773803, 0.4816266918021246, 0.0],
+                                            [0.0, 0.0, 0.40269913477850905],
+                                        ],
+                                        [
+                                            [0.0, 0.0, 0.02824399694443207],
+                                            [0.0, 0.0, 0.05649509961573344],
+                                            [0.02824399694443207, 0.05649509961573344, 0.0],
+                                        ],
+                                    ],
+                                    [
+                                        [
+                                            [0.0, 0.0, 0.03600700664605357],
+                                            [0.0, 0.0, 0.028243996944432068],
+                                            [0.03600700664605358, 0.028243996944432075, 0.0],
+                                        ],
+                                        [
+                                            [0.0, 0.0, 0.028243996944432078],
+                                            [0.0, 0.0, 0.05649509961573346],
+                                            [0.028243996944432078, 0.05649509961573345, 0.0],
+                                        ],
+                                        [
+                                            [0.36650820953365676, 0.01405676499369331, 0.0],
+                                            [0.014056764993693339, 0.402699134778509, 0.0],
+                                            [0.0, 0.0, 0.4498590410866706],
+                                        ],
+                                    ],
+                                ]
+                            ),
+                            None,
+                            None,
+                            None,
+                        ),
+                    ),
+                ],
+                energy_shift={"ActiveSpaceTransformer": -14.253802923103054},
+            )
+        )
 
         self.assertDriverResult(driver_result_reduced, expected)
 
     def test_arbitrary_active_orbitals(self):
         """Test manual selection of active orbital indices."""
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("H2_631g.hdf5", "second_q/transformers")
-        )
+        driver = PySCFDriver(basis="631g")
         driver_result = driver.run()
 
         trafo = ActiveSpaceTransformer(
@@ -226,7 +303,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
                 energy_shift={"ActiveSpaceTransformer": 0.0},
             )
         )
-        expected.properties["ElectronicDipoleMoment"] = ElectronicDipoleMoment(
+        expected.properties.electronic_dipole_moment = ElectronicDipoleMoment(
             [
                 DipoleMoment(
                     "x",
@@ -266,9 +343,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
     @unpack
     def test_error_raising(self, num_electrons, num_molecular_orbitals, active_orbitals, message):
         """Test errors are being raised in certain scenarios."""
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("H2_sto3g.hdf5", "second_q/transformers")
-        )
+        driver = PySCFDriver()
         driver_result = driver.run()
 
         with self.assertRaises(QiskitNatureError, msg=message):
@@ -280,9 +355,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
 
     def test_tuple_num_electrons_with_manual_orbitals(self):
         """Regression test against https://github.com/Qiskit/qiskit-nature/issues/434."""
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("H2_631g.hdf5", "second_q/transformers")
-        )
+        driver = PySCFDriver(basis="631g")
         driver_result = driver.run()
 
         trafo = ActiveSpaceTransformer(
@@ -323,7 +396,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
                 energy_shift={"ActiveSpaceTransformer": 0.0},
             )
         )
-        expected.properties["ElectronicDipoleMoment"] = ElectronicDipoleMoment(
+        expected.properties.electronic_dipole_moment = ElectronicDipoleMoment(
             [
                 DipoleMoment(
                     "x",
@@ -359,9 +432,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         This is a regression test against the fix applied by
         https://github.com/Qiskit/qiskit-nature/pull/659
         """
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("H2_631g.hdf5", "second_q/transformers")
-        )
+        driver = PySCFDriver(basis="631g")
         driver_result = driver.run()
 
         trafo = ActiveSpaceTransformer(num_electrons=2, num_molecular_orbitals=2)
@@ -376,11 +447,9 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
             ]
         )
 
-        self.assertTrue(
-            np.allclose(
-                driver_result_reduced.basis_transform.coeff_alpha,
-                active_transform,
-            )
+        np.testing.assert_array_almost_equal(
+            np.abs(driver_result_reduced.basis_transform.coeff_alpha),
+            np.abs(active_transform),
         )
 
     def test_numpy_integer(self):
@@ -389,17 +458,16 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         This is a regression test against the fix applied by
         https://github.com/Qiskit/qiskit-nature/pull/712
         """
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("H2_631g.hdf5", "second_q/transformers")
-        )
+        driver = PySCFDriver(basis="631g")
         driver_result = driver.run()
 
-        particle_number = driver_result.properties["ParticleNumber"]
+        particle_number = driver_result.properties.particle_number
+        driver_result.properties.particle_number = None
         particle_number.num_alpha = np.int64(particle_number.num_alpha)
         particle_number.num_beta = np.int64(particle_number.num_beta)
         particle_number.num_spin_orbitals = np.int64(particle_number.num_spin_orbitals)
 
-        driver_result.properties["ParticleNumber"] = particle_number
+        driver_result.properties.particle_number = particle_number
 
         trafo = ActiveSpaceTransformer(
             num_electrons=particle_number.num_particles, num_molecular_orbitals=2

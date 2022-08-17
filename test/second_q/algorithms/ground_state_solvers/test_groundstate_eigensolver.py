@@ -35,6 +35,7 @@ from qiskit_nature.second_q.algorithms import (
     NumPyMinimumEigensolverFactory,
 )
 from qiskit_nature.second_q.circuit.library import HartreeFock, UCC, UCCSD
+from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import JordanWignerMapper, ParityMapper
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
@@ -47,15 +48,12 @@ from qiskit_nature.second_q.transformers import FreezeCoreTransformer
 from qiskit_nature.second_q.algorithms.initial_points import MP2InitialPoint
 
 
-@unittest.skip("migration path")
 class TestGroundStateEigensolver(QiskitNatureTestCase):
     """Test GroundStateEigensolver"""
 
     def setUp(self):
         super().setUp()
-        self.driver = HDF5Driver(
-            self.get_resource_path("test_driver_hdf5.hdf5", "second_q/drivers/hdf5d")
-        )
+        self.driver = PySCFDriver()
         self.seed = 56
         algorithm_globals.random_seed = self.seed
 
@@ -437,8 +435,8 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         An issue arose when the FreezeCoreTransformer was combined with the automatic Z2Symmetry
         reduction. This regression test ensures that this behavior remains fixed.
         """
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("LiH_sto3g.hdf5", "second_q/transformers")
+        driver = PySCFDriver(
+            atom="LI 0 0 0; H 0 0 1.6",
         )
         problem = FreezeCoreTransformer().transform(driver.run())
         qubit_converter = QubitConverter(
@@ -488,8 +486,8 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
             ~ Nuclear dipole moment (a.u.): [0.0  0.0  1.38
 
               0:
-              * Electronic dipole moment (a.u.): [0.0  0.0  -1.38
-                - computed part:      [0.0  0.0  -1.38
+              * Electronic dipole moment (a.u.): [0.0  0.0  1.38
+                - computed part:      [0.0  0.0  1.38
               > Dipole moment (a.u.): [0.0  0.0  0.0]  Total: 0.
                              (debye): [0.0  0.0  0.0]  Total: 0.
         """

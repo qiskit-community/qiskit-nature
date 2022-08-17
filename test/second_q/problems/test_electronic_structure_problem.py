@@ -19,19 +19,11 @@ from test.second_q.problems.resources.resource_reader import (
 
 import numpy as np
 
-from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
-from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.drivers import PySCFDriver
-from qiskit_nature.second_q.mappers import ParityMapper
 from qiskit_nature.second_q.operators import SecondQuantizedOp
-from qiskit_nature.second_q.transformers import (
-    ActiveSpaceTransformer,
-    FreezeCoreTransformer,
-)
-import qiskit_nature.optionals as _optionals
+from qiskit_nature.second_q.transformers import ActiveSpaceTransformer
 
 
-@unittest.skip("migration path")
 class TestElectronicStructureProblem(QiskitNatureTestCase):
     """Tests Electronic Structure Problem."""
 
@@ -45,17 +37,10 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
         )
         expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
 
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("H2_631g.hdf5", "second_q/transformers")
-        )
+        driver = PySCFDriver(basis="631g")
         electronic_structure_problem = driver.run()
 
         electr_sec_quant_op, second_quantized_ops = electronic_structure_problem.second_q_ops()
-
-        with self.subTest("Check that the correct properties aren't None"):
-            # properties should never be None
-            self.assertIsNotNone(electronic_structure_problem.grouped_property)
-            self.assertIsNotNone(electronic_structure_problem.grouped_property_transformed)
 
         with self.subTest("Check expected length of the list of second quantized operators."):
             assert len(second_quantized_ops) == expected_num_of_sec_quant_ops
@@ -64,7 +49,7 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
                 assert isinstance(second_quantized_op, SecondQuantizedOp)
         with self.subTest("Check components of electronic second quantized operator."):
             assert all(
-                s[0] == t[0] and np.isclose(s[1], t[1])
+                s[0] == t[0] and np.isclose(np.abs(s[1]), np.abs(t[1]))
                 for s, t in zip(expected_fermionic_op, electr_sec_quant_op.to_list())
             )
 
@@ -77,18 +62,11 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
             "second_q/problems/resources",
         )
         expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("H2_631g.hdf5", "second_q/transformers")
-        )
+        driver = PySCFDriver(basis="631g")
         trafo = ActiveSpaceTransformer(num_electrons=2, num_molecular_orbitals=2)
 
         electronic_structure_problem = trafo.transform(driver.run())
         electr_sec_quant_op, second_quantized_ops = electronic_structure_problem.second_q_ops()
-
-        with self.subTest("Check that the correct properties aren't None"):
-            # properties should never be None
-            self.assertIsNotNone(electronic_structure_problem.grouped_property)
-            self.assertIsNotNone(electronic_structure_problem.grouped_property_transformed)
 
         with self.subTest("Check expected length of the list of second quantized operators."):
             assert len(second_quantized_ops) == expected_num_of_sec_quant_ops
@@ -97,7 +75,7 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
                 assert isinstance(second_quantized_op, SecondQuantizedOp)
         with self.subTest("Check components of electronic second quantized operator."):
             assert all(
-                s[0] == t[0] and np.isclose(s[1], t[1])
+                s[0] == t[0] and np.isclose(np.abs(s[1]), np.abs(t[1]))
                 for s, t in zip(expected_fermionic_op, electr_sec_quant_op.to_list())
             )
 

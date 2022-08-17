@@ -12,8 +12,6 @@
 
 """Test of ExcitationPreserving from the circuit library."""
 
-from typing import cast
-
 import unittest
 from test import QiskitNatureTestCase
 
@@ -25,12 +23,11 @@ from qiskit.test import slow_test
 from qiskit.utils import QuantumInstance, algorithm_globals
 from qiskit_nature.second_q.algorithms import GroundStateEigensolver
 from qiskit_nature.second_q.circuit.library import HartreeFock
+from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import ParityMapper
 from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.properties import ParticleNumber
 
 
-@unittest.skip("migration path")
 class TestExcitationPreserving(QiskitNatureTestCase):
     """The ExcitationPresering wavefunction was design to preserve the excitation of the system.
 
@@ -49,9 +46,7 @@ class TestExcitationPreserving(QiskitNatureTestCase):
     def test_excitation_preserving(self):
         """Test the excitation preserving wavefunction on a chemistry example."""
 
-        driver = HDF5Driver(
-            self.get_resource_path("test_driver_hdf5.hdf5", "second_q/drivers/hdf5d")
-        )
+        driver = PySCFDriver()
 
         converter = QubitConverter(ParityMapper())
 
@@ -59,7 +54,7 @@ class TestExcitationPreserving(QiskitNatureTestCase):
 
         _ = problem.second_q_ops()
 
-        particle_number = cast(ParticleNumber, problem.properties.get("ParticleNumber", None))
+        particle_number = problem.properties.particle_number
         num_particles = (particle_number.num_alpha, particle_number.num_beta)
         num_spin_orbitals = particle_number.num_spin_orbitals
 

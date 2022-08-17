@@ -20,6 +20,7 @@ from test.second_q.properties.property_test import PropertyTest
 import h5py
 import numpy as np
 
+from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.properties import ElectronicDipoleMoment
 from qiskit_nature.second_q.properties.bases import ElectronicBasis
 from qiskit_nature.second_q.properties.dipole_moment import (
@@ -30,17 +31,14 @@ from qiskit_nature.second_q.properties.integrals import (
 )
 
 
-@unittest.skip("migration path")
 class TestElectronicDipoleMoment(PropertyTest):
     """Test ElectronicDipoleMoment Property"""
 
     def setUp(self):
         """Setup."""
         super().setUp()
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("test_driver_hdf5.hdf5", "second_q/drivers/hdf5d")
-        )
-        self.prop = driver.run().properties.get("ElectronicDipoleMoment", None)
+        driver = PySCFDriver()
+        self.prop = driver.run().properties.electronic_dipole_moment
 
     def test_second_q_ops(self):
         """Test second_q_ops."""
@@ -59,7 +57,7 @@ class TestElectronicDipoleMoment(PropertyTest):
         for op, expected_op in zip(ops, expected):
             for truth, exp in zip(op.to_list(), expected_op):
                 self.assertEqual(truth[0], exp[0])
-                self.assertTrue(np.isclose(truth[1], exp[1]))
+                self.assertTrue(np.isclose(np.abs(truth[1]), np.abs(exp[1])))
 
     def test_to_hdf5(self):
         """Test to_hdf5."""

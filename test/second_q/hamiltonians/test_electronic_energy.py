@@ -19,6 +19,7 @@ from typing import cast
 
 import numpy as np
 
+from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.properties.bases import (
     ElectronicBasis,
@@ -29,16 +30,13 @@ from qiskit_nature.second_q.properties.integrals import (
 )
 
 
-@unittest.skip("migration path")
 class TestElectronicEnergy(PropertyTest):
     """Test ElectronicEnergy Property"""
 
     def setUp(self):
         """Setup."""
         super().setUp()
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("test_driver_hdf5.hdf5", "second_q/drivers/hdf5d")
-        )
+        driver = PySCFDriver()
         self.prop = cast(ElectronicEnergy, driver.run().hamiltonian)
         self.prop.get_electronic_integral(ElectronicBasis.MO, 1).set_truncation(2)
 
