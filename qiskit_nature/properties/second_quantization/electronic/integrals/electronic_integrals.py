@@ -25,6 +25,7 @@ import numpy as np
 from qiskit_nature.operators.second_quantization import FermionicOp
 
 from ..bases import ElectronicBasis, ElectronicBasisTransform
+from .....deprecation import warn_deprecated, DeprecatedType, NatureDeprecationWarning
 
 
 class ElectronicIntegrals(ABC):
@@ -80,6 +81,14 @@ class ElectronicIntegrals(ABC):
             TypeError: if the provided matrix type does not match with the basis or if the first
                 matrix is ``None``.
         """
+        warn_deprecated(
+            "0.5.0",
+            old_type=DeprecatedType.CLASS,
+            old_name="qiskit_nature.properties.second_quantization.electronic.integrals.ElectronicIntegrals",
+            new_type=DeprecatedType.CLASS,
+            new_name="qiskit_nature.second_q.operators.PolynomialTensor",
+            category=NatureDeprecationWarning,
+        )
         self._validate_num_body_terms(num_body_terms)
         self._validate_matrices(matrices, basis, num_body_terms)
         self.name = self.__class__.__name__

@@ -11,16 +11,18 @@
 # that they have been altered from the originals.
 
 """The Electronic Structure Problem class."""
+
+from __future__ import annotations
+
 from functools import partial
-from typing import cast, Callable, Dict, List, Optional, Tuple, Union
+from typing import cast, Callable, List, Optional, Tuple, Union
 
 import numpy as np
 
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
-from qiskit.opflow import PauliSumOp
 from qiskit.opflow.primitive_ops import Z2Symmetries
 
-from qiskit_nature import ListOrDictType, QiskitNatureError
+from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.circuit.library.initial_states.hartree_fock import (
     hartree_fock_bitstring_mapped,
 )
@@ -33,7 +35,6 @@ from qiskit_nature.second_q.transformers.base_transformer import BaseTransformer
 from .electronic_structure_result import ElectronicStructureResult
 from .eigenstate_result import EigenstateResult
 
-from .builders.electronic_hopping_ops_builder import _build_qeom_hopping_ops
 from .base_problem import BaseProblem
 
 
@@ -43,6 +44,37 @@ class ElectronicStructureProblem(BaseProblem):
     The attributes `num_particles` and `num_spin_orbitals` are only available _after_ the
     `second_q_ops()` method has been called! Note, that if you do so, the method will be executed
     again when the problem is being solved.
+
+    In the fermionic case the default filter ensures that the number of particles is being
+    preserved.
+
+    .. note::
+
+        The default filter_criterion assumes a singlet spin configuration. This means, that the
+        number of alpha-spin electrons is equal to the number of beta-spin electrons.
+        If the :class:`~qiskit_nature.second_q.properties.AngularMomentum`
+        property is available, one can correctly filter a non-singlet spin configuration with a
+        custom `filter_criterion` similar to the following:
+
+    .. code-block:: python
+
+        import numpy as np
+        from qiskit_nature.second_q.algorithms import NumPyEigensolverFactory
+
+        expected_spin = 2
+        expected_num_electrons = 6
+
+        def filter_criterion_custom(eigenstate, eigenvalue, aux_values):
+            num_particles_aux = aux_values["ParticleNumber"][0]
+            total_angular_momentum_aux = aux_values["AngularMomentum"][0]
+
+            return (
+                np.isclose(expected_spin, total_angular_momentum_aux) and
+                np.isclose(expected_num_electrons, num_particles_aux)
+            )
+
+        solver = NumPyEigensolverFactory(filter_criterion=filter_criterion_spin)
+
     """
 
     def __init__(
@@ -77,17 +109,12 @@ class ElectronicStructureProblem(BaseProblem):
             )
         return self._grouped_property_transformed.get_property("ParticleNumber").num_spin_orbitals
 
-    def second_q_ops(self) -> ListOrDictType[SecondQuantizedOp]:
+    def second_q_ops(self) -> tuple[SecondQuantizedOp, dict[str, SecondQuantizedOp]]:
         """Returns the second quantized operators associated with this Property.
 
-        If the arguments are returned as a `list`, the operators are in the following order: the
-        Hamiltonian operator, total particle number operator, total angular momentum operator, total
-        magnetization operator, and (if available) x, y, z dipole operators.
-
-        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
-
         Returns:
-            A `list` or `dict` of `SecondQuantizedOp` objects.
+            A tuple, with the first object being the main operator and the second being a dictionary
+            of auxiliary operators.
         """
         driver_result = self.driver.run()
 
@@ -95,47 +122,9 @@ class ElectronicStructureProblem(BaseProblem):
         self._grouped_property_transformed = self._transform(self._grouped_property)
 
         second_quantized_ops = self._grouped_property_transformed.second_q_ops()
+        main_op = second_quantized_ops.pop(self._main_property_name)
 
-        return second_quantized_ops
-
-    def hopping_qeom_ops(
-        self,
-        qubit_converter: QubitConverter,
-        excitations: Union[
-            str,
-            int,
-            List[int],
-            Callable[[int, Tuple[int, int]], List[Tuple[Tuple[int, ...], Tuple[int, ...]]]],
-        ] = "sd",
-    ) -> Tuple[
-        Dict[str, PauliSumOp],
-        Dict[str, List[bool]],
-        Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]],
-    ]:
-        """Generates the hopping operators and their commutativity information for the specified set
-        of excitations.
-
-        This method should can be used after calling `second_q_ops()`.
-
-        Args:
-            qubit_converter: the `QubitConverter` to use for mapping and symmetry reduction. The
-                             Z2 symmetries stored in this instance are the basis for the
-                             commutativity information returned by this method.
-            excitations: the types of excitations to consider. The simple cases for this input are
-
-                :`str`: containing any of the following characters: `s`, `d`, `t` or `q`.
-                :`int`: a single, positive integer denoting the excitation type (1 == `s`, etc.).
-                :`List[int]`: a list of positive integers.
-                :`Callable`: a function which is used to generate the excitations.
-                    For more details on how to write such a function refer to the default method,
-                    :meth:`generate_fermionic_excitations`.
-
-        Returns:
-            A tuple containing the hopping operators, the types of commutativities and the
-            excitation indices.
-        """
-        particle_number = self.grouped_property_transformed.get_property("ParticleNumber")
-        return _build_qeom_hopping_ops(particle_number, qubit_converter, excitations)
+        return main_op, second_quantized_ops
 
     def interpret(
         self,
@@ -183,16 +172,8 @@ class ElectronicStructureProblem(BaseProblem):
 
         # pylint: disable=unused-argument
         def filter_criterion(self, eigenstate, eigenvalue, aux_values):
-            # the first aux_value is the evaluated number of particles
-            try:
-                num_particles_aux = aux_values["ParticleNumber"][0]
-            except TypeError:
-                num_particles_aux = aux_values[0][0]
-            # the second aux_value is the total angular momentum which (for singlets) should be zero
-            try:
-                total_angular_momentum_aux = aux_values["AngularMomentum"][0]
-            except TypeError:
-                total_angular_momentum_aux = aux_values[1][0]
+            num_particles_aux = aux_values["ParticleNumber"][0]
+            total_angular_momentum_aux = aux_values["AngularMomentum"][0]
             particle_number = cast(
                 ParticleNumber, self.grouped_property_transformed.get_property(ParticleNumber)
             )

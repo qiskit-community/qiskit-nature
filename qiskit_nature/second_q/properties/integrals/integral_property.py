@@ -14,15 +14,12 @@
 
 from __future__ import annotations
 
-from typing import Generator, Optional, TYPE_CHECKING
+from typing import cast, Generator, Optional, TYPE_CHECKING
 
 import h5py
 
-from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.second_q.operators import FermionicOp
 
-
-from ..second_quantized_property import LegacyDriverResult
 from ..bases import ElectronicBasis, ElectronicBasisTransform
 from ..electronic_types import ElectronicProperty
 from .electronic_integrals import ElectronicIntegrals
@@ -149,13 +146,11 @@ class IntegralProperty(ElectronicProperty):
             f"The {self.__class__.__name__}.integral_operator is not implemented!"
         )
 
-    def second_q_ops(self) -> ListOrDictType[FermionicOp]:
+    def second_q_ops(self) -> dict[str, FermionicOp]:
         """Returns the second quantized operator constructed from the contained electronic integrals.
 
-        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
-
         Returns:
-            A `list` or `dict` of `FermionicOp` objects.
+            A `dict` of `FermionicOp` objects.
         """
         ints = None
         if ElectronicBasis.SO in self._electronic_integrals:
@@ -163,24 +158,9 @@ class IntegralProperty(ElectronicProperty):
         elif ElectronicBasis.MO in self._electronic_integrals:
             ints = self._electronic_integrals[ElectronicBasis.MO]
 
-        op = sum(int.to_second_q_op() for int in ints.values())
-
-        if not settings.dict_aux_operators:
-            return [op]
+        op = cast(FermionicOp, sum(int.to_second_q_op() for int in ints.values()))
 
         return {self.name: op}
-
-    @classmethod
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> IntegralProperty:
-        """This property does not support construction from a legacy driver result (yet).
-
-        Args:
-            result: ignored.
-
-        Raises:
-            NotImplementedError
-        """
-        raise NotImplementedError()
 
     def interpret(self, result: "EigenstateResult") -> None:
         """Interprets an :class:`~qiskit_nature.second_q.problems.EigenstateResult`

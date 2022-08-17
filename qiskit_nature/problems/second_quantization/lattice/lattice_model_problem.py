@@ -24,6 +24,7 @@ from qiskit_nature.results import EigenstateResult, LatticeModelResult
 
 from ..base_problem import BaseProblem
 from .models.lattice_model import LatticeModel
+from ....deprecation import warn_deprecated, DeprecatedType, NatureDeprecationWarning
 
 
 class LatticeModelProblem(BaseProblem):
@@ -36,6 +37,15 @@ class LatticeModelProblem(BaseProblem):
         """
         super().__init__(main_property_name="LatticeEnergy")
         self._lattice_model = lattice_model
+        warn_deprecated(
+            "0.5.0",
+            old_type=DeprecatedType.CLASS,
+            old_name="qiskit_nature.problems.second_quantization.lattice.LatticeModelProblem",
+            new_type=DeprecatedType.CLASS,
+            new_name="qiskit_nature.second_q.problems.LatticeModelProblem",
+            stack_level=3,
+            category=NatureDeprecationWarning,
+        )
 
     def second_q_ops(self) -> ListOrDictType[SecondQuantizedOp]:
         """Returns the second quantized operators created based on the lattice models.

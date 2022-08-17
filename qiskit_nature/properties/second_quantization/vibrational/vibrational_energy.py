@@ -27,7 +27,12 @@ from ..second_quantized_property import LegacyDriverResult
 from .bases import VibrationalBasis
 from .integrals import VibrationalIntegrals
 from .types import VibrationalProperty
-from ....deprecation import deprecate_method
+from ....deprecation import (
+    deprecate_method,
+    warn_deprecated,
+    DeprecatedType,
+    NatureDeprecationWarning,
+)
 
 
 class VibrationalEnergy(VibrationalProperty):
@@ -60,6 +65,14 @@ class VibrationalEnergy(VibrationalProperty):
         for integral in vibrational_integrals:
             self.add_vibrational_integral(integral)
         self._truncation_order = truncation_order
+        warn_deprecated(
+            "0.5.0",
+            old_type=DeprecatedType.CLASS,
+            old_name="qiskit_nature.properties.second_quantization.vibrational.VibrationalEnergy",
+            new_type=DeprecatedType.CLASS,
+            new_name="qiskit_nature.second_q.hamiltonians.VibrationalEnergy",
+            category=NatureDeprecationWarning,
+        )
 
     @property
     def truncation_order(self) -> int:

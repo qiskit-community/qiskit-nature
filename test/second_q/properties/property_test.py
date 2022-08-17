@@ -62,8 +62,8 @@ class PropertyTest(QiskitNatureTestCase):
         self, first: ElectronicDipoleMoment, second: ElectronicDipoleMoment, msg: str = None
     ) -> None:
         """Compares two ElectronicDipoleMoment instances."""
-        for f_axis in iter(first):
-            s_axis = second.get_property(f_axis.name)
+        for f_axis_name, f_axis in first._dipole_axes.items():
+            s_axis = second._dipole_axes[f_axis_name]
             self.assertEqual(f_axis, s_axis)
 
         if first.reverse_dipole_sign != second.reverse_dipole_sign:

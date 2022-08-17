@@ -18,6 +18,7 @@ from test import QiskitNatureTestCase
 from test.second_q.drivers.test_driver_methods_gsc import TestDriverMethods
 from qiskit_nature.second_q.drivers import FCIDumpDriver
 from qiskit_nature.second_q.transformers import FreezeCoreTransformer
+from qiskit_nature.exceptions import QiskitNatureError
 
 
 class TestDriverMethodsFCIDump(TestDriverMethods):
@@ -39,10 +40,9 @@ class TestDriverMethodsFCIDump(TestDriverMethods):
         result = self._run_driver(driver)
         self._assert_energy(result, "oh")
 
-    @unittest.skip("Skip until FreezeCoreTransformer supports pure MO cases.")
     def test_lih_freeze_core(self):
         """LiH freeze core test"""
-        with self.assertLogs("qiskit_nature", level="WARNING") as log:
+        with self.assertRaises(QiskitNatureError) as ctx:
             driver = FCIDumpDriver(
                 self.get_resource_path(
                     "test_driver_fcidump_lih.fcidump", "second_q/drivers/fcidumpd"
@@ -50,16 +50,15 @@ class TestDriverMethodsFCIDump(TestDriverMethods):
             )
             result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
             self._assert_energy(result, "lih")
-        warning = (
-            "WARNING:qiskit_nature.drivers.second_q.qmolecule:Missing molecule !"
-            "information! Returning empty core orbital list."
+        msg = (
+            "'The provided `GroupedElectronicProperty` does not contain an `ElectronicBasisTransform`"
+            " property, which is required by this transformer!'"
         )
-        self.assertIn(warning, log.output)
+        self.assertEqual(msg, str(ctx.exception))
 
-    @unittest.skip("Skip until FreezeCoreTransformer supports pure MO cases.")
     def test_oh_freeze_core(self):
         """OH freeze core test"""
-        with self.assertLogs("qiskit_nature", level="WARNING") as log:
+        with self.assertRaises(QiskitNatureError) as ctx:
             driver = FCIDumpDriver(
                 self.get_resource_path(
                     "test_driver_fcidump_oh.fcidump", "second_q/drivers/fcidumpd"
@@ -67,11 +66,11 @@ class TestDriverMethodsFCIDump(TestDriverMethods):
             )
             result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
             self._assert_energy(result, "oh")
-        warning = (
-            "WARNING:qiskit_nature.drivers.second_q.qmolecule:Missing molecule "
-            "information! Returning empty core orbital list."
+        msg = (
+            "'The provided `GroupedElectronicProperty` does not contain an `ElectronicBasisTransform`"
+            " property, which is required by this transformer!'"
         )
-        self.assertIn(warning, log.output)
+        self.assertEqual(msg, str(ctx.exception))
 
     @unittest.skip("Skip until FreezeCoreTransformer supports pure MO cases.")
     def test_lih_with_atoms(self):

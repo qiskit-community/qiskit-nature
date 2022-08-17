@@ -27,6 +27,7 @@ from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import BaseProblem
 from qiskit_nature.results import EigenstateResult
+from ...deprecation import warn_deprecated, DeprecatedType, NatureDeprecationWarning
 
 
 class GroundStateSolver(ABC):
@@ -39,6 +40,14 @@ class GroundStateSolver(ABC):
                              according to a mapper it is initialized with.
         """
         self._qubit_converter = qubit_converter
+        warn_deprecated(
+            "0.5.0",
+            old_type=DeprecatedType.CLASS,
+            old_name="qiskit_nature.algorithms.ground_state_solvers.GroundStateSolver",
+            new_type=DeprecatedType.CLASS,
+            new_name="qiskit_nature.second_q.algorithms.ground_state_solvers.GroundStateSolver",
+            category=NatureDeprecationWarning,
+        )
 
     @abstractmethod
     def solve(

@@ -25,7 +25,9 @@
 #
 import os
 import sys
+from datetime import date
 
+sys.path.insert(0, os.path.abspath(".."))
 sys.path.append(os.path.abspath("."))
 
 """
@@ -48,7 +50,7 @@ os.environ["QISKIT_DOCS"] = "TRUE"
 
 # -- Project information -----------------------------------------------------
 project = "Qiskit Nature"
-copyright = "2018, 2021, Qiskit Nature Development Team"  # pylint: disable=redefined-builtin
+copyright = f"2018, {date.today().year}, Qiskit Nature Development Team"  # pylint: disable=redefined-builtin
 author = "Qiskit Nature Development Team"
 
 # The short X.Y version
@@ -104,6 +106,7 @@ extensions = [
     "reno.sphinxext",
     "sphinx.ext.doctest",
     "nbsphinx",
+    "sphinx.ext.intersphinx",
 ]
 html_static_path = ["_static"]
 templates_path = ["_templates"]
@@ -204,6 +207,10 @@ html_theme_options = {
     "titles_only": False,
 }
 
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "qiskit": ("https://qiskit.org/documentation/", None),
+}
 # -- Extension configuration -------------------------------------------------
 
 
