@@ -64,6 +64,10 @@ Now that Qiskit Nature is installed, let's try a chemistry application experimen
 using the VQE (Variational Quantum Eigensolver) algorithm to compute
 the ground-state (minimum) energy of a molecule.
 
+> Note: The following example belongs to the *main* branch (version >= 0.5).
+> However, new users will commonly have the *stable* version installed via pip.
+> The working example for the *stable* branch can be found at [its README.md file](https://github.com/Qiskit/qiskit-nature/blob/stable/0.4/README.md) or at the project description on [Pypi](https://pypi.org/project/qiskit-nature/).
+
 ```python
 from qiskit_nature.settings import settings
 from qiskit_nature.second_q.drivers import UnitsType
