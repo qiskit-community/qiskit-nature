@@ -41,7 +41,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin):
             ValueError: when ``qargs`` argument is not ``None``
         """
         if qargs is not None:
-            raise ValueError("`qargs` argument should be `None`")
+            raise ValueError(f"The `qargs` argument must be `None`, not {qargs}")
 
         new_data = self._data.copy()
 
