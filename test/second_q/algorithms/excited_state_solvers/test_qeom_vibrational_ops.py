@@ -22,8 +22,8 @@ from qiskit.utils import algorithm_globals
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.mappers import DirectMapper
 from qiskit_nature.second_q.problems import VibrationalStructureProblem
-from qiskit_nature.second_q.problems.builders.vibrational_hopping_ops_builder import (
-    _build_qeom_hopping_ops,
+from qiskit_nature.second_q.algorithms.excited_states_solvers.qeom_vibrational_ops_builder import (
+    build_vibrational_ops,
 )
 
 
@@ -116,5 +116,5 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
             },
         )
 
-        hopping_operators = _build_qeom_hopping_ops(self.num_modals, self.qubit_converter)
+        hopping_operators = build_vibrational_ops(self.num_modals, self.qubit_converter)
         self.assertEqual(hopping_operators, expected_hopping_operators)

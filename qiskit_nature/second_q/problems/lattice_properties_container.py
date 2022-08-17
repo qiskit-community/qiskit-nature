@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -10,4 +10,16 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Utilities for building FermionicOp instances."""
+"""The lattice properties container."""
+
+from __future__ import annotations
+
+from .properties_container import PropertiesContainer
+
+
+class LatticePropertiesContainer(PropertiesContainer):
+    """The container class for lattice structure properties.
+
+    Right now, this is simply an empty subclass, but lattice-specific properties might be exposed
+    as attributes in the future.
+    """
