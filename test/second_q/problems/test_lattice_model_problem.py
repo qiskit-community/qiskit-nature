@@ -12,6 +12,7 @@
 
 """Tests Lattice Model Problem."""
 
+import unittest
 from test import QiskitNatureTestCase
 
 import numpy as np
@@ -47,8 +48,10 @@ class TestLatticeModelProblem(QiskitNatureTestCase):
         boundary_condition = BoundaryCondition.OPEN
         line_lattice = LineLattice(num_nodes=num_nodes, boundary_condition=boundary_condition)
         fhm = FermiHubbardModel(lattice=line_lattice, onsite_interaction=5.0)
+        expected_op = fhm.second_q_ops()
         lmp = LatticeModelProblem(fhm)
-        self._compare_second_q_op(fhm.second_q_ops(), lmp.second_q_ops()[lmp.main_property_name])
+        main_op, _ = lmp.second_q_ops()
+        self._compare_second_q_op(expected_op, main_op)
 
     def test_interpret(self):
         """Tests that the result is interpreted"""
@@ -89,3 +92,7 @@ class TestLatticeModelProblem(QiskitNatureTestCase):
         self.assertEqual(lmr.eigenenergies, np.asarray([mes_result.eigenvalue]))
         self.assertEqual(lmr.eigenstates, [mes_result.eigenstate])
         self.assertEqual(lmr.aux_operator_eigenvalues, [mes_result.aux_operator_eigenvalues])
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -16,7 +16,6 @@ import contextlib
 import copy
 import io
 import unittest
-import warnings
 
 from test import QiskitNatureTestCase
 
@@ -55,7 +54,6 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
     def setUp(self):
         super().setUp()
-        warnings.filterwarnings("ignore", category=DeprecationWarning, module=".*drivers.*")
         self.driver = HDF5Driver(
             self.get_resource_path("test_driver_hdf5.hdf5", "second_q/drivers/hdf5d")
         )
@@ -159,9 +157,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
         # now we decide that we want to evaluate another operator
         # for testing simplicity, we just use some pre-constructed auxiliary operators
-        second_q_ops = self.electronic_structure_problem.second_q_ops()
-        # Remove main op to leave just aux ops
-        second_q_ops.pop(self.electronic_structure_problem.main_property_name)
+        _, second_q_ops = self.electronic_structure_problem.second_q_ops()
         aux_ops_dict = self.qubit_converter.convert_match(second_q_ops)
         return calc, res, aux_ops_dict
 
@@ -278,9 +274,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res_qasm = calc.solve(self.electronic_structure_problem)
 
-        hamiltonian = self.electronic_structure_problem.second_q_ops()[
-            self.electronic_structure_problem.main_property_name
-        ]
+        hamiltonian, _ = self.electronic_structure_problem.second_q_ops()
         qubit_op = self.qubit_converter.map(hamiltonian)
 
         ansatz = solver.get_solver(self.electronic_structure_problem, self.qubit_converter).ansatz
@@ -293,7 +287,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
     def test_eval_op_qasm_aer(self):
         """Regression tests against https://github.com/Qiskit/qiskit-nature/issues/53."""
 
-        backend = qiskit.Aer.get_backend("aer_simulator")
+        backend = qiskit.providers.aer.Aer.get_backend("aer_simulator")
 
         solver = VQEUCCFactory(
             optimizer=SLSQP(maxiter=100),
@@ -308,9 +302,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res_qasm = calc.solve(self.electronic_structure_problem)
 
-        hamiltonian = self.electronic_structure_problem.second_q_ops()[
-            self.electronic_structure_problem.main_property_name
-        ]
+        hamiltonian, _ = self.electronic_structure_problem.second_q_ops()
         qubit_op = self.qubit_converter.map(hamiltonian)
 
         ansatz = solver.get_solver(self.electronic_structure_problem, self.qubit_converter).ansatz
@@ -378,7 +370,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
     def test_uccsd_hf_aer_statevector(self):
         """uccsd hf test with Aer statevector"""
 
-        backend = qiskit.Aer.get_backend("aer_simulator_statevector")
+        backend = qiskit.providers.aer.Aer.get_backend("aer_simulator_statevector")
 
         ansatz = self._prepare_uccsd_hf(self.qubit_converter)
 
@@ -399,7 +391,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
     def test_uccsd_hf_aer_qasm(self):
         """uccsd hf test with Aer qasm simulator."""
 
-        backend = qiskit.Aer.get_backend("aer_simulator")
+        backend = qiskit.providers.aer.Aer.get_backend("aer_simulator")
 
         ansatz = self._prepare_uccsd_hf(self.qubit_converter)
 
@@ -425,7 +417,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
     def test_uccsd_hf_aer_qasm_snapshot(self):
         """uccsd hf test with Aer qasm simulator snapshot."""
 
-        backend = qiskit.Aer.get_backend("aer_simulator")
+        backend = qiskit.providers.aer.Aer.get_backend("aer_simulator")
 
         ansatz = self._prepare_uccsd_hf(self.qubit_converter)
 

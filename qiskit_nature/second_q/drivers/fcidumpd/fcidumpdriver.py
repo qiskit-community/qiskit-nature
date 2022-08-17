@@ -27,7 +27,7 @@ from qiskit_nature.second_q.properties.integrals import (
 )
 
 from .dumper import dump
-from .parser import parse  # pylint: disable=deprecated-module
+from .parser import parse
 from ..electronic_structure_driver import ElectronicStructureDriver
 
 

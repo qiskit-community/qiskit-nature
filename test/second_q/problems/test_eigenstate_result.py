@@ -12,6 +12,7 @@
 
 """Tests for the EigenstateResult."""
 
+import unittest
 from test import QiskitNatureTestCase
 
 import numpy as np
@@ -27,3 +28,7 @@ class TestEigenstateResult(QiskitNatureTestCase):
         eigenstate_result = EigenstateResult()
         eigenstate_result.eigenenergies = np.array([1, 2, 3])
         self.assertEqual(eigenstate_result.groundenergy, 1)
+
+
+if __name__ == "__main__":
+    unittest.main()

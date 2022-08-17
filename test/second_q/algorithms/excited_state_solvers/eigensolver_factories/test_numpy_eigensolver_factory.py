@@ -44,7 +44,7 @@ class TestNumPyEigensolverFactory(QiskitNatureTestCase):
 
         # pylint: disable=unused-argument
         def filter_criterion(eigenstate, eigenvalue, aux_values):
-            return np.isclose(aux_values[0][0], 2.0)
+            return np.isclose(aux_values["ParticleNumber"][0], 2.0)
 
         self.k = 99
         self._numpy_eigensolver_factory = NumPyEigensolverFactory(
@@ -59,7 +59,7 @@ class TestNumPyEigensolverFactory(QiskitNatureTestCase):
 
         # pylint: disable=unused-argument
         def filter_criterion(eigenstate, eigenvalue, aux_values):
-            return np.isclose(aux_values[0][0], 3.0)
+            return np.isclose(aux_values["ParticleNumber"][0], 3.0)
 
         self._numpy_eigensolver_factory.filter_criterion = filter_criterion
         self.assertEqual(self._numpy_eigensolver_factory.filter_criterion, filter_criterion)

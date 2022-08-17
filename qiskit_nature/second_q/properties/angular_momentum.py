@@ -15,20 +15,15 @@
 from __future__ import annotations
 
 import logging
-from typing import cast, Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 
 import itertools
 
 import h5py
 import numpy as np
 
-from qiskit_nature import ListOrDictType, settings
-from qiskit_nature.deprecation import deprecate_method
-from qiskit_nature.second_q._qmolecule import QMolecule
 from qiskit_nature.second_q.operators import FermionicOp
 
-
-from .second_quantized_property import LegacyDriverResult
 from .bases import ElectronicBasis
 from .integrals import (
     OneBodyElectronicIntegrals,
@@ -154,38 +149,11 @@ class AngularMomentum(ElectronicProperty):
             h5py_group.attrs["relative_tolerance"],
         )
 
-    @classmethod
-    @deprecate_method("0.4.0")
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> AngularMomentum:
-        """Construct an AngularMomentum instance from a
-        :class:`~qiskit_nature.second_q.drivers.QMolecule`.
-
-        Args:
-            result: the driver result from which to extract the raw data. For this property, a
-                :class:`~qiskit_nature.second_q.drivers.QMolecule` is required!
-
-        Returns:
-            An instance of this property.
-
-        Raises:
-            QiskitNatureError: if a :class:`~qiskit_nature.second_q.drivers.WatsonHamiltonian`
-            is provided.
-        """
-        cls._validate_input_type(result, QMolecule)
-
-        qmol = cast(QMolecule, result)
-
-        return cls(
-            qmol.num_molecular_orbitals * 2,
-        )
-
-    def second_q_ops(self) -> ListOrDictType[FermionicOp]:
+    def second_q_ops(self) -> dict[str, FermionicOp]:
         """Returns the second quantized angular momentum operator.
 
-        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
-
         Returns:
-            A `list` or `dict` of `FermionicOp` objects.
+            A `dict` of `FermionicOp` objects.
         """
         x_h1, x_h2 = _calc_s_x_squared_ints(self._num_spin_orbitals)
         y_h1, y_h2 = _calc_s_y_squared_ints(self._num_spin_orbitals)
@@ -197,9 +165,6 @@ class AngularMomentum(ElectronicProperty):
         h2_ints = TwoBodyElectronicIntegrals(ElectronicBasis.SO, h_2)
 
         op = (h1_ints.to_second_q_op() + h2_ints.to_second_q_op()).simplify()
-
-        if not settings.dict_aux_operators:
-            return [op]
 
         return {self.name: op}
 

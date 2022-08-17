@@ -18,12 +18,8 @@ from typing import Optional, TYPE_CHECKING
 
 import h5py
 
-from qiskit_nature import ListOrDictType, settings
-from qiskit_nature.deprecation import deprecate_method
-from qiskit_nature.second_q._watson_hamiltonian import WatsonHamiltonian
 from qiskit_nature.second_q.operators import VibrationalOp
 
-from .second_quantized_property import LegacyDriverResult
 from .bases import VibrationalBasis
 from .vibrational_types import VibrationalProperty
 
@@ -62,39 +58,14 @@ class OccupiedModals(VibrationalProperty):
         """
         return OccupiedModals()
 
-    @classmethod
-    @deprecate_method("0.4.0")
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> OccupiedModals:
-        """Construct an OccupiedModals instance from a
-        :class:`~qiskit_nature.second_q.drivers.WatsonHamiltonian`.
-
-        Args:
-            result: the driver result from which to extract the raw data. For this property, a
-                :class:`~qiskit_nature.second_q.drivers.WatsonHamiltonian` is required!
-
-        Returns:
-            An instance of this property.
-
-        Raises:
-            QiskitNatureError: if a :class:`~qiskit_nature.second_q.drivers.QMolecule` is provided.
-        """
-        cls._validate_input_type(result, WatsonHamiltonian)
-
-        return cls()
-
-    def second_q_ops(self) -> ListOrDictType[VibrationalOp]:
+    def second_q_ops(self) -> dict[str, VibrationalOp]:
         """Returns the second quantized operators indicating the occupied modals per mode.
 
-        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
-
         Returns:
-            A `list` or `dict` of `VibrationalOp` objects.
+            A `dict` of `VibrationalOp` objects.
         """
         num_modals_per_mode = self.basis._num_modals_per_mode
         num_modes = len(num_modals_per_mode)
-
-        if not settings.dict_aux_operators:
-            return [self._get_mode_op(mode) for mode in range(num_modes)]
 
         return {str(mode): self._get_mode_op(mode) for mode in range(num_modes)}
 

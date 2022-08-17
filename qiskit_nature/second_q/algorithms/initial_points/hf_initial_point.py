@@ -117,7 +117,7 @@ class HFInitialPoint(InitialPoint):
         ansatz: UCC | None = None,
         grouped_property: GroupedSecondQuantizedProperty | None = None,
     ) -> None:
-        """Compute the coefficients and energy corrections.
+        """Compute the parameter for each excitation.
 
         See further up for more information.
 
@@ -125,7 +125,7 @@ class HFInitialPoint(InitialPoint):
             grouped_property: A grouped second-quantized property that may optionally contain the
                 Hartree-Fock reference energy. This is for consistency with other initial points.
             ansatz: The UCC ansatz. Required to set the :attr:`excitation_list` to ensure that the
-                coefficients are mapped correctly in the initial point array.
+                initial point array has the correct shape.
 
         Raises:
             QiskitNatureError: If :attr`ansatz` is not set.
@@ -147,10 +147,18 @@ class HFInitialPoint(InitialPoint):
         self._compute()
 
     def _compute(self) -> None:
+        """Computes the HF initial point array for a given excitation list.
+
+        In the Hartree-Fock case this is simply an all-zero array.
+
+        Returns:
+            An all-zero array with the same length as the excitation list.
+        """
         self._parameters = np.zeros(len(self._excitation_list))
 
-    def get_energy(self) -> float:
-        """The reference energy.
+    @property
+    def total_energy(self) -> float:
+        """The Hartree-Fock reference energy.
 
         If the reference energy was not obtained from
         :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`

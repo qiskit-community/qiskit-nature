@@ -11,6 +11,9 @@
 # that they have been altered from the originals.
 
 """Eigenstate results module."""
+
+from __future__ import annotations
+
 from typing import Optional, List, Tuple, Union
 import inspect
 
@@ -21,8 +24,6 @@ from qiskit.quantum_info import Statevector
 from qiskit.result import Result
 from qiskit.algorithms import AlgorithmResult
 from qiskit.opflow import OperatorBase
-
-from qiskit_nature import ListOrDictType
 
 
 class EigenstateResult(AlgorithmResult):
@@ -46,9 +47,7 @@ class EigenstateResult(AlgorithmResult):
                 ]
             ]
         ] = None
-        self._aux_operator_eigenvalues: Optional[
-            List[ListOrDictType[Tuple[complex, complex]]]
-        ] = None
+        self._aux_operator_eigenvalues: Optional[List[dict[str, Tuple[complex, complex]]]] = None
         self._raw_result: Optional[AlgorithmResult] = None
 
     @property
@@ -133,14 +132,12 @@ class EigenstateResult(AlgorithmResult):
         return None
 
     @property
-    def aux_operator_eigenvalues(self) -> Optional[List[ListOrDictType[Tuple[complex, complex]]]]:
+    def aux_operator_eigenvalues(self) -> Optional[List[dict[str, Tuple[complex, complex]]]]:
         """return aux operator eigen values"""
         return self._aux_operator_eigenvalues
 
     @aux_operator_eigenvalues.setter
-    def aux_operator_eigenvalues(
-        self, value: List[ListOrDictType[Tuple[complex, complex]]]
-    ) -> None:
+    def aux_operator_eigenvalues(self, value: List[dict[str, Tuple[complex, complex]]]) -> None:
         """set aux operator eigen values"""
         self._aux_operator_eigenvalues = value
 
