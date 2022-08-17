@@ -34,7 +34,7 @@ class QubitMapper(ABC):
                 number of qubits in the mapped operator can be reduced accordingly.
         """
         self._allows_two_qubit_reduction = allows_two_qubit_reduction
-        self.times_creation_op = []
+        self.times_creation_op: list[SparsePauliOp] = []
         self.times_annihilation_op = []
         self.times_occupation_number_op = []
         self.times_emptiness_number_op = []
@@ -139,13 +139,13 @@ class QubitMapper(ABC):
             # save the respective Pauli string in the pauli_str list.
             for position, char in enumerate(label):
                 if char == "+":
-                    ret_op = ret_op.compose(times_creation_op[position], front=True)
+                    ret_op = ret_op.compose(self.times_creation_op[position], front=True)
                 elif char == "-":
-                    ret_op = ret_op.compose(times_annihilation_op[position], front=True)
+                    ret_op = ret_op.compose(self.times_annihilation_op[position], front=True)
                 elif char == "N":
-                    ret_op = ret_op.compose(times_occupation_number_op[position], front=True)
+                    ret_op = ret_op.compose(self.times_occupation_number_op[position], front=True)
                 elif char == "E":
-                    ret_op = ret_op.compose(times_emptiness_number_op[position], front=True)
+                    ret_op = ret_op.compose(self.times_emptiness_number_op[position], front=True)
                 elif char == "I":
                     continue
 
