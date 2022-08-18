@@ -17,6 +17,7 @@ from test import QiskitNatureTestCase
 
 from qiskit.opflow import I, PauliSumOp, X, Y, Z
 
+import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import JordanWignerMapper
 from qiskit_nature.second_q.operators import FermionicOp
@@ -43,6 +44,7 @@ class TestJordanWignerMapper(QiskitNatureTestCase):
         + 0.04523279999117751 * (Y ^ Y ^ Y ^ Y)
     )
 
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_mapping(self):
         """Test mapping to qubit operator"""
         driver = PySCFDriver()

@@ -19,6 +19,7 @@ from typing import cast
 
 import numpy as np
 
+import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.properties.bases import (
@@ -30,6 +31,7 @@ from qiskit_nature.second_q.properties.integrals import (
 )
 
 
+@unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
 class TestElectronicEnergy(PropertyTest):
     """Test ElectronicEnergy Property"""
 

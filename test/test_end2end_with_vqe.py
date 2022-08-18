@@ -21,10 +21,12 @@ from qiskit.algorithms import VQE
 from qiskit.algorithms.optimizers import COBYLA
 from qiskit.circuit.library import TwoLocal
 from qiskit.utils import algorithm_globals, QuantumInstance
+import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import ParityMapper, QubitConverter
 
 
+@unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
 class TestEnd2End(QiskitNatureTestCase):
     """End2End VQE tests."""
 

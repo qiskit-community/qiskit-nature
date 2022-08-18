@@ -19,7 +19,7 @@ import logging
 import os
 import sys
 import tempfile
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, TYPE_CHECKING
 
 import numpy as np
 
@@ -40,6 +40,8 @@ from qiskit_nature.second_q.properties.integrals import OneBodyElectronicIntegra
 from .gaussian_utils import run_g16
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
 
+if TYPE_CHECKING:
+    from .gauopen.QCMatEl import MatEl
 
 logger = logging.getLogger(__name__)
 
@@ -79,10 +81,7 @@ class GaussianDriver(ElectronicStructureDriver):
 
         self._config = config
 
-        # pylint: disable=import-outside-toplevel
-        from .gauopen.QCMatEl import MatEl
-
-        self._mel: MatEl | None = None
+        self._mel: "MatEl" | None = None
 
     @staticmethod
     @_optionals.HAS_GAUSSIAN.require_in_call
@@ -180,7 +179,7 @@ class GaussianDriver(ElectronicStructureDriver):
 
         run_g16(cfg)
 
-        self._parse_matrix_file(fname)
+        self._mel = GaussianDriver._parse_matrix_file(fname)
         try:
             os.remove(fname)
         except Exception:  # pylint: disable=broad-except
@@ -256,7 +255,8 @@ class GaussianDriver(ElectronicStructureDriver):
 
         return cfgaug
 
-    def _parse_matrix_file(self, fname: str) -> None:
+    @staticmethod
+    def _parse_matrix_file(fname: str) -> "MatEl":
         """
         get_driver_class is used here because the discovery routine will load all the gaussian
         binary dependencies, if not loaded already. It won't work without it.
@@ -281,8 +281,16 @@ class GaussianDriver(ElectronicStructureDriver):
             logger.info(msg)
             raise QiskitNatureError(msg) from mnfe
 
-        self._mel = MatEl(file=fname)
-        logger.debug("MatrixElement file:\n%s", self._mel)
+        _mel = MatEl(file=fname)
+        logger.debug("MatrixElement file:\n%s", _mel)
+
+        return _mel
+
+    @classmethod
+    def _from_matrix_file(cls, fname: str) -> GaussianDriver:
+        ret = GaussianDriver()
+        ret._mel = GaussianDriver._parse_matrix_file(fname)
+        return ret
 
     def to_qcschema(self) -> QCSchema:
         moc = GaussianDriver._get_matrix(self._mel, "ALPHA MO COEFFICIENTS")

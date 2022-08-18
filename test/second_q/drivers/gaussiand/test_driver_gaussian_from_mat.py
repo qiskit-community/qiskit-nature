@@ -29,8 +29,7 @@ class TestDriverGaussianFromMat(QiskitNatureTestCase, TestDriver):
             "test_driver_gaussian_from_mat.mat", "second_q/drivers/gaussiand"
         )
         try:
-            driver = GaussianDriver()
-            driver._parse_matrix_file(matfile)
+            driver = GaussianDriver._from_matrix_file(matfile)
             self.driver_result = driver.to_problem()
         except QiskitNatureError:
             self.tearDown()

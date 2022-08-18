@@ -29,6 +29,7 @@ from qiskit.opflow import AerPauliExpectation, PauliExpectation
 from qiskit.test import slow_test
 from qiskit.utils import QuantumInstance, algorithm_globals, optionals
 
+import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.algorithms import (
     GroundStateEigensolver,
     VQEUCCFactory,
@@ -48,6 +49,7 @@ from qiskit_nature.second_q.transformers import FreezeCoreTransformer
 from qiskit_nature.second_q.algorithms.initial_points import MP2InitialPoint
 
 
+@unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
 class TestGroundStateEigensolver(QiskitNatureTestCase):
     """Test GroundStateEigensolver"""
 

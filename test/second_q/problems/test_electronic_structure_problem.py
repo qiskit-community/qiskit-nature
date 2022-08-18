@@ -19,6 +19,7 @@ from test.second_q.problems.resources.resource_reader import (
 
 import numpy as np
 
+import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.transformers import ActiveSpaceTransformer
@@ -27,6 +28,7 @@ from qiskit_nature.second_q.transformers import ActiveSpaceTransformer
 class TestElectronicStructureProblem(QiskitNatureTestCase):
     """Tests Electronic Structure Problem."""
 
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_second_q_ops_without_transformers(self):
         """Tests that the list of second quantized operators is created if no transformers
         provided."""
@@ -53,6 +55,7 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
                 for s, t in zip(expected_fermionic_op, electr_sec_quant_op.to_list())
             )
 
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_second_q_ops_with_active_space(self):
         """Tests that the correct second quantized operator is created if an active space
         transformer is provided."""

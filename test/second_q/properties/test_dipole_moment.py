@@ -20,6 +20,7 @@ from test.second_q.properties.property_test import PropertyTest
 import h5py
 import numpy as np
 
+import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.properties import ElectronicDipoleMoment
 from qiskit_nature.second_q.properties.bases import ElectronicBasis
@@ -31,6 +32,7 @@ from qiskit_nature.second_q.properties.integrals import (
 )
 
 
+@unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
 class TestElectronicDipoleMoment(PropertyTest):
     """Test ElectronicDipoleMoment Property"""
 

@@ -20,12 +20,14 @@ from typing import List, Optional
 
 from qiskit.opflow import I, PauliSumOp, X, Y, Z, Z2Symmetries
 
+import qiskit_nature.optionals as _optionals
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.operators import FermionicOp
 from qiskit_nature.second_q.mappers import JordanWignerMapper, ParityMapper, QubitConverter
 
 
+@unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
 class TestQubitConverter(QiskitNatureTestCase):
     """Test Qubit Converter"""
 
