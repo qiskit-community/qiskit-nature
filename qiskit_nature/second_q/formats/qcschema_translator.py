@@ -36,6 +36,8 @@ from .molecule_info import MoleculeInfo
 from .qcschema import QCSchema
 
 
+# TODO: make use of basis argument, pending further ElectronicStructureProblem refactoring
+# pylint: disable=unused-argument
 def qcschema_to_problem(
     qcschema: QCSchema, *, basis: ElectronicBasis = ElectronicBasis.MO
 ) -> ElectronicStructureProblem:

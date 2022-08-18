@@ -91,6 +91,16 @@ class ElectronicStructureProblem(BaseProblem):
         self.properties: ElectronicPropertiesContainer = ElectronicPropertiesContainer()
         self.molecule: MoleculeInfo = None
         self.basis_transform: ElectronicBasisTransform = None
+        # TODO: further refactoring:
+        # - remove basis_transform
+        # - store basis on Problem instead of in nested hamiltonian/properties
+        # - store data on Problem instead of in nested hamiltonian/properties
+        #   - orbital energies
+        #   - orbital occupations
+        #   - reference energy
+        #   - number of particles
+        #   - system size (number of orbitals)
+        #   - overlap matrix (for future extension to generalized eigenvalue problem)
 
     @property
     def hamiltonian(self) -> ElectronicEnergy:

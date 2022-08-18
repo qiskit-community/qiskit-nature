@@ -15,8 +15,12 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
 
 from qiskit_nature.second_q.operators import SecondQuantizedOp
+
+if TYPE_CHECKING:
+    from qiskit_nature.second_q.problems import EigenstateResult
 
 
 class Hamiltonian(ABC):
@@ -32,3 +36,11 @@ class Hamiltonian(ABC):
     def register_length(self) -> int:
         """TODO."""
         raise NotImplementedError()
+
+    def interpret(self, result: "EigenstateResult") -> None:
+        """Interprets an :class:`~qiskit_nature.second_q.problems.EigenstateResult`
+        in this hamiltonians context.
+
+        Args:
+            result: the result to add meaning to.
+        """
