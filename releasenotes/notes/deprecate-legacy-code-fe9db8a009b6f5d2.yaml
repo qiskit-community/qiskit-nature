@@ -29,9 +29,9 @@ deprecations:
     +---------------------------------------+-----------------------------------------------------+
     | qiskit_nature.problems                | qiskit_nature.second_q.problems                     |
     +---------------------------------------+-----------------------------------------------------+
-    | qiskit_nature.problems.sampling       | Moved to prototypes.                                |
+    | qiskit_nature.problems.sampling       | Moved to qiskit-research.                           |
     |                                       | For more details, refer to:                         |
-    |                                       | https://github.com/Qiskit/qiskit-nature/issues/705  |
+    |                                       | https://github.com/qiskit-research/qiskit-research  |
     +---------------------------------------+-----------------------------------------------------+
     | qiskit_nature.properties              | qiskit_nature.second_q.hamiltonians,                |
     |                                       | qiskit_nature.second_q.properties                   |
