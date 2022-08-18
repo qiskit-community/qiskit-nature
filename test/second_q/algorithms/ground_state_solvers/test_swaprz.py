@@ -21,6 +21,7 @@ from qiskit.algorithms.optimizers import SLSQP
 from qiskit.circuit.library import ExcitationPreserving
 from qiskit.test import slow_test
 from qiskit.utils import QuantumInstance, algorithm_globals
+import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.algorithms import GroundStateEigensolver
 from qiskit_nature.second_q.circuit.library import HartreeFock
 from qiskit_nature.second_q.drivers import PySCFDriver
@@ -43,6 +44,7 @@ class TestExcitationPreserving(QiskitNatureTestCase):
         self.reference_energy = -1.137305593252385
 
     @slow_test
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_excitation_preserving(self):
         """Test the excitation preserving wavefunction on a chemistry example."""
 
