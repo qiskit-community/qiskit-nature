@@ -74,6 +74,11 @@ class VibrationalStructureProblem(BaseProblem):
             num_modals = self._num_modals
         return num_modals
 
+    @num_modals.setter
+    def num_modals(self, num_modals: Union[int, List[int]]) -> None:
+        """Sets the number of modals."""
+        self._num_modals = num_modals
+
     def second_q_ops(self) -> tuple[SecondQuantizedOp, dict[str, SecondQuantizedOp]]:
         """Returns the second quantized operators associated with this problem.
 
