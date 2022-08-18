@@ -13,7 +13,7 @@
 """The Sparse Label Operator base class."""
 
 from __future__ import annotations
-from typing import Mapping, Iterator
+from typing import Mapping, Iterator, Dict, cast
 from numbers import Number
 import cmath
 import numpy as np
@@ -43,7 +43,12 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin):
         if qargs is not None:
             raise ValueError(f"The `qargs` argument must be `None`, not {qargs}")
 
-        new_data = self._data.copy()
+        if not isinstance(other, SparseLabelOp):
+            raise ValueError(
+                f"Unsupported operand type(s) for +: 'SparseLabelOp' and '{type(other).__name__}'"
+            )
+
+        new_data = cast(Dict, self._data).copy()
 
         for key, value in other._data.items():
             if key in new_data.keys():
@@ -51,9 +56,9 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin):
             else:
                 new_data[key] = value
 
-        return SparseLabelOp(new_data, self._register_length)
+        return SparseLabelOp(new_data, max(self._register_length, other._register_length))
 
-    def _multiply(self, other: complex) -> SparseLabelOp:
+    def _multiply(self, other: Number) -> SparseLabelOp:
         """Return scalar multiplication of self and other.
 
         Args:
@@ -69,12 +74,11 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin):
             raise TypeError(
                 f"Unsupported operand type(s) for *: 'SparseLabelOp' and '{type(other).__name__}'"
             )
-        new_data = {}
+        new_data = {
+            key: cast(complex, val) * cast(complex, other) for key, val in self._data.items()
+        }
 
-        for key, value in self._data.items():
-            new_data[key] = value * other
-
-        return SparseLabelOp(new_data, self._register_length)
+        return SparseLabelOp(cast(Mapping, new_data), self._register_length)
 
     def conjugate(self) -> SparseLabelOp:
         """Returns the conjugate of the ``SparseLabelOp``
@@ -82,10 +86,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin):
         Returns:
             the complex conjugate of the starting ``SparseLabelOp``.
         """
-        new_data = {}
-
-        for key, value in self._data.items():
-            new_data[key] = np.conjugate(value)
+        new_data = {key: np.conjugate(cast(complex, val)) for key, val in self._data.items()}
 
         return SparseLabelOp(new_data, self._register_length)
 
@@ -109,7 +110,12 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin):
         if set(self._data.keys()) != set(other._data.keys()):
             return False
         for key, val in self._data.items():
-            if not cmath.isclose(val, other._data[key], rel_tol=self.rtol, abs_tol=self.atol):
+            if not cmath.isclose(
+                cast(complex, val),
+                cast(complex, other._data[key]),
+                rel_tol=self.rtol,
+                abs_tol=self.atol,
+            ):
                 return False
         return True
 
@@ -123,15 +129,14 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin):
             True if operators are equal, False if not.
         """
         if not isinstance(other, SparseLabelOp):
-            return NotImplemented
-        if set(self._data.keys()) != set(other._data.keys()):
             return False
-        for key, val in self._data.items():
-            if not val == other._data[key]:
-                return False
+        if self._data.keys() != other._data.keys():
+            return False
+        if self._data.items() != other._data.items():
+            return False
         return True
 
-    def __iter__(self) -> Iterator[tuple[str, complex]]:
+    def __iter__(self) -> Iterator[Mapping[str, Number]]:
         """Iterate through ``SparseLabelOp`` items"""
         for key, value in self._data.items():
-            yield key, value
+            yield cast(Mapping, (key, value))
