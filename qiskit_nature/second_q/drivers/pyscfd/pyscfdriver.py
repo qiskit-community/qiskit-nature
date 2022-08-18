@@ -576,7 +576,7 @@ class PySCFDriver(ElectronicStructureDriver):
             mo_occ=mo_occ,
             mo_occ_b=mo_occ_b,
             symbols=[self._mol.atom_pure_symbol(i) for i in range(self._mol.natm)],
-            coords=self._mol.atom_coords(unit="Angstrom").ravel().tolist(),
+            coords=self._mol.atom_coords(unit="Bohr").ravel().tolist(),
             multiplicity=self._spin + 1,
             charge=self._charge,
             masses=list(self._mol.atom_mass_list()),

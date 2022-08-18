@@ -135,7 +135,7 @@ class TestDriver(ABC):
             coords = molecule.coords.tolist()
             self.log.debug("atom xyz %s", coords)
             np.testing.assert_array_almost_equal(
-                coords, [[0.0, 0.0, 0.0], [0.0, 0.0, 0.735]], decimal=4
+                coords, [[0.0, 0.0, 0.0], [0.0, 0.0, 1.3889]], decimal=4
             )
 
     def test_driver_result_basis_transform(self):

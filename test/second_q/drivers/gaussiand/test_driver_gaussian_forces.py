@@ -21,6 +21,7 @@ from ddt import data, ddt, unpack
 
 import numpy as np
 
+from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
 from qiskit_nature.second_q.drivers import (
     GaussianForcesDriver,
@@ -147,6 +148,7 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
             ),
             multiplicity=1,
             charge=0,
+            units=DistanceUnit.ANGSTROM,
         )
         driver = GaussianForcesDriver.from_molecule(molecule, basis="6-31g")
         result = driver.run()
