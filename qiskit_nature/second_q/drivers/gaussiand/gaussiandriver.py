@@ -286,22 +286,20 @@ class GaussianDriver(ElectronicStructureDriver):
 
         return _mel
 
-    @classmethod
-    def _from_matrix_file(cls, fname: str) -> GaussianDriver:
-        ret = GaussianDriver()
-        ret._mel = GaussianDriver._parse_matrix_file(fname)
-        return ret
-
     def to_qcschema(self) -> QCSchema:
-        moc = GaussianDriver._get_matrix(self._mel, "ALPHA MO COEFFICIENTS")
-        moc_b = GaussianDriver._get_matrix(self._mel, "BETA MO COEFFICIENTS")
+        return GaussianDriver._qcschema_from_matrix_file(self._mel)
+
+    @staticmethod
+    def _qcschema_from_matrix_file(mel: MatEl) -> QCSchema:
+        moc = GaussianDriver._get_matrix(mel, "ALPHA MO COEFFICIENTS")
+        moc_b = GaussianDriver._get_matrix(mel, "BETA MO COEFFICIENTS")
         if np.array_equal(moc, moc_b):
             logger.debug("ALPHA and BETA MO COEFFS identical, keeping only ALPHA")
             moc_b = None
 
-        hcore = GaussianDriver._get_matrix(self._mel, "CORE HAMILTONIAN ALPHA")
+        hcore = GaussianDriver._get_matrix(mel, "CORE HAMILTONIAN ALPHA")
         logger.debug("CORE HAMILTONIAN ALPHA %s", hcore.shape)
-        hcore_b = GaussianDriver._get_matrix(self._mel, "CORE HAMILTONIAN BETA")
+        hcore_b = GaussianDriver._get_matrix(mel, "CORE HAMILTONIAN BETA")
         if np.array_equal(hcore, hcore_b):
             # From Gaussian interfacing documentation: "The two core Hamiltonians are identical
             # unless a Fermi contact perturbation has been applied."
@@ -317,10 +315,10 @@ class GaussianDriver(ElectronicStructureDriver):
         if moc_b is not None:
             mohij_b = np.dot(np.dot(moc_b.T, hcore_b if hcore_b is not None else hcore), moc_b)
 
-        eri = GaussianDriver._get_matrix(self._mel, "REGULAR 2E INTEGRALS")
+        eri = GaussianDriver._get_matrix(mel, "REGULAR 2E INTEGRALS")
         logger.debug("REGULAR 2E INTEGRALS %s", eri.shape)
         useao2e = False
-        if moc_b is None and self._mel.matlist.get("BB MO 2E INTEGRALS") is not None:
+        if moc_b is None and mel.matlist.get("BB MO 2E INTEGRALS") is not None:
             # It seems that when using ROHF, where alpha and beta coeffs are
             # the same, that integrals
             # for BB and BA are included in the output, as well as just AA
@@ -370,25 +368,25 @@ class GaussianDriver(ElectronicStructureDriver):
         else:
             # These are in MO basis but by default will be reduced in size by frozen core default so
             # to use them we need to add Window=Full above when we augment the config
-            mohijkl = GaussianDriver._get_matrix(self._mel, "AA MO 2E INTEGRALS")
+            mohijkl = GaussianDriver._get_matrix(mel, "AA MO 2E INTEGRALS")
             logger.debug("AA MO 2E INTEGRALS %s", mohijkl.shape)
-            mohijkl_bb = GaussianDriver._get_matrix(self._mel, "BB MO 2E INTEGRALS")
+            mohijkl_bb = GaussianDriver._get_matrix(mel, "BB MO 2E INTEGRALS")
             logger.debug(
                 "BB MO 2E INTEGRALS %s",
                 "- Not present" if mohijkl_bb is None else mohijkl_bb.shape,
             )
-            mohijkl_ba = GaussianDriver._get_matrix(self._mel, "BA MO 2E INTEGRALS")
+            mohijkl_ba = GaussianDriver._get_matrix(mel, "BA MO 2E INTEGRALS")
             logger.debug(
                 "BA MO 2E INTEGRALS %s",
                 "- Not present" if mohijkl_ba is None else mohijkl_ba.shape,
             )
 
-        orbs_energy = GaussianDriver._get_matrix(self._mel, "ALPHA ORBITAL ENERGIES")
+        orbs_energy = GaussianDriver._get_matrix(mel, "ALPHA ORBITAL ENERGIES")
         logger.debug("ORBITAL ENERGIES %s", orbs_energy)
-        orbs_energy_b = GaussianDriver._get_matrix(self._mel, "BETA ORBITAL ENERGIES")
+        orbs_energy_b = GaussianDriver._get_matrix(mel, "BETA ORBITAL ENERGIES")
         logger.debug("BETA ORBITAL ENERGIES %s", orbs_energy_b)
 
-        return self._to_qcschema(
+        return GaussianDriver._to_qcschema(
             hij=hcore,
             hij_b=hcore_b,
             eri=eri,
@@ -397,25 +395,24 @@ class GaussianDriver(ElectronicStructureDriver):
             eri_mo=mohijkl,
             eri_mo_ba=mohijkl_ba,
             eri_mo_bb=mohijkl_bb,
-            e_nuc=self._mel.scalar("ENUCREP"),
-            e_ref=self._mel.scalar("ETOTAL"),
+            e_nuc=mel.scalar("ENUCREP"),
+            e_ref=mel.scalar("ETOTAL"),
             mo_coeff=moc,
             mo_coeff_b=moc_b,
             mo_energy=orbs_energy,
             mo_energy_b=orbs_energy_b,
-            symbols=[PERIODIC_TABLE[atom] for atom in self._mel.ian],
-            coords=self._mel.c,
-            multiplicity=self._mel.multip,
-            charge=self._mel.icharg,
+            symbols=[PERIODIC_TABLE[atom] for atom in mel.ian],
+            coords=mel.c,
+            multiplicity=mel.multip,
+            charge=mel.icharg,
             method="RHF",
             basis="sto-3g",
             creator="Gaussian",
-            version=self._mel.gversion,
-            routine=self._config,
-            nbasis=self._mel.nbasis,
+            version=mel.gversion,
+            nbasis=mel.nbasis,
             nmo=moc.shape[0],
-            nalpha=(self._mel.ne + self._mel.multip - 1) // 2,
-            nbeta=(self._mel.ne - self._mel.multip + 1) // 2,
+            nalpha=(mel.ne + mel.multip - 1) // 2,
+            nbeta=(mel.ne - mel.multip + 1) // 2,
             keywords={},
         )
 
@@ -424,13 +421,19 @@ class GaussianDriver(ElectronicStructureDriver):
         *,
         include_dipole: bool = True,
     ) -> ElectronicStructureProblem:
-        qcschema = self.to_qcschema()
+        return GaussianDriver._problem_from_matrix_file(self._mel, include_dipole=include_dipole)
+
+    @staticmethod
+    def _problem_from_matrix_file(
+        mel: MatEl, *, include_dipole: bool = True
+    ) -> ElectronicStructureProblem:
+        qcschema = GaussianDriver._qcschema_from_matrix_file(mel)
 
         problem = qcschema_to_problem(qcschema)
 
         if include_dipole:
             # dipole moment
-            dipints = GaussianDriver._get_matrix(self._mel, "DIPOLE INTEGRALS")
+            dipints = GaussianDriver._get_matrix(mel, "DIPOLE INTEGRALS")
             dipints = np.einsum("ijk->kji", dipints)
 
             x_dip_ints = OneBodyElectronicIntegrals(ElectronicBasis.AO, (dipints[0], None))
@@ -447,8 +450,8 @@ class GaussianDriver(ElectronicStructureDriver):
                 "z", [z_dip_ints, z_dip_ints.transform_basis(problem.basis_transform)]
             )
 
-            coords = np.reshape(self._mel.c, (len(self._mel.ian), 3))
-            nucl_dip = np.einsum("i,ix->x", self._mel.ian, coords)
+            coords = np.reshape(mel.c, (len(mel.ian), 3))
+            nucl_dip = np.einsum("i,ix->x", mel.ian, coords)
             nucl_dip = np.round(nucl_dip, decimals=8)
 
             problem.properties.electronic_dipole_moment = ElectronicDipoleMoment(
