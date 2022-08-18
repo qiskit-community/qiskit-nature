@@ -268,7 +268,5 @@ class SUCCD(UCC):
                 FermionicOp, sum(super()._build_fermionic_excitation_ops(exc_level_items))
             )
             operators.append(sum_ops)
-        if not operators:
-            return [FermionicOp.zero(self.num_spin_orbitals)]
-        else:
-            return operators
+
+        return operators
