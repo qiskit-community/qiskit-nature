@@ -23,6 +23,7 @@ from .qc_base import _QCBase
 from .qc_basis_set import QCBasisSet
 
 
+# TODO: directly support np.ndarray instead of always converting to flat lists
 @dataclass
 class QCWavefunction(_QCBase):
     """A dataclass to store any additional computed wavefunction properties.

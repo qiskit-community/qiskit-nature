@@ -59,7 +59,10 @@ def qcschema_to_problem(
     basis_transform: ElectronicBasisTransform | None = None
 
     if qcschema.wavefunction.scf_fock_a is not None:
-        hij = np.asarray(qcschema.wavefunction.scf_fock_a).reshape((nao, nao))
+        # TODO: deal with this properly
+        hij = np.asarray(qcschema.wavefunction.scf_fock_a)
+        nao = int(np.sqrt(len(hij)))
+        hij = hij.reshape((nao, nao))
 
     if qcschema.wavefunction.scf_fock_b is not None:
         hij_b = np.asarray(qcschema.wavefunction.scf_fock_b).reshape((nao, nao))

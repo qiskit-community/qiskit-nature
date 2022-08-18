@@ -19,8 +19,11 @@ from test import QiskitNatureTestCase
 from ddt import ddt, idata, unpack
 import numpy as np
 
+import qiskit_nature.optionals as _optionals
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.drivers import PySCFDriver
+from qiskit_nature.second_q.formats.qcschema import QCSchema
+from qiskit_nature.second_q.formats.qcschema_translator import qcschema_to_problem
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.properties import ElectronicDipoleMoment
@@ -37,7 +40,7 @@ from qiskit_nature.second_q.transformers import ActiveSpaceTransformer
 class TestActiveSpaceTransformer(QiskitNatureTestCase):
     """ActiveSpaceTransformer tests."""
 
-    def assertDriverResult(self, driver_result, expected, dict_key="ActiveSpaceTransformer"):
+    def assertDriverResult(self, driver_result, expected):
         """Asserts that the two `DriverResult` object's relevant fields are equivalent."""
         electronic_energy = driver_result.hamiltonian
         electronic_energy_exp = expected.hamiltonian
@@ -56,10 +59,11 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
                 ),
             )
         with self.subTest("Inactive energy"):
-            self.assertAlmostEqual(
-                electronic_energy._shift[dict_key],
-                electronic_energy_exp._shift["ActiveSpaceTransformer"],
-            )
+            for key in electronic_energy_exp._shift.keys():
+                self.assertAlmostEqual(
+                    electronic_energy._shift[key],
+                    electronic_energy_exp._shift[key],
+                )
 
         if expected.properties.electronic_dipole_moment is not None:
             for dipole, dipole_exp in zip(
@@ -72,11 +76,13 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
                         np.abs(dipole_exp.get_electronic_integral(ElectronicBasis.MO, 1).to_spin()),
                     )
                 with self.subTest(f"{dipole._axis} dipole energy shift"):
-                    self.assertAlmostEqual(
-                        dipole._shift[dict_key],
-                        dipole_exp._shift["ActiveSpaceTransformer"],
-                    )
+                    for key in dipole_exp._shift.keys():
+                        self.assertAlmostEqual(
+                            dipole._shift[key],
+                            dipole_exp._shift[key],
+                        )
 
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     @idata(
         [
             {"num_electrons": 2, "num_molecular_orbitals": 2},
@@ -96,6 +102,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
 
         self.assertDriverResult(driver_result_reduced, driver_result)
 
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_minimal_active_space(self):
         """Test a minimal active space manually."""
         driver = PySCFDriver(basis="631g")
@@ -165,6 +172,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
 
         self.assertDriverResult(driver_result_reduced, expected)
 
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_unpaired_electron_active_space(self):
         """Test an active space with an unpaired electron."""
         driver = PySCFDriver(atom="Be 0 0 0; H 0 0 1.3", basis="sto3g", spin=1)
@@ -173,92 +181,17 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         trafo = ActiveSpaceTransformer(num_electrons=(2, 1), num_molecular_orbitals=3)
         driver_result_reduced = trafo.transform(driver_result)
 
-        expected = ElectronicStructureProblem(
-            ElectronicEnergy(
-                [
-                    OneBodyElectronicIntegrals(
-                        ElectronicBasis.MO,
-                        (
-                            np.asarray(
-                                [
-                                    [-1.30228816, 0.03573328, 0.0],
-                                    [0.03573328, -0.86652349, 0.0],
-                                    [0.0, 0.0, -0.84868407],
-                                ]
-                            ),
-                            None,
-                        ),
-                    ),
-                    TwoBodyElectronicIntegrals(
-                        ElectronicBasis.MO,
-                        (
-                            np.asarray(
-                                [
-                                    [
-                                        [
-                                            [0.5723742128971601, -0.055935974537879886, 0.0],
-                                            [-0.0559359745378799, 0.3042842626235253, 0.0],
-                                            [0.0, 0.0, 0.3665082095336567],
-                                        ],
-                                        [
-                                            [-0.05593597453787989, 0.01937528764526897, 0.0],
-                                            [0.019375287645268975, 0.020202367947773765, 0.0],
-                                            [0.0, 0.0, 0.014056764993693264],
-                                        ],
-                                        [
-                                            [0.0, 0.0, 0.036007006646053566],
-                                            [0.0, 0.0, 0.02824399694443206],
-                                            [0.03600700664605357, 0.028243996944432068, 0.0],
-                                        ],
-                                    ],
-                                    [
-                                        [
-                                            [-0.05593597453787985, 0.01937528764526898, 0.0],
-                                            [0.019375287645269, 0.020202367947773803, 0.0],
-                                            [0.0, 0.0, 0.014056764993693242],
-                                        ],
-                                        [
-                                            [0.30428426262352537, 0.020202367947773744, 0.0],
-                                            [0.020202367947773803, 0.4816266918021246, 0.0],
-                                            [0.0, 0.0, 0.40269913477850905],
-                                        ],
-                                        [
-                                            [0.0, 0.0, 0.02824399694443207],
-                                            [0.0, 0.0, 0.05649509961573344],
-                                            [0.02824399694443207, 0.05649509961573344, 0.0],
-                                        ],
-                                    ],
-                                    [
-                                        [
-                                            [0.0, 0.0, 0.03600700664605357],
-                                            [0.0, 0.0, 0.028243996944432068],
-                                            [0.03600700664605358, 0.028243996944432075, 0.0],
-                                        ],
-                                        [
-                                            [0.0, 0.0, 0.028243996944432078],
-                                            [0.0, 0.0, 0.05649509961573346],
-                                            [0.028243996944432078, 0.05649509961573345, 0.0],
-                                        ],
-                                        [
-                                            [0.36650820953365676, 0.01405676499369331, 0.0],
-                                            [0.014056764993693339, 0.402699134778509, 0.0],
-                                            [0.0, 0.0, 0.4498590410866706],
-                                        ],
-                                    ],
-                                ]
-                            ),
-                            None,
-                            None,
-                            None,
-                        ),
-                    ),
-                ],
-                energy_shift={"ActiveSpaceTransformer": -14.253802923103054},
+        expected = qcschema_to_problem(
+            QCSchema.from_json(
+                self.get_resource_path("BeH_sto3g_reduced.json", "second_q/transformers/resources")
             )
         )
+        # add energy shift, which currently cannot be stored in the QCSchema
+        expected.hamiltonian._shift["ActiveSpaceTransformer"] = -14.253802923103054
 
         self.assertDriverResult(driver_result_reduced, expected)
 
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_arbitrary_active_orbitals(self):
         """Test manual selection of active orbital indices."""
         driver = PySCFDriver(basis="631g")
@@ -329,6 +262,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         )
         self.assertDriverResult(driver_result_reduced, expected)
 
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     @idata(
         [
             [2, 3, None, "More active orbitals requested than available in total."],
@@ -353,6 +287,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
                 active_orbitals=active_orbitals,
             ).transform(driver_result)
 
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_tuple_num_electrons_with_manual_orbitals(self):
         """Regression test against https://github.com/Qiskit/qiskit-nature/issues/434."""
         driver = PySCFDriver(basis="631g")
@@ -426,6 +361,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
 
         self.assertDriverResult(driver_result_reduced, expected)
 
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_no_deep_copy(self):
         """Test that objects are not being deeply copied.
 
@@ -452,6 +388,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
             np.abs(active_transform),
         )
 
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_numpy_integer(self):
         """Tests that numpy integer objects do not cause issues in `isinstance` checks.
 

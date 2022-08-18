@@ -18,6 +18,8 @@ from test import QiskitNatureTestCase
 from ddt import ddt, idata
 import numpy as np
 
+import qiskit_nature.optionals as _optionals
+from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.formats.qcschema import QCSchema
 from qiskit_nature.second_q.formats.qcschema_translator import qcschema_to_problem
 from qiskit_nature.second_q.transformers import FreezeCoreTransformer
@@ -35,6 +37,7 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
 
     assertDriverResult = TestActiveSpaceTransformer.assertDriverResult
 
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     @idata(
         [
             {"freeze_core": True},
@@ -42,72 +45,64 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
     )
     def test_full_active_space(self, kwargs):
         """Test that transformer has no effect when all orbitals are active."""
-        qcschema = QCSchema.from_legacy_hdf5(
-            self.get_resource_path("H2_sto3g.hdf5", "transformers/second_quantization/electronic")
-        )
-        driver_result = qcschema_to_problem(qcschema)
+        driver = PySCFDriver()
+        driver_result = driver.run()
 
-        # The references which we compare too were produced by the `ActiveSpaceTransformer` and,
-        # thus, the key here needs to stay the same as in that test case.
-        driver_result.hamiltonian._shift["ActiveSpaceTransformer"] = 0.0
+        driver_result.hamiltonian._shift["FreezeCoreTransformer"] = 0.0
         for prop in driver_result.properties.electronic_dipole_moment._dipole_axes.values():
-            prop._shift["ActiveSpaceTransformer"] = 0.0
+            prop._shift["FreezeCoreTransformer"] = 0.0
 
         trafo = FreezeCoreTransformer(**kwargs)
         driver_result_reduced = trafo.transform(driver_result)
 
-        self.assertDriverResult(
-            driver_result_reduced, driver_result, dict_key="FreezeCoreTransformer"
-        )
+        self.assertDriverResult(driver_result_reduced, driver_result)
 
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_freeze_core(self):
         """Test the `freeze_core` convenience argument."""
-        qcschema = QCSchema.from_legacy_hdf5(
-            self.get_resource_path("LiH_sto3g.hdf5", "transformers/second_quantization/electronic")
-        )
-        driver_result = qcschema_to_problem(qcschema)
+        driver = PySCFDriver(atom="Li 0 0 0; H 0 0 1.6")
+        driver_result = driver.run()
 
         trafo = FreezeCoreTransformer(freeze_core=True)
         driver_result_reduced = trafo.transform(driver_result)
 
-        qcschema_exp = QCSchema.from_legacy_hdf5(
-            self.get_resource_path(
-                "LiH_sto3g_reduced.hdf5", "transformers/second_quantization/electronic"
+        expected = qcschema_to_problem(
+            QCSchema.from_json(
+                self.get_resource_path("LiH_sto3g_reduced.json", "second_q/transformers/resources")
             )
         )
-        expected = qcschema_to_problem(qcschema_exp)
+        # add energy shift, which currently cannot be stored in the QCSchema
+        expected.hamiltonian._shift["FreezeCoreTransformer"] = -7.796219568771229
 
-        self.assertDriverResult(driver_result_reduced, expected, dict_key="FreezeCoreTransformer")
+        self.assertDriverResult(driver_result_reduced, expected)
 
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_freeze_core_with_remove_orbitals(self):
         """Test the `freeze_core` convenience argument in combination with `remove_orbitals`."""
-        qcschema = QCSchema.from_legacy_hdf5(
-            self.get_resource_path("BeH_sto3g.hdf5", "transformers/second_quantization/electronic")
-        )
-        driver_result = qcschema_to_problem(qcschema)
+        driver = PySCFDriver(atom="Be 0 0 0; H 0 0 1.3", basis="sto3g", spin=1)
+        driver_result = driver.run()
 
         trafo = FreezeCoreTransformer(freeze_core=True, remove_orbitals=[4, 5])
         driver_result_reduced = trafo.transform(driver_result)
 
-        qcschema_exp = QCSchema.from_legacy_hdf5(
-            self.get_resource_path(
-                "BeH_sto3g_reduced.hdf5", "transformers/second_quantization/electronic"
+        expected = qcschema_to_problem(
+            QCSchema.from_json(
+                self.get_resource_path("BeH_sto3g_reduced.json", "second_q/transformers/resources")
             )
         )
-        expected = qcschema_to_problem(qcschema_exp)
-        expected.properties.particle_number.num_spin_orbitals = 6
+        # add energy shift, which currently cannot be stored in the QCSchema
+        expected.hamiltonian._shift["FreezeCoreTransformer"] = -14.253802923103054
 
-        self.assertDriverResult(driver_result_reduced, expected, dict_key="FreezeCoreTransformer")
+        self.assertDriverResult(driver_result_reduced, expected)
 
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_no_freeze_core(self):
         """Test the disabled `freeze_core` convenience argument.
 
         Regression test against https://github.com/Qiskit/qiskit-nature/issues/652
         """
-        qcschema = QCSchema.from_legacy_hdf5(
-            self.get_resource_path("LiH_sto3g.hdf5", "transformers/second_quantization/electronic")
-        )
-        driver_result = qcschema_to_problem(qcschema)
+        driver = PySCFDriver(atom="Li 0 0 0; H 0 0 1.6")
+        driver_result = driver.run()
 
         trafo = FreezeCoreTransformer(freeze_core=False)
         driver_result_reduced = trafo.transform(driver_result)
