@@ -64,6 +64,9 @@ Now that Qiskit Nature is installed, let's try a chemistry application experimen
 using the VQE (Variational Quantum Eigensolver) algorithm to compute
 the ground-state (minimum) energy of a molecule.
 
+> Note: The following example belongs to the version >= 0.5 .
+> The working example for version <0.5 can be found at [ the old README file](https://github.com/Qiskit/qiskit-nature/blob/stable/0.4/README.md).
+
 ```python
 from qiskit_nature.settings import settings
 from qiskit_nature.second_q.drivers import UnitsType
@@ -81,8 +84,7 @@ driver = PySCFDriver(atom='H .0 .0 .0; H .0 .0 0.735',
 problem = ElectronicStructureProblem(driver)
 
 # generate the second-quantized operators
-second_q_ops = problem.second_q_ops()
-main_op = second_q_ops['ElectronicEnergy']
+main_op, _ = problem.second_q_ops()
 
 particle_number = problem.grouped_property_transformed.get_property("ParticleNumber")
 
@@ -118,9 +120,9 @@ ansatz = TwoLocal(num_spin_orbitals, ['ry', 'rz'], 'cz')
 ansatz.compose(init_state, front=True, inplace=True)
 
 # set the backend for the quantum computation
-from qiskit import Aer
+import qiskit
 
-backend = Aer.get_backend('aer_simulator_statevector')
+backend = qiskit.providers.aer.Aer.get_backend('aer_simulator_statevector')
 
 # setup and run VQE
 from qiskit.algorithms import VQE

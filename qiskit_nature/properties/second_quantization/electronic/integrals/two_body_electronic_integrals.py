@@ -25,6 +25,7 @@ from .electronic_integrals import ElectronicIntegrals
 from .electronic_integrals_utils import find_index_order, to_chem
 from .one_body_electronic_integrals import OneBodyElectronicIntegrals
 from ..bases import ElectronicBasis, ElectronicBasisTransform
+from .....deprecation import warn_deprecated, DeprecatedType, NatureDeprecationWarning
 
 
 class TwoBodyElectronicIntegrals(ElectronicIntegrals):
@@ -80,6 +81,14 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
 
         num_body_terms = 2
         super().__init__(num_body_terms, basis, matrices, threshold)
+        warn_deprecated(
+            "0.5.0",
+            old_type=DeprecatedType.CLASS,
+            old_name="qiskit_nature.properties.second_quantization.electronic.integrals.TwoBodyElectronicIntegrals",
+            new_type=DeprecatedType.CLASS,
+            new_name="qiskit_nature.second_q.operators.PolynomialTensor",
+            category=NatureDeprecationWarning,
+        )
 
     def get_matrix(self, index: int = 0) -> np.ndarray:
         # pylint: disable=line-too-long

@@ -18,12 +18,8 @@ from typing import cast, Generator, Optional, TYPE_CHECKING
 
 import h5py
 
-from qiskit_nature import ListOrDictType, settings
-from qiskit_nature.deprecation import deprecate_method
-from qiskit_nature.second_q._watson_hamiltonian import WatsonHamiltonian
 from qiskit_nature.second_q.operators import VibrationalOp
 
-from .second_quantized_property import LegacyDriverResult
 from .bases import VibrationalBasis
 from .integrals import VibrationalIntegrals
 from .vibrational_types import VibrationalProperty
@@ -115,36 +111,6 @@ class VibrationalEnergy(VibrationalProperty):
 
         return VibrationalEnergy(ints, h5py_group.attrs.get("truncation_order", None))
 
-    @classmethod
-    @deprecate_method("0.4.0")
-    def from_legacy_driver_result(cls, result: LegacyDriverResult) -> VibrationalEnergy:
-        """Construct a VibrationalEnergy instance from a
-        :class:`~qiskit_nature.second_q.drivers.WatsonHamiltonian`.
-
-        Args:
-            result: the driver result from which to extract the raw data. For this property, a
-                :class:`~qiskit_nature.second_q.drivers.WatsonHamiltonian` is required!
-
-        Returns:
-            An instance of this property.
-
-        Raises:
-            QiskitNatureError: if a :class:`~qiskit_nature.second_q.drivers.QMolecule` is provided.
-        """
-        cls._validate_input_type(result, WatsonHamiltonian)
-
-        w_h = cast(WatsonHamiltonian, result)
-
-        sorted_integrals: dict[int, list[tuple[float, tuple[int, ...]]]] = {1: [], 2: [], 3: []}
-        for coeff, *indices in w_h.data:
-            ints = [int(i) for i in indices]
-            num_body = len(set(ints))
-            sorted_integrals[num_body].append((coeff, tuple(ints)))
-
-        return cls(
-            [VibrationalIntegrals(num_body, ints) for num_body, ints in sorted_integrals.items()]
-        )
-
     def __iter__(self) -> Generator[VibrationalIntegrals, None, None]:
         """Returns the generator-iterator method."""
         return self._generator()
@@ -189,13 +155,11 @@ class VibrationalEnergy(VibrationalProperty):
         """
         return self._vibrational_integrals.get(num_body_terms, None)
 
-    def second_q_ops(self) -> ListOrDictType[VibrationalOp]:
+    def second_q_ops(self) -> dict[str, VibrationalOp]:
         """Returns the second quantized vibrational energy operator.
 
-        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
-
         Returns:
-            A `list` or `dict` of `VibrationalOp` objects.
+            A `dict` of `VibrationalOp` objects.
         """
         ops = []
         for num_body, ints in self._vibrational_integrals.items():
@@ -204,10 +168,7 @@ class VibrationalEnergy(VibrationalProperty):
             ints.basis = self.basis
             ops.append(ints.to_second_q_op())
 
-        if not settings.dict_aux_operators:
-            return [sum(ops)]
-
-        return {self.name: sum(ops)}
+        return {self.name: cast(VibrationalOp, sum(ops))}
 
     def interpret(self, result: "EigenstateResult") -> None:
         """Interprets an :class:`~qiskit_nature.second_q.problems.EigenstateResult`

@@ -1,3 +1,4 @@
+acknowledgment
 adjoint
 aer
 aij
@@ -12,7 +13,9 @@ ancilla
 ancillas
 ang
 anharmonic
+annihilation
 ansatz
+ansatze
 ansatzes
 anticommutation
 antisymmetric
@@ -25,6 +28,7 @@ args
 arrowheads
 arrowstyle
 arxiv
+asdict
 asparagine
 aspartic
 atol
@@ -49,6 +53,7 @@ bopes
 boson
 bosonic
 bravyi
+calcinfo
 cargs
 cartesian
 cbit
@@ -96,10 +101,15 @@ cy
 cysteine
 cz
 das
+dataclass
+dataclasses
 dataset
 dcx
+de
 debye
 deepcopy
+deuterium
+deuteron
 dft
 diag
 diagonalization
@@ -109,6 +119,7 @@ diagonalizing
 dicts
 dimens
 dimensionality
+dirac
 discoverable
 distinguishability
 dll
@@ -117,6 +128,8 @@ dof
 doi
 dt
 dtype
+dumitrescu
+ecp
 ecr
 eigen
 eigenfunctions
@@ -127,6 +140,7 @@ eigenstate
 eigenstateresult
 eigenstates
 eigenvector
+eigenvectors
 einact
 einsum
 endian
@@ -136,6 +150,7 @@ eom
 eq
 eri
 et
+eta
 eugene
 excitations
 extrapolator
@@ -149,12 +164,15 @@ fermion
 fermionic
 fermionicop
 fermions
+feynman
 filename
 fmt
 fock
 formatter
 fortran
+fp
 fredkin
+functionalities
 für
 gauopen
 gaussian
@@ -207,6 +225,8 @@ interatomic
 internuclear
 interpretable
 ints
+io
+isclose
 ising
 iso
 isoleucine
@@ -228,6 +248,8 @@ ji
 jl
 jordan
 jørgensen
+josé
+json
 jupyter
 jw
 kanav
@@ -235,11 +257,13 @@ ket
 kitaev
 knowles
 kohn
+kronecker
 kwarg
 kwargs
 kwds
 labelled
 lda
+leighton
 ldots
 len
 leucine
@@ -272,6 +296,7 @@ mcrz
 mct
 mcu
 mcx
+mentorship
 metadata
 meth
 methionine
@@ -284,6 +309,7 @@ mohij
 mohijkl
 mol
 moller
+molssi
 morse
 mpl
 mul
@@ -296,14 +322,17 @@ namelist
 nan
 nannichini
 natom
+nbasis
 nd
 ndarray
 nelec
+neutron
 neq
 networkx
 neuropeptide
 nicholas
 nielsen
+nisq
 nmodes
 noancilla
 noint
@@ -314,6 +343,7 @@ nosignatures
 np
 npj
 ns
+nucleus
 num
 numpy
 numpyeigensolver
@@ -343,6 +373,7 @@ paulis
 paulische
 pca
 peptide
+performant
 perturbative
 pes
 phenylalanine
@@ -362,6 +393,8 @@ prepended
 preprint
 preprocesses
 proline
+protium
+proton
 ps
 pseudorandom
 pxd
@@ -372,11 +405,14 @@ qarg
 qargs
 qasm
 qbit
+qcbase
 qcmatrixio
+qcschema
 qeom
 qfi
 qiskit
 qiskit's
+qc
 qmolecule
 qn
 qregs
@@ -391,6 +427,7 @@ rangle
 rcccx
 rccx
 readme
+readthedocs
 realise
 rebranding
 refactor
@@ -430,7 +467,9 @@ serine
 setia
 setted
 shende
+siddhartha
 sklearn
+soham
 slater
 spinop
 springer
@@ -467,6 +506,8 @@ tdg
 tensored
 terra
 th
+thermostabilization
+theta
 threonine
 timestamp
 toctree
@@ -516,6 +557,7 @@ vibrational
 vibrationalop
 vibrationalops
 vibro
+vienna
 vmax
 vmin
 vqe

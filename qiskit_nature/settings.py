@@ -25,7 +25,7 @@ class QiskitNatureSettings:
     """Global settings for Qiskit Nature."""
 
     def __init__(self):
-        self._dict_aux_operators: bool = False
+        self._dict_aux_operators: bool = True
         self._optimize_einsum: bool = True
         self._deprecation_shown: bool = False
 
@@ -43,6 +43,7 @@ class QiskitNatureSettings:
                 ),
                 stacklevel=3,
             )
+            warnings.filterwarnings("ignore", category=ListAuxOpsDeprecationWarning)
             self._deprecation_shown = True
 
         return self._dict_aux_operators
@@ -61,6 +62,7 @@ class QiskitNatureSettings:
                 ),
                 stacklevel=3,
             )
+            warnings.filterwarnings("ignore", category=ListAuxOpsDeprecationWarning)
             self._deprecation_shown = True
 
         self._dict_aux_operators = dict_aux_operators

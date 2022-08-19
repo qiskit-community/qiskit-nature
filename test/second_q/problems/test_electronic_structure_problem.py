@@ -17,7 +17,6 @@ from test.second_q.problems.resources.resource_reader import (
     read_expected_file,
 )
 
-import warnings
 import numpy as np
 
 from qiskit_nature.second_q.mappers import QubitConverter
@@ -44,7 +43,7 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
     def test_second_q_ops_without_transformers(self):
         """Tests that the list of second quantized operators is created if no transformers
         provided."""
-        expected_num_of_sec_quant_ops = 7
+        expected_num_of_sec_quant_ops = 6
         expected_fermionic_op_path = self.get_resource_path(
             "H2_631g_ferm_op_two_ints",
             "second_q/problems/resources",
@@ -56,24 +55,17 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
         )
         electronic_structure_problem = ElectronicStructureProblem(driver)
 
-        second_quantized_ops = electronic_structure_problem.second_q_ops()
-        electr_sec_quant_op = second_quantized_ops[electronic_structure_problem.main_property_name]
-        second_quantized_ops = list(second_quantized_ops.values())
+        electr_sec_quant_op, second_quantized_ops = electronic_structure_problem.second_q_ops()
 
-        with self.subTest("Check that the correct properties are/aren't None"):
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=DeprecationWarning)
-                # new driver used, molecule_data* should be None
-                self.assertIsNone(electronic_structure_problem.molecule_data)
-                self.assertIsNone(electronic_structure_problem.molecule_data_transformed)
-            # converted properties should never be None
+        with self.subTest("Check that the correct properties aren't None"):
+            # properties should never be None
             self.assertIsNotNone(electronic_structure_problem.grouped_property)
             self.assertIsNotNone(electronic_structure_problem.grouped_property_transformed)
 
         with self.subTest("Check expected length of the list of second quantized operators."):
             assert len(second_quantized_ops) == expected_num_of_sec_quant_ops
         with self.subTest("Check types in the list of second quantized operators."):
-            for second_quantized_op in second_quantized_ops:
+            for second_quantized_op in second_quantized_ops.values():
                 assert isinstance(second_quantized_op, SecondQuantizedOp)
         with self.subTest("Check components of electronic second quantized operator."):
             assert all(
@@ -84,7 +76,7 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
     def test_second_q_ops_with_active_space(self):
         """Tests that the correct second quantized operator is created if an active space
         transformer is provided."""
-        expected_num_of_sec_quant_ops = 7
+        expected_num_of_sec_quant_ops = 6
         expected_fermionic_op_path = self.get_resource_path(
             "H2_631g_ferm_op_active_space",
             "second_q/problems/resources",
@@ -96,24 +88,17 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
         trafo = ActiveSpaceTransformer(num_electrons=2, num_molecular_orbitals=2)
 
         electronic_structure_problem = ElectronicStructureProblem(driver, [trafo])
-        second_quantized_ops = electronic_structure_problem.second_q_ops()
-        electr_sec_quant_op = second_quantized_ops[electronic_structure_problem.main_property_name]
-        second_quantized_ops = list(second_quantized_ops.values())
+        electr_sec_quant_op, second_quantized_ops = electronic_structure_problem.second_q_ops()
 
-        with self.subTest("Check that the correct properties are/aren't None"):
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=DeprecationWarning)
-                # new driver used, molecule_data* should be None
-                self.assertIsNone(electronic_structure_problem.molecule_data)
-                self.assertIsNone(electronic_structure_problem.molecule_data_transformed)
-            # converted properties should never be None
+        with self.subTest("Check that the correct properties aren't None"):
+            # properties should never be None
             self.assertIsNotNone(electronic_structure_problem.grouped_property)
             self.assertIsNotNone(electronic_structure_problem.grouped_property_transformed)
 
         with self.subTest("Check expected length of the list of second quantized operators."):
             assert len(second_quantized_ops) == expected_num_of_sec_quant_ops
         with self.subTest("Check types in the list of second quantized operators."):
-            for second_quantized_op in second_quantized_ops:
+            for second_quantized_op in second_quantized_ops.values():
                 assert isinstance(second_quantized_op, SecondQuantizedOp)
         with self.subTest("Check components of electronic second quantized operator."):
             assert all(
@@ -136,8 +121,9 @@ class TestElectronicStructureProblemLegacyDrivers(QiskitNatureTestCase):
         qubit_conv = QubitConverter(
             mapper=ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto"
         )
+        main_op, _ = es_problem.second_q_ops()
         qubit_conv.convert(
-            es_problem.second_q_ops()[es_problem.main_property_name],
+            main_op,
             num_particles=es_problem.num_particles,
             sector_locator=es_problem.symmetry_sector_locator,
         )
@@ -157,9 +143,14 @@ class TestElectronicStructureProblemLegacyDrivers(QiskitNatureTestCase):
         qubit_conv = QubitConverter(
             mapper=ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto"
         )
+        main_op, _ = es_problem.second_q_ops()
         qubit_conv.convert(
-            es_problem.second_q_ops()[es_problem.main_property_name],
+            main_op,
             num_particles=es_problem.num_particles,
             sector_locator=es_problem.symmetry_sector_locator,
         )
         self.assertListEqual(qubit_conv.z2symmetries.tapering_values, [-1, 1])
+
+
+if __name__ == "__main__":
+    unittest.main()

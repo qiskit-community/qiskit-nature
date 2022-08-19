@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 """Test for VibrationalOp"""
 
+import unittest
 from test import QiskitNatureTestCase
 
 import numpy as np
@@ -114,6 +115,12 @@ class TestVibrationalOp(QiskitNatureTestCase):
             )
             self.assertFalse(test_op.is_hermitian())
 
+        with self.subTest("test passing atol"):
+            test_op = 1j * VibrationalOp("+-", 2, 1) - (1 + 1e-7) * 1j * VibrationalOp("-+", 2, 1)
+            self.assertFalse(test_op.is_hermitian())
+            self.assertFalse(test_op.is_hermitian(atol=1e-8))
+            self.assertTrue(test_op.is_hermitian(atol=1e-6))
+
     def test_simplify(self):
         """Test simplify"""
         test_op = (
@@ -125,14 +132,15 @@ class TestVibrationalOp(QiskitNatureTestCase):
         expected = [("+-", 2j), ("-+", -2j)]
         self.assertEqual(test_op.simplify().to_list(), expected)
 
-    def test_reduce(self):
-        """Test reduce"""
-        test_op = (
-            1j * VibrationalOp("+-", 2, 1)
-            + 1j * VibrationalOp("+-", 2, 1)
-            - 1j * VibrationalOp("-+", 2, 1)
-            - 1j * VibrationalOp("-+", 2, 1)
-        )
-        expected = [("+-", 2j), ("-+", -2j)]
-        with self.assertWarns(DeprecationWarning):
-            self.assertEqual(test_op.reduce().to_list(), expected)
+    def test_equiv(self):
+        """test equiv"""
+        op1 = VibrationalOp("+-", 2, 1) + VibrationalOp("-+", 2, 1)
+        op2 = VibrationalOp("+-", 2, 1)
+        op3 = VibrationalOp("+-", 2, 1) + (1 + 1e-7) * VibrationalOp("-+", 2, 1)
+        self.assertFalse(op1.equiv(op2))
+        self.assertFalse(op1.equiv(op3))
+        self.assertTrue(op1.equiv(op3, atol=1e-6))
+
+
+if __name__ == "__main__":
+    unittest.main()
