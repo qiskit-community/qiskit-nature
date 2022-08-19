@@ -17,6 +17,15 @@ Utility classes that provide initial points to use with specific ansatzes.
 
 .. currentmodule:: qiskit_nature.second_q.algorithms.initial_points
 
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   InitialPoint
+   HFInitialPoint
+   MP2InitialPoint
+   VSCFInitialPoint
+
 """
 
 from .initial_point import InitialPoint

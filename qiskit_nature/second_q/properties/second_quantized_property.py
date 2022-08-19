@@ -17,7 +17,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import Any, Type, TypeVar
 
-from qiskit_nature import ListOrDictType, QiskitNatureError
+from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 
 from .grouped_property import GroupedProperty
@@ -33,13 +33,11 @@ class SecondQuantizedProperty(Property):
     """
 
     @abstractmethod
-    def second_q_ops(self) -> ListOrDictType[SecondQuantizedOp]:
+    def second_q_ops(self) -> dict[str, SecondQuantizedOp]:
         """Returns the second quantized operators associated with this Property.
 
-        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
-
         Returns:
-            A `list` or `dict` of `SecondQuantizedOp` objects.
+            A `dict` of `SecondQuantizedOp` objects.
         """
 
     @classmethod
@@ -60,11 +58,9 @@ class GroupedSecondQuantizedProperty(GroupedProperty[T_co], SecondQuantizedPrope
     second-quantized properties."""
 
     @abstractmethod
-    def second_q_ops(self) -> ListOrDictType[SecondQuantizedOp]:
+    def second_q_ops(self) -> dict[str, SecondQuantizedOp]:
         """Returns the second quantized operators associated with the properties in this group.
 
-        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
-
         Returns:
-            A `list` or `dict` of `SecondQuantizedOp` objects.
+            A `dict` of `SecondQuantizedOp` objects.
         """

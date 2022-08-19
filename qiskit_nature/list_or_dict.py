@@ -16,6 +16,7 @@ from typing import Dict, Generator, Generic, Iterable, Optional, Tuple, TypeVar,
 from qiskit.algorithms.minimum_eigen_solvers.minimum_eigen_solver import (
     ListOrDict as ListOrDictType,
 )
+from qiskit_nature.deprecation import warn_deprecated, DeprecatedType, NatureDeprecationWarning
 
 # pylint: disable=invalid-name
 T = TypeVar("T")
@@ -34,6 +35,15 @@ class ListOrDict(Dict, Iterable, Generic[T]):
         Args:
             values: an optional object of `list` or `dict` type.
         """
+        warn_deprecated(
+            "0.5.0",
+            old_type=DeprecatedType.CLASS,
+            old_name="qiskit_nature.ListOrDict",
+            additional_msg=(
+                ". Qiskit Nature will now always produce dictionary-style auxiliary operators."
+            ),
+            category=NatureDeprecationWarning,
+        )
         if isinstance(values, list):
             values = dict(enumerate(values))
         elif values is None:

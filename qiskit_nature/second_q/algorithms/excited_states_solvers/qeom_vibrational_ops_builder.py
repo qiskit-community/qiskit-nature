@@ -12,7 +12,9 @@
 
 """Utility methods to build vibrational hopping operators."""
 
-from typing import cast, Callable, Dict, List, Tuple, Union
+from __future__ import annotations
+
+from typing import Callable, Dict, List, Tuple
 
 from qiskit.opflow import PauliSumOp
 from qiskit.tools import parallel_map
@@ -23,14 +25,15 @@ from qiskit_nature.second_q.operators import VibrationalOp
 from qiskit_nature.second_q.mappers import QubitConverter
 
 
-def _build_qeom_hopping_ops(
+def build_vibrational_ops(
     num_modals: List[int],
     qubit_converter: QubitConverter,
-    excitations: Union[
-        str,
-        int,
-        List[int],
-        Callable[[int, Tuple[int, int]], List[Tuple[Tuple[int, ...], Tuple[int, ...]]]],
+    excitations: str
+    | int
+    | list[int]
+    | Callable[
+        [int, tuple[int, int]],
+        list[tuple[tuple[int, ...], tuple[int, ...]]],
     ] = "sd",
 ) -> Tuple[
     Dict[str, PauliSumOp],
@@ -54,15 +57,8 @@ def _build_qeom_hopping_ops(
         Dict of hopping operators, dict of commutativity types and dict of excitation indices
     """
 
-    excitations_list: List[Tuple[Tuple[int, ...], Tuple[int, ...]]]
-    if isinstance(excitations, (str, int)) or (
-        isinstance(excitations, list) and all(isinstance(exc, int) for exc in excitations)
-    ):
-        ansatz = UVCC(qubit_converter, num_modals, excitations)
-        excitations_list = ansatz._get_excitation_list()
-    else:
-        excitations_list = cast(List[Tuple[Tuple[int, ...], Tuple[int, ...]]], excitations)
-
+    ansatz = UVCC(qubit_converter, num_modals, excitations)
+    excitations_list = ansatz._get_excitation_list()
     size = len(excitations_list)
 
     hopping_operators: Dict[str, PauliSumOp] = {}

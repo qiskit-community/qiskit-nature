@@ -11,23 +11,81 @@
 # that they have been altered from the originals.
 
 """A converter from Second-Quantized to Qubit Operators."""
+
+from __future__ import annotations
+
 import copy
 import logging
-from typing import cast, Callable, List, Optional, Tuple, Union
+from typing import (
+    cast,
+    Callable,
+    Dict,
+    Generator,
+    Generic,
+    Iterable,
+    List,
+    Optional,
+    Tuple,
+    TypeVar,
+    Union,
+)
 
 import numpy as np
 
+from qiskit.algorithms.minimum_eigen_solvers.minimum_eigen_solver import (
+    ListOrDict as ListOrDictType,
+)
 from qiskit.opflow import PauliSumOp
 from qiskit.opflow.converters import TwoQubitReduction
 from qiskit.opflow.primitive_ops import Z2Symmetries
 
-from qiskit_nature import ListOrDictType, QiskitNatureError
-from qiskit_nature import ListOrDict
+from qiskit_nature import QiskitNatureError
 
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from .qubit_mapper import QubitMapper
 
+# pylint: disable=invalid-name
+T = TypeVar("T")
+
 logger = logging.getLogger(__name__)
+
+
+class _ListOrDict(Dict, Iterable, Generic[T]):
+    """The ListOrDict utility class.
+
+    This is a utility which allows seamless iteration of a `list` or `dict` object.
+    """
+
+    def __init__(self, values: Optional[ListOrDictType] = None):
+        """
+        Args:
+            values: an optional object of `list` or `dict` type.
+        """
+        if isinstance(values, list):
+            values = dict(enumerate(values))
+        elif values is None:
+            values = {}
+        super().__init__(values)
+
+    def __iter__(self) -> Generator[Tuple[Union[int, str], T], T, None]:
+        """Return the generator-iterator method."""
+        return self._generator()
+
+    def _generator(self) -> Generator[Tuple[Union[int, str], T], T, None]:
+        """Return generator method iterating the contents of this class.
+
+        This generator yields the `(key, value)` pairs of the underlying dictionary. If this object
+        was constructed from a list, the keys in this generator are simply the numeric indices.
+
+        This generator also supports overriding the yielded value upon receiving any value other
+        than `None` from a `send` [1] instruction.
+
+        [1]: https://docs.python.org/3/reference/expressions.html#generator.send
+        """
+        for key, value in self.items():
+            new_value = yield (key, value)
+            if new_value is not None:
+                self[key] = new_value
 
 
 class QubitConverter:
@@ -279,13 +337,13 @@ class QubitConverter:
             second_q_ops = [second_q_ops]
             suppress_none = False  # When only a single op we will return None back
 
-        wrapped_second_q_ops: ListOrDict[SecondQuantizedOp] = ListOrDict(second_q_ops)
+        wrapped_second_q_ops: _ListOrDict[SecondQuantizedOp] = _ListOrDict(second_q_ops)
 
-        qubit_ops: ListOrDict[PauliSumOp] = ListOrDict()
+        qubit_ops: _ListOrDict[PauliSumOp] = _ListOrDict()
         for name, second_q_op in iter(wrapped_second_q_ops):
             qubit_ops[name] = self._map(second_q_op)
 
-        reduced_ops: ListOrDict[PauliSumOp] = ListOrDict()
+        reduced_ops: _ListOrDict[PauliSumOp] = _ListOrDict()
         for name, qubit_op in iter(qubit_ops):
             reduced_ops[name] = self._two_qubit_reduce(qubit_op, self._num_particles)
 
@@ -323,9 +381,9 @@ class QubitConverter:
         else:
             wrapped_type = type(second_q_ops)
 
-            wrapped_second_q_ops: ListOrDict[SecondQuantizedOp] = ListOrDict(second_q_ops)
+            wrapped_second_q_ops: _ListOrDict[SecondQuantizedOp] = _ListOrDict(second_q_ops)
 
-            qubit_ops = ListOrDict()
+            qubit_ops = _ListOrDict()
             for name, second_q_op in iter(wrapped_second_q_ops):
                 qubit_ops[name] = self._map(second_q_op)
 
@@ -421,9 +479,9 @@ class QubitConverter:
 
     def _symmetry_reduce(
         self,
-        qubit_ops: ListOrDict[PauliSumOp],
+        qubit_ops: _ListOrDict[PauliSumOp],
         check_commutes: bool,
-    ) -> ListOrDict[PauliSumOp]:
+    ) -> _ListOrDict[PauliSumOp]:
 
         if self._z2symmetries is None or self._z2symmetries.is_empty():
             tapered_qubit_ops = qubit_ops
@@ -440,13 +498,13 @@ class QubitConverter:
                     logger.debug("Qubit operator '%s' commuted with symmetry: %s", name, commutes)
 
                 # Tapering values were set from prior convert so we go ahead and taper operators
-                tapered_qubit_ops = ListOrDict()
+                tapered_qubit_ops = _ListOrDict()
                 for name, commutes in commuted.items():
                     if commutes:
                         tapered_qubit_ops[name] = self._z2symmetries.taper(qubit_ops[name])
             else:
                 logger.debug("Tapering operators whether they commute with symmetry or not:")
-                tapered_qubit_ops = ListOrDict()
+                tapered_qubit_ops = _ListOrDict()
                 for name, qubit_op in iter(qubit_ops):
                     tapered_qubit_ops[name] = self._z2symmetries.taper(qubit_ops[name])
 

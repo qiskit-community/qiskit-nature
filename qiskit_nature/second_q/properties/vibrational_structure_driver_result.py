@@ -16,12 +16,9 @@ from __future__ import annotations
 
 import h5py
 
-from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.second_q.operators import VibrationalOp
 
 from .bases import VibrationalBasis
-from .occupied_modals import OccupiedModals
-from .vibrational_energy import VibrationalEnergy
 from .vibrational_types import GroupedVibrationalProperty
 
 
@@ -93,24 +90,12 @@ class VibrationalStructureDriverResult(GroupedVibrationalProperty):
 
         return ret
 
-    def second_q_ops(self) -> ListOrDictType[VibrationalOp]:
+    def second_q_ops(self) -> dict[str, VibrationalOp]:
         """Returns the second quantized operators associated with the properties in this group.
 
-        The actual return-type is determined by `qiskit_nature.settings.dict_aux_operators`.
-
         Returns:
-            A `list` or `dict` of `VibrationalOp` objects.
+            A `dict` of `VibrationalOp` objects.
         """
-        ops: ListOrDictType[VibrationalOp]
-        if not settings.dict_aux_operators:
-            ops = []
-            for cls in [VibrationalEnergy, OccupiedModals]:
-                prop = self.get_property(cls)  # type: ignore
-                if prop is None:
-                    continue
-                ops.extend(prop.second_q_ops())
-            return ops
-
         ops = {}
         for prop in iter(self):
             ops.update(prop.second_q_ops())
