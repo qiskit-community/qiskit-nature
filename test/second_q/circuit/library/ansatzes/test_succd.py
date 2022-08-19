@@ -150,3 +150,135 @@ class TestSUCCD(QiskitNatureTestCase):
         )
 
         assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)
+
+    @unpack
+    @data(
+        (
+            6,
+            (1, 1),
+            [
+                FermionicOp([("+-I+-I", 1j), ("-+I-+I", -1j)], display_format="dense"),
+                FermionicOp(
+                    [("+-I+I-", 1j), ("-+I-I+", -1j), ("+I-+-I", 1j), ("-I+-+I", -1j)],
+                    display_format="dense",
+                ),
+                FermionicOp([("+I-+I-", 1j), ("-I+-I+", -1j)], display_format="dense"),
+            ],
+        ),
+    )
+    def test_succ_mirror(self, num_spin_orbitals, num_particles, expect):
+        """Tests the `mirror` option of the SUCCD Ansatz."""
+        converter = QubitConverter(JordanWignerMapper())
+
+        ansatz = SUCCD(
+            qubit_converter=converter,
+            num_particles=num_particles,
+            num_spin_orbitals=num_spin_orbitals,
+            mirror=True,
+        )
+
+        assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)
+
+    @unpack
+    @data(
+        (
+            6,
+            (1, 1),
+            (True, True),
+            [
+                FermionicOp([("+-IIII", 1j), ("-+IIII", 1j)], display_format="dense"),
+                FermionicOp([("+I-III", 1j), ("-I+III", 1j)], display_format="dense"),
+                FermionicOp([("III+-I", 1j), ("III-+I", 1j)], display_format="dense"),
+                FermionicOp([("III+I-", 1j), ("III-I+", 1j)], display_format="dense"),
+                FermionicOp([("+-I+-I", 1j), ("-+I-+I", (-0 - 1j))], display_format="dense"),
+                FermionicOp(
+                    [("+-I+I-", 1j), ("-+I-I+", (-0 - 1j)), ("+I-+-I", 1j), ("-I+-+I", (-0 - 1j))],
+                    display_format="dense",
+                ),
+                FermionicOp([("+I-+I-", 1j), ("-I+-I+", (-0 - 1j))], display_format="dense"),
+            ],
+        ),
+        (
+            6,
+            (1, 1),
+            (True, False),
+            [
+                FermionicOp([("+-IIII", 1j), ("-+IIII", 1j)], display_format="dense"),
+                FermionicOp([("+I-III", 1j), ("-I+III", 1j)], display_format="dense"),
+                FermionicOp([("+-I+-I", 1j), ("-+I-+I", (-0 - 1j))], display_format="dense"),
+                FermionicOp(
+                    [("+-I+I-", 1j), ("-+I-I+", (-0 - 1j)), ("+I-+-I", 1j), ("-I+-+I", (-0 - 1j))],
+                    display_format="dense",
+                ),
+                FermionicOp([("+I-+I-", 1j), ("-I+-I+", (-0 - 1j))], display_format="dense"),
+            ],
+        ),
+        (
+            6,
+            (1, 1),
+            (False, True),
+            [
+                FermionicOp([("III+-I", 1j), ("III-+I", 1j)], display_format="dense"),
+                FermionicOp([("III+I-", 1j), ("III-I+", 1j)], display_format="dense"),
+                FermionicOp([("+-I+-I", 1j), ("-+I-+I", (-0 - 1j))], display_format="dense"),
+                FermionicOp(
+                    [("+-I+I-", 1j), ("-+I-I+", (-0 - 1j)), ("+I-+-I", 1j), ("-I+-+I", (-0 - 1j))],
+                    display_format="dense",
+                ),
+                FermionicOp([("+I-+I-", 1j), ("-I+-I+", (-0 - 1j))], display_format="dense"),
+            ],
+        ),
+    )
+    def test_succ_mirror_with_singles(
+        self, num_spin_orbitals, num_particles, include_singles, expect
+    ):
+        """Tests the succ_mirror Ansatz with included single excitations."""
+        converter = QubitConverter(JordanWignerMapper())
+
+        ansatz = SUCCD(
+            qubit_converter=converter,
+            num_particles=num_particles,
+            num_spin_orbitals=num_spin_orbitals,
+            include_singles=include_singles,
+            mirror=True,
+        )
+
+        assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)
+
+    @unpack
+    @data(
+        (
+            6,
+            (1, 1),
+            [
+                FermionicOp([("+-I+-I", 1j), ("-+I-+I", (-0 - 1j))], display_format="dense"),
+                FermionicOp(
+                    [("+-I+I-", 1j), ("-+I-I+", (-0 - 1j)), ("+I-+-I", 1j), ("-I+-+I", (-0 - 1j))],
+                    display_format="dense",
+                ),
+                FermionicOp(
+                    [("+-II+-", 1j), ("-+II-+", (-0 - 1j)), ("I+-+-I", 1j), ("I-+-+I", (-0 - 1j))],
+                    display_format="dense",
+                ),
+                FermionicOp([("+I-+I-", 1j), ("-I+-I+", (-0 - 1j))], display_format="dense"),
+                FermionicOp(
+                    [("+I-I+-", 1j), ("-I+I-+", (-0 - 1j)), ("I+-+I-", 1j), ("I-+-I+", (-0 - 1j))],
+                    display_format="dense",
+                ),
+                FermionicOp([("I+-I+-", 1j), ("I-+I-+", (-0 - 1j))], display_format="dense"),
+            ],
+        )
+    )
+    def test_succ_mirror_ansatz_generalized(self, num_spin_orbitals, num_particles, expect):
+        """Tests the generalized succ_mirror Ansatz."""
+        converter = QubitConverter(JordanWignerMapper())
+
+        ansatz = SUCCD(
+            qubit_converter=converter,
+            num_particles=num_particles,
+            num_spin_orbitals=num_spin_orbitals,
+            generalized=True,
+            mirror=True,
+        )
+
+        assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)

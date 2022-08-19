@@ -294,16 +294,19 @@ class UCC(EvolvedOperatorAnsatz):
                 # the ``excitation_list`` is transformed identically to the operators, we retain
                 # ``None`` for non-commuting operators in order to manually remove them in unison.
                 operators = self.qubit_converter.convert_match(excitation_ops, suppress_none=False)
-                valid_operators, valid_excitations = [], []
-                for op, ex in zip(operators, self._excitation_list):
-                    if op is not None:
-                        valid_operators.append(op)
-                        valid_excitations.append(ex)
-
-                self._excitation_list = valid_excitations
-                self.operators = valid_operators
+                self._filter_operators(operators=operators)
 
         return super(UCC, self.__class__).operators.__get__(self)
+
+    def _filter_operators(self, operators):
+        valid_operators, valid_excitations = [], []
+        for op, ex in zip(operators, self._excitation_list):
+            if op is not None:
+                valid_operators.append(op)
+                valid_excitations.append(ex)
+
+        self._excitation_list = valid_excitations
+        self.operators = valid_operators
 
     def _invalidate(self):
         self._excitation_ops = None

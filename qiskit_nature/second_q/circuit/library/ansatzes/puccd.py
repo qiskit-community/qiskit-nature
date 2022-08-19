@@ -99,6 +99,8 @@ class PUCCD(UCC):
     @include_singles.setter
     def include_singles(self, include_singles: Tuple[bool, bool]) -> None:
         """Sets whether to include single excitations."""
+        self._operators = None
+        self._invalidate()
         self._include_singles = include_singles
 
     def generate_excitations(
