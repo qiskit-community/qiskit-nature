@@ -37,10 +37,13 @@ opComplex = {
     "+_0 -_2": 1.0,
 }
 
+
 class DummySparseLabelOp(SparseLabelOp):
     """Dummy SparseLabelOp for testing purposes"""
+
     def transpose(self) -> SparseLabelOp:
         return self
+
 
 class TestSparseLabelOp(QiskitNatureTestCase):
     """SparseLabelOp tests."""
