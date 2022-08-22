@@ -13,6 +13,7 @@
 """The Sparse Label Operator base class."""
 
 from __future__ import annotations
+from abc import ABC, abstractmethod
 from typing import Mapping, Iterator
 from numbers import Number
 import cmath
@@ -21,7 +22,7 @@ import numpy as np
 from qiskit.quantum_info.operators.mixins import LinearMixin, AdjointMixin, TolerancesMixin
 
 
-class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin):
+class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC):
     """The Sparse Label Operator base class."""
 
     def __init__(self, data: Mapping[str, complex], register_length: int, **kwargs):
@@ -56,14 +57,14 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin):
             raise ValueError(
                 f"Unsupported operand type(s) for +: 'SparseLabelOp' and '{type(other).__name__}'"
             )
-        
+
         new_data = {key: value + other._data.get(key, 0) for key, value in self._data.items()}
         other_unique = {key: other._data[key] for key in other._data.keys() - self._data.keys()}
         new_data.update(other_unique)
 
         register_length = max(self._register_length, other._register_length)
 
-        return SparseLabelOp(new_data, register_length, _dont_copy=True)
+        return self.__class__(new_data, register_length, _dont_copy=True)
 
     def _multiply(self, other: complex) -> SparseLabelOp:
         """Return scalar multiplication of self and other.
@@ -81,11 +82,9 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin):
             raise TypeError(
                 f"Unsupported operand type(s) for *: 'SparseLabelOp' and '{type(other).__name__}'"
             )
-        new_data = {
-            key: val * other for key, val in self._data.items()
-        }
+        new_data = {key: val * other for key, val in self._data.items()}
 
-        return SparseLabelOp(new_data, self._register_length, _dont_copy=True)
+        return self.__class__(new_data, self._register_length, _dont_copy=True)
 
     def conjugate(self) -> SparseLabelOp:
         """Returns the conjugate of the ``SparseLabelOp``
@@ -95,15 +94,15 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin):
         """
         new_data = {key: np.conjugate(val) for key, val in self._data.items()}
 
-        return SparseLabelOp(new_data, self._register_length, _dont_copy=True)
+        return self.__class__(new_data, self._register_length, _dont_copy=True)
 
+    @abstractmethod
     def transpose(self) -> SparseLabelOp:
         """This method has no effect on ``SparseLabelOp`` and returns itself.
 
         Returns:
             the initial ``SparseLabelOp``.
         """
-        return self
 
     def equiv(self, other: SparseLabelOp) -> bool:
         """Check equivalence of two ``SparseLabelOp`` instances to an accepted tolerance
