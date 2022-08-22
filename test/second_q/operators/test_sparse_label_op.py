@@ -15,7 +15,7 @@
 import unittest
 from test import QiskitNatureTestCase
 
-from qiskit_nature.operators.second_quantization import SparseLabelOp
+from qiskit_nature.second_q.operators import SparseLabelOp
 
 op1 = {
     "+_0 -_1": 0.0,

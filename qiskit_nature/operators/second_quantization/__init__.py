@@ -26,7 +26,6 @@ Second-Quantization Operators
    QuadraticHamiltonian
    SpinOp
    SecondQuantizedOp
-   SparseLabelOp
    VibrationalOp
 """
 
@@ -35,7 +34,6 @@ from .quadratic_hamiltonian import QuadraticHamiltonian
 from .second_quantized_op import SecondQuantizedOp
 from .spin_op import SpinOp
 from .vibrational_op import VibrationalOp
-from .sparse_label_op import SparseLabelOp
 
 __all__ = [
     "FermionicOp",
@@ -43,5 +41,4 @@ __all__ = [
     "SecondQuantizedOp",
     "SpinOp",
     "VibrationalOp",
-    "SparseLabelOp",
 ]
