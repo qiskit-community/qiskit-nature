@@ -97,6 +97,9 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin):
     def __eq__(self, other):
         """Check equality of PolynomialTensors"""
 
+        if not isinstance(other, PolynomialTensor):
+            raise TypeError("Incorrect argument type: other should be PolynomialTensor")
+
         if self._data.keys() != other._data.keys():
             return False
         for key, value in self._data.items():
