@@ -12,6 +12,8 @@
 
 """The ground state calculation interface."""
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional, Union, Tuple
 
@@ -22,7 +24,6 @@ from qiskit.quantum_info import Statevector
 from qiskit.result import Result
 from qiskit.opflow import OperatorBase, PauliSumOp
 
-from qiskit_nature import ListOrDictType
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.problems import BaseProblem
@@ -44,7 +45,7 @@ class GroundStateSolver(ABC):
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
+        aux_operators: Optional[dict[str, Union[SecondQuantizedOp, PauliSumOp]]] = None,
     ) -> EigenstateResult:
         """Compute the ground state energy of the molecule that was supplied via the driver.
 
@@ -62,8 +63,8 @@ class GroundStateSolver(ABC):
     def get_qubit_operators(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
-    ) -> Tuple[PauliSumOp, Optional[ListOrDictType[PauliSumOp]]]:
+        aux_operators: Optional[dict[str, Union[SecondQuantizedOp, PauliSumOp]]] = None,
+    ) -> Tuple[PauliSumOp, Optional[dict[str, PauliSumOp]]]:
         """Construct qubit operators by getting the second quantized operators from the problem
         (potentially running a driver in doing so [can be computationally expensive])
         and using a QubitConverter to map + reduce the operators to qubit ops

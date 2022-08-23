@@ -13,7 +13,8 @@
 The SUCCD Ansatz.
 """
 
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Sequence, Dict, cast
+from collections import defaultdict
 
 import itertools
 import logging
@@ -22,6 +23,8 @@ from qiskit.circuit import QuantumCircuit
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.mappers import QubitConverter
 
+from qiskit_nature.second_q.operators import FermionicOp
+
 from .ucc import UCC
 from .utils.fermionic_excitation_generator import (
     generate_fermionic_excitations,
@@ -29,10 +32,6 @@ from .utils.fermionic_excitation_generator import (
 )
 
 logger = logging.getLogger(__name__)
-
-
-# TODO: figure out how to implement `succ_full`: a variant of this class, which does include also
-# the symmetrically mirrored double excitations, but assigns the same circuit parameter to them.
 
 
 class SUCCD(UCC):
@@ -48,7 +47,6 @@ class SUCCD(UCC):
     This is a convenience subclass of the UCC Ansatz. For more information refer to :class:`UCC`.
 
     References:
-
         [1] https://arxiv.org/abs/1911.10864
     """
 
@@ -61,9 +59,9 @@ class SUCCD(UCC):
         initial_state: Optional[QuantumCircuit] = None,
         include_singles: Tuple[bool, bool] = (False, False),
         generalized: bool = False,
+        mirror: bool = False,
     ):
         """
-
         Args:
             qubit_converter: the QubitConverter instance which takes care of mapping a
                 :class:`~.SecondQuantizedOp` to a :class:`PauliSumOp` as well as performing all
@@ -77,12 +75,18 @@ class SUCCD(UCC):
                 the occupation of the spin orbitals. As such, the set of generalized excitations is
                 only determined from the number of spin orbitals and independent from the number of
                 particles.
-
+            mirror: boolean flag whether or not to include the symmetrically mirrored double
+                  excitations, while keeping the original number of circuit
+                  parameters. This results in mirrored excitations having identical parameter values.
+                  Enabling this parameter will result in the SUCCD ansatz referred to as
+                  "q-UCCSD0-full" in reference [1].
         Raises:
             QiskitNatureError: if the number of alpha and beta electrons is not equal.
         """
         self._validate_num_particles(num_particles)
         self._include_singles = include_singles
+        self._mirror = mirror
+        self._excitations_dict: Dict[str, List[Tuple[Tuple[int, ...], Tuple[int, ...]]]] = None
         super().__init__(
             qubit_converter=qubit_converter,
             num_particles=num_particles,
@@ -104,7 +108,31 @@ class SUCCD(UCC):
     @include_singles.setter
     def include_singles(self, include_singles: Tuple[bool, bool]) -> None:
         """Sets whether to include single excitations."""
+        self._operators = None
+        self._invalidate()
         self._include_singles = include_singles
+
+    @property
+    def mirror(self) -> bool:
+        """Whether to include the symmetrically mirrored double excitations."""
+        return self._mirror
+
+    @mirror.setter
+    def mirror(self, mirror: bool) -> None:
+        """Sets whether to include the symmetrically mirrored double excitations."""
+        self._operators = None
+        self._invalidate()
+        self._mirror = mirror
+
+    def _filter_operators(self, operators):
+        valid_operators, valid_excitations = [], []
+        for op, ex in zip(operators, self._excitations_dict.values()):
+            if op is not None:
+                valid_operators.append(op)
+                valid_excitations.extend(ex)
+
+        self._excitation_list = valid_excitations
+        self.operators = valid_operators
 
     def generate_excitations(
         self, num_spin_orbitals: int, num_particles: Tuple[int, int]
@@ -114,7 +142,7 @@ class SUCCD(UCC):
         Args:
             num_spin_orbitals: the number of spin orbitals.
             num_particles: the number of alpha and beta electrons. Note, these must be identical for
-            this class.
+                this class.
 
         Raises:
             QiskitNatureError: if the number of alpha and beta electrons is not equal.
@@ -127,6 +155,7 @@ class SUCCD(UCC):
         self._validate_num_particles(num_particles)
 
         excitations: List[Tuple[Tuple[int, ...], Tuple[int, ...]]] = []
+
         excitations.extend(
             generate_fermionic_excitations(
                 1,
@@ -136,37 +165,49 @@ class SUCCD(UCC):
                 beta_spin=self.include_singles[1],
             )
         )
-
         num_electrons = num_particles[0]
         beta_index_shift = num_spin_orbitals // 2
 
-        # generate alpha-spin orbital indices for occupied and unoccupied ones
-        alpha_excitations = get_alpha_excitations(
-            num_electrons, num_spin_orbitals, self._generalized
-        )
-        logger.debug("Generated list of single alpha excitations: %s", alpha_excitations)
-
-        # Find all possible double excitations constructed from the list of single excitations.
-        # Note, that we use `combinations_with_replacement` here, in order to also get those double
-        # excitations which excite from the same occupied level twice. We will need those in the
-        # following post-processing step.
-        pool = itertools.combinations_with_replacement(alpha_excitations, 2)
-
-        for exc in pool:
-            # find the two excitations (Note: SUCCD only works for double excitations!)
-            alpha_exc, second_exc = exc[0], exc[1]
-            # shift the second excitation into the beta-spin orbital index range
-            beta_exc = (
-                second_exc[0] + beta_index_shift,
-                second_exc[1] + beta_index_shift,
+        if self._mirror:
+            # We can use `generate_fermionic_excitations` here because we want to include the
+            # symmetrically mirrored double excitations
+            excitations.extend(
+                generate_fermionic_excitations(
+                    2,
+                    num_spin_orbitals,
+                    num_particles,
+                    max_spin_excitation=1,
+                    generalized=self._generalized,
+                )
             )
-            # add the excitation tuple
-            occ: Tuple[int, ...]
-            unocc: Tuple[int, ...]
-            occ, unocc = zip(alpha_exc, beta_exc)
-            exc_tuple = (occ, unocc)
-            excitations.append(exc_tuple)
-            logger.debug("Added the excitation: %s", exc_tuple)
+
+        else:
+            # generate alpha-spin orbital indices for occupied and unoccupied ones
+            alpha_excitations = get_alpha_excitations(
+                num_electrons, num_spin_orbitals, self._generalized
+            )
+            logger.debug("Generated list of single alpha excitations: %s", alpha_excitations)
+
+            # Find all possible double excitations constructed from the list of single excitations.
+            # Note, that we use `combinations_with_replacement` here, in order to also get those
+            # double excitations which excite from the same occupied level twice. We will need
+            # those in the following post-processing step.
+
+            for exc in itertools.combinations_with_replacement(alpha_excitations, 2):
+                # find the two excitations (Note: SUCCD only works for double excitations!)
+                alpha_exc, second_exc = exc[0], exc[1]
+                # shift the second excitation into the beta-spin orbital index range
+                beta_exc = (
+                    second_exc[0] + beta_index_shift,
+                    second_exc[1] + beta_index_shift,
+                )
+                # add the excitation tuple
+                occ: Tuple[int, ...]
+                unocc: Tuple[int, ...]
+                occ, unocc = zip(alpha_exc, beta_exc)
+                exc_tuple = (occ, unocc)
+                excitations.append(exc_tuple)
+                logger.debug("Added the excitation: %s", exc_tuple)
 
         return excitations
 
@@ -179,3 +220,53 @@ class SUCCD(UCC):
                 "differing numbers of alpha and beta electrons:",
                 str(num_particles),
             ) from exc
+
+    def _build_fermionic_excitation_ops(self, excitations: Sequence) -> List[FermionicOp]:
+        """Builds all possible excitation operators with the given number of excitations for the
+        specified number of particles distributed in the number of orbitals.
+
+        Args:
+            excitations: the list of excitations.
+
+        Returns:
+            The list of excitation operators in the second quantized formalism.
+        """
+        operators: List[FermionicOp] = []
+        excitations_dictionary: Dict[
+            str, List[Tuple[Tuple[int, ...], Tuple[int, ...]]]
+        ] = defaultdict(list)
+        beta_index_shift = self.num_spin_orbitals // 2
+
+        # Reform the excitations list to a dictionary. Each items in the dictionary
+        # corresponds to a parameter.
+        for exc in excitations:
+            alpha_occ = exc[0][0]
+            # beta occupied indices. If include singles, then beta_occ=alpha_occ
+            beta_occ = exc[0][-1]
+            alpha_unocc = exc[1][0]
+            # beta unoccupied indices. If include singles, then beta_unocc=alpha_unocc
+            beta_unocc = exc[1][-1]
+            alpha_exc = int(
+                str(alpha_occ) + str(alpha_unocc)
+            )  # alpha occupied and unoccupied indices
+            beta_exc = int(
+                str(abs(beta_occ - beta_index_shift)) + str(abs(beta_unocc - beta_index_shift))
+            )  # beta occupied and unoccupied indices.
+
+            exc_level = str(abs(alpha_exc - beta_exc)) + str(alpha_exc + beta_exc)
+            # exc_level is a 4-number string, which indicate alpha and beta occupied+unoccupied indices.
+            # Thus, the level of an excitations is indicated by this string. The symmetrically
+            # mirrored double excitations have the same exc_level string, and the
+            # excitations with the same level will be assigned the same parameter.
+
+            excitations_dictionary[exc_level].append(exc)
+
+        self._excitations_dict = excitations_dictionary
+
+        for exc_level, exc_level_items in excitations_dictionary.items():
+            sum_ops = cast(
+                FermionicOp, sum(super()._build_fermionic_excitation_ops(exc_level_items))
+            )
+            operators.append(sum_ops)
+
+        return operators

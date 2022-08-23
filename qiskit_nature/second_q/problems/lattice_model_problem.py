@@ -9,14 +9,16 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+
 """The Lattice Model Problem class."""
+
+from __future__ import annotations
 
 from typing import Callable, List, Optional, Union
 
 import numpy as np
 
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
-from qiskit_nature import ListOrDictType, settings
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 
 from qiskit_nature.second_q.properties.lattice_model import LatticeModel
@@ -37,20 +39,15 @@ class LatticeModelProblem(BaseProblem):
         super().__init__(main_property_name="LatticeEnergy")
         self._lattice_model = lattice_model
 
-    def second_q_ops(self) -> ListOrDictType[SecondQuantizedOp]:
+    def second_q_ops(self) -> tuple[SecondQuantizedOp, dict[str, SecondQuantizedOp]]:
         """Returns the second quantized operators created based on the lattice models.
 
         Returns:
-            A ``list`` or ``dict`` of
-            :class:`~qiskit_nature.second_q.operators.SecondQuantizedOp`
+            A tuple, with the first object being the main operator and the second being a dictionary
+            of auxiliary operators.
         """
-        second_q_ops: ListOrDictType[SecondQuantizedOp] = self._lattice_model.second_q_ops()
-        if settings.dict_aux_operators:
-            second_q_ops = {self._main_property_name: second_q_ops}
-        else:
-            second_q_ops = [second_q_ops]
-
-        return second_q_ops
+        second_q_op = self._lattice_model.second_q_ops()
+        return second_q_op, {}
 
     def interpret(
         self,

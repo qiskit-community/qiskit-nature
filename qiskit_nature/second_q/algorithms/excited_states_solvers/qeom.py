@@ -32,7 +32,6 @@ from qiskit.opflow import (
     PauliSumOp,
 )
 
-from qiskit_nature import ListOrDictType
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.problems import (
     BaseProblem,
@@ -121,14 +120,14 @@ class QEOM(ExcitedStatesSolver):
     def get_qubit_operators(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[ListOrDictType[Union[SecondQuantizedOp, PauliSumOp]]] = None,
-    ) -> Tuple[PauliSumOp, Optional[ListOrDictType[PauliSumOp]]]:
+        aux_operators: Optional[dict[str, Union[SecondQuantizedOp, PauliSumOp]]] = None,
+    ) -> Tuple[PauliSumOp, Optional[dict[str, PauliSumOp]]]:
         return self._gsc.get_qubit_operators(problem, aux_operators)
 
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[ListOrDictType[SecondQuantizedOp]] = None,
+        aux_operators: Optional[dict[str, SecondQuantizedOp]] = None,
     ) -> EigenstateResult:
         """Run the excited-states calculation.
 
@@ -154,11 +153,7 @@ class QEOM(ExcitedStatesSolver):
         groundstate_result = self._gsc.solve(problem, aux_operators)
 
         # 2. Prepare the excitation operators
-        second_q_ops = problem.second_q_ops()
-        if isinstance(second_q_ops, list):
-            main_second_q_op = second_q_ops[0]
-        elif isinstance(second_q_ops, dict):
-            main_second_q_op = second_q_ops.pop(problem.main_property_name)
+        main_second_q_op, _ = problem.second_q_ops()
 
         self._untapered_qubit_op_main = self._gsc.qubit_converter.convert_only(
             main_second_q_op, problem.num_particles
