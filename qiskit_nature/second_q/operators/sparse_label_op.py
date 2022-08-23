@@ -50,9 +50,6 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC):
         Raises:
             ValueError: when ``qargs`` argument is not ``None``
         """
-        if qargs is not None:
-            raise ValueError(f"The `qargs` argument must be `None`, not {qargs}")
-
         if not isinstance(other, SparseLabelOp):
             raise ValueError(
                 f"Unsupported operand type(s) for +: 'SparseLabelOp' and '{type(other).__name__}'"
