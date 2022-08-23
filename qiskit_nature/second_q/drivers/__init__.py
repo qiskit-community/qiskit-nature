@@ -42,7 +42,6 @@ from .vibrational_structure_molecule_driver import (
 from .base_driver import BaseDriver
 from .vibrational_structure_driver import VibrationalStructureDriver
 from .electronic_structure_driver import ElectronicStructureDriver, MethodType
-from .fcidumpd import FCIDumpDriver
 from .gaussiand import GaussianDriver, GaussianLogDriver, GaussianLogResult, GaussianForcesDriver
 from .hdf5d import HDF5Driver
 from .psi4d import PSI4Driver
@@ -58,7 +57,6 @@ __all__ = [
     "BaseDriver",
     "VibrationalStructureDriver",
     "ElectronicStructureDriver",
-    "FCIDumpDriver",
     "GaussianDriver",
     "GaussianForcesDriver",
     "GaussianLogDriver",

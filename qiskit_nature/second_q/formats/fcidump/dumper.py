@@ -12,70 +12,13 @@
 
 """FCIDump dumper."""
 
-from typing import List, Optional, Union, TextIO, Tuple, Iterator, Any
+from typing import List, Union, TextIO, Tuple, Iterator, Any
 import itertools
 import numpy as np
 
 
-def dump(
-    outpath: str,
-    norb: int,
-    nelec: int,
-    hijs: np.ndarray,
-    hijkls: np.ndarray,
-    einact: float,
-    ms2: int = 0,
-    orbsym: Optional[List[str]] = None,
-    isym: int = 1,
-) -> None:
-    """Generates a FCIDump output.
-
-    Args:
-        outpath: Path to the output file.
-        norb: The number of orbitals.
-        nelec: The number of electrons.
-        hijs: The pair of alpha and beta 1-electron integrals. The latter may be None.
-        hijkls: The triplet of alpha/alpha, beta/alpha and beta/beta 2-electron integrals. The
-            latter two may be None.
-        einact: The inactive energy.
-        ms2: 2*S, where S is the spin quantum number.
-        orbsym: A list of spatial symmetries of the orbitals.
-        isym: The spatial symmetry of the wave function.
-    """
-    hij, hij_b = hijs
-    hijkl, hijkl_ba, hijkl_bb = hijkls
-    # assert that either all beta variables are None or all of them are not
-    assert all(h is None for h in [hij_b, hijkl_ba, hijkl_bb]) or all(
-        h is not None for h in [hij_b, hijkl_ba, hijkl_bb]
-    )
-    assert norb == hij.shape[0] == hijkl.shape[0]
-    mos = range(norb)
-    with open(outpath, "w", encoding="utf8") as outfile:
-        # print header
-        outfile.write(f"&FCI NORB={norb:4d},NELEC={nelec:4d},MS2={ms2:4d}\n")
-        if orbsym is None:
-            outfile.write(" ORBSYM=" + "1," * norb + "\n")
-        else:
-            assert len(orbsym) == norb
-            outfile.write(" ORBSYM=" + ",".join(orbsym) + "\n")
-        outfile.write(f" ISYM={isym:d},\n&END\n")
-        # append 2e integrals
-        _dump_2e_ints(hijkl, mos, outfile)
-        if hijkl_ba is not None:
-            _dump_2e_ints(hijkl_ba.transpose(), mos, outfile, beta=1)
-        if hijkl_bb is not None:
-            _dump_2e_ints(hijkl_bb, mos, outfile, beta=2)
-        # append 1e integrals
-        _dump_1e_ints(hij, mos, outfile)
-        if hij_b is not None:
-            _dump_1e_ints(hij_b, mos, outfile, beta=True)
-        # TODO append MO energies (last three indices are 0)
-        # append inactive energy
-        _write_to_outfile(outfile, einact, (0, 0, 0, 0))
-
-
 def _dump_1e_ints(
-    hij: List[List[float]],
+    hij: np.ndarray,
     mos: Union[range, List[int]],
     outfile: TextIO,
     beta: bool = False,

@@ -10,11 +10,23 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""FCIDump driver package.
+"""
+The FCIDump (:mod:`qiskit_nature.second_q.formats.fcidump`)
+=============================================================
 
 Contains tools to parse and dump FCIDump files.
+
+.. currentmodule:: qiskit_nature.second_q.formats.fcidump
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+
+   FCIDump
+
 """
 
-from .fcidumpdriver import FCIDumpDriver
+from .fcidump import FCIDump
 
-__all__ = ["FCIDumpDriver"]
+__all__ = ["FCIDump"]

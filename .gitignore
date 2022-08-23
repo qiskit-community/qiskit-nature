@@ -71,6 +71,8 @@ test/**/*.log
 test/**/*.pdf
 test/**/*.prof
 test/**/*.npz
+#Allow
+!test/second_q/formats/fcidump/*.npz
 
 # Translations
 *.mo

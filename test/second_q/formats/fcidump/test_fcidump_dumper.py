@@ -10,21 +10,29 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" Test Driver FCIDump Dumping """
+""" Test FCIDump Dumping """
 
 import tempfile
 import unittest
 from abc import ABC, abstractmethod
+from typing import cast
 from test import QiskitNatureTestCase
+from pathlib import Path
 import numpy as np
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_q.drivers import UnitsType
-from qiskit_nature.second_q.drivers import FCIDumpDriver, PySCFDriver
+from qiskit_nature.second_q.properties.bases import ElectronicBasis
+from qiskit_nature.second_q.properties import (
+    ElectronicStructureDriverResult,
+    ElectronicEnergy,
+    ParticleNumber,
+)
+from qiskit_nature.second_q.formats.fcidump import FCIDump
+from qiskit_nature.second_q.drivers import UnitsType, PySCFDriver
 import qiskit_nature.optionals as _optionals
 
 
 class BaseTestDriverFCIDumpDumper(ABC):
-    """FCIDump Driver dumping base test class."""
+    """FCIDump dumping base test class."""
 
     def __init__(self):
         self.log = None
@@ -104,7 +112,7 @@ class BaseTestDriverFCIDumpDumper(ABC):
         )
 
 
-@unittest.skip("Until the FCIDumpDriver can handle non-beta spin cases")
+@unittest.skip("Until the FCIDump can handle non-beta spin cases")
 class TestDriverFCIDumpDumpH2(QiskitNatureTestCase, BaseTestDriverFCIDumpDumper):
     """RHF FCIDump Driver tests."""
 
@@ -130,13 +138,43 @@ class TestDriverFCIDumpDumpH2(QiskitNatureTestCase, BaseTestDriverFCIDumpDumper)
             driver_result = driver.run()
 
             with tempfile.NamedTemporaryFile() as dump:
-                FCIDumpDriver.dump(driver_result, dump.name)
+                self.dump(driver_result, Path(dump.name))
                 # pylint: disable=import-outside-toplevel,import-error
                 from pyscf.tools import fcidump as pyscf_fcidump
 
                 self.dumped = pyscf_fcidump.read(dump.name)
         except QiskitNatureError as ex:
             self.skipTest(str(ex))
+
+    @staticmethod
+    def dump(driver_result: ElectronicStructureDriverResult, outpath: Path) -> None:
+        """Convenience method to produce an FCIDump output file.
+
+        Args:
+            outpath: Path to the output file.
+            driver_result: The ElectronicStructureDriverResult to be dumped. It is assumed that the
+                nuclear_repulsion_energy contains the inactive core energy in its ElectronicEnergy
+                property.
+        """
+
+        particle_number = cast(ParticleNumber, driver_result.get_property(ParticleNumber))
+        electronic_energy = cast(ElectronicEnergy, driver_result.get_property(ElectronicEnergy))
+        one_body_integrals = electronic_energy.get_electronic_integral(ElectronicBasis.MO, 1)
+        two_body_integrals = electronic_energy.get_electronic_integral(ElectronicBasis.MO, 2)
+        fcidump = FCIDump(
+            hij=cast(np.ndarray, one_body_integrals._matrices),
+            hij_b=cast(np.ndarray, one_body_integrals._matrices),
+            hijkl=cast(np.ndarray, two_body_integrals._matrices[0:3]),
+            hijkl_ba=cast(np.ndarray, two_body_integrals._matrices[0:3]),
+            hijkl_bb=cast(np.ndarray, two_body_integrals._matrices[0:3]),
+            multiplicity=driver_result.molecule.multiplicity,
+            num_electrons=particle_number.num_alpha + particle_number.num_beta,
+            num_orbitals=particle_number.num_spin_orbitals // 2,
+            nuclear_repulsion_energy=electronic_energy.nuclear_repulsion_energy,
+            orbsym=None,
+            isym=1,
+        )
+        fcidump.to_file(outpath)
 
 
 if __name__ == "__main__":

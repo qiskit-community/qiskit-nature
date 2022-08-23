@@ -15,12 +15,13 @@
 from typing import Any, Dict, Set, Tuple, Iterator
 import itertools
 import re
+from pathlib import Path
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
 
 
-def parse(fcidump: str) -> Dict[str, Any]:
+def parse(fcidump: Path) -> Dict[str, Any]:
     """Parses a FCIDump output.
 
     Args:
@@ -33,7 +34,7 @@ def parse(fcidump: str) -> Dict[str, Any]:
         A dictionary storing the parsed data.
     """
     try:
-        with open(fcidump, "r", encoding="utf8") as file:
+        with fcidump.open("r", encoding="utf8") as file:
             fcidump_str = file.read()
     except OSError as ex:
         raise QiskitNatureError(f"Input file '{fcidump}' cannot be read!") from ex

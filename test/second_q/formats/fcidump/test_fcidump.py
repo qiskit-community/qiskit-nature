@@ -18,7 +18,8 @@ import unittest
 from abc import ABC, abstractmethod
 from test import QiskitNatureTestCase
 import numpy as np
-from qiskit_nature.second_q.drivers import FCIDumpDriver
+from qiskit_nature.second_q.formats.fcidump import FCIDump
+from qiskit_nature.second_q.formats.fcidump_translator import fcidump_to_problem
 from qiskit_nature.second_q.properties import (
     ElectronicEnergy,
     ParticleNumber,
@@ -27,9 +28,9 @@ from qiskit_nature.second_q.properties.bases import ElectronicBasis
 
 
 class BaseTestDriverFCIDump(ABC):
-    """FCIDump Driver base test class.
+    """FCIDump base test class.
 
-    In contrast to the other driver tests this one does *not* derive from TestDriver because the
+    In contrast to the other tests this one does *not* derive from TestDriver because the
     interface is fundamentally different.
     """
 
@@ -158,10 +159,10 @@ class TestDriverFCIDumpH2(QiskitNatureTestCase, BaseTestDriverFCIDump):
         )
         self.mo_eri_ba = None
         self.mo_eri_bb = None
-        driver = FCIDumpDriver(
-            self.get_resource_path("test_driver_fcidump_h2.fcidump", "second_q/drivers/fcidumpd")
+        fcidump = FCIDump.from_file(
+            self.get_resource_path("test_fcidump_h2.fcidump", "second_q/formats/fcidump")
         )
-        self.driver_result = driver.run()
+        self.driver_result = fcidump_to_problem(fcidump).driver.run()
 
 
 class TestDriverFCIDumpLiH(QiskitNatureTestCase, BaseTestDriverFCIDump):
@@ -173,18 +174,16 @@ class TestDriverFCIDumpLiH(QiskitNatureTestCase, BaseTestDriverFCIDump):
         self.num_molecular_orbitals = 6
         self.num_alpha = 2
         self.num_beta = 2
-        loaded = np.load(
-            self.get_resource_path("test_driver_fcidump_lih.npz", "second_q/drivers/fcidumpd")
-        )
+        loaded = np.load(self.get_resource_path("test_fcidump_lih.npz", "second_q/formats/fcidump"))
         self.mo_onee = loaded["mo_onee"]
         self.mo_onee_b = None
         self.mo_eri = loaded["mo_eri"]
         self.mo_eri_ba = None
         self.mo_eri_bb = None
-        driver = FCIDumpDriver(
-            self.get_resource_path("test_driver_fcidump_lih.fcidump", "second_q/drivers/fcidumpd")
+        fcidump = FCIDump.from_file(
+            self.get_resource_path("test_fcidump_lih.fcidump", "second_q/formats/fcidump")
         )
-        self.driver_result = driver.run()
+        self.driver_result = fcidump_to_problem(fcidump).driver.run()
 
 
 class TestDriverFCIDumpOH(QiskitNatureTestCase, BaseTestDriverFCIDump):
@@ -196,18 +195,16 @@ class TestDriverFCIDumpOH(QiskitNatureTestCase, BaseTestDriverFCIDump):
         self.num_molecular_orbitals = 6
         self.num_alpha = 5
         self.num_beta = 4
-        loaded = np.load(
-            self.get_resource_path("test_driver_fcidump_oh.npz", "second_q/drivers/fcidumpd")
-        )
+        loaded = np.load(self.get_resource_path("test_fcidump_oh.npz", "second_q/formats/fcidump"))
         self.mo_onee = loaded["mo_onee"]
         self.mo_onee_b = loaded["mo_onee_b"]
         self.mo_eri = loaded["mo_eri"]
         self.mo_eri_ba = loaded["mo_eri_ba"]
         self.mo_eri_bb = loaded["mo_eri_bb"]
-        driver = FCIDumpDriver(
-            self.get_resource_path("test_driver_fcidump_oh.fcidump", "second_q/drivers/fcidumpd")
+        fcidump = FCIDump.from_file(
+            self.get_resource_path("test_fcidump_oh.fcidump", "second_q/formats/fcidump")
         )
-        self.driver_result = driver.run()
+        self.driver_result = fcidump_to_problem(fcidump).driver.run()
 
 
 if __name__ == "__main__":
