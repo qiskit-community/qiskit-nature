@@ -33,7 +33,10 @@ class TestVSCFInitialPoint(QiskitNatureTestCase):
     def setUp(self) -> None:
         super().setUp()
         self.vscf_initial_point = VSCFInitialPoint()
+        self.ansatz = Mock(spec=UVCC)
+        self.ansatz.reps = 1
         self.excitation_list = [((0,), (1,))]
+        self.ansatz.excitation_list = self.excitation_list
 
     def test_missing_ansatz(self):
         """Test set get ansatz."""
@@ -42,10 +45,8 @@ class TestVSCFInitialPoint(QiskitNatureTestCase):
 
     def test_set_get_ansatz(self):
         """Test set get ansatz."""
-        ansatz = Mock(spec=UVCC)
-        ansatz.excitation_list = self.excitation_list
-        self.vscf_initial_point.ansatz = ansatz
-        self.assertEqual(ansatz, self.vscf_initial_point.ansatz)
+        self.vscf_initial_point.ansatz = self.ansatz
+        self.assertEqual(self.ansatz, self.vscf_initial_point.ansatz)
         self.assertEqual(self.excitation_list, self.vscf_initial_point.excitation_list)
 
     def test_set_grouped_property(self):
@@ -55,17 +56,9 @@ class TestVSCFInitialPoint(QiskitNatureTestCase):
         self.vscf_initial_point.grouped_property = grouped_property
         self.assertEqual(grouped_property, self.vscf_initial_point.grouped_property)
 
-    def test_vscf_with_excitation_list_set_directly(self):
-        """Test VSCF initial point is all zero when called on demand."""
-        self.vscf_initial_point.excitation_list = self.excitation_list
-        initial_point = self.vscf_initial_point.to_numpy_array()
-        np.testing.assert_array_equal(initial_point, np.asarray([0.0]))
-
     def test_vscf_compute(self):
         """Test VSCF initial point is all zero when called via compute."""
-        ansatz = Mock(spec=UVCC)
-        ansatz.excitation_list = self.excitation_list
-        self.vscf_initial_point.compute(ansatz)
+        self.vscf_initial_point.compute(self.ansatz)
         initial_point = self.vscf_initial_point.to_numpy_array()
         np.testing.assert_array_equal(initial_point, np.asarray([0.0]))
 

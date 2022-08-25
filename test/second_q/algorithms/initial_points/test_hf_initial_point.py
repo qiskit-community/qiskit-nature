@@ -19,15 +19,11 @@ from test import QiskitNatureTestCase
 
 import numpy as np
 
+from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.algorithms.initial_points import HFInitialPoint
 from qiskit_nature.second_q.circuit.library import UCC
-from qiskit_nature.exceptions import QiskitNatureError
-from qiskit_nature.second_q.properties.second_quantized_property import (
-    GroupedSecondQuantizedProperty,
-)
-from qiskit_nature.second_q.properties.electronic_energy import (
-    ElectronicEnergy,
-)
+from qiskit_nature.second_q.properties import GroupedSecondQuantizedProperty
+from qiskit_nature.second_q.properties.electronic_energy import ElectronicEnergy
 
 
 class TestHFInitialPoint(QiskitNatureTestCase):
@@ -36,7 +32,10 @@ class TestHFInitialPoint(QiskitNatureTestCase):
     def setUp(self) -> None:
         super().setUp()
         self.hf_initial_point = HFInitialPoint()
+        self.ansatz = Mock(spec=UCC)
+        self.ansatz.reps = 1
         self.excitation_list = [((0,), (1,))]
+        self.ansatz.excitation_list = self.excitation_list
 
     def test_missing_ansatz(self):
         """Test set get ansatz."""
@@ -45,10 +44,8 @@ class TestHFInitialPoint(QiskitNatureTestCase):
 
     def test_set_get_ansatz(self):
         """Test set get ansatz."""
-        ansatz = Mock(spec=UCC)
-        ansatz.excitation_list = self.excitation_list
-        self.hf_initial_point.ansatz = ansatz
-        self.assertEqual(ansatz, self.hf_initial_point.ansatz)
+        self.hf_initial_point.ansatz = self.ansatz
+        self.assertEqual(self.ansatz, self.hf_initial_point.ansatz)
         self.assertEqual(self.excitation_list, self.hf_initial_point.excitation_list)
 
     def test_set_get_grouped_property(self):
@@ -80,23 +77,16 @@ class TestHFInitialPoint(QiskitNatureTestCase):
             self.hf_initial_point.grouped_property = grouped_property
         self.assertEqual(self.hf_initial_point._reference_energy, 0.0)
 
-    def test_set_get_excitation_list(self):
-        """Test set get excitation list."""
-        self.hf_initial_point.excitation_list = self.excitation_list
-        self.assertEqual(self.excitation_list, self.hf_initial_point.excitation_list)
-
     def test_compute(self):
         """Test length of HF initial point array."""
         grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
-        ansatz = Mock(spec=UCC)
-        ansatz.excitation_list = self.excitation_list
-        self.hf_initial_point.compute(ansatz=ansatz, grouped_property=grouped_property)
+        self.hf_initial_point.compute(ansatz=self.ansatz, grouped_property=grouped_property)
         initial_point = self.hf_initial_point.to_numpy_array()
         np.testing.assert_equal(initial_point, np.asarray([0.0]))
 
     def test_hf_initial_point_is_all_zero(self):
         """Test HF initial point is all zero."""
-        self.hf_initial_point.excitation_list = self.excitation_list
+        self.hf_initial_point.ansatz = self.ansatz
         initial_point = self.hf_initial_point.to_numpy_array()
         np.testing.assert_array_equal(initial_point, np.asarray([0.0]))
 
@@ -108,7 +98,7 @@ class TestHFInitialPoint(QiskitNatureTestCase):
         grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
         grouped_property.get_property = Mock(return_value=electronic_energy)
         self.hf_initial_point.grouped_property = grouped_property
-        self.hf_initial_point.excitation_list = self.excitation_list
+        self.hf_initial_point.ansatz = self.ansatz
         energy = self.hf_initial_point.total_energy
         self.assertEqual(energy, 123.0)
 

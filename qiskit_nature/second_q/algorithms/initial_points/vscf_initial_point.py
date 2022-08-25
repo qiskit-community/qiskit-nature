@@ -76,13 +76,6 @@ class VSCFInitialPoint(InitialPoint):
         """
         return self._excitation_list
 
-    @excitation_list.setter
-    def excitation_list(self, excitations: list[tuple[tuple[int, ...], tuple[int, ...]]]):
-        # Invalidate any previous computation.
-        self._parameters = None
-
-        self._excitation_list = excitations
-
     @property
     def grouped_property(self) -> GroupedSecondQuantizedProperty | None:
         """The grouped property.
