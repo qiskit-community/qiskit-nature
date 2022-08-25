@@ -305,14 +305,14 @@ class MP2InitialPoint(InitialPoint):
             The MP2 T2 amplitudes for each excitation.
         """
         num_occ = self._t2_amplitudes.shape[0]
-        amplitudes = np.zeros(len(self.excitation_list))
+        amplitudes = np.zeros(len(self.excitation_list), dtype=float)
         for index, excitation in enumerate(self._excitation_list):
             if len(excitation[0]) == 2:
                 # Get the amplitude of the double excitation.
                 [[i, j], [a, b]] = np.asarray(excitation) % num_occ
                 amplitude = self._t2_amplitudes[i, j, a - num_occ, b - num_occ]
                 amplitudes[index] = amplitude if abs(amplitude) > self._threshold else 0.0
-
+        amplitudes = np.tile(amplitudes, self.ansatz.reps)
         self._parameters = amplitudes
 
     def to_numpy_array(self) -> np.ndarray:

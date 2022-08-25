@@ -154,7 +154,7 @@ class HFInitialPoint(InitialPoint):
         Returns:
             An all-zero array with the same length as the excitation list.
         """
-        self._parameters = np.zeros(len(self._excitation_list))
+        self._parameters = np.zeros(self.ansatz.reps * len(self._excitation_list), dtype=float)
 
     @property
     def total_energy(self) -> float:
