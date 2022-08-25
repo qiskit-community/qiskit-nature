@@ -326,7 +326,7 @@ class PySCFDriver(ElectronicStructureDriver):
         ]
         kwargs["charge"] = molecule.charge
         kwargs["spin"] = molecule.multiplicity - 1
-        kwargs["unit"] = molecule.units.value
+        kwargs["unit"] = molecule.units
         kwargs["basis"] = PySCFDriver.to_driver_basis(basis)
         kwargs["method"] = method
         return PySCFDriver(**kwargs)
