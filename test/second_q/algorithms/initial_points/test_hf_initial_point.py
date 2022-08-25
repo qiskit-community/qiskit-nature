@@ -22,8 +22,7 @@ import numpy as np
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.algorithms.initial_points import HFInitialPoint
 from qiskit_nature.second_q.circuit.library import UCC
-from qiskit_nature.second_q.properties import GroupedSecondQuantizedProperty
-from qiskit_nature.second_q.properties.electronic_energy import ElectronicEnergy
+from qiskit_nature.second_q.properties import ElectronicEnergy, GroupedSecondQuantizedProperty
 
 
 class TestHFInitialPoint(QiskitNatureTestCase):
@@ -45,8 +44,9 @@ class TestHFInitialPoint(QiskitNatureTestCase):
     def test_set_get_ansatz(self):
         """Test set get ansatz."""
         self.hf_initial_point.ansatz = self.ansatz
-        self.assertEqual(self.ansatz, self.hf_initial_point.ansatz)
-        self.assertEqual(self.excitation_list, self.hf_initial_point.excitation_list)
+        self.assertEqual(self.hf_initial_point.ansatz, self.ansatz)
+        self.assertEqual(self.hf_initial_point._excitation_list, self.excitation_list)
+        self.assertEqual(self.hf_initial_point._reps, 1)
 
     def test_set_get_grouped_property(self):
         """Test set get grouped_property."""

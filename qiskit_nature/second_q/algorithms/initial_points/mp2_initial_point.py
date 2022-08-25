@@ -82,7 +82,7 @@ class MP2InitialPoint(InitialPoint):
 
     The initial point parameters are computed using the :meth:`compute` method, which requires the
     :attr:`grouped_property` and :attr:`ansatz` to be passed as arguments or the
-    :attr:`grouped_property` and :attr:`excitation_list` attributes to be set already.
+    :attr:`grouped_property` and :attr:`ansatz` attributes to be set already.
 
     The :attr:`grouped_property` is required to contain
     :class:`~qiskit_nature.second_q.properties.particle_number.ParticleNumber` and
@@ -108,6 +108,7 @@ class MP2InitialPoint(InitialPoint):
         self.threshold: float = threshold
         self._ansatz: UCC | None = None
         self._excitation_list: list[tuple[tuple[int, ...], tuple[int, ...]]] | None = None
+        self._reps: int = 1
         self._t2_amplitudes: np.ndarray | None = None
         self._parameters: np.ndarray | None = None
         self._energy_correction: float = 0.0
@@ -117,8 +118,9 @@ class MP2InitialPoint(InitialPoint):
     def ansatz(self) -> UCC:
         """The UCC ansatz.
 
-        This is used to ensure that the :attr:`excitation_list` matches with the UCC ansatz that
-        will be used with the VQE algorithm.
+        The ``excitation_list`` and ``reps`` used by the
+        :class:`~qiskit.circuit.library.ansatzes.uvcc.UVCC` ansatz is obtained to ensure that the
+        shape of the initial point is appropriate.
         """
         return self._ansatz
 
@@ -131,6 +133,7 @@ class MP2InitialPoint(InitialPoint):
         self._invalidate()
 
         self._excitation_list = ansatz.excitation_list
+        self._reps = ansatz.reps
         self._ansatz = ansatz
 
     @property
@@ -265,8 +268,8 @@ class MP2InitialPoint(InitialPoint):
         See class documentation for more information.
 
         Args:
-            grouped_property: A grouped second-quantized property. See :attr:`grouped_property`.
-            ansatz: The UCC ansatz. See :attr:`ansatz`.
+            grouped_property: The :attr:`grouped_property`.
+            ansatz: The :attr:`ansatz`.
 
         Raises:
             QiskitNatureError: If :attr:`_excitation_list` or :attr:`_grouped_property` is not set.
@@ -274,12 +277,11 @@ class MP2InitialPoint(InitialPoint):
         if ansatz is not None:
             self.ansatz = ansatz
 
-        if self._excitation_list is None:
+        if self._ansatz is None:
             raise QiskitNatureError(
-                "The excitation list has not been set directly or via the ansatz. "
+                "The ansatz property has not been set. "
                 "Not enough information has been provided to compute the initial point. "
                 "Set the ansatz or call compute with it as an argument. "
-                "The ansatz is not required if the excitation list has been set directly."
             )
 
         if grouped_property is not None:
@@ -306,7 +308,7 @@ class MP2InitialPoint(InitialPoint):
                 [[i, j], [a, b]] = np.asarray(excitation) % num_occ
                 amplitude = self._t2_amplitudes[i, j, a - num_occ, b - num_occ]
                 amplitudes[index] = amplitude if abs(amplitude) > self._threshold else 0.0
-        amplitudes = np.tile(amplitudes, self.ansatz.reps)
+        amplitudes = np.tile(amplitudes, self._reps)
         self._parameters = amplitudes
 
     def to_numpy_array(self) -> np.ndarray:
