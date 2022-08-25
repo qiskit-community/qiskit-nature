@@ -21,7 +21,6 @@ from test import QiskitNatureTestCase
 
 import numpy as np
 
-import qiskit
 from qiskit import BasicAer
 from qiskit.algorithms import VQE
 from qiskit.algorithms.optimizers import SLSQP, SPSA
@@ -283,8 +282,10 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
     @unittest.skipUnless(optionals.HAS_AER, "qiskit-aer is required to run this test")
     def test_eval_op_qasm_aer(self):
         """Regression tests against https://github.com/Qiskit/qiskit-nature/issues/53."""
+        import importlib
 
-        backend = qiskit.providers.aer.Aer.get_backend("aer_simulator")
+        aer = importlib.import_module("qiskit.providers.aer")
+        backend = aer.Aer.get_backend("aer_simulator")
 
         solver = VQEUCCFactory(
             optimizer=SLSQP(maxiter=100),
@@ -367,7 +368,10 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
     def test_uccsd_hf_aer_statevector(self):
         """uccsd hf test with Aer statevector"""
 
-        backend = qiskit.providers.aer.Aer.get_backend("aer_simulator_statevector")
+        import importlib
+
+        aer = importlib.import_module("qiskit.providers.aer")
+        backend = aer.Aer.get_backend("aer_simulator_statevector")
 
         ansatz = self._prepare_uccsd_hf(self.qubit_converter)
 
@@ -388,7 +392,10 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
     def test_uccsd_hf_aer_qasm(self):
         """uccsd hf test with Aer qasm simulator."""
 
-        backend = qiskit.providers.aer.Aer.get_backend("aer_simulator")
+        import importlib
+
+        aer = importlib.import_module("qiskit.providers.aer")
+        backend = aer.Aer.get_backend("aer_simulator")
 
         ansatz = self._prepare_uccsd_hf(self.qubit_converter)
 
@@ -414,7 +421,10 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
     def test_uccsd_hf_aer_qasm_snapshot(self):
         """uccsd hf test with Aer qasm simulator snapshot."""
 
-        backend = qiskit.providers.aer.Aer.get_backend("aer_simulator")
+        import importlib
+
+        aer = importlib.import_module("qiskit.providers.aer")
+        backend = aer.Aer.get_backend("aer_simulator")
 
         ansatz = self._prepare_uccsd_hf(self.qubit_converter)
 

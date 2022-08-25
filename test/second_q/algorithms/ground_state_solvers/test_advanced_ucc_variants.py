@@ -138,7 +138,6 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
 
         self.assertAlmostEqual(result.total_energies[0], self.reference_energy_UCCD0, places=6)
 
-    @unittest.skip("Skip until https://github.com/Qiskit/qiskit-nature/issues/91 is closed.")
     def test_uccsd_hf_qUCCD0full(self):
         """singlet full uccd test"""
         optimizer = SLSQP(maxiter=100)
@@ -147,12 +146,12 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
             self.num_spin_orbitals, self.num_particles, self.qubit_converter
         )
 
-        # TODO: add `full` option
         ansatz = SUCCD(
             self.qubit_converter,
             self.num_particles,
             self.num_spin_orbitals,
             initial_state=initial_state,
+            mirror=True,
         )
 
         solver = VQE(
