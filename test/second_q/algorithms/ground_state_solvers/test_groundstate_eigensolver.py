@@ -551,6 +551,33 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         )
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
+    def test_vqe_ucc_factory_with_mp2_with_reps(self):
+        """Test when using MP2InitialPoint to generate the initial point with repeated evolved
+        operators.
+        """
+
+        informed_start = MP2InitialPoint()
+
+        ansatz = UCCSD(
+            qubit_converter=self.qubit_converter,
+            num_particles=self.num_particles,
+            num_spin_orbitals=self.num_spin_orbitals,
+            reps=2,
+        )
+
+        solver = VQEUCCFactory(
+            ansatz=ansatz,
+            quantum_instance=QuantumInstance(BasicAer.get_backend("statevector_simulator")),
+            initial_point=informed_start,
+        )
+        calc = GroundStateEigensolver(self.qubit_converter, solver)
+        res = calc.solve(self.electronic_structure_problem)
+
+        np.testing.assert_array_almost_equal(
+            solver.initial_point.to_numpy_array(), [0.0, 0.0, -0.07197145]
+        )
+        self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
+
 
 if __name__ == "__main__":
     unittest.main()
