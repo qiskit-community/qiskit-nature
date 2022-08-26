@@ -117,7 +117,7 @@ class MP2InitialPoint(InitialPoint):
         """The UCC ansatz.
 
         The ``excitation_list`` and ``reps`` used by the
-        :class:`~qiskit.circuit.library.ansatzes.uvcc.UVCC` ansatz is obtained to ensure that the
+        :class:`~qiskit.circuit.library.ansatzes.ucc.UCC` ansatz is obtained to ensure that the
         shape of the initial point is appropriate.
         """
         return self._ansatz
