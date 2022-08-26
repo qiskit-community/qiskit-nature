@@ -209,7 +209,10 @@ html_theme_options = {
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
+    "numpy": ("https://docs.scipy.org/doc/numpy", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy/reference", None),
     "qiskit": ("https://qiskit.org/documentation/", None),
+    "retworkx": ("https://qiskit.org/documentation/retworkx/", None),
 }
 # -- Extension configuration -------------------------------------------------
 
