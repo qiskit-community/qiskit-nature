@@ -26,7 +26,6 @@ from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 
 
-@unittest.skip("problem properties")
 class TestHFInitialPoint(QiskitNatureTestCase):
     """Test HFInitialPoint."""
 
@@ -54,6 +53,7 @@ class TestHFInitialPoint(QiskitNatureTestCase):
         electronic_energy = Mock(spec=ElectronicEnergy)
         electronic_energy.reference_energy = reference_energy
         grouped_property = Mock(spec=ElectronicStructureProblem)
+        grouped_property.hamiltonian = electronic_energy
         self.hf_initial_point.grouped_property = grouped_property
         self.assertEqual(self.hf_initial_point.grouped_property, grouped_property)
         self.assertEqual(self.hf_initial_point._reference_energy, reference_energy)
@@ -61,18 +61,10 @@ class TestHFInitialPoint(QiskitNatureTestCase):
     def test_set_missing_electronic_energy(self):
         """Test set missing ElectronicEnergy."""
         grouped_property = Mock(spec=ElectronicStructureProblem)
+        grouped_property.hamiltonian = None
         with self.assertWarns(UserWarning):
             self.hf_initial_point.grouped_property = grouped_property
         self.assertEqual(self.hf_initial_point.grouped_property, None)
-
-    def test_set_missing_reference_energy(self):
-        """Test set missing reference_energy."""
-        electronic_energy = Mock(spec=ElectronicEnergy)
-        electronic_energy.reference_energy = None
-        grouped_property = Mock(spec=ElectronicStructureProblem)
-        with self.assertWarns(UserWarning):
-            self.hf_initial_point.grouped_property = grouped_property
-        self.assertEqual(self.hf_initial_point._reference_energy, 0.0)
 
     def test_set_get_excitation_list(self):
         """Test set get excitation list."""
@@ -100,6 +92,7 @@ class TestHFInitialPoint(QiskitNatureTestCase):
         electronic_energy = Mock(spec=ElectronicEnergy)
         electronic_energy.reference_energy = reference_energy
         grouped_property = Mock(spec=ElectronicStructureProblem)
+        grouped_property.hamiltonian = electronic_energy
         self.hf_initial_point.grouped_property = grouped_property
         self.hf_initial_point.excitation_list = self.excitation_list
         energy = self.hf_initial_point.total_energy

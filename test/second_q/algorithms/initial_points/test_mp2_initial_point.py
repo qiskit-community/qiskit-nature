@@ -26,7 +26,10 @@ from qiskit_nature import optionals
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import HartreeFock, UCC
 from qiskit_nature.second_q.drivers import PySCFDriver
-from qiskit_nature.second_q.problems import ElectronicStructureProblem
+from qiskit_nature.second_q.problems import (
+    ElectronicStructureProblem,
+    ElectronicPropertiesContainer,
+)
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.properties import ParticleNumber
 from qiskit_nature.second_q.properties.integrals import ElectronicIntegrals
@@ -34,7 +37,6 @@ from qiskit_nature.second_q.mappers import QubitConverter, JordanWignerMapper
 from qiskit_nature.second_q.algorithms.initial_points import MP2InitialPoint
 
 
-@unittest.skip("problem properties")
 @ddt
 class TestMP2InitialPoint(QiskitNatureTestCase):
     """Test MP2InitialPoint."""
@@ -56,6 +58,9 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
             return_value=self.electronic_integrals
         )
         self.mock_grouped_property = Mock(spec=ElectronicStructureProblem)
+        self.mock_grouped_property.hamiltonian = self.electronic_energy
+        self.mock_grouped_property.properties = ElectronicPropertiesContainer()
+        self.mock_grouped_property.properties.particle_number = self.particle_number
 
     @unittest.skipIf(not optionals.HAS_PYSCF, "pyscf not available.")
     @data("H 0 0 0; H 0 0 0.7", "Li 0 0 0; H 0 0 1.6")
@@ -151,6 +156,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
     def test_no_electronic_energy(self):
         """Test when the electronic energy is missing."""
         mp2_initial_point = MP2InitialPoint()
+        self.mock_grouped_property.hamiltonian = None
         with self.assertRaises(QiskitNatureError):
             mp2_initial_point.compute(
                 ansatz=self.mock_ansatz, grouped_property=self.mock_grouped_property
@@ -162,12 +168,12 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         electronic_energy = Mock(spec=ElectronicEnergy)
         electronic_energy.orbital_energies = Mock(np.ndarray)
         electronic_energy.get_electronic_integral = Mock(return_value=None)
+        grouped_property = Mock(spec=ElectronicStructureProblem)
+        grouped_property.hamiltonian = electronic_energy
 
         mp2_initial_point = MP2InitialPoint()
         with self.assertRaises(QiskitNatureError):
-            mp2_initial_point.compute(
-                ansatz=self.mock_ansatz, grouped_property=self.mock_grouped_property
-            )
+            mp2_initial_point.compute(ansatz=self.mock_ansatz, grouped_property=grouped_property)
 
     def test_no_orbital_energies(self):
         """Test when the orbital energies are missing."""
@@ -177,6 +183,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         electronic_energy.get_electronic_integral = Mock(return_value=electronic_integrals)
         electronic_energy.orbital_energies = None
         grouped_property = Mock(spec=ElectronicStructureProblem)
+        grouped_property.hamiltonian = electronic_energy
 
         mp2_initial_point = MP2InitialPoint()
         with self.assertRaises(QiskitNatureError):
@@ -186,6 +193,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         """Test when the particle number is missing."""
 
         mp2_initial_point = MP2InitialPoint()
+        self.mock_grouped_property.properties.particle_number = None
         with self.assertRaises(QiskitNatureError):
             mp2_initial_point.compute(
                 ansatz=self.mock_ansatz, grouped_property=self.mock_grouped_property
@@ -237,6 +245,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         electronic_energy.orbital_energies = Mock(spec=np.ndarray)
         electronic_energy.get_electronic_integral = Mock(return_value=electronic_integrals)
         grouped_property = Mock(spec=ElectronicStructureProblem)
+        grouped_property.hamiltonian = electronic_energy
 
         mp2_initial_point = MP2InitialPoint()
         with self.assertRaises(NotImplementedError):
