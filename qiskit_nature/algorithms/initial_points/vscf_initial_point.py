@@ -130,4 +130,4 @@ class VSCFInitialPoint(InitialPoint):
                 "The ansatz is not required if the excitation list has been set directly."
             )
         reps = self._ansatz.reps if self._ansatz is not None else 1
-        self._parameters = reps * np.zeros(len(self._excitation_list))
+        self._parameters = np.zeros(reps * len(self._excitation_list))
