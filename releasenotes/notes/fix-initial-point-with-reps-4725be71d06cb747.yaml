@@ -1,5 +1,8 @@
 ---
-fixes:
+features:
+  - |
+    Due to the initial points now requiring the ``reps`` from the ansatz, the ``excitation_list``
+    can no longer be set directly using public property, but only via the ``ansatz`` property.
   - |
     Fix the initial point classes to account for the number of times the evolved operators are
     repeated in the ansatz.
