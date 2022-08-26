@@ -34,10 +34,13 @@ class LatticeModelProblem(BaseProblem):
             hamiltonian: A lattice model class to create second quantized operators.
 
         Raises:
-            TypeError: TODO.
+            TypeError: if the provided ``hamiltonian`` is not of type :class:`.LatticeModel`.
         """
         if not isinstance(hamiltonian, LatticeModel):
-            raise TypeError("TODO.")
+            raise TypeError(
+                "Only a LatticeModel hamiltonian is supported by the LatticeModelProblem, not one "
+                f"of type, {type(hamiltonian)}"
+            )
         super().__init__(hamiltonian)
         self.properties: LatticePropertiesContainer = LatticePropertiesContainer()
 

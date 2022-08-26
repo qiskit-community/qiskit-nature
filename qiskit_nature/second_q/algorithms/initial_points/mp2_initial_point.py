@@ -167,7 +167,10 @@ class MP2InitialPoint(InitialPoint):
     @grouped_property.setter
     def grouped_property(self, grouped_property: BaseProblem) -> None:
         if not isinstance(grouped_property, ElectronicStructureProblem):
-            raise QiskitNatureError("TODO.")
+            raise QiskitNatureError(
+                "Only an `ElectronicStructureProblem` is compatible with the MP2InitialPoint, not a"
+                f" problem of type, {type(grouped_property)}."
+            )
 
         electronic_energy = grouped_property.hamiltonian
         if electronic_energy is None:

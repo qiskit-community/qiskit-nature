@@ -24,25 +24,25 @@ from qiskit_nature.units import DistanceUnit
 
 @dataclass
 class MoleculeInfo:
-    """TODO."""
+    """A dataclass storing molecule information."""
 
     symbols: Sequence[str]
-    """TODO."""
+    """The ordered sequence of atoms which make up this molecule."""
 
     coords: np.ndarray
-    """TODO."""
+    """The XYZ coordinates of the atoms represented as a matrix."""
 
     multiplicity: int = 1
-    """TODO."""
+    """The multiplicity of the molecule (`= 2 * spin + 1`)."""
 
     charge: int = 0
-    """TODO."""
+    """The total charge of the molecule."""
 
     units: DistanceUnit = DistanceUnit.BOHR
-    """TODO."""
+    """The distance unit in which the XYZ coordinates are stored."""
 
     masses: Sequence[float] | None = None
-    """TODO."""
+    """The sequence of masses for all atoms part of the molecule."""
 
     def __str__(self) -> str:
         string = ["Molecule:"]

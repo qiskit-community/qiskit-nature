@@ -78,15 +78,18 @@ class ElectronicStructureProblem(BaseProblem):
 
     def __init__(self, hamiltonian: Hamiltonian) -> None:
         """
-
         Args:
-            hamiltonian: TODO.
+            hamiltonian: the Hamiltonian of this problem. This needs to be an
+                :class:`.ElectronicEnergy`.
 
         Raises:
-            TypeError: TODO.
+            TypeError: if the provided ``hamiltonian`` is not of type :class:`.ElectronicEnergy`.
         """
         if not isinstance(hamiltonian, ElectronicEnergy):
-            raise TypeError("TODO.")
+            raise TypeError(
+                "Only an ElectronicEnergy hamiltonian is supported by the ElectronicStructureProblem,"
+                f" not one of type, {type(hamiltonian)}"
+            )
         super().__init__(hamiltonian)
         self.properties: ElectronicPropertiesContainer = ElectronicPropertiesContainer()
         self.molecule: MoleculeInfo = None

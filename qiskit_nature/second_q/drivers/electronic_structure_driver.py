@@ -58,12 +58,17 @@ class ElectronicStructureDriver(BaseDriver):
 
     @abstractmethod
     def run(self) -> ElectronicStructureProblem:
-        """Returns a ElectronicStructureProblem output as produced by the driver."""
+        """Returns an :class:`.ElectronicStructureProblem` output as produced by the driver."""
         pass
 
     @abstractmethod
     def to_qcschema(self) -> QCSchema:
-        """TODO."""
+        """Extracts all available information after the driver was run into a :class:`.QCSchema`
+        object.
+
+        Returns:
+            A :class:`.QCSchema` storing all extracted system data computed by the driver.
+        """
 
     @abstractmethod
     def to_problem(
@@ -71,7 +76,16 @@ class ElectronicStructureDriver(BaseDriver):
         *,
         include_dipole: bool = True,
     ) -> ElectronicStructureProblem:
-        """TODO."""
+        """Extends the :meth:`to_qcschema` method and translates the :class:`.QCSchema` object to an
+        :class:`.ElectronicStructureProblem`.
+
+        Args:
+            include_dipole: whether or not to include an :class:`.ElectronicDipoleMoment` property
+                in the generated problem (if the data is available).
+
+        Returns:
+            An :class:`.ElectronicStructureProblem`.
+        """
 
     @staticmethod
     def _to_qcschema(

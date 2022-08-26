@@ -195,14 +195,14 @@ class Lattice:
         uniform_interaction: complex,
         uniform_onsite_potential: complex,
     ) -> Lattice:
-        """TODO.
+        """Returns a new lattice with uniform parameters but otherwise identical structure.
 
         Args:
-            uniform_interaction: TODO.
-            uniform_onsite_potential: TODO.
+            uniform_interaction: the value to use for all edge weights.
+            uniform_onsite_potential: the value to use for all single-vertex loop weights.
 
         Returns:
-            TODO.
+            A new lattice with identical structure but uniform parameters.
         """
         graph = self.graph
         for node_a, node_b, _ in graph.weighted_edge_list():
@@ -219,16 +219,19 @@ class Lattice:
 
     @classmethod
     def from_adjacency_matrix(cls, interaction_matrix: np.ndarray) -> Lattice:
-        """TODO.
+        """Constructs a new lattice from a 2-dimensional adjacency matrix.
+
+        This method is equivalent to :meth:`.PyGraph.from_adjacency_matrix` or its complex
+        counterpart when given a complex-valued matrix.
 
         Args:
-            interaction_matrix: TODO.
+            interaction_matrix: the adjacency matrix from which to build out the lattice.
 
         Raises:
-            ValueError: TODO.
+            ValueError: if the provided adjacency matrix is not a 2-D square matrix.
 
         Returns:
-            TODO.
+            A new lattice based on the provided adjacency matrix.
         """
         # make a graph from the interaction matrix.
         # This should be replaced by from_adjacency_matrix of retworkx.

@@ -41,7 +41,21 @@ from .qcschema import QCSchema
 def qcschema_to_problem(
     qcschema: QCSchema, *, basis: ElectronicBasis = ElectronicBasis.MO
 ) -> ElectronicStructureProblem:
-    """TODO."""
+    """Builds out an :class:`.ElectronicStructureProblem` from a :class:`.QCSchema` instance.
+
+    This method centralizes the construction of an :class:`.ElectronicStructureProblem` from a
+    :class:`.QCSchema`.
+
+    Args:
+        qcschema: the :class:`.QCSchema` object from which to build the problem.
+        basis: the :class:`.ElectronicBasis` of the generated problem.
+
+    Raises:
+        QiskitNatureError: if either of the required 1- or 2-body electronic integrals are missing.
+
+    Returns:
+        An :class:`.ElectronicStructureProblem` instance.
+    """
     nao = qcschema.properties.calcinfo_nmo
     nmo = qcschema.properties.calcinfo_nmo
 
@@ -107,7 +121,9 @@ def qcschema_to_problem(
     elif hij is not None:
         one_body_mo = one_body_ao.transform_basis(basis_transform)
     else:
-        raise QiskitNatureError("TODO.")
+        raise QiskitNatureError(
+            "The provided QCSchema object is missing the required 1-body electronic integrals."
+        )
 
     if one_body_mo is not None:
         ints.append(one_body_mo)
@@ -131,7 +147,9 @@ def qcschema_to_problem(
     elif eri is not None:
         two_body_mo = two_body_ao.transform_basis(basis_transform)
     else:
-        raise QiskitNatureError("TODO.")
+        raise QiskitNatureError(
+            "The provided QCSchema object is missing the required 2-body electronic integrals."
+        )
 
     if two_body_mo is not None:
         ints.append(two_body_mo)
