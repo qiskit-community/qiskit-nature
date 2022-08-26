@@ -45,8 +45,6 @@ class TestHFInitialPoint(QiskitNatureTestCase):
         """Test set get ansatz."""
         self.hf_initial_point.ansatz = self.ansatz
         self.assertEqual(self.hf_initial_point.ansatz, self.ansatz)
-        self.assertEqual(self.hf_initial_point._excitation_list, self.excitation_list)
-        self.assertEqual(self.hf_initial_point._reps, 1)
 
     def test_set_get_grouped_property(self):
         """Test set get grouped_property."""

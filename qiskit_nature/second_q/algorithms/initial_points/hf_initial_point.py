@@ -39,8 +39,6 @@ class HFInitialPoint(InitialPoint):
     def __init__(self) -> None:
         super().__init__()
         self._ansatz: UCC | None = None
-        self._excitation_list: list[tuple[tuple[int, ...], tuple[int, ...]]] | None = None
-        self._reps: int = 1
         self._reference_energy: float = 0.0
         self._parameters: np.ndarray | None = None
 
@@ -56,13 +54,7 @@ class HFInitialPoint(InitialPoint):
 
     @ansatz.setter
     def ansatz(self, ansatz: UCC) -> None:
-        # Operators must be built early to compute the excitation list.
-        _ = ansatz.operators
-
         self._invalidate()
-
-        self._excitation_list = ansatz.excitation_list
-        self._reps = ansatz.reps
         self._ansatz = ansatz
 
     @property
@@ -132,7 +124,11 @@ class HFInitialPoint(InitialPoint):
         Returns:
             An all-zero array with the same length as the excitation list.
         """
-        self._parameters = np.zeros(self._reps * len(self._excitation_list), dtype=float)
+        # Ansatz operators must be built to compute the excitation list.
+        _ = self._ansatz.operators
+        self._parameters = np.zeros(
+            self._ansatz.reps * len(self._ansatz.excitation_list), dtype=float
+        )
 
     @property
     def total_energy(self) -> float:

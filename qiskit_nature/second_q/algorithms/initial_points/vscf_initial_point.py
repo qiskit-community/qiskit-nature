@@ -38,8 +38,6 @@ class VSCFInitialPoint(InitialPoint):
     def __init__(self) -> None:
         super().__init__()
         self._ansatz: UVCC | None = None
-        self._excitation_list: list[tuple[tuple[int, ...], tuple[int, ...]]] | None = None
-        self._reps: int = 1
         self._parameters: np.ndarray | None = None
 
     @property
@@ -54,12 +52,7 @@ class VSCFInitialPoint(InitialPoint):
 
     @ansatz.setter
     def ansatz(self, ansatz: UVCC) -> None:
-        # Operators must be built early to compute the excitation list.
-        _ = ansatz.operators
-
         self._invalidate()
-
-        self._excitation_list = ansatz.excitation_list
         self._ansatz = ansatz
 
     @property
@@ -107,7 +100,21 @@ class VSCFInitialPoint(InitialPoint):
                 "Set the ansatz or call compute with it as an argument. "
             )
 
-        self._parameters = np.zeros(self.ansatz.reps * len(self._excitation_list), dtype=float)
+        self._compute()
+
+    def _compute(self) -> None:
+        """Computes the VSCF initial point array for a given excitation list.
+
+        In the VSCF case this is simply an all-zero array.
+
+        Returns:
+            An all-zero array with the same length as the excitation list.
+        """
+        # Ansatz operators must be built to compute the excitation list.
+        _ = self._ansatz.operators
+        self._parameters = np.zeros(
+            self._ansatz.reps * len(self._ansatz.excitation_list), dtype=float
+        )
 
     def _invalidate(self):
         """Invalidate any previous computation."""

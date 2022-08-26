@@ -45,8 +45,6 @@ class TestVSCFInitialPoint(QiskitNatureTestCase):
         """Test set get ansatz."""
         self.vscf_initial_point.ansatz = self.ansatz
         self.assertEqual(self.vscf_initial_point.ansatz, self.ansatz)
-        self.assertEqual(self.vscf_initial_point._excitation_list, self.excitation_list)
-        self.assertEqual(self.vscf_initial_point._reps, 1)
 
     def test_set_grouped_property(self):
         """Test set get grouped_property (not used for VSCF)."""

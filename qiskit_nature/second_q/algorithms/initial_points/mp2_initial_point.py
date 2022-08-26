@@ -99,7 +99,7 @@ class MP2InitialPoint(InitialPoint):
 
     Following computation, one can obtain the initial point array via the :meth:`to_numpy_array`
     method. The initial point parameters that correspond to double excitations in the
-    :attr:`excitation_list` will equal the appropriate T2 amplitude, while those below
+    ``excitation_list`` will equal the appropriate T2 amplitude, while those below
     :attr:`threshold` or that correspond to single, triple, or higher excitations will be zero.
     """
 
@@ -107,8 +107,6 @@ class MP2InitialPoint(InitialPoint):
         super().__init__()
         self.threshold: float = threshold
         self._ansatz: UCC | None = None
-        self._excitation_list: list[tuple[tuple[int, ...], tuple[int, ...]]] | None = None
-        self._reps: int = 1
         self._t2_amplitudes: np.ndarray | None = None
         self._parameters: np.ndarray | None = None
         self._energy_correction: float = 0.0
@@ -126,23 +124,8 @@ class MP2InitialPoint(InitialPoint):
 
     @ansatz.setter
     def ansatz(self, ansatz: UCC) -> None:
-
-        # Operators must be built early to compute the excitation list.
-        _ = ansatz.operators
-
         self._invalidate()
-
-        self._excitation_list = ansatz.excitation_list
-        self._reps = ansatz.reps
         self._ansatz = ansatz
-
-    @property
-    def excitation_list(self) -> list[tuple[tuple[int, ...], tuple[int, ...]]]:
-        """The list of excitations that the UCC ansatz is using.
-
-        Setting this directly will overwrite any excitation list from the ansatz.
-        """
-        return self._excitation_list
 
     @property
     def grouped_property(self) -> GroupedSecondQuantizedProperty | None:
@@ -272,7 +255,7 @@ class MP2InitialPoint(InitialPoint):
             ansatz: The :attr:`ansatz`.
 
         Raises:
-            QiskitNatureError: If :attr:`_excitation_list` or :attr:`_grouped_property` is not set.
+            QiskitNatureError: If :attr:`ansatz` or :attr:`grouped_property` is not set.
         """
         if ansatz is not None:
             self.ansatz = ansatz
@@ -300,15 +283,18 @@ class MP2InitialPoint(InitialPoint):
         Returns:
             The MP2 T2 amplitudes for each excitation.
         """
+        # Operators must be built to compute the excitation list.
+        _ = self._ansatz.operators
         num_occ = self._t2_amplitudes.shape[0]
-        amplitudes = np.zeros(len(self.excitation_list), dtype=float)
-        for index, excitation in enumerate(self._excitation_list):
+        amplitudes = np.zeros(len(self._ansatz.excitation_list), dtype=float)
+        for index, excitation in enumerate(self._ansatz.excitation_list):
             if len(excitation[0]) == 2:
                 # Get the amplitude of the double excitation.
                 [[i, j], [a, b]] = np.asarray(excitation) % num_occ
                 amplitude = self._t2_amplitudes[i, j, a - num_occ, b - num_occ]
                 amplitudes[index] = amplitude if abs(amplitude) > self._threshold else 0.0
-        amplitudes = np.tile(amplitudes, self._reps)
+
+        amplitudes = np.tile(amplitudes, self._ansatz.reps)
         self._parameters = amplitudes
 
     def to_numpy_array(self) -> np.ndarray:
