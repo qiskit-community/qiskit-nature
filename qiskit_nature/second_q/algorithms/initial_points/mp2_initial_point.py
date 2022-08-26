@@ -294,8 +294,7 @@ class MP2InitialPoint(InitialPoint):
                 amplitude = self._t2_amplitudes[i, j, a - num_occ, b - num_occ]
                 amplitudes[index] = amplitude if abs(amplitude) > self._threshold else 0.0
 
-        amplitudes = np.tile(amplitudes, self._ansatz.reps)
-        self._parameters = amplitudes
+        self._parameters = np.tile(amplitudes, self._ansatz.reps)
 
     def to_numpy_array(self) -> np.ndarray:
         """The initial point as a NumPy array."""
