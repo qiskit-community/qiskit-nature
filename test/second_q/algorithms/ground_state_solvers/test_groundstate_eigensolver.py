@@ -553,9 +553,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
     def test_vqe_ucc_factory_with_reps(self):
-        """Test when using MP2InitialPoint to generate the initial point with repeated evolved
-        operators.
-        """
+        """Test when using the default initial point with repeated evolved operators."""
         ansatz = UCCSD(
             qubit_converter=self.qubit_converter,
             num_particles=self.num_particles,
