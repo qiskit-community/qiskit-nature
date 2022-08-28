@@ -46,6 +46,7 @@ class TestHFInitialPoint(QiskitNatureTestCase):
     def test_set_get_ansatz(self):
         """Test set get ansatz."""
         ansatz = Mock(spec=UCC)
+        ansatz.reps = 1
         ansatz.excitation_list = self.excitation_list
         self.hf_initial_point.ansatz = ansatz
         self.assertEqual(ansatz, self.hf_initial_point.ansatz)
@@ -89,6 +90,7 @@ class TestHFInitialPoint(QiskitNatureTestCase):
         """Test length of HF initial point array."""
         grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
         ansatz = Mock(spec=UCC)
+        ansatz.reps = 1
         ansatz.excitation_list = self.excitation_list
         self.hf_initial_point.compute(ansatz=ansatz, grouped_property=grouped_property)
         initial_point = self.hf_initial_point.to_numpy_array()

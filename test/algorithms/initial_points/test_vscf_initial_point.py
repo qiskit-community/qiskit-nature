@@ -43,6 +43,7 @@ class TestVSCFInitialPoint(QiskitNatureTestCase):
     def test_set_get_ansatz(self):
         """Test set get ansatz."""
         ansatz = Mock(spec=UVCC)
+        ansatz.reps = 1
         ansatz.excitation_list = self.excitation_list
         self.vscf_initial_point.ansatz = ansatz
         self.assertEqual(ansatz, self.vscf_initial_point.ansatz)
@@ -64,6 +65,7 @@ class TestVSCFInitialPoint(QiskitNatureTestCase):
     def test_vscf_compute(self):
         """Test VSCF initial point is all zero when called via compute."""
         ansatz = Mock(spec=UVCC)
+        ansatz.reps = 1
         ansatz.excitation_list = self.excitation_list
         self.vscf_initial_point.compute(ansatz)
         initial_point = self.vscf_initial_point.to_numpy_array()
