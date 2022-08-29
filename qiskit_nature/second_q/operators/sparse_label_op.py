@@ -29,7 +29,8 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC):
         """
         Args:
             data: the operator data, mapping string-based keys to numerical values.
-            register_length: Length of register needed for data
+            register_length: the length of the operators register. This coincides with the maximum
+                index on which an operation may be performed by this operator.
         """
         self._data: Mapping[str, complex] = {}
         if kwargs.get("_dont_copy", False):
