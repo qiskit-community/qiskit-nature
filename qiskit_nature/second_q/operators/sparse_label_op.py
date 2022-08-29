@@ -96,10 +96,10 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC):
 
     @abstractmethod
     def transpose(self) -> SparseLabelOp:
-        """This method has no effect on ``SparseLabelOp`` and returns itself.
+        """Returns the transpose of the ``SparseLabelOp``.
 
         Returns:
-            the initial ``SparseLabelOp``.
+            the transpose of the starting ``SparseLabelOp``.
         """
 
     def equiv(self, other: SparseLabelOp) -> bool:
