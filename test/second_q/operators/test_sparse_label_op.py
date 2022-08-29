@@ -256,6 +256,11 @@ class TestSparseLabelOp(QiskitNatureTestCase):
         self.assertEqual(next(test_op), ("+_0 -_1", 0.0))
         self.assertEqual(next(test_op), ("+_0 -_2", 1.0))
 
+    def test_get_register_length(self):
+        """test register length property"""
+        test_val = DummySparseLabelOp(op1, 2).register_length
+        self.assertEqual(test_val, 2)
+
 
 if __name__ == "__main__":
     unittest.main()
