@@ -221,6 +221,7 @@ class TestUCC(QiskitNatureTestCase):
 
         with self.subTest("Change num spin orbitals"):
             ucc.num_spin_orbitals = 6
+            ucc.qubit_converter.mapper.invalidate_cache()
             self.assertIsNotNone(ucc.operators)
             self.assertEqual(len(ucc.operators), 8)
 
