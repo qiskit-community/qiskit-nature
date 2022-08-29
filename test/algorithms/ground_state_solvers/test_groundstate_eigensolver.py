@@ -64,6 +64,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         algorithm_globals.random_seed = self.seed
 
         self.reference_energy = -1.1373060356951838
+        self.mp2_initial_point = [0.0, 0.0, -0.07197145]
 
         self.qubit_converter = QubitConverter(JordanWignerMapper())
         self.electronic_structure_problem = ElectronicStructureProblem(self.driver)
@@ -583,7 +584,55 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         res = calc.solve(self.electronic_structure_problem)
 
         np.testing.assert_array_almost_equal(
-            solver.initial_point.to_numpy_array(), [0.0, 0.0, -0.07197145]
+            solver.initial_point.to_numpy_array(), self.mp2_initial_point
+        )
+        self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
+
+    def test_vqe_ucc_factory_with_reps(self):
+        """Test when using the default initial point with repeated evolved operators."""
+        ansatz = UCCSD(
+            qubit_converter=self.qubit_converter,
+            num_particles=self.num_particles,
+            num_spin_orbitals=self.num_spin_orbitals,
+            reps=2,
+        )
+
+        solver = VQEUCCFactory(
+            ansatz=ansatz,
+            quantum_instance=QuantumInstance(BasicAer.get_backend("statevector_simulator")),
+        )
+        calc = GroundStateEigensolver(self.qubit_converter, solver)
+        res = calc.solve(self.electronic_structure_problem)
+
+        np.testing.assert_array_almost_equal(
+            solver.initial_point.to_numpy_array(), np.zeros(6, dtype=float)
+        )
+        self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
+
+    def test_vqe_ucc_factory_with_mp2_with_reps(self):
+        """Test when using MP2InitialPoint to generate the initial point with repeated evolved
+        operators.
+        """
+
+        initial_point = MP2InitialPoint()
+
+        ansatz = UCCSD(
+            qubit_converter=self.qubit_converter,
+            num_particles=self.num_particles,
+            num_spin_orbitals=self.num_spin_orbitals,
+            reps=2,
+        )
+
+        solver = VQEUCCFactory(
+            ansatz=ansatz,
+            quantum_instance=QuantumInstance(BasicAer.get_backend("statevector_simulator")),
+            initial_point=initial_point,
+        )
+        calc = GroundStateEigensolver(self.qubit_converter, solver)
+        res = calc.solve(self.electronic_structure_problem)
+
+        np.testing.assert_array_almost_equal(
+            solver.initial_point.to_numpy_array(), np.tile(self.mp2_initial_point, 2)
         )
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 

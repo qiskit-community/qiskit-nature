@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fix the initial point classes to account for the number of times the evolved operators are
+    repeated in the ansatz.
