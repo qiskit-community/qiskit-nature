@@ -36,6 +36,7 @@ from .vibrational_energy import VibrationalEnergy
 from .fermi_hubbard_model import FermiHubbardModel
 from .ising_model import IsingModel
 from .lattice_model import LatticeModel
+from .heisenberg_model import HeisenbergModel
 
 from .lattices.boundary_condition import BoundaryCondition
 from .lattices.hyper_cubic_lattice import HyperCubicLattice
@@ -63,6 +64,7 @@ __all__ = [
     "FermiHubbardModel",
     "IsingModel",
     "LatticeModel",
+    "HeisenbergModel",
     "BoundaryCondition",
     "HyperCubicLattice",
     "LatticeDrawStyle",

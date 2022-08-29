@@ -51,6 +51,7 @@ class ProteinFoldingProblem(SamplingProblem):
             penalty_parameters: Parameters that define the strength of constraints enforcing in
                                 the problem.
         """
+        super().__init__()
         self._peptide = peptide
         self._interaction = interaction
         self._penalty_parameters = penalty_parameters
