@@ -85,7 +85,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC):
         return self.__class__(new_data, self._register_length, _dont_copy=True)
 
     def conjugate(self) -> SparseLabelOp:
-        """Returns the conjugate of the ``SparseLabelOp``
+        """Returns the conjugate of the ``SparseLabelOp``.
 
         Returns:
             the complex conjugate of the starting ``SparseLabelOp``.
