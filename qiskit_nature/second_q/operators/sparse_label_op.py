@@ -112,7 +112,8 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC):
     def equiv(self, other: SparseLabelOp) -> bool:
         """Check equivalence of two ``SparseLabelOp`` instances up to an accepted tolerance.
 
-        The absolute and relative tolerances can be changed via the `atol` and `rtol` attributes, respectively.
+        The absolute and relative tolerances can be changed via the `atol` and `rtol` attributes,
+        respectively.
 
         Args:
             other: the second ``SparseLabelOp`` to compare with this instance.
