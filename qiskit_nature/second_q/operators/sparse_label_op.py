@@ -109,7 +109,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC):
             other: the second ``SparseLabelOp`` to compare with this instance.
 
         Returns:
-            True if operators are equal to, False if not.
+            True if operators are equivalent, False if not.
         """
         if not isinstance(other, SparseLabelOp):
             return False
