@@ -28,7 +28,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC):
     def __init__(self, data: Mapping[str, complex], register_length: int, **kwargs):
         """
         Args:
-            data: Data for operator comprising string key to coeff value mapping
+            data: the operator data, mapping string-based keys to numerical values.
             register_length: Length of register needed for data
         """
         self._data: Mapping[str, complex] = {}
