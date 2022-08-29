@@ -20,7 +20,6 @@ from qiskit.quantum_info.operators import Pauli
 
 from qiskit_nature.second_q.operators import FermionicOp
 from .fermionic_mapper import FermionicMapper
-from .qubit_mapper import QubitMapper
 
 
 class ParityMapper(FermionicMapper):  # pylint: disable=missing-class-docstring

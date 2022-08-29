@@ -12,6 +12,8 @@
 
 """Qubit Mapper interface."""
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from typing import List, Tuple
 
@@ -35,13 +37,12 @@ class QubitMapper(ABC):
         """
         self._allows_two_qubit_reduction = allows_two_qubit_reduction
         self.times_creation_op: list[SparsePauliOp] = []
-        self.times_annihilation_op = []
-        self.times_occupation_number_op = []
-        self.times_emptiness_number_op = []
+        self.times_annihilation_op: list = []
+        self.times_occupation_number_op: list = []
+        self.times_emptiness_number_op: list = []
 
     def invalidate_cache(self):
-        """Resets cached lists to be empty
-        """
+        """Resets cached lists to be empty"""
         self.times_creation_op = []
         self.times_annihilation_op = []
         self.times_occupation_number_op = []
@@ -72,12 +73,16 @@ class QubitMapper(ABC):
 
     def _cache_pauli_table(self, pauli_table: List[Tuple[Pauli, Pauli]]):
         """
-        Args: 
+        Args:
             pauli_table: a table of paulis built according to the modes of the operator
 
         """
-        if not (self.times_creation_op and self.times_annihilation_op \
-        and self.times_occupation_number_op and self.times_emptiness_number_op):
+        if not (
+            self.times_creation_op
+            and self.times_annihilation_op
+            and self.times_occupation_number_op
+            and self.times_emptiness_number_op
+        ):
 
             for paulis in pauli_table:
                 real_part = SparsePauliOp(paulis[0], coeffs=[0.5])

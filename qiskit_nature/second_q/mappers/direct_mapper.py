@@ -19,7 +19,6 @@ from qiskit.quantum_info.operators import Pauli
 
 from qiskit_nature.second_q.operators import VibrationalOp
 from .vibrational_mapper import VibrationalMapper
-from .qubit_mapper import QubitMapper
 
 
 class DirectMapper(VibrationalMapper):  # pylint: disable=missing-class-docstring
