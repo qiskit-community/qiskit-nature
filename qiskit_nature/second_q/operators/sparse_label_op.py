@@ -25,17 +25,17 @@ from qiskit.quantum_info.operators.mixins import LinearMixin, AdjointMixin, Tole
 class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC):
     """The Sparse Label Operator base class."""
 
-    def __init__(
-        self, data: Mapping[str, complex], register_length: int, *, dont_copy: bool = False
-    ):
+    def __init__(self, data: Mapping[str, complex], register_length: int, *, copy: bool = True):
         """
         Args:
             data: the operator data, mapping string-based keys to numerical values.
             register_length: the length of the operators register. This coincides with the maximum
                 index on which an operation may be performed by this operator.
+            copy: when set to False data will not be copied and will be stored by value rather
+                than by reference as default.
         """
         self._data: Mapping[str, complex] = {}
-        if dont_copy is False:
+        if copy is True:
             self._data = data  # Store by reference
         else:
             self._data = dict(data.items())  # Store by value
@@ -69,7 +69,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC):
 
         register_length = max(self.register_length, other.register_length)
 
-        return self.__class__(new_data, register_length, dont_copy=True)
+        return self.__class__(new_data, register_length, copy=False)
 
     def _multiply(self, other: complex) -> SparseLabelOp:
         """Return scalar multiplication of self and other.
@@ -89,7 +89,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC):
             )
         new_data = {key: val * other for key, val in self._data.items()}
 
-        return self.__class__(new_data, self.register_length, dont_copy=True)
+        return self.__class__(new_data, self.register_length, copy=False)
 
     def conjugate(self) -> SparseLabelOp:
         """Returns the conjugate of the ``SparseLabelOp``.
@@ -99,7 +99,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC):
         """
         new_data = {key: np.conjugate(val) for key, val in self._data.items()}
 
-        return self.__class__(new_data, self.register_length, dont_copy=True)
+        return self.__class__(new_data, self.register_length, copy=False)
 
     @abstractmethod
     def transpose(self) -> SparseLabelOp:
@@ -147,5 +147,5 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC):
 
     def __iter__(self) -> Iterator[tuple[str, complex]]:
         """Iterate through ``SparseLabelOp`` items"""
-        for key, value in self._data.items():
-            yield key, value
+        for key in self._data:
+            yield key, self._data[key]
