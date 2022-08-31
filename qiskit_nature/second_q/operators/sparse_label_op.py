@@ -36,10 +36,10 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC):
                 the dictionary after constructing the operator. Use with care!
         """
         self._data: Mapping[str, complex] = {}
-        if copy is True:
-            self._data = data  # Store by reference
+        if copy:
+            self._data = dict(data.items())
         else:
-            self._data = dict(data.items())  # Store by value
+            self._data = data
         self._register_length = register_length
 
     @property
