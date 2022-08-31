@@ -31,7 +31,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC):
             data: the operator data, mapping string-based keys to numerical values.
             register_length: the length of the operators register. This coincides with the maximum
                 index on which an operation may be performed by this operator.
-            copy: when set to False the `data` will not be copied and the dicionary will be stored by reference rather
+            copy: when set to False the `data` will not be copied and the dictionary will be stored by reference rather
                 than by value (which is the default). Note, that this might requires you to not change the contents of
                 the dictionary after constructing the operator. Use with care!
         """
