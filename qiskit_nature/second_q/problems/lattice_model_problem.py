@@ -17,7 +17,7 @@ from __future__ import annotations
 from typing import cast, Union
 
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
-from qiskit_nature.second_q.hamiltonians import Hamiltonian, LatticeModel
+from qiskit_nature.second_q.hamiltonians import LatticeModel
 
 from .base_problem import BaseProblem
 from .lattice_model_result import LatticeModelResult
@@ -28,7 +28,7 @@ from .eigenstate_result import EigenstateResult
 class LatticeModelProblem(BaseProblem):
     """Lattice Model Problem class to create second quantized operators from a lattice model."""
 
-    def __init__(self, hamiltonian: Hamiltonian) -> None:
+    def __init__(self, hamiltonian: LatticeModel) -> None:
         """
         Args:
             hamiltonian: A lattice model class to create second quantized operators.
@@ -36,11 +36,6 @@ class LatticeModelProblem(BaseProblem):
         Raises:
             TypeError: if the provided ``hamiltonian`` is not of type :class:`.LatticeModel`.
         """
-        if not isinstance(hamiltonian, LatticeModel):
-            raise TypeError(
-                "Only a LatticeModel hamiltonian is supported by the LatticeModelProblem, not one "
-                f"of type, {type(hamiltonian)}"
-            )
         super().__init__(hamiltonian)
         self.properties: LatticePropertiesContainer = LatticePropertiesContainer()
 

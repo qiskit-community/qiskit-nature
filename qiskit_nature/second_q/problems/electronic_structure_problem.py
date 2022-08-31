@@ -27,7 +27,7 @@ from qiskit_nature.second_q.circuit.library.initial_states.hartree_fock import (
 )
 from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
 from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.hamiltonians import Hamiltonian, ElectronicEnergy
+from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.properties.bases import ElectronicBasisTransform
 
 from .electronic_structure_result import ElectronicStructureResult
@@ -76,20 +76,14 @@ class ElectronicStructureProblem(BaseProblem):
 
     """
 
-    def __init__(self, hamiltonian: Hamiltonian) -> None:
+    def __init__(self, hamiltonian: ElectronicEnergy) -> None:
         """
         Args:
-            hamiltonian: the Hamiltonian of this problem. This needs to be an
-                :class:`.ElectronicEnergy`.
+            hamiltonian: the Hamiltonian of this problem.
 
         Raises:
             TypeError: if the provided ``hamiltonian`` is not of type :class:`.ElectronicEnergy`.
         """
-        if not isinstance(hamiltonian, ElectronicEnergy):
-            raise TypeError(
-                "Only an ElectronicEnergy hamiltonian is supported by the ElectronicStructureProblem,"
-                f" not one of type, {type(hamiltonian)}"
-            )
         super().__init__(hamiltonian)
         self.properties: ElectronicPropertiesContainer = ElectronicPropertiesContainer()
         self.molecule: MoleculeInfo = None

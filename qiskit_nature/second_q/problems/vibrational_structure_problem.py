@@ -21,7 +21,7 @@ import numpy as np
 
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 
-from qiskit_nature.second_q.hamiltonians import Hamiltonian, VibrationalEnergy
+from qiskit_nature.second_q.hamiltonians import VibrationalEnergy
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.properties.bases import HarmonicBasis
 
@@ -37,15 +37,14 @@ class VibrationalStructureProblem(BaseProblem):
 
     def __init__(
         self,
-        hamiltonian: Hamiltonian,
+        hamiltonian: VibrationalEnergy,
         num_modes: int,
         num_modals: Union[int, List[int]] = None,
         truncation_order: int = None,
     ):
         """
         Args:
-            hamiltonian: the Hamiltonian of this problem. This needs to be an
-                :class:`.VibrationalEnergy`.
+            hamiltonian: the Hamiltonian of this problem.
             num_modes: the number of modes.
             num_modals: the number of modals per mode.
             truncation_order: order at which an n-body expansion is truncated
@@ -53,11 +52,6 @@ class VibrationalStructureProblem(BaseProblem):
         Raises:
             TypeError: if the provided ``hamiltonian`` is not of type :class:`.VibrationalEnergy`.
         """
-        if not isinstance(hamiltonian, VibrationalEnergy):
-            raise TypeError(
-                "Only a VibrationalEnergy hamiltonian is supported by the "
-                f"VibrationalStructureProblem, not one of type, {type(hamiltonian)}"
-            )
         super().__init__(hamiltonian)
         self.properties: VibrationalPropertiesContainer = VibrationalPropertiesContainer()
         self.num_modes = num_modes
