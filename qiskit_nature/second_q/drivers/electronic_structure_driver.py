@@ -146,49 +146,52 @@ class ElectronicStructureDriver(BaseDriver):
         properties.return_energy = data.e_ref
         properties.nuclear_repulsion_energy = data.e_nuc
 
+        def format_np_array(arr):
+            return arr.ravel().tolist()
+
         wavefunction = QCWavefunction(basis=data.basis)
         if data.mo_coeff is not None:
             wavefunction.orbitals_a = "scf_orbitals_a"
-            wavefunction.scf_orbitals_a = data.mo_coeff.ravel().tolist()
+            wavefunction.scf_orbitals_a = format_np_array(data.mo_coeff)
         if data.mo_coeff_b is not None:
             wavefunction.orbitals_b = "scf_orbitals_b"
-            wavefunction.scf_orbitals_b = data.mo_coeff_b.ravel().tolist()
+            wavefunction.scf_orbitals_b = format_np_array(data.mo_coeff_b)
         if data.mo_occ is not None:
             wavefunction.occupations_a = "scf_occupations_a"
-            wavefunction.scf_occupations_a = data.mo_occ.ravel().tolist()
+            wavefunction.scf_occupations_a = format_np_array(data.mo_occ)
         if data.mo_occ_b is not None:
             wavefunction.occupations_b = "scf_occupations_b"
-            wavefunction.scf_occupations_b = data.mo_occ_b.ravel().tolist()
+            wavefunction.scf_occupations_b = format_np_array(data.mo_occ_b)
         if data.mo_energy is not None:
             wavefunction.eigenvalues_a = "scf_eigenvalues_a"
-            wavefunction.scf_eigenvalues_a = data.mo_energy.ravel().tolist()
+            wavefunction.scf_eigenvalues_a = format_np_array(data.mo_energy)
         if data.mo_energy_b is not None:
             wavefunction.eigenvalues_b = "scf_eigenvalues_b"
-            wavefunction.scf_eigenvalues_b = data.mo_energy_b.ravel().tolist()
+            wavefunction.scf_eigenvalues_b = format_np_array(data.mo_energy_b)
         if data.hij is not None:
             wavefunction.fock_a = "scf_fock_a"
-            wavefunction.scf_fock_a = data.hij.ravel().tolist()
+            wavefunction.scf_fock_a = format_np_array(data.hij)
         if data.hij_b is not None:
             wavefunction.fock_b = "scf_fock_b"
-            wavefunction.scf_fock_b = data.hij_b.ravel().tolist()
+            wavefunction.scf_fock_b = format_np_array(data.hij_b)
         if data.hij_mo is not None:
             wavefunction.fock_mo_a = "scf_fock_mo_a"
-            wavefunction.scf_fock_mo_a = data.hij_mo.ravel().tolist()
+            wavefunction.scf_fock_mo_a = format_np_array(data.hij_mo)
         if data.hij_mo_b is not None:
             wavefunction.fock_mo_b = "scf_fock_mo_b"
-            wavefunction.scf_fock_mo_b = data.hij_mo_b.ravel().tolist()
+            wavefunction.scf_fock_mo_b = format_np_array(data.hij_mo_b)
         if data.eri is not None:
             wavefunction.eri = "scf_eri"
-            wavefunction.scf_eri = data.eri.ravel().tolist()
+            wavefunction.scf_eri = format_np_array(data.eri)
         if data.eri_mo is not None:
             wavefunction.eri_mo_aa = "scf_eri_mo_aa"
-            wavefunction.scf_eri_mo_aa = data.eri_mo.ravel().tolist()
+            wavefunction.scf_eri_mo_aa = format_np_array(data.eri_mo)
         if data.eri_mo_ba is not None:
             wavefunction.eri_mo_ba = "scf_eri_mo_ba"
-            wavefunction.scf_eri_mo_ba = data.eri_mo_ba.ravel().tolist()
+            wavefunction.scf_eri_mo_ba = format_np_array(data.eri_mo_ba)
         if data.eri_mo_bb is not None:
             wavefunction.eri_mo_bb = "scf_eri_mo_bb"
-            wavefunction.scf_eri_mo_bb = data.eri_mo_bb.ravel().tolist()
+            wavefunction.scf_eri_mo_bb = format_np_array(data.eri_mo_bb)
 
         qcschema = QCSchema(
             schema_name="qcschema",

@@ -72,28 +72,34 @@ def qcschema_to_problem(
     coeff_b: np.ndarray | None = None
     basis_transform: ElectronicBasisTransform | None = None
 
+    def reshape_2(arr, dim, dim_2=None):
+        return arr.reshape((dim, dim_2 if dim_2 is not None else dim))
+
+    def reshape_4(arr, dim):
+        return arr.reshape((dim,) * 4)
+
     if qcschema.wavefunction.scf_fock_a is not None:
         # TODO: deal with this properly
         hij = np.asarray(qcschema.wavefunction.scf_fock_a)
         nao = int(np.sqrt(len(hij)))
-        hij = hij.reshape((nao, nao))
+        hij = reshape_2(hij, nao)
 
     if qcschema.wavefunction.scf_fock_b is not None:
-        hij_b = np.asarray(qcschema.wavefunction.scf_fock_b).reshape((nao, nao))
+        hij_b = reshape_2(np.asarray(qcschema.wavefunction.scf_fock_b), nao)
 
     if hij is not None:
         one_body_ao = OneBodyElectronicIntegrals(ElectronicBasis.AO, (hij, hij_b))
         ints.append(one_body_ao)
 
     if qcschema.wavefunction.scf_eri is not None:
-        eri = np.asarray(qcschema.wavefunction.scf_eri).reshape((nao, nao, nao, nao))
+        eri = reshape_4(np.asarray(qcschema.wavefunction.scf_eri), nao)
         two_body_ao = TwoBodyElectronicIntegrals(ElectronicBasis.AO, (eri, None, None, None))
         ints.append(two_body_ao)
 
     if qcschema.wavefunction.scf_orbitals_a is not None:
-        coeff_a = np.asarray(qcschema.wavefunction.scf_orbitals_a).reshape((nao, nmo))
+        coeff_a = reshape_2(np.asarray(qcschema.wavefunction.scf_orbitals_a), nao, nmo)
     if qcschema.wavefunction.scf_orbitals_b is not None:
-        coeff_b = np.asarray(qcschema.wavefunction.scf_orbitals_b).reshape((nao, nmo))
+        coeff_b = reshape_2(np.asarray(qcschema.wavefunction.scf_orbitals_b), nao, nmo)
 
     if coeff_a is not None:
         basis_transform = ElectronicBasisTransform(
@@ -111,10 +117,10 @@ def qcschema_to_problem(
     two_body_mo: TwoBodyElectronicIntegrals
 
     if qcschema.wavefunction.scf_fock_mo_a is not None:
-        hij_mo = np.asarray(qcschema.wavefunction.scf_fock_mo_a).reshape((nmo, nmo))
+        hij_mo = reshape_2(np.asarray(qcschema.wavefunction.scf_fock_mo_a), nmo)
 
     if qcschema.wavefunction.scf_fock_mo_b is not None:
-        hij_mo_b = np.asarray(qcschema.wavefunction.scf_fock_mo_b).reshape((nmo, nmo))
+        hij_mo_b = reshape_2(np.asarray(qcschema.wavefunction.scf_fock_mo_b), nmo)
 
     if hij_mo is not None:
         one_body_mo = OneBodyElectronicIntegrals(ElectronicBasis.MO, (hij_mo, hij_mo_b))
@@ -129,16 +135,16 @@ def qcschema_to_problem(
         ints.append(one_body_mo)
 
     if qcschema.wavefunction.scf_eri_mo_aa is not None:
-        eri_mo = np.asarray(qcschema.wavefunction.scf_eri_mo_aa).reshape((nmo, nmo, nmo, nmo))
+        eri_mo = reshape_4(np.asarray(qcschema.wavefunction.scf_eri_mo_aa), nmo)
 
     if qcschema.wavefunction.scf_eri_mo_ba is not None:
-        eri_mo_ba = np.asarray(qcschema.wavefunction.scf_eri_mo_ba).reshape((nmo, nmo, nmo, nmo))
+        eri_mo_ba = reshape_4(np.asarray(qcschema.wavefunction.scf_eri_mo_ba), nmo)
 
     if qcschema.wavefunction.scf_eri_mo_bb is not None:
-        eri_mo_bb = np.asarray(qcschema.wavefunction.scf_eri_mo_bb).reshape((nmo, nmo, nmo, nmo))
+        eri_mo_bb = reshape_4(np.asarray(qcschema.wavefunction.scf_eri_mo_bb), nmo)
 
     if qcschema.wavefunction.scf_eri_mo_ab is not None:
-        eri_mo_ab = np.asarray(qcschema.wavefunction.scf_eri_mo_ab).reshape((nmo, nmo, nmo, nmo))
+        eri_mo_ab = reshape_4(np.asarray(qcschema.wavefunction.scf_eri_mo_ab), nmo)
 
     if eri_mo is not None:
         two_body_mo = TwoBodyElectronicIntegrals(
