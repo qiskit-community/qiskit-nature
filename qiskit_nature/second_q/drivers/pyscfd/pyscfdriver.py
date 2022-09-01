@@ -36,7 +36,7 @@ from qiskit_nature.second_q.properties.integrals import OneBodyElectronicIntegra
 from qiskit_nature.settings import settings
 import qiskit_nature.optionals as _optionals
 
-from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
+from ..electronic_structure_driver import ElectronicStructureDriver, MethodType, _QCSchemaData
 
 logger = logging.getLogger(__name__)
 
@@ -502,13 +502,15 @@ class PySCFDriver(ElectronicStructureDriver):
 
     def to_qcschema(self) -> QCSchema:
         # pylint: disable=import-error
+        from pyscf import __version__ as pyscf_version
         from pyscf import gto
         from pyscf.tools import dump_mat
-        from pyscf import __version__ as pyscf_version
 
-        mo_coeff, mo_coeff_b = self._extract_mo_data("mo_coeff", array_dimension=3)
-        mo_energy, mo_energy_b = self._extract_mo_data("mo_energy")
-        mo_occ, mo_occ_b = self._extract_mo_data("mo_occ")
+        data = _QCSchemaData()
+
+        data.mo_coeff, data.mo_coeff_b = self._extract_mo_data("mo_coeff", array_dimension=3)
+        data.mo_energy, data.mo_energy_b = self._extract_mo_data("mo_energy")
+        data.mo_occ, data.mo_occ_b = self._extract_mo_data("mo_occ")
 
         if logger.isEnabledFor(logging.DEBUG):
             # Add some more to PySCF output...
@@ -517,82 +519,64 @@ class PySCFDriver(ElectronicStructureDriver):
             self._calc.analyze()
             # Now labelled orbitals for contributions to the MOs for s,p,d etc of each atom
             self._mol.stdout.write("\n\n--- Alpha Molecular Orbitals ---\n\n")
-            dump_mat.dump_mo(self._mol, mo_coeff, digits=7, start=1)
-            if mo_coeff_b is not None:
+            dump_mat.dump_mo(self._mol, data.mo_coeff, digits=7, start=1)
+            if data.mo_coeff_b is not None:
                 self._mol.stdout.write("\n--- Beta Molecular Orbitals ---\n\n")
-                dump_mat.dump_mo(self._mol, mo_coeff_b, digits=7, start=1)
+                dump_mat.dump_mo(self._mol, data.mo_coeff_b, digits=7, start=1)
             self._mol.stdout.flush()
 
-        hij = self._calc.get_hcore()
-        hij_mo = np.dot(np.dot(mo_coeff.T, hij), mo_coeff)
-        hij_mo_b = None
-        if mo_coeff_b is not None:
-            hij_mo_b = np.dot(np.dot(mo_coeff_b.T, hij), mo_coeff_b)
-        eri = self._mol.intor("int2e", aosym=1)
+        data.hij = self._calc.get_hcore()
+        data.hij_mo = np.dot(np.dot(data.mo_coeff.T, data.hij), data.mo_coeff)
+        if data.mo_coeff_b is not None:
+            data.hij_mo_b = np.dot(np.dot(data.mo_coeff_b.T, data.hij), data.mo_coeff_b)
+        data.eri = self._mol.intor("int2e", aosym=1)
         einsum_ao_to_mo = "pqrs,pi,qj,rk,sl->ijkl"
-        eri_mo = np.einsum(
+        data.eri_mo = np.einsum(
             einsum_ao_to_mo,
-            eri,
-            mo_coeff,
-            mo_coeff,
-            mo_coeff,
-            mo_coeff,
+            data.eri,
+            data.mo_coeff,
+            data.mo_coeff,
+            data.mo_coeff,
+            data.mo_coeff,
             optimize=settings.optimize_einsum,
         )
-        eri_mo_ba = None
-        eri_mo_bb = None
-        if mo_coeff_b is not None:
-            eri_mo_ba = np.einsum(
+        if data.mo_coeff_b is not None:
+            data.eri_mo_ba = np.einsum(
                 einsum_ao_to_mo,
-                eri,
-                mo_coeff_b,
-                mo_coeff_b,
-                mo_coeff,
-                mo_coeff,
+                data.eri,
+                data.mo_coeff_b,
+                data.mo_coeff_b,
+                data.mo_coeff,
+                data.mo_coeff,
                 optimize=settings.optimize_einsum,
             )
-            eri_mo_bb = np.einsum(
+            data.eri_mo_bb = np.einsum(
                 einsum_ao_to_mo,
-                eri,
-                mo_coeff_b,
-                mo_coeff_b,
-                mo_coeff_b,
-                mo_coeff_b,
+                data.eri,
+                data.mo_coeff_b,
+                data.mo_coeff_b,
+                data.mo_coeff_b,
+                data.mo_coeff_b,
                 optimize=settings.optimize_einsum,
             )
 
-        return self._to_qcschema(
-            hij=hij,
-            eri=eri,
-            hij_mo=hij_mo,
-            hij_mo_b=hij_mo_b,
-            eri_mo=eri_mo,
-            eri_mo_ba=eri_mo_ba,
-            eri_mo_bb=eri_mo_bb,
-            e_nuc=gto.mole.energy_nuc(self._mol),
-            e_ref=self._calc.e_tot,
-            mo_coeff=mo_coeff,
-            mo_coeff_b=mo_coeff_b,
-            mo_energy=mo_energy,
-            mo_energy_b=mo_energy_b,
-            mo_occ=mo_occ,
-            mo_occ_b=mo_occ_b,
-            symbols=[self._mol.atom_pure_symbol(i) for i in range(self._mol.natm)],
-            coords=self._mol.atom_coords(unit="Bohr").ravel().tolist(),
-            multiplicity=self._spin + 1,
-            charge=self._charge,
-            masses=list(self._mol.atom_mass_list()),
-            method=self._method.value.upper(),
-            basis=self._basis,
-            creator="PySCF",
-            version=pyscf_version,
-            routine="",
-            nbasis=self._mol.nbas,
-            nmo=self._mol.nao,
-            nalpha=self._mol.nelec[0],
-            nbeta=self._mol.nelec[1],
-            keywords={},
-        )
+        data.e_nuc = gto.mole.energy_nuc(self._mol)
+        data.e_ref = self._calc.e_tot
+        data.symbols = [self._mol.atom_pure_symbol(i) for i in range(self._mol.natm)]
+        data.coords = self._mol.atom_coords(unit="Bohr").ravel().tolist()
+        data.multiplicity = self._spin + 1
+        data.charge = self._charge
+        data.masses = list(self._mol.atom_mass_list())
+        data.method = self._method.value.upper()
+        data.basis = self._basis
+        data.creator = "PySCF"
+        data.version = pyscf_version
+        data.nbasis = self._mol.nbas
+        data.nmo = self._mol.nao
+        data.nalpha = self._mol.nelec[0]
+        data.nbeta = self._mol.nelec[1]
+
+        return self._to_qcschema(data)
 
     def to_problem(
         self,

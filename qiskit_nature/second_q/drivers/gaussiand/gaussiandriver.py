@@ -38,7 +38,7 @@ from qiskit_nature.second_q.properties.bases import ElectronicBasis
 from qiskit_nature.second_q.properties.integrals import OneBodyElectronicIntegrals
 
 from .gaussian_utils import run_g16
-from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
+from ..electronic_structure_driver import ElectronicStructureDriver, MethodType, _QCSchemaData
 
 if TYPE_CHECKING:
     from .gauopen.QCMatEl import MatEl
@@ -292,34 +292,38 @@ class GaussianDriver(ElectronicStructureDriver):
 
     @staticmethod
     def _qcschema_from_matrix_file(mel: MatEl) -> QCSchema:
-        moc = GaussianDriver._get_matrix(mel, "ALPHA MO COEFFICIENTS")
-        moc_b = GaussianDriver._get_matrix(mel, "BETA MO COEFFICIENTS")
-        if np.array_equal(moc, moc_b):
-            logger.debug("ALPHA and BETA MO COEFFS identical, keeping only ALPHA")
-            moc_b = None
+        data = _QCSchemaData()
 
-        hcore = GaussianDriver._get_matrix(mel, "CORE HAMILTONIAN ALPHA")
-        logger.debug("CORE HAMILTONIAN ALPHA %s", hcore.shape)
-        hcore_b = GaussianDriver._get_matrix(mel, "CORE HAMILTONIAN BETA")
-        if np.array_equal(hcore, hcore_b):
+        data.mo_coeff = GaussianDriver._get_matrix(mel, "ALPHA MO COEFFICIENTS")
+        data.mo_coeff_b = GaussianDriver._get_matrix(mel, "BETA MO COEFFICIENTS")
+        if np.array_equal(data.mo_coeff, data.mo_coeff_b):
+            logger.debug("ALPHA and BETA MO COEFFS identical, keeping only ALPHA")
+            data.mo_coeff_b = None
+
+        data.hij = GaussianDriver._get_matrix(mel, "CORE HAMILTONIAN ALPHA")
+        logger.debug("CORE HAMILTONIAN ALPHA %s", data.hij.shape)
+        data.hij_b = GaussianDriver._get_matrix(mel, "CORE HAMILTONIAN BETA")
+        if np.array_equal(data.hij, data.hij_b):
             # From Gaussian interfacing documentation: "The two core Hamiltonians are identical
             # unless a Fermi contact perturbation has been applied."
             logger.debug("CORE HAMILTONIAN ALPHA and BETA identical, keeping only ALPHA")
-            hcore_b = None
+            data.hij_b = None
         logger.debug(
             "CORE HAMILTONIAN BETA %s",
-            "- Not present" if hcore_b is None else hcore_b.shape,
+            "- Not present" if data.hij_b is None else data.hij_b.shape,
         )
 
-        mohij = np.dot(np.dot(moc.T, hcore), moc)
-        mohij_b = None
-        if moc_b is not None:
-            mohij_b = np.dot(np.dot(moc_b.T, hcore_b if hcore_b is not None else hcore), moc_b)
+        data.hij_mo = np.dot(np.dot(data.mo_coeff.T, data.hij), data.mo_coeff)
+        if data.mo_coeff_b is not None:
+            data.hij_mo_b = np.dot(
+                np.dot(data.mo_coeff_b.T, data.hij_b if data.hij_b is not None else data.hij),
+                data.mo_coeff_b,
+            )
 
-        eri = GaussianDriver._get_matrix(mel, "REGULAR 2E INTEGRALS")
-        logger.debug("REGULAR 2E INTEGRALS %s", eri.shape)
+        data.eri = GaussianDriver._get_matrix(mel, "REGULAR 2E INTEGRALS")
+        logger.debug("REGULAR 2E INTEGRALS %s", data.eri.shape)
         useao2e = False
-        if moc_b is None and mel.matlist.get("BB MO 2E INTEGRALS") is not None:
+        if data.mo_coeff_b is None and mel.matlist.get("BB MO 2E INTEGRALS") is not None:
             # It seems that when using ROHF, where alpha and beta coeffs are
             # the same, that integrals
             # for BB and BA are included in the output, as well as just AA
@@ -336,86 +340,71 @@ class GaussianDriver(ElectronicStructureDriver):
             # eri are 2-body in AO. We can convert to MO via the ElectronicBasisTransform but using
             # ints in MO already, as in the else here, is better
             einsum_ao_to_mo = "pqrs,pi,qj,rk,sl->ijkl"
-            mohijkl = np.einsum(
+            data.eri_mo = np.einsum(
                 einsum_ao_to_mo,
-                eri,
-                moc,
-                moc,
-                moc,
-                moc,
+                data.eri,
+                data.mo_coeff,
+                data.mo_coeff,
+                data.mo_coeff,
+                data.mo_coeff,
                 optimize=settings.optimize_einsum,
             )
-            mohijkl_ba = None
-            mohijkl_bb = None
-            if moc_b is not None:
-                mohijkl_ba = np.einsum(
+            if data.mo_coeff_b is not None:
+                data.eri_mo_ba = np.einsum(
                     einsum_ao_to_mo,
-                    eri,
-                    moc_b,
-                    moc_b,
-                    moc,
-                    moc,
+                    data.eri,
+                    data.mo_coeff_b,
+                    data.mo_coeff_b,
+                    data.mo_coeff,
+                    data.mo_coeff,
                     optimize=settings.optimize_einsum,
                 )
-                mohijkl_bb = np.einsum(
+                data.eri_mo_bb = np.einsum(
                     einsum_ao_to_mo,
-                    eri,
-                    moc_b,
-                    moc_b,
-                    moc_b,
-                    moc_b,
+                    data.eri,
+                    data.mo_coeff_b,
+                    data.mo_coeff_b,
+                    data.mo_coeff_b,
+                    data.mo_coeff_b,
                     optimize=settings.optimize_einsum,
                 )
         else:
             # These are in MO basis but by default will be reduced in size by frozen core default so
             # to use them we need to add Window=Full above when we augment the config
-            mohijkl = GaussianDriver._get_matrix(mel, "AA MO 2E INTEGRALS")
-            logger.debug("AA MO 2E INTEGRALS %s", mohijkl.shape)
-            mohijkl_bb = GaussianDriver._get_matrix(mel, "BB MO 2E INTEGRALS")
+            data.eri_mo = GaussianDriver._get_matrix(mel, "AA MO 2E INTEGRALS")
+            logger.debug("AA MO 2E INTEGRALS %s", data.eri_mo.shape)
+            data.eri_mo_bb = GaussianDriver._get_matrix(mel, "BB MO 2E INTEGRALS")
             logger.debug(
                 "BB MO 2E INTEGRALS %s",
-                "- Not present" if mohijkl_bb is None else mohijkl_bb.shape,
+                "- Not present" if data.eri_mo_bb is None else data.eri_mo_bb.shape,
             )
-            mohijkl_ba = GaussianDriver._get_matrix(mel, "BA MO 2E INTEGRALS")
+            data.eri_mo_ba = GaussianDriver._get_matrix(mel, "BA MO 2E INTEGRALS")
             logger.debug(
                 "BA MO 2E INTEGRALS %s",
-                "- Not present" if mohijkl_ba is None else mohijkl_ba.shape,
+                "- Not present" if data.eri_mo_ba is None else data.eri_mo_ba.shape,
             )
 
-        orbs_energy = GaussianDriver._get_matrix(mel, "ALPHA ORBITAL ENERGIES")
-        logger.debug("ORBITAL ENERGIES %s", orbs_energy)
-        orbs_energy_b = GaussianDriver._get_matrix(mel, "BETA ORBITAL ENERGIES")
-        logger.debug("BETA ORBITAL ENERGIES %s", orbs_energy_b)
+        data.mo_energy = GaussianDriver._get_matrix(mel, "ALPHA ORBITAL ENERGIES")
+        logger.debug("ORBITAL ENERGIES %s", data.mo_energy)
+        data.mo_energy_b = GaussianDriver._get_matrix(mel, "BETA ORBITAL ENERGIES")
+        logger.debug("BETA ORBITAL ENERGIES %s", data.mo_energy_b)
 
-        return GaussianDriver._to_qcschema(
-            hij=hcore,
-            hij_b=hcore_b,
-            eri=eri,
-            hij_mo=mohij,
-            hij_mo_b=mohij_b,
-            eri_mo=mohijkl,
-            eri_mo_ba=mohijkl_ba,
-            eri_mo_bb=mohijkl_bb,
-            e_nuc=mel.scalar("ENUCREP"),
-            e_ref=mel.scalar("ETOTAL"),
-            mo_coeff=moc,
-            mo_coeff_b=moc_b,
-            mo_energy=orbs_energy,
-            mo_energy_b=orbs_energy_b,
-            symbols=[PERIODIC_TABLE[atom] for atom in mel.ian],
-            coords=mel.c,
-            multiplicity=mel.multip,
-            charge=mel.icharg,
-            method="RHF",
-            basis="sto-3g",
-            creator="Gaussian",
-            version=mel.gversion,
-            nbasis=mel.nbasis,
-            nmo=moc.shape[0],
-            nalpha=(mel.ne + mel.multip - 1) // 2,
-            nbeta=(mel.ne - mel.multip + 1) // 2,
-            keywords={},
-        )
+        data.e_nuc = mel.scalar("ENUCREP")
+        data.e_ref = mel.scalar("ETOTAL")
+        data.symbols = [PERIODIC_TABLE[atom] for atom in mel.ian]
+        data.coords = mel.c
+        data.multiplicity = mel.multip
+        data.charge = mel.icharg
+        data.method = "RHF"
+        data.basis = "sto-3g"
+        data.creator = "Gaussian"
+        data.version = mel.gversion
+        data.nbasis = mel.nbasis
+        data.nmo = data.mo_coeff.shape[0]
+        data.nalpha = (mel.ne + mel.multip - 1) // 2
+        data.nbeta = (mel.ne - mel.multip + 1) // 2
+
+        return GaussianDriver._to_qcschema(data)
 
     def to_problem(
         self,
