@@ -87,6 +87,7 @@ class GaussianDriver(ElectronicStructureDriver):
     @_optionals.HAS_GAUSSIAN.require_in_call
     def from_molecule(
         molecule: MoleculeInfo,
+        *,
         basis: str = "sto-3g",
         method: MethodType = MethodType.RHF,
         driver_kwargs: Optional[dict[str, Any]] = None,

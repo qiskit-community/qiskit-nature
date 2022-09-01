@@ -63,6 +63,7 @@ class PySCFDriver(ElectronicStructureDriver):
     def __init__(
         self,
         atom: Union[str, List[str]] = "H 0.0 0.0 0.0; H 0.0 0.0 0.735",
+        *,
         unit: DistanceUnit = DistanceUnit.ANGSTROM,
         charge: int = 0,
         spin: int = 0,
@@ -299,6 +300,7 @@ class PySCFDriver(ElectronicStructureDriver):
     @_optionals.HAS_PYSCF.require_in_call
     def from_molecule(
         molecule: MoleculeInfo,
+        *,
         basis: str = "sto3g",
         method: MethodType = MethodType.RHF,
         driver_kwargs: Optional[Dict[str, Any]] = None,
