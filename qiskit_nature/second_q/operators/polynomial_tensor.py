@@ -116,7 +116,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin):
 
         return PolynomialTensor(conj_dict)
 
-    def transpose(self):
+    def transpose(self) -> PolynomialTensor:
         """Transpose of PolynomialTensor"""
 
         transpose_dict: Dict[str, np.ndarray] = {}
