@@ -253,13 +253,33 @@ class TestSparseLabelOp(QiskitNatureTestCase):
         """test __iter__ method"""
         test_op = iter(DummySparseLabelOp(op1, 2))
 
-        self.assertEqual(next(test_op), ("+_0 -_1", 0.0))
-        self.assertEqual(next(test_op), ("+_0 -_2", 1.0))
+        self.assertEqual(next(test_op), "+_0 -_1")
+        self.assertEqual(next(test_op), "+_0 -_2")
+
+    def test_get_item(self):
+        """test __getitem__ method"""
+        test_op = DummySparseLabelOp(op1, 2)
+        self.assertEqual(test_op["+_0 -_1"], 0.0)
+
+    def test_len(self):
+        """test __len__ method"""
+        test_op = DummySparseLabelOp(op1, 2)
+        self.assertEqual(len(test_op), 2)
 
     def test_get_register_length(self):
         """test register length property"""
         test_val = DummySparseLabelOp(op1, 2).register_length
         self.assertEqual(test_val, 2)
+
+    def test_copy(self):
+        """test copy bool"""
+        data = {
+            "+_0 -_1": 0.0,
+            "+_0 -_3": 1.0,
+        }
+        test_op = DummySparseLabelOp(data, 2)
+        data["+_0 -_1"] = 0.2
+        self.assertEqual(test_op._data["+_0 -_1"], 0.0)
 
 
 if __name__ == "__main__":

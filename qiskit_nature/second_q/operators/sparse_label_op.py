@@ -14,7 +14,8 @@
 
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import Mapping, Iterator
+from collections.abc import Mapping
+from typing import Iterator
 from numbers import Number
 import cmath
 import numpy as np
@@ -22,7 +23,7 @@ import numpy as np
 from qiskit.quantum_info.operators.mixins import LinearMixin, AdjointMixin, TolerancesMixin
 
 
-class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC):
+class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC, Mapping):
     """The Sparse Label Operator base class."""
 
     def __init__(self, data: Mapping[str, complex], register_length: int, *, copy: bool = True):
@@ -147,7 +148,14 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC):
             return False
         return self.register_length == other._register_length and self._data == other._data
 
-    def __iter__(self) -> Iterator[tuple[str, complex]]:
+    def __getitem__(self, __k: str) -> complex:
+        """Return a specified ``SparseLabelOp`` item"""
+        return self._data.__getitem__(__k)
+
+    def __len__(self) -> int:
+        """Return length of ``SparseLabelOp``"""
+        return self._data.__len__()
+
+    def __iter__(self) -> Iterator[str]:
         """Iterate through ``SparseLabelOp`` items"""
-        for key in self._data:
-            yield key, self._data[key]
+        return self._data.__iter__()
