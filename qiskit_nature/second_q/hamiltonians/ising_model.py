@@ -11,7 +11,6 @@
 # that they have been altered from the originals.
 
 """The Ising model"""
-import logging
 from fractions import Fraction
 
 import numpy as np
@@ -19,8 +18,6 @@ import numpy as np
 from qiskit_nature.second_q.operators import SpinOp
 
 from .lattice_model import LatticeModel
-
-logger = logging.getLogger(__name__)
 
 
 class IsingModel(LatticeModel):

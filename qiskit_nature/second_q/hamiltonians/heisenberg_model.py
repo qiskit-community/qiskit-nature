@@ -13,7 +13,6 @@
 """The Heisenberg model."""
 
 from __future__ import annotations
-import logging
 from typing import Tuple
 from fractions import Fraction
 import numpy as np
@@ -21,8 +20,6 @@ from qiskit_nature.second_q.operators import SpinOp
 
 from .lattice_model import LatticeModel
 from .lattices import Lattice
-
-logger = logging.getLogger(__name__)
 
 
 class HeisenbergModel(LatticeModel):
