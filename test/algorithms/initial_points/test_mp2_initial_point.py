@@ -55,6 +55,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
 
         self.excitation_list = [[[0], [1]]]
         self.mock_ansatz = Mock(spec=UCC)
+        self.mock_ansatz.reps = 1
         self.mock_ansatz.excitation_list = self.excitation_list
 
         electronic_energy = Mock(spec=ElectronicEnergy)
@@ -133,6 +134,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         self.mock_grouped_property.get_property = Mock(return_value=electronic_energy)
 
         ansatz = Mock(spec=UCC)
+        ansatz.reps = 1
         ansatz.excitation_list = self.excitation_list
 
         mp2_initial_point = MP2InitialPoint()
@@ -239,6 +241,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         driver_result = problem.grouped_property_transformed
 
         ansatz = Mock(spec=UCC)
+        ansatz.reps = 1
         ansatz.excitation_list = excitations
 
         mp2_initial_point = MP2InitialPoint()
