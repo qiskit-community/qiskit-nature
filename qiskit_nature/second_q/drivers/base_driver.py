@@ -26,5 +26,5 @@ class BaseDriver(ABC):
 
     @abstractmethod
     def run(self) -> BaseProblem:
-        """Returns a GroupedSecondQuantizedProperty output as produced by the driver."""
+        """Returns a problem output as produced by the driver."""
         raise NotImplementedError()

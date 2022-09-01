@@ -70,13 +70,13 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
             The list of active and inactive orbital indices.
 
         Raises:
-            QiskitNatureError: if a GroupedElectronicProperty is provided which is not also an
+            QiskitNatureError: if a BaseProblem is provided which is not also an
                                ElectronicStructureProblem.
         """
         if not isinstance(grouped_property, ElectronicStructureProblem):
             raise QiskitNatureError(
                 "The FreezeCoreTransformer requires an `ElectronicStructureProblem`, not a "
-                f"property of type {type(grouped_property)}."
+                f"problem of type {type(grouped_property)}."
             )
 
         molecule = grouped_property.molecule

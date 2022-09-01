@@ -19,19 +19,19 @@ from qiskit_nature.second_q.problems import BaseProblem
 
 class BaseTransformer(ABC):
     """The interface for implementing methods which map from one
-    :class:`~qiskit_nature.properties.GroupedProperty` to another.
+    :class:`~qiskit_nature.second_q.problems.BaseProblem` to another.
     These methods may or may not affect the size of the Hilbert space.
     """
 
     @abstractmethod
     def transform(self, grouped_property: BaseProblem) -> BaseProblem:
-        """Transforms one :class:`~qiskit_nature.properties.GroupedProperty` into another one.
+        """Transforms one :class:`~qiskit_nature.second_q.problems.BaseProblem` into another one.
         This may or may not affect the size of the Hilbert space.
 
         Args:
-            grouped_property: the `GroupedProperty` to be transformed.
+            grouped_property: the problem to be transformed.
 
         Returns:
-            A new `GroupedProperty` instance.
+            A new `BaseProblem` instance.
         """
         raise NotImplementedError()

@@ -95,7 +95,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         num_molecular_orbitals: Optional[int] = None,
         active_orbitals: Optional[List[int]] = None,
     ):
-        """Initializes a transformer which can reduce a `GroupedElectronicProperty` to a configured
+        """Initializes a transformer which can reduce an ElectronicStructureProblem to a configured
         active space.
 
         This transformer requires a `ParticleNumber` property and an `ElectronicBasisTransform`
@@ -175,16 +175,16 @@ class ActiveSpaceTransformer(BaseTransformer):
             )
 
     def transform(self, grouped_property: BaseProblem) -> BaseProblem:
-        """Reduces the given `GroupedElectronicProperty` to a given active space.
+        """Reduces the given problem to a given active space.
 
         Args:
-            grouped_property: the `GroupedElectronicProperty` to be transformed.
+            grouped_property: the problem to be transformed.
 
         Returns:
-            A new `GroupedElectronicProperty` instance.
+            A new `ElectronicStructureProblem` instance.
 
         Raises:
-            QiskitNatureError: If the provided `GroupedElectronicProperty` does not contain a
+            QiskitNatureError: If the provided `ElectronicStructureProblem` does not contain a
                                `ParticleNumber` or `ElectronicBasisTransform` instance, if more
                                electrons or orbitals are requested than are available, or if the
                                number of selected active orbital indices does not match
@@ -192,21 +192,21 @@ class ActiveSpaceTransformer(BaseTransformer):
         """
         if not isinstance(grouped_property, ElectronicStructureProblem):
             raise QiskitNatureError(
-                "Only `GroupedElectronicProperty` objects can be transformed by this Transformer, "
-                f"not objects of type, {type(grouped_property)}."
+                "Only an ElectronicStructureProblem can be transformed by this Transformer, "
+                f"not problems of type, {type(grouped_property)}."
             )
 
         particle_number = grouped_property.properties.particle_number
         if particle_number is None:
             raise QiskitNatureError(
-                "The provided `GroupedElectronicProperty` does not contain a `ParticleNumber` "
+                "The provided ElectronicStructureProblem does not contain a `ParticleNumber` "
                 "property, which is required by this transformer!"
             )
 
         electronic_basis_transform = grouped_property.basis_transform
         if electronic_basis_transform is None:
             raise QiskitNatureError(
-                "The provided `GroupedElectronicProperty` does not contain an "
+                "The provided ElectronicStructureProblem does not contain an "
                 "`ElectronicBasisTransform` property, which is required by this transformer!"
             )
 
@@ -251,7 +251,7 @@ class ActiveSpaceTransformer(BaseTransformer):
             ElectronicEnergy, self._transform_property(grouped_property.hamiltonian)
         )
 
-        # construct new GroupedElectronicProperty
+        # construct new ElectronicStructureProblem
         grouped_property_transformed = ElectronicStructureProblem(electronic_energy)
         grouped_property_transformed.molecule = grouped_property.molecule
         grouped_property_transformed.basis_transform = self._transform_active
@@ -269,7 +269,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         """Determines the active and inactive orbital indices.
 
         Args:
-            grouped_property: the `GroupedElectronicProperty` to be transformed.
+            grouped_property: the ElectronicStructureProblem to be transformed.
 
         Returns:
             The list of active and inactive orbital indices.
