@@ -26,7 +26,7 @@ from qiskit.quantum_info.operators.mixins import (
 class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin):
     """Polynomial Tensor class"""
 
-    def __init__(self, data: Mapping[str, np.ndarray | Number]):
+    def __init__(self, data: Mapping[str, np.ndarray | Number]) -> None:
         copy_dict: Dict[str, np.ndarray] = {}
 
         shapes = set()
