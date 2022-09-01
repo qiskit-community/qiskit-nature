@@ -38,7 +38,7 @@ class MoleculeInfo:
     charge: int = 0
     """The total charge of the molecule."""
 
-    units: DistanceUnit = DistanceUnit.BOHR
+    units: DistanceUnit = DistanceUnit.ANGSTROM
     """The distance unit in which the XYZ coordinates are stored."""
 
     masses: Sequence[float] | None = None

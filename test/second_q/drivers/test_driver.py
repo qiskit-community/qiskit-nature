@@ -17,6 +17,7 @@ from typing import cast
 
 import numpy as np
 
+from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
@@ -31,6 +32,7 @@ class TestDriver(ABC):
         coords=np.asarray([[0.0, 0.0, 0.0], [0.0, 0.0, 0.735]]),
         multiplicity=1,
         charge=0,
+        units=DistanceUnit.ANGSTROM,
     )
 
     def __init__(self):
