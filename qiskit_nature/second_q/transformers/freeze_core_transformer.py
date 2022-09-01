@@ -12,16 +12,11 @@
 
 """The Freeze-Core Reduction interface."""
 
-from typing import List, Optional, Tuple
+from typing import List, Optional, Sequence, Tuple
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.constants import PERIODIC_TABLE
-from qiskit_nature.second_q.properties import (
-    ElectronicStructureDriverResult,
-)
-from qiskit_nature.second_q.properties.electronic_types import (
-    GroupedElectronicProperty,
-)
+from qiskit_nature.second_q.problems import ElectronicStructureProblem
 
 from .active_space_transformer import ActiveSpaceTransformer
 
@@ -34,7 +29,7 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         freeze_core: bool = True,
         remove_orbitals: Optional[List[int]] = None,
     ):
-        """Initializes a transformer which can reduce an `ElectronicStructureDriverResult` to a
+        """Initializes a transformer which can reduce an `ElectronicStructureProblem` to a
         configured active space.
 
         The orbitals to be removed are specified in two ways:
@@ -64,32 +59,32 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         pass
 
     def _determine_active_space(
-        self, grouped_property: GroupedElectronicProperty
+        self, problem: ElectronicStructureProblem
     ) -> Tuple[List[int], List[int]]:
         """Determines the active and inactive orbital indices.
 
         Args:
-            grouped_property: the `ElectronicStructureDriverResult` to be transformed.
+            problem: the `ElectronicStructureProblem` to be transformed.
 
         Returns:
             The list of active and inactive orbital indices.
 
         Raises:
-            QiskitNatureError: if a GroupedElectronicProperty is provided which is not also an
-                               ElectronicElectronicStructureDriverResult.
+            QiskitNatureError: if a BaseProblem is provided which is not also an
+                               ElectronicStructureProblem.
         """
-        if not isinstance(grouped_property, ElectronicStructureDriverResult):
+        if not isinstance(problem, ElectronicStructureProblem):
             raise QiskitNatureError(
-                "The FreezeCoreTransformer requires an `ElectronicStructureDriverResult`, not a "
-                f"property of type {type(grouped_property)}."
+                "The FreezeCoreTransformer requires an `ElectronicStructureProblem`, not a "
+                f"problem of type {type(problem)}."
             )
 
-        molecule = grouped_property.molecule
-        particle_number = grouped_property.get_property("ParticleNumber")
+        molecule = problem.molecule
+        particle_number = problem.properties.particle_number
 
         inactive_orbs_idxs: List[int] = []
         if self._freeze_core:
-            inactive_orbs_idxs.extend(range(self.count_core_orbitals(molecule.atoms)))
+            inactive_orbs_idxs.extend(range(self.count_core_orbitals(molecule.symbols)))
         if self._remove_orbitals is not None:
             inactive_orbs_idxs.extend(self._remove_orbitals)
         active_orbs_idxs = [
@@ -100,7 +95,7 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
 
         return (active_orbs_idxs, inactive_orbs_idxs)
 
-    def count_core_orbitals(self, atoms: List[str]) -> int:
+    def count_core_orbitals(self, atoms: Sequence[str]) -> int:
         """Counts the number of core orbitals in a list of atoms.
 
         Args:

@@ -18,9 +18,7 @@ import numpy as np
 
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import UVCC
-from qiskit_nature.second_q.properties.second_quantized_property import (
-    GroupedSecondQuantizedProperty,
-)
+from qiskit_nature.second_q.problems import BaseProblem
 
 from .initial_point import InitialPoint
 
@@ -84,7 +82,7 @@ class VSCFInitialPoint(InitialPoint):
         self._excitation_list = excitations
 
     @property
-    def grouped_property(self) -> GroupedSecondQuantizedProperty | None:
+    def grouped_property(self) -> BaseProblem | None:
         """The grouped property.
 
         The grouped property is not required to compute the VSCF initial point.
@@ -92,7 +90,7 @@ class VSCFInitialPoint(InitialPoint):
         return self._grouped_property
 
     @grouped_property.setter
-    def grouped_property(self, grouped_property: GroupedSecondQuantizedProperty) -> None:
+    def grouped_property(self, grouped_property: BaseProblem) -> None:
         self._grouped_property = grouped_property
 
     def to_numpy_array(self) -> np.ndarray:
@@ -104,7 +102,7 @@ class VSCFInitialPoint(InitialPoint):
     def compute(
         self,
         ansatz: UVCC | None = None,
-        grouped_property: GroupedSecondQuantizedProperty | None = None,
+        grouped_property: BaseProblem | None = None,
     ) -> None:
         """Compute the initial point.
 

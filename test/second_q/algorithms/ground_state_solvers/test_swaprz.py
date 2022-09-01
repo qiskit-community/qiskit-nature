@@ -12,8 +12,6 @@
 
 """Test of ExcitationPreserving from the circuit library."""
 
-from typing import cast
-
 import unittest
 from test import QiskitNatureTestCase
 
@@ -23,13 +21,12 @@ from qiskit.algorithms.optimizers import SLSQP
 from qiskit.circuit.library import ExcitationPreserving
 from qiskit.test import slow_test
 from qiskit.utils import QuantumInstance, algorithm_globals
+import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.algorithms import GroundStateEigensolver
 from qiskit_nature.second_q.circuit.library import HartreeFock
-from qiskit_nature.second_q.drivers import HDF5Driver
+from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import ParityMapper
 from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.problems import ElectronicStructureProblem
-from qiskit_nature.second_q.properties import ParticleNumber
 
 
 class TestExcitationPreserving(QiskitNatureTestCase):
@@ -47,22 +44,19 @@ class TestExcitationPreserving(QiskitNatureTestCase):
         self.reference_energy = -1.137305593252385
 
     @slow_test
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_excitation_preserving(self):
         """Test the excitation preserving wavefunction on a chemistry example."""
 
-        driver = HDF5Driver(
-            self.get_resource_path("test_driver_hdf5.hdf5", "second_q/drivers/hdf5d")
-        )
+        driver = PySCFDriver()
 
         converter = QubitConverter(ParityMapper())
 
-        problem = ElectronicStructureProblem(driver)
+        problem = driver.run()
 
         _ = problem.second_q_ops()
 
-        particle_number = cast(
-            ParticleNumber, problem.grouped_property_transformed.get_property(ParticleNumber)
-        )
+        particle_number = problem.properties.particle_number
         num_particles = (particle_number.num_alpha, particle_number.num_beta)
         num_spin_orbitals = particle_number.num_spin_orbitals
 
