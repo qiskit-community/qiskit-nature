@@ -107,7 +107,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin):
                 return False
         return True
 
-    def conjugate(self):
+    def conjugate(self) -> PolynomialTensor:
         """Conjugate of PolynomialTensors"""
 
         conj_dict: Dict[str, np.ndarray] = {}
