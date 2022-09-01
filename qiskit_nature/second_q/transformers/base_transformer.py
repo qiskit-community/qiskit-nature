@@ -24,12 +24,12 @@ class BaseTransformer(ABC):
     """
 
     @abstractmethod
-    def transform(self, grouped_property: BaseProblem) -> BaseProblem:
+    def transform(self, problem: BaseProblem) -> BaseProblem:
         """Transforms one :class:`~qiskit_nature.second_q.problems.BaseProblem` into another one.
         This may or may not affect the size of the Hilbert space.
 
         Args:
-            grouped_property: the problem to be transformed.
+            problem: the problem to be transformed.
 
         Returns:
             A new `BaseProblem` instance.

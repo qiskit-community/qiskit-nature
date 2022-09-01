@@ -174,11 +174,11 @@ class ActiveSpaceTransformer(BaseTransformer):
                 str(self._num_electrons),
             )
 
-    def transform(self, grouped_property: BaseProblem) -> BaseProblem:
+    def transform(self, problem: BaseProblem) -> BaseProblem:
         """Reduces the given problem to a given active space.
 
         Args:
-            grouped_property: the problem to be transformed.
+            problem: the problem to be transformed.
 
         Returns:
             A new `ElectronicStructureProblem` instance.
@@ -190,20 +190,20 @@ class ActiveSpaceTransformer(BaseTransformer):
                                number of selected active orbital indices does not match
                                `num_molecular_orbitals`.
         """
-        if not isinstance(grouped_property, ElectronicStructureProblem):
+        if not isinstance(problem, ElectronicStructureProblem):
             raise QiskitNatureError(
                 "Only an ElectronicStructureProblem can be transformed by this Transformer, "
-                f"not problems of type, {type(grouped_property)}."
+                f"not problems of type, {type(problem)}."
             )
 
-        particle_number = grouped_property.properties.particle_number
+        particle_number = problem.properties.particle_number
         if particle_number is None:
             raise QiskitNatureError(
                 "The provided ElectronicStructureProblem does not contain a `ParticleNumber` "
                 "property, which is required by this transformer!"
             )
 
-        electronic_basis_transform = grouped_property.basis_transform
+        electronic_basis_transform = problem.basis_transform
         if electronic_basis_transform is None:
             raise QiskitNatureError(
                 "The provided ElectronicStructureProblem does not contain an "
@@ -216,9 +216,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         self._mo_occ_total = occupation_alpha + occupation_beta
 
         # determine the active space
-        self._active_orbs_indices, inactive_orbs_idxs = self._determine_active_space(
-            grouped_property
-        )
+        self._active_orbs_indices, inactive_orbs_idxs = self._determine_active_space(problem)
 
         # get molecular orbital coefficients
         coeff_alpha = electronic_basis_transform.coeff_alpha
@@ -247,34 +245,32 @@ class ActiveSpaceTransformer(BaseTransformer):
             ),
         )
 
-        electronic_energy = cast(
-            ElectronicEnergy, self._transform_property(grouped_property.hamiltonian)
-        )
+        electronic_energy = cast(ElectronicEnergy, self._transform_property(problem.hamiltonian))
 
         # construct new ElectronicStructureProblem
-        grouped_property_transformed = ElectronicStructureProblem(electronic_energy)
-        grouped_property_transformed.molecule = grouped_property.molecule
-        grouped_property_transformed.basis_transform = self._transform_active
+        problem_transformed = ElectronicStructureProblem(electronic_energy)
+        problem_transformed.molecule = problem.molecule
+        problem_transformed.basis_transform = self._transform_active
 
-        for prop in grouped_property.properties:
+        for prop in problem.properties:
             transformed_property = self._transform_property(prop)
             if isinstance(transformed_property, Property):
-                grouped_property_transformed.properties.add(transformed_property)
+                problem_transformed.properties.add(transformed_property)
 
-        return grouped_property_transformed
+        return problem_transformed
 
     def _determine_active_space(
-        self, grouped_property: ElectronicStructureProblem
+        self, problem: ElectronicStructureProblem
     ) -> Tuple[List[int], List[int]]:
         """Determines the active and inactive orbital indices.
 
         Args:
-            grouped_property: the ElectronicStructureProblem to be transformed.
+            problem: the ElectronicStructureProblem to be transformed.
 
         Returns:
             The list of active and inactive orbital indices.
         """
-        particle_number = grouped_property.properties.particle_number
+        particle_number = problem.properties.particle_number
         if isinstance(self._num_electrons, tuple):
             num_alpha, num_beta = self._num_electrons
         elif isinstance(self._num_electrons, (int, np.integer)):

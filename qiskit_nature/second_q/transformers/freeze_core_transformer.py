@@ -59,12 +59,12 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         pass
 
     def _determine_active_space(
-        self, grouped_property: ElectronicStructureProblem
+        self, problem: ElectronicStructureProblem
     ) -> Tuple[List[int], List[int]]:
         """Determines the active and inactive orbital indices.
 
         Args:
-            grouped_property: the `ElectronicStructureProblem` to be transformed.
+            problem: the `ElectronicStructureProblem` to be transformed.
 
         Returns:
             The list of active and inactive orbital indices.
@@ -73,14 +73,14 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
             QiskitNatureError: if a BaseProblem is provided which is not also an
                                ElectronicStructureProblem.
         """
-        if not isinstance(grouped_property, ElectronicStructureProblem):
+        if not isinstance(problem, ElectronicStructureProblem):
             raise QiskitNatureError(
                 "The FreezeCoreTransformer requires an `ElectronicStructureProblem`, not a "
-                f"problem of type {type(grouped_property)}."
+                f"problem of type {type(problem)}."
             )
 
-        molecule = grouped_property.molecule
-        particle_number = grouped_property.properties.particle_number
+        molecule = problem.molecule
+        particle_number = problem.properties.particle_number
 
         inactive_orbs_idxs: List[int] = []
         if self._freeze_core:
