@@ -39,7 +39,7 @@ class TestSlaterDeterminant(QiskitNatureTestCase):
             orbital_energies,
             transformed_constant,
         ) = quad_ham.diagonalizing_bogoliubov_transform()
-        fermionic_op = quad_ham.to_fermionic_op()
+        fermionic_op = quad_ham.second_q_op()
         qubit_op = converter.convert(fermionic_op)
         matrix = qubit_op.to_matrix()
         for n_particles in range(n_orbitals + 1):

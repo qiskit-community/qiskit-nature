@@ -22,7 +22,7 @@ import numpy as np
 from qiskit_nature.second_q.algorithms.initial_points import VSCFInitialPoint
 from qiskit_nature.second_q.circuit.library import UVCC
 from qiskit_nature.exceptions import QiskitNatureError
-from qiskit_nature.second_q.properties import GroupedSecondQuantizedProperty
+from qiskit_nature.second_q.problems import VibrationalStructureProblem
 
 
 class TestVSCFInitialPoint(QiskitNatureTestCase):
@@ -49,7 +49,7 @@ class TestVSCFInitialPoint(QiskitNatureTestCase):
     def test_set_grouped_property(self):
         """Test set get grouped_property (not used for VSCF)."""
         self.assertIsNone(self.vscf_initial_point.grouped_property)
-        grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
+        grouped_property = Mock(spec=VibrationalStructureProblem)
         self.vscf_initial_point.grouped_property = grouped_property
         self.assertEqual(grouped_property, self.vscf_initial_point.grouped_property)
 

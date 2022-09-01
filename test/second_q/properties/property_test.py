@@ -16,12 +16,14 @@ from test import QiskitNatureTestCase
 
 import numpy as np
 
-from qiskit_nature.second_q.properties.driver_metadata import DriverMetadata
+from qiskit_nature.second_q.hamiltonians import (
+    ElectronicEnergy,
+    VibrationalEnergy,
+)
 from qiskit_nature.second_q.properties import (
     AngularMomentum,
     DipoleMoment,
     ElectronicDipoleMoment,
-    ElectronicEnergy,
     Magnetization,
     ParticleNumber,
 )
@@ -35,7 +37,6 @@ from qiskit_nature.second_q.properties.integrals import (
 )
 from qiskit_nature.second_q.properties import (
     OccupiedModals,
-    VibrationalEnergy,
 )
 from qiskit_nature.second_q.properties.integrals import (
     VibrationalIntegrals,
@@ -86,8 +87,11 @@ class PropertyTest(QiskitNatureTestCase):
         self, first: ElectronicEnergy, second: ElectronicEnergy, msg: str = None
     ) -> None:
         """Compares two ElectronicEnergy instances."""
-        for f_ints, s_ints in zip(first, second):
-            self.compare_electronic_integral(f_ints, s_ints)
+        for f_ints, s_ints in zip(
+            first._electronic_integrals.values(), second._electronic_integrals.values()
+        ):
+            for nf_int, ns_int in zip(f_ints.values(), s_ints.values()):
+                self.compare_electronic_integral(nf_int, ns_int)
 
         if not np.isclose(first.nuclear_repulsion_energy, second.nuclear_repulsion_energy):
             raise self.failureException(msg)
@@ -123,17 +127,6 @@ class PropertyTest(QiskitNatureTestCase):
         if not np.isclose(first.absolute_tolerance, second.absolute_tolerance):
             raise self.failureException(msg)
         if not np.isclose(first.relative_tolerance, second.relative_tolerance):
-            raise self.failureException(msg)
-
-    def compare_driver_metadata(
-        self, first: DriverMetadata, second: DriverMetadata, msg: str = None
-    ) -> None:
-        """Compares two DriverMetadata instances."""
-        if first.program != second.program:
-            raise self.failureException(msg)
-        if first.version != second.version:
-            raise self.failureException(msg)
-        if first.config != second.config:
             raise self.failureException(msg)
 
     def compare_electronic_basis_transform(
@@ -209,7 +202,6 @@ class PropertyTest(QiskitNatureTestCase):
         self.addTypeEqualityFunc(ElectronicEnergy, self.compare_electronic_energy)
         self.addTypeEqualityFunc(Magnetization, self.compare_magnetization)
         self.addTypeEqualityFunc(ParticleNumber, self.compare_particle_number)
-        self.addTypeEqualityFunc(DriverMetadata, self.compare_driver_metadata)
         self.addTypeEqualityFunc(ElectronicBasisTransform, self.compare_electronic_basis_transform)
         self.addTypeEqualityFunc(ElectronicIntegrals, self.compare_electronic_integral)
         self.addTypeEqualityFunc(OneBodyElectronicIntegrals, self.compare_electronic_integral)

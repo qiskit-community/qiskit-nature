@@ -18,9 +18,10 @@ import warnings
 
 import numpy as np
 
+from qiskit_nature.second_q.problems import BaseProblem, ElectronicStructureProblem
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import UCC
-from qiskit_nature.second_q.properties import ElectronicEnergy, GroupedSecondQuantizedProperty
+from qiskit_nature.second_q.properties import ElectronicEnergy
 
 from .initial_point import InitialPoint
 
@@ -58,7 +59,7 @@ class HFInitialPoint(InitialPoint):
         self._ansatz = ansatz
 
     @property
-    def grouped_property(self) -> GroupedSecondQuantizedProperty | None:
+    def grouped_property(self) -> BaseProblem | None:
         """The grouped property.
 
         The grouped property is not required to compute the HF initial point. If it is provided we
@@ -67,8 +68,14 @@ class HFInitialPoint(InitialPoint):
         return self._grouped_property
 
     @grouped_property.setter
-    def grouped_property(self, grouped_property: GroupedSecondQuantizedProperty) -> None:
-        electronic_energy: ElectronicEnergy | None = grouped_property.get_property(ElectronicEnergy)
+    def grouped_property(self, grouped_property: BaseProblem) -> None:
+        if not isinstance(grouped_property, ElectronicStructureProblem):
+            raise QiskitNatureError(
+                "Only an `ElectronicStructureProblem` is compatible with the HFInitialPoint, not a"
+                f" problem of type, {type(grouped_property)}."
+            )
+
+        electronic_energy = grouped_property.hamiltonian
         if electronic_energy is None:
             warnings.warn(
                 "The ElectronicEnergy was not obtained from the grouped_property. "
@@ -88,7 +95,7 @@ class HFInitialPoint(InitialPoint):
     def compute(
         self,
         ansatz: UCC | None = None,
-        grouped_property: GroupedSecondQuantizedProperty | None = None,
+        grouped_property: BaseProblem | None = None,
     ) -> None:
         """Compute the initial point parameter for each excitation.
 

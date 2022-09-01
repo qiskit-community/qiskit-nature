@@ -22,7 +22,8 @@ import numpy as np
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.algorithms.initial_points import HFInitialPoint
 from qiskit_nature.second_q.circuit.library import UCC
-from qiskit_nature.second_q.properties import ElectronicEnergy, GroupedSecondQuantizedProperty
+from qiskit_nature.second_q.problems import ElectronicStructureProblem
+from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 
 
 class TestHFInitialPoint(QiskitNatureTestCase):
@@ -51,34 +52,32 @@ class TestHFInitialPoint(QiskitNatureTestCase):
         reference_energy = 123.0
         electronic_energy = Mock(spec=ElectronicEnergy)
         electronic_energy.reference_energy = reference_energy
-        grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
-        grouped_property.get_property = Mock(return_value=electronic_energy)
+        grouped_property = Mock(spec=ElectronicStructureProblem)
+        grouped_property.hamiltonian = electronic_energy
         self.hf_initial_point.grouped_property = grouped_property
         self.assertEqual(self.hf_initial_point.grouped_property, grouped_property)
         self.assertEqual(self.hf_initial_point._reference_energy, reference_energy)
 
     def test_set_missing_electronic_energy(self):
         """Test set missing ElectronicEnergy."""
-        grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
-        grouped_property.get_property = Mock(return_value=None)
+        grouped_property = Mock(spec=ElectronicStructureProblem)
+        grouped_property.hamiltonian = None
         with self.assertWarns(UserWarning):
             self.hf_initial_point.grouped_property = grouped_property
         self.assertEqual(self.hf_initial_point.grouped_property, None)
 
-    def test_set_missing_reference_energy(self):
-        """Test set missing reference_energy."""
-        electronic_energy = Mock(spec=ElectronicEnergy)
-        electronic_energy.reference_energy = None
-        grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
-        grouped_property.get_property = Mock(return_value=None)
-        with self.assertWarns(UserWarning):
-            self.hf_initial_point.grouped_property = grouped_property
-        self.assertEqual(self.hf_initial_point._reference_energy, 0.0)
+
+    def test_set_get_excitation_list(self):
+        """Test set get excitation list."""
+        self.hf_initial_point.excitation_list = self.excitation_list
+        self.assertEqual(self.excitation_list, self.hf_initial_point.excitation_list)
 
     def test_compute(self):
         """Test length of HF initial point array."""
-        grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
-        self.hf_initial_point.compute(ansatz=self.ansatz, grouped_property=grouped_property)
+        grouped_property = Mock(spec=ElectronicStructureProblem)
+        ansatz = Mock(spec=UCC)
+        ansatz.excitation_list = self.excitation_list
+        self.hf_initial_point.compute(ansatz=ansatz, grouped_property=grouped_property)
         initial_point = self.hf_initial_point.to_numpy_array()
         np.testing.assert_equal(initial_point, np.asarray([0.0]))
 
@@ -93,8 +92,8 @@ class TestHFInitialPoint(QiskitNatureTestCase):
         reference_energy = 123.0
         electronic_energy = Mock(spec=ElectronicEnergy)
         electronic_energy.reference_energy = reference_energy
-        grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
-        grouped_property.get_property = Mock(return_value=electronic_energy)
+        grouped_property = Mock(spec=ElectronicStructureProblem)
+        grouped_property.hamiltonian = electronic_energy
         self.hf_initial_point.grouped_property = grouped_property
         self.hf_initial_point.ansatz = self.ansatz
         energy = self.hf_initial_point.total_energy

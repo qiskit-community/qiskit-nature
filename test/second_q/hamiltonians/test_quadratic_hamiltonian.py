@@ -107,7 +107,7 @@ class TestQuadraticHamiltonian(QiskitNatureTestCase):
         # confirm eigenvalues match with Jordan-Wigner transformed Hamiltonian
         hamiltonian_jw = (
             QubitConverter(mapper=JordanWignerMapper())
-            .convert(quad_ham.to_fermionic_op())
+            .convert(quad_ham.second_q_op())
             .primitive.to_matrix()
         )
         eigs, _ = np.linalg.eigh(hamiltonian_jw)
@@ -174,7 +174,7 @@ class TestQuadraticHamiltonian(QiskitNatureTestCase):
         antisymmetric_part = np.array([[0, 4j], [-4j, 0]])
         constant = 5.0
         quad_ham = QuadraticHamiltonian(hermitian_part, antisymmetric_part, constant)
-        fermionic_op = quad_ham.to_fermionic_op()
+        fermionic_op = quad_ham.second_q_op()
         expected_terms = [
             ("NI", 1.0),
             ("IN", 3.0),

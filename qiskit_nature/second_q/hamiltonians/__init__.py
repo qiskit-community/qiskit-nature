@@ -18,9 +18,39 @@ Second-Quantization Hamiltonians (:mod:`qiskit_nature.second_q.hamiltonians`)
    :toctree: ../stubs/
 
    QuadraticHamiltonian
+   ElectronicEnergy
+   VibrationalEnergy
+   FermiHubbardModel
+   HeisenbergModel
+   IsingModel
+   LatticeModel
+
+Submodules
+==========
+
+.. autosummary::
+   :toctree:
+
+   lattices
 
 """
 
+from .hamiltonian import Hamiltonian
 from .quadratic_hamiltonian import QuadraticHamiltonian
+from .electronic_energy import ElectronicEnergy
+from .vibrational_energy import VibrationalEnergy
+from .fermi_hubbard_model import FermiHubbardModel
+from .heisenberg_model import HeisenbergModel
+from .ising_model import IsingModel
+from .lattice_model import LatticeModel
 
-__all__ = ["QuadraticHamiltonian"]
+__all__ = [
+    "Hamiltonian",
+    "QuadraticHamiltonian",
+    "ElectronicEnergy",
+    "VibrationalEnergy",
+    "FermiHubbardModel",
+    "HeisenbergModel",
+    "IsingModel",
+    "LatticeModel",
+]
