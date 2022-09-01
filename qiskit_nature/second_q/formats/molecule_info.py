@@ -17,8 +17,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Sequence
 
-import numpy as np
-
 from qiskit_nature.units import DistanceUnit
 
 
@@ -29,8 +27,8 @@ class MoleculeInfo:
     symbols: Sequence[str]
     """The ordered sequence of atoms which make up this molecule."""
 
-    coords: np.ndarray
-    """The XYZ coordinates of the atoms represented as a matrix."""
+    coords: Sequence[tuple[float, float, float]]
+    """The XYZ coordinates of the atoms."""
 
     multiplicity: int = 1
     """The multiplicity of the molecule (`= 2 * spin + 1`)."""

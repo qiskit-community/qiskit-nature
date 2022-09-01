@@ -29,7 +29,7 @@ class TestDriver(ABC):
 
     MOLECULE = MoleculeInfo(
         symbols=["H", "H"],
-        coords=np.asarray([[0.0, 0.0, 0.0], [0.0, 0.0, 0.735]]),
+        coords=[(0.0, 0.0, 0.0), (0.0, 0.0, 0.735)],
         multiplicity=1,
         charge=0,
         units=DistanceUnit.ANGSTROM,
@@ -134,7 +134,7 @@ class TestDriver(ABC):
             self.assertSequenceEqual(molecule.symbols, ["H", "H"])
 
         with self.subTest("coordinates"):
-            coords = molecule.coords.tolist()
+            coords = np.asarray(molecule.coords)
             self.log.debug("atom xyz %s", coords)
             np.testing.assert_array_almost_equal(
                 coords, [[0.0, 0.0, 0.0], [0.0, 0.0, 1.3889]], decimal=4

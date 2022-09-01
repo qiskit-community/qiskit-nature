@@ -165,9 +165,11 @@ def qcschema_to_problem(
         hamiltonian.orbital_energies = np.asarray(qcschema.wavefunction.scf_eigenvalues_a)
 
     natm = len(qcschema.molecule.symbols)
+    geo = qcschema.molecule.geometry
     molecule = MoleculeInfo(
         symbols=qcschema.molecule.symbols,
-        coords=np.asarray(qcschema.molecule.geometry).reshape((natm, 3)),
+        # the following format makes mypy happy:
+        coords=[(geo[3 * i], geo[3 * i + 1], geo[3 * i + 2]) for i in range(natm)],
         multiplicity=qcschema.molecule.molecular_multiplicity or 1,
         charge=qcschema.molecule.molecular_charge or 0,
         units=DistanceUnit.BOHR,
