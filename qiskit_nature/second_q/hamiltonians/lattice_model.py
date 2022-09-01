@@ -30,8 +30,12 @@ class LatticeModel(Hamiltonian):
 
     @property
     def lattice(self) -> Lattice:
-        """Return a copy of the input lattice."""
-        return self._lattice.copy()
+        """Return the input lattice.
+
+        Note, that this returns the internal lattice object without copying it. Thus, changing the
+        returned lattice object, will affect the internal lattice stored in this Hamiltonian.
+        """
+        return self._lattice
 
     def interaction_matrix(self) -> np.ndarray:
         """Return the interaction matrix
