@@ -19,9 +19,9 @@ import numpy as np
 
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 from qiskit_nature.second_q.operators import SecondQuantizedOp
-from qiskit_nature.second_q.properties import FermiHubbardModel
+from qiskit_nature.second_q.hamiltonians import FermiHubbardModel
 from qiskit_nature.second_q.problems import LatticeModelProblem
-from qiskit_nature.second_q.properties.lattices import (
+from qiskit_nature.second_q.hamiltonians.lattices import (
     BoundaryCondition,
     LineLattice,
 )
@@ -48,7 +48,7 @@ class TestLatticeModelProblem(QiskitNatureTestCase):
         boundary_condition = BoundaryCondition.OPEN
         line_lattice = LineLattice(num_nodes=num_nodes, boundary_condition=boundary_condition)
         fhm = FermiHubbardModel(lattice=line_lattice, onsite_interaction=5.0)
-        expected_op = fhm.second_q_ops()
+        expected_op = fhm.second_q_op()
         lmp = LatticeModelProblem(fhm)
         main_op, _ = lmp.second_q_ops()
         self._compare_second_q_op(expected_op, main_op)

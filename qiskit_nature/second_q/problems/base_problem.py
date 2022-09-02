@@ -15,30 +15,24 @@
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
-from typing import Callable, List, Optional, Tuple, Union
+from typing import Callable, List, Optional, Union
 
 import numpy as np
+from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 from qiskit.opflow import Z2Symmetries
 
 from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.drivers import BaseDriver
 from qiskit_nature.second_q.operators import SecondQuantizedOp
-from qiskit_nature.second_q.properties import GroupedSecondQuantizedProperty
-from qiskit_nature.second_q.transformers.base_transformer import BaseTransformer
+from qiskit_nature.second_q.hamiltonians import Hamiltonian
 
 from .eigenstate_result import EigenstateResult
+from .properties_container import PropertiesContainer
 
 
-class BaseProblem(ABC):
+class BaseProblem:
     """Base Problem"""
 
-    def __init__(
-        self,
-        driver: Optional[BaseDriver] = None,
-        transformers: Optional[List[BaseTransformer]] = None,
-        main_property_name: str = "",
-    ):
+    def __init__(self, hamiltonian: Hamiltonian) -> None:
         """
 
         Args:
@@ -46,40 +40,19 @@ class BaseProblem(ABC):
             transformers: A list of transformations to be applied to the driver result.
             main_property_name: A main property name for the problem
         """
-
-        self.driver = driver
-        self.transformers = transformers or []
-
-        self._grouped_property: Optional[GroupedSecondQuantizedProperty] = None
-        self._grouped_property_transformed: Optional[GroupedSecondQuantizedProperty] = None
-
-        self._main_property_name: str = main_property_name
+        self._hamiltonian = hamiltonian
+        self.properties = PropertiesContainer()
 
     @property
-    def grouped_property(self) -> Optional[GroupedSecondQuantizedProperty]:
-        """Returns the
-        :class:`~qiskit_nature.second_q.properties.GroupedSecondQuantizedProperty`
-        object."""
-        return self._grouped_property
+    def hamiltonian(self) -> Hamiltonian:
+        """Returns the hamiltonian wrapped by this problem."""
+        return self._hamiltonian
 
     @property
-    def grouped_property_transformed(self) -> Optional[GroupedSecondQuantizedProperty]:
-        """Returns the transformed
-        :class:`~qiskit_nature.second_q.properties.GroupedSecondQuantizedProperty`
-        object."""
-        return self._grouped_property_transformed
-
-    @property
-    def main_property_name(self) -> str:
-        """Returns the name of the property producing the main operator."""
-        return self._main_property_name
-
-    @property
-    def num_particles(self) -> Optional[Tuple[int, int]]:
+    def num_particles(self) -> tuple[int, int] | None:
         """Returns the number of particles, if available."""
         return None
 
-    @abstractmethod
     def second_q_ops(self) -> tuple[SecondQuantizedOp, dict[str, SecondQuantizedOp]]:
         """Returns the second quantized operators associated with this problem.
 
@@ -87,12 +60,13 @@ class BaseProblem(ABC):
             A tuple, with the first object being the main operator and the second being a dictionary
             of auxiliary operators.
         """
-        raise NotImplementedError()
+        main_op = self.hamiltonian.second_q_op()
 
-    def _transform(self, data):
-        for transformer in self.transformers:
-            data = transformer.transform(data)
-        return data
+        aux_ops: dict[str, SecondQuantizedOp] = {}
+        for prop in self.properties:
+            aux_ops.update(prop.second_q_ops())
+
+        return main_op, aux_ops
 
     def symmetry_sector_locator(
         self,
@@ -113,8 +87,10 @@ class BaseProblem(ABC):
         """
         return None
 
-    @abstractmethod
-    def interpret(self, raw_result: EigenstateResult) -> EigenstateResult:
+    def interpret(
+        self,
+        raw_result: Union[EigenstateResult, EigensolverResult, MinimumEigensolverResult],
+    ) -> EigenstateResult:
         """Interprets an EigenstateResult in the context of this problem.
 
         Args:
@@ -124,9 +100,24 @@ class BaseProblem(ABC):
             An interpreted `EigenstateResult` in the form of a subclass of it. The actual type
             depends on the problem that implements this method.
         """
-        raise NotImplementedError()
+        eigenstate_result = None
+        if isinstance(raw_result, EigenstateResult):
+            eigenstate_result = raw_result
+        elif isinstance(raw_result, EigensolverResult):
+            eigenstate_result = EigenstateResult()
+            eigenstate_result.raw_result = raw_result
+            eigenstate_result.eigenenergies = raw_result.eigenvalues
+            eigenstate_result.eigenstates = raw_result.eigenstates
+            eigenstate_result.aux_operator_eigenvalues = raw_result.aux_operator_eigenvalues
+        elif isinstance(raw_result, MinimumEigensolverResult):
+            eigenstate_result = EigenstateResult()
+            eigenstate_result.raw_result = raw_result
+            eigenstate_result.eigenenergies = np.asarray([raw_result.eigenvalue])
+            eigenstate_result.eigenstates = [raw_result.eigenstate]
+            eigenstate_result.aux_operator_eigenvalues = [raw_result.aux_operator_eigenvalues]
 
-    @abstractmethod
+        return eigenstate_result
+
     def get_default_filter_criterion(
         self,
     ) -> Optional[Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]]:
@@ -137,4 +128,4 @@ class BaseProblem(ABC):
         In the fermionic case the default filter ensures that the number of particles is being
         preserved.
         """
-        raise NotImplementedError()
+        return None

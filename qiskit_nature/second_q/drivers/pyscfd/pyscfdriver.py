@@ -23,30 +23,20 @@ from typing import List, Optional, Tuple, Union, Any, Dict
 import numpy as np
 from qiskit.utils.validation import validate_min
 
+from qiskit_nature.units import DistanceUnit
 from qiskit_nature.exceptions import QiskitNatureError
-from qiskit_nature.second_q.properties.driver_metadata import DriverMetadata
-from qiskit_nature.second_q.properties import (
-    ElectronicStructureDriverResult,
-    AngularMomentum,
-    Magnetization,
-    ParticleNumber,
-    ElectronicEnergy,
-    DipoleMoment,
-    ElectronicDipoleMoment,
-)
-from qiskit_nature.second_q.properties.bases import (
-    ElectronicBasis,
-    ElectronicBasisTransform,
-)
-from qiskit_nature.second_q.properties.integrals import (
-    OneBodyElectronicIntegrals,
-    TwoBodyElectronicIntegrals,
-)
+from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
+from qiskit_nature.second_q.formats.qcschema import QCSchema
+from qiskit_nature.second_q.formats.qcschema_translator import qcschema_to_problem
+
+from qiskit_nature.second_q.problems import ElectronicStructureProblem
+from qiskit_nature.second_q.properties import DipoleMoment, ElectronicDipoleMoment
+from qiskit_nature.second_q.properties.bases import ElectronicBasis
+from qiskit_nature.second_q.properties.integrals import OneBodyElectronicIntegrals
+from qiskit_nature.settings import settings
 import qiskit_nature.optionals as _optionals
 
-from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
-from ..molecule import Molecule
-from ..units_type import UnitsType
+from ..electronic_structure_driver import ElectronicStructureDriver, MethodType, _QCSchemaData
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +63,8 @@ class PySCFDriver(ElectronicStructureDriver):
     def __init__(
         self,
         atom: Union[str, List[str]] = "H 0.0 0.0 0.0; H 0.0 0.0 0.735",
-        unit: UnitsType = UnitsType.ANGSTROM,
+        *,
+        unit: DistanceUnit = DistanceUnit.ANGSTROM,
         charge: int = 0,
         spin: int = 0,
         basis: str = "sto3g",
@@ -182,12 +173,12 @@ class PySCFDriver(ElectronicStructureDriver):
         self._atom = atom.replace("\n", ";")
 
     @property
-    def unit(self) -> UnitsType:
+    def unit(self) -> DistanceUnit:
         """Returns the unit."""
         return self._unit
 
     @unit.setter
-    def unit(self, unit: UnitsType) -> None:
+    def unit(self, unit: DistanceUnit) -> None:
         """Sets the unit."""
         self._unit = unit
 
@@ -308,7 +299,8 @@ class PySCFDriver(ElectronicStructureDriver):
     @staticmethod
     @_optionals.HAS_PYSCF.require_in_call
     def from_molecule(
-        molecule: Molecule,
+        molecule: MoleculeInfo,
+        *,
         basis: str = "sto3g",
         method: MethodType = MethodType.RHF,
         driver_kwargs: Optional[Dict[str, Any]] = None,
@@ -330,7 +322,10 @@ class PySCFDriver(ElectronicStructureDriver):
                 if key not in ["self"] and key in args:
                     kwargs[key] = value
 
-        kwargs["atom"] = [" ".join(map(str, (name, *coord))) for (name, coord) in molecule.geometry]
+        kwargs["atom"] = [
+            " ".join(map(str, (name, *coord)))
+            for name, coord in zip(molecule.symbols, molecule.coords)
+        ]
         kwargs["charge"] = molecule.charge
         kwargs["spin"] = molecule.multiplicity - 1
         kwargs["unit"] = molecule.units
@@ -362,19 +357,17 @@ class PySCFDriver(ElectronicStructureDriver):
         # supports all methods
         pass
 
-    def run(self) -> ElectronicStructureDriverResult:
+    def run(self) -> ElectronicStructureProblem:
         """
         Returns:
-            ElectronicStructureDriverResult produced by the run driver.
+            ElectronicStructureProblem produced by the run driver.
 
         Raises:
             QiskitNatureError: if an error during the PySCF setup or calculation occurred.
         """
         self._build_molecule()
         self.run_pyscf()
-
-        driver_result = self._construct_driver_result()
-        return driver_result
+        return self.to_problem()
 
     def _build_molecule(self) -> None:
         """Builds the PySCF molecule object.
@@ -507,73 +500,17 @@ class PySCFDriver(ElectronicStructureDriver):
                 self._calc.e_tot,
             )
 
-    def _construct_driver_result(self) -> ElectronicStructureDriverResult:
-        driver_result = ElectronicStructureDriverResult()
-
-        self._populate_driver_result_molecule(driver_result)
-        self._populate_driver_result_metadata(driver_result)
-        self._populate_driver_result_basis_transform(driver_result)
-        self._populate_driver_result_particle_number(driver_result)
-        self._populate_driver_result_electronic_energy(driver_result)
-        self._populate_driver_result_electronic_dipole_moment(driver_result)
-
-        # TODO: once https://github.com/Qiskit/qiskit-nature/issues/312 is fixed we can stop adding
-        # these properties by default.
-        # if not settings.dict_aux_operators:
-        driver_result.add_property(AngularMomentum(self._mol.nao * 2))
-        driver_result.add_property(Magnetization(self._mol.nao * 2))
-
-        return driver_result
-
-    def _populate_driver_result_molecule(
-        self, driver_result: ElectronicStructureDriverResult
-    ) -> None:
-        coords = self._mol.atom_coords(unit="Angstrom")
-        geometry = [(self._mol.atom_pure_symbol(i), list(xyz)) for i, xyz in enumerate(coords)]
-
-        driver_result.molecule = Molecule(
-            geometry,
-            multiplicity=self._spin + 1,
-            charge=self._charge,
-            masses=list(self._mol.atom_mass_list()),
-        )
-
-    def _populate_driver_result_metadata(
-        self, driver_result: ElectronicStructureDriverResult
-    ) -> None:
+    def to_qcschema(self) -> QCSchema:
         # pylint: disable=import-error
         from pyscf import __version__ as pyscf_version
-
-        cfg = [
-            f"atom={self._atom}",
-            f"unit={self._unit.value}",
-            f"charge={self._charge}",
-            f"spin={self._spin}",
-            f"basis={self._basis}",
-            f"method={self.method.value}",
-            f"conv_tol={self._conv_tol}",
-            f"max_cycle={self._max_cycle}",
-            f"init_guess={self._init_guess}",
-            f"max_memory={self._max_memory}",
-        ]
-
-        if self.method.value.lower() in ("rks", "roks", "uks"):
-            cfg.extend(
-                [
-                    f"xc_functional={self._xc_functional}",
-                    f"xcf_library={self._xcf_library}",
-                ]
-            )
-
-        driver_result.add_property(DriverMetadata("PYSCF", pyscf_version, "\n".join(cfg + [""])))
-
-    def _populate_driver_result_basis_transform(
-        self, driver_result: ElectronicStructureDriverResult
-    ) -> None:
-        # pylint: disable=import-error
+        from pyscf import gto
         from pyscf.tools import dump_mat
 
-        mo_coeff, mo_coeff_b = self._extract_mo_data("mo_coeff", array_dimension=3)
+        data = _QCSchemaData()
+
+        data.mo_coeff, data.mo_coeff_b = self._extract_mo_data("mo_coeff", array_dimension=3)
+        data.mo_energy, data.mo_energy_b = self._extract_mo_data("mo_energy")
+        data.mo_occ, data.mo_occ_b = self._extract_mo_data("mo_occ")
 
         if logger.isEnabledFor(logging.DEBUG):
             # Add some more to PySCF output...
@@ -582,116 +519,113 @@ class PySCFDriver(ElectronicStructureDriver):
             self._calc.analyze()
             # Now labelled orbitals for contributions to the MOs for s,p,d etc of each atom
             self._mol.stdout.write("\n\n--- Alpha Molecular Orbitals ---\n\n")
-            dump_mat.dump_mo(self._mol, mo_coeff, digits=7, start=1)
-            if mo_coeff_b is not None:
+            dump_mat.dump_mo(self._mol, data.mo_coeff, digits=7, start=1)
+            if data.mo_coeff_b is not None:
                 self._mol.stdout.write("\n--- Beta Molecular Orbitals ---\n\n")
-                dump_mat.dump_mo(self._mol, mo_coeff_b, digits=7, start=1)
+                dump_mat.dump_mo(self._mol, data.mo_coeff_b, digits=7, start=1)
             self._mol.stdout.flush()
 
-        driver_result.add_property(
-            ElectronicBasisTransform(
-                ElectronicBasis.AO,
-                ElectronicBasis.MO,
-                mo_coeff,
-                mo_coeff_b,
+        data.hij = self._calc.get_hcore()
+        data.hij_mo = np.dot(np.dot(data.mo_coeff.T, data.hij), data.mo_coeff)
+        if data.mo_coeff_b is not None:
+            data.hij_mo_b = np.dot(np.dot(data.mo_coeff_b.T, data.hij), data.mo_coeff_b)
+        data.eri = self._mol.intor("int2e", aosym=1)
+        einsum_ao_to_mo = "pqrs,pi,qj,rk,sl->ijkl"
+        data.eri_mo = np.einsum(
+            einsum_ao_to_mo,
+            data.eri,
+            data.mo_coeff,
+            data.mo_coeff,
+            data.mo_coeff,
+            data.mo_coeff,
+            optimize=settings.optimize_einsum,
+        )
+        if data.mo_coeff_b is not None:
+            data.eri_mo_ba = np.einsum(
+                einsum_ao_to_mo,
+                data.eri,
+                data.mo_coeff_b,
+                data.mo_coeff_b,
+                data.mo_coeff,
+                data.mo_coeff,
+                optimize=settings.optimize_einsum,
             )
-        )
-
-    def _populate_driver_result_particle_number(
-        self, driver_result: ElectronicStructureDriverResult
-    ) -> None:
-        mo_occ, mo_occ_b = self._extract_mo_data("mo_occ")
-
-        driver_result.add_property(
-            ParticleNumber(
-                num_spin_orbitals=self._mol.nao * 2,
-                num_particles=(self._mol.nelec[0], self._mol.nelec[1]),
-                occupation=mo_occ,
-                occupation_beta=mo_occ_b,
+            data.eri_mo_bb = np.einsum(
+                einsum_ao_to_mo,
+                data.eri,
+                data.mo_coeff_b,
+                data.mo_coeff_b,
+                data.mo_coeff_b,
+                data.mo_coeff_b,
+                optimize=settings.optimize_einsum,
             )
-        )
 
-    def _populate_driver_result_electronic_energy(
-        self, driver_result: ElectronicStructureDriverResult
-    ) -> None:
-        # pylint: disable=import-error
-        from pyscf import gto
+        data.e_nuc = gto.mole.energy_nuc(self._mol)
+        data.e_ref = self._calc.e_tot
+        data.symbols = [self._mol.atom_pure_symbol(i) for i in range(self._mol.natm)]
+        data.coords = self._mol.atom_coords(unit="Bohr").ravel().tolist()
+        data.multiplicity = self._spin + 1
+        data.charge = self._charge
+        data.masses = list(self._mol.atom_mass_list())
+        data.method = self._method.value.upper()
+        data.basis = self._basis
+        data.creator = "PySCF"
+        data.version = pyscf_version
+        data.nbasis = self._mol.nbas
+        data.nmo = self._mol.nao
+        data.nalpha = self._mol.nelec[0]
+        data.nbeta = self._mol.nelec[1]
 
-        basis_transform = driver_result.get_property(ElectronicBasisTransform)
+        return self._to_qcschema(data)
 
-        one_body_ao = OneBodyElectronicIntegrals(
-            ElectronicBasis.AO,
-            (self._calc.get_hcore(), None),
-        )
+    def to_problem(
+        self,
+        *,
+        include_dipole: bool = True,
+    ) -> ElectronicStructureProblem:
+        qcschema = self.to_qcschema()
 
-        two_body_ao = TwoBodyElectronicIntegrals(
-            ElectronicBasis.AO,
-            (self._mol.intor("int2e", aosym=1), None, None, None),
-        )
+        problem = qcschema_to_problem(qcschema)
 
-        one_body_mo = one_body_ao.transform_basis(basis_transform)
-        two_body_mo = two_body_ao.transform_basis(basis_transform)
+        if include_dipole:
+            self._mol.set_common_orig((0, 0, 0))
+            ao_dip = self._mol.intor_symmetric("int1e_r", comp=3)
 
-        electronic_energy = ElectronicEnergy(
-            [one_body_ao, two_body_ao, one_body_mo, two_body_mo],
-            nuclear_repulsion_energy=gto.mole.energy_nuc(self._mol),
-            reference_energy=self._calc.e_tot,
-        )
+            d_m = self._calc.make_rdm1(self._calc.mo_coeff, self._calc.mo_occ)
 
-        electronic_energy.kinetic = OneBodyElectronicIntegrals(
-            ElectronicBasis.AO,
-            (self._mol.intor_symmetric("int1e_kin"), None),
-        )
-        electronic_energy.overlap = OneBodyElectronicIntegrals(
-            ElectronicBasis.AO,
-            (self._calc.get_ovlp(), None),
-        )
+            if not (isinstance(d_m, np.ndarray) and d_m.ndim == 2):
+                d_m = d_m[0] + d_m[1]
 
-        orbs_energy, orbs_energy_b = self._extract_mo_data("mo_energy")
-        orbital_energies = (
-            (orbs_energy, orbs_energy_b) if orbs_energy_b is not None else orbs_energy
-        )
-        electronic_energy.orbital_energies = np.asarray(orbital_energies)
+            elec_dip = np.negative(np.einsum("xij,ji->x", ao_dip, d_m).real)
+            elec_dip = np.round(elec_dip, decimals=8)
+            nucl_dip = np.einsum("i,ix->x", self._mol.atom_charges(), self._mol.atom_coords())
+            nucl_dip = np.round(nucl_dip, decimals=8)
 
-        driver_result.add_property(electronic_energy)
+            logger.info("HF Electronic dipole moment: %s", elec_dip)
+            logger.info("Nuclear dipole moment: %s", nucl_dip)
+            logger.info("Total dipole moment: %s", nucl_dip + elec_dip)
 
-    def _populate_driver_result_electronic_dipole_moment(
-        self, driver_result: ElectronicStructureDriverResult
-    ) -> None:
-        basis_transform = driver_result.get_property(ElectronicBasisTransform)
+            x_dip_ints = OneBodyElectronicIntegrals(ElectronicBasis.AO, (ao_dip[0], None))
+            y_dip_ints = OneBodyElectronicIntegrals(ElectronicBasis.AO, (ao_dip[1], None))
+            z_dip_ints = OneBodyElectronicIntegrals(ElectronicBasis.AO, (ao_dip[2], None))
 
-        self._mol.set_common_orig((0, 0, 0))
-        ao_dip = self._mol.intor_symmetric("int1e_r", comp=3)
+            x_dipole = DipoleMoment(
+                "x", [x_dip_ints, x_dip_ints.transform_basis(problem.basis_transform)]
+            )
+            y_dipole = DipoleMoment(
+                "y", [y_dip_ints, y_dip_ints.transform_basis(problem.basis_transform)]
+            )
+            z_dipole = DipoleMoment(
+                "z", [z_dip_ints, z_dip_ints.transform_basis(problem.basis_transform)]
+            )
 
-        d_m = self._calc.make_rdm1(self._calc.mo_coeff, self._calc.mo_occ)
-
-        if not (isinstance(d_m, np.ndarray) and d_m.ndim == 2):
-            d_m = d_m[0] + d_m[1]
-
-        elec_dip = np.negative(np.einsum("xij,ji->x", ao_dip, d_m).real)
-        elec_dip = np.round(elec_dip, decimals=8)
-        nucl_dip = np.einsum("i,ix->x", self._mol.atom_charges(), self._mol.atom_coords())
-        nucl_dip = np.round(nucl_dip, decimals=8)
-
-        logger.info("HF Electronic dipole moment: %s", elec_dip)
-        logger.info("Nuclear dipole moment: %s", nucl_dip)
-        logger.info("Total dipole moment: %s", nucl_dip + elec_dip)
-
-        x_dip_ints = OneBodyElectronicIntegrals(ElectronicBasis.AO, (ao_dip[0], None))
-        y_dip_ints = OneBodyElectronicIntegrals(ElectronicBasis.AO, (ao_dip[1], None))
-        z_dip_ints = OneBodyElectronicIntegrals(ElectronicBasis.AO, (ao_dip[2], None))
-
-        x_dipole = DipoleMoment("x", [x_dip_ints, x_dip_ints.transform_basis(basis_transform)])
-        y_dipole = DipoleMoment("y", [y_dip_ints, y_dip_ints.transform_basis(basis_transform)])
-        z_dipole = DipoleMoment("z", [z_dip_ints, z_dip_ints.transform_basis(basis_transform)])
-
-        driver_result.add_property(
-            ElectronicDipoleMoment(
+            problem.properties.electronic_dipole_moment = ElectronicDipoleMoment(
                 [x_dipole, y_dipole, z_dipole],
                 nuclear_dipole_moment=nucl_dip,
                 reverse_dipole_sign=True,
             )
-        )
+
+        return problem
 
     def _extract_mo_data(
         self, name: str, array_dimension: int = 2

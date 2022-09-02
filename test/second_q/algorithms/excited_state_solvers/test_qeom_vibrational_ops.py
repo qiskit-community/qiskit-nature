@@ -21,7 +21,6 @@ from qiskit.utils import algorithm_globals
 
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.mappers import DirectMapper
-from qiskit_nature.second_q.problems import VibrationalStructureProblem
 from qiskit_nature.second_q.algorithms.excited_states_solvers.qeom_vibrational_ops_builder import (
     build_vibrational_ops,
 )
@@ -38,14 +37,14 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
         self.basis_size = 2
         self.truncation_order = 2
 
-        self.vibrational_problem = VibrationalStructureProblem(
-            self.driver, self.basis_size, self.truncation_order
-        )
+        self.vibrational_problem = self.driver.run()
+        self.vibrational_problem._num_modals = self.basis_size
+        self.vibrational_problem.truncation_order = self.truncation_order
 
         self.qubit_converter = QubitConverter(DirectMapper())
         self.vibrational_problem.second_q_ops()
-        self.grouped_property_transformed = self.vibrational_problem.grouped_property_transformed
-        self.num_modals = [self.basis_size] * self.grouped_property_transformed.num_modes
+        self.grouped_property_transformed = self.vibrational_problem
+        self.num_modals = [self.basis_size] * self.vibrational_problem.num_modes
 
     def test_build_hopping_operators(self):
         """Tests that the correct hopping operator is built."""

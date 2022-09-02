@@ -69,7 +69,7 @@ the ground-state (minimum) energy of a molecule.
 
 ```python
 from qiskit_nature.settings import settings
-from qiskit_nature.second_q.drivers import UnitsType
+from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
 
@@ -79,14 +79,14 @@ settings.dict_aux_operators = True
 # package, to compute the one-body and two-body integrals in
 # electronic-orbital basis, necessary to form the Fermionic operator
 driver = PySCFDriver(atom='H .0 .0 .0; H .0 .0 0.735',
-                     unit=UnitsType.ANGSTROM,
+                     unit=DistanceUnit.ANGSTROM,
                      basis='sto3g')
-problem = ElectronicStructureProblem(driver)
+problem = driver.run()
 
 # generate the second-quantized operators
 main_op, _ = problem.second_q_ops()
 
-particle_number = problem.grouped_property_transformed.get_property("ParticleNumber")
+particle_number = problem.properties.particle_number
 
 num_particles = (particle_number.num_alpha, particle_number.num_beta)
 num_spin_orbitals = particle_number.num_spin_orbitals

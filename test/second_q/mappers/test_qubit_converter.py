@@ -16,18 +16,18 @@ import contextlib
 import io
 import unittest
 from test import QiskitNatureTestCase
-from typing import List, Optional, cast
+from typing import List, Optional
 
 from qiskit.opflow import I, PauliSumOp, X, Y, Z, Z2Symmetries
 
+import qiskit_nature.optionals as _optionals
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.operators import FermionicOp
-from qiskit_nature.second_q.drivers import HDF5Driver
 from qiskit_nature.second_q.mappers import JordanWignerMapper, ParityMapper, QubitConverter
-from qiskit_nature.second_q.problems import ElectronicStructureProblem
-from qiskit_nature.second_q.properties import ParticleNumber
 
 
+@unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
 class TestQubitConverter(QiskitNatureTestCase):
     """Test Qubit Converter"""
 
@@ -83,13 +83,11 @@ class TestQubitConverter(QiskitNatureTestCase):
 
     def setUp(self):
         super().setUp()
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("test_driver_hdf5.hdf5", "second_q/drivers/hdf5d")
-        )
+        driver = PySCFDriver()
         self.driver_result = driver.run()
-        particle_number = cast(ParticleNumber, self.driver_result.get_property(ParticleNumber))
+        particle_number = self.driver_result.properties.particle_number
         self.num_particles = (particle_number.num_alpha, particle_number.num_beta)
-        self.h2_op = self.driver_result.second_q_ops()["ElectronicEnergy"]
+        self.h2_op, _ = self.driver_result.second_q_ops()
 
     def test_mapping_basic(self):
         """Test mapping to qubit operator"""
@@ -264,10 +262,8 @@ class TestQubitConverter(QiskitNatureTestCase):
     def test_molecular_problem_sector_locator_z2_symmetry(self):
         """Test mapping to qubit operator with z2 symmetry tapering and two qubit reduction"""
 
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("test_driver_hdf5.hdf5", "second_q/drivers/hdf5d")
-        )
-        problem = ElectronicStructureProblem(driver)
+        driver = PySCFDriver()
+        problem = driver.run()
 
         mapper = JordanWignerMapper()
         qubit_conv = QubitConverter(mapper, two_qubit_reduction=True, z2symmetry_reduction="auto")
