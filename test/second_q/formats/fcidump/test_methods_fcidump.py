@@ -100,7 +100,6 @@ class TestMethodsFCIDump(TestDriverMethods):
         """LiH with num_atoms test"""
         fcidump = FCIDump.from_file(
             self.get_resource_path("test_fcidump_lih.fcidump", "second_q/formats/fcidump"),
-            # atoms=["Li", "H"],
         )
         result = self._run_fcidump(fcidump, transformers=[FreezeCoreTransformer()])
         self._assert_energy(result, "lih")
