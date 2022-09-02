@@ -21,7 +21,6 @@ import numpy as np
 from qiskit_nature.second_q.problems import BaseProblem, ElectronicStructureProblem
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import UCC
-from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 
 from .initial_point import InitialPoint
 
