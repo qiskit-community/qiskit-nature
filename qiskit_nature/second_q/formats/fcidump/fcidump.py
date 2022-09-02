@@ -23,7 +23,7 @@ from qiskit_nature import QiskitNatureError
 
 
 from .dumper import _dump_1e_ints, _dump_2e_ints, _write_to_outfile
-from .parser import parse
+from .parser import _parse
 
 
 @dataclass
@@ -66,7 +66,7 @@ class FCIDump:
     @classmethod
     def from_file(cls, fcidump: str | Path) -> FCIDump:
         """Constructs an FCIDump object from a file."""
-        data = parse(fcidump if isinstance(fcidump, Path) else Path(fcidump))
+        data = _parse(fcidump if isinstance(fcidump, Path) else Path(fcidump))
         return cls(
             hij=data.get("hij", None),
             hij_b=data.get("hij_b", None),
@@ -88,6 +88,7 @@ class FCIDump:
             fcidump: Path to the output file.
         Raises:
             QiskitNatureError: invalid number of orbitals.
+            QiskitNatureError: not all beta-spin related matrices are either None or not None.
         """
         outpath = fcidump if isinstance(fcidump, Path) else Path(fcidump)
         # either all beta variables are None or all of them are not

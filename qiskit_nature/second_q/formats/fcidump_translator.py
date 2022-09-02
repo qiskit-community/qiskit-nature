@@ -14,73 +14,50 @@
 
 from __future__ import annotations
 
-from typing import List, Optional
-
-from ...second_q.properties.bases import ElectronicBasis
-from ...second_q.drivers import ElectronicStructureDriver
-from ...second_q.properties import (
-    ElectronicStructureDriverResult,
-    ElectronicEnergy,
-    ParticleNumber,
-)
-from ...second_q.properties.integrals import (
+from qiskit_nature.second_q.properties.bases import ElectronicBasis
+from qiskit_nature.second_q.properties.integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )
-
-from ...second_q.problems import ElectronicStructureProblem
-from ...second_q.transformers import BaseTransformer
+from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
+from qiskit_nature.second_q.problems import ElectronicStructureProblem
+from qiskit_nature.second_q.properties import ParticleNumber
 
 from .fcidump import FCIDump
 
 
-class FCIDumpDriver(ElectronicStructureDriver):
-    """FCIDumpDriver"""
+def fcidump_to_problem(fcidump: FCIDump) -> ElectronicStructureProblem:
+    """Builds out an :class:`.ElectronicStructureProblem` from a :class:`.FCIDump` instance.
 
-    def __init__(self, fcidump: FCIDump) -> None:
-        """
-        Args:
-            fcidump: FCIDump dataclass
-        """
-        super().__init__()
-        self._fcidump = fcidump
+    This method centralizes the construction of an :class:`.ElectronicStructureProblem` from a
+    :class:`.FCIDump`.
 
-    def run(self) -> ElectronicStructureDriverResult:
-        """Returns an ElectronicStructureDriverResult instance out of a FCIDump file."""
+    Args:
+        fcidump: the :class:`.FCIDump` object from which to build the problem.
 
-        num_beta = (self._fcidump.num_electrons - (self._fcidump.multiplicity - 1)) // 2
-        num_alpha = self._fcidump.num_electrons - num_beta
+    Returns:
+        An :class:`.ElectronicStructureProblem` instance.
+    """
 
-        particle_number = ParticleNumber(
-            num_spin_orbitals=self._fcidump.num_orbitals * 2,
-            num_particles=(num_alpha, num_beta),
-        )
+    num_beta = (fcidump.num_electrons - (fcidump.multiplicity - 1)) // 2
+    num_alpha = fcidump.num_electrons - num_beta
 
-        electronic_energy = ElectronicEnergy(
-            [
-                OneBodyElectronicIntegrals(
-                    ElectronicBasis.MO, (self._fcidump.hij, self._fcidump.hij_b)
-                ),
-                TwoBodyElectronicIntegrals(
-                    ElectronicBasis.MO,
-                    (self._fcidump.hijkl, self._fcidump.hijkl_ba, self._fcidump.hijkl_bb, None),
-                ),
-            ],
-            nuclear_repulsion_energy=self._fcidump.nuclear_repulsion_energy,
-        )
+    particle_number = ParticleNumber(
+        num_spin_orbitals=fcidump.num_orbitals * 2,
+        num_particles=(num_alpha, num_beta),
+    )
 
-        driver_result = ElectronicStructureDriverResult()
-        driver_result.add_property(electronic_energy)
-        driver_result.add_property(particle_number)
+    electronic_energy = ElectronicEnergy(
+        [
+            OneBodyElectronicIntegrals(ElectronicBasis.MO, (fcidump.hij, fcidump.hij_b)),
+            TwoBodyElectronicIntegrals(
+                ElectronicBasis.MO,
+                (fcidump.hijkl, fcidump.hijkl_ba, fcidump.hijkl_bb, None),
+            ),
+        ],
+        nuclear_repulsion_energy=fcidump.nuclear_repulsion_energy,
+    )
 
-        return driver_result
-
-
-def fcidump_to_problem(
-    fcidump: FCIDump,
-    *,
-    transformers: Optional[List[BaseTransformer]] = None,
-) -> ElectronicStructureProblem:
-    """Translates FCIDump to Problem."""
-
-    return ElectronicStructureProblem(FCIDumpDriver(fcidump), transformers)
+    problem = ElectronicStructureProblem(electronic_energy)
+    problem.properties.particle_number = particle_number
+    return problem

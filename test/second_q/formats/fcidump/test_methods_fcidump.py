@@ -23,6 +23,7 @@ from qiskit_nature.second_q.algorithms import GroundStateEigensolver
 from qiskit_nature.second_q.formats.fcidump_translator import fcidump_to_problem
 from qiskit_nature.second_q.formats.fcidump import FCIDump
 from qiskit_nature.second_q.transformers import BaseTransformer, FreezeCoreTransformer
+from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.mappers import QubitConverter, JordanWignerMapper
 from qiskit_nature.second_q.problems import EigenstateResult
@@ -37,7 +38,12 @@ class TestMethodsFCIDump(TestDriverMethods):
         converter: QubitConverter = QubitConverter(JordanWignerMapper()),
         transformers: Optional[List[BaseTransformer]] = None,
     ) -> EigenstateResult:
-        problem = fcidump_to_problem(fcidump, transformers=transformers)
+        problem: BaseProblem = fcidump_to_problem(fcidump)
+
+        if transformers is not None:
+            for trafo in transformers:
+                problem = trafo.transform(problem)
+
         solver = NumPyMinimumEigensolver()
 
         gsc = GroundStateEigensolver(converter, solver)
@@ -70,7 +76,7 @@ class TestMethodsFCIDump(TestDriverMethods):
             result = self._run_fcidump(fcidump, transformers=[FreezeCoreTransformer()])
             self._assert_energy(result, "lih")
         msg = (
-            "'The provided `GroupedElectronicProperty` does not contain an `ElectronicBasisTransform`"
+            "'The provided ElectronicStructureProblem does not contain an `ElectronicBasisTransform`"
             " property, which is required by this transformer!'"
         )
         self.assertEqual(msg, str(ctx.exception))
@@ -84,7 +90,7 @@ class TestMethodsFCIDump(TestDriverMethods):
             result = self._run_fcidump(fcidump, transformers=[FreezeCoreTransformer()])
             self._assert_energy(result, "oh")
         msg = (
-            "'The provided `GroupedElectronicProperty` does not contain an `ElectronicBasisTransform`"
+            "'The provided ElectronicStructureProblem does not contain an `ElectronicBasisTransform`"
             " property, which is required by this transformer!'"
         )
         self.assertEqual(msg, str(ctx.exception))
@@ -118,9 +124,10 @@ class TestFCIDumpResult(QiskitNatureTestCase):
         fcidump = FCIDump.from_file(
             self.get_resource_path("test_fcidump_h2.fcidump", "second_q/formats/fcidump")
         )
-        result = fcidump_to_problem(fcidump).driver.run()
+        properties = fcidump_to_problem(fcidump).properties
         with self.assertLogs("qiskit_nature", level="DEBUG") as _:
-            result.log()
+            for prop in properties:
+                prop.log()
 
     def test_result_log_with_atoms(self):
         """Test DriverResult log function."""
@@ -128,9 +135,10 @@ class TestFCIDumpResult(QiskitNatureTestCase):
             self.get_resource_path("test_fcidump_h2.fcidump", "second_q/formats/fcidump"),
             # atoms=["H", "H"],
         )
-        result = fcidump_to_problem(fcidump).driver.run()
+        properties = fcidump_to_problem(fcidump).properties
         with self.assertLogs("qiskit_nature", level="DEBUG") as _:
-            result.log()
+            for prop in properties:
+                prop.log()
 
 
 if __name__ == "__main__":

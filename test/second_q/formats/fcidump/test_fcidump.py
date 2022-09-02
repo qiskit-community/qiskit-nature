@@ -12,31 +12,21 @@
 
 """ Test Driver FCIDump """
 
-from typing import cast
-
 import unittest
 from abc import ABC, abstractmethod
 from test import QiskitNatureTestCase
 import numpy as np
 from qiskit_nature.second_q.formats.fcidump import FCIDump
 from qiskit_nature.second_q.formats.fcidump_translator import fcidump_to_problem
-from qiskit_nature.second_q.properties import (
-    ElectronicEnergy,
-    ParticleNumber,
-)
 from qiskit_nature.second_q.properties.bases import ElectronicBasis
 
 
-class BaseTestDriverFCIDump(ABC):
-    """FCIDump base test class.
-
-    In contrast to the other tests this one does *not* derive from TestDriver because the
-    interface is fundamentally different.
-    """
+class BaseTestFCIDump(ABC):
+    """FCIDump base test class."""
 
     def __init__(self):
         self.log = None
-        self.driver_result = None
+        self.problem = None
         self.nuclear_repulsion_energy = None
         self.num_molecular_orbitals = None
         self.num_alpha = None
@@ -68,11 +58,10 @@ class BaseTestDriverFCIDump(ABC):
         """assert Sequence Equal"""
         raise Exception("Abstract method")
 
-    def test_driver_result_electronic_energy(self):
+    def test_electronic_energy(self):
         """Test the ElectronicEnergy property."""
-        electronic_energy = cast(
-            ElectronicEnergy, self.driver_result.get_property(ElectronicEnergy)
-        )
+
+        electronic_energy = self.problem.hamiltonian
 
         with self.subTest("inactive energy"):
             self.log.debug("inactive energy: %s", electronic_energy.nuclear_repulsion_energy)
@@ -123,9 +112,10 @@ class BaseTestDriverFCIDump(ABC):
                     np.absolute(mo_eri_ints._matrices[2]), np.absolute(self.mo_eri_bb), decimal=4
                 )
 
-    def test_driver_result_particle_number(self):
+    def test_particle_number(self):
         """Test the ParticleNumber property."""
-        particle_number = cast(ParticleNumber, self.driver_result.get_property(ParticleNumber))
+
+        particle_number = self.problem.properties.particle_number
 
         with self.subTest("orbital number"):
             self.log.debug("Number of orbitals is %s", particle_number.num_spin_orbitals)
@@ -140,7 +130,7 @@ class BaseTestDriverFCIDump(ABC):
             self.assertEqual(particle_number.num_beta, self.num_beta)
 
 
-class TestDriverFCIDumpH2(QiskitNatureTestCase, BaseTestDriverFCIDump):
+class TestFCIDumpH2(QiskitNatureTestCase, BaseTestFCIDump):
     """RHF FCIDump Driver tests."""
 
     def setUp(self):
@@ -162,10 +152,10 @@ class TestDriverFCIDumpH2(QiskitNatureTestCase, BaseTestDriverFCIDump):
         fcidump = FCIDump.from_file(
             self.get_resource_path("test_fcidump_h2.fcidump", "second_q/formats/fcidump")
         )
-        self.driver_result = fcidump_to_problem(fcidump).driver.run()
+        self.problem = fcidump_to_problem(fcidump)
 
 
-class TestDriverFCIDumpLiH(QiskitNatureTestCase, BaseTestDriverFCIDump):
+class TestFCIDumpLiH(QiskitNatureTestCase, BaseTestFCIDump):
     """RHF FCIDump Driver tests."""
 
     def setUp(self):
@@ -183,10 +173,10 @@ class TestDriverFCIDumpLiH(QiskitNatureTestCase, BaseTestDriverFCIDump):
         fcidump = FCIDump.from_file(
             self.get_resource_path("test_fcidump_lih.fcidump", "second_q/formats/fcidump")
         )
-        self.driver_result = fcidump_to_problem(fcidump).driver.run()
+        self.problem = fcidump_to_problem(fcidump)
 
 
-class TestDriverFCIDumpOH(QiskitNatureTestCase, BaseTestDriverFCIDump):
+class TestFCIDumpOH(QiskitNatureTestCase, BaseTestFCIDump):
     """RHF FCIDump Driver tests."""
 
     def setUp(self):
@@ -204,7 +194,7 @@ class TestDriverFCIDumpOH(QiskitNatureTestCase, BaseTestDriverFCIDump):
         fcidump = FCIDump.from_file(
             self.get_resource_path("test_fcidump_oh.fcidump", "second_q/formats/fcidump")
         )
-        self.driver_result = fcidump_to_problem(fcidump).driver.run()
+        self.problem = fcidump_to_problem(fcidump)
 
 
 if __name__ == "__main__":

@@ -21,7 +21,7 @@ import numpy as np
 from qiskit_nature import QiskitNatureError
 
 
-def parse(fcidump: Path) -> Dict[str, Any]:
+def _parse(fcidump: Path) -> Dict[str, Any]:
     """Parses a FCIDump output.
 
     Args:
