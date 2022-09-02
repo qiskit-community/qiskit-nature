@@ -16,7 +16,7 @@ import sys
 import os
 import re
 
-with open('requirements.txt') as f:
+with open("requirements.txt", "r", encoding="utf-8") as f:
     REQUIREMENTS = f.read().splitlines()
 
 if not hasattr(setuptools, 'find_namespace_packages') or not inspect.ismethod(setuptools.find_namespace_packages):
@@ -25,12 +25,12 @@ if not hasattr(setuptools, 'find_namespace_packages') or not inspect.ismethod(se
     sys.exit(1)
 
 VERSION_PATH = os.path.join(os.path.dirname(__file__), "qiskit_nature", "VERSION.txt")
-with open(VERSION_PATH, "r") as version_file:
+with open(VERSION_PATH, "r", encoding="utf-8") as version_file:
     VERSION = version_file.read().strip()
 
 # Read long description from README.
 README_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), "README.md")
-with open(README_PATH) as readme_file:
+with open(README_PATH, "r", encoding="utf-8") as readme_file:
     README = re.sub(
         "<!--- long-description-skip-begin -->.*<!--- long-description-skip-end -->",
         "",
