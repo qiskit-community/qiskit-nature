@@ -49,7 +49,7 @@ class FCIDump:
     hijkl_ba: np.ndarray | None
     """The beta/alpha 2-electron integrals."""
     hijkl_bb: np.ndarray | None
-    """The triplet of beta/beta 2-electron integrals."""
+    """The beta/beta 2-electron integrals."""
     multiplicity: int
     """The multiplicity."""
     num_electrons: int
