@@ -156,7 +156,7 @@ class TestFCIDumpH2(QiskitNatureTestCase, BaseTestFCIDump):
 
 
 class TestFCIDumpLiH(QiskitNatureTestCase, BaseTestFCIDump):
-    """RHF FCIDump Driver tests."""
+    """RHF LiH FCIDump tests."""
 
     def setUp(self):
         super().setUp()
