@@ -66,7 +66,6 @@ class TestHFInitialPoint(QiskitNatureTestCase):
             self.hf_initial_point.grouped_property = grouped_property
         self.assertEqual(self.hf_initial_point.grouped_property, None)
 
-
     def test_set_get_excitation_list(self):
         """Test set get excitation list."""
         self.hf_initial_point.excitation_list = self.excitation_list
