@@ -43,7 +43,7 @@ class FCIDump:
     hij: np.ndarray | None
     """The alpha 1-electron integrals."""
     hij_b: np.ndarray | None
-    """The pair of beta 1-electron integrals."""
+    """The beta 1-electron integrals."""
     hijkl: np.ndarray | None
     """The triplet of alpha/alpha 2-electron integrals."""
     hijkl_ba: np.ndarray | None
