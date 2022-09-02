@@ -109,7 +109,6 @@ class BaseTestFCIDumpDumper(ABC):
         )
 
 
-@unittest.skip("Until the FCIDump can handle non-beta spin cases")
 class TestFCIDumpDumpH2(QiskitNatureTestCase, BaseTestFCIDumpDumper):
     """RHF FCIDump tests."""
 
@@ -156,11 +155,11 @@ class TestFCIDumpDumpH2(QiskitNatureTestCase, BaseTestFCIDumpDumper):
         one_body_integrals = electronic_energy.get_electronic_integral(ElectronicBasis.MO, 1)
         two_body_integrals = electronic_energy.get_electronic_integral(ElectronicBasis.MO, 2)
         fcidump = FCIDump(
-            hij=cast(np.ndarray, one_body_integrals._matrices),
-            hij_b=cast(np.ndarray, one_body_integrals._matrices),
-            hijkl=cast(np.ndarray, two_body_integrals._matrices[0:3]),
-            hijkl_ba=cast(np.ndarray, two_body_integrals._matrices[0:3]),
-            hijkl_bb=cast(np.ndarray, two_body_integrals._matrices[0:3]),
+            hij=cast(np.ndarray, one_body_integrals._matrices[0]),
+            hij_b=cast(np.ndarray, one_body_integrals._matrices[0]),
+            hijkl=cast(np.ndarray, two_body_integrals._matrices[0][0:3]),
+            hijkl_ba=cast(np.ndarray, two_body_integrals._matrices[0][0:3]),
+            hijkl_bb=cast(np.ndarray, two_body_integrals._matrices[0][0:3]),
             multiplicity=problem.molecule.multiplicity,
             num_electrons=problem.properties.particle_number.num_alpha
             + problem.properties.particle_number.num_beta,

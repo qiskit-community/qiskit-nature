@@ -99,7 +99,7 @@ class FCIDump:
         norb = self.num_orbitals
         nelec = self.num_electrons
         einact = self.nuclear_repulsion_energy
-        ms2 = (self.multiplicity - 1,)
+        ms2 = self.multiplicity - 1
         if norb != self.hij.shape[0] or norb != self.hijkl.shape[0]:
             raise QiskitNatureError(
                 f"Invalid number of orbitals {norb} {self.hij.shape[0]} {self.hijkl.shape[0]}"
@@ -119,13 +119,13 @@ class FCIDump:
             # append 2e integrals
             _dump_2e_ints(self.hijkl, mos, outfile)
             if self.hijkl_ba is not None:
-                _dump_2e_ints(self.hijkl_ba.transpose(), mos, outfile, beta=1)
+                _dump_2e_ints(self.hijkl_ba.transpose(), mos, outfile)
             if self.hijkl_bb is not None:
-                _dump_2e_ints(self.hijkl_bb, mos, outfile, beta=2)
+                _dump_2e_ints(self.hijkl_bb, mos, outfile)
             # append 1e integrals
             _dump_1e_ints(self.hij, mos, outfile)
             if self.hij_b is not None:
-                _dump_1e_ints(self.hij_b, mos, outfile, beta=True)
+                _dump_1e_ints(self.hij_b, mos, outfile)
             # TODO append MO energies (last three indices are 0)
             # append inactive energy
             _write_to_outfile(outfile, einact, (0, 0, 0, 0))
