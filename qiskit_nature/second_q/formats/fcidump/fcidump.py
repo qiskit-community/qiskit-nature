@@ -40,7 +40,7 @@ class FCIDump:
             ISSN 0010-4655, https://doi.org/10.1016/0010-4655(89)90033-7.
     """
 
-    hij: np.ndarray | None
+    hij: np.ndarray
     """The alpha 1-electron integrals."""
     hij_b: np.ndarray | None
     """The beta 1-electron integrals."""
