@@ -21,7 +21,7 @@ import numpy as np
 from qiskit_nature.second_q.problems import BaseProblem, ElectronicStructureProblem
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import UCC
-from qiskit_nature.second_q.properties import ElectronicEnergy
+from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 
 from .initial_point import InitialPoint
 
@@ -142,7 +142,7 @@ class HFInitialPoint(InitialPoint):
         """The Hartree-Fock reference energy.
 
         If the reference energy was not obtained from
-        :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`
+        :class:`~qiskit_nature.second_q.hamiltonians.ElectronicEnergy`
         this will be equal to zero.
         """
         return self._reference_energy

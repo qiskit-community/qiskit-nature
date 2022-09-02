@@ -35,7 +35,7 @@ class IntegralProperty(Property):
     as its raw data.
 
     This is a common base class, extracted to be used by (at the time of writing) the
-    :class:`~qiskit_nature.second_q.properties.ElectronicEnergy` and the
+    :class:`~qiskit_nature.second_q.hamiltonians.ElectronicEnergy` and the
     :class:`~qiskit_nature.second_q.properties.DipoleMoment` properties. More
     subclasses may be added in the future.
     """

@@ -82,12 +82,12 @@ class MP2InitialPoint(InitialPoint):
 
     The :attr:`grouped_property` is required to contain
     :class:`~qiskit_nature.second_q.properties.particle_number.ParticleNumber` and
-    :class:`~qiskit_nature.second_q.properties.electronic_energy.ElectronicEnergy`. From
+    :class:`~qiskit_nature.second_q.hamiltonians.electronic_energy.ElectronicEnergy`. From
     :class:`~qiskit_nature.second_q.properties.particle_number.ParticleNumber` we obtain the
     ``num_particles`` to infer the number of occupied orbitals.
-    :class:`~qiskit_nature.second_q.properties.electronic_energy.ElectronicEnergy` must contain the
-    two-body, molecular-orbital ``electronic_integrals`` and the ``orbital_energies``. Optionally,
-    the setter will obtain the Hartree-Fock ``reference_energy`` to compute the
+    :class:`~qiskit_nature.second_q.hamiltonians.electronic_energy.ElectronicEnergy` must contain
+    the two-body, molecular-orbital ``electronic_integrals`` and the ``orbital_energies``.
+    Optionally, the setter will obtain the Hartree-Fock ``reference_energy`` to compute the
     :attr:`total_energy`.
 
     Setting the :attr:`grouped_property` will compute the :attr:`t2_amplitudes` and
@@ -133,7 +133,7 @@ class MP2InitialPoint(InitialPoint):
 
         Raises:
             QiskitNatureError: If
-                :class:`~qiskit_nature.second_q.properties.electronic_energy.ElectronicEnergy` is
+                :class:`~qiskit_nature.second_q.hamiltonians.electronic_energy.ElectronicEnergy` is
                 missing or the two-body molecular orbitals matrix or the orbital energies are not
                 found.
             QiskitNatureError: If
@@ -221,7 +221,7 @@ class MP2InitialPoint(InitialPoint):
         """The total energy including the Hartree-Fock energy.
 
         If the reference energy was not obtained from
-        :class:`~qiskit_nature.second_q.properties.ElectronicEnergy` this will be equal to
+        :class:`~qiskit_nature.second_q.hamiltonians.ElectronicEnergy` this will be equal to
         :attr:`energy_correction`.
         """
         return self._total_energy

@@ -213,7 +213,7 @@ class ElectronicEnergy(Hamiltonian):
 
     def integral_operator(self, density: OneBodyElectronicIntegrals) -> OneBodyElectronicIntegrals:
         """Constructs the Fock operator resulting from this
-        :class:`~qiskit_nature.second_q.properties.ElectronicEnergy`.
+        :class:`~qiskit_nature.second_q.hamiltonians.ElectronicEnergy`.
 
         Args:
             density: the electronic density at which to compute the operator.
