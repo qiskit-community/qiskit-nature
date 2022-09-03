@@ -2,6 +2,11 @@
 
 [![License](https://img.shields.io/github/license/Qiskit/qiskit-nature.svg?style=popout-square)](https://opensource.org/licenses/Apache-2.0)<!--- long-description-skip-begin -->[![Build Status](https://github.com/Qiskit/qiskit-nature/workflows/Nature%20Unit%20Tests/badge.svg?branch=main)](https://github.com/Qiskit/qiskit-nature/actions?query=workflow%3A"Nature%20Unit%20Tests"+branch%3Amain+event%3Apush)[![](https://img.shields.io/github/release/Qiskit/qiskit-nature.svg?style=popout-square)](https://github.com/Qiskit/qiskit-nature/releases)[![](https://img.shields.io/pypi/dm/qiskit-nature.svg?style=popout-square)](https://pypi.org/project/qiskit-nature/)[![Coverage Status](https://coveralls.io/repos/github/Qiskit/qiskit-nature/badge.svg?branch=main)](https://coveralls.io/github/Qiskit/qiskit-nature?branch=main)<!--- long-description-skip-end -->
 
+> ⚠️ This branch of Qiskit Nature is under heavy development!
+> In particular, if you are encountering errors referring to modules under `qiskit_nature.second_q`,
+> you are very likely looking for the [stable branch](https://github.com/Qiskit/qiskit-nature/tree/stable/0.4)
+> instead of this one. That branch also matches the [published documentation](https://qiskit.org/documentation/nature/).
+
 **Qiskit Nature** is an open-source framework which supports solving quantum mechanical natural
 science problems using quantum computing algorithms. This includes finding ground and excited
 states of electronic and vibrational structure problems, measuring the dipole moments of molecular
