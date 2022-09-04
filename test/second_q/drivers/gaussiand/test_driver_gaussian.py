@@ -16,11 +16,7 @@ import unittest
 
 from test import QiskitNatureTestCase
 from test.second_q.drivers.test_driver import TestDriver
-from qiskit_nature.second_q.drivers import (
-    GaussianDriver,
-    ElectronicStructureDriverType,
-    ElectronicStructureMoleculeDriver,
-)
+from qiskit_nature.second_q.drivers import GaussianDriver
 import qiskit_nature.optionals as _optionals
 
 
@@ -41,18 +37,6 @@ class TestDriverGaussian(QiskitNatureTestCase, TestDriver):
                 "H   0.0  0.0    0.735",
                 "",
             ]
-        )
-        self.driver_result = driver.run()
-
-
-class TestDriverGaussianMolecule(QiskitNatureTestCase, TestDriver):
-    """Gaussian Driver tests."""
-
-    @unittest.skipIf(not _optionals.HAS_GAUSSIAN, "gaussian not available.")
-    def setUp(self):
-        super().setUp()
-        driver = ElectronicStructureMoleculeDriver(
-            TestDriver.MOLECULE, driver_type=ElectronicStructureDriverType.GAUSSIAN
         )
         self.driver_result = driver.run()
 

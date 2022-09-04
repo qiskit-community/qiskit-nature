@@ -21,13 +21,13 @@ import h5py
 from qiskit_nature.second_q.operators import VibrationalOp
 
 from .bases import VibrationalBasis
-from .vibrational_types import VibrationalProperty
+from .property import Property
 
 if TYPE_CHECKING:
     from qiskit_nature.second_q.problems import EigenstateResult
 
 
-class OccupiedModals(VibrationalProperty):
+class OccupiedModals(Property):
     """The OccupiedModals property."""
 
     def __init__(
@@ -41,7 +41,23 @@ class OccupiedModals(VibrationalProperty):
                 through which to map the integrals into second quantization. This attribute **MUST**
                 be set before the second-quantized operator can be constructed.
         """
-        super().__init__(self.__class__.__name__, basis)
+        super().__init__(self.__class__.__name__)
+        self._basis: VibrationalBasis = basis
+
+    @property
+    def basis(self) -> VibrationalBasis:
+        """Returns the basis."""
+        return self._basis
+
+    @basis.setter
+    def basis(self, basis: VibrationalBasis) -> None:
+        """Sets the basis."""
+        self._basis = basis
+
+    def __str__(self) -> str:
+        string = [super().__str__() + ":"]
+        string += [f"\t{line}" for line in str(self.basis).split("\n")]
+        return "\n".join(string)
 
     @staticmethod
     def from_hdf5(h5py_group: h5py.Group) -> OccupiedModals:

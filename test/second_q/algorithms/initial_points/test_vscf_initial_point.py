@@ -22,9 +22,7 @@ import numpy as np
 from qiskit_nature.second_q.algorithms.initial_points import VSCFInitialPoint
 from qiskit_nature.second_q.circuit.library import UVCC
 from qiskit_nature.exceptions import QiskitNatureError
-from qiskit_nature.second_q.properties.second_quantized_property import (
-    GroupedSecondQuantizedProperty,
-)
+from qiskit_nature.second_q.problems import VibrationalStructureProblem
 
 
 class TestVSCFInitialPoint(QiskitNatureTestCase):
@@ -33,7 +31,10 @@ class TestVSCFInitialPoint(QiskitNatureTestCase):
     def setUp(self) -> None:
         super().setUp()
         self.vscf_initial_point = VSCFInitialPoint()
+        self.ansatz = Mock(spec=UVCC)
+        self.ansatz.reps = 1
         self.excitation_list = [((0,), (1,))]
+        self.ansatz.excitation_list = self.excitation_list
 
     def test_missing_ansatz(self):
         """Test set get ansatz."""
@@ -42,30 +43,19 @@ class TestVSCFInitialPoint(QiskitNatureTestCase):
 
     def test_set_get_ansatz(self):
         """Test set get ansatz."""
-        ansatz = Mock(spec=UVCC)
-        ansatz.excitation_list = self.excitation_list
-        self.vscf_initial_point.ansatz = ansatz
-        self.assertEqual(ansatz, self.vscf_initial_point.ansatz)
-        self.assertEqual(self.excitation_list, self.vscf_initial_point.excitation_list)
+        self.vscf_initial_point.ansatz = self.ansatz
+        self.assertEqual(self.vscf_initial_point.ansatz, self.ansatz)
 
     def test_set_grouped_property(self):
         """Test set get grouped_property (not used for VSCF)."""
         self.assertIsNone(self.vscf_initial_point.grouped_property)
-        grouped_property = Mock(spec=GroupedSecondQuantizedProperty)
+        grouped_property = Mock(spec=VibrationalStructureProblem)
         self.vscf_initial_point.grouped_property = grouped_property
         self.assertEqual(grouped_property, self.vscf_initial_point.grouped_property)
 
-    def test_vscf_with_excitation_list_set_directly(self):
-        """Test VSCF initial point is all zero when called on demand."""
-        self.vscf_initial_point.excitation_list = self.excitation_list
-        initial_point = self.vscf_initial_point.to_numpy_array()
-        np.testing.assert_array_equal(initial_point, np.asarray([0.0]))
-
     def test_vscf_compute(self):
         """Test VSCF initial point is all zero when called via compute."""
-        ansatz = Mock(spec=UVCC)
-        ansatz.excitation_list = self.excitation_list
-        self.vscf_initial_point.compute(ansatz)
+        self.vscf_initial_point.compute(self.ansatz)
         initial_point = self.vscf_initial_point.to_numpy_array()
         np.testing.assert_array_equal(initial_point, np.asarray([0.0]))
 

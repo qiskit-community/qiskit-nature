@@ -10,27 +10,32 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-import setuptools
 import inspect
-import sys
 import os
 import re
+import sys
 
-with open('requirements.txt') as f:
+import setuptools
+
+with open("requirements.txt", "r", encoding="utf-8") as f:
     REQUIREMENTS = f.read().splitlines()
 
-if not hasattr(setuptools, 'find_namespace_packages') or not inspect.ismethod(setuptools.find_namespace_packages):
-    print("Your setuptools version:'{}' does not support PEP 420 (find_namespace_packages). "
-          "Upgrade it to version >='40.1.0' and repeat install.".format(setuptools.__version__))
+if not hasattr(setuptools, "find_namespace_packages") or not inspect.ismethod(
+    setuptools.find_namespace_packages
+):
+    print(
+        "Your setuptools version:'{}' does not support PEP 420 (find_namespace_packages). "
+        "Upgrade it to version >='40.1.0' and repeat install.".format(setuptools.__version__)
+    )
     sys.exit(1)
 
 VERSION_PATH = os.path.join(os.path.dirname(__file__), "qiskit_nature", "VERSION.txt")
-with open(VERSION_PATH, "r") as version_file:
+with open(VERSION_PATH, "r", encoding="utf-8") as version_file:
     VERSION = version_file.read().strip()
 
 # Read long description from README.
 README_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), "README.md")
-with open(README_PATH) as readme_file:
+with open(README_PATH, "r", encoding="utf-8") as readme_file:
     README = re.sub(
         "<!--- long-description-skip-begin -->.*<!--- long-description-skip-end -->",
         "",
@@ -39,15 +44,15 @@ with open(README_PATH) as readme_file:
     )
 
 setuptools.setup(
-    name='qiskit-nature',
+    name="qiskit-nature",
     version=VERSION,
-    description='Qiskit Nature: A library of quantum computing chemistry/physics experiments',
+    description="Qiskit Nature: A library of quantum computing chemistry/physics experiments",
     long_description=README,
     long_description_content_type="text/markdown",
-    url='https://github.com/Qiskit/qiskit-nature',
-    author='Qiskit Nature Development Team',
-    author_email='hello@qiskit.org',
-    license='Apache-2.0',
+    url="https://github.com/Qiskit/qiskit-nature",
+    author="Qiskit Nature Development Team",
+    author_email="hello@qiskit.org",
+    license="Apache-2.0",
     classifiers=[
         "Environment :: Console",
         "License :: OSI Approved :: Apache Software License",
@@ -61,16 +66,16 @@ setuptools.setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
-        "Topic :: Scientific/Engineering"
+        "Topic :: Scientific/Engineering",
     ],
-    keywords='qiskit sdk quantum nature chemistry physics',
-    packages=setuptools.find_packages(include=['qiskit_nature', 'qiskit_nature.*']),
+    keywords="qiskit sdk quantum nature chemistry physics",
+    packages=setuptools.find_packages(include=["qiskit_nature", "qiskit_nature.*"]),
     install_requires=REQUIREMENTS,
     include_package_data=True,
     python_requires=">=3.7",
     extras_require={
-        'pyscf': ["pyscf; python_version < '3.10' and sys_platform != 'win32'"],
-        'mpl':["matplotlib>=3.3"],
+        "pyscf": ["pyscf; python_version < '3.10' and sys_platform != 'win32'"],
+        "mpl": ["matplotlib>=3.3"],
     },
-    zip_safe=False
+    zip_safe=False,
 )

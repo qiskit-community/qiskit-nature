@@ -13,7 +13,7 @@
 """The minimum eigensolver factory for ground state calculation algorithms."""
 
 import logging
-from typing import Optional, Union, cast
+from typing import Optional, Union
 import numpy as np
 
 from qiskit.algorithms import MinimumEigensolver, VQE
@@ -22,9 +22,6 @@ from qiskit_nature.second_q.circuit.library import UVCC, UVCCSD, VSCF
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.problems import (
     VibrationalStructureProblem,
-)
-from qiskit_nature.second_q.properties import (
-    VibrationalStructureDriverResult,
 )
 
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
@@ -153,7 +150,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
             A VQE suitable to compute the ground state of the molecule.
         """
 
-        basis = cast(VibrationalStructureDriverResult, problem.grouped_property_transformed).basis
+        basis = problem.basis
         num_modals = basis.num_modals_per_mode
         num_modes = len(num_modals)
 

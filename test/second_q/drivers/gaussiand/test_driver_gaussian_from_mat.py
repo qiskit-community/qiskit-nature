@@ -29,7 +29,8 @@ class TestDriverGaussianFromMat(QiskitNatureTestCase, TestDriver):
             "test_driver_gaussian_from_mat.mat", "second_q/drivers/gaussiand"
         )
         try:
-            self.driver_result = GaussianDriver._parse_matrix_file(matfile)
+            mel = GaussianDriver._parse_matrix_file(matfile)
+            self.driver_result = GaussianDriver._problem_from_matrix_file(mel)
         except QiskitNatureError:
             self.tearDown()
             self.skipTest("GAUSSIAN qcmatrixio not found")
