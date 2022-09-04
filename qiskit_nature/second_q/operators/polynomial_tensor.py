@@ -13,7 +13,8 @@
 """Polynomial Tensor class"""
 
 from __future__ import annotations
-from typing import Dict, Mapping
+from typing import Dict, Iterator
+from collections.abc import Mapping
 from numbers import Number
 import numpy as np
 from qiskit.quantum_info.operators.mixins import (
@@ -23,10 +24,18 @@ from qiskit.quantum_info.operators.mixins import (
 )
 
 
-class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin):
+class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
     """Polynomial Tensor class"""
 
     def __init__(self, data: Mapping[str, np.ndarray | Number]) -> None:
+        """
+        Args:
+            data: coefficient container; mapping of string-based operator keys to coefficient matrix values.
+        Raises:
+            ValueError: when length of operator key does not match dimensions of value matrix.
+            ValueError: when value matrix does not have consistent dimensions.
+            ValueError: when some or all value matrices in ``data`` have different dimensions.
+        """
         copy_dict: Dict[str, np.ndarray] = {}
 
         shapes = set()
@@ -55,8 +64,25 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin):
 
         self._data = copy_dict
 
-    def mul(self, other: complex):
-        """Scalar multiplication of PolynomialTensor with complex"""
+    def __getitem__(self, __k: str) -> (np.ndarray | Number):
+        return self._data.__getitem__(__k)
+
+    def __len__(self) -> int:
+        return self._data.__len__()
+
+    def __iter__(self) -> Iterator[str]:
+        return self._data.__iter__()
+
+    def _multiply(self, other: complex):
+        """Scalar multiplication of PolynomialTensor with complex
+
+        Args:
+            other: scalar to be multiplied with the ``Polynomial Tensor`` object.
+        Returns:
+            the new ``Polynomial Tensor`` product object.
+        Raises:
+            TypeError: if ``other`` is not a ``Number``.
+        """
 
         if not isinstance(other, Number):
             raise TypeError(f"other {other} must be a number")
@@ -66,11 +92,18 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin):
             prod_dict[key] = np.multiply(matrix, other)
         return PolynomialTensor(prod_dict)
 
-    def _multiply(self, other):
-        return self.mul(other)
+    def _add(self, other: PolynomialTensor, qargs=None):
+        """Addition of PolynomialTensors
 
-    def add(self, other: PolynomialTensor):
-        """Addition of PolynomialTensors"""
+        Args:
+            other: second``Polynomial Tensor`` object to be added to the first.
+        Returns:
+            the new summed ``Polynomial Tensor`` object.
+        Raises:
+            TypeError: when ``other`` is not a ``Polynomial Tensor`` object.
+            ValueError: when values corresponding to keys in ``other`` and
+                            the first ``Polynomial Tensor`` object do not match.
+        """
 
         if not isinstance(other, PolynomialTensor):
             raise TypeError("Incorrect argument type: other should be PolynomialTensor")
@@ -91,11 +124,14 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin):
 
         return PolynomialTensor(sum_dict)
 
-    def _add(self, other, qargs=None):
-        return self.add(other)
-
     def __eq__(self, other):
-        """Check equality of PolynomialTensors"""
+        """Check equality of PolynomialTensors
+
+        Args:
+            other: second``Polynomial Tensor`` object to be compared with the first.
+        Returns:
+            True when ``Polynomial Tensor`` objects are equal, False when unequal.
+        """
 
         if not isinstance(other, PolynomialTensor):
             return False
@@ -108,7 +144,11 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin):
         return True
 
     def conjugate(self) -> PolynomialTensor:
-        """Conjugate of PolynomialTensors"""
+        """Conjugate of PolynomialTensors
+
+        Returns:
+            the complex conjugate of the ``Polynomial Tensor`` object.
+        """
 
         conj_dict: Dict[str, np.ndarray] = {}
         for key, value in self._data.items():
@@ -117,7 +157,11 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin):
         return PolynomialTensor(conj_dict)
 
     def transpose(self) -> PolynomialTensor:
-        """Transpose of PolynomialTensor"""
+        """Transpose of PolynomialTensor
+
+        Returns:
+            the transpose of the ``Polynomial Tensor`` object.
+        """
 
         transpose_dict: Dict[str, np.ndarray] = {}
         for key, value in self._data.items():

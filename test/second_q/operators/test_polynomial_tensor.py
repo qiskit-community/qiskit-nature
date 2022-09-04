@@ -108,7 +108,7 @@ class TestPolynomialTensor(QiskitNatureTestCase):
         ):
             _ = PolynomialTensor(self.sample_poly_3)
 
-    @idata(np.linspace(2, 3, 5))
+    @idata(np.linspace(0, 3, 5))
     def test_mul(self, other):
         """Test for scalar multiplication"""
 
@@ -119,29 +119,29 @@ class TestPolynomialTensor(QiskitNatureTestCase):
             "++--": self.build_matrix(4, 4, other),
         }
 
-        result = PolynomialTensor(self.og_poly).mul(other)
+        result = PolynomialTensor(self.og_poly) * other
         self.assertEqual(result, PolynomialTensor(expected_prod_poly))
 
         with self.assertRaisesRegex(TypeError, r"other .* must be a number"):
-            _ = PolynomialTensor(self.og_poly).mul(PolynomialTensor(self.og_poly))
+            _ = PolynomialTensor(self.og_poly) * PolynomialTensor(self.og_poly)
 
     def test_add(self):
         """Test for addition of Polynomial Tensors"""
 
-        result = PolynomialTensor(self.og_poly).add(PolynomialTensor(self.og_poly))
+        result = PolynomialTensor(self.og_poly) + PolynomialTensor(self.og_poly)
         self.assertEqual(result, PolynomialTensor(self.expected_sum_poly))
 
         with self.assertRaisesRegex(
             TypeError, "Incorrect argument type: other should be PolynomialTensor"
         ):
-            _ = PolynomialTensor(self.og_poly).add(5)
+            _ = PolynomialTensor(self.og_poly) + 5
 
         with self.assertRaisesRegex(
             ValueError,
             r"For key (.*): corresponding data value of shape \(\d+, *\) "
             r"does not match other value matrix of shape \(\d+, *\)",
         ):
-            _ = PolynomialTensor(self.og_poly).add(PolynomialTensor(self.sample_poly_4))
+            _ = PolynomialTensor(self.og_poly) + PolynomialTensor(self.sample_poly_4)
 
     def test_conjugate(self):
         """Test for conjugate of Polynomial Tensor"""
