@@ -19,38 +19,29 @@ import logging
 import os
 import sys
 import tempfile
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, TYPE_CHECKING
 
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.constants import BOHR, PERIODIC_TABLE
+from qiskit_nature.constants import PERIODIC_TABLE
+from qiskit_nature.units import DistanceUnit
 from qiskit_nature.exceptions import UnsupportMethodError
 import qiskit_nature.optionals as _optionals
-from qiskit_nature.second_q.properties.driver_metadata import DriverMetadata
-from qiskit_nature.second_q.properties import (
-    ElectronicStructureDriverResult,
-    AngularMomentum,
-    Magnetization,
-    ParticleNumber,
-    ElectronicEnergy,
-    DipoleMoment,
-    ElectronicDipoleMoment,
-)
-from qiskit_nature.second_q.properties.bases import (
-    ElectronicBasis,
-    ElectronicBasisTransform,
-)
-from qiskit_nature.second_q.properties.integrals import (
-    OneBodyElectronicIntegrals,
-    TwoBodyElectronicIntegrals,
-)
+from qiskit_nature.settings import settings
+from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
+from qiskit_nature.second_q.formats.qcschema import QCSchema
+from qiskit_nature.second_q.formats.qcschema_translator import qcschema_to_problem
+from qiskit_nature.second_q.problems import ElectronicStructureProblem
+from qiskit_nature.second_q.properties import DipoleMoment, ElectronicDipoleMoment
+from qiskit_nature.second_q.properties.bases import ElectronicBasis
+from qiskit_nature.second_q.properties.integrals import OneBodyElectronicIntegrals
 
 from .gaussian_utils import run_g16
-from ..electronic_structure_driver import ElectronicStructureDriver, MethodType
-from ..molecule import Molecule
-from ..units_type import UnitsType
+from ..electronic_structure_driver import ElectronicStructureDriver, MethodType, _QCSchemaData
 
+if TYPE_CHECKING:
+    from .gauopen.QCMatEl import MatEl
 
 logger = logging.getLogger(__name__)
 
@@ -90,10 +81,13 @@ class GaussianDriver(ElectronicStructureDriver):
 
         self._config = config
 
+        self._mel: "MatEl" | None = None
+
     @staticmethod
     @_optionals.HAS_GAUSSIAN.require_in_call
     def from_molecule(
-        molecule: Molecule,
+        molecule: MoleculeInfo,
+        *,
         basis: str = "sto-3g",
         method: MethodType = MethodType.RHF,
         driver_kwargs: Optional[dict[str, Any]] = None,
@@ -114,16 +108,19 @@ class GaussianDriver(ElectronicStructureDriver):
         GaussianDriver.check_method_supported(method)
         basis = GaussianDriver.to_driver_basis(basis)
 
-        if molecule.units == UnitsType.ANGSTROM:
+        if molecule.units == DistanceUnit.ANGSTROM:
             units = "Angstrom"
-        elif molecule.units == UnitsType.BOHR:
+        elif molecule.units == DistanceUnit.BOHR:
             units = "Bohr"
         else:
             raise QiskitNatureError(f"Unknown unit '{molecule.units.value}'")
         cfg1 = f"# {method.value}/{basis} UNITS={units} scf(conventional)\n\n"
-        name = "".join([name for (name, _) in molecule.geometry])
+        name = "".join(molecule.symbols)
         geom = "\n".join(
-            [name + " " + " ".join(map(str, coord)) for (name, coord) in molecule.geometry]
+            [
+                name + " " + " ".join(map(str, coord))
+                for (name, coord) in zip(molecule.symbols, molecule.coords)
+            ]
         )
         cfg2 = f"{name} molecule\n\n"
         cfg3 = f"{molecule.charge} {molecule.multiplicity}\n{geom}\n\n"
@@ -156,7 +153,7 @@ class GaussianDriver(ElectronicStructureDriver):
         if method not in [MethodType.RHF, MethodType.ROHF, MethodType.UHF]:
             raise UnsupportMethodError(f"Invalid Gaussian method {method.value}.")
 
-    def run(self) -> ElectronicStructureDriverResult:
+    def run(self) -> ElectronicStructureProblem:
         cfg = self._config
         while not cfg.endswith("\n\n"):
             cfg += "\n"
@@ -183,17 +180,13 @@ class GaussianDriver(ElectronicStructureDriver):
 
         run_g16(cfg)
 
-        driver_result = self._parse_matrix_file(fname)
+        self._mel = GaussianDriver._parse_matrix_file(fname)
         try:
             os.remove(fname)
         except Exception:  # pylint: disable=broad-except
             logger.warning("Failed to remove MatrixElement file %s", fname)
 
-        # inject runtime config
-        driver_metadata = driver_result.get_property("DriverMetadata")
-        driver_metadata.config = cfg
-
-        return driver_result
+        return self.to_problem()
 
     @staticmethod
     def _augment_config(fname: str, cfg: str) -> str:
@@ -264,7 +257,7 @@ class GaussianDriver(ElectronicStructureDriver):
         return cfgaug
 
     @staticmethod
-    def _parse_matrix_file(fname: str, useao2e: bool = False) -> ElectronicStructureDriverResult:
+    def _parse_matrix_file(fname: str) -> "MatEl":
         """
         get_driver_class is used here because the discovery routine will load all the gaussian
         binary dependencies, if not loaded already. It won't work without it.
@@ -289,67 +282,48 @@ class GaussianDriver(ElectronicStructureDriver):
             logger.info(msg)
             raise QiskitNatureError(msg) from mnfe
 
-        mel = MatEl(file=fname)
-        logger.debug("MatrixElement file:\n%s", mel)
+        _mel = MatEl(file=fname)
+        logger.debug("MatrixElement file:\n%s", _mel)
 
-        driver_result = ElectronicStructureDriverResult()
+        return _mel
 
-        # molecule
-        coords = np.reshape(mel.c, (len(mel.ian), 3))
-        geometry: list[tuple[str, list[float]]] = []
-        for atom, xyz in zip(mel.ian, coords):
-            geometry.append((PERIODIC_TABLE[atom], BOHR * xyz))
+    def to_qcschema(self) -> QCSchema:
+        return GaussianDriver._qcschema_from_matrix_file(self._mel)
 
-        driver_result.molecule = Molecule(
-            geometry,
-            multiplicity=mel.multip,
-            charge=mel.icharg,
-        )
+    @staticmethod
+    def _qcschema_from_matrix_file(mel: MatEl) -> QCSchema:
+        data = _QCSchemaData()
 
-        # driver metadata
-        driver_result.add_property(DriverMetadata("GAUSSIAN", mel.gversion, ""))
-
-        # basis transform
-        moc = GaussianDriver._get_matrix(mel, "ALPHA MO COEFFICIENTS")
-        moc_b = GaussianDriver._get_matrix(mel, "BETA MO COEFFICIENTS")
-        if np.array_equal(moc, moc_b):
+        data.mo_coeff = GaussianDriver._get_matrix(mel, "ALPHA MO COEFFICIENTS")
+        data.mo_coeff_b = GaussianDriver._get_matrix(mel, "BETA MO COEFFICIENTS")
+        if np.array_equal(data.mo_coeff, data.mo_coeff_b):
             logger.debug("ALPHA and BETA MO COEFFS identical, keeping only ALPHA")
-            moc_b = None
+            data.mo_coeff_b = None
 
-        nmo = moc.shape[0]
-
-        basis_transform = ElectronicBasisTransform(
-            ElectronicBasis.AO, ElectronicBasis.MO, moc, moc_b
-        )
-        driver_result.add_property(basis_transform)
-
-        # particle number
-        num_alpha = (mel.ne + mel.multip - 1) // 2
-        num_beta = (mel.ne - mel.multip + 1) // 2
-
-        driver_result.add_property(
-            ParticleNumber(num_spin_orbitals=nmo * 2, num_particles=(num_alpha, num_beta))
-        )
-
-        # electronic energy
-        hcore = GaussianDriver._get_matrix(mel, "CORE HAMILTONIAN ALPHA")
-        logger.debug("CORE HAMILTONIAN ALPHA %s", hcore.shape)
-        hcore_b = GaussianDriver._get_matrix(mel, "CORE HAMILTONIAN BETA")
-        if np.array_equal(hcore, hcore_b):
+        data.hij = GaussianDriver._get_matrix(mel, "CORE HAMILTONIAN ALPHA")
+        logger.debug("CORE HAMILTONIAN ALPHA %s", data.hij.shape)
+        data.hij_b = GaussianDriver._get_matrix(mel, "CORE HAMILTONIAN BETA")
+        if np.array_equal(data.hij, data.hij_b):
             # From Gaussian interfacing documentation: "The two core Hamiltonians are identical
             # unless a Fermi contact perturbation has been applied."
             logger.debug("CORE HAMILTONIAN ALPHA and BETA identical, keeping only ALPHA")
-            hcore_b = None
+            data.hij_b = None
         logger.debug(
             "CORE HAMILTONIAN BETA %s",
-            "- Not present" if hcore_b is None else hcore_b.shape,
+            "- Not present" if data.hij_b is None else data.hij_b.shape,
         )
-        one_body_ao = OneBodyElectronicIntegrals(ElectronicBasis.AO, (hcore, hcore_b))
-        one_body_mo = one_body_ao.transform_basis(basis_transform)
 
-        eri = GaussianDriver._get_matrix(mel, "REGULAR 2E INTEGRALS")
-        logger.debug("REGULAR 2E INTEGRALS %s", eri.shape)
-        if moc_b is None and mel.matlist.get("BB MO 2E INTEGRALS") is not None:
+        data.hij_mo = np.dot(np.dot(data.mo_coeff.T, data.hij), data.mo_coeff)
+        if data.mo_coeff_b is not None:
+            data.hij_mo_b = np.dot(
+                np.dot(data.mo_coeff_b.T, data.hij_b if data.hij_b is not None else data.hij),
+                data.mo_coeff_b,
+            )
+
+        data.eri = GaussianDriver._get_matrix(mel, "REGULAR 2E INTEGRALS")
+        logger.debug("REGULAR 2E INTEGRALS %s", data.eri.shape)
+        useao2e = False
+        if data.mo_coeff_b is None and mel.matlist.get("BB MO 2E INTEGRALS") is not None:
             # It seems that when using ROHF, where alpha and beta coeffs are
             # the same, that integrals
             # for BB and BA are included in the output, as well as just AA
@@ -362,85 +336,121 @@ class GaussianDriver(ElectronicStructureDriver):
             logger.info(
                 "Identical A and B coeffs but BB ints are present - using regular 2E ints instead"
             )
-        two_body_ao = TwoBodyElectronicIntegrals(ElectronicBasis.AO, (eri, None, None, None))
-        two_body_mo: TwoBodyElectronicIntegrals
         if useao2e:
             # eri are 2-body in AO. We can convert to MO via the ElectronicBasisTransform but using
             # ints in MO already, as in the else here, is better
-            two_body_mo = two_body_ao.transform_basis(basis_transform)
+            einsum_ao_to_mo = "pqrs,pi,qj,rk,sl->ijkl"
+            data.eri_mo = np.einsum(
+                einsum_ao_to_mo,
+                data.eri,
+                data.mo_coeff,
+                data.mo_coeff,
+                data.mo_coeff,
+                data.mo_coeff,
+                optimize=settings.optimize_einsum,
+            )
+            if data.mo_coeff_b is not None:
+                data.eri_mo_ba = np.einsum(
+                    einsum_ao_to_mo,
+                    data.eri,
+                    data.mo_coeff_b,
+                    data.mo_coeff_b,
+                    data.mo_coeff,
+                    data.mo_coeff,
+                    optimize=settings.optimize_einsum,
+                )
+                data.eri_mo_bb = np.einsum(
+                    einsum_ao_to_mo,
+                    data.eri,
+                    data.mo_coeff_b,
+                    data.mo_coeff_b,
+                    data.mo_coeff_b,
+                    data.mo_coeff_b,
+                    optimize=settings.optimize_einsum,
+                )
         else:
             # These are in MO basis but by default will be reduced in size by frozen core default so
             # to use them we need to add Window=Full above when we augment the config
-            mohijkl = GaussianDriver._get_matrix(mel, "AA MO 2E INTEGRALS")
-            logger.debug("AA MO 2E INTEGRALS %s", mohijkl.shape)
-            mohijkl_bb = GaussianDriver._get_matrix(mel, "BB MO 2E INTEGRALS")
+            data.eri_mo = GaussianDriver._get_matrix(mel, "AA MO 2E INTEGRALS")
+            logger.debug("AA MO 2E INTEGRALS %s", data.eri_mo.shape)
+            data.eri_mo_bb = GaussianDriver._get_matrix(mel, "BB MO 2E INTEGRALS")
             logger.debug(
                 "BB MO 2E INTEGRALS %s",
-                "- Not present" if mohijkl_bb is None else mohijkl_bb.shape,
+                "- Not present" if data.eri_mo_bb is None else data.eri_mo_bb.shape,
             )
-            mohijkl_ba = GaussianDriver._get_matrix(mel, "BA MO 2E INTEGRALS")
+            data.eri_mo_ba = GaussianDriver._get_matrix(mel, "BA MO 2E INTEGRALS")
             logger.debug(
                 "BA MO 2E INTEGRALS %s",
-                "- Not present" if mohijkl_ba is None else mohijkl_ba.shape,
-            )
-            two_body_mo = TwoBodyElectronicIntegrals(
-                ElectronicBasis.MO, (mohijkl, mohijkl_ba, mohijkl_bb, None)
+                "- Not present" if data.eri_mo_ba is None else data.eri_mo_ba.shape,
             )
 
-        electronic_energy = ElectronicEnergy(
-            [one_body_ao, two_body_ao, one_body_mo, two_body_mo],
-            nuclear_repulsion_energy=mel.scalar("ENUCREP"),
-            reference_energy=mel.scalar("ETOTAL"),
-        )
+        data.mo_energy = GaussianDriver._get_matrix(mel, "ALPHA ORBITAL ENERGIES")
+        logger.debug("ORBITAL ENERGIES %s", data.mo_energy)
+        data.mo_energy_b = GaussianDriver._get_matrix(mel, "BETA ORBITAL ENERGIES")
+        logger.debug("BETA ORBITAL ENERGIES %s", data.mo_energy_b)
 
-        kinetic = GaussianDriver._get_matrix(mel, "KINETIC ENERGY")
-        logger.debug("KINETIC ENERGY %s", kinetic.shape)
-        electronic_energy.kinetic = OneBodyElectronicIntegrals(ElectronicBasis.AO, (kinetic, None))
+        data.e_nuc = mel.scalar("ENUCREP")
+        data.e_ref = mel.scalar("ETOTAL")
+        data.symbols = [PERIODIC_TABLE[atom] for atom in mel.ian]
+        data.coords = mel.c
+        data.multiplicity = mel.multip
+        data.charge = mel.icharg
+        data.method = "RHF"
+        data.basis = "sto-3g"
+        data.creator = "Gaussian"
+        data.version = mel.gversion
+        data.nbasis = mel.nbasis
+        data.nmo = data.mo_coeff.shape[0]
+        data.nalpha = (mel.ne + mel.multip - 1) // 2
+        data.nbeta = (mel.ne - mel.multip + 1) // 2
 
-        overlap = GaussianDriver._get_matrix(mel, "OVERLAP")
-        logger.debug("OVERLAP %s", overlap.shape)
-        electronic_energy.overlap = OneBodyElectronicIntegrals(ElectronicBasis.AO, (overlap, None))
+        return GaussianDriver._to_qcschema(data)
 
-        orbs_energy = GaussianDriver._get_matrix(mel, "ALPHA ORBITAL ENERGIES")
-        logger.debug("ORBITAL ENERGIES %s", overlap.shape)
-        orbs_energy_b = GaussianDriver._get_matrix(mel, "BETA ORBITAL ENERGIES")
-        logger.debug("BETA ORBITAL ENERGIES %s", overlap.shape)
-        orbital_energies = (orbs_energy, orbs_energy_b) if moc_b is not None else orbs_energy
-        electronic_energy.orbital_energies = np.asarray(orbital_energies)
+    def to_problem(
+        self,
+        *,
+        include_dipole: bool = True,
+    ) -> ElectronicStructureProblem:
+        return GaussianDriver._problem_from_matrix_file(self._mel, include_dipole=include_dipole)
 
-        driver_result.add_property(electronic_energy)
+    @staticmethod
+    def _problem_from_matrix_file(
+        mel: MatEl, *, include_dipole: bool = True
+    ) -> ElectronicStructureProblem:
+        qcschema = GaussianDriver._qcschema_from_matrix_file(mel)
 
-        # dipole moment
-        dipints = GaussianDriver._get_matrix(mel, "DIPOLE INTEGRALS")
-        dipints = np.einsum("ijk->kji", dipints)
+        problem = qcschema_to_problem(qcschema)
 
-        x_dip_ints = OneBodyElectronicIntegrals(ElectronicBasis.AO, (dipints[0], None))
-        y_dip_ints = OneBodyElectronicIntegrals(ElectronicBasis.AO, (dipints[1], None))
-        z_dip_ints = OneBodyElectronicIntegrals(ElectronicBasis.AO, (dipints[2], None))
+        if include_dipole:
+            # dipole moment
+            dipints = GaussianDriver._get_matrix(mel, "DIPOLE INTEGRALS")
+            dipints = np.einsum("ijk->kji", dipints)
 
-        x_dipole = DipoleMoment("x", [x_dip_ints, x_dip_ints.transform_basis(basis_transform)])
-        y_dipole = DipoleMoment("y", [y_dip_ints, y_dip_ints.transform_basis(basis_transform)])
-        z_dipole = DipoleMoment("z", [z_dip_ints, z_dip_ints.transform_basis(basis_transform)])
+            x_dip_ints = OneBodyElectronicIntegrals(ElectronicBasis.AO, (dipints[0], None))
+            y_dip_ints = OneBodyElectronicIntegrals(ElectronicBasis.AO, (dipints[1], None))
+            z_dip_ints = OneBodyElectronicIntegrals(ElectronicBasis.AO, (dipints[2], None))
 
-        nucl_dip = np.einsum("i,ix->x", mel.ian, coords)
-        nucl_dip = np.round(nucl_dip, decimals=8)
+            x_dipole = DipoleMoment(
+                "x", [x_dip_ints, x_dip_ints.transform_basis(problem.basis_transform)]
+            )
+            y_dipole = DipoleMoment(
+                "y", [y_dip_ints, y_dip_ints.transform_basis(problem.basis_transform)]
+            )
+            z_dipole = DipoleMoment(
+                "z", [z_dip_ints, z_dip_ints.transform_basis(problem.basis_transform)]
+            )
 
-        driver_result.add_property(
-            ElectronicDipoleMoment(
+            coords = np.reshape(mel.c, (len(mel.ian), 3))
+            nucl_dip = np.einsum("i,ix->x", mel.ian, coords)
+            nucl_dip = np.round(nucl_dip, decimals=8)
+
+            problem.properties.electronic_dipole_moment = ElectronicDipoleMoment(
                 [x_dipole, y_dipole, z_dipole],
                 nuclear_dipole_moment=nucl_dip,
                 reverse_dipole_sign=True,
             )
-        )
 
-        # extra properties
-        # TODO: once https://github.com/Qiskit/qiskit-nature/issues/312 is fixed we can stop adding
-        # these properties by default.
-        # if not settings.dict_aux_operators:
-        driver_result.add_property(AngularMomentum(nmo * 2))
-        driver_result.add_property(Magnetization(nmo * 2))
-
-        return driver_result
+        return problem
 
     @staticmethod
     def _get_matrix(mel, name) -> np.ndarray:

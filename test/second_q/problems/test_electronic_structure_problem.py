@@ -19,27 +19,16 @@ from test.second_q.problems.resources.resource_reader import (
 
 import numpy as np
 
-from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.drivers import Molecule
-from qiskit_nature.second_q.drivers import (
-    HDF5Driver,
-    PySCFDriver,
-    ElectronicStructureMoleculeDriver,
-    ElectronicStructureDriverType,
-)
-from qiskit_nature.second_q.mappers import ParityMapper
-from qiskit_nature.second_q.operators import SecondQuantizedOp
-from qiskit_nature.second_q.problems import ElectronicStructureProblem
-from qiskit_nature.second_q.transformers import (
-    ActiveSpaceTransformer,
-    FreezeCoreTransformer,
-)
 import qiskit_nature.optionals as _optionals
+from qiskit_nature.second_q.drivers import PySCFDriver
+from qiskit_nature.second_q.operators import SecondQuantizedOp
+from qiskit_nature.second_q.transformers import ActiveSpaceTransformer
 
 
 class TestElectronicStructureProblem(QiskitNatureTestCase):
     """Tests Electronic Structure Problem."""
 
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_second_q_ops_without_transformers(self):
         """Tests that the list of second quantized operators is created if no transformers
         provided."""
@@ -50,17 +39,10 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
         )
         expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
 
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("H2_631g.hdf5", "second_q/transformers")
-        )
-        electronic_structure_problem = ElectronicStructureProblem(driver)
+        driver = PySCFDriver(basis="631g")
+        electronic_structure_problem = driver.run()
 
         electr_sec_quant_op, second_quantized_ops = electronic_structure_problem.second_q_ops()
-
-        with self.subTest("Check that the correct properties aren't None"):
-            # properties should never be None
-            self.assertIsNotNone(electronic_structure_problem.grouped_property)
-            self.assertIsNotNone(electronic_structure_problem.grouped_property_transformed)
 
         with self.subTest("Check expected length of the list of second quantized operators."):
             assert len(second_quantized_ops) == expected_num_of_sec_quant_ops
@@ -69,10 +51,11 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
                 assert isinstance(second_quantized_op, SecondQuantizedOp)
         with self.subTest("Check components of electronic second quantized operator."):
             assert all(
-                s[0] == t[0] and np.isclose(s[1], t[1])
+                s[0] == t[0] and np.isclose(np.abs(s[1]), np.abs(t[1]))
                 for s, t in zip(expected_fermionic_op, electr_sec_quant_op.to_list())
             )
 
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_second_q_ops_with_active_space(self):
         """Tests that the correct second quantized operator is created if an active space
         transformer is provided."""
@@ -82,18 +65,11 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
             "second_q/problems/resources",
         )
         expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("H2_631g.hdf5", "second_q/transformers")
-        )
+        driver = PySCFDriver(basis="631g")
         trafo = ActiveSpaceTransformer(num_electrons=2, num_molecular_orbitals=2)
 
-        electronic_structure_problem = ElectronicStructureProblem(driver, [trafo])
+        electronic_structure_problem = trafo.transform(driver.run())
         electr_sec_quant_op, second_quantized_ops = electronic_structure_problem.second_q_ops()
-
-        with self.subTest("Check that the correct properties aren't None"):
-            # properties should never be None
-            self.assertIsNotNone(electronic_structure_problem.grouped_property)
-            self.assertIsNotNone(electronic_structure_problem.grouped_property_transformed)
 
         with self.subTest("Check expected length of the list of second quantized operators."):
             assert len(second_quantized_ops) == expected_num_of_sec_quant_ops
@@ -102,54 +78,9 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
                 assert isinstance(second_quantized_op, SecondQuantizedOp)
         with self.subTest("Check components of electronic second quantized operator."):
             assert all(
-                s[0] == t[0] and np.isclose(s[1], t[1])
+                s[0] == t[0] and np.isclose(np.abs(s[1]), np.abs(t[1]))
                 for s, t in zip(expected_fermionic_op, electr_sec_quant_op.to_list())
             )
-
-
-class TestElectronicStructureProblemLegacyDrivers(QiskitNatureTestCase):
-    """Tests Electronic Structure Problem."""
-
-    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
-    def test_sector_locator_h2o(self):
-        """Test sector locator."""
-        driver = PySCFDriver(
-            atom="O 0.0000 0.0000 0.1173; H 0.0000 0.07572 -0.4692;H 0.0000 -0.07572 -0.4692",
-            basis="sto-3g",
-        )
-        es_problem = ElectronicStructureProblem(driver)
-        qubit_conv = QubitConverter(
-            mapper=ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto"
-        )
-        main_op, _ = es_problem.second_q_ops()
-        qubit_conv.convert(
-            main_op,
-            num_particles=es_problem.num_particles,
-            sector_locator=es_problem.symmetry_sector_locator,
-        )
-        self.assertListEqual(qubit_conv.z2symmetries.tapering_values, [1, -1])
-
-    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
-    def test_sector_locator_homonuclear(self):
-        """Test sector locator."""
-        molecule = Molecule(
-            geometry=[("Li", [0.0, 0.0, 0.0]), ("Li", [0.0, 0.0, 2.771])], charge=0, multiplicity=1
-        )
-        freeze_core_transformer = FreezeCoreTransformer(True)
-        driver = ElectronicStructureMoleculeDriver(
-            molecule, basis="sto3g", driver_type=ElectronicStructureDriverType.PYSCF
-        )
-        es_problem = ElectronicStructureProblem(driver, transformers=[freeze_core_transformer])
-        qubit_conv = QubitConverter(
-            mapper=ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto"
-        )
-        main_op, _ = es_problem.second_q_ops()
-        qubit_conv.convert(
-            main_op,
-            num_particles=es_problem.num_particles,
-            sector_locator=es_problem.symmetry_sector_locator,
-        )
-        self.assertListEqual(qubit_conv.z2symmetries.tapering_values, [-1, 1])
 
 
 if __name__ == "__main__":

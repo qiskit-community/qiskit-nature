@@ -15,7 +15,7 @@
 import unittest
 
 from test.second_q.drivers.test_driver_methods_gsc import TestDriverMethods
-from qiskit_nature.second_q.drivers import UnitsType
+from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.drivers import PySCFDriver, MethodType
 from qiskit_nature.second_q.mappers import BravyiKitaevMapper, ParityMapper
 from qiskit_nature.second_q.mappers import QubitConverter
@@ -35,7 +35,7 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         """lih rhf test"""
         driver = PySCFDriver(
             atom=self.lih,
-            unit=UnitsType.ANGSTROM,
+            unit=DistanceUnit.ANGSTROM,
             charge=0,
             spin=0,
             basis="sto-3g",
@@ -48,7 +48,7 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         """lih rohf test"""
         driver = PySCFDriver(
             atom=self.lih,
-            unit=UnitsType.ANGSTROM,
+            unit=DistanceUnit.ANGSTROM,
             charge=0,
             spin=0,
             basis="sto-3g",
@@ -61,7 +61,7 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         """lih uhf test"""
         driver = PySCFDriver(
             atom=self.lih,
-            unit=UnitsType.ANGSTROM,
+            unit=DistanceUnit.ANGSTROM,
             charge=0,
             spin=0,
             basis="sto-3g",
@@ -74,7 +74,7 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         """lih rhf parity test"""
         driver = PySCFDriver(
             atom=self.lih,
-            unit=UnitsType.ANGSTROM,
+            unit=DistanceUnit.ANGSTROM,
             charge=0,
             spin=0,
             basis="sto-3g",
@@ -91,7 +91,7 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         """lih rhf parity 2q test"""
         driver = PySCFDriver(
             atom=self.lih,
-            unit=UnitsType.ANGSTROM,
+            unit=DistanceUnit.ANGSTROM,
             charge=0,
             spin=0,
             basis="sto-3g",
@@ -108,7 +108,7 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         """lih rhf bk test"""
         driver = PySCFDriver(
             atom=self.lih,
-            unit=UnitsType.ANGSTROM,
+            unit=DistanceUnit.ANGSTROM,
             charge=0,
             spin=0,
             basis="sto-3g",
@@ -125,7 +125,7 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         """oh rohf test"""
         driver = PySCFDriver(
             atom=self.o_h,
-            unit=UnitsType.ANGSTROM,
+            unit=DistanceUnit.ANGSTROM,
             charge=0,
             spin=1,
             basis="sto-3g",
@@ -138,7 +138,7 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         """oh uhf test"""
         driver = PySCFDriver(
             atom=self.o_h,
-            unit=UnitsType.ANGSTROM,
+            unit=DistanceUnit.ANGSTROM,
             charge=0,
             spin=1,
             basis="sto-3g",
@@ -151,7 +151,7 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         """oh rohf parity test"""
         driver = PySCFDriver(
             atom=self.o_h,
-            unit=UnitsType.ANGSTROM,
+            unit=DistanceUnit.ANGSTROM,
             charge=0,
             spin=1,
             basis="sto-3g",
@@ -164,7 +164,7 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         """oh rohf parity 2q test"""
         driver = PySCFDriver(
             atom=self.o_h,
-            unit=UnitsType.ANGSTROM,
+            unit=DistanceUnit.ANGSTROM,
             charge=0,
             spin=1,
             basis="sto-3g",
@@ -179,7 +179,7 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         """oh uhf parity test"""
         driver = PySCFDriver(
             atom=self.o_h,
-            unit=UnitsType.ANGSTROM,
+            unit=DistanceUnit.ANGSTROM,
             charge=0,
             spin=1,
             basis="sto-3g",
@@ -192,7 +192,7 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         """oh uhf parity 2q test"""
         driver = PySCFDriver(
             atom=self.o_h,
-            unit=UnitsType.ANGSTROM,
+            unit=DistanceUnit.ANGSTROM,
             charge=0,
             spin=1,
             basis="sto-3g",
@@ -207,7 +207,7 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         """oh rohf bk test"""
         driver = PySCFDriver(
             atom=self.o_h,
-            unit=UnitsType.ANGSTROM,
+            unit=DistanceUnit.ANGSTROM,
             charge=0,
             spin=1,
             basis="sto-3g",
@@ -220,7 +220,7 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         """oh uhf bk test"""
         driver = PySCFDriver(
             atom=self.o_h,
-            unit=UnitsType.ANGSTROM,
+            unit=DistanceUnit.ANGSTROM,
             charge=0,
             spin=1,
             basis="sto-3g",
