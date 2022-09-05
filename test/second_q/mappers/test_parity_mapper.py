@@ -15,7 +15,6 @@
 import unittest
 from test import QiskitNatureTestCase
 
-from qiskit.exceptions import QiskitError
 from qiskit.opflow import I, PauliSumOp, X, Z
 
 import qiskit_nature.optionals as _optionals
@@ -92,23 +91,6 @@ class TestParityMapper(QiskitNatureTestCase):
             op = FermionicOp("I", display_format="dense")
             expected = PauliSumOp.from_list([("I", 1)])
             self.assertEqual(ParityMapper().map(op), expected)
-
-    def test_caching(self):
-        """Tests the caching behavior."""
-        mapper = ParityMapper()
-        fer_op1 = FermionicOp("N_0", register_length=2)
-        fer_op2 = FermionicOp("N_1", register_length=4)
-
-        with self.subTest("Caching map"):
-            _ = mapper.map(fer_op1)
-
-        with self.subTest("Error upon mismatching cache"):
-            with self.assertRaises(QiskitError):
-                _ = mapper.map(fer_op2)
-
-        with self.subTest("Works after cache invalidation"):
-            mapper.invalidate_cache()
-            _ = mapper.map(fer_op2)
 
 
 if __name__ == "__main__":

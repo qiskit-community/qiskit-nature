@@ -1,23 +1,6 @@
 ---
 features:
   - |
-    The performance of the :class:`.QubitMapper`, when used to mapped multiple
+    The performance of the :class:`.QubitMapper`, when used to map multiple
     operators of identical size, is significantly improved, by means of caching
     the generated Pauli lookup list.
-    However, this means that when using the same qubit mapper to map differently
-    sized operators, the cache will need to be invalidated like so:
-
-    .. code-block:: python
-
-      from qiskit_nature.second_q.mappers import JordanWignerMapper
-      from qiskit_nature.second_q.operators import FermionicOp
-
-      mapper = JordanWignerMapper()
-
-      fer_op1 = FermionicOp("N_0", register_length=2)
-      qubit_op1 = mapper.map(fer_op1)
-
-      mapper.invalidate_cache()
-
-      fer_op2 = FermionicOp("N_0", register_length=4)
-      qubit_op2 = mapper.map(fer_op2)

@@ -16,11 +16,8 @@ import unittest
 
 from test import QiskitNatureTestCase
 
-from qiskit.exceptions import QiskitError
-
 from qiskit_nature.second_q.drivers import GaussianForcesDriver
 from qiskit_nature.second_q.mappers import DirectMapper
-from qiskit_nature.second_q.operators import VibrationalOp
 from qiskit_nature.second_q.properties.bases import HarmonicBasis
 
 from .resources.reference_direct_mapper import (
@@ -78,23 +75,6 @@ class TestDirectMapper(QiskitNatureTestCase):
         """Test this returns False for this mapper"""
         mapper = DirectMapper()
         self.assertFalse(mapper.allows_two_qubit_reduction)
-
-    def test_caching(self):
-        """Tests the caching behavior."""
-        mapper = DirectMapper()
-        vib_op1 = VibrationalOp("+_0*0 -_0*0", num_modes=1, num_modals=2)
-        vib_op2 = VibrationalOp("+_0*0 -_0*0", num_modes=1, num_modals=3)
-
-        with self.subTest("Caching map"):
-            _ = mapper.map(vib_op1)
-
-        with self.subTest("Error upon mismatching cache"):
-            with self.assertRaises(QiskitError):
-                _ = mapper.map(vib_op2)
-
-        with self.subTest("Works after cache invalidation"):
-            mapper.invalidate_cache()
-            _ = mapper.map(vib_op2)
 
 
 if __name__ == "__main__":

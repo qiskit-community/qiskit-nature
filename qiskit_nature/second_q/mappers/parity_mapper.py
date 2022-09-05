@@ -12,7 +12,11 @@
 
 """The Parity Mapper."""
 
+from __future__ import annotations
+
+from functools import lru_cache
 from typing import Union, List
+
 import numpy as np
 
 from qiskit.opflow import PauliSumOp
@@ -32,12 +36,11 @@ class ParityMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
         """
         super().__init__(allows_two_qubit_reduction=True)
 
-    def map(self, second_q_op: FermionicOp) -> PauliSumOp:
-
-        # number of modes/sites for the Parity transform (= number of fermionic modes)
-        nmodes = second_q_op.register_length
-
+    @classmethod
+    @lru_cache(maxsize=32)
+    def pauli_table(cls, nmodes: int) -> list[tuple[Pauli, Pauli]]:
         pauli_table = []
+
         for i in range(nmodes):
             a_z: Union[List[int], np.ndarray] = [0] * (i - 1) + [1] if i > 0 else []
             a_x: Union[List[int], np.ndarray] = [0] * (i - 1) + [0] if i > 0 else []
@@ -49,4 +52,7 @@ class ParityMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
             b_x = np.asarray(b_x + [1] + [1] * (nmodes - i - 1), dtype=bool)
             pauli_table.append((Pauli((a_z, a_x)), Pauli((b_z, b_x))))
 
-        return self.mode_based_mapping(second_q_op, pauli_table)
+        return pauli_table
+
+    def map(self, second_q_op: FermionicOp) -> PauliSumOp:
+        return ParityMapper.mode_based_mapping(second_q_op, second_q_op.register_length)

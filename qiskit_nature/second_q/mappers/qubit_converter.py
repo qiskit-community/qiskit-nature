@@ -233,7 +233,6 @@ class QubitConverter:
         Returns:
             PauliSumOp qubit operator
         """
-        self._mapper.invalidate_cache()
         qubit_op = self._map(second_q_op)
         reduced_op = self._two_qubit_reduce(qubit_op, num_particles)
         tapered_op, z2symmetries = self._find_taper_op(reduced_op, sector_locator)
@@ -262,7 +261,6 @@ class QubitConverter:
         Returns:
             PauliSumOp qubit operator
         """
-        self._mapper.invalidate_cache()
         qubit_op = self._map(second_q_op)
         reduced_op = self._two_qubit_reduce(qubit_op, num_particles)
 

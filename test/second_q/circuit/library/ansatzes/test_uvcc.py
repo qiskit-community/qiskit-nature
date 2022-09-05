@@ -191,7 +191,6 @@ class TestUVCCVSCF(QiskitNatureTestCase):
 
         with self.subTest("Set num modals differently"):
             uvcc.num_modals = [3, 3]
-            uvcc.qubit_converter.mapper.invalidate_cache()
             self.assertEqual(uvcc.num_modals, [3, 3])
             self.assertIsNotNone(uvcc.operators)
             self.assertEqual(len(uvcc.operators), 8)

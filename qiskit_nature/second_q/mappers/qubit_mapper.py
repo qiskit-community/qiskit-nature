@@ -15,7 +15,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import List, Tuple
+from functools import lru_cache
 
 from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators import Pauli, SparsePauliOp
@@ -36,17 +36,6 @@ class QubitMapper(ABC):
                 number of qubits in the mapped operator can be reduced accordingly.
         """
         self._allows_two_qubit_reduction = allows_two_qubit_reduction
-        self.times_creation_op: list[SparsePauliOp] = []
-        self.times_annihilation_op: list = []
-        self.times_occupation_number_op: list = []
-        self.times_emptiness_number_op: list = []
-
-    def invalidate_cache(self):
-        """Resets cached lists to be empty"""
-        self.times_creation_op = []
-        self.times_annihilation_op = []
-        self.times_occupation_number_op = []
-        self.times_emptiness_number_op = []
 
     @property
     def allows_two_qubit_reduction(self) -> bool:
@@ -71,49 +60,79 @@ class QubitMapper(ABC):
         """
         raise NotImplementedError()
 
-    def _cache_pauli_table(self, pauli_table: List[Tuple[Pauli, Pauli]]):
-        """
+    @classmethod
+    @lru_cache(maxsize=32)
+    def pauli_table(cls, nmodes: int) -> list[tuple[Pauli, Pauli]]:
+        """Generates a Pauli-lookup table mapping from modes to pauli pairs.
+
+        The generated table is processed by :meth:`.QubitMapper.sparse_pauli_operators`.
+
         Args:
-            pauli_table: a table of paulis built according to the modes of the operator
+            nmodes: the number of modes for which to generate the table.
 
+        Returns:
+            A list of tuples in which the first and second Pauli operator the real and imaginary
+            Pauli strings, respectively.
         """
-        if not (
-            self.times_creation_op
-            and self.times_annihilation_op
-            and self.times_occupation_number_op
-            and self.times_emptiness_number_op
-        ):
 
-            for paulis in pauli_table:
-                real_part = SparsePauliOp(paulis[0], coeffs=[0.5])
-                imag_part = SparsePauliOp(paulis[1], coeffs=[0.5j])
+    @classmethod
+    @lru_cache(maxsize=32)
+    def sparse_pauli_operators(
+        cls, nmodes: int
+    ) -> tuple[list[SparsePauliOp], list[SparsePauliOp], list[SparsePauliOp], list[SparsePauliOp]]:
+        """Generates the cached :class:`.SparsePauliOp` terms.
 
-                # The creation operator is given by 0.5*(X - 1j*Y)
-                creation_op = real_part - imag_part
-                self.times_creation_op.append(creation_op)
+        This uses :meth:`.QubitMapper.pauli_table` to construct a list of operators used to
+        translate the second-quantization symbols into qubit operators.
 
-                # The annihilation operator is given by 0.5*(X + 1j*Y)
-                annihilation_op = real_part + imag_part
-                self.times_annihilation_op.append(annihilation_op)
+        Args:
+            nmodes: the number of modes for which to generate the operators.
 
-                # The occupation number operator N is given by `+-`.
-                self.times_occupation_number_op.append(
-                    creation_op.compose(annihilation_op, front=True).simplify()
-                )
+        Returns:
+            Four lists stored in a tuple, consisting of the creation, annihilation, number and
+            emptiness (inverse of number) operators, applied on the individual modes.
+        """
+        times_creation_op = []
+        times_annihilation_op = []
+        times_occupation_number_op = []
+        times_emptiness_number_op = []
 
-                # The `emptiness number` operator E is given by `-+` = (I - N).
-                self.times_emptiness_number_op.append(
-                    annihilation_op.compose(creation_op, front=True).simplify()
-                )
+        for paulis in cls.pauli_table(nmodes):
+            real_part = SparsePauliOp(paulis[0], coeffs=[0.5])
+            imag_part = SparsePauliOp(paulis[1], coeffs=[0.5j])
 
-    def mode_based_mapping(
-        self, second_q_op: SecondQuantizedOp, pauli_table: List[Tuple[Pauli, Pauli]]
-    ) -> PauliSumOp:
+            # The creation operator is given by 0.5*(X - 1j*Y)
+            creation_op = real_part - imag_part
+            times_creation_op.append(creation_op)
+
+            # The annihilation operator is given by 0.5*(X + 1j*Y)
+            annihilation_op = real_part + imag_part
+            times_annihilation_op.append(annihilation_op)
+
+            # The occupation number operator N is given by `+-`.
+            times_occupation_number_op.append(
+                creation_op.compose(annihilation_op, front=True).simplify()
+            )
+
+            # The `emptiness number` operator E is given by `-+` = (I - N).
+            times_emptiness_number_op.append(
+                annihilation_op.compose(creation_op, front=True).simplify()
+            )
+        return (
+            times_creation_op,
+            times_annihilation_op,
+            times_occupation_number_op,
+            times_emptiness_number_op,
+        )
+
+    # TODO: remove nmodes argument once having access to SparseLabelOp.register_length
+    @classmethod
+    def mode_based_mapping(cls, second_q_op: SecondQuantizedOp, nmodes: int) -> PauliSumOp:
         """Utility method to map a `SecondQuantizedOp` to a `PauliSumOp` using a pauli table.
 
         Args:
             second_q_op: the `SecondQuantizedOp` to be mapped.
-            pauli_table: a table of paulis built according to the modes of the operator
+            nmodes: the number of modes for which to generate the operators.
 
         Returns:
             The `PauliSumOp` corresponding to the problem-Hamiltonian in the qubit space.
@@ -122,16 +141,12 @@ class QubitMapper(ABC):
             QiskitNatureError: If number length of pauli table does not match the number
                 of operator modes, or if the operator has unexpected label content
         """
-        nmodes = len(pauli_table)
-        if nmodes != second_q_op.register_length:
-            raise QiskitNatureError(
-                f"Pauli table len {nmodes} does not match"
-                f"operator register length {second_q_op.register_length}"
-            )
-
-        # 0. Some utilities
-
-        self._cache_pauli_table(pauli_table)
+        (
+            times_creation_op,
+            times_annihilation_op,
+            times_occupation_number_op,
+            times_emptiness_number_op,
+        ) = cls.sparse_pauli_operators(nmodes)
 
         # make sure ret_op_list is not empty by including a zero op
         ret_op_list = [SparsePauliOp("I" * nmodes, coeffs=[0])]
@@ -145,20 +160,20 @@ class QubitMapper(ABC):
         )
         for label, coeff in label_coeff_list:
 
-            # 1. Initialize an operator list with the identity scaled by the `self.coeff`
+            # 1. Initialize an operator list with the identity scaled by the `coeff`
             ret_op = SparsePauliOp("I" * nmodes, coeffs=[coeff])
 
             # Go through the label and replace the fermion operators by their qubit-equivalent, then
             # save the respective Pauli string in the pauli_str list.
             for position, char in enumerate(label):
                 if char == "+":
-                    ret_op = ret_op.compose(self.times_creation_op[position], front=True)
+                    ret_op = ret_op.compose(times_creation_op[position], front=True)
                 elif char == "-":
-                    ret_op = ret_op.compose(self.times_annihilation_op[position], front=True)
+                    ret_op = ret_op.compose(times_annihilation_op[position], front=True)
                 elif char == "N":
-                    ret_op = ret_op.compose(self.times_occupation_number_op[position], front=True)
+                    ret_op = ret_op.compose(times_occupation_number_op[position], front=True)
                 elif char == "E":
-                    ret_op = ret_op.compose(self.times_emptiness_number_op[position], front=True)
+                    ret_op = ret_op.compose(times_emptiness_number_op[position], front=True)
                 elif char == "I":
                     continue
 
