@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" Test Driver FCIDump """
+""" Test FCIDump """
 
 import unittest
 from abc import ABC, abstractmethod
@@ -131,7 +131,7 @@ class BaseTestFCIDump(ABC):
 
 
 class TestFCIDumpH2(QiskitNatureTestCase, BaseTestFCIDump):
-    """RHF FCIDump Driver tests."""
+    """RHF H2 FCIDump tests."""
 
     def setUp(self):
         super().setUp()
