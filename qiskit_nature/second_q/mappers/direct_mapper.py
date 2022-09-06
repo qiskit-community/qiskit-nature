@@ -12,6 +12,10 @@
 
 """The Direct Mapper."""
 
+from __future__ import annotations
+
+from functools import lru_cache
+
 import numpy as np
 
 from qiskit.opflow import PauliSumOp
@@ -19,7 +23,6 @@ from qiskit.quantum_info.operators import Pauli
 
 from qiskit_nature.second_q.operators import VibrationalOp
 from .vibrational_mapper import VibrationalMapper
-from .qubit_mapper import QubitMapper
 
 
 class DirectMapper(VibrationalMapper):  # pylint: disable=missing-class-docstring
@@ -31,11 +34,11 @@ class DirectMapper(VibrationalMapper):  # pylint: disable=missing-class-docstrin
         """
         super().__init__(allows_two_qubit_reduction=False)
 
-    def map(self, second_q_op: VibrationalOp) -> PauliSumOp:
-
-        nmodes = sum(second_q_op.num_modals)
-
+    @classmethod
+    @lru_cache(maxsize=32)
+    def pauli_table(cls, nmodes: int) -> list[tuple[Pauli, Pauli]]:
         pauli_table = []
+
         for i in range(nmodes):
             a_z = np.asarray([0] * i + [0] + [0] * (nmodes - i - 1), dtype=bool)
             a_x = np.asarray([0] * i + [1] + [0] * (nmodes - i - 1), dtype=bool)
@@ -43,4 +46,7 @@ class DirectMapper(VibrationalMapper):  # pylint: disable=missing-class-docstrin
             b_x = np.asarray([0] * i + [1] + [0] * (nmodes - i - 1), dtype=bool)
             pauli_table.append((Pauli((a_z, a_x)), Pauli((b_z, b_x))))
 
-        return QubitMapper.mode_based_mapping(second_q_op, pauli_table)
+        return pauli_table
+
+    def map(self, second_q_op: VibrationalOp) -> PauliSumOp:
+        return DirectMapper.mode_based_mapping(second_q_op, sum(second_q_op.num_modals))

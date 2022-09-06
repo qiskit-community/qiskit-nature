@@ -12,8 +12,10 @@
 
 """Qubit Mapper interface."""
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import List, Tuple
+from functools import lru_cache
 
 from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators import Pauli, SparsePauliOp
@@ -58,37 +60,44 @@ class QubitMapper(ABC):
         """
         raise NotImplementedError()
 
-    @staticmethod
-    def mode_based_mapping(
-        second_q_op: SecondQuantizedOp, pauli_table: List[Tuple[Pauli, Pauli]]
-    ) -> PauliSumOp:
-        """Utility method to map a `SecondQuantizedOp` to a `PauliSumOp` using a pauli table.
+    @classmethod
+    @lru_cache(maxsize=32)
+    def pauli_table(cls, nmodes: int) -> list[tuple[Pauli, Pauli]]:
+        """Generates a Pauli-lookup table mapping from modes to pauli pairs.
+
+        The generated table is processed by :meth:`.QubitMapper.sparse_pauli_operators`.
 
         Args:
-            second_q_op: the `SecondQuantizedOp` to be mapped.
-            pauli_table: a table of paulis built according to the modes of the operator
+            nmodes: the number of modes for which to generate the table.
 
         Returns:
-            The `PauliSumOp` corresponding to the problem-Hamiltonian in the qubit space.
-
-        Raises:
-            QiskitNatureError: If number length of pauli table does not match the number
-                of operator modes, or if the operator has unexpected label content
+            A list of tuples in which the first and second Pauli operator the real and imaginary
+            Pauli strings, respectively.
         """
-        nmodes = len(pauli_table)
-        if nmodes != second_q_op.register_length:
-            raise QiskitNatureError(
-                f"Pauli table len {nmodes} does not match"
-                f"operator register length {second_q_op.register_length}"
-            )
 
-        # 0. Some utilities
+    @classmethod
+    @lru_cache(maxsize=32)
+    def sparse_pauli_operators(
+        cls, nmodes: int
+    ) -> tuple[list[SparsePauliOp], list[SparsePauliOp], list[SparsePauliOp], list[SparsePauliOp]]:
+        """Generates the cached :class:`.SparsePauliOp` terms.
 
+        This uses :meth:`.QubitMapper.pauli_table` to construct a list of operators used to
+        translate the second-quantization symbols into qubit operators.
+
+        Args:
+            nmodes: the number of modes for which to generate the operators.
+
+        Returns:
+            Four lists stored in a tuple, consisting of the creation, annihilation, number and
+            emptiness (inverse of number) operators, applied on the individual modes.
+        """
         times_creation_op = []
         times_annihilation_op = []
         times_occupation_number_op = []
         times_emptiness_number_op = []
-        for paulis in pauli_table:
+
+        for paulis in cls.pauli_table(nmodes):
             real_part = SparsePauliOp(paulis[0], coeffs=[0.5])
             imag_part = SparsePauliOp(paulis[1], coeffs=[0.5j])
 
@@ -109,6 +118,35 @@ class QubitMapper(ABC):
             times_emptiness_number_op.append(
                 annihilation_op.compose(creation_op, front=True).simplify()
             )
+        return (
+            times_creation_op,
+            times_annihilation_op,
+            times_occupation_number_op,
+            times_emptiness_number_op,
+        )
+
+    # TODO: remove nmodes argument once having access to SparseLabelOp.register_length
+    @classmethod
+    def mode_based_mapping(cls, second_q_op: SecondQuantizedOp, nmodes: int) -> PauliSumOp:
+        """Utility method to map a `SecondQuantizedOp` to a `PauliSumOp` using a pauli table.
+
+        Args:
+            second_q_op: the `SecondQuantizedOp` to be mapped.
+            nmodes: the number of modes for which to generate the operators.
+
+        Returns:
+            The `PauliSumOp` corresponding to the problem-Hamiltonian in the qubit space.
+
+        Raises:
+            QiskitNatureError: If number length of pauli table does not match the number
+                of operator modes, or if the operator has unexpected label content
+        """
+        (
+            times_creation_op,
+            times_annihilation_op,
+            times_occupation_number_op,
+            times_emptiness_number_op,
+        ) = cls.sparse_pauli_operators(nmodes)
 
         # make sure ret_op_list is not empty by including a zero op
         ret_op_list = [SparsePauliOp("I" * nmodes, coeffs=[0])]
@@ -122,7 +160,7 @@ class QubitMapper(ABC):
         )
         for label, coeff in label_coeff_list:
 
-            # 1. Initialize an operator list with the identity scaled by the `self.coeff`
+            # 1. Initialize an operator list with the identity scaled by the `coeff`
             ret_op = SparsePauliOp("I" * nmodes, coeffs=[coeff])
 
             # Go through the label and replace the fermion operators by their qubit-equivalent, then

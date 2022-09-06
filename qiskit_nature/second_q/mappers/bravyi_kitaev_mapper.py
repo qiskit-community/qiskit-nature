@@ -12,13 +12,17 @@
 
 """The Bravyi-Kitaev Mapper."""
 
+from __future__ import annotations
+
+from functools import lru_cache
+
 import numpy as np
+
 from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators import Pauli
 
 from qiskit_nature.second_q.operators import FermionicOp
 from .fermionic_mapper import FermionicMapper
-from .qubit_mapper import QubitMapper
 
 
 class BravyiKitaevMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
@@ -26,11 +30,9 @@ class BravyiKitaevMapper(FermionicMapper):  # pylint: disable=missing-class-docs
         """The Bravyi-Kitaev fermion-to-qubit mapping."""
         super().__init__(allows_two_qubit_reduction=False)
 
-    def map(self, second_q_op: FermionicOp) -> PauliSumOp:
-
-        # number of modes/sites for the BK transform (= number of fermionic modes)
-        nmodes = second_q_op.register_length
-
+    @classmethod
+    @lru_cache(maxsize=32)
+    def pauli_table(cls, nmodes: int) -> list[tuple[Pauli, Pauli]]:
         def parity_set(j, n):
             """
             Computes the parity set of the j-th orbital in n modes.
@@ -158,4 +160,7 @@ class BravyiKitaevMapper(FermionicMapper):  # pylint: disable=missing-class-docs
             pauli1.phase = 0
             pauli2.phase = 0
 
-        return QubitMapper.mode_based_mapping(second_q_op, pauli_table)
+        return pauli_table
+
+    def map(self, second_q_op: FermionicOp) -> PauliSumOp:
+        return BravyiKitaevMapper.mode_based_mapping(second_q_op, second_q_op.register_length)
