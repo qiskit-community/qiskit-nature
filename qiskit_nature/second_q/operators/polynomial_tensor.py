@@ -27,10 +27,11 @@ from qiskit.quantum_info.operators.mixins import (
 class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
     """Polynomial Tensor class"""
 
-    def __init__(self, data: Mapping[str, np.ndarray | Number]) -> None:
+    def __init__(self, data: Mapping[str, np.ndarray | Number], register_length: int) -> None:
         """
         Args:
-            data: coefficient container; mapping of string-based operator keys to coefficient matrix values.
+            data: coefficient container;
+                  mapping of string-based operator keys to coefficient matrix values.
         Raises:
             ValueError: when length of operator key does not match dimensions of value matrix.
             ValueError: when value matrix does not have consistent dimensions.
@@ -63,14 +64,38 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
             raise ValueError("Dimensions of value matrices in data dictionary are not identical.")
 
         self._data = copy_dict
+        self._register_length = register_length
+
+    @property
+    def register_length(self) -> int:
+        """ Returns register length of the operator key in `Polynomial Tensor` object """
+
+        return self._register_length
 
     def __getitem__(self, __k: str) -> (np.ndarray | Number):
+        """
+        Returns value matrix in the `Polynomial Tensor` object.
+
+        Args:
+            __k: operator key string in the `Polynomial Tensor` object
+        Returns:
+            Value matrix corresponding to the operator key `__k`
+        """
+
         return self._data.__getitem__(__k)
 
     def __len__(self) -> int:
+        """
+        Returns length of `Polynomial Tensor` object
+        """
+
         return self._data.__len__()
 
     def __iter__(self) -> Iterator[str]:
+        """
+        Returns iterator of the `Polynomial Tensor` object
+        """
+
         return self._data.__iter__()
 
     def _multiply(self, other: complex):
@@ -90,7 +115,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
         prod_dict: Dict[str, np.ndarray] = {}
         for key, matrix in self._data.items():
             prod_dict[key] = np.multiply(matrix, other)
-        return PolynomialTensor(prod_dict)
+        return PolynomialTensor(prod_dict, self._register_length)
 
     def _add(self, other: PolynomialTensor, qargs=None):
         """Addition of PolynomialTensors
@@ -121,8 +146,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
                     )
             else:
                 sum_dict[other_key] = other_value
-
-        return PolynomialTensor(sum_dict)
+        return PolynomialTensor(sum_dict, self._register_length)
 
     def __eq__(self, other):
         """Check equality of PolynomialTensors
@@ -154,7 +178,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
         for key, value in self._data.items():
             conj_dict[key] = np.conjugate(value)
 
-        return PolynomialTensor(conj_dict)
+        return PolynomialTensor(conj_dict, self._register_length)
 
     def transpose(self) -> PolynomialTensor:
         """Transpose of PolynomialTensor
@@ -167,4 +191,4 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
         for key, value in self._data.items():
             transpose_dict[key] = np.transpose(value)
 
-        return PolynomialTensor(transpose_dict)
+        return PolynomialTensor(transpose_dict, self._register_length)

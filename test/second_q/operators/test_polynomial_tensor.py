@@ -96,17 +96,29 @@ class TestPolynomialTensor(QiskitNatureTestCase):
             ValueError,
             r"Data key .* of length \d does not match data value matrix of dimensions \(\d+, *\)",
         ):
-            _ = PolynomialTensor(self.sample_poly_1)
+            _ = PolynomialTensor(self.sample_poly_1, register_length=4)
 
         with self.assertRaisesRegex(
             ValueError, r"For key (.*): dimensions of value matrix are not identical \(\d+, .*\)"
         ):
-            _ = PolynomialTensor(self.sample_poly_2)
+            _ = PolynomialTensor(self.sample_poly_2, register_length=4)
 
         with self.assertRaisesRegex(
             ValueError, r"Dimensions of value matrices in data dictionary are not identical."
         ):
-            _ = PolynomialTensor(self.sample_poly_3)
+            _ = PolynomialTensor(self.sample_poly_3, register_length=4)
+
+    def test_get_item(self):
+        pass
+
+    def test_len(self):
+        pass
+
+    def test_iter(self):
+        pass
+
+    def test_register_length(self):
+        pass
 
     @idata(np.linspace(0, 3, 5))
     def test_mul(self, other):
@@ -119,41 +131,41 @@ class TestPolynomialTensor(QiskitNatureTestCase):
             "++--": self.build_matrix(4, 4, other),
         }
 
-        result = PolynomialTensor(self.og_poly) * other
-        self.assertEqual(result, PolynomialTensor(expected_prod_poly))
+        result = PolynomialTensor(self.og_poly, 4) * other
+        self.assertEqual(result, PolynomialTensor(expected_prod_poly, 4))
 
         with self.assertRaisesRegex(TypeError, r"other .* must be a number"):
-            _ = PolynomialTensor(self.og_poly) * PolynomialTensor(self.og_poly)
+            _ = PolynomialTensor(self.og_poly, 4) * PolynomialTensor(self.og_poly, 4)
 
     def test_add(self):
         """Test for addition of Polynomial Tensors"""
 
-        result = PolynomialTensor(self.og_poly) + PolynomialTensor(self.og_poly)
-        self.assertEqual(result, PolynomialTensor(self.expected_sum_poly))
+        result = PolynomialTensor(self.og_poly, 4) + PolynomialTensor(self.og_poly, 4)
+        self.assertEqual(result, PolynomialTensor(self.expected_sum_poly, 4))
 
         with self.assertRaisesRegex(
             TypeError, "Incorrect argument type: other should be PolynomialTensor"
         ):
-            _ = PolynomialTensor(self.og_poly) + 5
+            _ = PolynomialTensor(self.og_poly, 4) + 5
 
         with self.assertRaisesRegex(
             ValueError,
             r"For key (.*): corresponding data value of shape \(\d+, *\) "
             r"does not match other value matrix of shape \(\d+, *\)",
         ):
-            _ = PolynomialTensor(self.og_poly) + PolynomialTensor(self.sample_poly_4)
+            _ = PolynomialTensor(self.og_poly, 4) + PolynomialTensor(self.sample_poly_4, 4)
 
     def test_conjugate(self):
         """Test for conjugate of Polynomial Tensor"""
 
-        result = PolynomialTensor(self.og_poly).conjugate()
-        self.assertEqual(result, PolynomialTensor(self.expected_conjugate_poly))
+        result = PolynomialTensor(self.og_poly, 4).conjugate()
+        self.assertEqual(result, PolynomialTensor(self.expected_conjugate_poly, 4))
 
     def test_transpose(self):
         """Test for transpose of Polynomial Tensor"""
 
-        result = PolynomialTensor(self.og_poly).transpose()
-        self.assertEqual(result, PolynomialTensor(self.expected_transpose_poly))
+        result = PolynomialTensor(self.og_poly, 4).transpose()
+        self.assertEqual(result, PolynomialTensor(self.expected_transpose_poly, 4))
 
 
 if __name__ == "__main__":
