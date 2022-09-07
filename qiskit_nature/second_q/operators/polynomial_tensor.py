@@ -68,8 +68,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
 
     @property
     def register_length(self) -> int:
-        """ Returns register length of the operator key in `Polynomial Tensor` object """
-
+        """Returns the register length of the operator stored in this `PolynomialTensor`."""
         return self._register_length
 
     def __getitem__(self, __k: str) -> (np.ndarray | Number):
