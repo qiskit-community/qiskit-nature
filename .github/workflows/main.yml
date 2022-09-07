@@ -245,13 +245,13 @@ jobs:
         with:
           name: ${{ matrix.os }}-${{ matrix.python-version }}
           path: ./ci-artifact-data/*
-      - name: Nature Unit Tests without matplotlib/pyscf/psi4/pyquante2 under Python ${{ matrix.python-version }}
+      - name: Nature Unit Tests without pyscf/psi4/pyquante2 under Python ${{ matrix.python-version }}
         env:
           PYTHONWARNINGS: default
         run: |
           source "$CONDA/etc/profile.d/conda.sh"
           conda activate psi4env
-          pip uninstall -y matplotlib pyscf
+          pip uninstall -y pyscf
           if [[ "${{ matrix.os }}" != "windows-2019" || ("${{ matrix.os }}" == "windows-2019" && "${{ matrix.python-version }}" != "3.10") ]]; then
               echo 'Uninstall psi4'
               conda remove -y --force psi4
