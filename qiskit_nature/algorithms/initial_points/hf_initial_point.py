@@ -147,7 +147,8 @@ class HFInitialPoint(InitialPoint):
         self._compute()
 
     def _compute(self) -> None:
-        self._parameters = np.zeros(len(self._excitation_list))
+        reps = self._ansatz.reps if self._ansatz is not None else 1
+        self._parameters = np.zeros(reps * len(self._excitation_list))
 
     def get_energy(self) -> float:
         """The reference energy.

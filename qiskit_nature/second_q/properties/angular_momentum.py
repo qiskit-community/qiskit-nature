@@ -29,7 +29,7 @@ from .integrals import (
     OneBodyElectronicIntegrals,
     TwoBodyElectronicIntegrals,
 )
-from .electronic_types import ElectronicProperty
+from .property import Property
 
 if TYPE_CHECKING:
     from qiskit_nature.second_q.problems import EigenstateResult
@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 LOGGER = logging.getLogger(__name__)
 
 
-class AngularMomentum(ElectronicProperty):
+class AngularMomentum(Property):
     """The AngularMomentum property."""
 
     ABSOLUTE_TOLERANCE = 1e-05

@@ -1,0 +1,11 @@
+---
+features:
+  - |
+    The performance of the following mappers, when used to map multiple
+    operators of identical size, is significantly improved, by means of caching
+    internal structures used during the mapping procedure:
+
+    - :class:`.JordanWignerMapper`
+    - :class:`.ParityMapper`
+    - :class:`.BravyiKitaevMapper`
+    - :class:`.DirectMapper`

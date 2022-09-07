@@ -18,11 +18,7 @@ import numpy as np
 
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import UCC
-from qiskit_nature.second_q.properties import (
-    ParticleNumber,
-    ElectronicEnergy,
-    GroupedSecondQuantizedProperty,
-)
+from qiskit_nature.second_q.problems import BaseProblem, ElectronicStructureProblem
 from qiskit_nature.second_q.properties.bases import ElectronicBasis
 from qiskit_nature.second_q.properties.integrals import ElectronicIntegrals
 
@@ -82,16 +78,16 @@ class MP2InitialPoint(InitialPoint):
 
     The initial point parameters are computed using the :meth:`compute` method, which requires the
     :attr:`grouped_property` and :attr:`ansatz` to be passed as arguments or the
-    :attr:`grouped_property` and :attr:`excitation_list` attributes to be set already.
+    :attr:`grouped_property` and :attr:`ansatz` attributes to be set already.
 
     The :attr:`grouped_property` is required to contain
     :class:`~qiskit_nature.second_q.properties.particle_number.ParticleNumber` and
-    :class:`~qiskit_nature.second_q.properties.electronic_energy.ElectronicEnergy`. From
+    :class:`~qiskit_nature.second_q.hamiltonians.electronic_energy.ElectronicEnergy`. From
     :class:`~qiskit_nature.second_q.properties.particle_number.ParticleNumber` we obtain the
     ``num_particles`` to infer the number of occupied orbitals.
-    :class:`~qiskit_nature.second_q.properties.electronic_energy.ElectronicEnergy` must contain the
-    two-body, molecular-orbital ``electronic_integrals`` and the ``orbital_energies``. Optionally,
-    the setter will obtain the Hartree-Fock ``reference_energy`` to compute the
+    :class:`~qiskit_nature.second_q.hamiltonians.electronic_energy.ElectronicEnergy` must contain
+    the two-body, molecular-orbital ``electronic_integrals`` and the ``orbital_energies``.
+    Optionally, the setter will obtain the Hartree-Fock ``reference_energy`` to compute the
     :attr:`total_energy`.
 
     Setting the :attr:`grouped_property` will compute the :attr:`t2_amplitudes` and
@@ -99,7 +95,7 @@ class MP2InitialPoint(InitialPoint):
 
     Following computation, one can obtain the initial point array via the :meth:`to_numpy_array`
     method. The initial point parameters that correspond to double excitations in the
-    :attr:`excitation_list` will equal the appropriate T2 amplitude, while those below
+    ``excitation_list`` will equal the appropriate T2 amplitude, while those below
     :attr:`threshold` or that correspond to single, triple, or higher excitations will be zero.
     """
 
@@ -107,7 +103,6 @@ class MP2InitialPoint(InitialPoint):
         super().__init__()
         self.threshold: float = threshold
         self._ansatz: UCC | None = None
-        self._excitation_list: list[tuple[tuple[int, ...], tuple[int, ...]]] | None = None
         self._t2_amplitudes: np.ndarray | None = None
         self._parameters: np.ndarray | None = None
         self._energy_correction: float = 0.0
@@ -117,38 +112,19 @@ class MP2InitialPoint(InitialPoint):
     def ansatz(self) -> UCC:
         """The UCC ansatz.
 
-        This is used to ensure that the :attr:`excitation_list` matches with the UCC ansatz that
-        will be used with the VQE algorithm.
+        The ``excitation_list`` and ``reps`` used by the
+        :class:`~qiskit.circuit.library.ansatzes.ucc.UCC` ansatz is obtained to ensure that the
+        shape of the initial point is appropriate.
         """
         return self._ansatz
 
     @ansatz.setter
     def ansatz(self, ansatz: UCC) -> None:
-
-        # Operators must be built early to compute the excitation list.
-        _ = ansatz.operators
-
         self._invalidate()
-
-        self._excitation_list = ansatz.excitation_list
         self._ansatz = ansatz
 
     @property
-    def excitation_list(self) -> list[tuple[tuple[int, ...], tuple[int, ...]]]:
-        """The list of excitations that the UCC ansatz is using.
-
-        Setting this directly will overwrite any excitation list from the ansatz.
-        """
-        return self._excitation_list
-
-    @excitation_list.setter
-    def excitation_list(self, excitations: list[tuple[tuple[int, ...], tuple[int, ...]]]):
-        self._invalidate()
-
-        self._excitation_list = excitations
-
-    @property
-    def grouped_property(self) -> GroupedSecondQuantizedProperty | None:
+    def grouped_property(self) -> BaseProblem | None:
         """The grouped property.
 
         See
@@ -157,7 +133,7 @@ class MP2InitialPoint(InitialPoint):
 
         Raises:
             QiskitNatureError: If
-                :class:`~qiskit_nature.second_q.properties.electronic_energy.ElectronicEnergy` is
+                :class:`~qiskit_nature.second_q.hamiltonians.electronic_energy.ElectronicEnergy` is
                 missing or the two-body molecular orbitals matrix or the orbital energies are not
                 found.
             QiskitNatureError: If
@@ -169,9 +145,14 @@ class MP2InitialPoint(InitialPoint):
         return self._grouped_property
 
     @grouped_property.setter
-    def grouped_property(self, grouped_property: GroupedSecondQuantizedProperty) -> None:
+    def grouped_property(self, grouped_property: BaseProblem) -> None:
+        if not isinstance(grouped_property, ElectronicStructureProblem):
+            raise QiskitNatureError(
+                "Only an `ElectronicStructureProblem` is compatible with the MP2InitialPoint, not a"
+                f" problem of type, {type(grouped_property)}."
+            )
 
-        electronic_energy: ElectronicEnergy | None = grouped_property.get_property(ElectronicEnergy)
+        electronic_energy = grouped_property.hamiltonian
         if electronic_energy is None:
             raise QiskitNatureError(
                 "The `ElectronicEnergy` cannot be obtained from the `grouped_property`."
@@ -201,7 +182,7 @@ class MP2InitialPoint(InitialPoint):
 
         reference_energy = electronic_energy.reference_energy if not None else 0.0
 
-        particle_number: ParticleNumber | None = grouped_property.get_property(ParticleNumber)
+        particle_number = grouped_property.properties.particle_number
         if particle_number is None:
             raise QiskitNatureError(
                 "The `ParticleNumber` cannot be obtained from the `grouped_property`."
@@ -240,7 +221,7 @@ class MP2InitialPoint(InitialPoint):
         """The total energy including the Hartree-Fock energy.
 
         If the reference energy was not obtained from
-        :class:`~qiskit_nature.second_q.properties.ElectronicEnergy` this will be equal to
+        :class:`~qiskit_nature.second_q.hamiltonians.ElectronicEnergy` this will be equal to
         :attr:`energy_correction`.
         """
         return self._total_energy
@@ -264,28 +245,27 @@ class MP2InitialPoint(InitialPoint):
     def compute(
         self,
         ansatz: UCC | None = None,
-        grouped_property: GroupedSecondQuantizedProperty | None = None,
+        grouped_property: BaseProblem | None = None,
     ) -> None:
         """Compute the initial point parameter for each excitation.
 
         See class documentation for more information.
 
         Args:
-            grouped_property: A grouped second-quantized property. See :attr:`grouped_property`.
-            ansatz: The UCC ansatz. See :attr:`ansatz`.
+            grouped_property: The :attr:`grouped_property`.
+            ansatz: The :attr:`ansatz`.
 
         Raises:
-            QiskitNatureError: If :attr:`_excitation_list` or :attr:`_grouped_property` is not set.
+            QiskitNatureError: If :attr:`ansatz` or :attr:`grouped_property` is not set.
         """
         if ansatz is not None:
             self.ansatz = ansatz
 
-        if self._excitation_list is None:
+        if self._ansatz is None:
             raise QiskitNatureError(
-                "The excitation list has not been set directly or via the ansatz. "
+                "The ansatz property has not been set. "
                 "Not enough information has been provided to compute the initial point. "
                 "Set the ansatz or call compute with it as an argument. "
-                "The ansatz is not required if the excitation list has been set directly."
             )
 
         if grouped_property is not None:
@@ -304,16 +284,18 @@ class MP2InitialPoint(InitialPoint):
         Returns:
             The MP2 T2 amplitudes for each excitation.
         """
+        # Operators must be built to compute the excitation list.
+        _ = self._ansatz.operators
         num_occ = self._t2_amplitudes.shape[0]
-        amplitudes = np.zeros(len(self.excitation_list))
-        for index, excitation in enumerate(self._excitation_list):
+        amplitudes = np.zeros(len(self._ansatz.excitation_list), dtype=float)
+        for index, excitation in enumerate(self._ansatz.excitation_list):
             if len(excitation[0]) == 2:
                 # Get the amplitude of the double excitation.
                 [[i, j], [a, b]] = np.asarray(excitation) % num_occ
                 amplitude = self._t2_amplitudes[i, j, a - num_occ, b - num_occ]
                 amplitudes[index] = amplitude if abs(amplitude) > self._threshold else 0.0
 
-        self._parameters = amplitudes
+        self._parameters = np.tile(amplitudes, self._ansatz.reps)
 
     def to_numpy_array(self) -> np.ndarray:
         """The initial point as a NumPy array."""

@@ -23,7 +23,7 @@ from qiskit_nature.hdf5 import _import_and_build_from_hdf5
 
 from .bases import ElectronicBasis
 from .integrals import ElectronicIntegrals, IntegralProperty, OneBodyElectronicIntegrals
-from .electronic_types import ElectronicProperty
+from .property import Property
 
 if TYPE_CHECKING:
     from qiskit_nature.second_q.problems import EigenstateResult
@@ -132,7 +132,7 @@ class DipoleMoment(IntegralProperty):
         pass
 
 
-class ElectronicDipoleMoment(ElectronicProperty):
+class ElectronicDipoleMoment(Property):
     """The ElectronicDipoleMoment property.
 
     This Property computes **purely** the electronic dipole moment (possibly minus additional shifts

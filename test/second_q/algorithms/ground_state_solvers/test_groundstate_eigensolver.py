@@ -28,17 +28,17 @@ from qiskit.opflow import AerPauliExpectation, PauliExpectation
 from qiskit.test import slow_test
 from qiskit.utils import QuantumInstance, algorithm_globals, optionals
 
+import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.algorithms import (
     GroundStateEigensolver,
     VQEUCCFactory,
     NumPyMinimumEigensolverFactory,
 )
 from qiskit_nature.second_q.circuit.library import HartreeFock, UCC, UCCSD
-from qiskit_nature.second_q.drivers import HDF5Driver
+from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import JordanWignerMapper, ParityMapper
 from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.problems import ElectronicStructureProblem
-from qiskit_nature.second_q.properties import ElectronicEnergy
+from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.properties.bases import ElectronicBasis
 from qiskit_nature.second_q.properties.integrals import (
     OneBodyElectronicIntegrals,
@@ -48,24 +48,24 @@ from qiskit_nature.second_q.transformers import FreezeCoreTransformer
 from qiskit_nature.second_q.algorithms.initial_points import MP2InitialPoint
 
 
+@unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
 class TestGroundStateEigensolver(QiskitNatureTestCase):
     """Test GroundStateEigensolver"""
 
     def setUp(self):
         super().setUp()
-        self.driver = HDF5Driver(
-            self.get_resource_path("test_driver_hdf5.hdf5", "second_q/drivers/hdf5d")
-        )
+        self.driver = PySCFDriver()
         self.seed = 56
         algorithm_globals.random_seed = self.seed
 
         self.reference_energy = -1.1373060356951838
 
         self.qubit_converter = QubitConverter(JordanWignerMapper())
-        self.electronic_structure_problem = ElectronicStructureProblem(self.driver)
+        self.electronic_structure_problem = self.driver.run()
 
         self.num_spin_orbitals = 4
         self.num_particles = (1, 1)
+        self.mp2_initial_point = [0.0, 0.0, -0.07197145]
 
     def test_npme(self):
         """Test NumPyMinimumEigensolver"""
@@ -128,16 +128,14 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         modes = 4
         h_1 = np.eye(modes, dtype=complex)
         h_2 = np.zeros((modes, modes, modes, modes))
-        aux_ops = list(
+        aux_ops = [
             ElectronicEnergy(
                 [
                     OneBodyElectronicIntegrals(ElectronicBasis.MO, (h_1, None)),
                     TwoBodyElectronicIntegrals(ElectronicBasis.MO, (h_2, None, None, None)),
                 ],
-            )
-            .second_q_ops()
-            .values()
-        )
+            ).second_q_op()
+        ]
         aux_ops_copy = copy.deepcopy(aux_ops)
 
         _ = calc.solve(self.electronic_structure_problem)
@@ -450,10 +448,10 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         An issue arose when the FreezeCoreTransformer was combined with the automatic Z2Symmetry
         reduction. This regression test ensures that this behavior remains fixed.
         """
-        driver = HDF5Driver(
-            hdf5_input=self.get_resource_path("LiH_sto3g.hdf5", "second_q/transformers")
+        driver = PySCFDriver(
+            atom="LI 0 0 0; H 0 0 1.6",
         )
-        problem = ElectronicStructureProblem(driver, [FreezeCoreTransformer()])
+        problem = FreezeCoreTransformer().transform(driver.run())
         qubit_converter = QubitConverter(
             ParityMapper(),
             two_qubit_reduction=True,
@@ -501,8 +499,8 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
             ~ Nuclear dipole moment (a.u.): [0.0  0.0  1.38
 
               0:
-              * Electronic dipole moment (a.u.): [0.0  0.0  -1.38
-                - computed part:      [0.0  0.0  -1.38
+              * Electronic dipole moment (a.u.): [0.0  0.0  1.38
+                - computed part:      [0.0  0.0  1.38
               > Dipole moment (a.u.): [0.0  0.0  0.0]  Total: 0.
                              (debye): [0.0  0.0  0.0]  Total: 0.
         """
@@ -537,17 +535,65 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
     def test_vqe_ucc_factory_with_mp2(self):
         """Test when using MP2InitialPoint to generate the initial point."""
 
-        informed_start = MP2InitialPoint()
+        initial_point = MP2InitialPoint()
 
         solver = VQEUCCFactory(
             quantum_instance=QuantumInstance(BasicAer.get_backend("statevector_simulator")),
-            initial_point=informed_start,
+            initial_point=initial_point,
         )
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
 
         np.testing.assert_array_almost_equal(
-            solver.initial_point.to_numpy_array(), [0.0, 0.0, -0.07197145]
+            solver.initial_point.to_numpy_array(), self.mp2_initial_point
+        )
+        self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
+
+    def test_vqe_ucc_factory_with_reps(self):
+        """Test when using the default initial point with repeated evolved operators."""
+        ansatz = UCCSD(
+            qubit_converter=self.qubit_converter,
+            num_particles=self.num_particles,
+            num_spin_orbitals=self.num_spin_orbitals,
+            reps=2,
+        )
+
+        solver = VQEUCCFactory(
+            ansatz=ansatz,
+            quantum_instance=QuantumInstance(BasicAer.get_backend("statevector_simulator")),
+        )
+        calc = GroundStateEigensolver(self.qubit_converter, solver)
+        res = calc.solve(self.electronic_structure_problem)
+
+        np.testing.assert_array_almost_equal(
+            solver.initial_point.to_numpy_array(), np.zeros(6, dtype=float)
+        )
+        self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
+
+    def test_vqe_ucc_factory_with_mp2_with_reps(self):
+        """Test when using MP2InitialPoint to generate the initial point with repeated evolved
+        operators.
+        """
+
+        initial_point = MP2InitialPoint()
+
+        ansatz = UCCSD(
+            qubit_converter=self.qubit_converter,
+            num_particles=self.num_particles,
+            num_spin_orbitals=self.num_spin_orbitals,
+            reps=2,
+        )
+
+        solver = VQEUCCFactory(
+            ansatz=ansatz,
+            quantum_instance=QuantumInstance(BasicAer.get_backend("statevector_simulator")),
+            initial_point=initial_point,
+        )
+        calc = GroundStateEigensolver(self.qubit_converter, solver)
+        res = calc.solve(self.electronic_structure_problem)
+
+        np.testing.assert_array_almost_equal(
+            solver.initial_point.to_numpy_array(), np.tile(self.mp2_initial_point, 2)
         )
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 

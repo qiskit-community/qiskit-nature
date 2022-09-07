@@ -17,31 +17,27 @@ from typing import cast
 
 import numpy as np
 
-from qiskit_nature.second_q.drivers import Molecule
-from qiskit_nature.second_q.properties import (
-    ParticleNumber,
-    ElectronicEnergy,
-    ElectronicDipoleMoment,
-    ElectronicStructureDriverResult,
-)
-from qiskit_nature.second_q.properties.bases import (
-    ElectronicBasis,
-    ElectronicBasisTransform,
-)
+from qiskit_nature.units import DistanceUnit
+from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
+from qiskit_nature.second_q.problems import ElectronicStructureProblem
+from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
+from qiskit_nature.second_q.properties.bases import ElectronicBasis
 
 
 class TestDriver(ABC):
     """Common driver tests. For H2 @ 0.735, sto3g"""
 
-    MOLECULE = Molecule(
-        geometry=[("H", [0.0, 0.0, 0.0]), ("H", [0.0, 0.0, 0.735])],
+    MOLECULE = MoleculeInfo(
+        symbols=["H", "H"],
+        coords=[(0.0, 0.0, 0.0), (0.0, 0.0, 0.735)],
         multiplicity=1,
         charge=0,
+        units=DistanceUnit.ANGSTROM,
     )
 
     def __init__(self):
         self.log = None
-        self.driver_result: ElectronicStructureDriverResult = None
+        self.driver_result: ElectronicStructureProblem = None
 
     @abstractmethod
     def subTest(self, msg, **kwargs):
@@ -66,9 +62,7 @@ class TestDriver(ABC):
 
     def test_driver_result_electronic_energy(self):
         """Test the ElectronicEnergy property."""
-        electronic_energy = cast(
-            ElectronicEnergy, self.driver_result.get_property(ElectronicEnergy)
-        )
+        electronic_energy = cast(ElectronicEnergy, self.driver_result.hamiltonian)
 
         with self.subTest("reference energy"):
             self.log.debug("HF energy: %s", electronic_energy.reference_energy)
@@ -79,12 +73,6 @@ class TestDriver(ABC):
                 "Nuclear repulsion energy: %s", electronic_energy.nuclear_repulsion_energy
             )
             self.assertAlmostEqual(electronic_energy.nuclear_repulsion_energy, 0.72, places=2)
-
-        with self.subTest("orbital energies"):
-            self.log.debug("orbital energies %s", electronic_energy.orbital_energies)
-            np.testing.assert_array_almost_equal(
-                electronic_energy.orbital_energies, [-0.5806, 0.6763], decimal=4
-            )
 
         with self.subTest("1-body integrals"):
             mo_onee_ints = electronic_energy.get_electronic_integral(ElectronicBasis.MO, 1)
@@ -111,7 +99,7 @@ class TestDriver(ABC):
 
     def test_driver_result_particle_number(self):
         """Test the ParticleNumber property."""
-        particle_number = cast(ParticleNumber, self.driver_result.get_property(ParticleNumber))
+        particle_number = self.driver_result.properties.particle_number
 
         with self.subTest("orbital number"):
             self.log.debug("Number of orbitals is %s", particle_number.num_spin_orbitals)
@@ -138,25 +126,23 @@ class TestDriver(ABC):
             self.assertEqual(molecule.multiplicity, 1)
 
         with self.subTest("atom number"):
-            self.log.debug("num atoms %s", len(molecule.geometry))
-            self.assertEqual(len(molecule.geometry), 2)
+            self.log.debug("num atoms %s", len(molecule.symbols))
+            self.assertEqual(len(molecule.symbols), 2)
 
         with self.subTest("atoms"):
-            self.log.debug("atom symbol %s", molecule.atoms)
-            self.assertSequenceEqual(molecule.atoms, ["H", "H"])
+            self.log.debug("atom symbol %s", molecule.symbols)
+            self.assertSequenceEqual(molecule.symbols, ["H", "H"])
 
         with self.subTest("coordinates"):
-            coords = [coord for _, coord in molecule.geometry]
+            coords = np.asarray(molecule.coords)
             self.log.debug("atom xyz %s", coords)
             np.testing.assert_array_almost_equal(
-                coords, [[0.0, 0.0, 0.0], [0.0, 0.0, 0.735]], decimal=4
+                coords, [[0.0, 0.0, 0.0], [0.0, 0.0, 1.3889]], decimal=4
             )
 
     def test_driver_result_basis_transform(self):
         """Test the ElectronicBasisTransform object."""
-        basis_transform = cast(
-            ElectronicBasisTransform, self.driver_result.get_property(ElectronicBasisTransform)
-        )
+        basis_transform = self.driver_result.basis_transform
 
         self.log.debug("MO coeffs xyz %s", basis_transform.coeff_alpha)
         self.assertEqual(basis_transform.coeff_alpha.shape, (2, 2))
@@ -168,12 +154,10 @@ class TestDriver(ABC):
 
     def test_driver_result_electronic_dipole(self):
         """Test the ElectronicDipoleMoment property."""
-        dipole = self.driver_result.get_property(ElectronicDipoleMoment)
+        dipole = self.driver_result.properties.electronic_dipole_moment
 
         self.log.debug("has dipole integrals %s", dipole is not None)
         if dipole is not None:
-            dipole = cast(ElectronicDipoleMoment, dipole)
-
             with self.subTest("x axis"):
                 mo_x_dip_ints = dipole._dipole_axes["DipoleMomentX"].get_electronic_integral(
                     ElectronicBasis.MO, 1

@@ -16,12 +16,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from abc import ABC
+from abc import ABC, abstractmethod
 import logging
 import sys
 
 import h5py
 
+from qiskit_nature.second_q.operators import SecondQuantizedOp
 
 if sys.version_info >= (3, 8):
     # pylint: disable=no-name-in-module
@@ -89,6 +90,14 @@ class Property(ABC):
         group.attrs["__class__"] = self.__class__.__name__
         group.attrs["__module__"] = self.__class__.__module__
         group.attrs["__version__"] = self.VERSION
+
+    @abstractmethod
+    def second_q_ops(self) -> dict[str, SecondQuantizedOp]:
+        """Returns the second quantized operators associated with this Property.
+
+        Returns:
+            A `dict` of `SecondQuantizedOp` objects.
+        """
 
 
 @runtime_checkable

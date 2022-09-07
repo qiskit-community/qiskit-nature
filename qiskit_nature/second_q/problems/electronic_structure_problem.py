@@ -22,17 +22,16 @@ import numpy as np
 from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
 from qiskit.opflow.primitive_ops import Z2Symmetries
 
-from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.circuit.library.initial_states.hartree_fock import (
     hartree_fock_bitstring_mapped,
 )
-from qiskit_nature.second_q.drivers import ElectronicStructureDriver
-from qiskit_nature.second_q.operators import SecondQuantizedOp
+from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
 from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.properties import ParticleNumber
-from qiskit_nature.second_q.transformers.base_transformer import BaseTransformer
+from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
+from qiskit_nature.second_q.properties.bases import ElectronicBasisTransform
 
 from .electronic_structure_result import ElectronicStructureResult
+from .electronic_properties_container import ElectronicPropertiesContainer
 from .eigenstate_result import EigenstateResult
 
 from .base_problem import BaseProblem
@@ -77,54 +76,41 @@ class ElectronicStructureProblem(BaseProblem):
 
     """
 
-    def __init__(
-        self,
-        driver: ElectronicStructureDriver,
-        transformers: Optional[List[BaseTransformer]] = None,
-    ):
+    def __init__(self, hamiltonian: ElectronicEnergy) -> None:
         """
-
         Args:
-            driver: A fermionic driver encoding the molecule information.
-            transformers: A list of transformations to be applied to the driver result.
+            hamiltonian: the Hamiltonian of this problem.
+
+        Raises:
+            TypeError: if the provided ``hamiltonian`` is not of type :class:`.ElectronicEnergy`.
         """
-        super().__init__(driver, transformers, "ElectronicEnergy")
+        super().__init__(hamiltonian)
+        self.properties: ElectronicPropertiesContainer = ElectronicPropertiesContainer()
+        self.molecule: MoleculeInfo = None
+        self.basis_transform: ElectronicBasisTransform = None
+        # TODO: further refactoring:
+        # - remove basis_transform
+        # - store basis on Problem instead of in nested hamiltonian/properties
+        # - store data on Problem instead of in nested hamiltonian/properties
+        #   - orbital energies
+        #   - orbital occupations
+        #   - reference energy
+        #   - number of particles
+        #   - system size (number of orbitals)
+        #   - overlap matrix (for future extension to generalized eigenvalue problem)
+
+    @property
+    def hamiltonian(self) -> ElectronicEnergy:
+        return cast(ElectronicEnergy, self._hamiltonian)
 
     @property
     def num_particles(self) -> Tuple[int, int]:
-        if self._grouped_property_transformed is None:
-            raise QiskitNatureError(
-                "`num_particles` is only available _after_ `second_q_ops()` has been called! "
-                "Note, that if you run this manually, the method will run again during solving."
-            )
-        return self._grouped_property_transformed.get_property("ParticleNumber").num_particles
+        return self.properties.particle_number.num_particles
 
     @property
     def num_spin_orbitals(self) -> int:
         """Returns the number of spin orbitals."""
-        if self._grouped_property_transformed is None:
-            raise QiskitNatureError(
-                "`num_spin_orbitals` is only available _after_ `second_q_ops()` has been called! "
-                "Note, that if you run this manually, the method will run again during solving."
-            )
-        return self._grouped_property_transformed.get_property("ParticleNumber").num_spin_orbitals
-
-    def second_q_ops(self) -> tuple[SecondQuantizedOp, dict[str, SecondQuantizedOp]]:
-        """Returns the second quantized operators associated with this Property.
-
-        Returns:
-            A tuple, with the first object being the main operator and the second being a dictionary
-            of auxiliary operators.
-        """
-        driver_result = self.driver.run()
-
-        self._grouped_property = driver_result
-        self._grouped_property_transformed = self._transform(self._grouped_property)
-
-        second_quantized_ops = self._grouped_property_transformed.second_q_ops()
-        main_op = second_quantized_ops.pop(self._main_property_name)
-
-        return main_op, second_quantized_ops
+        return self.properties.particle_number.num_spin_orbitals
 
     def interpret(
         self,
@@ -138,24 +124,13 @@ class ElectronicStructureProblem(BaseProblem):
         Returns:
             An electronic structure result.
         """
-        eigenstate_result = None
-        if isinstance(raw_result, EigenstateResult):
-            eigenstate_result = raw_result
-        elif isinstance(raw_result, EigensolverResult):
-            eigenstate_result = EigenstateResult()
-            eigenstate_result.raw_result = raw_result
-            eigenstate_result.eigenenergies = raw_result.eigenvalues
-            eigenstate_result.eigenstates = raw_result.eigenstates
-            eigenstate_result.aux_operator_eigenvalues = raw_result.aux_operator_eigenvalues
-        elif isinstance(raw_result, MinimumEigensolverResult):
-            eigenstate_result = EigenstateResult()
-            eigenstate_result.raw_result = raw_result
-            eigenstate_result.eigenenergies = np.asarray([raw_result.eigenvalue])
-            eigenstate_result.eigenstates = [raw_result.eigenstate]
-            eigenstate_result.aux_operator_eigenvalues = [raw_result.aux_operator_eigenvalues]
+        eigenstate_result = super().interpret(raw_result)
         result = ElectronicStructureResult()
         result.combine(eigenstate_result)
-        self._grouped_property_transformed.interpret(result)
+        self.hamiltonian.interpret(result)
+        for prop in self.properties:
+            if hasattr(prop, "interpret"):
+                prop.interpret(result)  # type: ignore[attr-defined]
         result.computed_energies = np.asarray([e.real for e in eigenstate_result.eigenenergies])
         return result
 
@@ -174,9 +149,7 @@ class ElectronicStructureProblem(BaseProblem):
         def filter_criterion(self, eigenstate, eigenvalue, aux_values):
             num_particles_aux = aux_values["ParticleNumber"][0]
             total_angular_momentum_aux = aux_values["AngularMomentum"][0]
-            particle_number = cast(
-                ParticleNumber, self.grouped_property_transformed.get_property(ParticleNumber)
-            )
+            particle_number = self.properties.particle_number
             return np.isclose(
                 particle_number.num_alpha + particle_number.num_beta,
                 num_particles_aux,
