@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -277,7 +277,7 @@ class TestSparseLabelOp(QiskitNatureTestCase):
             "+_0 -_1": 0.0,
             "+_0 -_3": 1.0,
         }
-        test_op = DummySparseLabelOp(data, 2)
+        test_op = DummySparseLabelOp(data, 2, copy=True)
         data["+_0 -_1"] = 0.2
         self.assertEqual(test_op._data["+_0 -_1"], 0.0)
 

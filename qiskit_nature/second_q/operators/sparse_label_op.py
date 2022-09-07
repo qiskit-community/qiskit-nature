@@ -33,9 +33,9 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC, Mapping):
             register_length: the length of the operators register. This coincides with the maximum
                 index on which an operation may be performed by this operator.
             copy: when set to False the `data` will not be copied and the dictionary will be
-                stored by reference rather than by value (which is the default). Note, that this
-                might requires you to not change the contents of the dictionary after constructing
-                the operator. Use with care!
+                stored by reference rather than by value (which is the default; `copy=True`). Note,
+                that this requires you to not change the contents of the dictionary after
+                constructing the operator. Use with care!
         """
         self._data: Mapping[str, complex] = {}
         if copy:
@@ -56,7 +56,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC, Mapping):
             other: the second ``SparseLabelOp`` to add to the first.
 
         Returns:
-            the new summed ``SparseLabelOp``.
+            The new summed ``SparseLabelOp``.
 
         Raises:
             ValueError: when ``qargs`` argument is not ``None``
@@ -81,7 +81,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC, Mapping):
             other: the number to multiply the ``SparseLabelOp`` values by.
 
         Returns:
-            the newly multiplied ``SparseLabelOp``.
+            The newly multiplied ``SparseLabelOp``.
 
         Raises:
             TypeError: if ``other`` is not compatible type (int, float or complex)
@@ -98,7 +98,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC, Mapping):
         """Returns the conjugate of the ``SparseLabelOp``.
 
         Returns:
-            the complex conjugate of the starting ``SparseLabelOp``.
+            The complex conjugate of the starting ``SparseLabelOp``.
         """
         new_data = {key: np.conjugate(val) for key, val in self._data.items()}
 
@@ -109,7 +109,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC, Mapping):
         """Returns the transpose of the ``SparseLabelOp``.
 
         Returns:
-            the transpose of the starting ``SparseLabelOp``.
+            The transpose of the starting ``SparseLabelOp``.
         """
 
     def equiv(self, other: SparseLabelOp) -> bool:
@@ -149,13 +149,13 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC, Mapping):
         return self.register_length == other._register_length and self._data == other._data
 
     def __getitem__(self, __k: str) -> complex:
-        """Return a specified ``SparseLabelOp`` item"""
+        """Get the requested element of the ``SparseLabelOp``."""
         return self._data.__getitem__(__k)
 
     def __len__(self) -> int:
-        """Return length of ``SparseLabelOp``"""
+        """Returns the length of the ``SparseLabelOp``."""
         return self._data.__len__()
 
     def __iter__(self) -> Iterator[str]:
-        """Iterate through ``SparseLabelOp`` items"""
+        """An iterator over the keys of the ``SparseLabelOp``."""
         return self._data.__iter__()
