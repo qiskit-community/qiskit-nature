@@ -126,7 +126,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC, Mapping):
         """
         if not isinstance(other, SparseLabelOp):
             return False
-        if self.register_length != other._register_length:
+        if self.register_length != other.register_length:
             return False
         if self._data.keys() != other._data.keys():
             return False
@@ -146,7 +146,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC, Mapping):
         """
         if not isinstance(other, SparseLabelOp):
             return False
-        return self.register_length == other._register_length and self._data == other._data
+        return self.register_length == other.register_length and self._data == other._data
 
     def __getitem__(self, __k: str) -> complex:
         """Get the requested element of the ``SparseLabelOp``."""
