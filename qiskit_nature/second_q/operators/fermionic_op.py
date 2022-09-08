@@ -14,49 +14,16 @@
 
 from __future__ import annotations
 
-import re
 from collections import defaultdict
-from collections.abc import Iterable, Iterator
-from itertools import product
-from typing import Optional, Union, cast
+from collections.abc import MutableMapping
 
 import numpy as np
 from scipy.sparse import csc_matrix
 
-from .second_quantized_op import SecondQuantizedOp
-
-_ZERO_LABELS = {
-    ("+", "+"),
-    ("+", "N"),
-    ("-", "-"),
-    ("-", "E"),
-    ("N", "E"),
-    ("E", "+"),
-    ("N", "-"),
-    ("E", "N"),
-}
-_MAPPING = {
-    ("I", "I"): "I",
-    ("I", "+"): "+",
-    ("I", "-"): "-",
-    ("I", "N"): "N",
-    ("I", "E"): "E",
-    ("+", "I"): "+",
-    ("+", "-"): "N",
-    ("+", "E"): "+",
-    ("-", "I"): "-",
-    ("-", "+"): "E",
-    ("-", "N"): "-",
-    ("N", "I"): "N",
-    ("N", "+"): "+",
-    ("N", "N"): "N",
-    ("E", "I"): "E",
-    ("E", "-"): "-",
-    ("E", "E"): "E",
-}
+from .sparse_label_op import SparseLabelOp
 
 
-class FermionicOp(SecondQuantizedOp):
+class FermionicOp(SparseLabelOp):
     r"""
     N-mode Fermionic operator.
 
@@ -216,271 +183,36 @@ class FermionicOp(SecondQuantizedOp):
     index of the factor in the term.
     """
 
-    _truncate = 200
-
-    def __init__(
-        self,
-        data: Union[
-            str,
-            tuple[str, complex],
-            list[tuple[str, complex]],
-            list[tuple[str, float]],
-            list[tuple[list[tuple[str, int]], complex]],
-            list[tuple[tuple[tuple[str, int], ...], complex]],
-        ],
-        register_length: Optional[int] = None,
-        display_format: str = "sparse",
-    ):
-        """
-        Args:
-            data: Input data for FermionicOp. The allowed data is label str,
-                  tuple (label, coeff), or list [(label, coeff)].
-            register_length: positive integer that represents the length of registers.
-            display_format: If sparse, the label is represented sparsely during output.
-                            if dense, the label is represented densely during output. (default: sparse)
-
-        Raises:
-            ValueError: given data is invalid value.
-            TypeError: given data has invalid type.
-        """
-        self.display_format = display_format
-
-        self._data: list[tuple[tuple[tuple[str, int], ...], complex]]
-
-        if not isinstance(data, str) and not data:
-            # empty list or tuple means zero operator
-            self._data = [((), 0j)]
-        elif (
-            isinstance(data, list)
-            and isinstance(data[0], tuple)
-            and isinstance(data[0][0], tuple)
-            and not isinstance(data[0][0], str)
-        ):
-            data = cast("list[tuple[tuple[tuple[str, int], ...], complex]]", data)
-            self._data = data
-        elif (
-            isinstance(data, list)
-            and isinstance(data[0], tuple)
-            and isinstance(data[0][0], Iterable)
-            and not isinstance(data[0][0], str)
-        ):
-            self._data = [
-                (tuple(cast("Iterable[tuple[str, int]]", term)), coeff) for term, coeff in data
-            ]
-        else:
-            if not isinstance(data, (tuple, list, str)):
-                raise TypeError(f"Type of data must be str, tuple, or list, not {type(data)}.")
-
-            if isinstance(data, str):
-                data = [(data, complex(1))]
-
-            elif isinstance(data, tuple):
-                if not isinstance(data[0], str) or not isinstance(data[1], (int, float, complex)):
-                    raise TypeError(
-                        f"Data tuple must be (str, number), not ({type(data[0])}, {type(data[1])})."
-                    )
-                data = [(data[0], complex(data[1]))]
-
-            else:
-                if (
-                    not isinstance(data[0][0], list)
-                    and not isinstance(data[0][0], str)
-                    or not isinstance(data[0][1], (int, float, complex))
-                ):
-                    raise TypeError(
-                        "Data list must be [(str, number)] or [([(int, int)], number)]."
-                    )
-
-            data = cast("list[tuple[str, complex]]", data)
-            # dense label
-            if all("_" not in label for label, _ in data):
-                self._data = [
-                    (
-                        tuple(self._substituted_label([(c, int(i)) for i, c in enumerate(label)])),
-                        complex(coeff),
-                    )
-                    for label, coeff in data
-                ]
-                # sparse label
-                if register_length is None:
-                    register_length = max(len(label) for label, _ in data)
-            else:
-                self._data = [
-                    (
-                        tuple(self._substituted_label([(c[0], int(c[2:])) for c in label.split()])),
-                        complex(coeff),
-                    )
-                    for label, coeff in data
-                ]
-
-        if register_length is None:
-            self._register_length = (
-                max(max((index for _, index in l), default=0) for l, _ in self._data) + 1
-            )
-        else:
-            self._register_length = register_length
-
-    def _substituted_label(self, label) -> Iterator[tuple[str, int]]:
-        for c, index in label:
-            if c == "+":
-                yield "+", index
-            elif c == "-":
-                yield "-", index
-            elif c == "N":
-                yield "+", index
-                yield "-", index
-            elif c == "E":
-                yield "-", index
-                yield "+", index
-            elif c == "I":
-                continue
-            else:
-                raise ValueError(f"Invalid label {c}_{index} is given.")
-
     def __repr__(self) -> str:
-        data = self.to_list()
-        if len(self) == 1:
-            if data[0][1] == 1:
-                data_str = f"'{data[0][0]}'"
-            data_str = f"'{data[0]}'"
-        data_str = f"{data}"
+        data_str = f"{dict(self.items())}"
 
-        if FermionicOp._truncate and len(data_str) > FermionicOp._truncate:
-            data_str = data_str[0 : FermionicOp._truncate - 5] + "..." + data_str[-2:]
-        return (
-            "FermionicOp("
-            f"{data_str}, "
-            f"register_length={self.register_length}, "
-            f"display_format='{self.display_format}'"
-            ")"
-        )
-
-    def terms(self) -> Iterator[tuple[tuple[tuple[str, int], ...], complex]]:
-        """Iterate through operator terms."""
-        return iter(self._data)
-
-    @classmethod
-    def set_truncation(cls, val: int) -> None:
-        """Set the max number of characters to display before truncation.
-        Args:
-            val: the number of characters.
-
-        .. note::
-            Truncation will be disabled if the truncation value is set to 0.
-        """
-        cls._truncate = int(val)
+        return "FermionicOp(" f"{data_str}, " f"register_length={self.register_length}, " ")"
 
     def __str__(self) -> str:
-        """Sets the representation of `self` in the console."""
-
-        if len(self) == 1:
-            label, coeff = self.to_list()[0]
-            if label:
-                return f"{coeff} * ({label})"
-            else:
-                return f"{coeff}"
         pre = (
             "Fermionic Operator\n"
             f"register length={self.register_length}, number terms={len(self)}\n"
         )
         ret = "  " + "\n+ ".join(
-            [f"{coeff} * ( {label} )" if label else f"{coeff}" for label, coeff in self.to_list()]
+            [f"{coeff} * ( {label} )" if label else f"{coeff}" for label, coeff in self.items()]
         )
-        if FermionicOp._truncate and len(ret) > FermionicOp._truncate:
-            ret = ret[0 : FermionicOp._truncate - 4] + " ..."
         return pre + ret
 
-    def __len__(self):
-        return len(self._data)
-
-    @property
-    def register_length(self) -> int:
-        """Gets the register length."""
-        return self._register_length
-
-    def mul(self, other: complex) -> FermionicOp:
-        if not isinstance(other, (int, float, complex)):
-            raise TypeError(
-                f"Unsupported operand type(s) for *: 'FermionicOp' and '{type(other).__name__}'"
-            )
-        return FermionicOp(
-            [(label, coeff * other) for label, coeff in self._data],
-            register_length=self.register_length,
-            display_format=self.display_format,
-        )
-
-    def compose(self, other: FermionicOp) -> FermionicOp:
+    def compose(self, other: FermionicOp, qargs=None, front: bool = False) -> FermionicOp:
         if not isinstance(other, FermionicOp):
             raise TypeError(
                 f"Unsupported operand type(s) for *: 'FermionicOp' and '{type(other).__name__}'"
             )
 
-        new_data = list(
-            filter(
-                lambda x: x[1] != 0,
-                (
-                    (label1 + label2, cf1 * cf2)
-                    for label2, cf2 in other._data
-                    for label1, cf1 in self._data
-                ),
-            )
-        )
+        new_data = {
+            f"{label1 if front else label2} {label2 if front else label1}".strip(): cf1 * cf2
+            for label2, cf2 in other.items()
+            for label1, cf1 in self.items()
+        }
         register_length = max(self.register_length, other.register_length)
-        display_format = (
-            "sparse"
-            if self.display_format == "sparse" or other.display_format == "sparse"
-            else "dense"
-        )
-        if not new_data:
-            return FermionicOp(("", 0), register_length, display_format)
-        return FermionicOp(new_data, register_length, display_format)
+        return FermionicOp(new_data, register_length, copy=False)
 
-    def add(self, other: FermionicOp) -> FermionicOp:
-        if not isinstance(other, FermionicOp):
-            raise TypeError(
-                f"Unsupported operand type(s) for +: 'FermionicOp' and '{type(other).__name__}'"
-            )
-
-        return FermionicOp(
-            self._data + other._data,
-            max(self.register_length, other.register_length),
-            self.display_format or other.display_format,
-        )
-
-    # pylint: disable=arguments-differ
-    def to_list(
-        self,
-        display_format: Optional[str] = None,
-    ) -> list[tuple[str, complex]]:
-        """Returns the operators internal contents in list-format.
-
-        Args:
-            display_format: when specified this will overwrite ``self.display_format``. Can
-                be either 'dense' or 'sparse'. See the class documentation for more details.
-
-        Returns:
-            A list of tuples consisting of the dense label and corresponding coefficient.
-
-        Raises:
-            ValueError: if the given format is invalid.
-        """
-        if display_format is not None:
-            display_format = display_format.lower()
-            if display_format not in {"sparse", "dense"}:
-                raise ValueError(
-                    f"Invalid `display_format` {display_format} is given."
-                    "`display_format` must be 'dense' or 'sparse'."
-                )
-        else:
-            display_format = self.display_format
-        if display_format == "sparse":
-            return [
-                (" ".join(f"{char}_{index}" for char, index in label_list), coeff)
-                for label_list, coeff in self._data
-            ]
-        return self._to_dense_label_data()
-
-    def to_matrix(self, sparse: Optional[bool] = True) -> Union[csc_matrix, np.ndarray]:
+    def to_matrix(self, sparse: bool | None = True) -> csc_matrix | np.ndarray:
         """Convert to a matrix representation over the full fermionic Fock space in occupation number
         basis. The basis states are ordered in increasing bitstring order as 0000, 0001, ..., 1111.
 
@@ -501,7 +233,7 @@ class FermionicOp(SecondQuantizedOp):
         for col_idx in range(dimension):
             initial_occupations = [occ == "1" for occ in f"{col_idx:0{self.register_length}b}"]
             # loop over the terms in the operator data
-            for opstring, prefactor in self.simplify()._data:
+            for opstring, prefactor in self.simplify().items():
                 # check if op string is the identity
                 if not opstring:
                     csc_data.append(prefactor)
@@ -512,10 +244,12 @@ class FermionicOp(SecondQuantizedOp):
                     sign = 1
                     mapped_to_zero = False
 
+                    terms = [tuple(lbl.split("_")) for lbl in opstring.split(" ")]
                     # apply terms sequentially to the current basis state
-                    for char, index in reversed(opstring):
+                    for char, index in reversed(terms):
+                        index = int(index)
                         occ = occupations[index]
-                        if (char[0] == "+") == occ:
+                        if (char == "+") == occ:
                             # Applying the creation operator on an occupied state maps to zero. So
                             # does applying the annihilation operator on an unoccupied state.
                             mapped_to_zero = True
@@ -541,71 +275,15 @@ class FermionicOp(SecondQuantizedOp):
         else:
             return sparse_mat.toarray()
 
-    def adjoint(self) -> FermionicOp:
-        return FermionicOp(
-            [
-                (
-                    tuple(("+" if c == "-" else "-", i) for c, i in reversed(label)),
-                    coeff.conjugate(),
-                )
-                for label, coeff in self._data
-            ],
-            register_length=self.register_length,
-            display_format=self.display_format,
-        )
+    def transpose(self) -> FermionicOp:
+        data = {}
 
-    def simplify(self, atol: Optional[float] = None) -> FermionicOp:
-        if atol is None:
-            atol = self.atol
+        trans = "".maketrans("+-", "-+")
 
-        data = defaultdict(complex)  # type: dict[str, complex]
-        for label, coeff in self._to_dense_label_data():
-            data[label] += coeff
-        terms = [
-            (label, coeff) for label, coeff in data.items() if not np.isclose(coeff, 0.0, atol=atol)
-        ]
-        return FermionicOp(terms, display_format=self.display_format)
+        for label, coeff in self.items():
+            data[" ".join(lbl.translate(trans) for lbl in reversed(label.split(" ")))] = coeff
 
-    @property
-    def display_format(self):
-        """Return the display format"""
-        return self._display_format
-
-    @display_format.setter
-    def display_format(self, display_format: str):
-        """Set the display format of labels.
-
-        Args:
-            display_format: display format for labels. "sparse" or "dense" is available.
-
-        Raises:
-            ValueError: invalid mode is given
-        """
-        display_format = display_format.lower()
-        if display_format not in {"sparse", "dense"}:
-            raise ValueError(
-                f"Invalid `display_format` {display_format} is given."
-                "`display_format` must be 'dense' or 'sparse'."
-            )
-        self._display_format = display_format
-
-    def _to_dense_label_data(self) -> list[tuple[str, complex]]:
-        dense_label_data = []
-        for label, coeff in self._data:
-            label_list = ["I"] * self.register_length
-            for char, index in label:
-                if (label_list[index], char) in _ZERO_LABELS:
-                    break
-                label_list[index] = _MAPPING[(label_list[index], char)]
-                if index != self.register_length and char in {"+", "-"}:
-                    exchange_label = label_list[index + 1 :]
-                    num_exchange = exchange_label.count("+") + exchange_label.count("-")
-                    coeff *= -1 if num_exchange % 2 else 1
-            else:
-                dense_label_data.append(("".join(label_list), coeff))
-        if not dense_label_data:
-            return [("I" * self.register_length, 0j)]
-        return dense_label_data
+        return FermionicOp(data, register_length=self.register_length, copy=False)
 
     def normal_ordered(self) -> FermionicOp:
         """Convert to the equivalent operator with normal order.
@@ -625,63 +303,196 @@ class FermionicOp(SecondQuantizedOp):
         Returns:
             The normal ordered operator.
         """
-        temp_display_label = self.display_format
-        self.display_format = "dense"
-        ret = 0
+        ordered_op = FermionicOp.zero(self.register_length)
 
-        for label, coeff in self.to_list():
-            splits = label.split("E")
+        for label, coeff in self.items():
+            ordered_op += self._normal_ordered(label, coeff)
 
-            for inter_ops in product("IN", repeat=len(splits) - 1):
-                label = splits[0]
-                label += "".join(link + next_base for link, next_base in zip(inter_ops, splits[1:]))
+        return ordered_op
 
-                pluses = [it.start() for it in re.finditer(r"\+|N", label)]
-                minuses = [it.start() for it in re.finditer(r"-|N", label)]
+    def _normal_ordered(self, label, coeff):
+        if not label:
+            return FermionicOp({"": coeff}, self.register_length)
 
-                count = sum(1 for plus in pluses for minus in minuses if plus > minus)
-                sign_swap = (-1) ** count
-                sign_n = (-1) ** inter_ops.count("N")
-                new_coeff = coeff * sign_n * sign_swap
+        ordered_op = FermionicOp.zero(self.register_length)
 
-                ret += new_coeff * FermionicOp(
-                    " ".join([f"+_{i}" for i in pluses] + [f"-_{i}" for i in minuses]),
-                    self.register_length,
-                    "sparse",
-                )
+        # 1. split label into list of pairs of the form ("char", index)
+        terms = [tuple(lbl.split("_")) for lbl in label.split(" ")]
 
-        self.display_format = temp_display_label
+        # 2. perform insertion sorting
+        for i in range(1, len(terms)):
+            for j in range(i, 0, -1):
+                right = terms[j]
+                left = terms[j - 1]
 
-        if isinstance(ret, FermionicOp):
-            return ret.simplify()
-        return FermionicOp(("", 0), self.register_length, "sparse")
+                if right[0] == "+" and left[0] == "-":
+                    # swap terms where an annihilation operator is left of a creation operator
+                    terms[j - 1] = right
+                    terms[j] = left
+                    coeff *= -1.0
 
-    @classmethod
-    def zero(cls, register_length: int) -> FermionicOp:
-        """Constructs a zero-operator.
+                    if right[1] == left[1]:
+                        # if their indices are identical, we incur an additional term because of:
+                        # a_i a_i^\dagger = 1 - a_i^\dagger a_i
+                        new_label = " ".join(
+                            f"{term[0]}_{term[1]}" for term in terms[: (j - 1)] + terms[(j + 1) :]
+                        )
+                        # we can do so by recursion on this method
+                        ordered_op += self._normal_ordered(new_label, -1.0 * coeff)
+
+                elif right[0] == left[0]:
+                    # when we have identical neighboring operators, differentiate two cases:
+
+                    # on identical index, this is an invalid Fermionic operation which evaluates to
+                    # zero: e.g. +_0 +_0 = 0
+                    if right[1] == left[1]:
+                        # thus, we bail on this recursion call
+                        return ordered_op
+
+                    # otherwise, if the left index is higher than the right one, swap the terms
+                    elif left[1] > right[1]:
+                        terms[j - 1] = right
+                        terms[j] = left
+                        coeff *= -1.0
+
+        new_label = " ".join(f"{term[0]}_{term[1]}" for term in terms)
+        ordered_op += FermionicOp({new_label: coeff}, self.register_length, copy=False)
+        return ordered_op
+
+    def is_hermitian(self, *, atol: float | None = None) -> bool:
+        """Checks whether the operator is hermitian.
 
         Args:
-            register_length: the length of the operator.
+            atol: Absolute numerical tolerance. The default behavior is to use ``self.atol``.
 
         Returns:
-            The zero-operator of the given length.
+            True if the operator is hermitian up to numerical tolerance, False otherwise.
         """
-        return FermionicOp(("", 0.0), register_length=register_length, display_format="sparse")
-
-    @classmethod
-    def one(cls, register_length: int) -> FermionicOp:
-        """Constructs a unity-operator.
-
-        Args:
-            register_length: the length of the operator.
-
-        Returns:
-            The unity-operator of the given length.
-        """
-        return FermionicOp(("", 1.0), register_length=register_length, display_format="sparse")
-
-    def is_hermitian(self, atol: Optional[float] = None) -> bool:
-        if atol is None:
-            atol = self.atol
+        atol = self.atol if atol is None else atol
         diff = (self - self.adjoint()).normal_ordered().simplify(atol=atol)
-        return all(np.isclose(coeff, 0.0, atol=atol) for _, coeff in diff.to_list())
+        return all(np.isclose(coeff, 0.0, atol=atol) for coeff in diff.values())
+
+    class _BitsContainer(MutableMapping):
+        def __init__(self):
+            self.data = {}
+
+        def _get_plus(self, index):
+            return self._get_bit(index, 3)
+
+        def _get_minus(self, index):
+            return self._get_bit(index, 2)
+
+        def _set_plus_or_minus(self, index, plus_or_minus, value):
+            if value:
+                # plus is stored at index 0, but plus_or_minus is True if it is Plus
+                self._set_bit(index, 3 - int(not plus_or_minus))
+            else:
+                self._clear_bit(index, 3 - int(not plus_or_minus))
+
+        def _get_order(self, index):
+            return self._get_bit(index, 1)
+
+        def _get_last(self, index):
+            return self._get_bit(index, 0)
+
+        def _set_last(self, index, value):
+            if value:
+                self._set_bit(index, 0)
+            else:
+                self._clear_bit(index, 0)
+
+        def _get_bit(self, index, offset):
+            return (self.data[index] >> offset) & 1
+
+        def _set_bit(self, index, offset):
+            self.data[index] = self.data[index] | (1 << offset)
+
+        def _clear_bit(self, index, offset):
+            self.data[index] = self.data[index] & ~(1 << offset)
+
+        def __getitem__(self, __k):
+            return self.data.__getitem__(__k)
+
+        def __setitem__(self, __k, __v):
+            return self.data.__setitem__(__k, __v)
+
+        def __delitem__(self, __v):
+            return self.data.__delitem__(__v)
+
+        def __iter__(self):
+            return self.data.__iter__()
+
+        def __len__(self):
+            return self.data.__len__()
+
+    def simplify(self, *, atol: float | None = None) -> FermionicOp:
+        """Simplify the operator.
+
+        Merges terms with same labels and eliminates terms with coefficients close to 0.
+        Returns a new operator (the original operator is not modified).
+
+        Args:
+            atol: Absolute numerical tolerance. The default behavior is to use ``self.atol``.
+
+        Returns:
+            The simplified operator.
+        """
+        atol = self.atol if atol is None else atol
+
+        data = defaultdict(complex)  # type: dict[str, complex]
+        # TODO: use parallel_map to make this more efficient (?)
+        for label, coeff in self.items():
+            label, coeff = self._simplify_sparse(label, coeff)
+            data[label] += coeff
+        terms = {
+            label: coeff for label, coeff in data.items() if not np.isclose(coeff, 0.0, atol=atol)
+        }
+        return FermionicOp(terms, self.register_length, copy=False)
+
+    def _simplify_sparse(self, label: str, coeff: complex) -> tuple[str, complex]:
+        bits = FermionicOp._BitsContainer()
+
+        for lbl in label.split():
+            char, index = lbl.split("_")
+            idx = int(index)
+            char_b = char == "+"
+
+            if idx not in bits:
+                bits[idx] = int(f"{char_b:b}{not char_b:b}{char_b:b}{char_b:b}", base=2)
+                # we store all relevant information for each register index in 4 bits:
+                #   1. True if a `+` has been applied on this index
+                #   2. True if a `-` has been applied on this index
+                #   3. True if a `+` was applied first, False if a `-` was applied first
+                #   4. True if the last added operation on this index was `+`, False if `-`
+
+            elif bits._get_last(idx) == char_b:
+                # we bail, if we apply the same operator as the last one
+                return "", 0
+
+            elif bits._get_plus(idx) and bits._get_minus(idx):
+                # if both, `+` and `-`, have already been applied, we cancel the opposite to the
+                # current one (i.e. `+` will cancel `-` and vice versa)
+                bits._set_plus_or_minus(idx, not char_b, False)
+                # we also update the last bit to the current char
+                bits._set_last(idx, char_b)
+
+            else:
+                # else, we simply set the bit of the currently applied char
+                bits._set_plus_or_minus(idx, char_b, True)
+                # we also update the last bit to the current char
+                bits._set_last(idx, char_b)
+
+            if idx != self.register_length:
+                num_exchange = 0
+                for i in range(idx + 1, self.register_length):
+                    if i in bits:
+                        num_exchange += (bits._get_plus(i) + bits._get_minus(i)) % 2
+                coeff *= -1 if num_exchange % 2 else 1
+
+        new_label = []
+        for idx in sorted(bits):
+            plus = f"+_{idx}" if bits._get_plus(idx) else None
+            minus = f"-_{idx}" if bits._get_minus(idx) else None
+            new_label.extend([plus, minus] if bits._get_order(idx) else [minus, plus])
+
+        return " ".join(lbl for lbl in new_label if lbl is not None), coeff

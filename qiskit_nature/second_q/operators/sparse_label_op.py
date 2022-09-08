@@ -20,10 +20,15 @@ from numbers import Number
 import cmath
 import numpy as np
 
-from qiskit.quantum_info.operators.mixins import LinearMixin, AdjointMixin, TolerancesMixin
+from qiskit.quantum_info.operators.mixins import (
+    AdjointMixin,
+    GroupMixin,
+    LinearMixin,
+    TolerancesMixin,
+)
 
 
-class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC, Mapping):
+class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC, Mapping):
     """The Sparse Label Operator base class."""
 
     def __init__(self, data: Mapping[str, complex], register_length: int, *, copy: bool = True):
@@ -49,6 +54,34 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC, Mapping):
         """Returns the register length"""
         return self._register_length
 
+    @classmethod
+    def zero(cls, register_length: int) -> SparseLabelOp:
+        """Constructs a zero-operator.
+
+        Args:
+            register_length: the length of the operator.
+
+        Returns:
+            The zero-operator of the given length.
+        """
+        return cls({}, register_length=register_length, copy=False)
+
+    @classmethod
+    def one(cls, register_length: int) -> SparseLabelOp:
+        """Constructs a unity-operator.
+
+        Args:
+            register_length: the length of the operator.
+
+        Returns:
+            The unity-operator of the given length.
+        """
+        return cls({"": 1.0}, register_length=register_length, copy=False)
+
+    # workaround until https://github.com/Qiskit/qiskit-terra/pull/8722 is merged
+    def __radd__(self, other):
+        return self.__add__(other)
+
     def _add(self, other: SparseLabelOp, qargs=None) -> SparseLabelOp:
         """Return Operator addition of self and other.
 
@@ -61,6 +94,10 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC, Mapping):
         Raises:
             ValueError: when ``qargs`` argument is not ``None``
         """
+        # workaround until https://github.com/Qiskit/qiskit-terra/pull/8722 is merged
+        if other == 0:
+            return self
+
         if not isinstance(other, SparseLabelOp):
             raise ValueError(
                 f"Unsupported operand type(s) for +: 'SparseLabelOp' and '{type(other).__name__}'"
@@ -112,7 +149,21 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC, Mapping):
             The transpose of the starting ``SparseLabelOp``.
         """
 
-    def equiv(self, other: SparseLabelOp) -> bool:
+    @abstractmethod
+    def compose(self, other: SparseLabelOp, qargs=None, front: bool = False) -> SparseLabelOp:
+        """TODO."""
+
+    def tensor(self, other: SparseLabelOp) -> SparseLabelOp:
+        """TODO."""
+        return self
+
+    def expand(self, other: SparseLabelOp) -> SparseLabelOp:
+        """TODO."""
+        return self
+
+    def equiv(
+        self, other: SparseLabelOp, *, atol: float | None = None, rtol: float | None = None
+    ) -> bool:
         """Check equivalence of two ``SparseLabelOp`` instances up to an accepted tolerance.
 
         The absolute and relative tolerances can be changed via the `atol` and `rtol` attributes,
@@ -120,6 +171,8 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC, Mapping):
 
         Args:
             other: the second ``SparseLabelOp`` to compare with this instance.
+            atol: Absolute numerical tolerance. The default behavior is to use ``self.atol``.
+            rtol: Relative numerical tolerance. The default behavior is to use ``self.rtol``.
 
         Returns:
             True if operators are equivalent, False if not.
@@ -130,9 +183,13 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC, Mapping):
             return False
         if self._data.keys() != other._data.keys():
             return False
+
+        atol = self.atol if atol is None else atol
+        rtol = self.rtol if rtol is None else rtol
         for key, value in self._data.items():
-            if not cmath.isclose(value, other._data[key], rel_tol=self.rtol, abs_tol=self.atol):
+            if not cmath.isclose(value, other._data[key], rel_tol=rtol, abs_tol=atol):
                 return False
+
         return True
 
     def __eq__(self, other: object) -> bool:
@@ -159,3 +216,39 @@ class SparseLabelOp(LinearMixin, AdjointMixin, TolerancesMixin, ABC, Mapping):
     def __iter__(self) -> Iterator[str]:
         """An iterator over the keys of the ``SparseLabelOp``."""
         return self._data.__iter__()
+
+    def __pow__(self, power):
+        if power == 0:
+            return self.__class__.one(self.register_length)
+
+        return super().__pow__(power)
+
+    def induced_norm(self, order: int = 1) -> float:
+        r"""Returns the p-norm induced by the operator coefficients.
+
+        If the operator is represented as a sum of terms
+
+        .. math::
+            \sum_i w_i H_i
+
+        then the induced :math:`p`-norm is
+
+        .. math::
+            \left(\sum_i |w_i|^p \right)^{1/p}
+
+        This is the standard :math:`p`-norm of the operator coefficients
+        considered as a vector (see `https://en.wikipedia.org/wiki/Norm_(mathematics)#p-norm`_).
+        Note that this method does not normal-order or simplify the operator
+        before computing the norm; performing either of those operations
+        can affect the result.
+
+        Args:
+            order: Order :math:`p` of the norm. The default value is 1.
+
+        Returns:
+            The induced norm.
+
+        .. _https://en.wikipedia.org/wiki/Norm_(mathematics)#p-norm:
+            https://en.wikipedia.org/wiki/Norm_(mathematics)#p-norm
+        """
+        return sum(abs(coeff) ** order for coeff in self.values()) ** (1 / order)
