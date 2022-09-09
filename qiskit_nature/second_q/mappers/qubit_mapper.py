@@ -203,4 +203,4 @@ class QubitMapper(ABC):
                         )
                 ret_op_list.append(ret_op)
 
-        return PauliSumOp(SparsePauliOp.sum(ret_op_list).simplify())
+        return PauliSumOp(SparsePauliOp.sum(ret_op_list).simplify().chop())

@@ -19,8 +19,7 @@ from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.opflow import PauliSumOp
 from qiskit.utils.validation import validate_min
 
-from qiskit_nature.second_q.mappers import (BravyiKitaevSuperFastMapper,
-                                            QubitConverter)
+from qiskit_nature.second_q.mappers import BravyiKitaevSuperFastMapper, QubitConverter
 from qiskit_nature.second_q.operators import FermionicOp
 
 

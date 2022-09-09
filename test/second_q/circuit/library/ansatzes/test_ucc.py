@@ -14,6 +14,8 @@
 
 from test import QiskitNatureTestCase
 
+import unittest
+
 from ddt import data, ddt, unpack
 
 from qiskit import transpile
@@ -30,7 +32,7 @@ def assert_ucc_like_ansatz(test_case, ansatz, num_spin_orbitals, expected_ops):
 
     test_case.assertEqual(len(excitation_ops), len(expected_ops))
     for op, exp in zip(excitation_ops, expected_ops):
-        test_case.assertListEqual(op.to_list(), exp.to_list())
+        test_case.assertEqual(op, exp)
 
     ansatz._build()
     test_case.assertEqual(ansatz.num_qubits, num_spin_orbitals)
@@ -50,14 +52,38 @@ class TestUCC(QiskitNatureTestCase):
             8,
             (2, 2),
             [
-                FermionicOp([("++--+I-I", 1j), ("--++-I+I", 1j)], display_format="dense"),
-                FermionicOp([("++--+II-", 1j), ("--++-II+", 1j)], display_format="dense"),
-                FermionicOp([("++--I+-I", 1j), ("--++I-+I", 1j)], display_format="dense"),
-                FermionicOp([("++--I+I-", 1j), ("--++I-I+", 1j)], display_format="dense"),
-                FermionicOp([("+I-I++--", 1j), ("-I+I--++", 1j)], display_format="dense"),
-                FermionicOp([("+II-++--", 1j), ("-II+--++", 1j)], display_format="dense"),
-                FermionicOp([("I+-I++--", 1j), ("I-+I--++", 1j)], display_format="dense"),
-                FermionicOp([("I+I-++--", 1j), ("I-I+--++", 1j)], display_format="dense"),
+                FermionicOp(
+                    {"+_0 +_1 +_4 -_2 -_3 -_6": 1j, "+_6 +_3 +_2 -_4 -_1 -_0": -1j},
+                    register_length=8,
+                ),
+                FermionicOp(
+                    {"+_0 +_1 +_4 -_2 -_3 -_7": 1j, "+_7 +_3 +_2 -_4 -_1 -_0": -1j},
+                    register_length=8,
+                ),
+                FermionicOp(
+                    {"+_0 +_1 +_5 -_2 -_3 -_6": 1j, "+_6 +_3 +_2 -_5 -_1 -_0": -1j},
+                    register_length=8,
+                ),
+                FermionicOp(
+                    {"+_0 +_1 +_5 -_2 -_3 -_7": 1j, "+_7 +_3 +_2 -_5 -_1 -_0": -1j},
+                    register_length=8,
+                ),
+                FermionicOp(
+                    {"+_0 +_4 +_5 -_2 -_6 -_7": 1j, "+_7 +_6 +_2 -_5 -_4 -_0": -1j},
+                    register_length=8,
+                ),
+                FermionicOp(
+                    {"+_0 +_4 +_5 -_3 -_6 -_7": 1j, "+_7 +_6 +_3 -_5 -_4 -_0": -1j},
+                    register_length=8,
+                ),
+                FermionicOp(
+                    {"+_1 +_4 +_5 -_2 -_6 -_7": 1j, "+_7 +_6 +_2 -_5 -_4 -_1": -1j},
+                    register_length=8,
+                ),
+                FermionicOp(
+                    {"+_1 +_4 +_5 -_3 -_6 -_7": 1j, "+_7 +_6 +_3 -_5 -_4 -_1": -1j},
+                    register_length=8,
+                ),
             ],
         ),
         (
@@ -65,16 +91,30 @@ class TestUCC(QiskitNatureTestCase):
             8,
             (2, 1),
             [
-                FermionicOp([("++--+-II", 1j), ("--++-+II", 1j)], display_format="dense"),
-                FermionicOp([("++--+I-I", 1j), ("--++-I+I", 1j)], display_format="dense"),
-                FermionicOp([("++--+II-", 1j), ("--++-II+", 1j)], display_format="dense"),
+                FermionicOp(
+                    {"+_0 +_1 +_4 -_2 -_3 -_5": 1j, "+_5 +_3 +_2 -_4 -_1 -_0": -1j},
+                    register_length=8,
+                ),
+                FermionicOp(
+                    {"+_0 +_1 +_4 -_2 -_3 -_6": 1j, "+_6 +_3 +_2 -_4 -_1 -_0": -1j},
+                    register_length=8,
+                ),
+                FermionicOp(
+                    {"+_0 +_1 +_4 -_2 -_3 -_7": 1j, "+_7 +_3 +_2 -_4 -_1 -_0": -1j},
+                    register_length=8,
+                ),
             ],
         ),
         (
             "q",
             8,
             (2, 2),
-            [FermionicOp([("++--++--", 1j), ("--++--++", -1j)], display_format="dense")],
+            [
+                FermionicOp(
+                    {"+_0 +_1 +_4 +_5 -_2 -_3 -_6 -_7": 1j, "+_7 +_6 +_3 +_2 -_5 -_4 -_1 -_0": -1j},
+                    register_length=8,
+                )
+            ],
         ),
         # TODO: add more edge cases?
     )
@@ -235,3 +275,7 @@ class TestUCC(QiskitNatureTestCase):
             ucc.qubit_converter.force_match(ucc.num_particles)
             self.assertIsNotNone(ucc.operators)
             self.assertEqual(ucc.num_qubits, 4)
+
+
+if __name__ == "__main__":
+    unittest.main()

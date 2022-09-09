@@ -104,9 +104,7 @@ class TestFermiHubbardModel(QiskitNatureTestCase):
             ]
             target_graph.add_edges_from(target_weight)
             self.assertTrue(
-                is_isomorphic(
-                    fhm.lattice.graph, target_graph, edge_matcher=lambda x, y: x == y
-                )
+                is_isomorphic(fhm.lattice.graph, target_graph, edge_matcher=lambda x, y: x == y)
             )
         with self.subTest("Check the hopping matrix."):
             hopping_matrix = fhm.hopping_matrix()

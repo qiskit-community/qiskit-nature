@@ -15,6 +15,8 @@
 from test import QiskitNatureTestCase
 from test.second_q.circuit.library.ansatzes.test_ucc import assert_ucc_like_ansatz
 
+import unittest
+
 from ddt import ddt, data, unpack
 
 from qiskit_nature import QiskitNatureError
@@ -30,15 +32,19 @@ class TestPUCC(QiskitNatureTestCase):
 
     @unpack
     @data(
-        (4, (1, 1), [FermionicOp([("+-+-", 1j), ("-+-+", -1j)], display_format="dense")]),
+        (
+            4,
+            (1, 1),
+            [FermionicOp({"+_0 +_2 -_1 -_3": 1j, "+_3 +_1 -_2 -_0": -1j}, register_length=4)],
+        ),
         (
             8,
             (2, 2),
             [
-                FermionicOp([("+I-I+I-I", 1j), ("-I+I-I+I", -1j)], display_format="dense"),
-                FermionicOp([("+II-+II-", 1j), ("-II+-II+", -1j)], display_format="dense"),
-                FermionicOp([("I+-II+-I", 1j), ("I-+II-+I", -1j)], display_format="dense"),
-                FermionicOp([("I+I-I+I-", 1j), ("I-I+I-I+", -1j)], display_format="dense"),
+                FermionicOp({"+_0 +_4 -_2 -_6": 1j, "+_6 +_2 -_4 -_0": -1j}, register_length=8),
+                FermionicOp({"+_0 +_4 -_3 -_7": 1j, "+_7 +_3 -_4 -_0": -1j}, register_length=8),
+                FermionicOp({"+_1 +_5 -_2 -_6": 1j, "+_6 +_2 -_5 -_1": -1j}, register_length=8),
+                FermionicOp({"+_1 +_5 -_3 -_7": 1j, "+_7 +_3 -_5 -_1": -1j}, register_length=8),
             ],
         ),
     )
@@ -61,9 +67,9 @@ class TestPUCC(QiskitNatureTestCase):
             (1, 1),
             (True, True),
             [
-                FermionicOp([("+-II", 1j), ("-+II", 1j)], display_format="dense"),
-                FermionicOp([("II+-", 1j), ("II-+", 1j)], display_format="dense"),
-                FermionicOp([("+-+-", 1j), ("-+-+", -1j)], display_format="dense"),
+                FermionicOp({"+_0 -_1": 1j, "+_1 -_0": -1j}, register_length=4),
+                FermionicOp({"+_2 -_3": 1j, "+_3 -_2": -1j}, register_length=4),
+                FermionicOp({"+_0 +_2 -_1 -_3": 1j, "+_3 +_1 -_2 -_0": -1j}, register_length=4),
             ],
         ),
         (
@@ -71,8 +77,8 @@ class TestPUCC(QiskitNatureTestCase):
             (1, 1),
             (True, False),
             [
-                FermionicOp([("+-II", 1j), ("-+II", 1j)], display_format="dense"),
-                FermionicOp([("+-+-", 1j), ("-+-+", -1j)], display_format="dense"),
+                FermionicOp({"+_0 -_1": 1j, "+_1 -_0": -1j}, register_length=4),
+                FermionicOp({"+_0 +_2 -_1 -_3": 1j, "+_3 +_1 -_2 -_0": -1j}, register_length=4),
             ],
         ),
         (
@@ -80,8 +86,8 @@ class TestPUCC(QiskitNatureTestCase):
             (1, 1),
             (False, True),
             [
-                FermionicOp([("II+-", 1j), ("II-+", 1j)], display_format="dense"),
-                FermionicOp([("+-+-", 1j), ("-+-+", -1j)], display_format="dense"),
+                FermionicOp({"+_2 -_3": 1j, "+_3 -_2": -1j}, register_length=4),
+                FermionicOp({"+_0 +_2 -_1 -_3": 1j, "+_3 +_1 -_2 -_0": -1j}, register_length=4),
             ],
         ),
     )
@@ -111,18 +117,18 @@ class TestPUCC(QiskitNatureTestCase):
             6,
             (1, 1),
             [
-                FermionicOp([("+-I+-I", 1j), ("-+I-+I", -1j)], display_format="dense"),
-                FermionicOp([("+I-+I-", 1j), ("-I+-I+", -1j)], display_format="dense"),
-                FermionicOp([("I+-I+-", 1j), ("I-+I-+", -1j)], display_format="dense"),
+                FermionicOp({"+_0 +_3 -_1 -_4": 1j, "+_4 +_1 -_3 -_0": -1j}, register_length=6),
+                FermionicOp({"+_0 +_3 -_2 -_5": 1j, "+_5 +_2 -_3 -_0": -1j}, register_length=6),
+                FermionicOp({"+_1 +_4 -_2 -_5": 1j, "+_5 +_2 -_4 -_1": -1j}, register_length=6),
             ],
         ),
         (
             6,
             (2, 2),
             [
-                FermionicOp([("+-I+-I", 1j), ("-+I-+I", -1j)], display_format="dense"),
-                FermionicOp([("+I-+I-", 1j), ("-I+-I+", -1j)], display_format="dense"),
-                FermionicOp([("I+-I+-", 1j), ("I-+I-+", -1j)], display_format="dense"),
+                FermionicOp({"+_0 +_3 -_1 -_4": 1j, "+_4 +_1 -_3 -_0": -1j}, register_length=6),
+                FermionicOp({"+_0 +_3 -_2 -_5": 1j, "+_5 +_2 -_3 -_0": -1j}, register_length=6),
+                FermionicOp({"+_1 +_4 -_2 -_5": 1j, "+_5 +_2 -_4 -_1": -1j}, register_length=6),
             ],
         ),
     )
@@ -138,3 +144,7 @@ class TestPUCC(QiskitNatureTestCase):
         )
 
         assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)
+
+
+if __name__ == "__main__":
+    unittest.main()
