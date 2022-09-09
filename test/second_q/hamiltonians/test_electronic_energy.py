@@ -46,14 +46,14 @@ class TestElectronicEnergy(PropertyTest):
         """Test second_q_op."""
         op = self.prop.second_q_op()
         with open(
-            self.get_resource_path("electronic_energy_op.json", "second_q/properties/resources"),
+            self.get_resource_path("electronic_energy_op.json", "second_q/hamiltonians/resources"),
             "r",
             encoding="utf8",
         ) as file:
             expected = json.load(file)
-        for op, expected_op in zip(op.to_list(), expected):
-            self.assertEqual(op[0], expected_op[0])
-            self.assertTrue(np.isclose(op[1], expected_op[1]))
+        for (key1, val1), (key2, val2) in zip(sorted(op.items()), sorted(expected.items())):
+            self.assertEqual(key1, key2)
+            self.assertTrue(np.isclose(np.abs(val1), np.abs(val2)))
 
     def test_integral_operator(self):
         """Test integral_operator."""

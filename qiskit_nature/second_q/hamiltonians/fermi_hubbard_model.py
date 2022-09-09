@@ -45,8 +45,8 @@ class FermiHubbardModel(LatticeModel):
         Returns:
             FermionicOp: The Hamiltonian of the Fermi-Hubbard model.
         """
-        kinetic_ham = []
-        interaction_ham = []
+        kinetic_ham = {}
+        interaction_ham = {}
         weighted_edge_list = self._lattice.weighted_edge_list
         register_length = 2 * self._lattice.num_nodes
         # kinetic terms
@@ -54,7 +54,7 @@ class FermiHubbardModel(LatticeModel):
             for node_a, node_b, weight in weighted_edge_list:
                 if node_a == node_b:
                     index = 2 * node_a + spin
-                    kinetic_ham.append((f"N_{index}", weight))
+                    kinetic_ham[f"+_{index} -_{index}"] = weight
 
                 else:
                     if node_a < node_b:
@@ -65,16 +65,18 @@ class FermiHubbardModel(LatticeModel):
                         index_left = 2 * node_b + spin
                         index_right = 2 * node_a + spin
                         hopping_parameter = np.conjugate(weight)
-                    kinetic_ham.append((f"+_{index_left} -_{index_right}", hopping_parameter))
-                    kinetic_ham.append(
-                        (f"-_{index_left} +_{index_right}", -np.conjugate(hopping_parameter))
+                    kinetic_ham[f"+_{index_left} -_{index_right}"] = hopping_parameter
+                    kinetic_ham[f"-_{index_left} +_{index_right}"] = -np.conjugate(
+                        hopping_parameter
                     )
         # on-site interaction terms
         for node in self._lattice.node_indexes:
             index_up = 2 * node
             index_down = 2 * node + 1
-            interaction_ham.append((f"N_{index_up} N_{index_down}", self._onsite_interaction))
+            interaction_ham[
+                f"+_{index_up} -_{index_up} +_{index_down} -_{index_down}"
+            ] = self._onsite_interaction
 
-        ham = kinetic_ham + interaction_ham
+        ham = {**kinetic_ham, **interaction_ham}
 
-        return FermionicOp(ham, register_length=register_length)
+        return FermionicOp(ham, register_length=register_length, copy=False)
