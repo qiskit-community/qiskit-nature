@@ -21,7 +21,7 @@ from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators import Pauli, SparsePauliOp
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_q.operators import FermionicOp, SecondQuantizedOp
+from qiskit_nature.second_q.operators import SecondQuantizedOp, SparseLabelOp
 
 
 class QubitMapper(ABC):
@@ -127,7 +127,9 @@ class QubitMapper(ABC):
 
     # TODO: remove nmodes argument once having access to SparseLabelOp.register_length
     @classmethod
-    def mode_based_mapping(cls, second_q_op: SecondQuantizedOp, nmodes: int) -> PauliSumOp:
+    def mode_based_mapping(
+        cls, second_q_op: SparseLabelOp | SecondQuantizedOp, nmodes: int
+    ) -> PauliSumOp:
         """Utility method to map a `SecondQuantizedOp` to a `PauliSumOp` using a pauli table.
 
         Args:
@@ -151,37 +153,54 @@ class QubitMapper(ABC):
         # make sure ret_op_list is not empty by including a zero op
         ret_op_list = [SparsePauliOp("I" * nmodes, coeffs=[0])]
 
-        # TODO to_list() is not an attribute of SecondQuantizedOp. Change the former to have this or
-        #   change the signature above to take FermionicOp?
-        label_coeff_list = (
-            second_q_op.to_list(display_format="dense")
-            if isinstance(second_q_op, FermionicOp)
-            else second_q_op.to_list()
-        )
-        for label, coeff in label_coeff_list:
+        if isinstance(second_q_op, SecondQuantizedOp):
+            label_coeff_list = second_q_op.to_list()
+            for label, coeff in label_coeff_list:
+                # 1. Initialize an operator list with the identity scaled by the `coeff`
+                ret_op = SparsePauliOp("I" * nmodes, coeffs=[coeff])
 
-            # 1. Initialize an operator list with the identity scaled by the `coeff`
-            ret_op = SparsePauliOp("I" * nmodes, coeffs=[coeff])
+                # Go through the label and replace the fermion operators by their qubit-equivalent, then
+                # save the respective Pauli string in the pauli_str list.
+                for position, char in enumerate(label):
+                    if char == "+":
+                        ret_op = ret_op.compose(times_creation_op[position], front=True)
+                    elif char == "-":
+                        ret_op = ret_op.compose(times_annihilation_op[position], front=True)
+                    elif char == "N":
+                        ret_op = ret_op.compose(times_occupation_number_op[position], front=True)
+                    elif char == "E":
+                        ret_op = ret_op.compose(times_emptiness_number_op[position], front=True)
+                    elif char == "I":
+                        continue
 
-            # Go through the label and replace the fermion operators by their qubit-equivalent, then
-            # save the respective Pauli string in the pauli_str list.
-            for position, char in enumerate(label):
-                if char == "+":
-                    ret_op = ret_op.compose(times_creation_op[position], front=True)
-                elif char == "-":
-                    ret_op = ret_op.compose(times_annihilation_op[position], front=True)
-                elif char == "N":
-                    ret_op = ret_op.compose(times_occupation_number_op[position], front=True)
-                elif char == "E":
-                    ret_op = ret_op.compose(times_emptiness_number_op[position], front=True)
-                elif char == "I":
-                    continue
+                    # catch any disallowed labels
+                    else:
+                        raise QiskitNatureError(
+                            f"FermionicOp label included '{char}'. Allowed characters: I, N, E, +, -"
+                        )
+                ret_op_list.append(ret_op)
+        else:
+            for label, coeff in second_q_op.items():
+                # 1. Initialize an operator list with the identity scaled by the `coeff`
+                ret_op = SparsePauliOp("I" * nmodes, coeffs=[coeff])
 
-                # catch any disallowed labels
-                else:
-                    raise QiskitNatureError(
-                        f"FermionicOp label included '{char}'. Allowed characters: I, N, E, +, -"
-                    )
-            ret_op_list.append(ret_op)
+                # Go through the label and replace the fermion operators by their qubit-equivalent, then
+                # save the respective Pauli string in the pauli_str list.
+                terms = [tuple(lbl.split("_")) for lbl in label.split(" ")]
+                for term in terms:
+                    char = term[0]
+                    if char == "":
+                        break
+                    position = int(term[1])
+                    if char == "+":
+                        ret_op = ret_op.compose(times_creation_op[position], front=True)
+                    elif char == "-":
+                        ret_op = ret_op.compose(times_annihilation_op[position], front=True)
+                    # catch any disallowed labels
+                    else:
+                        raise QiskitNatureError(
+                            f"FermionicOp label included '{char}'. Allowed characters: I, N, E, +, -"
+                        )
+                ret_op_list.append(ret_op)
 
         return PauliSumOp(SparsePauliOp.sum(ret_op_list).simplify())
