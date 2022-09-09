@@ -231,9 +231,8 @@ class ParticleNumber(Property):
             A `dict` of `FermionicOp` objects.
         """
         op = FermionicOp(
-            [(f"N_{o}", 1.0) for o in range(self._num_spin_orbitals)],
+            {f"+_{o} -_{o}": 1.0 for o in range(self._num_spin_orbitals)},
             register_length=self._num_spin_orbitals,
-            display_format="sparse",
         )
 
         return {self.name: op}

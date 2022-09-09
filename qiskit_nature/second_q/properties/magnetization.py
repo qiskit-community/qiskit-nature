@@ -87,12 +87,11 @@ class Magnetization(Property):
             A `dict` of `SecondQuantizedOp` objects.
         """
         op = FermionicOp(
-            [
-                (f"N_{o}", 0.5 if o < self._num_spin_orbitals // 2 else -0.5)
+            {
+                f"+_{o} -_{o}": 0.5 if o < self._num_spin_orbitals // 2 else -0.5
                 for o in range(self._num_spin_orbitals)
-            ],
+            },
             register_length=self._num_spin_orbitals,
-            display_format="sparse",
         )
 
         return {self.name: op}

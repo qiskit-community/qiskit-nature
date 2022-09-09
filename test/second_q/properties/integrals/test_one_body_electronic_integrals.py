@@ -135,17 +135,17 @@ class TestOneBodyElectronicIntegrals(PropertyTest):
             ints = OneBodyElectronicIntegrals(ElectronicBasis.MO, (mat_a, None))
             op = ints.to_second_q_op()
             for (real_label, real_coeff), (exp_label, exp_coeff) in zip(
-                op.to_list(),
-                [
-                    ("+_0 -_0", 1),
-                    ("+_0 -_1", 2),
-                    ("+_1 -_0", 3),
-                    ("+_1 -_1", 4),
-                    ("+_2 -_2", 1),
-                    ("+_2 -_3", 2),
-                    ("+_3 -_2", 3),
-                    ("+_3 -_3", 4),
-                ],
+                op.items(),
+                {
+                    "+_0 -_0": 1,
+                    "+_0 -_1": 2,
+                    "+_1 -_0": 3,
+                    "+_1 -_1": 4,
+                    "+_2 -_2": 1,
+                    "+_2 -_3": 2,
+                    "+_3 -_2": 3,
+                    "+_3 -_3": 4,
+                }.items(),
             ):
                 self.assertEqual(real_label, exp_label)
                 self.assertTrue(np.isclose(real_coeff, exp_coeff))
@@ -154,17 +154,17 @@ class TestOneBodyElectronicIntegrals(PropertyTest):
             ints = OneBodyElectronicIntegrals(ElectronicBasis.MO, (mat_a, mat_b))
             op = ints.to_second_q_op()
             for (real_label, real_coeff), (exp_label, exp_coeff) in zip(
-                op.to_list(),
-                [
-                    ("+_0 -_0", 1),
-                    ("+_0 -_1", 2),
-                    ("+_1 -_0", 3),
-                    ("+_1 -_1", 4),
-                    ("+_2 -_2", -4),
-                    ("+_2 -_3", -3),
-                    ("+_3 -_2", -2),
-                    ("+_3 -_3", -1),
-                ],
+                op.items(),
+                {
+                    "+_0 -_0": 1,
+                    "+_0 -_1": 2,
+                    "+_1 -_0": 3,
+                    "+_1 -_1": 4,
+                    "+_2 -_2": -4,
+                    "+_2 -_3": -3,
+                    "+_3 -_2": -2,
+                    "+_3 -_3": -1,
+                }.items(),
             ):
                 self.assertEqual(real_label, exp_label)
                 self.assertTrue(np.isclose(real_coeff, exp_coeff))

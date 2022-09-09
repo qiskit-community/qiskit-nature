@@ -358,17 +358,17 @@ class ElectronicIntegrals(ABC):
         spin_matrix_iter = spin_matrix.flat
         # NOTE: we need to access `.coords` before `.next()` is called for the first time!
         coords = spin_matrix_iter.coords
-        op_data = []
+        op_data = {}
         for coeff in spin_matrix_iter:
             if coeff:
-                op_data.append((self._calc_coeffs_with_ops(coords), coeff))
+                op_data[self._calc_coeffs_with_ops(coords)] = coeff
             coords = spin_matrix_iter.coords
 
-        return FermionicOp(op_data, register_length=register_length, display_format="sparse")
+        return FermionicOp(op_data, register_length=register_length)
 
     @staticmethod
     @abstractmethod
-    def _calc_coeffs_with_ops(indices: tuple[int, ...]) -> list[tuple[str, int]]:
+    def _calc_coeffs_with_ops(indices: tuple[int, ...]) -> str:
         """Maps indices to creation/annihilation operator symbols.
 
         Args:

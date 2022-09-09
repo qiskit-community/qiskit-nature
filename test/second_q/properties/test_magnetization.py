@@ -31,19 +31,18 @@ class TestMagnetization(PropertyTest):
 
     def test_second_q_ops(self):
         """Test second_q_ops."""
-        ops = [self.prop.second_q_ops()["Magnetization"]]
-        self.assertEqual(len(ops), 1)
-        expected = [
-            ("+_0 -_0", 0.5),
-            ("+_1 -_1", 0.5),
-            ("+_2 -_2", 0.5),
-            ("+_3 -_3", 0.5),
-            ("+_4 -_4", -0.5),
-            ("+_5 -_5", -0.5),
-            ("+_6 -_6", -0.5),
-            ("+_7 -_7", -0.5),
-        ]
-        self.assertEqual(ops[0].to_list(), expected)
+        ops = self.prop.second_q_ops()["Magnetization"]
+        expected = {
+            "+_0 -_0": 0.5,
+            "+_1 -_1": 0.5,
+            "+_2 -_2": 0.5,
+            "+_3 -_3": 0.5,
+            "+_4 -_4": -0.5,
+            "+_5 -_5": -0.5,
+            "+_6 -_6": -0.5,
+            "+_7 -_7": -0.5,
+        }
+        self.assertEqual(dict(ops.items()), expected)
 
     def test_to_hdf5(self):
         """Test to_hdf5."""
