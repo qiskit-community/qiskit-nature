@@ -30,8 +30,8 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
     def __init__(self, data: Mapping[str, np.ndarray | Number], register_length: int) -> None:
         """
         Args:
-            data: coefficient container;
-                  mapping of string-based operator keys to coefficient matrix values.
+            data: mapping of string-based operator keys to coefficient matrix values.
+            register_length: dimensions of the value matrices in data mapping.
         Raises:
             ValueError: when length of operator key does not match dimensions of value matrix.
             ValueError: when value matrix does not have consistent dimensions.
@@ -56,27 +56,29 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
                 raise ValueError(
                     f"For key {key}: dimensions of value matrix are not identical {value.shape}"
                 )
+            elif len(dims) == 1 and list(dims)[0] != register_length:
+                raise ValueError(
+                    f"Dimensions of value matrices in data dictionary do not match the provided "
+                    f"register length, {register_length}"
+                )
 
-            shapes.update(dims)
             copy_dict[key] = value
-
-        if len(shapes) != 1:
-            raise ValueError("Dimensions of value matrices in data dictionary are not identical.")
 
         self._data = copy_dict
         self._register_length = register_length
 
     @property
     def register_length(self) -> int:
-        """Returns the register length of the operator stored in this `PolynomialTensor`."""
+        """ Returns register length of the operator key in `PolynomialTensor`."""
+
         return self._register_length
 
     def __getitem__(self, __k: str) -> (np.ndarray | Number):
         """
-        Returns value matrix in the `Polynomial Tensor` object.
+        Returns value matrix in the `PolynomialTensor`.
 
         Args:
-            __k: operator key string in the `Polynomial Tensor` object
+            __k: operator key string in the `PolynomialTensor`.
         Returns:
             Value matrix corresponding to the operator key `__k`
         """
@@ -85,14 +87,14 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
 
     def __len__(self) -> int:
         """
-        Returns length of `Polynomial Tensor` object
+        Returns length of `PolynomialTensor`.
         """
 
         return self._data.__len__()
 
     def __iter__(self) -> Iterator[str]:
         """
-        Returns iterator of the `Polynomial Tensor` object
+        Returns iterator of the `PolynomialTensor`.
         """
 
         return self._data.__iter__()
@@ -101,9 +103,9 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
         """Scalar multiplication of PolynomialTensor with complex
 
         Args:
-            other: scalar to be multiplied with the ``Polynomial Tensor`` object.
+            other: scalar to be multiplied with the ``PolynomialTensor``.
         Returns:
-            the new ``Polynomial Tensor`` product object.
+            the new ``PolynomialTensor`` product object.
         Raises:
             TypeError: if ``other`` is not a ``Number``.
         """
@@ -120,13 +122,13 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
         """Addition of PolynomialTensors
 
         Args:
-            other: second``Polynomial Tensor`` object to be added to the first.
+            other: second``PolynomialTensor`` object to be added to the first.
         Returns:
-            the new summed ``Polynomial Tensor`` object.
+            the new summed ``PolynomialTensor``.
         Raises:
-            TypeError: when ``other`` is not a ``Polynomial Tensor`` object.
+            TypeError: when ``other`` is not a ``PolynomialTensor``.
             ValueError: when values corresponding to keys in ``other`` and
-                            the first ``Polynomial Tensor`` object do not match.
+                            the first ``PolynomialTensor`` object do not match.
         """
 
         if not isinstance(other, PolynomialTensor):
@@ -151,9 +153,9 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
         """Check equality of PolynomialTensors
 
         Args:
-            other: second``Polynomial Tensor`` object to be compared with the first.
+            other: second``PolynomialTensor`` object to be compared with the first.
         Returns:
-            True when ``Polynomial Tensor`` objects are equal, False when unequal.
+            True when ``PolynomialTensor`` objects are equal, False when unequal.
         """
 
         if not isinstance(other, PolynomialTensor):
@@ -170,7 +172,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
         """Conjugate of PolynomialTensors
 
         Returns:
-            the complex conjugate of the ``Polynomial Tensor`` object.
+            the complex conjugate of the ``PolynomialTensor``.
         """
 
         conj_dict: Dict[str, np.ndarray] = {}
@@ -183,7 +185,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
         """Transpose of PolynomialTensor
 
         Returns:
-            the transpose of the ``Polynomial Tensor`` object.
+            the transpose of the ``PolynomialTensor``.
         """
 
         transpose_dict: Dict[str, np.ndarray] = {}

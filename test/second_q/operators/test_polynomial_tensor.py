@@ -99,12 +99,14 @@ class TestPolynomialTensor(QiskitNatureTestCase):
             _ = PolynomialTensor(self.sample_poly_1, register_length=4)
 
         with self.assertRaisesRegex(
-            ValueError, r"For key (.*): dimensions of value matrix are not identical \(\d+, .*\)"
+            ValueError,
+            r"For key (.*): dimensions of value matrix are not identical \(\d+, .*\)"
         ):
             _ = PolynomialTensor(self.sample_poly_2, register_length=4)
 
         with self.assertRaisesRegex(
-            ValueError, r"Dimensions of value matrices in data dictionary are not identical."
+            ValueError,
+            r"Dimensions of value matrices in data dictionary do not match the provided register length, \d"
         ):
             _ = PolynomialTensor(self.sample_poly_3, register_length=4)
 
@@ -153,7 +155,7 @@ class TestPolynomialTensor(QiskitNatureTestCase):
             r"For key (.*): corresponding data value of shape \(\d+, *\) "
             r"does not match other value matrix of shape \(\d+, *\)",
         ):
-            _ = PolynomialTensor(self.og_poly, 4) + PolynomialTensor(self.sample_poly_4, 4)
+            _ = PolynomialTensor(self.og_poly, 4) + PolynomialTensor(self.sample_poly_4, 2)
 
     def test_conjugate(self):
         """Test for conjugate of Polynomial Tensor"""
