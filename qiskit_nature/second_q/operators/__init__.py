@@ -22,6 +22,7 @@ Operators and mappers for different systems such as fermionic, vibrational and s
    :toctree: ../stubs/
 
    FermionicOp
+   SparseLabelOp
    SpinOp
    SecondQuantizedOp
    VibrationalOp
@@ -33,6 +34,7 @@ from .second_quantized_op import SecondQuantizedOp
 from .spin_op import SpinOp
 from .vibrational_op import VibrationalOp
 from .polynomial_tensor import PolynomialTensor
+from .sparse_label_op import SparseLabelOp
 
 __all__ = [
     "FermionicOp",
@@ -40,4 +42,5 @@ __all__ = [
     "SpinOp",
     "VibrationalOp",
     "PolynomialTensor",
+    "SparseLabelOp",
 ]
