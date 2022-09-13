@@ -78,15 +78,16 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         """
         return cls({"": 1.0}, register_length=register_length, copy=False)
 
-    # workaround until https://github.com/Qiskit/qiskit-terra/pull/8722 is merged
+    # workaround until Qiskit Terra 0.22 is released
     def __radd__(self, other):
         return self.__add__(other)
 
-    def _add(self, other: SparseLabelOp, qargs=None) -> SparseLabelOp:
+    def _add(self, other: SparseLabelOp, qargs: None = None) -> SparseLabelOp:
         """Return Operator addition of self and other.
 
         Args:
             other: the second ``SparseLabelOp`` to add to the first.
+            qargs: UNUSED.
 
         Returns:
             The new summed ``SparseLabelOp``.
@@ -94,7 +95,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         Raises:
             ValueError: when ``qargs`` argument is not ``None``
         """
-        # workaround until https://github.com/Qiskit/qiskit-terra/pull/8722 is merged
+        # workaround until Qiskit Terra 0.22 is released
         if other == 0:
             return self
 
@@ -150,15 +151,65 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         """
 
     @abstractmethod
-    def compose(self, other: SparseLabelOp, qargs=None, front: bool = False) -> SparseLabelOp:
-        """TODO."""
+    def compose(
+        self, other: SparseLabelOp, qargs: None = None, front: bool = False
+    ) -> SparseLabelOp:
+        r"""Returns the operator composition with another SparseLabelOp.
 
+        Args:
+            other: the other SparseLabelOp.
+            qargs: UNUSED.
+            front: If True composition uses right operator multiplication, otherwise left
+                multiplication is used (the default).
+
+        Returns:
+            The operator resulting from the composition.
+
+        .. note::
+            Composition (``&``) by default is defined as `left` matrix multiplication for
+            matrix operators, while ``@`` (equivalent to :meth:`dot`) is defined as `right` matrix
+            multiplication. This means that ``A & B == A.compose(B)`` is equivalent to
+            ``B @ A == B.dot(A)`` when ``A`` and ``B`` are of the same type.
+
+            Setting the ``front=True`` keyword argument changes this to `right` matrix
+            multiplication which is equivalent to the :meth:`dot` method
+            ``A.dot(B) == A.compose(B, front=True)``.
+        """
+
+    @abstractmethod
     def tensor(self, other: SparseLabelOp) -> SparseLabelOp:
-        """TODO."""
+        r"""Returns the tensor product with another SparseLabelOp.
+
+        Args:
+            other: the other SparseLabelOp.
+
+        Returns:
+            The operator resulting from the tensor product, :math:`self \otimes other`.
+
+        .. note::
+            The tensor product can be obtained using the ``^`` binary operator.
+            Hence ``a.tensor(b)`` is equivalent to ``a ^ b``.
+
+        .. note:
+            Tensor uses reversed operator ordering to :meth:`expand`.
+            For two operators of the same type ``a.tensor(b) = b.expand(a)``.
+        """
         return self
 
+    @abstractmethod
     def expand(self, other: SparseLabelOp) -> SparseLabelOp:
-        """TODO."""
+        r"""Returns the reverse-order tensor product with another SparseLabelOp.
+
+        Args:
+            other: the other SparseLabelOp.
+
+        Returns:
+            The operator resulting from the tensor product, :math:`othr \otimes self`.
+
+        .. note:
+            Expand is the opposite operator ordering to :meth:`tensor`.
+            For two operators of the same type ``a.expand(b) = b.tensor(a)``.
+        """
         return self
 
     def equiv(

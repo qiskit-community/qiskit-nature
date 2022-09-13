@@ -47,6 +47,12 @@ class DummySparseLabelOp(SparseLabelOp):
     def compose(self, other, qargs=None, front=False) -> SparseLabelOp:
         return self
 
+    def tensor(self, other) -> SparseLabelOp:
+        return self
+
+    def expand(self, other) -> SparseLabelOp:
+        return self
+
 
 class TestSparseLabelOp(QiskitNatureTestCase):
     """SparseLabelOp tests."""
