@@ -165,6 +165,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
 
         if self._data.keys() == other._data.keys() and self._data.values() == other._data.values():
             return True
+        return False
 
     def equiv(self, other: object) -> bool:
         """Check equivalence of first PolynomialTensor with other
