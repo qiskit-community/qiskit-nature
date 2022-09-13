@@ -45,6 +45,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         super().setUp()
         self.excitation_list = [[[0], [1]]]
         self.mock_ansatz = Mock(spec=UCC)
+        self.mock_ansatz.reps = 1
         self.mock_ansatz.excitation_list = self.excitation_list
 
         self.particle_number = Mock(spec=ParticleNumber)
@@ -198,15 +199,6 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
             mp2_initial_point.compute(
                 ansatz=self.mock_ansatz, grouped_property=self.mock_grouped_property
             )
-
-    def test_set_excitations_directly(self):
-        """Test when setting excitation_list directly."""
-
-        mp2_initial_point = MP2InitialPoint()
-        mp2_initial_point.excitation_list = self.excitation_list
-        mp2_initial_point.compute(ansatz=None, grouped_property=self.mock_grouped_property)
-        self.assertEqual(mp2_initial_point.excitation_list, self.excitation_list)
-        self.assertEqual(mp2_initial_point.to_numpy_array(), [0.0])
 
     def test_compute(self):
         """Test when grouped_property and ansatz are set via compute."""
