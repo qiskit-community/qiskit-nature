@@ -16,6 +16,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from collections.abc import MutableMapping
+from typing import Iterator
 
 import numpy as np
 from scipy.sparse import csc_matrix
@@ -140,6 +141,26 @@ class FermionicOp(SparseLabelOp):
         )
         return pre + ret
 
+    def terms(self) -> Iterator[tuple[list[tuple[str, int]], complex]]:
+        """Provides an iterator analogous to :meth:`items` but with the labels already split into
+        pairs of operation characters and indices.
+
+        Yields:
+            A tuple with two items; the first one being a list of pairs of the form (char, int)
+            where char is either `+` or `-` and the integer corresponds to the fermionic mode index
+            on which the operator gets applied; the second item of the returned tuple is the
+            coefficient of this term.
+        """
+        for label in iter(self):
+            if not label:
+                yield ([], self[label])
+                continue
+            # we hard-code the result of lbl.split("_") as follows:
+            #   lbl[0] is either + or -
+            #   lbl[2:] corresponds to the index
+            terms = [(lbl[0], int(lbl[2:])) for lbl in label.split(" ")]
+            yield (terms, self[label])
+
     def compose(self, other: FermionicOp, qargs=None, front: bool = False) -> FermionicOp:
         if not isinstance(other, FermionicOp):
             raise TypeError(
@@ -186,9 +207,9 @@ class FermionicOp(SparseLabelOp):
         for col_idx in range(dimension):
             initial_occupations = [occ == "1" for occ in f"{col_idx:0{self.register_length}b}"]
             # loop over the terms in the operator data
-            for opstring, prefactor in self.simplify().items():
+            for terms, prefactor in self.simplify().terms():
                 # check if op string is the identity
-                if not opstring:
+                if not terms:
                     csc_data.append(prefactor)
                     csc_row.append(col_idx)
                     csc_col.append(col_idx)
@@ -197,7 +218,6 @@ class FermionicOp(SparseLabelOp):
                     sign = 1
                     mapped_to_zero = False
 
-                    terms = [tuple(lbl.split("_")) for lbl in opstring.split(" ")]
                     # apply terms sequentially to the current basis state
                     for char, index in reversed(terms):
                         index = int(index)
@@ -258,21 +278,18 @@ class FermionicOp(SparseLabelOp):
         """
         ordered_op = FermionicOp.zero(self.register_length)
 
-        for label, coeff in self.items():
-            ordered_op += self._normal_ordered(label, coeff)
+        for terms, coeff in self.terms():
+            ordered_op += self._normal_ordered(terms, coeff)
 
         return ordered_op
 
-    def _normal_ordered(self, label: str, coeff: complex) -> FermionicOp:
-        if not label:
+    def _normal_ordered(self, terms: list[tuple[str, int]], coeff: complex) -> FermionicOp:
+        if not terms:
             return FermionicOp({"": coeff}, self.register_length)
 
         ordered_op = FermionicOp.zero(self.register_length)
 
-        # 1. split label into list of pairs of the form ("char", index)
-        terms = [tuple(lbl.split("_")) for lbl in label.split(" ")]
-
-        # 2. perform insertion sorting
+        # perform insertion sorting
         for i in range(1, len(terms)):
             for j in range(i, 0, -1):
                 right = terms[j]
@@ -287,11 +304,9 @@ class FermionicOp(SparseLabelOp):
                     if right[1] == left[1]:
                         # if their indices are identical, we incur an additional term because of:
                         # a_i a_i^\dagger = 1 - a_i^\dagger a_i
-                        new_label = " ".join(
-                            f"{term[0]}_{term[1]}" for term in terms[: (j - 1)] + terms[(j + 1) :]
-                        )
+                        new_terms = terms[: (j - 1)] + terms[(j + 1) :]
                         # we can do so by recursion on this method
-                        ordered_op += self._normal_ordered(new_label, -1.0 * coeff)
+                        ordered_op += self._normal_ordered(new_terms, -1.0 * coeff)
 
                 elif right[0] == left[0]:
                     # when we have identical neighboring operators, differentiate two cases:

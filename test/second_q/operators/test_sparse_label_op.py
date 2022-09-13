@@ -12,6 +12,10 @@
 
 """Test for SparseLabelOp"""
 
+from __future__ import annotations
+
+from typing import Iterator
+
 import unittest
 from test import QiskitNatureTestCase
 
@@ -40,6 +44,9 @@ opComplex = {
 
 class DummySparseLabelOp(SparseLabelOp):
     """Dummy SparseLabelOp for testing purposes"""
+
+    def terms(self) -> Iterator[tuple[list[tuple[str, int]], complex]]:
+        pass
 
     def transpose(self) -> SparseLabelOp:
         return self

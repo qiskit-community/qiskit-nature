@@ -180,13 +180,12 @@ class QubitMapper(ABC):
                         )
                 ret_op_list.append(ret_op)
         else:
-            for label, coeff in second_q_op.items():
+            for terms, coeff in second_q_op.terms():
                 # 1. Initialize an operator list with the identity scaled by the `coeff`
                 ret_op = SparsePauliOp("I" * nmodes, coeffs=[coeff])
 
                 # Go through the label and replace the fermion operators by their qubit-equivalent, then
                 # save the respective Pauli string in the pauli_str list.
-                terms = [tuple(lbl.split("_")) for lbl in label.split(" ")]
                 for term in terms:
                     char = term[0]
                     if char == "":

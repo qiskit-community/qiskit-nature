@@ -86,7 +86,7 @@ def _convert_operator(ferm_op: FermionicOp, edge_list: np.ndarray) -> SparsePaul
     """
     encountered_terms = set()
     sparse_pauli = None
-    for term in ferm_op.items():
+    for term in ferm_op.terms():
         if _operator_coefficient(term) == 0:
             continue
         term_type, facs = _analyze_term(_operator_string(term))
@@ -155,24 +155,24 @@ def _add_sparse_pauli(qubit_op1: SparsePauliOp, qubit_op2: SparsePauliOp) -> Spa
         return qubit_op1 + qubit_op2
 
 
-def _analyze_term(term_str: str) -> Tuple[TermType, List[Tuple[int, str]]]:
+def _analyze_term(terms: list[tuple[str, int]]) -> Tuple[TermType, List[Tuple[int, str]]]:
     """Return the type of interaction represented by `term_str` and
     a list of the factors and their indices in `term_str`.
 
     Args:
-      term_str: a string of characters in `+-NI`.
+      terms: a list of pairs consisting of `+` or `-` chars and indices.
 
     Returns:
       tuple: The first element is a `TermType` specifying the interaction type. See the method
       `_interaction_type`. The second is a list of factors as returned by `_unpack_term`.
     """
-    (n_number, n_raise, n_lower), facs = _unpack_term(term_str, compress_number_op=False)
+    (n_number, n_raise, n_lower), facs = _unpack_term(terms, compress_number_op=False)
     _type = _interaction_type(n_number, n_raise, n_lower)
     return _type, facs
 
 
-def _operator_string(term: Tuple) -> str:
-    """Return the string describing the operators in the term extracted from a `FermionicOp`.
+def _operator_string(term: Tuple) -> list[tuple[str, int]]:
+    """Return the list of pairs describing the operators in the term extracted from a `FermionicOp`
     given by `term`.
     """
     return term[0]
@@ -359,7 +359,7 @@ def _number_excitation(  # pylint: disable=invalid-name
 
 
 def _unpack_term(
-    term_str: str, compress_number_op: bool
+    terms: list[tuple[str, int]], compress_number_op: bool
 ) -> Tuple[Tuple[int, int, int], List[Tuple[int, str]]]:
     """Return a tuple specifying the counts of kinds of operators in `term_str` and
     a list of the factors and their indices in `term_str`.
@@ -371,7 +371,7 @@ def _unpack_term(
     are ignored.
 
     Args:
-       term_str: a string of characters in `N+-I`.
+      terms: a list of pairs consisting of `+` or `-` chars and indices.
        expand_number_op: if `True`, number operators are expanded to `(i, '+')`, `(i, '-')`
          in the returned list of factors.
 
@@ -385,9 +385,8 @@ def _unpack_term(
     minuses = set()
     numbers = set()
     facs = []
-    terms = [tuple(lbl.split("_")) for lbl in term_str.split(" ")]
     for term in terms:
-        if len(term) == 1 and term[0] == "":
+        if not term:
             continue
         c = term[0]
         i = int(term[1])
@@ -463,7 +462,7 @@ def _get_adjacency_matrix(fer_op: FermionicOp) -> np.ndarray:
     """
     n_modes = fer_op.register_length
     edge_matrix = np.zeros((n_modes, n_modes), dtype=bool)
-    for term in fer_op.items():
+    for term in fer_op.terms():
         if _operator_coefficient(term) != 0:
             _add_edges_for_term(edge_matrix, _operator_string(term))
     return edge_matrix
@@ -484,16 +483,14 @@ def _add_one_edge(edge_matrix: np.ndarray, i: int, j: int) -> None:
     edge_matrix[min(i, j), max(i, j)] = True
 
 
-def _add_edges_for_term(edge_matrix: np.ndarray, term_str: str) -> None:
+def _add_edges_for_term(edge_matrix: np.ndarray, terms: list[tuple[str, int]]) -> None:
     """Add one, two, or no edges to `edge_matrix` as dictated by the operator `term_str`.
 
     Args:
       edge_matrix: an adjacency matrix representing the connectivity graph.
-      term_str: A representation of the interaction satisfying the description in the method
-        `_unpack_term`. The number of explicit raising and lowering operators ('+' and '-')
-        must be equal.
+      terms: a list of pairs consisting of `+` or `-` chars and indices.
     """  # pylint: disable=missing-raises-doc
-    (n_number, n_raise, n_lower), facs = _unpack_term(term_str, compress_number_op=True)
+    (n_number, n_raise, n_lower), facs = _unpack_term(terms, compress_number_op=True)
     _type = _interaction_type(n_number, n_raise, n_lower)
     # For EXCITATION and NUMBER_EXCITATION, create an edge between the `+` and `-`.
     if _type in (TermType.EXCITATION, TermType.NUMBER_EXCITATION):

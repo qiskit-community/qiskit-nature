@@ -268,6 +268,18 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         """An iterator over the keys of the ``SparseLabelOp``."""
         return self._data.__iter__()
 
+    @abstractmethod
+    def terms(self) -> Iterator[tuple[list[tuple[str, int]], complex]]:
+        """Provides an iterator analogous to :meth:`items` but with the labels already split into
+        pairs of operation characters and indices.
+
+        Yields:
+            A tuple with two items; the first one being a list of pairs of the form (char, int)
+            where char represents the operation applied to the register and the integer corresponds
+            to the register index on which the operator gets applied; the second item of the
+            returned tuple is the coefficient of this term.
+        """
+
     def __pow__(self, power):
         if power == 0:
             return self.__class__.one(self.register_length)
