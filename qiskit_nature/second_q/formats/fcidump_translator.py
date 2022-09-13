@@ -55,7 +55,7 @@ def fcidump_to_problem(fcidump: FCIDump) -> ElectronicStructureProblem:
                 (fcidump.hijkl, fcidump.hijkl_ba, fcidump.hijkl_bb, None),
             ),
         ],
-        nuclear_repulsion_energy=fcidump.nuclear_repulsion_energy,
+        nuclear_repulsion_energy=fcidump.constant_energy,
     )
 
     problem = ElectronicStructureProblem(electronic_energy)

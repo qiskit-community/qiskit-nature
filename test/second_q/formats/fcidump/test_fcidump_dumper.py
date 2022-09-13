@@ -164,7 +164,7 @@ class TestFCIDumpDumpH2(QiskitNatureTestCase, BaseTestFCIDumpDumper):
             num_electrons=problem.properties.particle_number.num_alpha
             + problem.properties.particle_number.num_beta,
             num_orbitals=problem.properties.particle_number.num_spin_orbitals // 2,
-            nuclear_repulsion_energy=electronic_energy.nuclear_repulsion_energy,
+            constant_energy=electronic_energy.nuclear_repulsion_energy,
             orbsym=None,
             isym=1,
         )

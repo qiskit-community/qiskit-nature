@@ -56,8 +56,8 @@ class FCIDump:
     """The number of electrons."""
     num_orbitals: int
     """The number of orbitals."""
-    nuclear_repulsion_energy: float | None
-    """The nuclear repulsion energy"""
+    constant_energy: float | None
+    """The constant energy comprising nuclear repulsion energy and inactive energies"""
     orbsym: List[str] | None
     """A list of spatial symmetries of the orbitals."""
     isym: int
@@ -68,15 +68,15 @@ class FCIDump:
         """Constructs an FCIDump object from a file."""
         data = _parse(fcidump if isinstance(fcidump, Path) else Path(fcidump))
         return cls(
-            hij=data.get("hij", None),
+            hij=data.get("hij"),
             hij_b=data.get("hij_b", None),
-            hijkl=data.get("hijkl", None),
+            hijkl=data.get("hijkl"),
             hijkl_ba=data.get("hijkl_ba", None),
             hijkl_bb=data.get("hijkl_bb", None),
             multiplicity=data.get("MS2", 0) + 1,
             num_electrons=data.get("NELEC"),
             num_orbitals=data.get("NORB"),
-            nuclear_repulsion_energy=data.get("ecore", None),
+            constant_energy=data.get("ecore", None),
             orbsym=data.get("ORBSYM", None),
             isym=data.get("ISYM"),
         )
@@ -98,7 +98,7 @@ class FCIDump:
             raise QiskitNatureError("Invalid beta variables.")
         norb = self.num_orbitals
         nelec = self.num_electrons
-        einact = self.nuclear_repulsion_energy
+        einact = self.constant_energy
         ms2 = self.multiplicity - 1
         if norb != self.hij.shape[0] or norb != self.hijkl.shape[0]:
             raise QiskitNatureError(
