@@ -65,16 +65,16 @@ class TestFermionicOp(QiskitNatureTestCase):
         targ = FermionicOp({"+_0 -_0": 1, "-_0 +_0": 0}, register_length=1)
         self.assertEqual(fer_op, targ)
 
-    def test_matmul(self):
-        """Test matrix multiplication"""
-        with self.subTest("single matmul"):
+    def test_compose(self):
+        """Test operator composition"""
+        with self.subTest("single compose"):
             fer_op = FermionicOp({"+_0 -_1": 1}, register_length=2) @ FermionicOp(
                 {"-_0": 1}, register_length=2
             )
             targ = FermionicOp({"+_0 -_1 -_0": 1}, register_length=2)
             self.assertEqual(fer_op, targ)
 
-        with self.subTest("multi matmul"):
+        with self.subTest("multi compose"):
             fer_op = FermionicOp(
                 {"+_0 +_1 -_1": 1, "-_0 +_0 -_1": 1}, register_length=2
             ) @ FermionicOp({"": 1, "-_0 +_1": 1}, register_length=2)
@@ -84,6 +84,18 @@ class TestFermionicOp(QiskitNatureTestCase):
                 register_length=2,
             )
             self.assertEqual(fer_op, targ)
+
+    def test_tensor(self):
+        """Test tensor multiplication"""
+        fer_op = self.op1.tensor(self.op2)
+        targ = FermionicOp({"+_0 -_0 -_1 +_1": 2}, register_length=2)
+        self.assertEqual(fer_op, targ)
+
+    def test_expand(self):
+        """Test reversed tensor multiplication"""
+        fer_op = self.op1.expand(self.op2)
+        targ = FermionicOp({"-_0 +_0 +_1 -_1": 2}, register_length=2)
+        self.assertEqual(fer_op, targ)
 
     def test_pow(self):
         """Test __pow__"""

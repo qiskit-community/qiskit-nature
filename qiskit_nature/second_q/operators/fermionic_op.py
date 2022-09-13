@@ -103,6 +103,13 @@ class FermionicOp(SparseLabelOp):
       op2 = FermionicOp({"-_0 +_0 +_1": 1}, register_length=2)
       print(op1 @ op2)
 
+    Tensor multiplication
+
+    .. jupyter-execute::
+
+      op = FermionicOp({"+_0 -_1": 1}, register_length=2)
+      print(op ^ op)
+
     Adjoint
 
     .. jupyter-execute::
@@ -167,13 +174,10 @@ class FermionicOp(SparseLabelOp):
                 f"Unsupported operand type(s) for *: 'FermionicOp' and '{type(other).__name__}'"
             )
 
-        new_data = {
-            f"{label1 if front else label2} {label2 if front else label1}".strip(): cf1 * cf2
-            for label2, cf2 in other.items()
-            for label1, cf1 in self.items()
-        }
-        register_length = max(self.register_length, other.register_length)
-        return FermionicOp(new_data, register_length, copy=False)
+        if front:
+            return self._tensor(self, other, offset=False)
+        else:
+            return self._tensor(other, self, offset=False)
 
     def tensor(self, other: FermionicOp) -> FermionicOp:
         return self._tensor(self, other)
@@ -182,8 +186,21 @@ class FermionicOp(SparseLabelOp):
         return self._tensor(other, self)
 
     @classmethod
-    def _tensor(cls, a: FermionicOp, b: FermionicOp) -> FermionicOp:
-        pass
+    def _tensor(cls, a: FermionicOp, b: FermionicOp, *, offset: bool = True) -> FermionicOp:
+        shift = a.register_length if offset else 0
+
+        new_data = {
+            f"{label1} {' '.join(f'{c}_{i+shift}' for c, i in terms2)}".strip(): cf1 * cf2
+            for terms2, cf2 in b.terms()
+            for label1, cf1 in a.items()
+        }
+
+        if offset:
+            register_length = a.register_length + b.register_length
+        else:
+            register_length = max(a.register_length, b.register_length)
+
+        return FermionicOp(new_data, register_length, copy=False)
 
     def to_matrix(self, sparse: bool | None = True) -> csc_matrix | np.ndarray:
         """Convert to a matrix representation over the full fermionic Fock space in the occupation
