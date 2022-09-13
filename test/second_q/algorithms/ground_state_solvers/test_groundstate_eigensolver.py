@@ -141,7 +141,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         _ = calc.solve(self.electronic_structure_problem)
 
         assert all(
-            frozenset(a.to_list()) == frozenset(b.to_list()) for a, b in zip(aux_ops, aux_ops_copy)
+            frozenset(a.items()) == frozenset(b.items()) for a, b in zip(aux_ops, aux_ops_copy)
         )
 
     def _setup_evaluation_operators(self):
