@@ -102,35 +102,36 @@ class TestBravyiKitaevSuperFastMapper(QiskitNatureTestCase):
         """Test H2 molecule"""
         with self.subTest("Excitation edges 1"):
             assert np.alltrue(
-                _bksf_edge_list_fermionic_op(FermionicOp("+-+-", display_format="dense"))
+                _bksf_edge_list_fermionic_op(FermionicOp({"+_0 -_1 +_2 -_3": 1}, register_length=4))
                 == np.array([[0, 1], [2, 3]])
             )
 
         with self.subTest("Excitation edges 2"):
             assert np.alltrue(
-                _bksf_edge_list_fermionic_op(FermionicOp("+--+", display_format="dense"))
+                _bksf_edge_list_fermionic_op(FermionicOp({"+_0 -_1 -_2 +_3": 1}, register_length=4))
                 == np.array([[0, 1], [3, 2]])
             )
 
         ## H2 from pyscf with sto-3g basis
         h2_fop = FermionicOp(
-            [
-                ("+-+-", (0.18128880821149607 + 0j)),
-                ("+--+", (-0.18128880821149607 + 0j)),
-                ("-++-", (-0.18128880821149607 + 0j)),
-                ("-+-+", (0.18128880821149604 + 0j)),
-                ("IIIN", (-0.4759487152209648 + 0j)),
-                ("IINI", (-1.2524635735648986 + 0j)),
-                ("IINN", (0.48217928821207245 + 0j)),
-                ("INII", (-0.4759487152209648 + 0j)),
-                ("ININ", (0.697393767423027 + 0j)),
-                ("INNI", (0.6634680964235684 + 0j)),
-                ("NIII", (-1.2524635735648986 + 0j)),
-                ("NIIN", (0.6634680964235684 + 0j)),
-                ("NINI", (0.6744887663568382 + 0j)),
-                ("NNII", (0.48217928821207245 + 0j)),
-            ],
-            display_format="dense",
+            {
+                "+_0 -_1 +_2 -_3": 0.18128880821149607,
+                "+_0 -_1 -_2 +_3": -0.18128880821149607,
+                "-_0 +_1 +_2 -_3": -0.18128880821149607,
+                "-_0 +_1 -_2 +_3": 0.18128880821149604,
+                "+_3 -_3": -0.4759487152209648,
+                "+_2 -_2": -1.2524635735648986,
+                "+_2 -_2 +_3 -_3": 0.48217928821207245,
+                "+_1 -_1": -0.4759487152209648,
+                "+_1 -_1 +_3 -_3": 0.697393767423027,
+                "+_1 -_1 +_2 -_2": 0.6634680964235684,
+                "+_0 -_0": -1.2524635735648986,
+                "+_0 -_0 +_3 -_3": 0.6634680964235684,
+                "+_0 -_0 +_2 -_2": 0.6744887663568382,
+                "+_0 -_0 +_1 -_1": 0.48217928821207245,
+            },
+            register_length=4,
+            copy=False,
         )
 
         expected_pauli_op = SparsePauliOp.from_list(
@@ -170,13 +171,13 @@ class TestBravyiKitaevSuperFastMapper(QiskitNatureTestCase):
             self.assertEqual(op1, op2_from_sparse)
 
         with self.subTest("Test accepting identity with zero coefficient"):
-            h2_fop_zero_term = h2_fop + FermionicOp([("IIII", 0.0)], display_format="dense")
+            h2_fop_zero_term = h2_fop + FermionicOp({"": 0.0}, register_length=4)
             pauli_sum_op_extra = BravyiKitaevSuperFastMapper().map(h2_fop_zero_term)
             op3 = _sort_simplify(pauli_sum_op_extra.primitive)
             self.assertEqual(op1, op3)
 
         with self.subTest("Test zero FermiOp"):
-            fermi_op = FermionicOp([("++--", 0.0)], display_format="dense")
+            fermi_op = FermionicOp.zero(4)
             pauli_op = BravyiKitaevSuperFastMapper().map(fermi_op).primitive
             x = np.array([], dtype="bool")
             z = np.array([], dtype="bool")
