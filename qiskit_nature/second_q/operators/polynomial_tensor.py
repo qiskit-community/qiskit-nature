@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Polynomial Tensor class"""
+"""PolynomialTensor class"""
 
 from __future__ import annotations
 from typing import Dict, Iterator
@@ -25,7 +25,7 @@ from qiskit.quantum_info.operators.mixins import (
 
 
 class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
-    """Polynomial Tensor class"""
+    """PolynomialTensor class"""
 
     def __init__(self, data: Mapping[str, np.ndarray | Number], register_length: int) -> None:
         """
@@ -39,7 +39,6 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
         """
         copy_dict: Dict[str, np.ndarray] = {}
 
-        shapes = set()
         for key, value in data.items():
             if isinstance(value, Number):
                 value = np.asarray(value)
@@ -56,7 +55,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
                 raise ValueError(
                     f"For key {key}: dimensions of value matrix are not identical {value.shape}"
                 )
-            elif len(dims) == 1 and list(dims)[0] != register_length:
+            if len(dims) == 1 and list(dims)[0] != register_length:
                 raise ValueError(
                     f"Dimensions of value matrices in data dictionary do not match the provided "
                     f"register length, {register_length}"
@@ -69,7 +68,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
 
     @property
     def register_length(self) -> int:
-        """ Returns register length of the operator key in `PolynomialTensor`."""
+        """Returns register length of the operator key in `PolynomialTensor`."""
 
         return self._register_length
 
@@ -149,8 +148,8 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
                 sum_dict[other_key] = other_value
         return PolynomialTensor(sum_dict, self._register_length)
 
-    def __eq__(self, other):
-        """Check equality of PolynomialTensors
+    def __eq__(self, other: object) -> bool:
+        """Check equality of first PolynomialTensor with other
 
         Args:
             other: second``PolynomialTensor`` object to be compared with the first.
@@ -161,8 +160,30 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
         if not isinstance(other, PolynomialTensor):
             return False
 
+        if self._register_length == other._register_length:
+            return True
+
+        if self._data.keys() == other._data.keys() and self._data.values() == other._data.values():
+            return True
+
+    def equiv(self, other: object) -> bool:
+        """Check equivalence of first PolynomialTensor with other
+
+        Args:
+            other: second``PolynomialTensor`` object to be compared with the first.
+        Returns:
+            True when ``PolynomialTensor`` objects are equivalent, False when not.
+        """
+
+        if not isinstance(other, PolynomialTensor):
+            return False
+
+        if self._register_length != other._register_length:
+            return False
+
         if self._data.keys() != other._data.keys():
             return False
+
         for key, value in self._data.items():
             if not np.allclose(value, other._data[key], atol=self.atol, rtol=self.rtol):
                 return False

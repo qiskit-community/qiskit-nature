@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Test for Polynomial Tensor"""
+"""Test for PolynomialTensor class"""
 
 from __future__ import annotations
 import unittest
@@ -62,6 +62,12 @@ class TestPolynomialTensor(QiskitNatureTestCase):
             "++--": self.build_matrix(2, 4),
         }
 
+        self.sample_poly_5 = {
+            "": 1.0,
+            "+": self.build_matrix(2, 1),
+            "+-": self.build_matrix(2, 2),
+        }
+
         self.expected_conjugate_poly = {
             "": 1.0,
             "+": self.build_matrix(4, 1).conjugate(),
@@ -90,7 +96,7 @@ class TestPolynomialTensor(QiskitNatureTestCase):
         return (np.arange(1, dim_size**num_dim + 1) * val).reshape((dim_size,) * num_dim)
 
     def test_init(self):
-        """Test for errors in constructor for Polynomial Tensor"""
+        """Test for errors in constructor for PolynomialTensor"""
 
         with self.assertRaisesRegex(
             ValueError,
@@ -99,28 +105,36 @@ class TestPolynomialTensor(QiskitNatureTestCase):
             _ = PolynomialTensor(self.sample_poly_1, register_length=4)
 
         with self.assertRaisesRegex(
-            ValueError,
-            r"For key (.*): dimensions of value matrix are not identical \(\d+, .*\)"
+            ValueError, r"For key (.*): dimensions of value matrix are not identical \(\d+, .*\)"
         ):
             _ = PolynomialTensor(self.sample_poly_2, register_length=4)
 
         with self.assertRaisesRegex(
             ValueError,
-            r"Dimensions of value matrices in data dictionary do not match the provided register length, \d"
+            r"Dimensions of value matrices in data dictionary "
+            r"do not match the provided register length, \d",
         ):
             _ = PolynomialTensor(self.sample_poly_3, register_length=4)
 
     def test_get_item(self):
-        pass
+        """Test for getting value matrices corresponding to keys in PolynomialTensor"""
+
+        og_poly_tensor = PolynomialTensor(self.og_poly, 4)
+        self.assertEqual(self.og_poly["+"].all(), og_poly_tensor["+"].all())
 
     def test_len(self):
-        pass
+        """Test for the length of PolynomialTensor"""
+
+        length = len(PolynomialTensor(self.sample_poly_4, 2))
+        exp_len = 4
+        self.assertEqual(exp_len, length)
 
     def test_iter(self):
-        pass
+        """Test for the iterator of PolynomialTensor"""
 
-    def test_register_length(self):
-        pass
+        og_poly_tensor = PolynomialTensor(self.og_poly, 4)
+        exp_iter = [key for key, _ in self.og_poly.items()]
+        self.assertEqual(exp_iter, list(iter(og_poly_tensor)))
 
     @idata(np.linspace(0, 3, 5))
     def test_mul(self, other):
@@ -140,7 +154,7 @@ class TestPolynomialTensor(QiskitNatureTestCase):
             _ = PolynomialTensor(self.og_poly, 4) * PolynomialTensor(self.og_poly, 4)
 
     def test_add(self):
-        """Test for addition of Polynomial Tensors"""
+        """Test for addition of PolynomialTensor"""
 
         result = PolynomialTensor(self.og_poly, 4) + PolynomialTensor(self.og_poly, 4)
         self.assertEqual(result, PolynomialTensor(self.expected_sum_poly, 4))
@@ -158,13 +172,13 @@ class TestPolynomialTensor(QiskitNatureTestCase):
             _ = PolynomialTensor(self.og_poly, 4) + PolynomialTensor(self.sample_poly_4, 2)
 
     def test_conjugate(self):
-        """Test for conjugate of Polynomial Tensor"""
+        """Test for conjugate of PolynomialTensor"""
 
         result = PolynomialTensor(self.og_poly, 4).conjugate()
         self.assertEqual(result, PolynomialTensor(self.expected_conjugate_poly, 4))
 
     def test_transpose(self):
-        """Test for transpose of Polynomial Tensor"""
+        """Test for transpose of PolynomialTensor"""
 
         result = PolynomialTensor(self.og_poly, 4).transpose()
         self.assertEqual(result, PolynomialTensor(self.expected_transpose_poly, 4))
