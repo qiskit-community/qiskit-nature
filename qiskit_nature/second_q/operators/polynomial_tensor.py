@@ -55,7 +55,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
                 raise ValueError(
                     f"For key {key}: dimensions of value matrix are not identical {value.shape}"
                 )
-            if len(dims) == 1 and list(dims)[0] != register_length:
+            if len(dims) == 1 and dims.pop() != register_length:
                 raise ValueError(
                     f"Dimensions of value matrices in data dictionary do not match the provided "
                     f"register length, {register_length}"
