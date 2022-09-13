@@ -69,7 +69,6 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
     @property
     def register_length(self) -> int:
         """Returns register length of the operator key in `PolynomialTensor`."""
-
         return self._register_length
 
     def __getitem__(self, __k: str) -> (np.ndarray | Number):
@@ -81,24 +80,21 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
         Returns:
             Value matrix corresponding to the operator key `__k`
         """
-
         return self._data.__getitem__(__k)
 
     def __len__(self) -> int:
         """
         Returns length of `PolynomialTensor`.
         """
-
         return self._data.__len__()
 
     def __iter__(self) -> Iterator[str]:
         """
         Returns iterator of the `PolynomialTensor`.
         """
-
         return self._data.__iter__()
 
-    def _multiply(self, other: complex):
+    def _multiply(self, other: complex) -> PolynomialTensor:
         """Scalar multiplication of PolynomialTensor with complex
 
         Args:
@@ -108,7 +104,6 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
         Raises:
             TypeError: if ``other`` is not a ``Number``.
         """
-
         if not isinstance(other, Number):
             raise TypeError(f"other {other} must be a number")
 
@@ -117,7 +112,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
             prod_dict[key] = np.multiply(matrix, other)
         return PolynomialTensor(prod_dict, self._register_length)
 
-    def _add(self, other: PolynomialTensor, qargs=None):
+    def _add(self, other: PolynomialTensor, qargs=None) -> PolynomialTensor:
         """Addition of PolynomialTensors
 
         Args:
@@ -129,7 +124,6 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
             ValueError: when values corresponding to keys in ``other`` and
                             the first ``PolynomialTensor`` object do not match.
         """
-
         if not isinstance(other, PolynomialTensor):
             raise TypeError("Incorrect argument type: other should be PolynomialTensor")
 
@@ -156,16 +150,19 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
         Returns:
             True when ``PolynomialTensor`` objects are equal, False when unequal.
         """
-
         if not isinstance(other, PolynomialTensor):
             return False
 
-        if self._register_length == other._register_length:
-            return True
+        if self._register_length != other._register_length:
+            return False
 
-        if self._data.keys() == other._data.keys() and self._data.values() == other._data.values():
-            return True
-        return False
+        if self._data.keys() != other._data.keys():
+            return False
+
+        for key, value in self._data.items():
+            if not np.array_equal(value, other._data[key]):
+                return False
+        return True
 
     def equiv(self, other: object) -> bool:
         """Check equivalence of first PolynomialTensor with other
@@ -175,7 +172,6 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
         Returns:
             True when ``PolynomialTensor`` objects are equivalent, False when not.
         """
-
         if not isinstance(other, PolynomialTensor):
             return False
 
@@ -196,7 +192,6 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
         Returns:
             the complex conjugate of the ``PolynomialTensor``.
         """
-
         conj_dict: Dict[str, np.ndarray] = {}
         for key, value in self._data.items():
             conj_dict[key] = np.conjugate(value)
@@ -209,7 +204,6 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
         Returns:
             the transpose of the ``PolynomialTensor``.
         """
-
         transpose_dict: Dict[str, np.ndarray] = {}
         for key, value in self._data.items():
             transpose_dict[key] = np.transpose(value)

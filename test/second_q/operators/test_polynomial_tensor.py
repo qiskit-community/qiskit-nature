@@ -92,12 +92,10 @@ class TestPolynomialTensor(QiskitNatureTestCase):
     @staticmethod
     def build_matrix(dim_size, num_dim, val=1):
         """Build dictionary value matrix"""
-
         return (np.arange(1, dim_size**num_dim + 1) * val).reshape((dim_size,) * num_dim)
 
     def test_init(self):
         """Test for errors in constructor for PolynomialTensor"""
-
         with self.assertRaisesRegex(
             ValueError,
             r"Data key .* of length \d does not match data value matrix of dimensions \(\d+, *\)",
@@ -118,20 +116,18 @@ class TestPolynomialTensor(QiskitNatureTestCase):
 
     def test_get_item(self):
         """Test for getting value matrices corresponding to keys in PolynomialTensor"""
-
         og_poly_tensor = PolynomialTensor(self.og_poly, 4)
-        self.assertEqual(self.og_poly["+"].all(), og_poly_tensor["+"].all())
+        for key, value in self.og_poly.items():
+            np.testing.assert_array_equal(value, og_poly_tensor[key])
 
     def test_len(self):
         """Test for the length of PolynomialTensor"""
-
         length = len(PolynomialTensor(self.sample_poly_4, 2))
         exp_len = 4
         self.assertEqual(exp_len, length)
 
     def test_iter(self):
         """Test for the iterator of PolynomialTensor"""
-
         og_poly_tensor = PolynomialTensor(self.og_poly, 4)
         exp_iter = [key for key, _ in self.og_poly.items()]
         self.assertEqual(exp_iter, list(iter(og_poly_tensor)))
@@ -139,7 +135,6 @@ class TestPolynomialTensor(QiskitNatureTestCase):
     @idata(np.linspace(0, 3, 5))
     def test_mul(self, other):
         """Test for scalar multiplication"""
-
         expected_prod_poly = {
             "": 1.0 * other,
             "+": self.build_matrix(4, 1, other),
@@ -155,7 +150,6 @@ class TestPolynomialTensor(QiskitNatureTestCase):
 
     def test_add(self):
         """Test for addition of PolynomialTensor"""
-
         result = PolynomialTensor(self.og_poly, 4) + PolynomialTensor(self.og_poly, 4)
         self.assertEqual(result, PolynomialTensor(self.expected_sum_poly, 4))
 
@@ -173,13 +167,11 @@ class TestPolynomialTensor(QiskitNatureTestCase):
 
     def test_conjugate(self):
         """Test for conjugate of PolynomialTensor"""
-
         result = PolynomialTensor(self.og_poly, 4).conjugate()
         self.assertEqual(result, PolynomialTensor(self.expected_conjugate_poly, 4))
 
     def test_transpose(self):
         """Test for transpose of PolynomialTensor"""
-
         result = PolynomialTensor(self.og_poly, 4).transpose()
         self.assertEqual(result, PolynomialTensor(self.expected_transpose_poly, 4))
 
