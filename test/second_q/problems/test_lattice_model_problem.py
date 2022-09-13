@@ -33,8 +33,8 @@ class TestLatticeModelProblem(QiskitNatureTestCase):
 
     def _compare_second_q_op(self, first: SecondQuantizedOp, second: SecondQuantizedOp):
         """Compares second quantized operators"""
-        f_list = first.to_list()
-        s_list = second.to_list()
+        f_list = first.items()
+        s_list = second.items()
         self.assertEqual(len(f_list), len(s_list))
         for f_term, s_term in zip(f_list, s_list):
             # compare labels
