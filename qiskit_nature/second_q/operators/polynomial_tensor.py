@@ -127,15 +127,16 @@ class PolynomialTensor(LinearMixin, AdjointMixin, TolerancesMixin, Mapping):
         if not isinstance(other, PolynomialTensor):
             raise TypeError("Incorrect argument type: other should be PolynomialTensor")
 
-        if self.register_length != other.register_length:
+        if self._register_length != other._register_length:
             raise ValueError(
                 "The dimensions of the PolynomialTensors which are to be added together, do not "
-                f"match: {self.register_length} != {other.register_length}"
+                f"match: {self._register_length} != {other._register_length}"
             )
 
-        sum_dict = {key: np.value + other._data.get(key, 0) for key, value in self._data.items()}
+        sum_dict = {key: value + other._data.get(key, 0) for key, value in self._data.items()}
         other_unique = {key: other._data[key] for key in other._data.keys() - self._data.keys()}
         sum_dict.update(other_unique)
+
         return PolynomialTensor(sum_dict, self._register_length)
 
     def __eq__(self, other: object) -> bool:

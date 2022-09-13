@@ -160,8 +160,8 @@ class TestPolynomialTensor(QiskitNatureTestCase):
 
         with self.assertRaisesRegex(
             ValueError,
-            r"For key (.*): corresponding data value of shape \(\d+, *\) "
-            r"does not match other value matrix of shape \(\d+, *\)",
+            r"The dimensions of the PolynomialTensors which are to be added together, do not "
+            r"match: \d+ != \d+",
         ):
             _ = PolynomialTensor(self.og_poly, 4) + PolynomialTensor(self.sample_poly_4, 2)
 
