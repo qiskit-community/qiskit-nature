@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2020, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -11,19 +11,22 @@
 # that they have been altered from the originals.
 
 """
-===================================================
-I/O Formats (:mod:`qiskit_nature.second_q.formats`)
-===================================================
+The FCIDump (:mod:`qiskit_nature.second_q.formats.fcidump`)
+=============================================================
 
-.. currentmodule:: qiskit_nature.second_q.formats
+Contains tools to parse and dump FCIDump files.
 
-Submodules
-==========
+.. currentmodule:: qiskit_nature.second_q.formats.fcidump
 
 .. autosummary::
-   :toctree:
+   :toctree: ../stubs/
+   :nosignatures:
 
-   fcidump
-   qcschema
+
+   FCIDump
 
 """
+
+from .fcidump import FCIDump
+
+__all__ = ["FCIDump"]
