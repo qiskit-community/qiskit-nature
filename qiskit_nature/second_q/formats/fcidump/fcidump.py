@@ -57,7 +57,7 @@ class FCIDump:
     num_orbitals: int
     """The number of orbitals."""
     constant_energy: float | None
-    """The constant energy comprising nuclear repulsion energy and inactive energies"""
+    """The constant energy comprising (for example) the nuclear repulsion energy and inactive energies."""
     orbsym: List[str] | None
     """A list of spatial symmetries of the orbitals."""
     isym: int
