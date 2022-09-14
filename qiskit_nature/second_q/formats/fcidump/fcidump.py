@@ -69,8 +69,8 @@ class FCIDump:
         data = _parse(fcidump if isinstance(fcidump, Path) else Path(fcidump))
         return cls(
             hij=data.get("hij"),
-            hij_b=data.get("hij_b", None),
             hijkl=data.get("hijkl"),
+            hij_b=data.get("hij_b", None),
             hijkl_ba=data.get("hijkl_ba", None),
             hijkl_bb=data.get("hijkl_bb", None),
             multiplicity=data.get("MS2", 0) + 1,
