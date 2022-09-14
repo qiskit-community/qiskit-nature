@@ -13,10 +13,12 @@
 """The Sparse Label Operator base class."""
 
 from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from collections.abc import Mapping
-from typing import Iterator
 from numbers import Number
+from typing import Iterator, Sequence
+
 import cmath
 import numpy as np
 
@@ -285,6 +287,36 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
             return self.__class__.one(self.register_length)
 
         return super().__pow__(power)
+
+    def argsort(self, *, weight: bool = False) -> Sequence[str]:
+        """Returns the keys which sort this operator.
+
+        Args:
+            weight: when True, the returned keys will sort this operator according to the
+                coefficient weights of the stored terms; when False, the keys will sort the operator
+                by its keys (i.e. lexicographically).
+
+        Returns:
+            The sequence of keys which sort this operator.
+        """
+        key = self.get if weight else None
+        return sorted(self, key=key)
+
+    def sort(self, *, weight: bool = False) -> SparseLabelOp:
+        """Returns a new sorted operator.
+
+        Args:
+            weight: when True, the returned keys will sort this operator according to the
+                coefficient weights of the stored terms; when False, the keys will sort the operator
+                by its keys (i.e. lexicographically).
+
+        Returns:
+            A new operator instance with its contents sorted.
+        """
+        indices = self.argsort(weight=weight)
+        return self.__class__(
+            {ind: self[ind] for ind in indices}, register_length=self.register_length, copy=False
+        )
 
     def induced_norm(self, order: int = 1) -> float:
         r"""Returns the p-norm induced by the operator coefficients.

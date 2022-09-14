@@ -113,8 +113,10 @@ class QubitConverter:
     def __init__(
         self,
         mapper: QubitMapper,
+        *,
         two_qubit_reduction: bool = False,
         z2symmetry_reduction: Optional[Union[str, List[int]]] = None,
+        sort_operators: bool = False,
     ):
         """
 
@@ -131,6 +133,11 @@ class QubitConverter:
                 from other experiments with the z2symmetry logic, then the tapering values of that
                 sector can be provided (a list of int of values -1, and 1). The default is None
                 meaning no symmetry reduction is done.
+            sort_operators: Whether or not the second-quantized operators should be sorted before
+                mapping them to the qubit space. Enable this if you run into result reproducability
+                issues which can occur when operator terms are not consistently ordered. This is
+                disabled by default, because in practice the Pauli-terms will be grouped later on
+                anyways.
         """
 
         self._mapper: QubitMapper = mapper
@@ -141,6 +148,8 @@ class QubitConverter:
         self._did_two_qubit_reduction: bool = False
         self._num_particles: Optional[Tuple[int, int]] = None
         self._z2symmetries: Z2Symmetries = self._no_symmetries
+
+        self._sort_operators: bool = sort_operators
 
     @property
     def _no_symmetries(self) -> Z2Symmetries:
@@ -397,6 +406,8 @@ class QubitConverter:
         return qubit_ops
 
     def _map(self, second_q_op: OPERATOR) -> PauliSumOp:
+        if self._sort_operators and isinstance(second_q_op, SparseLabelOp):
+            second_q_op = second_q_op.sort()
         return self._mapper.map(second_q_op)
 
     def _two_qubit_reduce(
