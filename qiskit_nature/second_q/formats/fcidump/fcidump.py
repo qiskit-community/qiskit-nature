@@ -23,7 +23,6 @@ from qiskit_nature import QiskitNatureError
 
 
 from .dumper import _dump_1e_ints, _dump_2e_ints, _write_to_outfile
-from .parser import _parse
 
 
 @dataclass
@@ -57,7 +56,8 @@ class FCIDump:
     num_orbitals: int
     """The number of orbitals."""
     constant_energy: float | None
-    """The constant energy comprising (for example) the nuclear repulsion energy and inactive energies."""
+    """The constant energy comprising (for example) the nuclear repulsion energy
+    and inactive energies."""
     orbsym: List[str] | None
     """A list of spatial symmetries of the orbitals."""
     isym: int
@@ -66,20 +66,10 @@ class FCIDump:
     @classmethod
     def from_file(cls, fcidump: str | Path) -> FCIDump:
         """Constructs an FCIDump object from a file."""
-        data = _parse(fcidump if isinstance(fcidump, Path) else Path(fcidump))
-        return cls(
-            hij=data.get("hij"),
-            hijkl=data.get("hijkl"),
-            hij_b=data.get("hij_b", None),
-            hijkl_ba=data.get("hijkl_ba", None),
-            hijkl_bb=data.get("hijkl_bb", None),
-            multiplicity=data.get("MS2", 0) + 1,
-            num_electrons=data.get("NELEC"),
-            num_orbitals=data.get("NORB"),
-            constant_energy=data.get("ecore", None),
-            orbsym=data.get("ORBSYM", None),
-            isym=data.get("ISYM"),
-        )
+        # pylint: disable=cyclic-import
+        from .parser import _parse
+
+        return _parse(fcidump if isinstance(fcidump, Path) else Path(fcidump))
 
     def to_file(self, fcidump: str | Path) -> None:
         """Dumps an FCIDump object to a file.

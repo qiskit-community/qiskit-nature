@@ -19,9 +19,10 @@ from pathlib import Path
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
+from .fcidump import FCIDump
 
 
-def _parse(fcidump: Path) -> Dict[str, Any]:
+def _parse(fcidump: Path) -> FCIDump:
     """Parses a FCIDump output.
 
     Args:
@@ -193,13 +194,19 @@ def _parse(fcidump: Path) -> Dict[str, Any]:
         if np.allclose(hijkl_ba, 0.0):
             hijkl_ba = hijkl_ab.transpose()
 
-    output["hij"] = hij
-    output["hij_b"] = hij_b
-    output["hijkl"] = hijkl
-    output["hijkl_ba"] = hijkl_ba
-    output["hijkl_bb"] = hijkl_bb
-
-    return output
+    return FCIDump(
+        hij=hij,
+        hijkl=hijkl,
+        hij_b=hij_b,
+        hijkl_ba=hijkl_ba,
+        hijkl_bb=hijkl_bb,
+        multiplicity=output.get("MS2", 0) + 1,
+        num_electrons=output.get("NELEC"),
+        num_orbitals=output.get("NORB"),
+        constant_energy=output.get("ecore", None),
+        orbsym=output.get("ORBSYM", None),
+        isym=output.get("ISYM"),
+    )
 
 
 def _permute_1e_ints(
