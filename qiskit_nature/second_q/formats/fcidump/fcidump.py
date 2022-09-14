@@ -29,7 +29,7 @@ from .parser import _parse
 @dataclass
 class FCIDump:
     """
-    Qiskit Nature dataclass for reading an FCIDump file.
+    Qiskit Nature dataclass for representing the FCIDump format.
 
     The FCIDump format is partially defined in Knowles1989.
 
