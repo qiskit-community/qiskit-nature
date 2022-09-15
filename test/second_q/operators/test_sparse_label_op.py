@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import Iterator
+from typing import Collection, Iterator
 
 import unittest
 from test import QiskitNatureTestCase
@@ -44,6 +44,10 @@ opComplex = {
 
 class DummySparseLabelOp(SparseLabelOp):
     """Dummy SparseLabelOp for testing purposes"""
+
+    @classmethod
+    def _validate_keys(cls, keys: Collection[str], register_length: int) -> None:
+        pass
 
     def terms(self) -> Iterator[tuple[list[tuple[str, int]], complex]]:
         pass

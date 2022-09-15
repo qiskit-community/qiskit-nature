@@ -15,12 +15,15 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from collections.abc import MutableMapping
+from collections.abc import Collection, MutableMapping
 from typing import Iterator
+
+import re
 
 import numpy as np
 from scipy.sparse import csc_matrix
 
+from qiskit_nature.exceptions import QiskitNatureError
 from .sparse_label_op import SparseLabelOp
 
 
@@ -94,7 +97,7 @@ class FermionicOp(SparseLabelOp):
 
     .. jupyter-execute::
 
-      0.25 * sum(FermionicOp({label: 1}, register_length=3) for label in ["+_0", "-_1", "N_2"])
+      0.25 * sum(FermionicOp({label: 1}, register_length=3) for label in ["+_0", "-_1", "+_2 -_2"])
 
     Operator multiplication
 
@@ -133,6 +136,30 @@ class FermionicOp(SparseLabelOp):
     Instances of `FermionicOp` are iterable. Iterating a FermionicOp yields (term, coefficient)
     pairs describing the terms contained in the operator.
     """
+
+    _OPERATION_REGEX = re.compile(r"([\+\-]_\d+\s)*[\+\-]_\d+")
+
+    @classmethod
+    def _validate_keys(cls, keys: Collection[str], register_length: int) -> None:
+        super()._validate_keys(keys, register_length)
+
+        for key in keys:
+            # 0. explicitly allow the empty key
+            if key == "":
+                continue
+
+            # 1. validate overall key structure
+            if not re.fullmatch(FermionicOp._OPERATION_REGEX, key):
+                raise QiskitNatureError(f"{key} is not a valid FermionicOp label.")
+
+            # 2. validate all indices against register length
+            for term in key.split(" "):
+                index = int(term[2:])
+                if index >= register_length:
+                    raise QiskitNatureError(
+                        f"The index, {index}, from the label, {key}, exceeds the register length, "
+                        f"{register_length}."
+                    )
 
     def __repr__(self) -> str:
         data_str = f"{dict(self.items())}"

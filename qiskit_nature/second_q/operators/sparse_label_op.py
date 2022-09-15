@@ -15,7 +15,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Mapping
+from collections.abc import Collection, Mapping
 from numbers import Number
 from typing import Iterator, Sequence
 
@@ -33,7 +33,14 @@ from qiskit.quantum_info.operators.mixins import (
 class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC, Mapping):
     """The Sparse Label Operator base class."""
 
-    def __init__(self, data: Mapping[str, complex], register_length: int, *, copy: bool = True):
+    def __init__(
+        self,
+        data: Mapping[str, complex],
+        register_length: int,
+        *,
+        copy: bool = True,
+        validate: bool = True,
+    ):
         """
         Args:
             data: the operator data, mapping string-based keys to numerical values.
@@ -42,10 +49,19 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
             copy: when set to False the `data` will not be copied and the dictionary will be
                 stored by reference rather than by value (which is the default; `copy=True`). Note,
                 that this requires you to not change the contents of the dictionary after
-                constructing the operator. Use with care!
+                constructing the operator. This also implies `validate=False`. Use with care!
+            validate: when set to False the `data` keys will not be validated. Note, that the
+                SparseLabelOp base class, makes no assumption about the data keys, so will not
+                perform any validation by itself. Only concrete subclasses are encouraged to
+                implement a key validation method. Disable this setting with care!
+
+        Raises:
+            QiskitNatureError: when an invalid key is encountered during validation.
         """
         self._data: Mapping[str, complex] = {}
         if copy:
+            if validate:
+                self.__class__._validate_keys(data.keys(), register_length)
             self._data = dict(data.items())
         else:
             self._data = data
@@ -55,6 +71,19 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
     def register_length(self) -> int:
         """Returns the register length"""
         return self._register_length
+
+    @classmethod
+    @abstractmethod
+    def _validate_keys(cls, keys: Collection[str], register_length: int) -> None:
+        """Validates a key.
+
+        Args:
+            keys: the keys to validate.
+            register_length: the register length of the operator.
+
+        Raises:
+            QiskitNatureError: when an invalid key is encountered.
+        """
 
     @classmethod
     def zero(cls, register_length: int) -> SparseLabelOp:

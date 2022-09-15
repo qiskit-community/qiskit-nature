@@ -14,14 +14,17 @@
 
 import unittest
 from test import QiskitNatureTestCase
+from ddt import ddt, data, unpack
 
 import numpy as np
 from scipy.sparse import csc_matrix
 from scipy.sparse.linalg import eigs
 
+from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.operators import FermionicOp
 
 
+@ddt
 class TestFermionicOp(QiskitNatureTestCase):
     """FermionicOp tests."""
 
@@ -292,9 +295,9 @@ class TestFermionicOp(QiskitNatureTestCase):
             self.assertEqual(fer_op, targ)
 
         with self.subTest("Test for multiple operators 1"):
-            orig = FermionicOp({"-_0 +_1": 1}, register_length=1)
+            orig = FermionicOp({"-_0 +_1": 1}, register_length=2)
             fer_op = orig.normal_ordered()
-            targ = FermionicOp({"+_1 -_0": -1}, register_length=1)
+            targ = FermionicOp({"+_1 -_0": -1}, register_length=2)
             self.assertEqual(fer_op, targ)
 
         with self.subTest("Test for multiple operators 2"):
@@ -316,6 +319,29 @@ class TestFermionicOp(QiskitNatureTestCase):
         )
         self.assertAlmostEqual(op.induced_norm(), 7.0)
         self.assertAlmostEqual(op.induced_norm(2), 5.0)
+
+    @unpack
+    @data(
+        ("", 1, True),  # empty string
+        ("+_0", 1, True),  # single term
+        ("+_0 -_0", 1, True),  # multiple terms
+        ("+_10", 11, True),  # multiple digits
+        (" +_0", 1, False),  # leading whitespace
+        ("+_0 ", 1, False),  # trailing whitespace
+        ("+_0  -_0", 1, False),  # multiple separating spaces
+        ("+_0a", 1, False),  # incorrect term pattern
+        ("+_a0", 1, False),  # incorrect term pattern
+        ("0_+", 1, False),  # incorrect term pattern
+        ("something", 1, False),  # incorrect term pattern
+        ("+_1", 1, False),  # register length is too short
+    )
+    def test_validate(self, key: str, length: int, valid: bool):
+        """Test key validation."""
+        if valid:
+            _ = FermionicOp({key: 1.0}, register_length=length)
+        else:
+            with self.assertRaises(QiskitNatureError):
+                _ = FermionicOp({key: 1.0}, register_length=length)
 
 
 if __name__ == "__main__":
