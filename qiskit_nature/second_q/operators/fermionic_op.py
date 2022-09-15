@@ -386,17 +386,6 @@ class FermionicOp(SparseLabelOp):
         return all(np.isclose(coeff, 0.0, atol=atol) for coeff in diff.values())
 
     def simplify(self, *, atol: float | None = None) -> FermionicOp:
-        """Simplify the operator.
-
-        Merges terms with same labels and eliminates terms with coefficients close to 0.
-        Returns a new operator (the original operator is not modified).
-
-        Args:
-            atol: Absolute numerical tolerance. The default behavior is to use ``self.atol``.
-
-        Returns:
-            The simplified operator.
-        """
         atol = self.atol if atol is None else atol
 
         data = defaultdict(complex)  # type: dict[str, complex]

@@ -347,6 +347,20 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
             {ind: self[ind] for ind in indices}, register_length=self.register_length, copy=False
         )
 
+    @abstractmethod
+    def simplify(self, *, atol: float | None = None) -> SparseLabelOp:
+        """Simplify the operator.
+
+        Merges terms with same labels and eliminates terms with coefficients close to 0.
+        Returns a new operator (the original operator is not modified).
+
+        Args:
+            atol: Absolute numerical tolerance. The default behavior is to use ``self.atol``.
+
+        Returns:
+            The simplified operator.
+        """
+
     def induced_norm(self, order: int = 1) -> float:
         r"""Returns the p-norm induced by the operator coefficients.
 

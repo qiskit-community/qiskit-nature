@@ -64,6 +64,10 @@ class DummySparseLabelOp(SparseLabelOp):
     def expand(self, other) -> SparseLabelOp:
         return self
 
+    # pylint: disable=unused-argument
+    def simplify(self, *, atol: float | None = None) -> SparseLabelOp:
+        return self
+
 
 class TestSparseLabelOp(QiskitNatureTestCase):
     """SparseLabelOp tests."""
