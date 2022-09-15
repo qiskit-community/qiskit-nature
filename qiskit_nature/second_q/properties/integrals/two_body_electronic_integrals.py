@@ -182,8 +182,8 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
         return np.where(np.abs(so_matrix) > self._threshold, so_matrix, 0.0)
 
     @staticmethod
-    def _calc_coeffs_with_ops(indices: tuple[int, ...]) -> list[tuple[str, int]]:
-        return [("+", indices[0]), ("+", indices[2]), ("-", indices[3]), ("-", indices[1])]
+    def _calc_coeffs_with_ops(indices: tuple[int, ...]) -> str:
+        return f"+_{indices[0]} +_{indices[2]} -_{indices[3]} -_{indices[1]}"
 
     def compose(
         self, other: ElectronicIntegrals, einsum_subscript: Optional[str] = None

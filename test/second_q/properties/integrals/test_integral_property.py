@@ -99,7 +99,7 @@ class TestIntegralProperty(PropertyTest):
             encoding="utf8",
         ) as file:
             expected = json.load(file)
-        for op, expected_op in zip(second_q_ops[0].to_list(), expected):
+        for op, expected_op in zip(sorted(second_q_ops[0].items()), sorted(expected.items())):
             self.assertEqual(op[0], expected_op[0])
             self.assertTrue(np.isclose(op[1], expected_op[1]))
 

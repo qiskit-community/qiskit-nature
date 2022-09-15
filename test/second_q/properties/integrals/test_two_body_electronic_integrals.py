@@ -159,7 +159,7 @@ class TestTwoBodyElectronicIntegrals(PropertyTest):
 
         with self.subTest("Only alpha"):
             ints = TwoBodyElectronicIntegrals(ElectronicBasis.MO, (mat_aa, None, None, None))
-            op = ints.to_second_q_op()
+            second_q_op = ints.to_second_q_op()
             with open(
                 self.get_resource_path(
                     "two_body_test_to_second_q_op_only_alpha_expected.json",
@@ -169,15 +169,15 @@ class TestTwoBodyElectronicIntegrals(PropertyTest):
                 encoding="utf8",
             ) as file:
                 expected = json.load(file)
-            for (real_label, real_coeff), (exp_label, exp_coeff) in zip(op.to_list(), expected):
-                self.assertEqual(real_label, exp_label)
-                self.assertTrue(np.isclose(real_coeff, exp_coeff))
+            for op, expected_op in zip(sorted(second_q_op.items()), expected.items()):
+                self.assertEqual(op[0], expected_op[0])
+                self.assertTrue(np.isclose(op[1], expected_op[1]))
 
         with self.subTest("Alpha and beta"):
             ints = TwoBodyElectronicIntegrals(
                 ElectronicBasis.MO, (mat_aa, mat_ba, mat_bb, mat_ba.T)
             )
-            op = ints.to_second_q_op()
+            second_q_op = ints.to_second_q_op()
             with open(
                 self.get_resource_path(
                     "two_body_test_to_second_q_op_alpha_and_beta_expected.json",
@@ -187,9 +187,9 @@ class TestTwoBodyElectronicIntegrals(PropertyTest):
                 encoding="utf8",
             ) as file:
                 expected = json.load(file)
-            for (real_label, real_coeff), (exp_label, exp_coeff) in zip(op.to_list(), expected):
-                self.assertEqual(real_label, exp_label)
-                self.assertTrue(np.isclose(real_coeff, exp_coeff))
+            for op, expected_op in zip(sorted(second_q_op.items()), expected.items()):
+                self.assertEqual(op[0], expected_op[0])
+                self.assertTrue(np.isclose(op[1], expected_op[1]))
 
     def test_add(self):
         """Test addition."""

@@ -15,14 +15,12 @@
 from __future__ import annotations
 
 import numpy as np
-
-from qiskit import QuantumRegister, QuantumCircuit
+from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.opflow import PauliSumOp
 from qiskit.utils.validation import validate_min
 
+from qiskit_nature.second_q.mappers import BravyiKitaevSuperFastMapper, QubitConverter
 from qiskit_nature.second_q.operators import FermionicOp
-from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.mappers import BravyiKitaevSuperFastMapper
 
 
 class HartreeFock(QuantumCircuit):
@@ -93,8 +91,10 @@ def hartree_fock_bitstring_mapped(
     bitstr = hartree_fock_bitstring(num_spin_orbitals, num_particles)
 
     # encode the bitstring as a `FermionicOp`
-    label = ["+" if bit else "I" for bit in bitstr]
-    bitstr_op = FermionicOp("".join(label), display_format="sparse")
+    bitstr_op = FermionicOp(
+        {" ".join(f"+_{idx}" for idx, bit in enumerate(bitstr) if bit): 1.0},
+        register_length=num_spin_orbitals,
+    )
 
     # map the `FermionicOp` to a qubit operator
     qubit_op: PauliSumOp = (

@@ -12,13 +12,15 @@
 
 """Test DipoleMoment Property"""
 
-import json
+from __future__ import annotations
+
 import tempfile
 import unittest
 from test.second_q.properties.property_test import PropertyTest
 
 import h5py
 import numpy as np
+from ddt import ddt, data, unpack
 
 import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.drivers import PySCFDriver
@@ -33,6 +35,7 @@ from qiskit_nature.second_q.properties.integrals import (
 
 
 @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
+@ddt
 class TestElectronicDipoleMoment(PropertyTest):
     """Test ElectronicDipoleMoment Property"""
 
@@ -42,24 +45,31 @@ class TestElectronicDipoleMoment(PropertyTest):
         driver = PySCFDriver()
         self.prop = driver.run().properties.electronic_dipole_moment
 
-    def test_second_q_ops(self):
+    @data(
+        ("DipoleMomentX", {}),
+        ("DipoleMomentY", {}),
+        (
+            "DipoleMomentZ",
+            {
+                "+_0 -_0": 0.6944743538354734,
+                "+_0 -_1": 0.9278334722175678,
+                "+_1 -_0": 0.9278334722175678,
+                "+_1 -_1": 0.6944743538354735,
+                "+_2 -_2": 0.6944743538354734,
+                "+_2 -_3": 0.9278334722175678,
+                "+_3 -_2": 0.9278334722175678,
+                "+_3 -_3": 0.6944743538354735,
+            },
+        ),
+    )
+    @unpack
+    def test_second_q_ops(self, key: str, expected_op_data: dict[str, float]):
         """Test second_q_ops."""
-        ops = [
-            self.prop.second_q_ops()["DipoleMomentX"],
-            self.prop.second_q_ops()["DipoleMomentY"],
-            self.prop.second_q_ops()["DipoleMomentZ"],
-        ]
-        self.assertEqual(len(ops), 3)
-        with open(
-            self.get_resource_path("dipole_moment_ops.json", "second_q/properties/resources"),
-            "r",
-            encoding="utf8",
-        ) as file:
-            expected = json.load(file)
-        for op, expected_op in zip(ops, expected):
-            for truth, exp in zip(op.to_list(), expected_op):
-                self.assertEqual(truth[0], exp[0])
-                self.assertTrue(np.isclose(np.abs(truth[1]), np.abs(exp[1])))
+        op = self.prop.second_q_ops()[key]
+        self.assertEqual(len(op), len(expected_op_data))
+        for (key1, val1), (key2, val2) in zip(op.items(), expected_op_data.items()):
+            self.assertEqual(key1, key2)
+            self.assertTrue(np.isclose(np.abs(val1), val2))
 
     def test_to_hdf5(self):
         """Test to_hdf5."""

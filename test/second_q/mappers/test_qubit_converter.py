@@ -165,9 +165,7 @@ class TestQubitConverter(QiskitNatureTestCase):
         # Regression test against https://github.com/Qiskit/qiskit-nature/issues/271
         with self.subTest("Two qubit reduction skipped when operator too small"):
             qubit_conv.two_qubit_reduction = True
-            small_op = FermionicOp(
-                [("N_0", 1.0), ("E_1", 1.0)], register_length=2, display_format="sparse"
-            )
+            small_op = FermionicOp({"+_0 -_0": 1.0, "-_1 +_1": 1.0}, register_length=2)
             expected_op = 1.0 * (I ^ I) - 0.5 * (I ^ Z) + 0.5 * (Z ^ Z)
             with contextlib.redirect_stderr(io.StringIO()) as out:
                 qubit_op = qubit_conv.convert(small_op, num_particles=self.num_particles)
