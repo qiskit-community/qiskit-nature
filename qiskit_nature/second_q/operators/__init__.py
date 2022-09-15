@@ -27,6 +27,14 @@ Operators and mappers for different systems such as fermionic, vibrational and s
    SecondQuantizedOp
    VibrationalOp
    PolynomialTensor
+
+Modules
+-------
+
+.. autosummary::
+   :toctree:
+
+   tensor_ordering
 """
 
 from .fermionic_op import FermionicOp
