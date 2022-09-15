@@ -12,6 +12,10 @@
 
 """Test for SparseLabelOp"""
 
+from __future__ import annotations
+
+from typing import Collection, Iterator
+
 import unittest
 from test import QiskitNatureTestCase
 
@@ -41,7 +45,27 @@ opComplex = {
 class DummySparseLabelOp(SparseLabelOp):
     """Dummy SparseLabelOp for testing purposes"""
 
+    @classmethod
+    def _validate_keys(cls, keys: Collection[str], register_length: int) -> None:
+        pass
+
+    def terms(self) -> Iterator[tuple[list[tuple[str, int]], complex]]:
+        pass
+
     def transpose(self) -> SparseLabelOp:
+        return self
+
+    def compose(self, other, qargs=None, front=False) -> SparseLabelOp:
+        return self
+
+    def tensor(self, other) -> SparseLabelOp:
+        return self
+
+    def expand(self, other) -> SparseLabelOp:
+        return self
+
+    # pylint: disable=unused-argument
+    def simplify(self, *, atol: float | None = None) -> SparseLabelOp:
         return self
 
 
@@ -280,6 +304,18 @@ class TestSparseLabelOp(QiskitNatureTestCase):
         test_op = DummySparseLabelOp(data, 2, copy=True)
         data["+_0 -_1"] = 0.2
         self.assertEqual(test_op._data["+_0 -_1"], 0.0)
+
+    def test_zero(self):
+        """test zero class initializer"""
+        test_op = DummySparseLabelOp.zero(1)
+        self.assertEqual(test_op._data, {})
+        self.assertEqual(test_op.register_length, 1)
+
+    def test_one(self):
+        """test one class initializer"""
+        test_op = DummySparseLabelOp.one(1)
+        self.assertEqual(test_op._data, {"": 1.0})
+        self.assertEqual(test_op.register_length, 1)
 
 
 if __name__ == "__main__":

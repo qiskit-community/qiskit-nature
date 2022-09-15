@@ -21,7 +21,7 @@ import numpy as np
 
 import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.drivers import PySCFDriver
-from qiskit_nature.second_q.operators import SecondQuantizedOp
+from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.transformers import ActiveSpaceTransformer
 
 
@@ -48,11 +48,11 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
             assert len(second_quantized_ops) == expected_num_of_sec_quant_ops
         with self.subTest("Check types in the list of second quantized operators."):
             for second_quantized_op in second_quantized_ops.values():
-                assert isinstance(second_quantized_op, SecondQuantizedOp)
+                assert isinstance(second_quantized_op, SparseLabelOp)
         with self.subTest("Check components of electronic second quantized operator."):
             assert all(
                 s[0] == t[0] and np.isclose(np.abs(s[1]), np.abs(t[1]))
-                for s, t in zip(expected_fermionic_op, electr_sec_quant_op.to_list())
+                for s, t in zip(sorted(expected_fermionic_op), sorted(electr_sec_quant_op.items()))
             )
 
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
@@ -75,11 +75,11 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
             assert len(second_quantized_ops) == expected_num_of_sec_quant_ops
         with self.subTest("Check types in the list of second quantized operators."):
             for second_quantized_op in second_quantized_ops.values():
-                assert isinstance(second_quantized_op, SecondQuantizedOp)
+                assert isinstance(second_quantized_op, SparseLabelOp)
         with self.subTest("Check components of electronic second quantized operator."):
             assert all(
                 s[0] == t[0] and np.isclose(np.abs(s[1]), np.abs(t[1]))
-                for s, t in zip(expected_fermionic_op, electr_sec_quant_op.to_list())
+                for s, t in zip(sorted(expected_fermionic_op), sorted(electr_sec_quant_op.items()))
             )
 
 

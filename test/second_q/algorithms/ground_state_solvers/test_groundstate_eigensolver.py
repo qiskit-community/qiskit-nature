@@ -141,7 +141,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         _ = calc.solve(self.electronic_structure_problem)
 
         assert all(
-            frozenset(a.to_list()) == frozenset(b.to_list()) for a, b in zip(aux_ops, aux_ops_copy)
+            frozenset(a.items()) == frozenset(b.items()) for a, b in zip(aux_ops, aux_ops_copy)
         )
 
     def _setup_evaluation_operators(self):
@@ -398,7 +398,8 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         aer = importlib.import_module("qiskit.providers.aer")
         backend = aer.Aer.get_backend("aer_simulator")
 
-        ansatz = self._prepare_uccsd_hf(self.qubit_converter)
+        qubit_converter = QubitConverter(JordanWignerMapper(), sort_operators=True)
+        ansatz = self._prepare_uccsd_hf(qubit_converter)
 
         optimizer = SPSA(maxiter=200, last_avg=5)
         solver = VQE(
@@ -412,7 +413,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
             ),
         )
 
-        gsc = GroundStateEigensolver(self.qubit_converter, solver)
+        gsc = GroundStateEigensolver(qubit_converter, solver)
 
         result = gsc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(result.total_energies[0], -1.131, places=2)

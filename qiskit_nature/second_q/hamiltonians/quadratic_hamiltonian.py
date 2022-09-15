@@ -158,16 +158,16 @@ class QuadraticHamiltonian(Hamiltonian, TolerancesMixin):
 
     def second_q_op(self) -> FermionicOp:
         """Convert to FermionicOp."""
-        terms: list[tuple[list[tuple[str, int]], complex]] = [([], self.constant)]
+        terms = {"": self.constant}
         for i in range(self._num_modes):
-            terms.append(([("+", i), ("-", i)], self.hermitian_part[i, i]))
+            terms[f"+_{i} -_{i}"] = self.hermitian_part[i, i]
             for j in range(i + 1, self._num_modes):
-                terms.append(([("+", i), ("-", j)], self.hermitian_part[i, j]))
-                terms.append(([("+", j), ("-", i)], self.hermitian_part[j, i]))
-                terms.append(([("+", i), ("+", j)], self.antisymmetric_part[i, j]))
-                terms.append(([("-", j), ("-", i)], self.antisymmetric_part[i, j].conjugate()))
+                terms[f"+_{i} -_{j}"] = self.hermitian_part[i, j]
+                terms[f"+_{j} -_{i}"] = self.hermitian_part[j, i]
+                terms[f"+_{i} +_{j}"] = self.antisymmetric_part[i, j]
+                terms[f"-_{j} -_{i}"] = self.antisymmetric_part[i, j].conjugate()
         # TODO remove display_format="sparse" once it's no longer needed to suppress warning
-        return FermionicOp(terms, register_length=self._num_modes, display_format="sparse")
+        return FermionicOp(terms, register_length=self._num_modes, copy=False)
 
     def conserves_particle_number(self) -> bool:
         """Whether the Hamiltonian conserves particle number."""

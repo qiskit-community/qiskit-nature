@@ -202,6 +202,7 @@ heisenberg
 helgaker
 hermite
 hermitian
+hermiticity
 hijkls
 hijs
 hilbert
@@ -266,6 +267,7 @@ kwds
 labelled
 lda
 leighton
+lexicographically
 ldots
 len
 leucine
@@ -509,6 +511,7 @@ taylor
 tb
 tdg
 tensored
+tensoring
 terra
 th
 thermostabilization

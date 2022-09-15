@@ -102,14 +102,16 @@ def _build_single_hopping_operator(
     num_spin_orbitals: int,
     qubit_converter: QubitConverter,
 ) -> Tuple[PauliSumOp, List[bool]]:
-    label = ["I"] * num_spin_orbitals
+    label = []
     for occ in excitation[0]:
-        label[occ] = "+"
+        label.append(f"+_{occ}")
     for unocc in excitation[1]:
-        label[unocc] = "-"
-    fer_op = FermionicOp(("".join(label), 4.0 ** len(excitation[0])), display_format="sparse")
+        label.append(f"-_{unocc}")
+    fer_op = FermionicOp(
+        {" ".join(label): 4.0 ** len(excitation[0])}, register_length=num_spin_orbitals
+    )
 
-    qubit_op: PauliSumOp = qubit_converter.convert_only(fer_op, qubit_converter.num_particles)
+    qubit_op = qubit_converter.convert_only(fer_op, qubit_converter.num_particles)
     z2_symmetries = qubit_converter.z2symmetries
 
     commutativities = []

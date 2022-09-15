@@ -29,7 +29,6 @@ from qiskit_nature.second_q.operators import FermionicOp, SecondQuantizedOp
 
 from .utils.fermionic_excitation_generator import generate_fermionic_excitations
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -500,12 +499,12 @@ class UCC(EvolvedOperatorAnsatz):
         operators = []
 
         for exc in excitations:
-            label = ["I"] * self.num_spin_orbitals
+            label = []
             for occ in exc[0]:
-                label[occ] = "+"
+                label.append(f"+_{occ}")
             for unocc in exc[1]:
-                label[unocc] = "-"
-            op = FermionicOp("".join(label), display_format="dense")
+                label.append(f"-_{unocc}")
+            op = FermionicOp({" ".join(label): 1}, register_length=self.num_spin_orbitals)
             op -= op.adjoint()
             # we need to account for an additional imaginary phase in the exponent (see also
             # `PauliTrotterEvolution.convert`)

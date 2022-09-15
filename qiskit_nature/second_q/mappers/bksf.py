@@ -12,6 +12,8 @@
 
 """The Bravyi-Kitaev Super-Fast (BKSF) Mapper."""
 
+from __future__ import annotations
+
 from enum import Enum
 from typing import List, Tuple
 import numpy as np
@@ -42,9 +44,6 @@ class BravyiKitaevSuperFastMapper(FermionicMapper):
     def map(self, second_q_op: FermionicOp) -> PauliSumOp:
         if not isinstance(second_q_op, FermionicOp):
             raise TypeError("Type ", type(second_q_op), " not supported.")
-
-        if second_q_op.display_format == "sparse":
-            second_q_op = FermionicOp(second_q_op._to_dense_label_data(), display_format="dense")
 
         edge_list = _bksf_edge_list_fermionic_op(second_q_op)
         sparse_pauli = _convert_operator(second_q_op, edge_list)
@@ -85,17 +84,18 @@ def _convert_operator(ferm_op: FermionicOp, edge_list: np.ndarray) -> SparsePaul
     Raises:
       ValueError: if the type of interaction of any term is unknown.
     """
+    encountered_terms = set()
     sparse_pauli = None
-    for term in ferm_op.to_list():
+    for term in ferm_op.terms():
         if _operator_coefficient(term) == 0:
             continue
         term_type, facs = _analyze_term(_operator_string(term))
-        if facs[0][1] == "-":  # keep only one of h.c. pair
+
+        # construct h.c. pair
+        hc_facs = frozenset((i, "-" if c == "+" else "+") for i, c in facs)
+        if hc_facs in encountered_terms:
             continue
-        ## Following only filters h.c. of some number-excitation op
-        if facs[0][0] == facs[1][0]:  # first op is number op, which is it's own h.c.
-            if len(facs) > 2 and facs[2][1] == "-":  # So, look at next op to skip h.c.
-                continue
+        encountered_terms.add(frozenset(facs))
 
         if term_type == TermType.NUMBER:  # a^\dagger_p a_p
             p = facs[0][0]  # pylint: disable=invalid-name
@@ -155,24 +155,24 @@ def _add_sparse_pauli(qubit_op1: SparsePauliOp, qubit_op2: SparsePauliOp) -> Spa
         return qubit_op1 + qubit_op2
 
 
-def _analyze_term(term_str: str) -> Tuple[TermType, List[Tuple[int, str]]]:
+def _analyze_term(terms: list[tuple[str, int]]) -> Tuple[TermType, List[Tuple[int, str]]]:
     """Return the type of interaction represented by `term_str` and
     a list of the factors and their indices in `term_str`.
 
     Args:
-      term_str: a string of characters in `+-NI`.
+      terms: a list of pairs consisting of `+` or `-` chars and indices.
 
     Returns:
       tuple: The first element is a `TermType` specifying the interaction type. See the method
       `_interaction_type`. The second is a list of factors as returned by `_unpack_term`.
     """
-    (n_number, n_raise, n_lower), facs = _unpack_term(term_str, expand_number_op=True)
+    (n_number, n_raise, n_lower), facs = _unpack_term(terms, compress_number_op=False)
     _type = _interaction_type(n_number, n_raise, n_lower)
     return _type, facs
 
 
-def _operator_string(term: Tuple) -> str:
-    """Return the string describing the operators in the term extracted from a `FermionicOp`.
+def _operator_string(term: Tuple) -> list[tuple[str, int]]:
+    """Return the list of pairs describing the operators in the term extracted from a `FermionicOp`
     given by `term`.
     """
     return term[0]
@@ -254,7 +254,7 @@ def _excitation_operator(  # pylint: disable=invalid-name
       The result of the Fermionic to Pauli operator mapping.
     """  # pylint: disable=missing-raises-doc
     if p >= q:
-        raise ValueError("Expected p < q, got p = ", p, ", q = ", q)
+        raise ValueError(f"Expected p < q, got p = {p}, q = {q}")
     b_a = _edge_operator_bi(edge_list, p)
     b_b = _edge_operator_bi(edge_list, q)
     a_ab = _edge_operator_aij(edge_list, p, q)
@@ -359,7 +359,7 @@ def _number_excitation(  # pylint: disable=invalid-name
 
 
 def _unpack_term(
-    term_str: str, expand_number_op: bool = False
+    terms: list[tuple[str, int]], compress_number_op: bool
 ) -> Tuple[Tuple[int, int, int], List[Tuple[int, str]]]:
     """Return a tuple specifying the counts of kinds of operators in `term_str` and
     a list of the factors and their indices in `term_str`.
@@ -371,7 +371,7 @@ def _unpack_term(
     are ignored.
 
     Args:
-       term_str: a string of characters in `N+-I`.
+      terms: a list of pairs consisting of `+` or `-` chars and indices.
        expand_number_op: if `True`, number operators are expanded to `(i, '+')`, `(i, '-')`
          in the returned list of factors.
 
@@ -381,28 +381,34 @@ def _unpack_term(
       tuples of two elements: the first is an index and the second one of "-", "+", or "N".
       If `expand_number_op` is `True`, then factors of `N` are expanded.
     """  # pylint: disable=missing-raises-doc
-    (n_number, n_raise, n_lower) = (0, 0, 0)
+    pluses = set()
+    minuses = set()
+    numbers = set()
     facs = []
-    for i, c in enumerate(term_str):
-        if c == "I":
+    for term in terms:
+        if not term:
             continue
+        c = term[0]
+        i = int(term[1])
         if c == "+":
-            n_raise += 1
+            pluses.add(i)
             facs.append((i, "+"))
         elif c == "-":
-            n_lower += 1
-            facs.append((i, "-"))
-        elif c == "N":
-            n_number += 1
-            if expand_number_op:
-                facs.append((i, "+"))
-                facs.append((i, "-"))
+            if i in pluses:
+                pluses.discard(i)
+                numbers.add(i)
+                if compress_number_op:
+                    facs.remove((i, "+"))
+                    facs.append((i, "N"))
+                else:
+                    facs.append((i, "-"))
             else:
-                facs.append((i, "N"))
+                minuses.add(i)
+                facs.append((i, "-"))
         else:
             raise ValueError("Unsupported operator ", c, " in term.")
 
-    return (n_number, n_raise, n_lower), facs
+    return (len(numbers), len(pluses), len(minuses)), facs
 
 
 def _interaction_type(n_number: int, n_raise: int, n_lower: int) -> TermType:
@@ -456,7 +462,7 @@ def _get_adjacency_matrix(fer_op: FermionicOp) -> np.ndarray:
     """
     n_modes = fer_op.register_length
     edge_matrix = np.zeros((n_modes, n_modes), dtype=bool)
-    for term in fer_op.to_list():
+    for term in fer_op.terms():
         if _operator_coefficient(term) != 0:
             _add_edges_for_term(edge_matrix, _operator_string(term))
     return edge_matrix
@@ -477,16 +483,14 @@ def _add_one_edge(edge_matrix: np.ndarray, i: int, j: int) -> None:
     edge_matrix[min(i, j), max(i, j)] = True
 
 
-def _add_edges_for_term(edge_matrix: np.ndarray, term_str: str) -> None:
+def _add_edges_for_term(edge_matrix: np.ndarray, terms: list[tuple[str, int]]) -> None:
     """Add one, two, or no edges to `edge_matrix` as dictated by the operator `term_str`.
 
     Args:
       edge_matrix: an adjacency matrix representing the connectivity graph.
-      term_str: A representation of the interaction satisfying the description in the method
-        `_unpack_term`. The number of explicit raising and lowering operators ('+' and '-')
-        must be equal.
+      terms: a list of pairs consisting of `+` or `-` chars and indices.
     """  # pylint: disable=missing-raises-doc
-    (n_number, n_raise, n_lower), facs = _unpack_term(term_str)
+    (n_number, n_raise, n_lower), facs = _unpack_term(terms, compress_number_op=True)
     _type = _interaction_type(n_number, n_raise, n_lower)
     # For EXCITATION and NUMBER_EXCITATION, create an edge between the `+` and `-`.
     if _type in (TermType.EXCITATION, TermType.NUMBER_EXCITATION):

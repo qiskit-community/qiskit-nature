@@ -37,19 +37,18 @@ class TestParticleNumber(PropertyTest):
 
     def test_second_q_ops(self):
         """Test second_q_ops."""
-        ops = [self.prop.second_q_ops()["ParticleNumber"]]
-        self.assertEqual(len(ops), 1)
-        expected = [
-            "+_0 -_0",
-            "+_1 -_1",
-            "+_2 -_2",
-            "+_3 -_3",
-            "+_4 -_4",
-            "+_5 -_5",
-            "+_6 -_6",
-            "+_7 -_7",
-        ]
-        self.assertEqual([l for l, _ in ops[0].to_list()], expected)
+        ops = self.prop.second_q_ops()["ParticleNumber"]
+        expected = {
+            "+_0 -_0": 1.0,
+            "+_1 -_1": 1.0,
+            "+_2 -_2": 1.0,
+            "+_3 -_3": 1.0,
+            "+_4 -_4": 1.0,
+            "+_5 -_5": 1.0,
+            "+_6 -_6": 1.0,
+            "+_7 -_7": 1.0,
+        }
+        self.assertEqual(dict(ops.items()), expected)
 
     def test_non_singlet_occupation(self):
         """Regression test against occupation computation of non-singlet state."""

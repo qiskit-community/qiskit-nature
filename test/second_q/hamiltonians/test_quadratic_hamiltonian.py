@@ -175,16 +175,16 @@ class TestQuadraticHamiltonian(QiskitNatureTestCase):
         constant = 5.0
         quad_ham = QuadraticHamiltonian(hermitian_part, antisymmetric_part, constant)
         fermionic_op = quad_ham.second_q_op()
-        expected_terms = [
-            ("NI", 1.0),
-            ("IN", 3.0),
-            ("+-", 2j),
-            ("-+", 2j),
-            ("++", 4j),
-            ("--", 4j),
-            ("II", 5.0),
-        ]
-        expected_op = FermionicOp(expected_terms)
+        expected_terms = {
+            "": 5.0,
+            "+_0 -_0": 1.0,
+            "+_1 -_1": 3.0,
+            "+_0 -_1": 2j,
+            "-_0 +_1": 2j,
+            "+_0 +_1": 4j,
+            "-_0 -_1": 4j,
+        }
+        expected_op = FermionicOp(expected_terms, register_length=2)
         matrix = fermionic_op.to_matrix(sparse=False)
         expected_matrix = expected_op.to_matrix(sparse=False)
         np.testing.assert_allclose(matrix, expected_matrix)
