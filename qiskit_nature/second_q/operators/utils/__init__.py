@@ -10,6 +10,6 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Utility functions to detect and transform the index-ordering convention of two-body integrals"""
+"""Utility functions for operators."""
 
 from .two_body_symmetry_conversion import find_index_order, to_chem, to_phys

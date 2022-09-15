@@ -22,7 +22,6 @@ from qiskit_nature import QiskitNatureError
 from qiskit_nature.settings import settings
 
 from .electronic_integrals import ElectronicIntegrals
-from .electronic_integrals_utils import find_index_order, to_chem
 from .one_body_electronic_integrals import OneBodyElectronicIntegrals
 from ..bases import ElectronicBasis, ElectronicBasisTransform
 from .....deprecation import warn_deprecated, DeprecatedType, NatureDeprecationWarning
@@ -45,7 +44,6 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
         threshold: float = ElectronicIntegrals.INTEGRAL_TRUNCATION_LEVEL,
     ) -> None:
         # pylint: disable=line-too-long
-        # pylint: disable=missing-raises-doc
         """
         Args:
             basis: the basis which these integrals are stored in. If this is initialized with
@@ -62,23 +60,8 @@ class TwoBodyElectronicIntegrals(ElectronicIntegrals):
                 any of the latter three matrices are ``None``, the alpha-alpha-spin matrix will be
                 used in their place.  However, the final matrix will be replaced by the transpose of
                 the second one, if and only if that happens to differ from ``None``.
-                The index-ordering convention must be either chemists' or physicists'. In case it is
-                the latter, it will be transformed to the former before storage.
             threshold: the truncation level below which to treat the integral as zero-valued.
         """
-        if isinstance(matrices, np.ndarray):
-            index_order = find_index_order(matrices)
-            if index_order == "physicist":
-                matrices = to_chem(matrices)
-            elif (
-                index_order == "intermediate"
-            ):  # TODO: Point to a longer explanation, or give it here.
-                raise ValueError(
-                    'The two body integrals follow the unsupported "intermediate" index order.'
-                )
-            elif index_order == "unknown":
-                raise ValueError("Unable to detect index-order of the two body integrals.")
-
         num_body_terms = 2
         super().__init__(num_body_terms, basis, matrices, threshold)
         warn_deprecated(

@@ -17,8 +17,7 @@ from test import QiskitNatureTestCase
 import numpy as np
 from ddt import data, ddt, unpack
 
-# pylint: disable=line-too-long
-from qiskit_nature.properties.second_quantization.electronic.integrals.electronic_integrals_utils.two_body_symmetry_conversion import (
+from qiskit_nature.second_q.operators.utils.two_body_symmetry_conversion import (
     to_chem,
     to_phys,
     find_index_order,
