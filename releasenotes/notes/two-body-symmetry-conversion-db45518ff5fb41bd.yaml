@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    Adds utility functions for converting between chemists' and physicists' index ordering
+    for two-body integrals. :meth:`qiskit_nature.second_q.operators.tensor_ordering.to_chemist_ordering`
+    converts from physicists' or intermediate order to chemists', whereas
+    :meth:`qiskit_nature.second_q.operators.tensor_ordering.to_physicist_ordering` converts to physicists'.
+    :meth:`qiskit_nature.second_q.operators.tensor_ordering.find_index_order` returns the
+    index-order type for a given two-body tensor.
