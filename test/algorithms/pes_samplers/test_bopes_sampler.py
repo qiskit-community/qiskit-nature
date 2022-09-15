@@ -133,11 +133,10 @@ class TestBOPES(QiskitNatureTestCase):
     def test_vqe_bootstrap(self):
         """Test with VQE and bootstrapping."""
         qubit_converter = QubitConverter(JordanWignerMapper())
-        import importlib
+        from qiskit_aer import Aer
 
-        aer = importlib.import_module("qiskit.providers.aer")
         quantum_instance = QuantumInstance(
-            backend=aer.Aer.get_backend("aer_simulator_statevector"),
+            backend=Aer.get_backend("aer_simulator_statevector"),
             seed_simulator=self.seed,
             seed_transpiler=self.seed,
         )
@@ -172,11 +171,10 @@ class TestBOPES(QiskitNatureTestCase):
     @unittest.skipUnless(optionals.HAS_AER, "qiskit-aer is required to run this test")
     def test_h2_bopes_sampler_with_factory(self):
         """Test BOPES Sampler with Factory"""
-        import importlib
+        from qiskit_aer import Aer
 
-        aer = importlib.import_module("qiskit.providers.aer")
         quantum_instance = QuantumInstance(
-            backend=aer.Aer.get_backend("aer_simulator_statevector"),
+            backend=Aer.get_backend("aer_simulator_statevector"),
             seed_simulator=self.seed,
             seed_transpiler=self.seed,
         )
@@ -271,11 +269,10 @@ class TestBOPES(QiskitNatureTestCase):
         problem = ElectronicStructureProblem(driver)
 
         qubit_converter = QubitConverter(JordanWignerMapper(), z2symmetry_reduction=None)
-        import importlib
+        from qiskit_aer import Aer
 
-        aer = importlib.import_module("qiskit.providers.aer")
         quantum_instance = QuantumInstance(
-            backend=aer.Aer.get_backend("aer_simulator_statevector"),
+            backend=Aer.get_backend("aer_simulator_statevector"),
             seed_simulator=self.seed,
             seed_transpiler=self.seed,
         )
@@ -320,11 +317,10 @@ class TestBOPES(QiskitNatureTestCase):
         problem = ElectronicStructureProblem(driver)
 
         qubit_converter = QubitConverter(JordanWignerMapper(), z2symmetry_reduction=None)
-        import importlib
+        from qiskit_aer import Aer
 
-        aer = importlib.import_module("qiskit.providers.aer")
         quantum_instance = QuantumInstance(
-            backend=aer.Aer.get_backend("aer_simulator_statevector"),
+            backend=Aer.get_backend("aer_simulator_statevector"),
             seed_simulator=self.seed,
             seed_transpiler=self.seed,
         )
