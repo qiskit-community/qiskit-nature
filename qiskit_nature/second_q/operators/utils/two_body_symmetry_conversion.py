@@ -12,24 +12,35 @@
 
 """Utility functions to detect and transform the index-ordering convention of two-body integrals"""
 
+from __future__ import annotations
+
 from enum import Enum
-import numpy
+
+import numpy as np
 
 from qiskit_nature import QiskitNatureError
 
 
-def to_chem(two_body_tensor):
-    """
-    Convert the rank-four tensor `two_body_tensor` representing two-body integrals from physicists'
-    , or intermediate, index order to chemists' index order: i,j,k,l -> i,l,j,k
+def to_chemist_ordering(two_body_tensor: np.ndarray) -> np.ndarray:
+    """Convert the rank-four tensor `two_body_tensor` representing two-body integrals from
+    physicists', or intermediate, index order to chemists' index order: i,j,k,l -> i,l,j,k
+
+    Args:
+        two_body_tensor: the rank-four tensor to be converted.
+
+    Returns:
+        The same rank-four tensor, now in chemists' index order.
+
+    Raises:
+        QiskitNatureError: when an unknown index type is encountered.
     """
     index_order = find_index_order(two_body_tensor)
-    if index_order == IndexType.CHEM:
+    if index_order == IndexType.CHEMIST:
         return two_body_tensor
-    if index_order == IndexType.PHYS:
+    if index_order == IndexType.PHYSICIST:
         chem_tensor = _phys_to_chem(two_body_tensor)
         return chem_tensor
-    if index_order == IndexType.INT:
+    if index_order == IndexType.INTERMEDIATE:
         chem_tensor = _chem_to_phys(two_body_tensor)
         return chem_tensor
     else:
@@ -41,18 +52,26 @@ def to_chem(two_body_tensor):
         )
 
 
-def to_phys(two_body_tensor):
-    """
-    Convert the rank-four tensor `two_body_tensor` representing two-body integrals from chemists'
-    , or intermediate, index order to physicists' index order: i,j,k,l -> i,l,j,k
+def to_physicist_ordering(two_body_tensor: np.ndarray) -> np.ndarray:
+    """Convert the rank-four tensor `two_body_tensor` representing two-body integrals from
+    chemists', or intermediate, index order to physicists' index order: i,j,k,l -> i,l,j,k
+
+    Args:
+        two_body_tensor: the rank-four tensor to be converted.
+
+    Returns:
+        The same rank-four tensor, now in physicists' index order.
+
+    Raises:
+        QiskitNatureError: when an unknown index type is encountered.
     """
     index_order = find_index_order(two_body_tensor)
-    if index_order == IndexType.PHYS:
+    if index_order == IndexType.PHYSICIST:
         return two_body_tensor
-    if index_order == IndexType.CHEM:
+    if index_order == IndexType.CHEMIST:
         phys_tensor = _chem_to_phys(two_body_tensor)
         return phys_tensor
-    if index_order == IndexType.INT:
+    if index_order == IndexType.INTERMEDIATE:
         phys_tensor = _phys_to_chem(two_body_tensor)
         return phys_tensor
     else:
@@ -64,96 +83,129 @@ def to_phys(two_body_tensor):
         )
 
 
-def _phys_to_chem(two_body_tensor):
-    """
-    Convert the rank-four tensor `two_body_tensor` representing two-body integrals from physicists'
-    index order to chemists' index order: i,j,k,l -> i,l,j,k
+def _phys_to_chem(two_body_tensor: np.ndarray) -> np.ndarray:
+    """Convert the rank-four tensor `two_body_tensor` representing two-body integrals from
+    physicists' index order to chemists' index order: i,j,k,l -> i,l,j,k
 
-    See `_chem_to_phys`, `_check_two_body_symmetries`.
+    See also `_chem_to_phys`, `_check_two_body_symmetries`.
+
+    .. note::
+      Denote `_chem_to_phys` by `g` and `_phys_to_chem` by `h`. The elements `g`, `h`, `I` form
+      a group with `gh = hg = I`, `g^2=h`, and `h^2=g`.
+
+    Args:
+        two_body_tensor: the rank-four tensor in physicists' to be converted.
+
+    Returns:
+        The same rank-four tensor, now in chemists' index order.
     """
-    permuted_tensor = numpy.einsum("ijkl->iljk", two_body_tensor)
+    permuted_tensor = np.einsum("ijkl->iljk", two_body_tensor)
     return permuted_tensor
 
 
-def _chem_to_phys(two_body_tensor):
-    """
-    Convert the rank-four tensor `two_body_tensor` representing two-body integrals from chemists'
+def _chem_to_phys(two_body_tensor: np.ndarray) -> np.ndarray:
+    """Convert the rank-four tensor `two_body_tensor` representing two-body integrals from chemists'
     index order to physicists' index order: i,j,k,l -> i,k,l,j
 
-    See `phys_to_chem`, `check_two_body_symmetries`.
+    See also `_phys_to_chem`, `_check_two_body_symmetries`.
 
-    Note:
-    Denote `chem_to_phys` by `g` and `phys_to_chem` by `h`. The elements `g`, `h`, `I` form
-    a group with `gh = hg = I`, `g^2=h`, and `h^2=g`.
+    .. note::
+      Denote `_chem_to_phys` by `g` and `_phys_to_chem` by `h`. The elements `g`, `h`, `I` form
+      a group with `gh = hg = I`, `g^2=h`, and `h^2=g`.
+
+    Args:
+        two_body_tensor: the rank-four tensor in chemists' to be converted.
+
+    Returns:
+        The same rank-four tensor, now in physicists' index order.
     """
-    permuted_tensor = numpy.einsum("ijkl->iklj", two_body_tensor)
+    permuted_tensor = np.einsum("ijkl->iklj", two_body_tensor)
     return permuted_tensor
 
 
-def _check_two_body_symmetry(tensor, permutation):
+def _check_two_body_symmetry(two_body_tensor: np.ndarray, permutation: str) -> bool:
+    """Return whether the provided tensor remains identical under the provided permutation.
+
+    Args:
+        two_body_tensor: the tensor to test.
+        permutation: the einsum permutation to apply.
+
+    Returns:
+        Whether the tensor remains unchanged under the applied permutation.
     """
-    Return `True` if `tensor` passes symmetry test number `test_number`. Otherwise,
-    return `False`.
-    """
-    permuted_tensor = numpy.einsum(permutation, tensor)
-    return numpy.allclose(tensor, permuted_tensor)
+    permuted_tensor = np.einsum(permutation, two_body_tensor)
+    return np.allclose(two_body_tensor, permuted_tensor)
 
 
-def _check_two_body_symmetries(two_body_tensor, chemist=True):
-    """
-    Return `True` if the rank-4 tensor `two_body_tensor` has the required symmetries for coefficients
-    of the two-electron terms.  If `chemist` is `True`, assume the input is in chemists' order,
-    otherwise in physicists' order.
+def _check_two_body_symmetries(two_body_tensor: np.ndarray, chemist: bool = True) -> bool:
+    """Return whether a tensor has the required symmetries to represent two-electron terms.
 
-    If `two_body_tensor` is a correct tensor of indices, with the correct index order, it must pass the
-    tests. If `two_body_tensor` is a correct tensor of indices, but the flag `chemist` is incorrect,
-    it will fail the tests, unless the tensor has accidental symmetries.
-    This test may be used with care to discriminate between the orderings.
+    Return `True` if the rank-4 tensor `two_body_tensor` has the required symmetries for
+    coefficients of the two-electron terms.  If `chemist` is `True`, assume the input is in
+    chemists' order, otherwise in physicists' order.
+
+    If `two_body_tensor` is a correct tensor of indices, with the correct index order, it must pass
+    the tests. If `two_body_tensor` is a correct tensor of indices, but the flag `chemist` is
+    incorrect, it will fail the tests, unless the tensor has accidental symmetries. This test may be
+    used with care to discriminate between the orderings.
 
     References: HJO Molecular Electronic-Structure Theory (1.4.17), (1.4.38)
 
-    See `_phys_to_chem`, `_chem_to_phys`.
+    See also `_phys_to_chem`, `_chem_to_phys`.
+
+    Args:
+        two_body_tensor: the tensor to test.
+        chemist: whether to assume that the tensor is in chemists' order.
+
+    Returns:
+        Whether the tensor has the required symmetries to represent two-electron terms.
     """
     if not chemist:
         two_body_tensor = _phys_to_chem(two_body_tensor)
-    for permutation in ChemIndexPermutations:
+    for permutation in _ChemIndexPermutations:
         if not _check_two_body_symmetry(two_body_tensor, permutation.value):
             return False
     return True
 
 
-def find_index_order(two_body_tensor):
-    """
-    Return the index-order convention of rank-four `two_body_tensor`.
+def find_index_order(two_body_tensor: np.ndarray) -> IndexType:
+    """Return the index-order convention of the provided rank-four tensor.
 
     The index convention is determined by checking symmetries of the tensor.
-    If the indexing convention can be determined, then one of `:chemist`,
-    `:physicist`, or `:intermediate` is returned. The `:intermediate` indexing
-    may be obtained by applying `chem_to_phys` to the physicists' convention or
-    `phys_to_chem` to the chemists' convention. If the tests for each of these
-    conventions fail, then `:unknown` is returned.
+    If the indexing convention can be determined, then one of :class:`IndexType.CHEMIST`,
+    :class:`IndexType.PHYSICIST`, or :class:`IndexType.INTERMEDIATE` is returned. The
+    :class:`IndexType.INTERMEDIATE` indexing may be obtained by applying :meth:`_chem_to_phys` to
+    the physicists' convention or :meth:`_phys_to_chem` to the chemists' convention. If the tests
+    for each of these conventions fail, then :class:`IndexType.UNKNOWN` is returned.
 
-    See also: `_chem_to_phys`, `_phys_to_chem`.
+    See also `_chem_to_phys`, `_phys_to_chem`.
 
-    Note:
-    The first of `:chemist`, `:physicist`, and `:intermediate`, in that order, to pass the tests
-    is returned. If `two_body_tensor` has accidental symmetries, it may in fact satisfy more
-    than one set of symmetry tests. For example, if all elements have the same value, then the
-    symmetries for all three index orders are satisfied.
+    .. note::
+      The first of :class:`IndexType.CHEMIST`, :class:`IndexType.PHYSICIST`, and
+      :class:`IndexType.INTERMEDIATE`, in that order, to pass the tests is returned. If
+      `two_body_tensor` has accidental symmetries, it may in fact satisfy more than one set of
+      symmetry tests. For example, if all elements have the same value, then the symmetries for all
+      three index orders are satisfied.
+
+    Args:
+        two_body_tensor: the rank-four tensor whose index order to determine.
+
+    Returns:
+        The index order of the provided rank-four tensor.
     """
     if _check_two_body_symmetries(two_body_tensor):
-        return IndexType.CHEM
+        return IndexType.CHEMIST
     permuted_tensor = _phys_to_chem(two_body_tensor)
     if _check_two_body_symmetries(permuted_tensor):
-        return IndexType.PHYS
+        return IndexType.PHYSICIST
     permuted_tensor = _phys_to_chem(permuted_tensor)
     if _check_two_body_symmetries(permuted_tensor):
-        return IndexType.INT
+        return IndexType.INTERMEDIATE
     else:
         return IndexType.UNKNOWN
 
 
-class ChemIndexPermutations(Enum):
+class _ChemIndexPermutations(Enum):
     """This ``Enum`` defines the permutation symmetries satisfied by a rank-4 tensor of real
     two-body integrals in chemists' index order, naming each permutation in order of appearance
     in Molecular Electronic Structure Theory by Helgaker, Jørgensen, Olsen (HJO)."""
@@ -170,7 +222,7 @@ class ChemIndexPermutations(Enum):
 class IndexType(Enum):
     """This ``Enum`` names the different permutation index orders that could be encountered."""
 
-    CHEM = "chemist"
-    PHYS = "physicist"
-    INT = "intermediate"
+    CHEMIST = "chemist"
+    PHYSICIST = "physicist"
+    INTERMEDIATE = "intermediate"
     UNKNOWN = "unknown"

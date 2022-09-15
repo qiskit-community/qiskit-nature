@@ -12,4 +12,8 @@
 
 """Utility functions for operators."""
 
-from .two_body_symmetry_conversion import find_index_order, to_chem, to_phys
+from .two_body_symmetry_conversion import (
+    find_index_order,
+    to_chemist_ordering,
+    to_physicist_ordering,
+)

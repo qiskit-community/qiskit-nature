@@ -18,8 +18,8 @@ import numpy as np
 from ddt import data, ddt, unpack
 
 from qiskit_nature.second_q.operators.utils.two_body_symmetry_conversion import (
-    to_chem,
-    to_phys,
+    to_chemist_ordering,
+    to_physicist_ordering,
     find_index_order,
     IndexType,
 )
@@ -64,15 +64,15 @@ class TestTwoBodySymmetryConversion(QiskitNatureTestCase):
         (TWO_BODY_PHYS, TWO_BODY_PHYS),  # test phys to phys
         (TWO_BODY_INTERMEDIATE, TWO_BODY_PHYS),  # test intermediate to phys
     )
-    def test_to_phys(self, initial, expected):
+    def test_to_physicist_ordering(self, initial, expected):
         """Test correct conversion to physicists' index order"""
-        actual = to_phys(initial)
+        actual = to_physicist_ordering(initial)
         self.assertTrue(np.allclose(expected, actual))
 
-    def test_unknown_to_phys(self):
-        """Test to_phys raises exception with unknown index input"""
+    def test_unknown_to_physicist_ordering(self):
+        """Test to_physicist_ordering raises exception with unknown index input"""
         with self.assertRaises(QiskitNatureError):
-            to_phys(self.TWO_BODY_UNKNOWN)
+            to_physicist_ordering(self.TWO_BODY_UNKNOWN)
 
     @unpack
     @data(
@@ -80,22 +80,22 @@ class TestTwoBodySymmetryConversion(QiskitNatureTestCase):
         (TWO_BODY_CHEM, TWO_BODY_CHEM),  # test chem to chem
         (TWO_BODY_INTERMEDIATE, TWO_BODY_CHEM),  # test intermediate to chem
     )
-    def test_to_chem(self, initial, expected):
+    def test_to_chemist_ordering(self, initial, expected):
         """Test correct conversion to chemists' index order"""
-        actual = to_chem(initial)
+        actual = to_chemist_ordering(initial)
         self.assertTrue(np.allclose(expected, actual))
 
-    def test_unknown_to_chem(self):
-        """Test to_chem raises exception with unknown index input"""
+    def test_unknown_to_chemist_ordering(self):
+        """Test to_chemist_ordering raises exception with unknown index input"""
         with self.assertRaises(QiskitNatureError):
-            to_chem(self.TWO_BODY_UNKNOWN)
+            to_chemist_ordering(self.TWO_BODY_UNKNOWN)
 
     @unpack
     @data(
-        (TWO_BODY_PHYS, IndexType.PHYS),  # find phys index order
-        (TWO_BODY_CHEM, IndexType.CHEM),  # find chem index order
-        (TWO_BODY_INTERMEDIATE, IndexType.INT),  # find intermediate index order
-        (TWO_BODY_UNKNOWN, IndexType.UNKNOWN),  # find unknown index order
+        (TWO_BODY_PHYS, IndexType.PHYSICIST),
+        (TWO_BODY_CHEM, IndexType.CHEMIST),
+        (TWO_BODY_INTERMEDIATE, IndexType.INTERMEDIATE),
+        (TWO_BODY_UNKNOWN, IndexType.UNKNOWN),
     )
     def test_find_index_order(self, initial, expected):
         """Test correctly identifies index order"""
