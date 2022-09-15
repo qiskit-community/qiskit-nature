@@ -312,7 +312,9 @@ class MP2InitialPoint(InitialPoint):
         """The initial point as an array."""
         if self._corrections is None:
             self.compute()
-        return np.asarray([correction.coefficient for correction in self._corrections])
+        coefficients = np.asarray([correction.coefficient for correction in self._corrections])
+        reps = self._ansatz.reps if self._ansatz is not None else 1
+        return np.tile(coefficients, reps)
 
     def get_energy_corrections(self) -> np.ndarray:
         """The energy corrections for each excitation."""

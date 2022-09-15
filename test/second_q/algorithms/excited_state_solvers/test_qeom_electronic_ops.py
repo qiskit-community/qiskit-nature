@@ -17,9 +17,9 @@ from test import QiskitNatureTestCase
 from qiskit.opflow import PauliSumOp
 from qiskit.utils import algorithm_globals
 
+from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.mappers import QubitConverter, JordanWignerMapper
-from qiskit_nature.second_q.drivers import PySCFDriver, UnitsType
-from qiskit_nature.second_q.problems import ElectronicStructureProblem
+from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.algorithms.excited_states_solvers.qeom_electronic_ops_builder import (
     build_electronic_ops,
 )
@@ -35,20 +35,16 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
         algorithm_globals.random_seed = 8
         self.driver = PySCFDriver(
             atom="H .0 .0 .0; H .0 .0 0.75",
-            unit=UnitsType.ANGSTROM,
+            unit=DistanceUnit.ANGSTROM,
             charge=0,
             spin=0,
             basis="sto3g",
         )
 
         self.qubit_converter = QubitConverter(JordanWignerMapper())
-        self.electronic_structure_problem = ElectronicStructureProblem(self.driver)
+        self.electronic_structure_problem = self.driver.run()
         self.electronic_structure_problem.second_q_ops()
-        self.particle_number = (
-            self.electronic_structure_problem.grouped_property_transformed.get_property(
-                "ParticleNumber"
-            )
-        )
+        self.particle_number = self.electronic_structure_problem.properties.particle_number
 
     def test_build_hopping_operators(self):
         """Tests that the correct hopping operator is built."""

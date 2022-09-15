@@ -27,7 +27,6 @@ from qiskit_nature.second_q.circuit.library import HartreeFock, SUCCD, PUCCD
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import ParityMapper
 from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.transformers import FreezeCoreTransformer
 import qiskit_nature.optionals as _optionals
 
@@ -44,9 +43,7 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
 
         self.qubit_converter = QubitConverter(ParityMapper(), two_qubit_reduction=True)
 
-        self.electronic_structure_problem = ElectronicStructureProblem(
-            self.driver, [FreezeCoreTransformer()]
-        )
+        self.electronic_structure_problem = FreezeCoreTransformer().transform(self.driver.run())
 
         self.num_spin_orbitals = 8
         self.num_particles = (1, 1)
@@ -141,7 +138,6 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
 
         self.assertAlmostEqual(result.total_energies[0], self.reference_energy_UCCD0, places=6)
 
-    @unittest.skip("Skip until https://github.com/Qiskit/qiskit-nature/issues/91 is closed.")
     def test_uccsd_hf_qUCCD0full(self):
         """singlet full uccd test"""
         optimizer = SLSQP(maxiter=100)
@@ -150,12 +146,12 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
             self.num_spin_orbitals, self.num_particles, self.qubit_converter
         )
 
-        # TODO: add `full` option
         ansatz = SUCCD(
             self.qubit_converter,
             self.num_particles,
             self.num_spin_orbitals,
             initial_state=initial_state,
+            mirror=True,
         )
 
         solver = VQE(

@@ -15,10 +15,9 @@ from test import QiskitNatureTestCase
 import numpy as np
 
 from qiskit.algorithms import NumPyEigensolver
+from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.algorithms import NumPyEigensolverFactory
-from qiskit_nature.second_q.drivers import UnitsType
 from qiskit_nature.second_q.drivers import PySCFDriver
-from qiskit_nature.second_q.problems import ElectronicStructureProblem
 import qiskit_nature.optionals as _optionals
 
 
@@ -34,13 +33,13 @@ class TestNumPyEigensolverFactory(QiskitNatureTestCase):
 
         self.driver = PySCFDriver(
             atom="H .0 .0 .0; H .0 .0 0.75",
-            unit=UnitsType.ANGSTROM,
+            unit=DistanceUnit.ANGSTROM,
             charge=0,
             spin=0,
             basis="sto3g",
         )
 
-        self.electronic_structure_problem = ElectronicStructureProblem(self.driver)
+        self.electronic_structure_problem = self.driver.run()
 
         # pylint: disable=unused-argument
         def filter_criterion(eigenstate, eigenvalue, aux_values):

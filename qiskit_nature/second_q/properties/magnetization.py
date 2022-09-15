@@ -20,13 +20,13 @@ import h5py
 
 from qiskit_nature.second_q.operators import FermionicOp
 
-from .electronic_types import ElectronicProperty
+from .property import Property
 
 if TYPE_CHECKING:
     from qiskit_nature.second_q.problems import EigenstateResult
 
 
-class Magnetization(ElectronicProperty):
+class Magnetization(Property):
     """The Magnetization property."""
 
     def __init__(self, num_spin_orbitals: int) -> None:

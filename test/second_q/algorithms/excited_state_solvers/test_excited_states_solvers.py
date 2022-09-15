@@ -20,8 +20,8 @@ from qiskit import BasicAer
 from qiskit.utils import algorithm_globals, QuantumInstance
 from qiskit.algorithms import NumPyMinimumEigensolver, NumPyEigensolver
 
+from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.transformers import ActiveSpaceTransformer
-from qiskit_nature.second_q.drivers import UnitsType
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import (
     BravyiKitaevMapper,
@@ -29,7 +29,6 @@ from qiskit_nature.second_q.mappers import (
     ParityMapper,
 )
 from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.algorithms import (
     GroundStateEigensolver,
     VQEUCCFactory,
@@ -49,7 +48,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         algorithm_globals.random_seed = 8
         self.driver = PySCFDriver(
             atom="H .0 .0 .0; H .0 .0 0.75",
-            unit=UnitsType.ANGSTROM,
+            unit=DistanceUnit.ANGSTROM,
             charge=0,
             spin=0,
             basis="sto3g",
@@ -62,7 +61,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
             -1.8427016 + 1.5969296,
         ]
         self.qubit_converter = QubitConverter(JordanWignerMapper())
-        self.electronic_structure_problem = ElectronicStructureProblem(self.driver)
+        self.electronic_structure_problem = self.driver.run()
 
         solver = NumPyEigensolver()
         self.ref = solver
@@ -159,7 +158,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
 
         driver = PySCFDriver(
             atom="Be .0 .0 .0; H .0 .0 0.75",
-            unit=UnitsType.ANGSTROM,
+            unit=DistanceUnit.ANGSTROM,
             charge=0,
             spin=1,
             basis="sto3g",
@@ -173,7 +172,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
 
         converter = QubitConverter(JordanWignerMapper(), z2symmetry_reduction="auto")
 
-        esp = ElectronicStructureProblem(driver, [transformer])
+        esp = transformer.transform(driver.run())
 
         expected_spin = 0.75  # Doublet states
         expected_num_electrons = 3  # 1 alpha electron + 2 beta electrons

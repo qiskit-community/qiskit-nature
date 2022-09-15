@@ -22,7 +22,6 @@ from test import QiskitNatureTestCase
 
 import numpy as np
 
-import qiskit
 from qiskit import BasicAer
 from qiskit.algorithms import VQE
 from qiskit.algorithms.optimizers import SLSQP, SPSA
@@ -64,6 +63,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         algorithm_globals.random_seed = self.seed
 
         self.reference_energy = -1.1373060356951838
+        self.mp2_initial_point = [0.0, 0.0, -0.07197145]
 
         self.qubit_converter = QubitConverter(JordanWignerMapper())
         self.electronic_structure_problem = ElectronicStructureProblem(self.driver)
@@ -329,7 +329,10 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
     def test_eval_op_qasm_aer(self):
         """Regression tests against https://github.com/Qiskit/qiskit-nature/issues/53."""
 
-        backend = qiskit.providers.aer.Aer.get_backend("aer_simulator")
+        import importlib
+
+        aer = importlib.import_module("qiskit.providers.aer")
+        backend = aer.Aer.get_backend("aer_simulator")
 
         solver = VQEUCCFactory(
             optimizer=SLSQP(maxiter=100),
@@ -414,7 +417,10 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
     def test_uccsd_hf_aer_statevector(self):
         """uccsd hf test with Aer statevector"""
 
-        backend = qiskit.providers.aer.Aer.get_backend("aer_simulator_statevector")
+        import importlib
+
+        aer = importlib.import_module("qiskit.providers.aer")
+        backend = aer.Aer.get_backend("aer_simulator_statevector")
 
         ansatz = self._prepare_uccsd_hf(self.qubit_converter)
 
@@ -435,7 +441,10 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
     def test_uccsd_hf_aer_qasm(self):
         """uccsd hf test with Aer qasm simulator."""
 
-        backend = qiskit.providers.aer.Aer.get_backend("aer_simulator")
+        import importlib
+
+        aer = importlib.import_module("qiskit.providers.aer")
+        backend = aer.Aer.get_backend("aer_simulator")
 
         ansatz = self._prepare_uccsd_hf(self.qubit_converter)
 
@@ -461,7 +470,10 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
     def test_uccsd_hf_aer_qasm_snapshot(self):
         """uccsd hf test with Aer qasm simulator snapshot."""
 
-        backend = qiskit.providers.aer.Aer.get_backend("aer_simulator")
+        import importlib
+
+        aer = importlib.import_module("qiskit.providers.aer")
+        backend = aer.Aer.get_backend("aer_simulator")
 
         ansatz = self._prepare_uccsd_hf(self.qubit_converter)
 
@@ -583,7 +595,55 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         res = calc.solve(self.electronic_structure_problem)
 
         np.testing.assert_array_almost_equal(
-            solver.initial_point.to_numpy_array(), [0.0, 0.0, -0.07197145]
+            solver.initial_point.to_numpy_array(), self.mp2_initial_point
+        )
+        self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
+
+    def test_vqe_ucc_factory_with_reps(self):
+        """Test when using the default initial point with repeated evolved operators."""
+        ansatz = UCCSD(
+            qubit_converter=self.qubit_converter,
+            num_particles=self.num_particles,
+            num_spin_orbitals=self.num_spin_orbitals,
+            reps=2,
+        )
+
+        solver = VQEUCCFactory(
+            ansatz=ansatz,
+            quantum_instance=QuantumInstance(BasicAer.get_backend("statevector_simulator")),
+        )
+        calc = GroundStateEigensolver(self.qubit_converter, solver)
+        res = calc.solve(self.electronic_structure_problem)
+
+        np.testing.assert_array_almost_equal(
+            solver.initial_point.to_numpy_array(), np.zeros(6, dtype=float)
+        )
+        self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
+
+    def test_vqe_ucc_factory_with_mp2_with_reps(self):
+        """Test when using MP2InitialPoint to generate the initial point with repeated evolved
+        operators.
+        """
+
+        initial_point = MP2InitialPoint()
+
+        ansatz = UCCSD(
+            qubit_converter=self.qubit_converter,
+            num_particles=self.num_particles,
+            num_spin_orbitals=self.num_spin_orbitals,
+            reps=2,
+        )
+
+        solver = VQEUCCFactory(
+            ansatz=ansatz,
+            quantum_instance=QuantumInstance(BasicAer.get_backend("statevector_simulator")),
+            initial_point=initial_point,
+        )
+        calc = GroundStateEigensolver(self.qubit_converter, solver)
+        res = calc.solve(self.electronic_structure_problem)
+
+        np.testing.assert_array_almost_equal(
+            solver.initial_point.to_numpy_array(), np.tile(self.mp2_initial_point, 2)
         )
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 

@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    The ``excitation_list`` property has been removed from
+    :class:`~qiskit_nature.second_q.algorithms.initial_points.HFInitialPoint`,
+    :class:`~qiskit_nature.second_q.algorithms.initial_points.MP2InitialPoint`, and
+    :class:`~qiskit_nature.second_q.algorithms.initial_points.VSCFInitialPoint`. Thus the excitation
+    list cannot be set directly, rather this must be set via the
+    :attr:`~qiskit_nature.second_q.algorithms.initial_points.InitialPoint.ansatz`.

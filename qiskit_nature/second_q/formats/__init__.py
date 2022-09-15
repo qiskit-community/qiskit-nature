@@ -23,6 +23,7 @@ Submodules
 .. autosummary::
    :toctree:
 
+   fcidump
    qcschema
 
 """

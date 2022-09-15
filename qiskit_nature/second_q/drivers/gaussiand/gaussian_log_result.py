@@ -20,7 +20,7 @@ import copy
 import logging
 import re
 
-from qiskit_nature.second_q.properties import VibrationalEnergy
+from qiskit_nature.second_q.hamiltonians import VibrationalEnergy
 from qiskit_nature.second_q.properties.integrals import (
     VibrationalIntegrals,
 )

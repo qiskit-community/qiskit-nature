@@ -21,6 +21,8 @@ import scipy.linalg
 from qiskit.quantum_info.operators.mixins import TolerancesMixin
 from qiskit_nature.second_q.operators import FermionicOp
 
+from .hamiltonian import Hamiltonian
+
 
 def _is_hermitian(mat: np.ndarray, rtol: float = 1e-5, atol: float = 1e-8) -> bool:
     return np.allclose(mat, mat.T.conj(), rtol=rtol, atol=atol)
@@ -30,7 +32,7 @@ def _is_antisymmetric(mat: np.ndarray, rtol: float = 1e-5, atol: float = 1e-8) -
     return np.allclose(mat, -mat.T, rtol=rtol, atol=atol)
 
 
-class QuadraticHamiltonian(TolerancesMixin):
+class QuadraticHamiltonian(Hamiltonian, TolerancesMixin):
     r"""A Hamiltonian that is quadratic in the fermionic ladder operators.
 
     A quadratic Hamiltonian is an operator of the form
@@ -150,7 +152,11 @@ class QuadraticHamiltonian(TolerancesMixin):
         """The number of modes this operator acts on."""
         return self._num_modes
 
-    def to_fermionic_op(self) -> FermionicOp:
+    @property
+    def register_length(self) -> int:
+        return self._num_modes
+
+    def second_q_op(self) -> FermionicOp:
         """Convert to FermionicOp."""
         terms: list[tuple[list[tuple[str, int]], complex]] = [([], self.constant)]
         for i in range(self._num_modes):

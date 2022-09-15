@@ -19,15 +19,16 @@ from typing import cast
 from test import QiskitNatureTestCase
 from ddt import data, ddt, unpack
 
-from qiskit_nature.second_q.drivers import Molecule
+import numpy as np
+
+from qiskit_nature.units import DistanceUnit
+from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
 from qiskit_nature.second_q.drivers import (
     GaussianForcesDriver,
     GaussianLogDriver,
-    VibrationalStructureMoleculeDriver,
-    VibrationalStructureDriverType,
 )
 from qiskit_nature.exceptions import QiskitNatureError
-from qiskit_nature.second_q.properties import VibrationalEnergy
+from qiskit_nature.second_q.hamiltonians import VibrationalEnergy
 from qiskit_nature.second_q.properties.integrals import VibrationalIntegrals
 import qiskit_nature.optionals as _optionals
 
@@ -136,18 +137,20 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
     @unittest.skipIf(not _optionals.HAS_GAUSSIAN, "gaussian not available.")
     def test_driver_molecule(self):
         """Test the driver works with Molecule"""
-        molecule = Molecule(
-            geometry=[
-                ("C", [-0.848629, 2.067624, 0.160992]),
-                ("O", [0.098816, 2.655801, -0.159738]),
-                ("O", [-1.796073, 1.479446, 0.481721]),
-            ],
+        molecule = MoleculeInfo(
+            symbols=["C", "O", "O"],
+            coords=np.asarray(
+                [
+                    [-0.848629, 2.067624, 0.160992],
+                    [0.098816, 2.655801, -0.159738],
+                    [-1.796073, 1.479446, 0.481721],
+                ]
+            ),
             multiplicity=1,
             charge=0,
+            units=DistanceUnit.ANGSTROM,
         )
-        driver = VibrationalStructureMoleculeDriver(
-            molecule, basis="6-31g", driver_type=VibrationalStructureDriverType.GAUSSIAN_FORCES
-        )
+        driver = GaussianForcesDriver.from_molecule(molecule, basis="6-31g")
         result = driver.run()
         self._check_driver_result(self._get_expected_values(), result)
 
@@ -181,7 +184,7 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
         )
         expected.basis = 4
 
-        true_vib_energy = cast(VibrationalEnergy, prop.get_property(VibrationalEnergy))
+        true_vib_energy = cast(VibrationalEnergy, prop.hamiltonian)
 
         with self.subTest("one-body terms"):
             expected_one_body = expected.get_vibrational_integral(1)
