@@ -329,10 +329,9 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
     def test_eval_op_qasm_aer(self):
         """Regression tests against https://github.com/Qiskit/qiskit-nature/issues/53."""
 
-        import importlib
+        from qiskit_aer import Aer
 
-        aer = importlib.import_module("qiskit.providers.aer")
-        backend = aer.Aer.get_backend("aer_simulator")
+        backend = Aer.get_backend("aer_simulator")
 
         solver = VQEUCCFactory(
             optimizer=SLSQP(maxiter=100),
@@ -417,10 +416,9 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
     def test_uccsd_hf_aer_statevector(self):
         """uccsd hf test with Aer statevector"""
 
-        import importlib
+        from qiskit_aer import Aer
 
-        aer = importlib.import_module("qiskit.providers.aer")
-        backend = aer.Aer.get_backend("aer_simulator_statevector")
+        backend = Aer.get_backend("aer_simulator_statevector")
 
         ansatz = self._prepare_uccsd_hf(self.qubit_converter)
 
@@ -441,10 +439,9 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
     def test_uccsd_hf_aer_qasm(self):
         """uccsd hf test with Aer qasm simulator."""
 
-        import importlib
+        from qiskit_aer import Aer
 
-        aer = importlib.import_module("qiskit.providers.aer")
-        backend = aer.Aer.get_backend("aer_simulator")
+        backend = Aer.get_backend("aer_simulator")
 
         ansatz = self._prepare_uccsd_hf(self.qubit_converter)
 
@@ -470,10 +467,9 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
     def test_uccsd_hf_aer_qasm_snapshot(self):
         """uccsd hf test with Aer qasm simulator snapshot."""
 
-        import importlib
+        from qiskit_aer import Aer
 
-        aer = importlib.import_module("qiskit.providers.aer")
-        backend = aer.Aer.get_backend("aer_simulator")
+        backend = Aer.get_backend("aer_simulator")
 
         ansatz = self._prepare_uccsd_hf(self.qubit_converter)
 
