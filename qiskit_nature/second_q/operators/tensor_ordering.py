@@ -10,7 +10,23 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Utility functions to detect and transform the index-ordering convention of two-body integrals"""
+"""
+Tensor Ordering Utilities (:mod:`qiskit_nature.second_q.operators.tensor_ordering`)
+===================================================================================
+
+.. currentmodule:: qiskit_nature.second_q.operators.tensor_ordering
+
+Utility functions to detect and transform the index-ordering convention of two-body integrals
+
+.. autosummary::
+   :toctree: ../stubs/
+
+   to_chemist_ordering
+   to_physicist_ordering
+   find_index_order
+   IndexType
+
+"""
 
 from __future__ import annotations
 

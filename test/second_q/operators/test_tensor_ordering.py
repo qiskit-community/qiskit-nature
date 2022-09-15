@@ -17,7 +17,7 @@ from test import QiskitNatureTestCase
 import numpy as np
 from ddt import data, ddt, unpack
 
-from qiskit_nature.second_q.operators.utils.two_body_symmetry_conversion import (
+from qiskit_nature.second_q.operators.tensor_ordering import (
     to_chemist_ordering,
     to_physicist_ordering,
     find_index_order,
