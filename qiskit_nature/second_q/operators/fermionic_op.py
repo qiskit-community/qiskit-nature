@@ -28,12 +28,13 @@ class FermionicOp(SparseLabelOp):
     r"""N-mode Fermionic operator.
 
     A `FermionicOp` represents a weighted sum of fermionic creation/annihilation operator terms.
-    These terms are encoded as strings consisting of a space-separated list of words. Each word must
-    look like :code:`[+-]_<index>`, where the :code:`<index>` is a non-negative integer representing
-    the index of the fermionic mode where the `+` (creation) or `-` (annihilation) operation is to
-    be performed. The value of :code:`index` is bounded by the `register_length` of the operator,
-    which indicates the number of fermionic modes on which the operator acts (Note: since Python
-    indices are 0-based, the maximum value an index can take is given by :code:`register_length-1`).
+    These terms are encoded as strings consisting of a space-separated list of expressions. Each
+    expression must look like :code:`[+-]_<index>`, where the :code:`<index>` is a non-negative
+    integer representing the index of the fermionic mode where the `+` (creation) or `-`
+    (annihilation) operation is to be performed. The value of :code:`index` is bound by the
+    `register_length` of the operator, which indicates the number of fermionic modes on which the
+    operator acts (Note: since Python indices are 0-based, the maximum value an index can take is
+    given by :code:`register_length-1`).
 
     **Initialization**
 

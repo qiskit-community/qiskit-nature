@@ -134,10 +134,10 @@ class QubitConverter:
                 sector can be provided (a list of int of values -1, and 1). The default is None
                 meaning no symmetry reduction is done.
             sort_operators: Whether or not the second-quantized operators should be sorted before
-                mapping them to the qubit space. Enable this if you run into result reproducability
-                issues which can occur when operator terms are not consistently ordered. This is
-                disabled by default, because in practice the Pauli-terms will be grouped later on
-                anyways.
+                mapping them to the qubit space. Enable this if you encounter non-reproducible
+                results which can occur when operator terms are not consistently ordered.
+                This is disabled by default, because in practice the Pauli-terms will be grouped
+                later on anyways.
         """
 
         self._mapper: QubitMapper = mapper
