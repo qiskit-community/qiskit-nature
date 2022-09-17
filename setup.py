@@ -75,7 +75,7 @@ setuptools.setup(
     python_requires=">=3.7",
     extras_require={
         "pyscf": ["pyscf; sys_platform != 'win32' and (python_version < '3.10' or sys_platform != 'darwin')"],
-        "mpl": ["matplotlib>=3.3"],
+        "mpl": ["matplotlib>=3.3,<3.6"],
     },
     zip_safe=False,
 )
