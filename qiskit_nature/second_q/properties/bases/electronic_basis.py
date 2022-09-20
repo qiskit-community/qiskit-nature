@@ -18,13 +18,8 @@ from enum import Enum
 class ElectronicBasis(Enum):
     """An enumeration of the available electronic bases.
 
-    This ``Enum`` simply names the available electronic bases. The ``SO`` basis is the *special*
-    basis into which an
-    :class:`~qiskit_nature.second_q.hamiltonians.ElectronicEnergy` must map its
-    integrals before being able to perform the mapping to a
-    :class:`~qiskit_nature.second_q.operators.SecondQuantizedOp`.
+    This ``Enum`` simply names the available electronic bases.
     """
 
     AO = "atomic"
     MO = "molecular"
-    SO = "spin"

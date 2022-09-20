@@ -17,10 +17,7 @@ import unittest
 from test import QiskitNatureTestCase
 
 from qiskit_nature.second_q.problems import VibrationalPropertiesContainer
-from qiskit_nature.second_q.properties import (
-    ElectronicDipoleMoment,
-    OccupiedModals,
-)
+from qiskit_nature.second_q.properties import Magnetization, OccupiedModals
 
 
 class TestVibrationalPropertiesContainer(QiskitNatureTestCase):
@@ -35,7 +32,7 @@ class TestVibrationalPropertiesContainer(QiskitNatureTestCase):
 
         with self.subTest("wrong setting type"):
             with self.assertRaises(TypeError):
-                container.occupied_modals = ElectronicDipoleMoment()  # type: ignore[assignment]
+                container.occupied_modals = Magnetization(2)  # type: ignore[assignment]
 
         with self.subTest("successful setting"):
             container.occupied_modals = OccupiedModals()
@@ -48,8 +45,8 @@ class TestVibrationalPropertiesContainer(QiskitNatureTestCase):
     def test_custom_property(self) -> None:
         """Tests support for custom property objects."""
         container = VibrationalPropertiesContainer()
-        container.add(ElectronicDipoleMoment())
-        self.assertIn(ElectronicDipoleMoment, container)
+        container.add(Magnetization(2))
+        self.assertIn(Magnetization, container)
 
 
 if __name__ == "__main__":

@@ -16,31 +16,14 @@ from test import QiskitNatureTestCase
 
 import numpy as np
 
-from qiskit_nature.second_q.hamiltonians import (
-    ElectronicEnergy,
-    VibrationalEnergy,
-)
+from qiskit_nature.second_q.hamiltonians import VibrationalEnergy
 from qiskit_nature.second_q.properties import (
     AngularMomentum,
-    DipoleMoment,
-    ElectronicDipoleMoment,
     Magnetization,
     ParticleNumber,
 )
-from qiskit_nature.second_q.properties.bases import (
-    ElectronicBasisTransform,
-)
-from qiskit_nature.second_q.properties.integrals import (
-    ElectronicIntegrals,
-    OneBodyElectronicIntegrals,
-    TwoBodyElectronicIntegrals,
-)
-from qiskit_nature.second_q.properties import (
-    OccupiedModals,
-)
-from qiskit_nature.second_q.properties.integrals import (
-    VibrationalIntegrals,
-)
+from qiskit_nature.second_q.properties import OccupiedModals
+from qiskit_nature.second_q.properties.integrals import VibrationalIntegrals
 
 
 class PropertyTest(QiskitNatureTestCase):
@@ -58,50 +41,6 @@ class PropertyTest(QiskitNatureTestCase):
             raise self.failureException(msg)
         if not np.isclose(first.relative_tolerance, second.relative_tolerance):
             raise self.failureException(msg)
-
-    def compare_electronic_dipole_moment(
-        self, first: ElectronicDipoleMoment, second: ElectronicDipoleMoment, msg: str = None
-    ) -> None:
-        """Compares two ElectronicDipoleMoment instances."""
-        for f_axis_name, f_axis in first._dipole_axes.items():
-            s_axis = second._dipole_axes[f_axis_name]
-            self.assertEqual(f_axis, s_axis)
-
-        if first.reverse_dipole_sign != second.reverse_dipole_sign:
-            raise self.failureException(msg)
-
-        if not np.allclose(first.nuclear_dipole_moment, second.nuclear_dipole_moment):
-            raise self.failureException(msg)
-
-    def compare_dipole_moment(
-        self, first: DipoleMoment, second: DipoleMoment, msg: str = None
-    ) -> None:
-        """Compares two DipoleMoment instances."""
-        if first.axis != second.axis:
-            raise self.failureException(msg)
-
-        for f_ints, s_ints in zip(first, second):
-            self.compare_electronic_integral(f_ints, s_ints)
-
-    def compare_electronic_energy(
-        self, first: ElectronicEnergy, second: ElectronicEnergy, msg: str = None
-    ) -> None:
-        """Compares two ElectronicEnergy instances."""
-        for f_ints, s_ints in zip(
-            first._electronic_integrals.values(), second._electronic_integrals.values()
-        ):
-            for nf_int, ns_int in zip(f_ints.values(), s_ints.values()):
-                self.compare_electronic_integral(nf_int, ns_int)
-
-        if not np.isclose(first.nuclear_repulsion_energy, second.nuclear_repulsion_energy):
-            raise self.failureException(msg)
-        if not np.isclose(first.reference_energy, second.reference_energy):
-            raise self.failureException(msg)
-        if not np.allclose(first.orbital_energies, second.orbital_energies):
-            raise self.failureException(msg)
-
-        self.assertEqual(first.overlap, second.overlap)
-        self.assertEqual(first.kinetic, second.kinetic)
 
     def compare_magnetization(
         self, first: Magnetization, second: Magnetization, msg: str = None
@@ -128,38 +67,6 @@ class PropertyTest(QiskitNatureTestCase):
             raise self.failureException(msg)
         if not np.isclose(first.relative_tolerance, second.relative_tolerance):
             raise self.failureException(msg)
-
-    def compare_electronic_basis_transform(
-        self, first: ElectronicBasisTransform, second: ElectronicBasisTransform, msg: str = None
-    ) -> None:
-        """Compares two ElectronicBasisTransform instances."""
-        if first.initial_basis != second.initial_basis:
-            raise self.failureException(msg)
-        if first.final_basis != second.final_basis:
-            raise self.failureException(msg)
-        if not np.allclose(first.coeff_alpha, second.coeff_alpha):
-            raise self.failureException(msg)
-        if not np.allclose(first.coeff_beta, second.coeff_beta):
-            raise self.failureException(msg)
-
-    def compare_electronic_integral(
-        self, first: ElectronicIntegrals, second: ElectronicIntegrals, msg: str = None
-    ) -> None:
-        """Compares two ElectronicIntegrals instances."""
-        if first.name != second.name:
-            raise self.failureException(msg)
-        if first.basis != second.basis:
-            raise self.failureException(msg)
-        if first.num_body_terms != second.num_body_terms:
-            raise self.failureException(msg)
-        if not np.isclose(first.threshold, second.threshold):
-            raise self.failureException(msg)
-        for f_mat, s_mat in zip(first, second):
-            if f_mat is None:
-                self.assertIsNone(s_mat)
-                continue
-            if not np.allclose(f_mat, s_mat):
-                raise self.failureException(msg)
 
     def compare_vibrational_integral(
         self, first: VibrationalIntegrals, second: VibrationalIntegrals, msg: str = None
@@ -197,15 +104,8 @@ class PropertyTest(QiskitNatureTestCase):
         """Setup expected object."""
         super().setUp()
         self.addTypeEqualityFunc(AngularMomentum, self.compare_angular_momentum)
-        self.addTypeEqualityFunc(DipoleMoment, self.compare_dipole_moment)
-        self.addTypeEqualityFunc(ElectronicDipoleMoment, self.compare_electronic_dipole_moment)
-        self.addTypeEqualityFunc(ElectronicEnergy, self.compare_electronic_energy)
         self.addTypeEqualityFunc(Magnetization, self.compare_magnetization)
         self.addTypeEqualityFunc(ParticleNumber, self.compare_particle_number)
-        self.addTypeEqualityFunc(ElectronicBasisTransform, self.compare_electronic_basis_transform)
-        self.addTypeEqualityFunc(ElectronicIntegrals, self.compare_electronic_integral)
-        self.addTypeEqualityFunc(OneBodyElectronicIntegrals, self.compare_electronic_integral)
-        self.addTypeEqualityFunc(TwoBodyElectronicIntegrals, self.compare_electronic_integral)
         self.addTypeEqualityFunc(VibrationalIntegrals, self.compare_vibrational_integral)
         self.addTypeEqualityFunc(VibrationalEnergy, self.compare_vibrational_energy)
         self.addTypeEqualityFunc(OccupiedModals, self.compare_occupied_modals)

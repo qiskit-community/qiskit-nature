@@ -14,15 +14,11 @@
 
 from __future__ import annotations
 
+from numbers import Number
 from typing import Optional, Tuple, cast, TYPE_CHECKING
 
-import h5py
+from qiskit_nature.second_q.operators import ElectronicIntegrals, FermionicOp
 
-from qiskit_nature.second_q.operators import FermionicOp
-from qiskit_nature.hdf5 import _import_and_build_from_hdf5
-
-from .bases import ElectronicBasis
-from .integrals import ElectronicIntegrals, IntegralProperty, OneBodyElectronicIntegrals
 from .property import Property
 
 if TYPE_CHECKING:
@@ -33,210 +29,85 @@ if TYPE_CHECKING:
 # components. However when using Z2Symmetries, if the dipole component operator does not commute
 # with the symmetry then no evaluation is done and None will be used as the 'value' indicating no
 # measurement of the observable took place
-DipoleTuple = Tuple[Optional[float], Optional[float], Optional[float]]
-
-
-class DipoleMoment(IntegralProperty):
-    """The DipoleMoment property.
-
-    This contains the dipole moment along a single Cartesian axis.
-    """
-
-    def __init__(
-        self,
-        axis: str,
-        electronic_integrals: list[ElectronicIntegrals],
-        shift: Optional[dict[str, complex]] = None,
-    ) -> None:
-        """
-        Args:
-            axis: the name of the Cartesian axis.
-            dipole: an IntegralProperty property representing the dipole moment operator.
-            shift: an optional dictionary of dipole moment shifts.
-        """
-        self._axis = axis
-        name = self.__class__.__name__ + axis.upper()
-        super().__init__(name, electronic_integrals, shift=shift)
-
-    @property
-    def axis(self) -> str:
-        """Returns the axis."""
-        return self._axis
-
-    @axis.setter
-    def axis(self, axis: str) -> None:
-        """Sets the axis."""
-        self._axis = axis
-
-    def to_hdf5(self, parent: h5py.Group) -> None:
-        """Stores this instance in an HDF5 group inside of the provided parent group.
-
-        See also :func:`~qiskit_nature.hdf5.HDF5Storable.to_hdf5` for more details.
-
-        Args:
-            parent: the parent HDF5 group.
-        """
-        super().to_hdf5(parent)
-        group = parent.require_group(self.name)
-
-        group.attrs["axis"] = self._axis
-
-    @staticmethod
-    def from_hdf5(h5py_group: h5py.Group) -> DipoleMoment:
-        """Constructs a new instance from the data stored in the provided HDF5 group.
-
-        See also :func:`~qiskit_nature.hdf5.HDF5Storable.from_hdf5` for more details.
-
-        Args:
-            h5py_group: the HDF5 group from which to load the data.
-
-        Returns:
-            A new instance of this class.
-        """
-        integral_property = IntegralProperty.from_hdf5(h5py_group)
-
-        axis = h5py_group.attrs["axis"]
-
-        return DipoleMoment(axis, list(integral_property), shift=integral_property._shift)
-
-    def integral_operator(self, density: OneBodyElectronicIntegrals) -> OneBodyElectronicIntegrals:
-        """Returns the AO 1-electron integrals.
-
-        The operator for a dipole moment is simply given by the 1-electron integrals and does not
-        require the density for its construction.
-
-        Args:
-            density: the electronic density at which to compute the operator.
-
-        Returns:
-            OneBodyElectronicIntegrals: the operator stored as ElectronicIntegrals.
-
-        Raises:
-            NotImplementedError: if no AO electronic integrals are available.
-        """
-        if ElectronicBasis.AO not in self._electronic_integrals:
-            raise NotImplementedError(
-                "Construction of the DipoleMoment's integral operator without AO integrals is not "
-                "yet implemented."
-            )
-
-        return cast(OneBodyElectronicIntegrals, self.get_electronic_integral(ElectronicBasis.AO, 1))
-
-    def interpret(self, result: "EigenstateResult") -> None:
-        """Interprets an :class:`~qiskit_nature.second_q.problems.EigenstateResult` in this
-        property's context.
-
-        Args:
-            result: the result to add meaning to.
-        """
-        pass
+DipoleTuple = Tuple[Optional[Number], Optional[Number], Optional[Number]]
 
 
 class ElectronicDipoleMoment(Property):
-    """The ElectronicDipoleMoment property.
+    r"""The ElectronicDipoleMoment property.
 
-    This Property computes **purely** the electronic dipole moment (possibly minus additional shifts
-    introduced via e.g. classical transformers). However, for convenience it provides a storage
-    location for the nuclear dipole moment. If available, this information will be used during the
-    call of ``interpret`` to provide the electronic, nuclear and total dipole moments in the result
-    object.
+    This Property implements the operator which evaluates the **electronic** dipole moment, based on
+    the electronic integrals:
+
+    .. math::
+        \vec{d}_{pq} = \int \phi_{p} \frac{1}{\vec{r}} \phi_{q} ,
+
+    where the integral is over the all space. The operator can then be expressed as:
+
+    .. math::
+        \hat{d} = \sum_{p, q} d^x_{pq} a^\dagger_p a_q ,
+
+    where :math:`x` can be any of the three Cartesian axes (:math:`\{x, y, z\}`).
+
+    Just like in the :class:`qiskit_nature.second_q.hamiltonians.ElectronicEnergy`, the nuclear
+    contribution is stored **separately** in the :attr:`nuclear_dipole_moment` attribute and will
+    **not** be included into the generated operator. It is however possible, to manually add this
+    constant shift to the electronic dipole components as a constant term in the internal
+    :class:`qiskit_nature.second_q.operators.ElectronicIntegrals` instances. Refer to the example
+    provided in :class:`qiskit_nature.second_q.hamiltonians.ElectronicEnergy` for more details.
+
+    Attributes:
+        x_dipole: the :class:`qiskit_nature.second_q.operators.ElectronicIntegrals` for the
+            :math:`x`-axis component.
+        y_dipole: the :class:`qiskit_nature.second_q.operators.ElectronicIntegrals` for the
+            :math:`y`-axis component.
+        z_dipole: the :class:`qiskit_nature.second_q.operators.ElectronicIntegrals` for the
+            :math:`z`-axis component.
+        constants: a dictionary of constant dipole offsets, not mapped to the qubit operator. Each
+            entry must be a tuple of length three (for the three Cartesian axes).
+        reverse_dipole_sign: whether or not to reverse the sign of the computed electronic dipole
+            moment when adding it to the :attr:`nuclear_dipole_moment` to obtain the total.
     """
 
     def __init__(
         self,
-        dipole_axes: Optional[list[DipoleMoment]] = None,
-        dipole_shift: Optional[dict[str, DipoleTuple]] = None,
-        nuclear_dipole_moment: Optional[DipoleTuple] = None,
-        reverse_dipole_sign: bool = False,
+        x_dipole: ElectronicIntegrals,
+        y_dipole: ElectronicIntegrals,
+        z_dipole: ElectronicIntegrals,
+        *,
+        constants: dict[str, DipoleTuple] = None,
     ) -> None:
         """
         Args:
-            dipole_axes: a dictionary mapping Cartesian axes to DipoleMoment properties.
-            dipole_shift: an optional dictionary of named dipole shifts.
-            nuclear_dipole_moment: the optional nuclear dipole moment.
-            reverse_dipole_sign: indicates whether the sign of the electronic dipole components
-                needs to be reversed in order to match the nuclear dipole moment direction.
+            x_dipole: the :class:`qiskit_nature.second_q.operators.ElectronicIntegrals` for the
+                :math:`x`-axis component.
+            y_dipole: the :class:`qiskit_nature.second_q.operators.ElectronicIntegrals` for the
+                :math:`y`-axis component.
+            z_dipole: the :class:`qiskit_nature.second_q.operators.ElectronicIntegrals` for the
+                :math:`z`-axis component.
+            constants: a dictionary of constant dipole offsets, not mapped to the qubit operator.
+                Each entry must be a tuple of length three (for the three Cartesian axes).
         """
         super().__init__(self.__class__.__name__)
-        self._dipole_shift = dipole_shift
-        self._nuclear_dipole_moment = nuclear_dipole_moment
-        self._reverse_dipole_sign = reverse_dipole_sign
-        self._dipole_axes = {}
-        if dipole_axes is not None:
-            for dipole in dipole_axes:
-                # self.add_property(dipole)
-                self._dipole_axes[dipole.name] = dipole
-
-    def to_hdf5(self, parent: h5py.Group) -> None:
-        """Stores this instance in an HDF5 group inside of the provided parent group.
-
-        See also :func:`~qiskit_nature.hdf5.HDF5Storable.to_hdf5` for more details.
-
-        Args:
-            parent: the parent HDF5 group.
-        """
-        super().to_hdf5(parent)
-        group = parent.require_group(self.name)
-
-        for prop in self._dipole_axes.values():
-            prop.to_hdf5(group)
-
-        group.attrs["reverse_dipole_sign"] = self._reverse_dipole_sign
-
-        if self._nuclear_dipole_moment is not None:
-            group.attrs["nuclear_dipole_moment"] = self._nuclear_dipole_moment
-
-        dipole_shift_group = group.create_group("dipole_shift")
-        if self._dipole_shift is not None:
-            for name, shift in self._dipole_shift.items():
-                dipole_shift_group.attrs[name] = shift
-
-    @staticmethod
-    def from_hdf5(h5py_group: h5py.Group) -> ElectronicDipoleMoment:
-        """Constructs a new instance from the data stored in the provided HDF5 group.
-
-        See also :func:`~qiskit_nature.hdf5.HDF5Storable.from_hdf5` for more details.
-
-        Args:
-            h5py_group: the HDF5 group from which to load the data.
-
-        Returns:
-            A new instance of this class.
-        """
-        ret = ElectronicDipoleMoment()
-
-        for prop in _import_and_build_from_hdf5(h5py_group):
-            ret._dipole_axes[prop.name] = prop  # type: ignore[attr-defined, assignment]
-
-        ret.reverse_dipole_sign = h5py_group.attrs["reverse_dipole_sign"]
-        ret.nuclear_dipole_moment = h5py_group.attrs.get("nuclear_dipole_moment", None)
-
-        for name, shift in h5py_group["dipole_shift"].attrs.items():
-            ret._dipole_shift[name] = shift
-
-        return ret
+        self.x_dipole = x_dipole
+        self.y_dipole = y_dipole
+        self.z_dipole = z_dipole
+        self.constants = constants if constants is not None else {}
+        # we do not expose this as an init argument on purpose
+        self.reverse_dipole_sign = False
 
     @property
-    def nuclear_dipole_moment(self) -> Optional[DipoleTuple]:
-        """Returns the nuclear dipole moment."""
-        return self._nuclear_dipole_moment
+    def nuclear_dipole_moment(self) -> DipoleTuple | None:
+        """The nuclear dipole moment.
+
+        See :attr:`qiskit_nature.second_q.hamiltonians.ElectronicEnergy.nuclear_repulsion_energy`
+        for an example on how to add the constant terms as offsets to the internal
+        :class:`qiskit_nature.second_q.operators.ElectronicIntegrals`.
+        """
+        return self.constants.get("nuclear_dipole_moment", None)
 
     @nuclear_dipole_moment.setter
-    def nuclear_dipole_moment(self, nuclear_dipole_moment: Optional[DipoleTuple]) -> None:
-        """Sets the nuclear dipole moment."""
-        self._nuclear_dipole_moment = nuclear_dipole_moment
-
-    @property
-    def reverse_dipole_sign(self) -> bool:
-        """Returns whether or not the sign of the electronic dipole components needs to be reversed
-        in order to match the nuclear dipole moment direction."""
-        return self._reverse_dipole_sign
-
-    @reverse_dipole_sign.setter
-    def reverse_dipole_sign(self, reverse_dipole_sign: bool) -> None:
-        """Sets whether or not the sign of the electronic dipole components needs to be reversed in
-        order to match the nuclear dipole moment direction."""
-        self._reverse_dipole_sign = reverse_dipole_sign
+    def nuclear_dipole_moment(self, d_nuc: DipoleTuple) -> None:
+        self.constants["nuclear_dipole_moment"] = d_nuc
 
     def second_q_ops(self) -> dict[str, FermionicOp]:
         """Returns the second quantized dipole moment operators.
@@ -245,19 +116,23 @@ class ElectronicDipoleMoment(Property):
             A `dict` of `FermionicOp` objects.
         """
         ops = {}
-        for prop in self._dipole_axes.values():
-            ops.update(prop.second_q_ops())
+        ops["XDipole"] = FermionicOp.from_polynomial_tensor(self.x_dipole.polynomial_tensor())
+        ops["YDipole"] = FermionicOp.from_polynomial_tensor(self.y_dipole.polynomial_tensor())
+        ops["ZDipole"] = FermionicOp.from_polynomial_tensor(self.z_dipole.polynomial_tensor())
         return ops
 
     def interpret(self, result: "EigenstateResult") -> None:
-        """Interprets an :class:`~qiskit_nature.second_q.problems.EigenstateResult`
-        in this property's context.
+        """Interprets an :class:`qiskit_nature.second_q.problems.EigenstateResult`.
+
+        In particular, this extracts the evaluated electronic dipole moment values from the
+        auxiliary operator eigenvalues and this adds the constant dipole shifts stored in this
+        property to the result object.
 
         Args:
             result: the result to add meaning to.
         """
-        result.nuclear_dipole_moment = self._nuclear_dipole_moment
-        result.reverse_dipole_sign = self._reverse_dipole_sign
+        result.nuclear_dipole_moment = self.nuclear_dipole_moment
+        result.reverse_dipole_sign = self.reverse_dipole_sign
         result.computed_dipole_moment = []
         result.extracted_transformer_dipoles = []
 
@@ -267,30 +142,21 @@ class ElectronicDipoleMoment(Property):
             aux_operator_eigenvalues = result.aux_operator_eigenvalues
 
         for aux_op_eigenvalues in aux_operator_eigenvalues:
-            if aux_op_eigenvalues is None:
+            if not isinstance(aux_op_eigenvalues, dict):
                 continue
 
-            if isinstance(aux_op_eigenvalues, list) and len(aux_op_eigenvalues) < 6:
-                continue
-
-            axes_order = {"x": 0, "y": 1, "z": 2}
-            dipole_moment = [None] * 3
-            for prop in self._dipole_axes.values():
-                moment = aux_op_eigenvalues.get(prop.name, None)
+            dipole_moment = [float("NaN")] * 3
+            for idx, axis in enumerate("XYZ"):
+                moment = aux_op_eigenvalues.get(f"{axis}Dipole", None)
                 if moment is not None:
-                    dipole_moment[axes_order[prop._axis]] = moment[0].real  # type: ignore
+                    dipole_moment[idx] = moment[0].real
 
             result.computed_dipole_moment.append(cast(DipoleTuple, tuple(dipole_moment)))
-            dipole_shifts: dict[str, dict[str, complex]] = {}
-            for prop in self._dipole_axes.values():
-                for name, shift in prop._shift.items():
-                    if name not in dipole_shifts:
-                        dipole_shifts[name] = {}
-                    dipole_shifts[name][prop._axis] = shift
 
             result.extracted_transformer_dipoles.append(
                 {
-                    name: cast(DipoleTuple, (shift["x"], shift["y"], shift["z"]))
-                    for name, shift in dipole_shifts.items()
+                    name: constant
+                    for name, constant in self.constants.items()
+                    if name != "nuclear_dipole_moment"
                 }
             )

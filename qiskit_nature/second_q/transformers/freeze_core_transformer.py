@@ -12,7 +12,7 @@
 
 """The Freeze-Core Reduction interface."""
 
-from typing import List, Optional, Sequence, Tuple
+from typing import List, Optional, Sequence
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.constants import PERIODIC_TABLE
@@ -36,7 +36,7 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
             1. When `freeze_core` is enabled (the default), the "core" orbitals will be determined
                automatically according to `count_core_orbitals`. These will then be made inactive
                and removed in the same fashion as in the :class:`ActiveSpaceTransformer`.
-            2. Additionally, unoccupied molecular orbitals can be removed via a list of indices
+            2. Additionally, unoccupied spatial orbitals can be removed via a list of indices
                passed to `remove_orbitals`. It is the user's responsibility to ensure that these are
                indeed unoccupied orbitals, as no checks are performed.
 
@@ -45,7 +45,7 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
 
         Args:
             freeze_core: A boolean indicating whether to remove the "core" orbitals.
-            remove_orbitals: A list of indices specifying molecular orbitals which are removed.
+            remove_orbitals: A list of indices specifying spatial orbitals which are removed.
                              No checks are performed on the nature of these orbitals, so the user
                              must make sure that these are _unoccupied_ orbitals, which can be
                              removed without taking any energy shifts into account.
@@ -53,14 +53,12 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         self._freeze_core = freeze_core
         self._remove_orbitals = remove_orbitals
 
-        super().__init__()
+        super().__init__(-1, -1)
 
     def _check_configuration(self):
         pass
 
-    def _determine_active_space(
-        self, problem: ElectronicStructureProblem
-    ) -> Tuple[List[int], List[int]]:
+    def _determine_active_space(self, problem: ElectronicStructureProblem) -> List[int]:
         """Determines the active and inactive orbital indices.
 
         Args:
@@ -91,9 +89,9 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
             o for o, _ in enumerate(particle_number.occupation_alpha) if o not in inactive_orbs_idxs
         ]
         self._active_orbitals = active_orbs_idxs
-        self._num_molecular_orbitals = len(active_orbs_idxs)
+        self._num_spatial_orbitals = len(active_orbs_idxs)
 
-        return (active_orbs_idxs, inactive_orbs_idxs)
+        return active_orbs_idxs
 
     def count_core_orbitals(self, atoms: Sequence[str]) -> int:
         """Counts the number of core orbitals in a list of atoms.

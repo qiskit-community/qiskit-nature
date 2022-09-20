@@ -12,20 +12,28 @@
 
 """
 Transformers (:mod:`qiskit_nature.second_q.transformers`)
-=========================================================================================
+=========================================================
 
 .. currentmodule:: qiskit_nature.second_q.transformers
 
 .. autosummary::
    :toctree: ../stubs/
+   :nosignatures:
 
    BaseTransformer
+   BasisTransformer
    ActiveSpaceTransformer
    FreezeCoreTransformer
 """
 
+from .base_transformer import BaseTransformer
+from .basis_transformer import BasisTransformer
 from .active_space_transformer import ActiveSpaceTransformer
 from .freeze_core_transformer import FreezeCoreTransformer
-from .base_transformer import BaseTransformer
 
-__all__ = ["ActiveSpaceTransformer", "FreezeCoreTransformer", "BaseTransformer"]
+__all__ = [
+    "BaseTransformer",
+    "BasisTransformer",
+    "ActiveSpaceTransformer",
+    "FreezeCoreTransformer",
+]

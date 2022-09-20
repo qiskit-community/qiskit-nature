@@ -89,6 +89,53 @@ class TestPolynomialTensor(QiskitNatureTestCase):
             "++--": np.add(self.build_matrix(4, 4), self.build_matrix(4, 4)),
         }
 
+        self.expected_compose_poly = {
+            "": 1.0,
+            "+": np.multiply(self.build_matrix(4, 1).transpose(), self.build_matrix(4, 1)),
+            "+-": np.matmul(self.build_matrix(4, 2).transpose(), self.build_matrix(4, 2)),
+            "++--": np.matmul(self.build_matrix(4, 4).transpose(), self.build_matrix(4, 4)),
+        }
+
+        self.expected_compose_front_poly = {
+            "": 1.0,
+            "+": np.multiply(self.build_matrix(4, 1), self.build_matrix(4, 1).transpose()),
+            "+-": np.matmul(self.build_matrix(4, 2), self.build_matrix(4, 2).transpose()),
+            "++--": np.matmul(self.build_matrix(4, 4), self.build_matrix(4, 4).transpose()),
+        }
+
+        self.kronecker = {
+            "": 1.0,
+            "+": np.array([1, 1]),
+            "+-": np.array([[1, 0], [0, 1]]),
+            "++--": np.fromiter(
+                [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0,
+                    0.0,
+                    0.0,
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0,
+                ],
+                dtype=float,
+            ).reshape((2, 2, 2, 2)),
+        }
+        self.expected_tensor_poly = {
+            "": 1.0,
+            "+": np.concatenate([self.build_matrix(4, 1), self.build_matrix(4, 1)]),
+            "+-": np.kron(self.kronecker["+-"], self.build_matrix(4, 2)),
+            "++--": np.kron(self.kronecker["++--"], self.build_matrix(4, 4)),
+        }
+
     @staticmethod
     def build_matrix(dim_size, num_dim, val=1):
         """Build dictionary value matrix"""
@@ -158,13 +205,6 @@ class TestPolynomialTensor(QiskitNatureTestCase):
         ):
             _ = PolynomialTensor(self.og_poly, 4) + 5
 
-        with self.assertRaisesRegex(
-            ValueError,
-            r"The dimensions of the PolynomialTensors which are to be added together, do not "
-            r"match: \d+ != \d+",
-        ):
-            _ = PolynomialTensor(self.og_poly, 4) + PolynomialTensor(self.sample_poly_4, 2)
-
     def test_conjugate(self):
         """Test for conjugate of PolynomialTensor"""
         result = PolynomialTensor(self.og_poly, 4).conjugate()
@@ -174,6 +214,68 @@ class TestPolynomialTensor(QiskitNatureTestCase):
         """Test for transpose of PolynomialTensor"""
         result = PolynomialTensor(self.og_poly, 4).transpose()
         self.assertEqual(result, PolynomialTensor(self.expected_transpose_poly, 4))
+
+    def test_compose(self):
+        """Test composition of PolynomialTensor"""
+        pt_a = PolynomialTensor(self.og_poly, 4)
+        pt_b = PolynomialTensor(self.expected_transpose_poly, 4)
+
+        with self.subTest("compose(front=False)"):
+            result = pt_a.compose(pt_b)
+            self.assertEqual(result, PolynomialTensor(self.expected_compose_poly, 4))
+
+        with self.subTest("compose(front=True)"):
+            result = pt_a.compose(pt_b, front=True)
+            self.assertEqual(result, PolynomialTensor(self.expected_compose_front_poly, 4))
+
+    def test_tensor(self):
+        """Test tensoring of PolynomialTensor"""
+        p_t = PolynomialTensor(self.og_poly, 4)
+        result = PolynomialTensor(self.kronecker, 2).tensor(p_t)
+        self.assertEqual(result, PolynomialTensor(self.expected_tensor_poly, 8))
+
+    def test_expand(self):
+        """Test expanding of PolynomialTensor"""
+        p_t = PolynomialTensor(self.og_poly, 4)
+        result = p_t.expand(PolynomialTensor(self.kronecker, 2))
+        self.assertEqual(result, PolynomialTensor(self.expected_tensor_poly, 8))
+
+    def test_einsum(self):
+        """Test PolynomialTensor.einsum"""
+        one_body = np.random.random((2, 2))
+        two_body = np.random.random((2, 2, 2, 2))
+        tensor = PolynomialTensor({"+-": one_body, "++--": two_body})
+        coeffs = np.random.random((2, 2))
+        coeffs_pt = PolynomialTensor({"+-": coeffs})
+
+        result = PolynomialTensor.einsum(
+            {
+                "jk,ji,kl->il": ("+-", "+-", "+-", "+-"),
+                "pqrs,pi,qj,rk,sl->ijkl": ("++--", "+-", "+-", "+-", "+-", "++--"),
+            },
+            tensor,
+            coeffs_pt,
+            coeffs_pt,
+            coeffs_pt,
+            coeffs_pt,
+        )
+
+        expected = PolynomialTensor(
+            {
+                "+-": np.dot(np.dot(coeffs.T, one_body), coeffs),
+                "++--": np.einsum(
+                    "pqrs,pi,qj,rk,sl->ijkl",
+                    two_body,
+                    coeffs,
+                    coeffs,
+                    coeffs,
+                    coeffs,
+                    optimize=True,
+                ),
+            }
+        )
+
+        self.assertTrue(result.equiv(expected))
 
 
 if __name__ == "__main__":

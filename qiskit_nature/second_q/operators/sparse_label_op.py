@@ -29,6 +29,8 @@ from qiskit.quantum_info.operators.mixins import (
     TolerancesMixin,
 )
 
+from .polynomial_tensor import PolynomialTensor
+
 
 class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC, Mapping):
     """The Sparse Label Operator base class."""
@@ -36,16 +38,17 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
     def __init__(
         self,
         data: Mapping[str, complex],
-        register_length: int,
+        register_length: int | None = None,
         *,
         copy: bool = True,
         validate: bool = True,
-    ):
+    ) -> None:
         """
         Args:
             data: the operator data, mapping string-based keys to numerical values.
             register_length: the length of the operators register. This coincides with the maximum
-                index on which an operation may be performed by this operator.
+                index on which an operation may be performed by this operator. When omitted, the
+                register length is inferred from the maximum occurring index.
             copy: when set to False the `data` will not be copied and the dictionary will be
                 stored by reference rather than by value (which is the default; `copy=True`). Note,
                 that this requires you to not change the contents of the dictionary after
@@ -61,7 +64,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         self._data: Mapping[str, complex] = {}
         if copy:
             if validate:
-                self.__class__._validate_keys(data.keys(), register_length)
+                register_length = self.__class__._validate_keys(data.keys(), register_length)
             self._data = dict(data.items())
         else:
             self._data = data
@@ -72,21 +75,52 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         """Returns the register length"""
         return self._register_length
 
+    @register_length.setter
+    def register_length(self, reg_length: int | None) -> None:
+        self._register_length = reg_length
+
     @classmethod
     @abstractmethod
-    def _validate_keys(cls, keys: Collection[str], register_length: int) -> None:
-        """Validates a key.
+    def _validate_keys(cls, keys: Collection[str], register_length: int | None) -> int:
+        """Validates the keys of the operator.
 
         Args:
             keys: the keys to validate.
             register_length: the register length of the operator.
+
+        Returns:
+            The actual register length of the operator.
 
         Raises:
             QiskitNatureError: when an invalid key is encountered.
         """
 
     @classmethod
-    def zero(cls, register_length: int) -> SparseLabelOp:
+    @abstractmethod
+    def from_polynomial_tensor(cls, tensor: PolynomialTensor) -> SparseLabelOp:
+        """Constructs a ``SparseLabelOp`` from a ``PolynomialTensor``.
+
+        Args:
+            tensor: the ``PolynomialTensor`` to be expanded.
+
+        Returns:
+            The generated ``SparseLabelOp``.
+        """
+
+    @classmethod
+    @abstractmethod
+    def _validate_polynomial_tensor_key(cls, keys: Collection[str]) -> None:
+        """Validates the keys of a ``PolynomialTensor`` to be expanded into a ``SparseLabelOp``.
+
+        Args:
+            keys: the keys to validate.
+
+        Raises:
+            QiskitNatureError: when an invalid key is encountered.
+        """
+
+    @classmethod
+    def zero(cls, register_length: int | None = None) -> SparseLabelOp:
         """Constructs a zero-operator.
 
         Args:
@@ -98,7 +132,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         return cls({}, register_length=register_length, copy=False)
 
     @classmethod
-    def one(cls, register_length: int) -> SparseLabelOp:
+    def one(cls, register_length: int | None = None) -> SparseLabelOp:
         """Constructs a unity-operator.
 
         Args:
@@ -261,8 +295,6 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         """
         if not isinstance(other, SparseLabelOp):
             return False
-        if self.register_length != other.register_length:
-            return False
         if self._data.keys() != other._data.keys():
             return False
 
@@ -285,7 +317,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         """
         if not isinstance(other, SparseLabelOp):
             return False
-        return self.register_length == other.register_length and self._data == other._data
+        return self._data == other._data
 
     def __getitem__(self, __k: str) -> complex:
         """Get the requested element of the ``SparseLabelOp``."""
@@ -346,6 +378,35 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         return self.__class__(
             {ind: self[ind] for ind in indices}, register_length=self.register_length, copy=False
         )
+
+    def chop(self, tol: float | None = None) -> SparseLabelOp:
+        """Chops the real and imaginary phases of the operator coefficients.
+
+        This function separetely chops the real and imaginary phase of all coefficients to the
+        providede tolerance.
+
+        Args:
+            tol: the tolerance to which to chop. If ``None``, :attr:`atol` will be used.
+
+        Returns:
+            The chopped operator.
+        """
+        tol = tol if tol is not None else self.atol
+
+        new_data = {}
+        for key, value in self.items():
+            zero_real = cmath.isclose(value.real, 0.0, abs_tol=tol)
+            zero_imag = cmath.isclose(value.imag, 0.0, abs_tol=tol)
+            if zero_real and zero_imag:
+                continue
+            if zero_imag:
+                new_data[key] = value.real
+            elif zero_real:
+                new_data[key] = value.imag
+            else:
+                new_data[key] = value
+
+        return self.__class__(new_data, register_length=self.register_length, copy=False)
 
     @abstractmethod
     def simplify(self, *, atol: float | None = None) -> SparseLabelOp:

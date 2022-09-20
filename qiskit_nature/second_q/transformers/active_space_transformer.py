@@ -17,31 +17,27 @@ from __future__ import annotations
 import logging
 
 from copy import deepcopy
-from typing import List, Optional, Tuple, Union, cast
+from numbers import Number
+from typing import cast
 
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
+from qiskit_nature.second_q.hamiltonians import ElectronicEnergy, Hamiltonian
+from qiskit_nature.second_q.operators import ElectronicIntegrals
 from qiskit_nature.second_q.problems import BaseProblem, ElectronicStructureProblem
-from qiskit_nature.second_q.properties import Property
 from qiskit_nature.second_q.properties import (
-    DipoleMoment,
+    AngularMomentum,
     ElectronicDipoleMoment,
+    Magnetization,
     ParticleNumber,
 )
-from qiskit_nature.second_q.properties.bases import (
-    ElectronicBasis,
-    ElectronicBasisTransform,
-)
-from qiskit_nature.second_q.properties.integrals import (
-    IntegralProperty,
-    OneBodyElectronicIntegrals,
-)
+from qiskit_nature.second_q.properties.bases import ElectronicBasis
 
 from .base_transformer import BaseTransformer
+from .basis_transformer import BasisTransformer
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 class ActiveSpaceTransformer(BaseTransformer):
@@ -60,7 +56,7 @@ class ActiveSpaceTransformer(BaseTransformer):
     https://arxiv.org/abs/2009.01872.
 
     The active space can be configured in one of the following ways through the initializer:
-        - when only `num_electrons` and `num_molecular_orbitals` are specified, these integers
+        - when only `num_electrons` and `num_spatial_orbitals` are specified, these integers
           indicate the number of active electrons and orbitals, respectively. The active space will
           then be chosen around the Fermi level resulting in a unique choice for any pair of
           numbers.  Nonetheless, the following criteria must be met:
@@ -70,17 +66,15 @@ class ActiveSpaceTransformer(BaseTransformer):
             #. the number of active orbitals must not exceed the total number of orbitals minus the
                number of orbitals occupied by the inactive electrons
 
-        - when, in addition to the above, `num_alpha` is specified, this can be used to disambiguate
-          the active space in systems with non-zero spin. Thus, `num_alpha` determines the number of
-          active alpha electrons. The number of active beta electrons can then be determined based
-          via `num_beta = num_electrons - num_alpha`. The same requirements as listed in the
-          previous case must be met.
+        - when, `num_electrons` is a tuple, this must indicate the number of alpha- and beta-spin
+          elecrtrons, respectively. The same requirements as listed before must be met.
         - finally, it is possible to select a custom set of active orbitals via their indices using
           `active_orbitals`. This allows selecting an active space which is not placed around the
           Fermi level as described in the first case, above. When using this keyword argument, the
           following criteria must be met *in addition* to the ones listed above:
 
-            #. the length of `active_orbitals` must be equal to `num_molecular_orbitals`.
+            #. the length of `active_orbitals` must be equal to `num_spatial_orbitals`. Note, that
+               we do **not** infer the number of active orbitals from this list of indices!
 
             #. the sum of electrons present in `active_orbitals` must be equal to `num_electrons`.
 
@@ -91,36 +85,26 @@ class ActiveSpaceTransformer(BaseTransformer):
 
     def __init__(
         self,
-        num_electrons: Optional[Union[int, Tuple[int, int]]] = None,
-        num_molecular_orbitals: Optional[int] = None,
-        active_orbitals: Optional[List[int]] = None,
+        num_electrons: int | tuple[int, int],
+        num_spatial_orbitals: int,
+        active_orbitals: list[int] | None = None,
     ):
-        """Initializes a transformer which can reduce an ElectronicStructureProblem to a configured
-        active space.
-
-        This transformer requires a `ParticleNumber` property and an `ElectronicBasisTransform`
-        pseudo-property to be available as well as `ElectronicIntegrals` in the `ElectronicBasis.AO`
-        basis. An `ElectronicStructureDriverResult` produced by Qiskit's drivers in general
-        satisfies these conditions unless it was read from an FCIDump file. However, those integrals
-        are likely already reduced by the code which produced the file.
-
+        """
         Args:
             num_electrons: The number of active electrons. If this is a tuple, it represents the
-                           number of alpha and beta electrons. If this is a number, it is
-                           interpreted as the total number of active electrons, should be even, and
-                           implies that the number of alpha and beta electrons equals half of this
-                           value, respectively.
-            num_molecular_orbitals: The number of active orbitals.
-            active_orbitals: A list of indices specifying the molecular orbitals of the active
-                             space. This argument must match with the remaining arguments and should
-                             only be used to enforce an active space that is not chosen purely
-                             around the Fermi level.
+               number of alpha- and beta-spin electrons, respectively. If this is a number, it is
+               interpreted as the total number of active electrons, should be even, and implies that
+               the number of alpha and beta electrons equals half of this value, respectively.
+            num_spatial_orbitals: The number of active orbitals.
+            active_orbitals: A list of indices specifying the spatial orbitals of the active
+                space. This argument must match with the remaining arguments and should only be used
+                to enforce an active space that is not chosen purely around the Fermi level.
 
         Raises:
             QiskitNatureError: if an invalid configuration is provided.
         """
         self._num_electrons = num_electrons
-        self._num_molecular_orbitals = num_molecular_orbitals
+        self._num_spatial_orbitals = num_spatial_orbitals
         self._active_orbitals = active_orbitals
 
         try:
@@ -129,9 +113,10 @@ class ActiveSpaceTransformer(BaseTransformer):
             raise QiskitNatureError("Incorrect Active-Space configuration.") from exc
 
         self._mo_occ_total: np.ndarray = None
-        self._active_orbs_indices: List[int] = None
-        self._transform_active: ElectronicBasisTransform = None
-        self._density_inactive: OneBodyElectronicIntegrals = None
+        self._active_orbs_indices: list[int] = None
+        self._transform_active: BasisTransformer = None
+        self._density_active: ElectronicIntegrals = None
+        self._density_total: ElectronicIntegrals = None
 
     def _check_configuration(self):
         if isinstance(self._num_electrons, (int, np.integer)):
@@ -162,11 +147,11 @@ class ActiveSpaceTransformer(BaseTransformer):
                 str(self._num_electrons),
             )
 
-        if isinstance(self._num_molecular_orbitals, (int, np.integer)):
-            if self._num_molecular_orbitals < 0:
+        if isinstance(self._num_spatial_orbitals, (int, np.integer)):
+            if self._num_spatial_orbitals < 0:
                 raise QiskitNatureError(
                     "The number of active orbitals cannot be negative, not:",
-                    str(self._num_molecular_orbitals),
+                    str(self._num_spatial_orbitals),
                 )
         else:
             raise QiskitNatureError(
@@ -175,25 +160,39 @@ class ActiveSpaceTransformer(BaseTransformer):
             )
 
     def transform(self, problem: BaseProblem) -> BaseProblem:
-        """Reduces the given problem to a given active space.
+        """Transforms one :class:`~qiskit_nature.second_q.problems.BaseProblem` into another.
 
         Args:
             problem: the problem to be transformed.
 
-        Returns:
-            A new `ElectronicStructureProblem` instance.
-
         Raises:
-            QiskitNatureError: If the provided `ElectronicStructureProblem` does not contain a
-                               `ParticleNumber` or `ElectronicBasisTransform` instance, if more
-                               electrons or orbitals are requested than are available, or if the
-                               number of selected active orbital indices does not match
-                               `num_molecular_orbitals`.
+            NotImplementedError: when an unsupported problem type is provided.
+            NotImplementedError: when the ``ElectronicStructureProblem`` is not in the
+                :attr:`qiskit_nature.second_q.properties.bases.ElectronicBasis.MO` basis.
+            QiskitNatureError: If the provided ``ElectronicStructureProblem`` does not contain a
+                               ``ParticleNumber``, if more electrons or orbitals are requested than
+                               are available, or if the amount of selected active orbital indices
+                               does not match the total number of active orbitals.
+
+        Returns:
+            A new `BaseProblem` instance.
         """
-        if not isinstance(problem, ElectronicStructureProblem):
-            raise QiskitNatureError(
-                "Only an ElectronicStructureProblem can be transformed by this Transformer, "
-                f"not problems of type, {type(problem)}."
+        if isinstance(problem, ElectronicStructureProblem):
+            return self._transform_electronic_structure_problem(problem)
+        else:
+            raise NotImplementedError(
+                f"The problem of type, {type(problem)}, is not yet supported by this transformer."
+            )
+
+    def _transform_electronic_structure_problem(
+        self, problem: ElectronicStructureProblem
+    ) -> ElectronicStructureProblem:
+
+        if problem.basis != ElectronicBasis.MO:
+            raise NotImplementedError(
+                f"Transformation of an ElectronicStructureProblem in the {problem.basis} basis is "
+                "not yet supported by this transformer. Please convert it to the ElectronicBasis.MO"
+                " basis first, for example by using a BasisTransformer."
             )
 
         particle_number = problem.properties.particle_number
@@ -203,65 +202,71 @@ class ActiveSpaceTransformer(BaseTransformer):
                 "property, which is required by this transformer!"
             )
 
-        electronic_basis_transform = problem.basis_transform
-        if electronic_basis_transform is None:
-            raise QiskitNatureError(
-                "The provided ElectronicStructureProblem does not contain an "
-                "`ElectronicBasisTransform` property, which is required by this transformer!"
-            )
-
-        # get molecular orbital occupation numbers
+        # get spatial orbital occupation numbers
         occupation_alpha = particle_number.occupation_alpha
         occupation_beta = particle_number.occupation_beta
         self._mo_occ_total = occupation_alpha + occupation_beta
 
         # determine the active space
-        self._active_orbs_indices, inactive_orbs_idxs = self._determine_active_space(problem)
-
-        # get molecular orbital coefficients
-        coeff_alpha = electronic_basis_transform.coeff_alpha
-        coeff_beta = electronic_basis_transform.coeff_beta
+        self._active_orbs_indices = self._determine_active_space(problem)
 
         # initialize size-reducing basis transformation
-        self._transform_active = ElectronicBasisTransform(
-            ElectronicBasis.AO,
+        coeff_alpha = np.zeros((particle_number.num_spin_orbitals // 2, self._num_spatial_orbitals))
+        coeff_alpha[self._active_orbs_indices, range(self._num_spatial_orbitals)] = 1.0
+        coeff_beta = np.zeros((particle_number.num_spin_orbitals // 2, self._num_spatial_orbitals))
+        coeff_beta[self._active_orbs_indices, range(self._num_spatial_orbitals)] = 1.0
+        self._transform_active = BasisTransformer(
             ElectronicBasis.MO,
-            coeff_alpha[:, self._active_orbs_indices],
-            coeff_beta[:, self._active_orbs_indices],
+            ElectronicBasis.MO,
+            ElectronicIntegrals.from_raw_integrals(coeff_alpha, h1_b=coeff_beta, validate=False),
         )
 
-        # compute inactive density matrix
-        def _inactive_density(mo_occ, mo_coeff):
-            return np.dot(
-                mo_coeff[:, inactive_orbs_idxs] * mo_occ[inactive_orbs_idxs],
-                np.transpose(mo_coeff[:, inactive_orbs_idxs]),
-            )
-
-        self._density_inactive = OneBodyElectronicIntegrals(
-            ElectronicBasis.AO,
-            (
-                _inactive_density(occupation_alpha, coeff_alpha),
-                _inactive_density(occupation_beta, coeff_beta),
-            ),
+        self._density_total = ElectronicIntegrals.from_raw_integrals(
+            np.diag(occupation_alpha), h1_b=np.diag(occupation_beta)
         )
 
-        electronic_energy = cast(ElectronicEnergy, self._transform_property(problem.hamiltonian))
+        self._density_active = self._transform_active.transform_electronic_integrals(
+            self._density_total
+        )
+        self._density_active.mixed = None
+        self._density_active = self._transform_active.invert().transform_electronic_integrals(
+            self._density_active
+        )
+        self._density_active.mixed = None
+
+        electronic_energy = cast(ElectronicEnergy, self.transform_hamiltonian(problem.hamiltonian))
 
         # construct new ElectronicStructureProblem
-        problem_transformed = ElectronicStructureProblem(electronic_energy)
-        problem_transformed.molecule = problem.molecule
-        problem_transformed.basis_transform = self._transform_active
+        new_problem = ElectronicStructureProblem(electronic_energy)
+        new_problem.basis = ElectronicBasis.MO
+        new_problem.molecule = problem.molecule
 
         for prop in problem.properties:
-            transformed_property = self._transform_property(prop)
-            if isinstance(transformed_property, Property):
-                problem_transformed.properties.add(transformed_property)
+            if isinstance(prop, ElectronicDipoleMoment):
+                new_problem.properties.electronic_dipole_moment = (
+                    self._transform_electronic_dipole_moment(prop)
+                )
+            elif isinstance(prop, ParticleNumber):
+                active_occ_alpha = prop.occupation_alpha[self._active_orbs_indices]
+                active_occ_beta = prop.occupation_beta[self._active_orbs_indices]
+                particle_number = ParticleNumber(
+                    len(self._active_orbs_indices) * 2,
+                    (int(sum(active_occ_alpha)), int(sum(active_occ_beta))),
+                    active_occ_alpha,
+                    active_occ_beta,
+                )
+                new_problem.properties.particle_number = particle_number
+            elif isinstance(prop, (AngularMomentum, Magnetization, ParticleNumber)):
+                new_problem.properties.add(
+                    prop.__class__(len(self._active_orbs_indices) * 2)  # type: ignore
+                )
 
-        return problem_transformed
+            else:
+                LOGGER.warning("Encountered an unsupported property of type '%s'.", type(prop))
 
-    def _determine_active_space(
-        self, problem: ElectronicStructureProblem
-    ) -> Tuple[List[int], List[int]]:
+        return new_problem
+
+    def _determine_active_space(self, problem: ElectronicStructureProblem) -> list[int]:
         """Determines the active and inactive orbital indices.
 
         Args:
@@ -286,19 +291,12 @@ class ActiveSpaceTransformer(BaseTransformer):
         # determine active and inactive orbital indices
         if self._active_orbitals is None:
             norbs_inactive = nelec_inactive // 2
-            inactive_orbs_idxs = list(range(norbs_inactive))
             active_orbs_idxs = list(
-                range(norbs_inactive, norbs_inactive + self._num_molecular_orbitals)
+                range(norbs_inactive, norbs_inactive + self._num_spatial_orbitals)
             )
-        else:
-            active_orbs_idxs = self._active_orbitals
-            inactive_orbs_idxs = [
-                o
-                for o in range(nelec_total // 2)
-                if o not in self._active_orbitals and self._mo_occ_total[o] > 0
-            ]
+            return active_orbs_idxs
 
-        return (active_orbs_idxs, inactive_orbs_idxs)
+        return self._active_orbitals
 
     def _validate_num_electrons(self, nelec_inactive: int) -> None:
         """Validates the number of electrons.
@@ -329,12 +327,12 @@ class ActiveSpaceTransformer(BaseTransformer):
         if self._active_orbitals is None:
             norbs_inactive = nelec_inactive // 2
             if (
-                norbs_inactive + self._num_molecular_orbitals
+                norbs_inactive + self._num_spatial_orbitals
                 > particle_number._num_spin_orbitals // 2
             ):
                 raise QiskitNatureError("More orbitals requested than available.")
         else:
-            if self._num_molecular_orbitals != len(self._active_orbitals):
+            if self._num_spatial_orbitals != len(self._active_orbitals):
                 raise QiskitNatureError(
                     "The number of selected active orbital indices does not "
                     "match the specified number of active orbitals."
@@ -352,75 +350,106 @@ class ActiveSpaceTransformer(BaseTransformer):
                     "does not match the specified number of active electrons."
                 )
 
-    # TODO: can we efficiently extract this into the base class? At least the logic dealing with
-    # recursion is general and we should avoid having to duplicate it.
-    def _transform_property(
-        self, prop: Property | ElectronicEnergy
-    ) -> Property | ElectronicEnergy | None:
-        """Transforms a Property object.
-
-        This is a recursive reduction, iterating GroupedProperty objects when encountering one.
+    def transform_hamiltonian(self, hamiltonian: Hamiltonian) -> Hamiltonian:
+        """Transforms one :class:`~qiskit_nature.second_q.hamiltonians.Hamiltonian` into another.
 
         Args:
-            property: the property object to transform.
-
-        Returns:
-            The transformed property object.
+            hamiltonian: the hamiltonian to be transformed.
 
         Raises:
-            TypeError: if an unexpected Property subtype is encountered.
+            NotImplementedError: when an unsupported hamiltonian type is provided.
+            NotImplementedError: when called standalone.
+
+        Returns:
+            A new `Hamiltonian` instance.
         """
-        transformed_property: Optional[Union[Property, ElectronicEnergy]] = None
-        if isinstance(prop, ElectronicDipoleMoment):
-            transformed_property = prop.__class__()
-            transformed_property.name = prop.name
-
-            for internal_property in prop._dipole_axes.values():
-                try:
-                    transformed_internal_property = self._transform_property(internal_property)
-                    if isinstance(transformed_internal_property, DipoleMoment):
-                        transformed_property._dipole_axes[
-                            transformed_internal_property.name
-                        ] = transformed_internal_property
-                except TypeError:
-                    logger.warning(
-                        "The Property %s of type %s could not be transformed 2!",
-                        internal_property.name,
-                        type(internal_property),
-                    )
-                    continue
-
-            transformed_property.reverse_dipole_sign = prop.reverse_dipole_sign
-            transformed_property.nuclear_dipole_moment = prop.nuclear_dipole_moment
-
-        elif isinstance(prop, (IntegralProperty, ElectronicEnergy)):
-            # get matrix operator of IntegralProperty
-            fock_operator = prop.integral_operator(self._density_inactive)
-            # the total operator equals the AO-1-body-term + the inactive matrix operator
-            total_op = prop.get_electronic_integral(ElectronicBasis.AO, 1) + fock_operator
-            # compute the energy shift introduced by the ActiveSpaceTransformer
-            e_inactive = 0.5 * cast(complex, total_op.compose(self._density_inactive))
-
-            transformed_property = deepcopy(prop)
-            # insert the AO-basis inactive operator
-            transformed_property.add_electronic_integral(fock_operator)
-            # actually reduce the system size
-            transformed_property.transform_basis(self._transform_active)
-            # insert the energy shift
-            transformed_property._shift[self.__class__.__name__] = e_inactive
-
-        elif isinstance(prop, ParticleNumber):
-            p_n = prop
-            active_occ_alpha = p_n.occupation_alpha[self._active_orbs_indices]
-            active_occ_beta = p_n.occupation_beta[self._active_orbs_indices]
-            transformed_property = ParticleNumber(
-                len(self._active_orbs_indices) * 2,
-                (int(sum(active_occ_alpha)), int(sum(active_occ_beta))),
-                active_occ_alpha,
-                active_occ_beta,
+        if isinstance(hamiltonian, ElectronicEnergy):
+            # TODO: implement the standalone usage of this method
+            # See also: https://github.com/Qiskit/qiskit-nature/issues/847
+            if self._transform_active is None:
+                raise NotImplementedError(
+                    "This transformer does not yet support the standalone use of the "
+                    "transform_hamiltonian method. See also "
+                    "https://github.com/Qiskit/qiskit-nature/issues/847"
+                )
+            return self._transform_electronic_energy(hamiltonian)
+        else:
+            raise NotImplementedError(
+                f"The hamiltonian of type, {type(hamiltonian)}, is not yet supported by this "
+                "transformer."
             )
 
-        else:
-            transformed_property = prop.__class__(len(self._active_orbs_indices) * 2)  # type: ignore
+    def _transform_electronic_energy(self, hamiltonian: ElectronicEnergy) -> ElectronicEnergy:
+        total_fock_operator = hamiltonian.fock(self._density_total)
 
-        return transformed_property
+        active_fock_operator = (
+            hamiltonian.fock(self._density_active) - hamiltonian.electronic_integrals.one_body
+        )
+
+        inactive_fock_operator = total_fock_operator - active_fock_operator
+
+        e_inactive: ElectronicIntegrals = cast(
+            ElectronicIntegrals,
+            0.5
+            * ElectronicIntegrals.einsum(
+                {"ij,ji": ("+-", "+-", "")},
+                total_fock_operator + hamiltonian.electronic_integrals.one_body,
+                self._density_total,
+            ),
+        )
+        e_inactive -= ElectronicIntegrals.einsum(
+            {"ij,ji": ("+-", "+-", "")}, total_fock_operator, self._density_active
+        )
+        e_inactive += cast(
+            ElectronicIntegrals,
+            0.5
+            * ElectronicIntegrals.einsum(
+                {"ij,ji": ("+-", "+-", "")}, active_fock_operator, self._density_active
+            ),
+        )
+        e_inactive_sum = sum(e_inactive[key].get("", 0.0) for key in e_inactive)
+
+        new_hamil = ElectronicEnergy(
+            self._transform_active.transform_electronic_integrals(
+                inactive_fock_operator + hamiltonian.electronic_integrals.two_body
+            )
+        )
+        new_hamil.constants = deepcopy(hamiltonian.constants)
+        new_hamil.constants[self.__class__.__name__] = e_inactive_sum
+
+        return new_hamil
+
+    def _transform_electronic_dipole_moment(
+        self, dipole_moment: ElectronicDipoleMoment
+    ) -> ElectronicDipoleMoment:
+        dipoles: list[ElectronicIntegrals] = []
+        dip_inactive: list[Number] = []
+        for dipole in [dipole_moment.x_dipole, dipole_moment.y_dipole, dipole_moment.z_dipole]:
+            # In the dipole case, there are no two-body terms. Thus, the inactive Fock operator
+            # is unaffected by the density and equals the one-body terms.
+            one_body = dipole.one_body
+
+            e_inactive = ElectronicIntegrals.einsum(
+                {"ij,ji": ("+-", "+-", "")}, one_body, self._density_total
+            )
+            e_inactive -= ElectronicIntegrals.einsum(
+                {"ij,ji": ("+-", "+-", "")}, one_body, self._density_active
+            )
+            dipoles.append(self._transform_active.transform_electronic_integrals(one_body))
+            dip_inactive.append(sum(e_inactive[key].get("", 0.0) for key in e_inactive))
+
+        new_dipole_moment = ElectronicDipoleMoment(
+            x_dipole=dipoles[0],
+            y_dipole=dipoles[1],
+            z_dipole=dipoles[2],
+        )
+        new_dipole_moment.constants = deepcopy(dipole_moment.constants)
+        new_dipole_moment.constants[self.__class__.__name__] = (
+            dip_inactive[0],
+            dip_inactive[1],
+            dip_inactive[2],
+        )
+        new_dipole_moment.reverse_dipole_sign = dipole_moment.reverse_dipole_sign
+        new_dipole_moment.nuclear_dipole_moment = dipole_moment.nuclear_dipole_moment
+
+        return new_dipole_moment

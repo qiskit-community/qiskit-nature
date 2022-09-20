@@ -14,14 +14,10 @@
 
 from __future__ import annotations
 
-from qiskit_nature.second_q.properties.bases import ElectronicBasis
-from qiskit_nature.second_q.properties.integrals import (
-    OneBodyElectronicIntegrals,
-    TwoBodyElectronicIntegrals,
-)
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.properties import ParticleNumber
+from qiskit_nature.second_q.properties.bases import ElectronicBasis
 
 from .fcidump import FCIDump
 
@@ -47,17 +43,12 @@ def fcidump_to_problem(fcidump: FCIDump) -> ElectronicStructureProblem:
         num_particles=(num_alpha, num_beta),
     )
 
-    electronic_energy = ElectronicEnergy(
-        [
-            OneBodyElectronicIntegrals(ElectronicBasis.MO, (fcidump.hij, fcidump.hij_b)),
-            TwoBodyElectronicIntegrals(
-                ElectronicBasis.MO,
-                (fcidump.hijkl, fcidump.hijkl_ba, fcidump.hijkl_bb, None),
-            ),
-        ],
-        nuclear_repulsion_energy=fcidump.constant_energy,
+    electronic_energy = ElectronicEnergy.from_raw_integrals(
+        fcidump.hij, fcidump.hijkl, fcidump.hij_b, fcidump.hijkl_bb, fcidump.hijkl_ba
     )
+    electronic_energy.nuclear_repulsion_energy = fcidump.constant_energy
 
     problem = ElectronicStructureProblem(electronic_energy)
+    problem.basis = ElectronicBasis.MO
     problem.properties.particle_number = particle_number
     return problem

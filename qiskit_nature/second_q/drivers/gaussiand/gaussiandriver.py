@@ -31,11 +31,14 @@ import qiskit_nature.optionals as _optionals
 from qiskit_nature.settings import settings
 from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
 from qiskit_nature.second_q.formats.qcschema import QCSchema
-from qiskit_nature.second_q.formats.qcschema_translator import qcschema_to_problem
+from qiskit_nature.second_q.formats.qcschema_translator import (
+    qcschema_to_problem,
+    qcschema_to_basis_transformer,
+)
+from qiskit_nature.second_q.operators import ElectronicIntegrals
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
-from qiskit_nature.second_q.properties import DipoleMoment, ElectronicDipoleMoment
+from qiskit_nature.second_q.properties import ElectronicDipoleMoment
 from qiskit_nature.second_q.properties.bases import ElectronicBasis
-from qiskit_nature.second_q.properties.integrals import OneBodyElectronicIntegrals
 
 from .gaussian_utils import run_g16
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType, _QCSchemaData
@@ -409,46 +412,49 @@ class GaussianDriver(ElectronicStructureDriver):
     def to_problem(
         self,
         *,
+        basis: ElectronicBasis = ElectronicBasis.MO,
         include_dipole: bool = True,
     ) -> ElectronicStructureProblem:
-        return GaussianDriver._problem_from_matrix_file(self._mel, include_dipole=include_dipole)
+        return GaussianDriver._problem_from_matrix_file(
+            self._mel, basis=basis, include_dipole=include_dipole
+        )
 
     @staticmethod
     def _problem_from_matrix_file(
-        mel: MatEl, *, include_dipole: bool = True
+        mel: MatEl,
+        *,
+        basis: ElectronicBasis = ElectronicBasis.MO,
+        include_dipole: bool = True,
     ) -> ElectronicStructureProblem:
         qcschema = GaussianDriver._qcschema_from_matrix_file(mel)
 
-        problem = qcschema_to_problem(qcschema)
+        problem = qcschema_to_problem(qcschema, basis=basis)
 
         if include_dipole:
             # dipole moment
             dipints = GaussianDriver._get_matrix(mel, "DIPOLE INTEGRALS")
             dipints = np.einsum("ijk->kji", dipints)
 
-            x_dip_ints = OneBodyElectronicIntegrals(ElectronicBasis.AO, (dipints[0], None))
-            y_dip_ints = OneBodyElectronicIntegrals(ElectronicBasis.AO, (dipints[1], None))
-            z_dip_ints = OneBodyElectronicIntegrals(ElectronicBasis.AO, (dipints[2], None))
+            x_dip = ElectronicIntegrals.from_raw_integrals(dipints[0])
+            y_dip = ElectronicIntegrals.from_raw_integrals(dipints[1])
+            z_dip = ElectronicIntegrals.from_raw_integrals(dipints[2])
 
-            x_dipole = DipoleMoment(
-                "x", [x_dip_ints, x_dip_ints.transform_basis(problem.basis_transform)]
-            )
-            y_dipole = DipoleMoment(
-                "y", [y_dip_ints, y_dip_ints.transform_basis(problem.basis_transform)]
-            )
-            z_dipole = DipoleMoment(
-                "z", [z_dip_ints, z_dip_ints.transform_basis(problem.basis_transform)]
-            )
+            if basis == ElectronicBasis.MO:
+                basis_transform = qcschema_to_basis_transformer(qcschema)
+
+                x_dip = basis_transform.transform_electronic_integrals(x_dip)
+                y_dip = basis_transform.transform_electronic_integrals(y_dip)
+                z_dip = basis_transform.transform_electronic_integrals(z_dip)
 
             coords = np.reshape(mel.c, (len(mel.ian), 3))
             nucl_dip = np.einsum("i,ix->x", mel.ian, coords)
             nucl_dip = np.round(nucl_dip, decimals=8)
 
-            problem.properties.electronic_dipole_moment = ElectronicDipoleMoment(
-                [x_dipole, y_dipole, z_dipole],
-                nuclear_dipole_moment=nucl_dip,
-                reverse_dipole_sign=True,
-            )
+            dipole_moment = ElectronicDipoleMoment(x_dip, y_dip, z_dip)
+            dipole_moment.nuclear_dipole_moment = nucl_dip
+            dipole_moment.reverse_dipole_sign = True
+
+            problem.properties.electronic_dipole_moment = dipole_moment
 
         return problem
 

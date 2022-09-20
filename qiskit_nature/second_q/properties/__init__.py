@@ -16,12 +16,38 @@ Second-Quantization Properties (:mod:`qiskit_nature.second_q.properties`)
 
 .. currentmodule:: qiskit_nature.second_q.properties
 
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+    Property
+
+Electronic Properties
+---------------------
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   AngularMomentum
+   ElectronicDipoleMoment
+   Magnetization
+   ParticleNumber
+
+Vibrational Properties
+----------------------
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   OccupiedModals
 """
 
 from .property import Property
 
 from .angular_momentum import AngularMomentum
-from .dipole_moment import DipoleMoment, ElectronicDipoleMoment
+from .dipole_moment import ElectronicDipoleMoment
 from .magnetization import Magnetization
 from .particle_number import ParticleNumber
 
@@ -31,7 +57,6 @@ from .occupied_modals import OccupiedModals
 __all__ = [
     "Property",
     "AngularMomentum",
-    "DipoleMoment",
     "ElectronicDipoleMoment",
     "Magnetization",
     "ParticleNumber",

@@ -39,11 +39,6 @@ from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import JordanWignerMapper, ParityMapper
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
-from qiskit_nature.second_q.properties.bases import ElectronicBasis
-from qiskit_nature.second_q.properties.integrals import (
-    OneBodyElectronicIntegrals,
-    TwoBodyElectronicIntegrals,
-)
 from qiskit_nature.second_q.transformers import FreezeCoreTransformer
 from qiskit_nature.second_q.algorithms.initial_points import MP2InitialPoint
 
@@ -128,14 +123,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         modes = 4
         h_1 = np.eye(modes, dtype=complex)
         h_2 = np.zeros((modes, modes, modes, modes))
-        aux_ops = [
-            ElectronicEnergy(
-                [
-                    OneBodyElectronicIntegrals(ElectronicBasis.MO, (h_1, None)),
-                    TwoBodyElectronicIntegrals(ElectronicBasis.MO, (h_2, None, None, None)),
-                ],
-            ).second_q_op()
-        ]
+        aux_ops = [ElectronicEnergy.from_raw_integrals(h_1, h_2).second_q_op()]
         aux_ops_copy = copy.deepcopy(aux_ops)
 
         _ = calc.solve(self.electronic_structure_problem)

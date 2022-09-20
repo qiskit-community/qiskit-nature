@@ -23,7 +23,6 @@ from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.formats.qcschema import QCSchema
 from qiskit_nature.second_q.formats.qcschema_translator import qcschema_to_problem
 from qiskit_nature.second_q.transformers import FreezeCoreTransformer
-from qiskit_nature.second_q.properties.bases import ElectronicBasis
 
 
 @ddt
@@ -48,9 +47,12 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
         driver = PySCFDriver()
         driver_result = driver.run()
 
-        driver_result.hamiltonian._shift["FreezeCoreTransformer"] = 0.0
-        for prop in driver_result.properties.electronic_dipole_moment._dipole_axes.values():
-            prop._shift["FreezeCoreTransformer"] = 0.0
+        driver_result.hamiltonian.constants["FreezeCoreTransformer"] = 0.0
+        driver_result.properties.electronic_dipole_moment.constants["FreezeCoreTransformer"] = (
+            0.0,
+            0.0,
+            0.0,
+        )
 
         trafo = FreezeCoreTransformer(**kwargs)
         driver_result_reduced = trafo.transform(driver_result)
@@ -72,7 +74,7 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
             )
         )
         # add energy shift, which currently cannot be stored in the QCSchema
-        expected.hamiltonian._shift["FreezeCoreTransformer"] = -7.796219568771229
+        expected.hamiltonian.constants["FreezeCoreTransformer"] = -7.796219568771229
 
         self.assertDriverResult(driver_result_reduced, expected)
 
@@ -91,7 +93,7 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
             )
         )
         # add energy shift, which currently cannot be stored in the QCSchema
-        expected.hamiltonian._shift["FreezeCoreTransformer"] = -14.253802923103054
+        expected.hamiltonian.constants["FreezeCoreTransformer"] = -14.253802923103054
 
         self.assertDriverResult(driver_result_reduced, expected)
 
@@ -111,16 +113,16 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
         electronic_energy_exp = driver_result.hamiltonian
         with self.subTest("MO 1-electron integrals"):
             np.testing.assert_array_almost_equal(
-                electronic_energy.get_electronic_integral(ElectronicBasis.MO, 1).to_spin(),
-                electronic_energy_exp.get_electronic_integral(ElectronicBasis.MO, 1).to_spin(),
+                np.abs(electronic_energy.electronic_integrals.polynomial_tensor()["+-"]),
+                np.abs(electronic_energy_exp.electronic_integrals.polynomial_tensor()["+-"]),
             )
         with self.subTest("MO 2-electron integrals"):
             np.testing.assert_array_almost_equal(
-                electronic_energy.get_electronic_integral(ElectronicBasis.MO, 2).to_spin(),
-                electronic_energy_exp.get_electronic_integral(ElectronicBasis.MO, 2).to_spin(),
+                np.abs(electronic_energy.electronic_integrals.polynomial_tensor()["++--"]),
+                np.abs(electronic_energy_exp.electronic_integrals.polynomial_tensor()["++--"]),
             )
         with self.subTest("Inactive energy"):
-            self.assertAlmostEqual(electronic_energy._shift["FreezeCoreTransformer"], 0.0)
+            self.assertAlmostEqual(electronic_energy.constants["FreezeCoreTransformer"], 0.0)
 
 
 if __name__ == "__main__":

@@ -14,13 +14,15 @@
 
 from __future__ import annotations
 
+from numbers import Number
+
 import numpy as np
 
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import UCC
+from qiskit_nature.second_q.operators import ElectronicIntegrals
+from qiskit_nature.second_q.operators.tensor_ordering import _phys_to_chem
 from qiskit_nature.second_q.problems import BaseProblem, ElectronicStructureProblem
-from qiskit_nature.second_q.properties.bases import ElectronicBasis
-from qiskit_nature.second_q.properties.integrals import ElectronicIntegrals
 
 
 from .initial_point import InitialPoint
@@ -28,7 +30,7 @@ from .initial_point import InitialPoint
 
 def _compute_mp2(
     num_occ: int, integral_matrix: np.ndarray, orbital_energies: np.ndarray
-) -> tuple[np.ndarray, float]:
+) -> tuple[np.ndarray, Number]:
     """Compute the T2 amplitudes and MP2 energy correction.
 
     Args:
@@ -105,8 +107,8 @@ class MP2InitialPoint(InitialPoint):
         self._ansatz: UCC | None = None
         self._t2_amplitudes: np.ndarray | None = None
         self._parameters: np.ndarray | None = None
-        self._energy_correction: float = 0.0
-        self._total_energy: float = 0.0
+        self._energy_correction: Number = 0.0  # type: ignore
+        self._total_energy: Number = 0.0  # type: ignore
 
     @property
     def ansatz(self) -> UCC:
@@ -159,28 +161,28 @@ class MP2InitialPoint(InitialPoint):
             )
 
         two_body_mo_integral: ElectronicIntegrals | None = (
-            electronic_energy.get_electronic_integral(ElectronicBasis.MO, 2)
+            electronic_energy.electronic_integrals.two_body
         )
-        if two_body_mo_integral is None:
+        if two_body_mo_integral is None or two_body_mo_integral.alpha.is_empty():
             raise QiskitNatureError(
                 "The two-body MO `electronic_integrals` cannot be obtained from the `grouped_property`."
             )
 
-        orbital_energies: np.ndarray | None = electronic_energy.orbital_energies
+        orbital_energies: np.ndarray | None = grouped_property.orbital_energies
         if orbital_energies is None:
             raise QiskitNatureError(
                 "The `orbital_energies` cannot be obtained from the `grouped_property`."
             )
 
-        integral_matrix: np.ndarray = two_body_mo_integral.get_matrix()
-        if not np.allclose(integral_matrix, two_body_mo_integral.get_matrix(2)):
+        integral_matrix = _phys_to_chem(two_body_mo_integral.alpha.get("++--"))
+        if two_body_mo_integral.beta.get("++--", None) is not None:
             raise NotImplementedError(
                 "`MP2InitialPoint` only supports restricted-spin setups. "
                 "Alpha and beta spin orbitals must be identical. "
                 "See https://github.com/Qiskit/qiskit-nature/issues/645."
             )
 
-        reference_energy = electronic_energy.reference_energy if not None else 0.0
+        reference_energy = grouped_property.reference_energy if not None else 0.0
 
         particle_number = grouped_property.properties.particle_number
         if particle_number is None:
@@ -200,7 +202,7 @@ class MP2InitialPoint(InitialPoint):
         self._grouped_property = grouped_property
         self._t2_amplitudes = t2_amplitudes
         self._energy_correction = energy_correction
-        self._total_energy = reference_energy + energy_correction
+        self._total_energy = reference_energy + energy_correction  # type: ignore
 
     @property
     def t2_amplitudes(self) -> np.ndarray:
@@ -212,12 +214,12 @@ class MP2InitialPoint(InitialPoint):
         return self._t2_amplitudes
 
     @property
-    def energy_correction(self) -> float:
+    def energy_correction(self) -> Number:
         """The MP2 energy correction."""
         return self._energy_correction
 
     @property
-    def total_energy(self) -> float:
+    def total_energy(self) -> Number:
         """The total energy including the Hartree-Fock energy.
 
         If the reference energy was not obtained from

@@ -19,22 +19,11 @@ Electronic Integrals (:mod:`qiskit_nature.second_q.properties.integrals`)
    :toctree: ../stubs/
    :nosignatures:
 
-   ElectronicIntegrals
-   IntegralProperty
-   OneBodyElectronicIntegrals
-   TwoBodyElectronicIntegrals
+   VibrationalIntegrals
 """
 
-from .electronic_integrals import ElectronicIntegrals
-from .integral_property import IntegralProperty
-from .one_body_electronic_integrals import OneBodyElectronicIntegrals
-from .two_body_electronic_integrals import TwoBodyElectronicIntegrals
 from .vibrational_integrals import VibrationalIntegrals
 
 __all__ = [
-    "ElectronicIntegrals",
-    "IntegralProperty",
-    "OneBodyElectronicIntegrals",
-    "TwoBodyElectronicIntegrals",
     "VibrationalIntegrals",
 ]

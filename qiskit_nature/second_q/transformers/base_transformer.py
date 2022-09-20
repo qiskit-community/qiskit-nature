@@ -14,6 +14,7 @@
 
 from abc import ABC, abstractmethod
 
+from qiskit_nature.second_q.hamiltonians import Hamiltonian
 from qiskit_nature.second_q.problems import BaseProblem
 
 
@@ -25,13 +26,32 @@ class BaseTransformer(ABC):
 
     @abstractmethod
     def transform(self, problem: BaseProblem) -> BaseProblem:
-        """Transforms one :class:`~qiskit_nature.second_q.problems.BaseProblem` into another one.
+        """Transforms one :class:`~qiskit_nature.second_q.problems.BaseProblem` into another.
         This may or may not affect the size of the Hilbert space.
 
         Args:
             problem: the problem to be transformed.
 
+        Raises:
+            NotImplementedError: when an unsupported problem type is provided.
+
         Returns:
             A new `BaseProblem` instance.
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def transform_hamiltonian(self, hamiltonian: Hamiltonian) -> Hamiltonian:
+        """Transforms one :class:`~qiskit_nature.second_q.hamiltonians.Hamiltonian` into another.
+        This may or may not affect the size of the Hilbert space.
+
+        Args:
+            hamiltonian: the hamiltonian to be transformed.
+
+        Raises:
+            NotImplementedError: when an unsupported hamiltonian type is provided.
+
+        Returns:
+            A new `Hamiltonian` instance.
         """
         raise NotImplementedError()

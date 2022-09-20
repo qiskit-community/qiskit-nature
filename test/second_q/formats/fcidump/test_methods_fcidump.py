@@ -22,9 +22,8 @@ from qiskit.algorithms import NumPyMinimumEigensolver
 from qiskit_nature.second_q.algorithms import GroundStateEigensolver
 from qiskit_nature.second_q.formats.fcidump_translator import fcidump_to_problem
 from qiskit_nature.second_q.formats.fcidump import FCIDump
-from qiskit_nature.second_q.transformers import BaseTransformer, FreezeCoreTransformer
+from qiskit_nature.second_q.transformers import BaseTransformer, ActiveSpaceTransformer
 from qiskit_nature.second_q.problems import BaseProblem
-from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.mappers import QubitConverter, JordanWignerMapper
 from qiskit_nature.second_q.problems import EigenstateResult
 
@@ -67,50 +66,20 @@ class TestMethodsFCIDump(TestDriverMethods):
         result = self._run_fcidump(fcidump)
         self._assert_energy(result, "oh")
 
-    def test_lih_freeze_core(self):
-        """LiH freeze core test"""
-        with self.assertRaises(QiskitNatureError) as ctx:
-            fcidump = FCIDump.from_file(
-                self.get_resource_path("test_fcidump_lih.fcidump", "second_q/formats/fcidump")
-            )
-            result = self._run_fcidump(fcidump, transformers=[FreezeCoreTransformer()])
-            self._assert_energy(result, "lih")
-        msg = (
-            "'The provided ElectronicStructureProblem does not contain an `ElectronicBasisTransform`"
-            " property, which is required by this transformer!'"
-        )
-        self.assertEqual(msg, str(ctx.exception))
-
-    def test_oh_freeze_core(self):
-        """OH freeze core test"""
-        with self.assertRaises(QiskitNatureError) as ctx:
-            fcidump = FCIDump.from_file(
-                self.get_resource_path("test_fcidump_oh.fcidump", "second_q/formats/fcidump")
-            )
-            result = self._run_fcidump(fcidump, transformers=[FreezeCoreTransformer()])
-            self._assert_energy(result, "oh")
-        msg = (
-            "'The provided ElectronicStructureProblem does not contain an `ElectronicBasisTransform`"
-            " property, which is required by this transformer!'"
-        )
-        self.assertEqual(msg, str(ctx.exception))
-
-    @unittest.skip("Skip until FreezeCoreTransformer supports pure MO cases.")
-    def test_lih_with_atoms(self):
-        """LiH with num_atoms test"""
+    def test_lih_with_active_space(self):
+        """LiH with active space test"""
         fcidump = FCIDump.from_file(
             self.get_resource_path("test_fcidump_lih.fcidump", "second_q/formats/fcidump"),
         )
-        result = self._run_fcidump(fcidump, transformers=[FreezeCoreTransformer()])
+        result = self._run_fcidump(fcidump, transformers=[ActiveSpaceTransformer(4, 6)])
         self._assert_energy(result, "lih")
 
-    @unittest.skip("Skip until FreezeCoreTransformer supports pure MO cases.")
-    def test_oh_with_atoms(self):
-        """OH with num_atoms test"""
+    def test_oh_with_active_space(self):
+        """OH with active space test"""
         fcidump = FCIDump.from_file(
             self.get_resource_path("test_fcidump_oh.fcidump", "second_q/formats/fcidump"),
         )
-        result = self._run_fcidump(fcidump, transformers=[FreezeCoreTransformer()])
+        result = self._run_fcidump(fcidump, transformers=[ActiveSpaceTransformer((5, 4), 6)])
         self._assert_energy(result, "oh")
 
 
@@ -121,17 +90,6 @@ class TestFCIDumpResult(QiskitNatureTestCase):
         """Test Result log function."""
         fcidump = FCIDump.from_file(
             self.get_resource_path("test_fcidump_h2.fcidump", "second_q/formats/fcidump")
-        )
-        properties = fcidump_to_problem(fcidump).properties
-        with self.assertLogs("qiskit_nature", level="DEBUG") as _:
-            for prop in properties:
-                prop.log()
-
-    def test_result_log_with_atoms(self):
-        """Test DriverResult log function."""
-        fcidump = FCIDump.from_file(
-            self.get_resource_path("test_fcidump_h2.fcidump", "second_q/formats/fcidump"),
-            # atoms=["H", "H"],
         )
         properties = fcidump_to_problem(fcidump).properties
         with self.assertLogs("qiskit_nature", level="DEBUG") as _:

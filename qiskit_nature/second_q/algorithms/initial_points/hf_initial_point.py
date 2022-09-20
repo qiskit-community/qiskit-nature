@@ -15,6 +15,7 @@
 from __future__ import annotations
 
 import warnings
+from numbers import Number
 
 import numpy as np
 
@@ -39,7 +40,7 @@ class HFInitialPoint(InitialPoint):
     def __init__(self) -> None:
         super().__init__()
         self._ansatz: UCC | None = None
-        self._reference_energy: float = 0.0
+        self._reference_energy: Number = 0.0  # type: ignore
         self._parameters: np.ndarray | None = None
 
     @property
@@ -82,7 +83,7 @@ class HFInitialPoint(InitialPoint):
             )
             return
 
-        self._reference_energy = electronic_energy.reference_energy if not None else 0.0
+        self._reference_energy = grouped_property.reference_energy if not None else 0.0
         self._grouped_property = grouped_property
 
     def to_numpy_array(self) -> np.ndarray:
@@ -137,7 +138,7 @@ class HFInitialPoint(InitialPoint):
         )
 
     @property
-    def total_energy(self) -> float:
+    def total_energy(self) -> Number:
         """The Hartree-Fock reference energy.
 
         If the reference energy was not obtained from

@@ -14,16 +14,18 @@
 
 from __future__ import annotations
 
+import re
 from collections import defaultdict
 from collections.abc import Collection, MutableMapping
-from typing import Iterator
-
-import re
+from itertools import product
+from typing import cast, Iterator
 
 import numpy as np
 from scipy.sparse import csc_matrix
 
 from qiskit_nature.exceptions import QiskitNatureError
+
+from .polynomial_tensor import PolynomialTensor
 from .sparse_label_op import SparseLabelOp
 
 
@@ -140,8 +142,10 @@ class FermionicOp(SparseLabelOp):
     _OPERATION_REGEX = re.compile(r"([\+\-]_\d+\s)*[\+\-]_\d+")
 
     @classmethod
-    def _validate_keys(cls, keys: Collection[str], register_length: int) -> None:
+    def _validate_keys(cls, keys: Collection[str], register_length: int | None) -> int:
         super()._validate_keys(keys, register_length)
+
+        max_index = 0
 
         for key in keys:
             # 0. explicitly allow the empty key
@@ -155,11 +159,75 @@ class FermionicOp(SparseLabelOp):
             # 2. validate all indices against register length
             for term in key.split(" "):
                 index = int(term[2:])
-                if index >= register_length:
+                if register_length is None:
+                    if index > max_index:
+                        max_index = index
+                elif index >= register_length:
                     raise QiskitNatureError(
-                        f"The index, {index}, from the label, {key}, exceeds the register length, "
-                        f"{register_length}."
+                        f"The index, {index}, from the label, {key}, exceeds the register "
+                        f"length, {register_length}."
                     )
+
+        return max_index + 1 if register_length is None else register_length
+
+    @classmethod
+    def _validate_polynomial_tensor_key(cls, keys: Collection[str]) -> None:
+        allowed_chars = {"+", "-"}
+
+        for key in keys:
+            if set(key) - allowed_chars:
+                raise QiskitNatureError(
+                    f"The key {key} is invalid. PolynomialTensor keys may only consists of `+` and "
+                    "`-` characters, for them to be expandable into a FermionicOp."
+                )
+
+    @classmethod
+    def from_polynomial_tensor(cls, tensor: PolynomialTensor) -> FermionicOp:
+        cls._validate_polynomial_tensor_key(tensor.keys())
+
+        data: dict[str, complex] = {}
+
+        for key in tensor:
+            if key == "":
+                # TODO: deal with complexity
+                data[""] = cast(float, tensor[key])
+                continue
+
+            label_template = " ".join(f"{op}_{{}}" for op in key)
+
+            # PERF: this matrix unpacking is a performance bottleneck
+            # I am including multiple solutions below to start a discussion on how to implement
+            # this. All of these are single-threaded right now...
+
+            # Another aspect would be to filter non-zero terms. However, so far all solutions I have
+            # tried result in significant performance penalties.
+
+            # nditer = np.nditer(tensor[key], flags=["multi_index"], op_flags=["readonly"])
+            # for coeff in nditer:
+            #     data[label_template.format(*nditer.multi_index)] = coeff
+
+            # An alternative solution, not based on a sequential numpy iterator. Could we use this
+            # to our advantage and parallelize this to some degree? A naive attempt at using
+            # qiskit.tools.parallel_map hurt more, than it helped...
+            mat = cast(np.ndarray, tensor[key])
+            for index in product(range(tensor.register_length), repeat=len(key)):
+                # TODO: deal with complexity
+                data[label_template.format(*index)] = cast(float, mat[index])
+
+            # and yet another solution which uses the same numpy iterator as above, but the C-API
+            # instead of Pythonic iterator, which according to their docs could be beneficial when
+            # requiring access to the iterator coordinates/indices
+            # however, here it is even slower than the variant above
+            # Reference: https://numpy.org/doc/stable/reference/generated/numpy.nditer.html
+            # nditer = np.nditer(tensor[key], flags=["multi_index"], op_flags=["readonly"])
+            # while not nditer.finished:
+            #     data[label_template.format(*nditer.multi_index)] = nditer[0]
+            #     nditer.iternext()
+
+            # once the PolynomialTensor supports sparse matrices, these will need to be handled
+            # separately
+
+        return FermionicOp(data, register_length=tensor.register_length, copy=False).chop()
 
     def __repr__(self) -> str:
         data_str = f"{dict(self.items())}"
