@@ -13,7 +13,7 @@
 """Tests for QuadraticHamiltonian"""
 
 from test import QiskitNatureTestCase
-from test.random import random_antisymmetric_matrix
+from test.nature_random import random_antisymmetric_matrix
 
 import numpy as np
 from ddt import data, ddt

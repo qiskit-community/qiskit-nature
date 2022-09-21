@@ -13,7 +13,7 @@
 """Test Bogoliubov transform circuits."""
 
 from test import QiskitNatureTestCase
-from test.random import random_quadratic_hamiltonian
+from test.nature_random import random_quadratic_hamiltonian
 
 import numpy as np
 from ddt import data, ddt, unpack
