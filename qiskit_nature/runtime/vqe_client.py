@@ -266,6 +266,7 @@ class VQEClient(VariationalAlgorithm, MinimumEigensolver):
 
         # try to convert the operators to a PauliSumOp, if it isn't already one
         operator = _convert_to_paulisumop(operator)
+        wrapped_type = type(aux_operators)
         wrapped_aux_operators = {
             str(aux_op_name_or_idx): _convert_to_paulisumop(aux_op)
             for aux_op_name_or_idx, aux_op in ListOrDict(aux_operators).items()
@@ -306,11 +307,16 @@ class VQEClient(VariationalAlgorithm, MinimumEigensolver):
         vqe_result.eigenstate = result.get("eigenstate", None)
         vqe_result.eigenvalue = result.get("eigenvalue", None)
         aux_op_eigenvalues = result.get("aux_operator_eigenvalues", None)
-        if isinstance(aux_operators, dict) and aux_op_eigenvalues is not None:
-            aux_op_eigenvalues = dict(
-                zip(wrapped_aux_operators.keys(), aux_op_eigenvalues.values())
-            )
-            if not aux_op_eigenvalues:  # For consistency set to None for empty dict
+        if aux_op_eigenvalues is not None:
+            if wrapped_type == list:
+                aux_op_eigenvalues = list(
+                    aux_op_eigenvalues.get(str(key), None) for key in range(len(aux_op_eigenvalues))
+                )
+            elif wrapped_type == dict:
+                aux_op_eigenvalues = dict(
+                    zip(wrapped_aux_operators.keys(), aux_op_eigenvalues.values())
+                )
+            if not aux_op_eigenvalues:  # For consistency set to None for empty dict/list
                 aux_op_eigenvalues = None
         vqe_result.aux_operator_eigenvalues = aux_op_eigenvalues
         vqe_result.optimal_parameters = result.get("optimal_parameters", None)
