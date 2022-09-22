@@ -29,15 +29,15 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install Nature
-        run: |
-          pip install -e .[pyscf]
-          pip install -U -c constraints.txt -r requirements-dev.txt
-        shell: bash
       - name: Install Dependencies
         run: |
           pip install jupyter sphinx_rtd_theme qiskit-terra[visualization]
           sudo apt-get install -y pandoc graphviz
+        shell: bash
+      - name: Install Nature
+        run: |
+          pip install -e .[pyscf,mpl]
+          pip install -U -c constraints.txt -r requirements-dev.txt
         shell: bash
       - name: Build and publish
         env:
