@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    Fixes the :class:`qiskit_nature.runtime.VQEClient` to correctly detect the
+    type of the wrapped auxiliary operators. Previously, it would always wrap
+    them into a dictionary and then fail when unwrapping them later, since it
+    did not preserve the previously wrapped data type.
