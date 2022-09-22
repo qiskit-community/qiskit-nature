@@ -69,13 +69,8 @@ setuptools.setup(
     include_package_data=True,
     python_requires=">=3.7",
     extras_require={
-<<<<<<< HEAD
-        'pyscf': ["pyscf; python_version < '3.10' and sys_platform != 'win32'"],
-        'mpl':["matplotlib>=3.3"],
-=======
         "pyscf": ["pyscf; sys_platform != 'win32' and (python_version < '3.10' or sys_platform != 'darwin')"],
         "mpl": ["matplotlib>=3.3,<3.6"],
->>>>>>> 5f50639 (Pin matplotlib due to bug in retworkx (#826))
     },
     zip_safe=False
 )
