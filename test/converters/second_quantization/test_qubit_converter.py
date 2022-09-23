@@ -176,15 +176,16 @@ class TestQubitConverter(QiskitNatureTestCase):
             expected_op = 1.0 * (I ^ I) - 0.5 * (I ^ Z) + 0.5 * (Z ^ Z)
             with contextlib.redirect_stderr(io.StringIO()) as out:
                 qubit_op = qubit_conv.convert(small_op, num_particles=self.num_particles)
-                self.assertEqual(qubit_op, expected_op)
-                self.assertTrue(
-                    out.getvalue()
-                    .strip()
-                    .startswith(
-                        "The original qubit operator only contains 2 qubits! "
-                        "Skipping the requested two-qubit reduction!"
-                    )
+            print(f"\nout.getvalue()--{out.getvalue()}--")
+            self.assertEqual(qubit_op, expected_op)
+            self.assertTrue(
+                out.getvalue()
+                .strip()
+                .startswith(
+                    "The original qubit operator only contains 2 qubits! "
+                    "Skipping the requested two-qubit reduction!"
                 )
+            )
 
     def test_z2_symmetry(self):
         """Test mapping to qubit operator with z2 symmetry tapering"""
