@@ -219,6 +219,17 @@ jobs:
           pip install -U -r requirements-dev.txt
           make lint
         shell: bash
+      - name: Stestr Cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            .stestr
+            .stestr1
+          key: stestr-${{ matrix.os }}-${{ matrix.python-version }}-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}
+          restore-keys: |
+            stestr-${{ matrix.os }}-${{ matrix.python-version }}-
+            stestr-${{ matrix.os }}-
+        if: ${{ !cancelled() }}
       - name: Nature Unit Tests under Python ${{ matrix.python-version }}
         uses: ./.github/actions/run-tests
         with:
@@ -262,7 +273,8 @@ jobs:
           if [ "${{ github.event_name }}" == "schedule" ] || [ "${{ contains(github.event.pull_request.labels.*.name, 'run_slow') }}" == "true" ]; then
               export QISKIT_TESTS="run_slow"
           fi
-          stestr --test-path test run
+          mkdir -p ./.stestr1
+          stestr --test-path test --repo-url .stestr1 run
         if: ${{ !cancelled() }}
         shell: bash
   Tutorials:
