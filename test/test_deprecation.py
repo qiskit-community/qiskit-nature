@@ -143,13 +143,13 @@ class TestClass:
     # Bug in mypy, if property decorator is used with another one
     # https://github.com/python/mypy/issues/1362
 
-    @property  # type: ignore
+    @property
     @deprecate_property("0.1.0")
     def property1(self) -> int:
         """property1 get"""
         return self._value
 
-    @property1.setter  # type: ignore
+    @property1.setter
     @deprecate_property(
         "0.1.0", new_name="new_property", additional_msg="and some additional information"
     )

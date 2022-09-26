@@ -13,8 +13,13 @@ sphinx-autodoc-typehints<1.14.0
 sphinxcontrib-spelling!=7.3.1
 jupyter-sphinx
 discover
+<<<<<<< HEAD
 qiskit-aer
 mypy>=0.780
+=======
+qiskit-aer>=0.11
+mypy>=0.981
+>>>>>>> 699dfb8 (Fixed myoy latest release errors (#845))
 mypy-extensions>=0.4.3
 nbsphinx
 qiskit_sphinx_theme
