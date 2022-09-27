@@ -122,14 +122,14 @@ class VQEUCCFactory(MinimumEigensolverFactory):
 
         self._vqe = VQE(**kwargs)
 
-    @property  # type: ignore
+    @property
     @deprecate_property("0.4", additional_msg="Use `minimum_eigensolver.quantum_instance` instead.")
     def quantum_instance(self) -> QuantumInstance:
         """DEPRECATED. Use ``minimum_eigensolver.quantum_instance`` instead.
         Returns quantum instance."""
         return self.minimum_eigensolver.quantum_instance
 
-    @quantum_instance.setter  # type: ignore
+    @quantum_instance.setter
     @deprecate_property(
         "0.4", additional_msg="Use `minimum_eigensolver.quantum_instance = q_instance` instead."
     )
@@ -138,14 +138,14 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         Sets the quantum instance."""
         self.minimum_eigensolver.quantum_instance = q_instance
 
-    @property  # type: ignore
+    @property
     @deprecate_property("0.4", additional_msg="Use `minimum_eigensolver.optimizer` instead.")
     def optimizer(self) -> Optional[Optimizer]:
         """DEPRECATED. Use ``minimum_eigensolver.optimizer`` instead.
         Returns optimizer."""
         return self.minimum_eigensolver.optimizer
 
-    @optimizer.setter  # type: ignore
+    @optimizer.setter
     @deprecate_property(
         "0.4", additional_msg="Use `minimum_eigensolver.optimizer = optimizer` instead."
     )
@@ -153,14 +153,14 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         """DEPRECATED. Use `minimum_eigensolver.optimizer = optimizer` instead. Sets the optimizer."""
         self.minimum_eigensolver.optimizer = optimizer
 
-    @property  # type: ignore
+    @property
     @deprecate_property("0.4", additional_msg="Use `minimum_eigensolver.gradient` instead.")
     def gradient(self) -> Optional[Union[GradientBase, Callable]]:
         """DEPRECATED. Use ``minimum_eigensolver.gradient`` instead.
         Returns gradient."""
         return self.minimum_eigensolver.gradient
 
-    @gradient.setter  # type: ignore
+    @gradient.setter
     @deprecate_property(
         "0.4", additional_msg="Use minimum_eigensolver.gradient = gradient instead."
     )
@@ -168,14 +168,14 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         """DEPRECATED. Use minimum_eigensolver.gradient = gradient instead. Sets the gradient."""
         self.minimum_eigensolver.gradient = gradient
 
-    @property  # type: ignore
+    @property
     @deprecate_property("0.4", additional_msg="Use `minimum_eigensolver.expectation` instead.")
     def expectation(self) -> Optional[ExpectationBase]:
         """DEPRECATED. Use ``minimum_eigensolver.expectation`` instead.
         Returns expectation."""
         return self.minimum_eigensolver.expectation
 
-    @expectation.setter  # type: ignore
+    @expectation.setter
     @deprecate_property(
         "0.4", additional_msg="Use `minimum.eigensolver.expectation = expectation` instead."
     )
@@ -184,14 +184,14 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         Sets the expectation."""
         self.minimum_eigensolver.expectation = expectation
 
-    @property  # type: ignore
+    @property
     @deprecate_property("0.4", additional_msg="Use `minimum_eigensolver.include_custom` instead.")
     def include_custom(self) -> bool:
         """DEPRECATED. Use ``minimum_eigensolver.include_custom`` instead.
         Getter of the ``include_custom`` setting for the ``expectation`` setting."""
         return self.minimum_eigensolver.include_custom
 
-    @include_custom.setter  # type: ignore
+    @include_custom.setter
     @deprecate_property(
         "0.4", additional_msg="Use `minimum_eigensolver.include_custom = include_custom` instead."
     )
@@ -243,7 +243,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         """
         self._initial_state = initial_state
 
-    @property  # type: ignore
+    @property
     @deprecate_method(
         "0.4", additional_msg="Use `minimum_eigensolver` and 'solver properties' instead."
     )
@@ -252,7 +252,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         Returns the callback."""
         return self.minimum_eigensolver.callback
 
-    @callback.setter  # type: ignore
+    @callback.setter
     @deprecate_property(
         "0.4", additional_msg="Use `minimum_eigensolver.callback = callback` instead."
     )

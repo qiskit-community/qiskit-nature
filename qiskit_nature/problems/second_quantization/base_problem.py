@@ -59,7 +59,7 @@ class BaseProblem(ABC):
 
         self._main_property_name: str = main_property_name
 
-    @property  # type: ignore[misc]
+    @property
     @deprecate_property(
         "0.2.0",
         new_type=DeprecatedType.PROPERTY,
@@ -69,7 +69,7 @@ class BaseProblem(ABC):
         """Returns the raw molecule data object."""
         return self._molecule_data
 
-    @property  # type: ignore[misc]
+    @property
     @deprecate_property(
         "0.2.0",
         new_type=DeprecatedType.PROPERTY,
