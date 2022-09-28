@@ -177,14 +177,12 @@ class TestQubitConverter(QiskitNatureTestCase):
             with contextlib.redirect_stderr(io.StringIO()) as out:
                 qubit_op = qubit_conv.convert(small_op, num_particles=self.num_particles)
             self.assertEqual(qubit_op, expected_op)
-            self.assertTrue(
-                out.getvalue()
-                .strip()
-                .startswith(
-                    "The original qubit operator only contains 2 qubits! "
-                    "Skipping the requested two-qubit reduction!"
-                )
+            msg_ref = (
+                "The original qubit operator only contains 2 qubits! "
+                "Skipping the requested two-qubit reduction!"
             )
+            msg = out.getvalue().strip()
+            self.assertTrue(msg_ref in msg, msg=f"Msg: '{msg_ref}' not in stderr '{msg}'")
 
     def test_z2_symmetry(self):
         """Test mapping to qubit operator with z2 symmetry tapering"""
