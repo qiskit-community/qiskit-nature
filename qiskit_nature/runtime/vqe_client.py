@@ -14,6 +14,7 @@
 
 
 from typing import Callable, Optional, Any, Dict, Union
+import warnings
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -73,6 +74,9 @@ class VQEClient(VariationalAlgorithm, MinimumEigensolver):
             store_intermediate: Whether or not to store intermediate values of the optimization
                 steps. Per default False.
         """
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            super().__init__()
         if optimizer is None:
             optimizer = SPSA(maxiter=300)
 
