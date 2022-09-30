@@ -13,30 +13,20 @@
 """Fake runtime provider and VQE runtime."""
 
 from typing import Dict, Any
-import warnings
 import numpy as np
 from qiskit.algorithms.optimizers import Optimizer
 from qiskit.circuit import QuantumCircuit
 from qiskit.opflow import PauliSumOp
 from qiskit.providers import Provider
-from qiskit_nature.runtime import VQERuntimeResult, VQEProgramResult
+from qiskit_nature.runtime import VQERuntimeResult
 
 
 class FakeVQEJob:
     """A fake job for unit tests."""
 
-    def __init__(self, use_deprecated=False):
-        """Initialize the fake job."""
-        self.use_deprecated = use_deprecated
-
     def result(self) -> Dict[str, Any]:
         """Return a VQE result."""
-        if self.use_deprecated:
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=DeprecationWarning)
-                result = VQEProgramResult()
-        else:
-            result = VQERuntimeResult()
+        result = VQERuntimeResult()
 
         serialized_result = {
             "optimizer_evals": result.optimizer_evals,
@@ -59,10 +49,6 @@ class FakeVQEJob:
 
 class FakeVQERuntime:
     """A fake VQE runtime for unit tests."""
-
-    def __init__(self, use_deprecated=False):
-        """Initialize the fake runtime."""
-        self.use_deprecated = use_deprecated
 
     def run(self, program_id, inputs, options, callback=None):
         """Run the fake program. Checks the input types."""
@@ -97,16 +83,11 @@ class FakeVQERuntime:
             except Exception as exc:
                 raise ValueError("Callback failed") from exc
 
-        return FakeVQEJob(self.use_deprecated)
+        return FakeVQEJob()
 
 
 class FakeRuntimeProvider(Provider):
     """A fake runtime provider for unit tests."""
-
-    def __init__(self, use_deprecated=False):
-        """Initialize the fake runtime provider."""
-        super().__init__()
-        self.use_deprecated = use_deprecated
 
     def has_service(self, service):
         """Check if a service is available."""
@@ -117,4 +98,4 @@ class FakeRuntimeProvider(Provider):
     @property
     def runtime(self) -> FakeVQERuntime:
         """Return the runtime."""
-        return FakeVQERuntime(self.use_deprecated)
+        return FakeVQERuntime()
