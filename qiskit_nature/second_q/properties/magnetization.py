@@ -105,17 +105,17 @@ class Magnetization(Property):
         """
         result.magnetization = []
 
-        if not isinstance(result.aux_operator_eigenvalues, list):
-            aux_operator_eigenvalues = [result.aux_operator_eigenvalues]
+        if not isinstance(result.aux_operators_evaluated, list):
+            aux_operators_evaluated = [result.aux_operators_evaluated]
         else:
-            aux_operator_eigenvalues = result.aux_operator_eigenvalues
-        for aux_op_eigenvalues in aux_operator_eigenvalues:
+            aux_operators_evaluated = result.aux_operators_evaluated
+        for aux_op_eigenvalues in aux_operators_evaluated:
             if aux_op_eigenvalues is None:
                 continue
 
             _key = self.name if isinstance(aux_op_eigenvalues, dict) else 2
 
             if aux_op_eigenvalues[_key] is not None:
-                result.magnetization.append(aux_op_eigenvalues[_key][0].real)
+                result.magnetization.append(aux_op_eigenvalues[_key].real)
             else:
                 result.magnetization.append(None)

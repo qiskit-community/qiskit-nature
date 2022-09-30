@@ -261,12 +261,12 @@ class ElectronicDipoleMoment(Property):
         result.computed_dipole_moment = []
         result.extracted_transformer_dipoles = []
 
-        if not isinstance(result.aux_operator_eigenvalues, list):
-            aux_operator_eigenvalues = [result.aux_operator_eigenvalues]
+        if not isinstance(result.aux_operators_evaluated, list):
+            aux_operators_evaluated = [result.aux_operators_evaluated]
         else:
-            aux_operator_eigenvalues = result.aux_operator_eigenvalues
+            aux_operators_evaluated = result.aux_operators_evaluated
 
-        for aux_op_eigenvalues in aux_operator_eigenvalues:
+        for aux_op_eigenvalues in aux_operators_evaluated:
             if aux_op_eigenvalues is None:
                 continue
 
@@ -278,7 +278,7 @@ class ElectronicDipoleMoment(Property):
             for prop in self._dipole_axes.values():
                 moment = aux_op_eigenvalues.get(prop.name, None)
                 if moment is not None:
-                    dipole_moment[axes_order[prop._axis]] = moment[0].real  # type: ignore
+                    dipole_moment[axes_order[prop._axis]] = moment.real
 
             result.computed_dipole_moment.append(cast(DipoleTuple, tuple(dipole_moment)))
             dipole_shifts: dict[str, dict[str, complex]] = {}

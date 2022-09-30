@@ -14,7 +14,7 @@
 
 from abc import ABC, abstractmethod
 
-from qiskit.algorithms import Eigensolver
+from qiskit.algorithms.eigensolvers import Eigensolver
 
 from qiskit_nature.second_q.problems.base_problem import BaseProblem
 

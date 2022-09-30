@@ -112,7 +112,7 @@ class VibrationalStructureProblem(BaseProblem):
         for prop in self.properties:
             if hasattr(prop, "interpret"):
                 prop.interpret(result)  # type: ignore[attr-defined]
-        result.computed_vibrational_energies = eigenstate_result.eigenenergies
+        result.computed_vibrational_energies = eigenstate_result.eigenvalues
         return result
 
     def get_default_filter_criterion(

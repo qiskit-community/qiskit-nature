@@ -15,19 +15,17 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Union, Tuple
+from typing import Union
 
-import numpy as np
-from qiskit import QuantumCircuit
-from qiskit.circuit import Instruction
-from qiskit.quantum_info import Statevector
-from qiskit.result import Result
-from qiskit.opflow import OperatorBase, PauliSumOp
+from qiskit.opflow import PauliSumOp
+from qiskit.quantum_info.operators.base_operator import BaseOperator
 
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.second_q.problems import EigenstateResult
+
+QubitOperator = Union[BaseOperator, PauliSumOp]
 
 
 class GroundStateSolver(ABC):
@@ -45,7 +43,7 @@ class GroundStateSolver(ABC):
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[dict[str, Union[SecondQuantizedOp, PauliSumOp]]] = None,
+        aux_operators: dict[str, SecondQuantizedOp | QubitOperator] | None = None,
     ) -> EigenstateResult:
         """Compute the ground state energy of the molecule that was supplied via the driver.
 
@@ -63,8 +61,8 @@ class GroundStateSolver(ABC):
     def get_qubit_operators(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[dict[str, Union[SecondQuantizedOp, PauliSumOp]]] = None,
-    ) -> Tuple[PauliSumOp, Optional[dict[str, PauliSumOp]]]:
+        aux_operators: dict[str, SecondQuantizedOp | QubitOperator] | None = None,
+    ) -> tuple[QubitOperator, dict[str, QubitOperator] | None]:
         """Construct qubit operators by getting the second quantized operators from the problem
         (potentially running a driver in doing so [can be computationally expensive])
         and using a QubitConverter to map + reduce the operators to qubit ops
@@ -84,36 +82,6 @@ class GroundStateSolver(ABC):
         Returns:
             True, if this class also returns the ground state in the results object.
             False otherwise.
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def evaluate_operators(
-        self,
-        state: Union[
-            str,
-            dict,
-            Result,
-            list,
-            np.ndarray,
-            Statevector,
-            QuantumCircuit,
-            Instruction,
-            OperatorBase,
-        ],
-        operators: Union[PauliSumOp, OperatorBase, list, dict],
-    ) -> Union[float, List[float], Dict[str, List[float]]]:
-        """Evaluates additional operators at the given state.
-
-        Args:
-            state: any kind of input that can be used to specify a state. See also ``StateFn`` for
-                   more details.
-            operators: either a single, list or dictionary of ``PauliSumOp``s or any kind
-                       of operator implementing the ``OperatorBase``.
-
-        Returns:
-            The expectation value of the given operator(s). The return type will be identical to the
-            format of the provided operators.
         """
         raise NotImplementedError
 

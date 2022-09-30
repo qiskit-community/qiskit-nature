@@ -128,10 +128,6 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         main_operator, aux_ops = self.get_qubit_operators(problem, aux_operators)
         raw_es_result = self._solver.compute_eigenvalues(main_operator, aux_ops)  # type: ignore
 
-        eigenstate_result = EigenstateResult()
-        eigenstate_result.raw_result = raw_es_result
-        eigenstate_result.eigenenergies = raw_es_result.eigenvalues
-        eigenstate_result.eigenstates = raw_es_result.eigenstates
-        eigenstate_result.aux_operator_eigenvalues = raw_es_result.aux_operator_eigenvalues
+        eigenstate_result = EigenstateResult.from_result(raw_es_result)
         result = problem.interpret(eigenstate_result)
         return result

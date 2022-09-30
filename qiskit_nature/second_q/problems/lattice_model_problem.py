@@ -64,5 +64,5 @@ class LatticeModelProblem(BaseProblem):
         for prop in self.properties:
             if hasattr(prop, "interpret"):
                 prop.interpret(result)  # type: ignore[attr-defined]
-        result.computed_lattice_energies = eigenstate_result.eigenenergies
+        result.computed_lattice_energies = eigenstate_result.eigenvalues
         return result

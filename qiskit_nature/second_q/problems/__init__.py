@@ -21,6 +21,7 @@ Second-Quantization Problems (:mod:`qiskit_nature.second_q.problems`)
    :nosignatures:
 
    BaseProblem
+
    ElectronicStructureProblem
    VibrationalStructureProblem
    LatticeModelProblem
@@ -30,6 +31,10 @@ Second-Quantization Problems (:mod:`qiskit_nature.second_q.problems`)
    VibrationalPropertiesContainer
    LatticePropertiesContainer
 
+   EigenstateResult
+   ElectronicStructureResult
+   VibrationalStructureResult
+   LatticeModelResult
 """
 
 from .base_problem import BaseProblem, EigenstateResult

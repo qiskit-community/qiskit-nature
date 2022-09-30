@@ -15,7 +15,7 @@
 from typing import Optional, Union, List, Callable
 
 import numpy as np
-from qiskit.algorithms import Eigensolver, NumPyEigensolver
+from qiskit.algorithms.eigensolvers import Eigensolver, NumPyEigensolver
 from qiskit.utils.validation import validate_min
 
 from qiskit_nature.second_q.problems.base_problem import BaseProblem

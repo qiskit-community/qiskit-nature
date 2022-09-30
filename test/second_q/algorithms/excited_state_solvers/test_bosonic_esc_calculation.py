@@ -20,9 +20,9 @@ from test import QiskitNatureTestCase
 
 import numpy as np
 
-import qiskit
-from qiskit.utils import algorithm_globals, QuantumInstance
 from qiskit.algorithms.optimizers import COBYLA
+from qiskit.primitives import Estimator
+from qiskit.utils import algorithm_globals
 
 from qiskit_nature.second_q.drivers import VibrationalStructureDriver
 from qiskit_nature.second_q.mappers import DirectMapper
@@ -124,12 +124,7 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
     def test_vqe_uvccsd_factory(self):
         """Test with VQE plus UVCCSD"""
         optimizer = COBYLA(maxiter=5000)
-        quantum_instance = QuantumInstance(
-            backend=qiskit.BasicAer.get_backend("statevector_simulator"),
-            seed_simulator=algorithm_globals.random_seed,
-            seed_transpiler=algorithm_globals.random_seed,
-        )
-        solver = VQEUVCCFactory(quantum_instance=quantum_instance, optimizer=optimizer)
+        solver = VQEUVCCFactory(estimator=Estimator(), optimizer=optimizer)
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
         esc = QEOM(gsc, "sd")
         results = esc.solve(self.vibrational_problem)
@@ -140,13 +135,8 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
         """Test VQEUVCCFactory when using it with a user defined initial point."""
         initial_point = np.asarray([-7.35250290e-05, -9.73079292e-02, -5.43346282e-05])
         optimizer = COBYLA(maxiter=1)
-        quantum_instance = QuantumInstance(
-            backend=qiskit.BasicAer.get_backend("statevector_simulator"),
-            seed_simulator=algorithm_globals.random_seed,
-            seed_transpiler=algorithm_globals.random_seed,
-        )
         solver = VQEUVCCFactory(
-            quantum_instance=quantum_instance, optimizer=optimizer, initial_point=initial_point
+            estimator=Estimator(), optimizer=optimizer, initial_point=initial_point
         )
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
         esc = QEOM(gsc, "sd")
@@ -163,14 +153,7 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
 
         optimizer = COBYLA(maxiter=5000)
 
-        quantum_instance = QuantumInstance(
-            backend=qiskit.BasicAer.get_backend("statevector_simulator"),
-            seed_simulator=algorithm_globals.random_seed,
-            seed_transpiler=algorithm_globals.random_seed,
-        )
-        solver = VQEUVCCFactory(
-            quantum_instance=quantum_instance, optimizer=optimizer, callback=cb_callback
-        )
+        solver = VQEUVCCFactory(estimator=Estimator(), optimizer=optimizer, callback=cb_callback)
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
         esc = QEOM(gsc, "sd")
         with contextlib.redirect_stdout(io.StringIO()) as out:

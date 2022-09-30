@@ -131,7 +131,7 @@ class ElectronicStructureProblem(BaseProblem):
         for prop in self.properties:
             if hasattr(prop, "interpret"):
                 prop.interpret(result)  # type: ignore[attr-defined]
-        result.computed_energies = np.asarray([e.real for e in eigenstate_result.eigenenergies])
+        result.computed_energies = np.asarray([e.real for e in eigenstate_result.eigenvalues])
         return result
 
     def get_default_filter_criterion(

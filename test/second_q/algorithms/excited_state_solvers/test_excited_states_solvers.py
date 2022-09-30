@@ -16,9 +16,9 @@ import unittest
 
 from test import QiskitNatureTestCase
 import numpy as np
-from qiskit import BasicAer
-from qiskit.utils import algorithm_globals, QuantumInstance
-from qiskit.algorithms import NumPyMinimumEigensolver, NumPyEigensolver
+from qiskit.utils import algorithm_globals
+from qiskit.algorithms.eigensolvers import NumPyEigensolver
+from qiskit.algorithms.minimum_eigensolvers import NumPyMinimumEigensolver
 
 from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.transformers import ActiveSpaceTransformer
@@ -65,11 +65,6 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
 
         solver = NumPyEigensolver()
         self.ref = solver
-        self.quantum_instance = QuantumInstance(
-            BasicAer.get_backend("statevector_simulator"),
-            seed_transpiler=90,
-            seed_simulator=12,
-        )
 
     def test_numpy_mes(self):
         """Test NumPyMinimumEigenSolver with QEOM"""
@@ -124,7 +119,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         self._solve_with_vqe_mes(converter)
 
     def _solve_with_vqe_mes(self, converter: QubitConverter):
-        solver = VQEUCCFactory(quantum_instance=self.quantum_instance)
+        solver = VQEUCCFactory()
         gsc = GroundStateEigensolver(converter, solver)
         esc = QEOM(gsc, "sd")
         results = esc.solve(self.electronic_structure_problem)

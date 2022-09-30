@@ -14,22 +14,15 @@
 
 from __future__ import annotations
 
-from typing import Union, List, Optional, Dict, Tuple
-
-import numpy as np
-from qiskit import QuantumCircuit
-from qiskit.circuit import Instruction
-from qiskit.quantum_info import Statevector
-from qiskit.result import Result
-from qiskit.algorithms import MinimumEigensolver
-from qiskit.opflow import OperatorBase, PauliSumOp, StateFn, CircuitSampler
+from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolver
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.second_q.problems import EigenstateResult
-from .ground_state_solver import GroundStateSolver
+
+from .ground_state_solver import GroundStateSolver, QubitOperator
 from .minimum_eigensolver_factories import MinimumEigensolverFactory
 
 
@@ -39,7 +32,7 @@ class GroundStateEigensolver(GroundStateSolver):
     def __init__(
         self,
         qubit_converter: QubitConverter,
-        solver: Union[MinimumEigensolver, MinimumEigensolverFactory],
+        solver: MinimumEigensolver | MinimumEigensolverFactory,
     ) -> None:
         """
 
@@ -52,23 +45,17 @@ class GroundStateEigensolver(GroundStateSolver):
         self._solver = solver
 
     @property
-    def solver(self) -> Union[MinimumEigensolver, MinimumEigensolverFactory]:
-        """Returns the minimum eigensolver or factory."""
+    def solver(self) -> MinimumEigensolver | MinimumEigensolverFactory:
         return self._solver
-
-    @solver.setter
-    def solver(self, solver: Union[MinimumEigensolver, MinimumEigensolverFactory]) -> None:
-        """Sets the minimum eigensolver or factory."""
-        self._solver = solver
 
     def returns_groundstate(self) -> bool:
         """Whether the eigensolver returns the ground state or only ground state energy."""
-        return self._solver.supports_aux_operators()
+        return self.solver.supports_aux_operators()
 
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[dict[str, Union[SecondQuantizedOp, PauliSumOp]]] = None,
+        aux_operators: dict[str, SecondQuantizedOp | QubitOperator] | None = None,
     ) -> EigenstateResult:
         """Compute Ground State properties.
 
@@ -89,16 +76,19 @@ class GroundStateEigensolver(GroundStateSolver):
             :meth:`~.BaseProblem.interpret`.
         """
         main_operator, aux_ops = self.get_qubit_operators(problem, aux_operators)
-        raw_mes_result = self._solver.compute_minimum_eigenvalue(main_operator, aux_ops)  # type: ignore
+        raw_mes_result = self.solver.compute_minimum_eigenvalue(  # type: ignore
+            main_operator, aux_ops
+        )
 
-        result = problem.interpret(raw_mes_result)
+        eigenstate_result = EigenstateResult.from_result(raw_mes_result)
+        result = problem.interpret(eigenstate_result)
         return result
 
     def get_qubit_operators(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[dict[str, Union[SecondQuantizedOp, PauliSumOp]]] = None,
-    ) -> Tuple[PauliSumOp, Optional[dict[str, PauliSumOp]]]:
+        aux_operators: dict[str, SecondQuantizedOp | QubitOperator] | None = None,
+    ) -> tuple[QubitOperator, dict[str, QubitOperator] | None]:
         """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators"""
         # Note that ``aux_ops`` contains not only the transformed ``aux_operators`` passed by the
         # user but also additional ones from the transformation
@@ -123,100 +113,10 @@ class GroundStateEigensolver(GroundStateSolver):
                     )
                 aux_ops[name_aux] = converted_aux_op
 
-        if isinstance(self._solver, MinimumEigensolverFactory):
+        if isinstance(self.solver, MinimumEigensolverFactory):
             # this must be called after transformation.transform
-            self._solver = self._solver.get_solver(problem, self._qubit_converter)
+            self._solver = self.solver.get_solver(problem, self._qubit_converter)
         # if the eigensolver does not support auxiliary operators, reset them
-        if not self._solver.supports_aux_operators():
+        if not self.solver.supports_aux_operators():
             aux_ops = None
         return main_operator, aux_ops
-
-    def evaluate_operators(
-        self,
-        state: Union[
-            str,
-            dict,
-            Result,
-            list,
-            np.ndarray,
-            Statevector,
-            QuantumCircuit,
-            Instruction,
-            OperatorBase,
-        ],
-        operators: Union[PauliSumOp, OperatorBase, list, dict],
-    ) -> Union[Optional[float], List[Optional[float]], Dict[str, List[Optional[float]]]]:
-        """Evaluates additional operators at the given state.
-
-        Args:
-            state: any kind of input that can be used to specify a state. See also ``StateFn`` for
-                   more details.
-            operators: either a single, list or dictionary of ``PauliSumOp``s or any kind
-                       of operator implementing the ``OperatorBase``.
-
-        Returns:
-            The expectation value of the given operator(s). The return type will be identical to the
-            format of the provided operators.
-        """
-        if isinstance(self._solver, MinimumEigensolverFactory):
-            # try to get a QuantumInstance from the solver
-            quantum_instance = getattr(self._solver.minimum_eigensolver, "quantum_instance", None)
-            # and try to get an Expectation from the solver
-            expectation = getattr(self._solver.minimum_eigensolver, "expectation", None)
-        else:
-            quantum_instance = getattr(self._solver, "quantum_instance", None)
-            expectation = getattr(self._solver, "expectation", None)
-
-        if not isinstance(state, StateFn):
-            state = StateFn(state)
-
-        # handle all possible formats of operators
-        # i.e. if a user gives us a dict of operators, we return the results equivalently, etc.
-        if isinstance(operators, list):
-            results = []  # type: ignore
-            for op in operators:
-                if op is None:
-                    results.append(None)
-                else:
-                    results.append(self._eval_op(state, op, quantum_instance, expectation))
-        elif isinstance(operators, dict):
-            results = {}  # type: ignore
-            for name, op in operators.items():
-                if op is None:
-                    results[name] = None
-                else:
-                    results[name] = self._eval_op(state, op, quantum_instance, expectation)
-        else:
-            if operators is None:
-                results = None
-            else:
-                results = self._eval_op(state, operators, quantum_instance, expectation)
-
-        return results
-
-    def _eval_op(self, state, op, quantum_instance, expectation):
-        # if the operator is empty we simply return 0
-        if op == 0:
-            # Note, that for some reason the individual results need to be wrapped in lists.
-            # See also: VQE._eval_aux_ops()
-            return [0.0j]
-
-        exp = ~StateFn(op) @ state  # <state|op|state>
-
-        if quantum_instance is not None:
-            try:
-                sampler = CircuitSampler(quantum_instance)
-                if expectation is not None:
-                    exp = expectation.convert(exp)
-                result = sampler.convert(exp).eval()
-            except ValueError:
-                # TODO make this cleaner. The reason for it being here is that some quantum
-                # instances can lead to non-positive statevectors which the Qiskit circuit
-                # Initializer is unable to handle.
-                result = exp.eval()
-        else:
-            result = exp.eval()
-
-        # Note, that for some reason the individual results need to be wrapped in lists.
-        # See also: VQE._eval_aux_ops()
-        return [result]

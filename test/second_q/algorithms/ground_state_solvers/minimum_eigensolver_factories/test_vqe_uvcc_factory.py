@@ -14,8 +14,6 @@
 import unittest
 
 from test import QiskitNatureTestCase
-from qiskit import BasicAer
-from qiskit.utils import QuantumInstance
 from qiskit_nature.second_q.circuit.library import HartreeFock, UVCCSD
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.mappers import JordanWignerMapper
@@ -31,25 +29,8 @@ class TestVQEUVCCFactory(QiskitNatureTestCase):
 
     def setUp(self):
         super().setUp()
-
         self.converter = QubitConverter(JordanWignerMapper())
-
-        self.seed = 50
-        self.quantum_instance = QuantumInstance(
-            BasicAer.get_backend("statevector_simulator"),
-            shots=1,
-            seed_simulator=self.seed,
-            seed_transpiler=self.seed,
-        )
-
-        self.quantum_instance_2 = QuantumInstance(
-            BasicAer.get_backend("statevector_simulator"),
-            shots=2,
-            seed_simulator=self.seed,
-            seed_transpiler=self.seed,
-        )
-
-        self._vqe_uvcc_factory = VQEUVCCFactory(quantum_instance=self.quantum_instance)
+        self._vqe_uvcc_factory = VQEUVCCFactory()
 
     def auxiliary_tester(self, title: str, prop: str, cases: tuple):
         """

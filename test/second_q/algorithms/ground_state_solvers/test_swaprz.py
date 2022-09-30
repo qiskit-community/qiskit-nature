@@ -15,12 +15,12 @@
 import unittest
 from test import QiskitNatureTestCase
 
-from qiskit import BasicAer
-from qiskit.algorithms import VQE
+from qiskit.algorithms.minimum_eigensolvers import VQE
 from qiskit.algorithms.optimizers import SLSQP
+from qiskit.primitives import Estimator
 from qiskit.circuit.library import ExcitationPreserving
 from qiskit.test import slow_test
-from qiskit.utils import QuantumInstance, algorithm_globals
+from qiskit.utils import algorithm_globals
 import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.algorithms import GroundStateEigensolver
 from qiskit_nature.second_q.circuit.library import HartreeFock
@@ -64,17 +64,13 @@ class TestExcitationPreserving(QiskitNatureTestCase):
 
         initial_state = HartreeFock(num_spin_orbitals, num_particles, converter)
 
-        wavefunction = ExcitationPreserving(num_spin_orbitals)
+        wavefunction = ExcitationPreserving(int(num_spin_orbitals))
         wavefunction.compose(initial_state, front=True, inplace=True)
 
         solver = VQE(
             ansatz=wavefunction,
             optimizer=optimizer,
-            quantum_instance=QuantumInstance(
-                BasicAer.get_backend("statevector_simulator"),
-                seed_simulator=algorithm_globals.random_seed,
-                seed_transpiler=algorithm_globals.random_seed,
-            ),
+            estimator=Estimator(),
         )
 
         gsc = GroundStateEigensolver(converter, solver)

@@ -124,17 +124,11 @@ ansatz = TwoLocal(num_spin_orbitals, ['ry', 'rz'], 'cz')
 # add the initial state
 ansatz.compose(init_state, front=True, inplace=True)
 
-# set the backend for the quantum computation
-from qiskit_aer import Aer
-
-backend = Aer.get_backend('aer_simulator_statevector')
-
 # setup and run VQE
-from qiskit.algorithms import VQE
+from qiskit.algorithms.minimum_eigensolvers import VQE
+from qiskit.primitives import Estimator
 
-algorithm = VQE(ansatz,
-                optimizer=optimizer,
-                quantum_instance=backend)
+algorithm = VQE(Estimator(), ansatz, optimizer)
 
 result = algorithm.compute_minimum_eigenvalue(qubit_op)
 print(result.eigenvalue.real)
