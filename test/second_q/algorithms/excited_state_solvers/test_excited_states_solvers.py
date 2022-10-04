@@ -66,15 +66,24 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         solver = NumPyEigensolver()
         self.ref = solver
 
+    def _assert_energies(self, computed, references, *, places=4):
+        with self.subTest("same number of energies"):
+            self.assertEqual(len(computed), len(references))
+
+        with self.subTest("ground state"):
+            self.assertAlmostEqual(computed[0], references[0], places=places)
+
+        for i in range(1, len(computed)):
+            with self.subTest(f"{i}. excited state"):
+                self.assertAlmostEqual(computed[i], references[i], places=places)
+
     def test_numpy_mes(self):
         """Test NumPyMinimumEigenSolver with QEOM"""
         solver = NumPyMinimumEigensolver()
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
         esc = QEOM(gsc, "sd")
         results = esc.solve(self.electronic_structure_problem)
-
-        for idx, energy in enumerate(self.reference_energies):
-            self.assertAlmostEqual(results.computed_energies[idx], energy, places=4)
+        self._assert_energies(results.computed_energies, self.reference_energies)
 
     def test_vqe_mes_jw(self):
         """Test VQEUCCSDFactory with QEOM + Jordan Wigner mapping"""
@@ -123,9 +132,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         gsc = GroundStateEigensolver(converter, solver)
         esc = QEOM(gsc, "sd")
         results = esc.solve(self.electronic_structure_problem)
-
-        for idx, energy in enumerate(self.reference_energies):
-            self.assertAlmostEqual(results.computed_energies[idx], energy, places=4)
+        self._assert_energies(results.computed_energies, self.reference_energies)
 
     def test_numpy_factory(self):
         """Test NumPyEigenSolverFactory with ExcitedStatesEigensolver"""
@@ -144,8 +151,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
             if not np.isclose(comp_energy, computed_energies[-1]):
                 computed_energies.append(comp_energy)
 
-        for idx, energy in enumerate(self.reference_energies):
-            self.assertAlmostEqual(computed_energies[idx], energy, places=4)
+        self._assert_energies(computed_energies, self.reference_energies)
 
     def test_custom_filter_criterion(self):
         """Test NumPyEigenSolverFactory with ExcitedStatesEigensolver + Custom filter criterion
@@ -200,8 +206,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
             -1.6416831059956618,
         ]
 
-        for idx, energy in enumerate(ref_energies):
-            self.assertAlmostEqual(computed_energies[idx], energy, places=3)
+        self._assert_energies(computed_energies, ref_energies, places=3)
 
 
 if __name__ == "__main__":
