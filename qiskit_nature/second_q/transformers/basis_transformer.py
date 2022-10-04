@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import logging
 import sys
-from typing import cast
+from typing import cast, TypeVar
 
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy, Hamiltonian
@@ -41,10 +41,14 @@ else:
 LOGGER = logging.getLogger(__name__)
 
 
+# pylint: disable=invalid-name
+T = TypeVar("T", bound="Transposable")
+
+
 class Transposable(Protocol):
     """A Protocol indicating the existence of a ``.transpose()`` function."""
 
-    def transpose(self) -> Transposable:
+    def transpose(self: T) -> T:
         """Returns the transposed version of itself."""
 
 

@@ -143,10 +143,6 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         """
         return cls({"": 1.0}, register_length=register_length, copy=False)
 
-    # workaround until Qiskit Terra 0.22 is released
-    def __radd__(self, other):
-        return self.__add__(other)
-
     def _add(self, other: SparseLabelOp, qargs: None = None) -> SparseLabelOp:
         """Return Operator addition of self and other.
 
@@ -160,10 +156,6 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         Raises:
             ValueError: when ``qargs`` argument is not ``None``
         """
-        # workaround until Qiskit Terra 0.22 is released
-        if other == 0:
-            return self
-
         if not isinstance(other, SparseLabelOp):
             raise ValueError(
                 f"Unsupported operand type(s) for +: 'SparseLabelOp' and '{type(other).__name__}'"

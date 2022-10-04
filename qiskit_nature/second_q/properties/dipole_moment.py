@@ -15,7 +15,7 @@
 from __future__ import annotations
 
 from numbers import Number
-from typing import Optional, Tuple, cast, TYPE_CHECKING
+from typing import MutableMapping, Optional, Tuple, cast, TYPE_CHECKING
 
 from qiskit_nature.second_q.operators import ElectronicIntegrals, FermionicOp
 
@@ -62,7 +62,7 @@ class ElectronicDipoleMoment(Property):
             :math:`y`-axis component.
         z_dipole: the :class:`qiskit_nature.second_q.operators.ElectronicIntegrals` for the
             :math:`z`-axis component.
-        constants: a dictionary of constant dipole offsets, not mapped to the qubit operator. Each
+        constants: a mapping of constant dipole offsets, not mapped to the qubit operator. Each
             entry must be a tuple of length three (for the three Cartesian axes).
         reverse_dipole_sign: whether or not to reverse the sign of the computed electronic dipole
             moment when adding it to the :attr:`nuclear_dipole_moment` to obtain the total.
@@ -74,7 +74,7 @@ class ElectronicDipoleMoment(Property):
         y_dipole: ElectronicIntegrals,
         z_dipole: ElectronicIntegrals,
         *,
-        constants: dict[str, DipoleTuple] = None,
+        constants: MutableMapping[str, DipoleTuple] = None,
     ) -> None:
         """
         Args:
@@ -84,7 +84,7 @@ class ElectronicDipoleMoment(Property):
                 :math:`y`-axis component.
             z_dipole: the :class:`qiskit_nature.second_q.operators.ElectronicIntegrals` for the
                 :math:`z`-axis component.
-            constants: a dictionary of constant dipole offsets, not mapped to the qubit operator.
+            constants: a mapping of constant dipole offsets, not mapped to the qubit operator.
                 Each entry must be a tuple of length three (for the three Cartesian axes).
         """
         super().__init__(self.__class__.__name__)
@@ -116,9 +116,9 @@ class ElectronicDipoleMoment(Property):
             A `dict` of `FermionicOp` objects.
         """
         ops = {}
-        ops["XDipole"] = FermionicOp.from_polynomial_tensor(self.x_dipole.polynomial_tensor())
-        ops["YDipole"] = FermionicOp.from_polynomial_tensor(self.y_dipole.polynomial_tensor())
-        ops["ZDipole"] = FermionicOp.from_polynomial_tensor(self.z_dipole.polynomial_tensor())
+        ops["XDipole"] = FermionicOp.from_polynomial_tensor(self.x_dipole.second_q_coeffs())
+        ops["YDipole"] = FermionicOp.from_polynomial_tensor(self.y_dipole.second_q_coeffs())
+        ops["ZDipole"] = FermionicOp.from_polynomial_tensor(self.z_dipole.second_q_coeffs())
         return ops
 
     def interpret(self, result: "EigenstateResult") -> None:

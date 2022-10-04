@@ -105,7 +105,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
 
     def is_empty(self) -> bool:
         """Returns whether this tensor is empty or not."""
-        return self == PolynomialTensor.empty()
+        return len(self) == 0
 
     def __getitem__(self, __k: str) -> (np.ndarray | Number):
         """
@@ -167,9 +167,9 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
         other_unique = {key: other._data[key] for key in other._data.keys() - self._data.keys()}
         sum_dict.update(other_unique)
 
-        register_length = None
-        if self.register_length is not None and other.register_length is not None:
-            register_length = max(self.register_length, other.register_length)
+        register_length = self.register_length
+        if other.register_length is not None:
+            register_length = max(register_length or 0, other.register_length)
 
         return PolynomialTensor(sum_dict, register_length, validate=False)
 

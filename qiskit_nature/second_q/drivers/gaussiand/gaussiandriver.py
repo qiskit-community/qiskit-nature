@@ -33,7 +33,7 @@ from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
 from qiskit_nature.second_q.formats.qcschema import QCSchema
 from qiskit_nature.second_q.formats.qcschema_translator import (
     qcschema_to_problem,
-    qcschema_to_basis_transformer,
+    get_ao_to_mo_from_qcschema,
 )
 from qiskit_nature.second_q.operators import ElectronicIntegrals
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
@@ -440,7 +440,7 @@ class GaussianDriver(ElectronicStructureDriver):
             z_dip = ElectronicIntegrals.from_raw_integrals(dipints[2])
 
             if basis == ElectronicBasis.MO:
-                basis_transform = qcschema_to_basis_transformer(qcschema)
+                basis_transform = get_ao_to_mo_from_qcschema(qcschema)
 
                 x_dip = basis_transform.transform_electronic_integrals(x_dip)
                 y_dip = basis_transform.transform_electronic_integrals(y_dip)

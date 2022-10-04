@@ -14,8 +14,9 @@
 
 from __future__ import annotations
 
+from copy import copy
 from numbers import Number
-from typing import TYPE_CHECKING
+from typing import MutableMapping, TYPE_CHECKING
 
 import numpy as np
 
@@ -58,30 +59,30 @@ class ElectronicEnergy(Hamiltonian):
     .. code-block:: python
 
         # assuming, you have your one- and two-body integrals from somewhere
-        h1 = ...
-        h2 = ...
+        h1_a = ...
+        h2_aa = ...
 
         from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 
-        hamiltonian = ElectronicEnergy.from_raw_integrals(h1, h2)
+        hamiltonian = ElectronicEnergy.from_raw_integrals(h1_a, h2_aa)
         hamiltonian.nuclear_repulsion_energy = 10.0
         hamiltonian.constants["my custom offset"] = 5.0
 
     Attributes:
         electronic_integrals: the :class:`qiskit_nature.second_q.operators.ElectronicIntegrals`.
-        constants: a dictionary of constant energy offsets, not mapped to the qubit operator.
+        constants: a mappping of constant energy offsets, not mapped to the qubit operator.
     """
 
     def __init__(
         self,
         electronic_integrals: ElectronicIntegrals,
         *,
-        constants: dict[str, Number] = None,
+        constants: MutableMapping[str, Number] = None,
     ) -> None:
         """
         Args:
             electronic_integrals: the container with the one- and two-body coefficients.
-            constants: a dictionary of constant energy offsets.
+            constants: a mappping of constant energy offsets.
         """
         self.electronic_integrals = electronic_integrals
         self.constants = constants if constants is not None else {}
@@ -115,21 +116,24 @@ class ElectronicEnergy(Hamiltonian):
         return self.constants.get("nuclear_repulsion_energy", None)
 
     @nuclear_repulsion_energy.setter
-    def nuclear_repulsion_energy(self, e_nuc: Number) -> None:
-        self.constants["nuclear_repulsion_energy"] = e_nuc
+    def nuclear_repulsion_energy(self, e_nuc: Number | None) -> None:
+        if e_nuc is None:
+            self.constants.pop("nuclear_repulsion_energy")
+        else:
+            self.constants["nuclear_repulsion_energy"] = e_nuc
 
     # pylint: disable=invalid-name
     @classmethod
     def from_raw_integrals(
         cls,
-        h1: np.ndarray,
-        h2: np.ndarray,
+        h1_a: np.ndarray,
+        h2_aa: np.ndarray,
         h1_b: np.ndarray | None = None,
         h2_bb: np.ndarray | None = None,
         h2_ba: np.ndarray | None = None,
         *,
         validate: bool = True,
-        transform: bool = True,
+        auto_index_order: bool = True,
     ) -> ElectronicEnergy:
         """Constructs a hamiltonian instance from raw integrals.
 
@@ -138,20 +142,27 @@ class ElectronicEnergy(Hamiltonian):
         See its documentation for more details.
 
         Args:
-            h1: the alpha-spin one-body coefficients.
-            h2: the alpha-alpha-spin two-body coefficients.
+            h1_a: the alpha-spin one-body coefficients.
+            h2_aa: the alpha-alpha-spin two-body coefficients.
             h1_b: the beta-spin one-body coefficients.
             h2_bb: the beta-beta-spin two-body coefficients.
             h2_ba: the beta-alpha-spin two-body coefficients.
             validate: whether or not to validate the coefficient matrices.
-            transform: whether or not to automatically convert the matrices to physicists' order.
+            auto_index_order: whether or not to automatically convert the matrices to physicists'
+                order.
 
         Returns:
             The resulting ``ElectronicEnergy`` instance.
         """
         return cls(
             ElectronicIntegrals.from_raw_integrals(
-                h1, h2, h1_b, h2_bb, h2_ba, validate=validate, transform=transform
+                h1_a,
+                h2_aa,
+                h1_b,
+                h2_bb,
+                h2_ba,
+                validate=validate,
+                auto_index_order=auto_index_order,
             )
         )
 
@@ -161,7 +172,7 @@ class ElectronicEnergy(Hamiltonian):
         Returns:
             A ``FermionicOp`` instance.
         """
-        return FermionicOp.from_polynomial_tensor(self.electronic_integrals.polynomial_tensor())
+        return FermionicOp.from_polynomial_tensor(self.electronic_integrals.second_q_coeffs())
 
     def interpret(self, result: "EigenstateResult") -> None:
         """Interprets an :class:`qiskit_nature.second_q.problems.EigenstateResult`.
@@ -172,7 +183,7 @@ class ElectronicEnergy(Hamiltonian):
         Args:
             result: the result to add meaning to.
         """
-        result.extracted_transformer_energies = self.constants.copy()
+        result.extracted_transformer_energies = copy(self.constants)
         result.nuclear_repulsion_energy = result.extracted_transformer_energies.pop(
             "nuclear_repulsion_energy", None
         )

@@ -52,11 +52,11 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
     .. code-block:: python
 
         # assuming, you have your one- and two-body integrals from somewhere
-        h1, h2, h1_b, h2_bb, h2_ba = ...
+        h1_a, h2_aa, h1_b, h2_bb, h2_ba = ...
 
         from qiskit_nature.second_q.operators import ElectronicIntegrals, PolynomialTensor
 
-        alpha = PolynomialTensor({"+-": h1, "++--": h2})
+        alpha = PolynomialTensor({"+-": h1_a, "++--": h2_aa})
         beta = PolynomialTensor({"+-": h1_b, "++--": h2_bb})
         mixed = PolynomialTensor({"++--": h2_ba})
 
@@ -126,6 +126,9 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
 
         This extracts specifically the two-body term from :attr:`mixed`.
         """
+        if "++--" not in self.mixed.keys():
+            return self.mixed
+
         beta_alpha = cast(np.ndarray, self.mixed["++--"])
         return PolynomialTensor({"++--": beta_alpha}, validate=False)
 
@@ -147,19 +150,19 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
     def one_body(self) -> ElectronicIntegrals:
         """Returns only the one-body integrals."""
         alpha: PolynomialTensor = None
-        if not self.alpha.is_empty() and "+-" in self.alpha:
+        if "+-" in self.alpha:
             alpha = PolynomialTensor(
                 {"+-": self.alpha["+-"]},
                 validate=False,
             )
         beta: PolynomialTensor = None
-        if not self.beta.is_empty() and "+-" in self.beta:
+        if "+-" in self.beta:
             beta = PolynomialTensor(
                 {"+-": self.beta["+-"]},
                 validate=False,
             )
         mixed: PolynomialTensor = None
-        if not self.mixed.is_empty() and "+-" in self.mixed:
+        if "+-" in self.mixed:
             mixed = PolynomialTensor(
                 {"+-": self.mixed["+-"]},
                 validate=False,
@@ -170,19 +173,19 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
     def two_body(self) -> ElectronicIntegrals:
         """Returns only the two-body integrals."""
         alpha: PolynomialTensor = None
-        if not self.alpha.is_empty() and "++--" in self.alpha:
+        if "++--" in self.alpha:
             alpha = PolynomialTensor(
                 {"++--": self.alpha["++--"]},
                 validate=False,
             )
         beta: PolynomialTensor = None
-        if not self.beta.is_empty() and "++--" in self.beta:
+        if "++--" in self.beta:
             beta = PolynomialTensor(
                 {"++--": self.beta["++--"]},
                 validate=False,
             )
         mixed: PolynomialTensor = None
-        if not self.mixed.is_empty() and "++--" in self.mixed:
+        if "++--" in self.mixed:
             mixed = PolynomialTensor(
                 {"++--": self.mixed["++--"]},
                 validate=False,
@@ -220,16 +223,10 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         if not isinstance(other, ElectronicIntegrals):
             return False
 
-        if self.alpha != other.alpha:
-            return False
+        if self.alpha == other.alpha and self.beta == other.beta and self.mixed == other.mixed:
+            return True
 
-        if self.beta != other.beta:
-            return False
-
-        if self.mixed != other.mixed:
-            return False
-
-        return True
+        return False
 
     def equiv(self, other: object) -> bool:
         """Check equivalence of first ElectronicIntegrals with other
@@ -242,18 +239,19 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         if not isinstance(other, ElectronicIntegrals):
             return False
 
-        if not self.alpha.equiv(other.alpha):
-            return False
+        if (
+            self.alpha.equiv(other.alpha)
+            and self.beta.equiv(other.beta)
+            and self.mixed.equiv(other.mixed)
+        ):
+            return True
 
-        if not self.beta.equiv(other.beta):
-            return False
-
-        if not self.mixed.equiv(other.mixed):
-            return False
-
-        return True
+        return False
 
     def _multiply(self, other: complex) -> ElectronicIntegrals:
+        if not isinstance(other, Number):
+            raise TypeError(f"other {other} must be a number")
+
         return ElectronicIntegrals(
             cast(PolynomialTensor, other * self.alpha),
             cast(PolynomialTensor, other * self.beta),
@@ -351,57 +349,58 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
     @classmethod
     def from_raw_integrals(
         cls,
-        h1: np.ndarray,
-        h2: np.ndarray | None = None,
+        h1_a: np.ndarray,
+        h2_aa: np.ndarray | None = None,
         h1_b: np.ndarray | None = None,
         h2_bb: np.ndarray | None = None,
         h2_ba: np.ndarray | None = None,
         *,
         validate: bool = True,
-        transform: bool = True,
+        auto_index_order: bool = True,
     ) -> ElectronicIntegrals:
         """Loads the provided integral matrices into an ``ElectronicIntegrals`` instance.
 
-        When ``transform`` is enabled,
+        When ``auto_index_order`` is enabled,
         :meth:`qiskit_nature.second_q.operators.tensor_ordering.find_index_order` will be used to
-        determine the index ordering of the ``h2`` matrix, based on which the two-body matrices will
-        automatically be transformed to the physicist' order, which is required by the
+        determine the index ordering of the ``h2_aa`` matrix, based on which the two-body matrices
+        will automatically be transformed to the physicist' order, which is required by the
         :class:`qiskit_nature.second_q.operators.PolynomialTensor`.
 
         Args:
-            h1: the alpha-spin one-body integrals.
-            h2: the alpha-alpha-spin two-body integrals.
+            h1_a: the alpha-spin one-body integrals.
+            h2_aa: the alpha-alpha-spin two-body integrals.
             h1_b: the beta-spin one-body integrals.
             h2_bb: the beta-beta-spin two-body integrals.
             h2_ba: the beta-alpha-spin two-body integrals.
             validate: whether or not to validate the integral matrices.
-            transform: whether or not to automatically convert the matrices to physicists' order.
+            auto_index_order: whether or not to automatically convert the matrices to physicists'
+                order.
 
         Raises:
-            QiskitNatureError: when encountering an invalid
+            QiskitNatureError: if `auto_index_order=True`, upon encountering an invalid
                 :class:`qiskit_nature.second_q.operators.tensor_ordering.IndexType`.
 
         Returns:
             The resulting ``ElectronicIntegrals``.
         """
-        alpha_dict = {"+-": h1}
+        alpha_dict = {"+-": h1_a}
 
-        if h2 is not None:
-            if transform:
-                index_order = find_index_order(h2)
+        if h2_aa is not None:
+            if auto_index_order:
+                index_order = find_index_order(h2_aa)
                 if index_order == IndexType.CHEMIST:
-                    h2 = _chem_to_phys(h2)
+                    h2_aa = _chem_to_phys(h2_aa)
                     h2_bb = _chem_to_phys(h2_bb) if h2_bb is not None else None
                     h2_ba = _chem_to_phys(h2_ba) if h2_ba is not None else None
                 elif index_order != IndexType.PHYSICIST:
                     raise QiskitNatureError(
-                        f"The index ordering of the `h2` argument, {index_order}, is invalid.\n"
+                        f"The index ordering of the `h2_aa` argument, {index_order}, is invalid.\n"
                         "Provide the two-body matrices in either chemists' or physicists' order, "
                         "or disable the automatic transformation to enforce these matrices to be "
-                        "used (`transform=False`)."
+                        "used (`auto_index_order=False`)."
                     )
 
-            alpha_dict["++--"] = h2
+            alpha_dict["++--"] = h2_aa
 
         alpha = PolynomialTensor(alpha_dict, validate=validate)
 
@@ -420,8 +419,8 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
 
         return ElectronicIntegrals(alpha, beta, mixed)
 
-    def polynomial_tensor(self) -> PolynomialTensor:
-        """Constructs the total ``PolynomialTensor`` described by the stored integrals.
+    def second_q_coeffs(self) -> PolynomialTensor:
+        """Constructs the total ``PolynomialTensor`` contained the second-quantized coefficients.
 
         This function constructs a :class:`qiskit_nature.second_q.operators.PolynomialTensor` whose
         size is ``alpha.register_length + beta.register_length``. Effectively, it constructs the

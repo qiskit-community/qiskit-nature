@@ -403,7 +403,9 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
         two_body_ba = np.random.random((2, 2, 2, 2))
 
         with self.subTest("alpha only"):
-            ints = ElectronicIntegrals.from_raw_integrals(one_body_a, two_body_aa, transform=False)
+            ints = ElectronicIntegrals.from_raw_integrals(
+                one_body_a, two_body_aa, auto_index_order=False
+            )
             self.assertTrue(np.allclose(ints.alpha["+-"], one_body_a))
             self.assertTrue(np.allclose(ints.alpha["++--"], two_body_aa))
 
@@ -414,7 +416,7 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
                 h1_b=one_body_b,
                 h2_bb=two_body_bb,
                 h2_ba=two_body_ba,
-                transform=False,
+                auto_index_order=False,
             )
             self.assertTrue(np.allclose(ints.alpha["+-"], one_body_a))
             self.assertTrue(np.allclose(ints.beta["+-"], one_body_b))
@@ -433,7 +435,7 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
         with self.subTest("alpha only"):
             alpha = PolynomialTensor({"+-": one_body_a, "++--": two_body_aa})
             ints = ElectronicIntegrals(alpha)
-            tensor = ints.polynomial_tensor()
+            tensor = ints.second_q_coeffs()
             expected = self.kronecker ^ alpha
             self.assertTrue(tensor.equiv(expected))
 
@@ -442,7 +444,7 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
             beta = PolynomialTensor({"+-": one_body_b, "++--": two_body_bb})
             mixed = PolynomialTensor({"++--": two_body_ba})
             ints = ElectronicIntegrals(alpha, beta, mixed)
-            tensor = ints.polynomial_tensor()
+            tensor = ints.second_q_coeffs()
             expected = {}
             one_zeros = np.zeros((2, 2))
             expected["+-"] = np.block([[one_body_a, one_zeros], [one_zeros, one_body_b]])

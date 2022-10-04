@@ -41,13 +41,13 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         electronic_energy_exp = expected.hamiltonian
         with self.subTest("MO 1-electron integrals"):
             np.testing.assert_array_almost_equal(
-                np.abs(electronic_energy.electronic_integrals.polynomial_tensor()["+-"]),
-                np.abs(electronic_energy_exp.electronic_integrals.polynomial_tensor()["+-"]),
+                np.abs(electronic_energy.electronic_integrals.second_q_coeffs()["+-"]),
+                np.abs(electronic_energy_exp.electronic_integrals.second_q_coeffs()["+-"]),
             )
         with self.subTest("MO 2-electron integrals"):
             np.testing.assert_array_almost_equal(
-                np.abs(electronic_energy.electronic_integrals.polynomial_tensor()["++--"]),
-                np.abs(electronic_energy_exp.electronic_integrals.polynomial_tensor()["++--"]),
+                np.abs(electronic_energy.electronic_integrals.second_q_coeffs()["++--"]),
+                np.abs(electronic_energy_exp.electronic_integrals.second_q_coeffs()["++--"]),
             )
         with self.subTest("Inactive energy"):
             for key in electronic_energy_exp.constants.keys():
@@ -65,8 +65,8 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
                     (exp_moment.x_dipole, exp_moment.y_dipole, exp_moment.z_dipole),
                 ):
                     np.testing.assert_array_almost_equal(
-                        np.abs(dipole.polynomial_tensor()["+-"]),
-                        np.abs(dipole_exp.polynomial_tensor()["+-"]),
+                        np.abs(dipole.second_q_coeffs()["+-"]),
+                        np.abs(dipole_exp.second_q_coeffs()["+-"]),
                     )
             with self.subTest("Dipole shift"):
                 for key in exp_moment.constants.keys():

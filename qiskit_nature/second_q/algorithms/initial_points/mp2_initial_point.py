@@ -160,12 +160,10 @@ class MP2InitialPoint(InitialPoint):
                 "The `ElectronicEnergy` cannot be obtained from the `grouped_property`."
             )
 
-        two_body_mo_integral: ElectronicIntegrals | None = (
-            electronic_energy.electronic_integrals.two_body
-        )
-        if two_body_mo_integral is None or two_body_mo_integral.alpha.is_empty():
+        two_body_mo_integral: ElectronicIntegrals = electronic_energy.electronic_integrals.two_body
+        if two_body_mo_integral.alpha.is_empty():
             raise QiskitNatureError(
-                "The two-body MO `electronic_integrals` cannot be obtained from the `grouped_property`."
+                "The alpha-alpha spin two-body MO `electronic_integrals` cannot be empty."
             )
 
         orbital_energies: np.ndarray | None = grouped_property.orbital_energies
@@ -174,13 +172,14 @@ class MP2InitialPoint(InitialPoint):
                 "The `orbital_energies` cannot be obtained from the `grouped_property`."
             )
 
-        integral_matrix = _phys_to_chem(two_body_mo_integral.alpha.get("++--"))
         if two_body_mo_integral.beta.get("++--", None) is not None:
             raise NotImplementedError(
                 "`MP2InitialPoint` only supports restricted-spin setups. "
                 "Alpha and beta spin orbitals must be identical. "
                 "See https://github.com/Qiskit/qiskit-nature/issues/645."
             )
+
+        integral_matrix = _phys_to_chem(two_body_mo_integral.alpha.get("++--"))
 
         reference_energy = grouped_property.reference_energy if not None else 0.0
 

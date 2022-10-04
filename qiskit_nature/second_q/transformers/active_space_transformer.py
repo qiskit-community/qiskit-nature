@@ -156,7 +156,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         else:
             raise QiskitNatureError(
                 "The number of active orbitals must be an int, not:",
-                str(self._num_electrons),
+                str(self._num_spatial_orbitals),
             )
 
     def transform(self, problem: BaseProblem) -> BaseProblem:

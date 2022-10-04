@@ -67,7 +67,9 @@ class TestElectronicEnergy(PropertyTest):
         two_body_ba = np.random.random((2, 2, 2, 2))
 
         with self.subTest("alpha only"):
-            prop = ElectronicEnergy.from_raw_integrals(one_body_a, two_body_aa, transform=False)
+            prop = ElectronicEnergy.from_raw_integrals(
+                one_body_a, two_body_aa, auto_index_order=False
+            )
             self.assertTrue(np.allclose(prop.electronic_integrals.alpha["+-"], one_body_a))
             self.assertTrue(np.allclose(prop.electronic_integrals.alpha["++--"], two_body_aa))
 
@@ -78,7 +80,7 @@ class TestElectronicEnergy(PropertyTest):
                 h1_b=one_body_b,
                 h2_bb=two_body_bb,
                 h2_ba=two_body_ba,
-                transform=False,
+                auto_index_order=False,
             )
             self.assertTrue(np.allclose(prop.electronic_integrals.alpha["+-"], one_body_a))
             self.assertTrue(np.allclose(prop.electronic_integrals.beta["+-"], one_body_b))

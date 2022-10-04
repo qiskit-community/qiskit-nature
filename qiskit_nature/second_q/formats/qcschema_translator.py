@@ -62,9 +62,7 @@ def qcschema_to_problem(
     elif basis == ElectronicBasis.MO:
         hamiltonian = _get_mo_hamiltonian(qcschema)
     else:
-        raise NotImplementedError(
-            f"The basis {basis} is not supported by the translation method."
-        )
+        raise NotImplementedError(f"The basis {basis} is not supported by the translation method.")
 
     hamiltonian.nuclear_repulsion_energy = cast(
         Number, qcschema.properties.nuclear_repulsion_energy
@@ -74,7 +72,6 @@ def qcschema_to_problem(
     geo = qcschema.molecule.geometry
     molecule = MoleculeInfo(
         symbols=qcschema.molecule.symbols,
-        # the following format makes mypy happy:
         coords=[(geo[3 * i], geo[3 * i + 1], geo[3 * i + 2]) for i in range(natm)],
         multiplicity=qcschema.molecule.molecular_multiplicity or 1,
         charge=qcschema.molecule.molecular_charge or 0,
@@ -127,7 +124,7 @@ def _get_mo_hamiltonian(qcschema) -> ElectronicEnergy:
         return _get_mo_hamiltonian_direct(qcschema)
 
     hamiltonian = _get_ao_hamiltonian(qcschema)
-    transformer = qcschema_to_basis_transformer(qcschema)
+    transformer = get_ao_to_mo_from_qcschema(qcschema)
 
     return cast(ElectronicEnergy, transformer.transform_hamiltonian(hamiltonian))
 
@@ -151,7 +148,7 @@ def _get_mo_hamiltonian_direct(qcschema) -> ElectronicEnergy:
     return hamiltonian
 
 
-def qcschema_to_basis_transformer(qcschema: QCSchema) -> BasisTransformer:
+def get_ao_to_mo_from_qcschema(qcschema: QCSchema) -> BasisTransformer:
     """Builds out a :class:`.BasisTransformer` from a :class:`.QCSchema` instance.
 
     This utility extracts the AO-to-MO conversion coefficients, contained in a :class:`.QCSchema`

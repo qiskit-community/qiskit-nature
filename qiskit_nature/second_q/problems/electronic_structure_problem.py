@@ -84,11 +84,11 @@ class ElectronicStructureProblem(BaseProblem):
         """
         super().__init__(hamiltonian)
         self.properties: ElectronicPropertiesContainer = ElectronicPropertiesContainer()
-        self.molecule: MoleculeInfo = None
-        self.basis: ElectronicBasis = None
-        self.reference_energy: Number = None
-        self.orbital_energies: np.ndarray = None
-        self.orbital_energies_b: np.ndarray = None
+        self.molecule: MoleculeInfo | None = None
+        self.basis: ElectronicBasis | None = None
+        self.reference_energy: Number | None = None
+        self.orbital_energies: np.ndarray | None = None
+        self.orbital_energies_b: np.ndarray | None = None
         # TODO: further refactoring:
         # - store data on Problem instead of in nested hamiltonian/properties
         #   - orbital occupations

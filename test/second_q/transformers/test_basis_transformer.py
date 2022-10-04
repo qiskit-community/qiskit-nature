@@ -21,7 +21,7 @@ import numpy as np
 
 import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.drivers import PySCFDriver, MethodType
-from qiskit_nature.second_q.formats.qcschema_translator import qcschema_to_basis_transformer
+from qiskit_nature.second_q.formats.qcschema_translator import get_ao_to_mo_from_qcschema
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.properties.bases import ElectronicBasis
 
@@ -39,7 +39,7 @@ class TestBasisTransformer(QiskitNatureTestCase):
         problem_ao = driver.to_problem(basis=ElectronicBasis.AO)
         qcschema = driver.to_qcschema()
 
-        trafo = qcschema_to_basis_transformer(qcschema)
+        trafo = get_ao_to_mo_from_qcschema(qcschema)
 
         with self.subTest("bases"):
             self.assertEqual(trafo.initial_basis, ElectronicBasis.AO)
@@ -90,7 +90,7 @@ class TestBasisTransformer(QiskitNatureTestCase):
         problem_ao = driver.to_problem(basis=ElectronicBasis.AO)
         qcschema = driver.to_qcschema()
 
-        trafo = qcschema_to_basis_transformer(qcschema)
+        trafo = get_ao_to_mo_from_qcschema(qcschema)
 
         with self.subTest("bases"):
             self.assertEqual(trafo.initial_basis, ElectronicBasis.AO)

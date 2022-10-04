@@ -21,13 +21,13 @@ from qiskit_nature.second_q.problems import BaseProblem
 class BaseTransformer(ABC):
     """The interface for implementing methods which map from one
     :class:`~qiskit_nature.second_q.problems.BaseProblem` to another.
-    These methods may or may not affect the size of the Hilbert space.
+    These methods may affect the size of the Hilbert space.
     """
 
     @abstractmethod
     def transform(self, problem: BaseProblem) -> BaseProblem:
         """Transforms one :class:`~qiskit_nature.second_q.problems.BaseProblem` into another.
-        This may or may not affect the size of the Hilbert space.
+        This may affect the size of the Hilbert space.
 
         Args:
             problem: the problem to be transformed.
@@ -43,7 +43,7 @@ class BaseTransformer(ABC):
     @abstractmethod
     def transform_hamiltonian(self, hamiltonian: Hamiltonian) -> Hamiltonian:
         """Transforms one :class:`~qiskit_nature.second_q.hamiltonians.Hamiltonian` into another.
-        This may or may not affect the size of the Hilbert space.
+        This may affect the size of the Hilbert space.
 
         Args:
             hamiltonian: the hamiltonian to be transformed.

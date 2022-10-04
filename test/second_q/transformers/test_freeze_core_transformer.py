@@ -113,13 +113,13 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
         electronic_energy_exp = driver_result.hamiltonian
         with self.subTest("MO 1-electron integrals"):
             np.testing.assert_array_almost_equal(
-                np.abs(electronic_energy.electronic_integrals.polynomial_tensor()["+-"]),
-                np.abs(electronic_energy_exp.electronic_integrals.polynomial_tensor()["+-"]),
+                np.abs(electronic_energy.electronic_integrals.second_q_coeffs()["+-"]),
+                np.abs(electronic_energy_exp.electronic_integrals.second_q_coeffs()["+-"]),
             )
         with self.subTest("MO 2-electron integrals"):
             np.testing.assert_array_almost_equal(
-                np.abs(electronic_energy.electronic_integrals.polynomial_tensor()["++--"]),
-                np.abs(electronic_energy_exp.electronic_integrals.polynomial_tensor()["++--"]),
+                np.abs(electronic_energy.electronic_integrals.second_q_coeffs()["++--"]),
+                np.abs(electronic_energy_exp.electronic_integrals.second_q_coeffs()["++--"]),
             )
         with self.subTest("Inactive energy"):
             self.assertAlmostEqual(electronic_energy.constants["FreezeCoreTransformer"], 0.0)
