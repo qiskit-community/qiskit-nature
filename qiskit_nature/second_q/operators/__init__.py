@@ -35,6 +35,7 @@ Modules
    :toctree:
 
    tensor_ordering
+   commutators
 """
 
 from .fermionic_op import FermionicOp
