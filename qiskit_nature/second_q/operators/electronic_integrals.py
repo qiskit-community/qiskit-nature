@@ -217,7 +217,7 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         Returns:
             True when ``ElectronicIntegrals`` objects are equal, False when unequal.
         """
-        if not isinstance(other, PolynomialTensor):
+        if not isinstance(other, ElectronicIntegrals):
             return False
 
         if self.alpha != other.alpha:

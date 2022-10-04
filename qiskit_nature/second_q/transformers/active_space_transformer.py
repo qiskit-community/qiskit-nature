@@ -181,7 +181,7 @@ class ActiveSpaceTransformer(BaseTransformer):
             return self._transform_electronic_structure_problem(problem)
         else:
             raise NotImplementedError(
-                f"The problem of type, {type(problem)}, is not yet supported by this transformer."
+                f"The problem of type, {type(problem)}, is not supported by this transformer."
             )
 
     def _transform_electronic_structure_problem(
@@ -191,7 +191,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         if problem.basis != ElectronicBasis.MO:
             raise NotImplementedError(
                 f"Transformation of an ElectronicStructureProblem in the {problem.basis} basis is "
-                "not yet supported by this transformer. Please convert it to the ElectronicBasis.MO"
+                "not supported by this transformer. Please convert it to the ElectronicBasis.MO"
                 " basis first, for example by using a BasisTransformer."
             )
 
@@ -375,7 +375,7 @@ class ActiveSpaceTransformer(BaseTransformer):
             return self._transform_electronic_energy(hamiltonian)
         else:
             raise NotImplementedError(
-                f"The hamiltonian of type, {type(hamiltonian)}, is not yet supported by this "
+                f"The hamiltonian of type, {type(hamiltonian)}, is not supported by this "
                 "transformer."
             )
 

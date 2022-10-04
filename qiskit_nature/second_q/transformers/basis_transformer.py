@@ -79,7 +79,7 @@ class BasisTransformer(BaseTransformer):
     Attributes:
         initial_basis: the initial basis from which to map away from.
         final_basis: the final basis into which to map into.
-        coefficients: the coefficients which transform from the initital to the final basis.
+        coefficients: the coefficients which transform from the initial to the final basis.
     """
 
     # TODO: figure out how we can make its interface non-electronic specific
@@ -93,7 +93,7 @@ class BasisTransformer(BaseTransformer):
         Args:
             initial_basis: the initial basis from which to map away from.
             final_basis: the final basis into which to map into.
-            coefficients: the coefficients which transform from the initital to the final basis.
+            coefficients: the coefficients which transform from the initial to the final basis.
         """
         self.initial_basis = initial_basis
         self.final_basis = final_basis
@@ -116,7 +116,7 @@ class BasisTransformer(BaseTransformer):
             return self._transform_electronic_structure_problem(problem)
         else:
             raise NotImplementedError(
-                f"The problem of type, {type(problem)}, is not yet supported by this transformer."
+                f"The problem of type, {type(problem)}, is not supported by this transformer."
             )
 
     def _transform_electronic_structure_problem(
@@ -207,7 +207,7 @@ class BasisTransformer(BaseTransformer):
             return hamiltonian
         else:
             raise NotImplementedError(
-                f"The hamiltonian of type, {type(hamiltonian)}, is not yet supported by this "
+                f"The hamiltonian of type, {type(hamiltonian)}, is not supported by this "
                 "transformer."
             )
 

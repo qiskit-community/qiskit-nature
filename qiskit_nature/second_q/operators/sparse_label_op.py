@@ -382,8 +382,8 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
     def chop(self, tol: float | None = None) -> SparseLabelOp:
         """Chops the real and imaginary phases of the operator coefficients.
 
-        This function separetely chops the real and imaginary phase of all coefficients to the
-        providede tolerance.
+        This function separately chops the real and imaginary phase of all coefficients to the
+        provided tolerance.
 
         Args:
             tol: the tolerance to which to chop. If ``None``, :attr:`atol` will be used.

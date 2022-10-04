@@ -63,7 +63,7 @@ def qcschema_to_problem(
         hamiltonian = _get_mo_hamiltonian(qcschema)
     else:
         raise NotImplementedError(
-            f"The basis {basis} is not yet supported by the translation method."
+            f"The basis {basis} is not supported by the translation method."
         )
 
     hamiltonian.nuclear_repulsion_energy = cast(
