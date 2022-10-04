@@ -82,10 +82,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
     def test_vqe_uccsd(self):
         """Test VQE UCCSD case"""
-        solver = VQEUCCFactory(
-            estimator=Estimator(),
-            ansatz=UCC(excitations="d"),
-        )
+        solver = VQEUCCFactory(Estimator(), UCC(excitations="d"), SLSQP())
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
@@ -97,10 +94,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
             # pylint: disable=unused-argument
             print(f"iterations {nfev}: energy: {energy}")
 
-        solver = VQEUCCFactory(
-            estimator=Estimator(),
-            callback=callback,
-        )
+        solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP(), callback=callback)
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         with contextlib.redirect_stdout(io.StringIO()) as out:
             res = calc.solve(self.electronic_structure_problem)
@@ -111,9 +105,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
     def test_vqe_ucc_custom(self):
         """Test custom ansatz in Factory use case"""
-        solver = VQEUCCFactory(
-            estimator=Estimator(),
-        )
+        solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP())
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
@@ -145,9 +137,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
     def _setup_evaluation_operators(self):
         # first we run a ground state calculation
-        solver = VQEUCCFactory(
-            estimator=Estimator(),
-        )
+        solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP())
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
 
@@ -273,9 +263,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
     def test_default_initial_point(self):
         """Test when using the default initial point."""
 
-        solver = VQEUCCFactory(
-            estimator=Estimator(),
-        )
+        solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP())
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
 
@@ -286,11 +274,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         """Test VQEUCCFactory when using it with a user defined initial point."""
 
         initial_point = np.asarray([1.28074029e-19, 5.92226076e-08, 1.11762559e-01])
-        solver = VQEUCCFactory(
-            estimator=Estimator(),
-            initial_point=initial_point,
-            optimizer=SLSQP(maxiter=1),
-        )
+        solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP(maxiter=1), initial_point=initial_point)
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
         np.testing.assert_array_almost_equal(res.raw_result.optimal_point, initial_point)
@@ -300,10 +284,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
         initial_point = MP2InitialPoint()
 
-        solver = VQEUCCFactory(
-            estimator=Estimator(),
-            initial_point=initial_point,
-        )
+        solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP(), initial_point=initial_point)
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
 
@@ -321,10 +302,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
             reps=2,
         )
 
-        solver = VQEUCCFactory(
-            ansatz=ansatz,
-            estimator=Estimator(),
-        )
+        solver = VQEUCCFactory(Estimator(), ansatz, SLSQP())
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
 
@@ -347,11 +325,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
             reps=2,
         )
 
-        solver = VQEUCCFactory(
-            ansatz=ansatz,
-            estimator=Estimator(),
-            initial_point=initial_point,
-        )
+        solver = VQEUCCFactory(Estimator(), ansatz, SLSQP(), initial_point=initial_point)
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
 

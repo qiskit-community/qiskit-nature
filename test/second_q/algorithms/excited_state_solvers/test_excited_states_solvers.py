@@ -16,11 +16,15 @@ import unittest
 
 from test import QiskitNatureTestCase
 import numpy as np
-from qiskit.utils import algorithm_globals
+
 from qiskit.algorithms.eigensolvers import NumPyEigensolver
 from qiskit.algorithms.minimum_eigensolvers import NumPyMinimumEigensolver
+from qiskit.algorithms.optimizers import SLSQP
+from qiskit.primitives import Estimator
+from qiskit.utils import algorithm_globals
 
 from qiskit_nature.units import DistanceUnit
+from qiskit_nature.second_q.circuit.library import UCCSD
 from qiskit_nature.second_q.transformers import ActiveSpaceTransformer
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import (
@@ -81,7 +85,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         """Test NumPyMinimumEigenSolver with QEOM"""
         solver = NumPyMinimumEigensolver()
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
-        esc = QEOM(gsc, "sd")
+        esc = QEOM(gsc, Estimator(), "sd")
         results = esc.solve(self.electronic_structure_problem)
         self._assert_energies(results.computed_energies, self.reference_energies)
 
@@ -128,9 +132,10 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         self._solve_with_vqe_mes(converter)
 
     def _solve_with_vqe_mes(self, converter: QubitConverter):
-        solver = VQEUCCFactory()
+        estimator = Estimator()
+        solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
         gsc = GroundStateEigensolver(converter, solver)
-        esc = QEOM(gsc, "sd")
+        esc = QEOM(gsc, estimator, "sd")
         results = esc.solve(self.electronic_structure_problem)
         self._assert_energies(results.computed_energies, self.reference_energies)
 

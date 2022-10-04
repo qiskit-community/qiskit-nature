@@ -32,7 +32,7 @@ from qiskit.opflow import (
     double_commutator,
     PauliSumOp,
 )
-from qiskit.primitives import Estimator
+from qiskit.primitives import BaseEstimator
 
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.problems import (
@@ -56,6 +56,7 @@ class QEOM(ExcitedStatesSolver):
     def __init__(
         self,
         ground_state_solver: GroundStateSolver,
+        estimator: BaseEstimator,
         excitations: str
         | int
         | list[int]
@@ -68,6 +69,7 @@ class QEOM(ExcitedStatesSolver):
         Args:
             ground_state_solver: a GroundStateSolver object. The qEOM algorithm
                 will use this ground state to compute the EOM matrix elements
+            estimator: TODO.
             excitations: The excitations to be included in the eom pseudo-eigenvalue problem.
 
                 :`str`: which contains the types of excitations. Allowed characters are
@@ -85,6 +87,7 @@ class QEOM(ExcitedStatesSolver):
                     respectively.
         """
         self._gsc = ground_state_solver
+        self._estimator = estimator
         self.excitations = excitations
 
         self._untapered_qubit_op_main: PauliSumOp = None
@@ -163,12 +166,9 @@ class QEOM(ExcitedStatesSolver):
         matrix_operators_dict, size = self._prepare_matrix_operators(problem)
 
         # 3. Evaluate eom operators
-        estimator = getattr(self._gsc.solver, "estimator", None)
-        if estimator is None:
-            estimator = Estimator()
         ground_state = groundstate_result.eigenstates[0]
         measurement_results = estimate_observables(
-            estimator,
+            self._estimator,
             ground_state[0],
             matrix_operators_dict,
             ground_state[1],

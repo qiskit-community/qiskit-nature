@@ -18,11 +18,11 @@ import logging
 import numpy as np
 
 from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolver, VQE
-from qiskit.algorithms.optimizers import SLSQP
+from qiskit.algorithms.optimizers import Minimizer, Optimizer
 from qiskit.circuit import QuantumCircuit
-from qiskit.primitives import Estimator
+from qiskit.primitives import BaseEstimator
 
-from qiskit_nature.second_q.circuit.library import UVCC, UVCCSD, VSCF
+from qiskit_nature.second_q.circuit.library import UVCC, VSCF
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.problems import (
     VibrationalStructureProblem,
@@ -66,13 +66,19 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
 
     def __init__(
         self,
+        estimator: BaseEstimator,
+        ansatz: UVCC,
+        optimizer: Optimizer | Minimizer,
+        *,
         initial_point: np.ndarray | InitialPoint | None = None,
-        ansatz: UVCC | None = None,
         initial_state: QuantumCircuit | None = None,
         **kwargs,
     ) -> None:
         """
         Args:
+            estimator: TODO.
+            ansatz: TODO.
+            optimizer: TODO.
             initial_point: An optional initial point (i.e., initial parameter values for the VQE
                 optimizer). If ``None`` then VQE will use an all-zero initial point of the
                 appropriate length computed using
@@ -86,22 +92,12 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
             initial_state: Allows specification of a custom `QuantumCircuit` to be used as the
                 initial state of the ansatz. If this is never set by the user, the factory will
                 default to the :class:`~.VSCF` state.
-            ansatz: Allows specification of a custom :class:`~.UCC` instance. This defaults to None
-                where the factory will internally create and use a :class:`~.UVCCSD` ansatz.
             kwargs: Remaining keyword arguments are passed to the :class:`VQE`.
         """
-
         self._initial_state = initial_state
         self._initial_point = initial_point if initial_point is not None else VSCFInitialPoint()
-        self._ansatz = ansatz
 
-        if "estimator" not in kwargs:
-            kwargs["estimator"] = Estimator()
-        if "optimizer" not in kwargs:
-            kwargs["optimizer"] = SLSQP()
-        kwargs["ansatz"] = ansatz
-
-        self._vqe = VQE(**kwargs)
+        self._vqe = VQE(estimator, ansatz, optimizer, **kwargs)
 
     @property
     def ansatz(self) -> UVCC | None:
@@ -109,7 +105,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         Gets the user provided ansatz of future VQEs produced by the factory.
         If value is ``None`` it defaults to :class:`~.UVCCSD`.
         """
-        return self._ansatz
+        return self.minimum_eigensolver.ansatz
 
     @ansatz.setter
     def ansatz(self, ansatz: UVCC | None) -> None:
@@ -117,7 +113,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         Sets the ansatz of future VQEs produced by the factory.
         If set to ``None`` it defaults to :class:`~.UVCCSD`.
         """
-        self._ansatz = ansatz
+        self.minimum_eigensolver.ansatz = ansatz
 
     @property
     def initial_state(self) -> QuantumCircuit | None:
@@ -171,21 +167,17 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         if initial_state is None:
             initial_state = VSCF(num_modals)
 
-        ansatz = self._ansatz
-        if ansatz is None:
-            ansatz = UVCCSD()
-        ansatz.qubit_converter = qubit_converter
-        ansatz.num_modals = num_modals
-        ansatz.initial_state = initial_state
+        self.ansatz.qubit_converter = qubit_converter
+        self.ansatz.num_modals = num_modals
+        self.ansatz.initial_state = initial_state
 
         if isinstance(self.initial_point, InitialPoint):
-            self.initial_point.ansatz = ansatz
+            self.initial_point.ansatz = self.ansatz
             initial_point = self.initial_point.to_numpy_array()
         else:
             initial_point = self.initial_point
 
         self.minimum_eigensolver.initial_point = initial_point
-        self.minimum_eigensolver.ansatz = ansatz
         return self.minimum_eigensolver
 
     def supports_aux_operators(self):
