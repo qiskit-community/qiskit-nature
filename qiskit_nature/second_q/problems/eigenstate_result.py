@@ -103,13 +103,8 @@ class EigenstateResult(AlgorithmResult):
                 (_statevector_to_circuit(Statevector(state)), None)
                 for state in raw_result.eigenstates
             ]
-        elif hasattr(raw_result, "optimal_circuits") and hasattr(raw_result, "optimal_parameters"):
-            result.eigenstates = [
-                (circuit, list(param.values()))
-                for circuit, param in zip(
-                    raw_result.optimal_circuits, raw_result.optimal_parameters
-                )
-            ]
+        elif hasattr(raw_result, "optimal_circuits") and hasattr(raw_result, "optimal_points"):
+            result.eigenstates = list(zip(raw_result.optimal_circuits, raw_result.optimal_points))
 
         if raw_result.aux_operators_evaluated is not None:
             result.aux_operators_evaluated = [
@@ -140,10 +135,8 @@ class EigenstateResult(AlgorithmResult):
             result.eigenstates = [
                 (_statevector_to_circuit(Statevector(raw_result.eigenstate)), None)
             ]
-        elif hasattr(raw_result, "optimal_circuit") and hasattr(raw_result, "optimal_parameters"):
-            result.eigenstates = [
-                (raw_result.optimal_circuit, list(raw_result.optimal_parameters.values()))
-            ]
+        elif hasattr(raw_result, "optimal_circuit") and hasattr(raw_result, "optimal_point"):
+            result.eigenstates = [(raw_result.optimal_circuit, raw_result.optimal_point)]
 
         if raw_result.aux_operators_evaluated is not None:
             result.aux_operators_evaluated = [
