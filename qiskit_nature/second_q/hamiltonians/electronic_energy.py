@@ -91,10 +91,6 @@ class ElectronicEnergy(Hamiltonian):
     def register_length(self) -> int | None:
         return self.electronic_integrals.register_length
 
-    @register_length.setter
-    def register_length(self, reg_length: int | None) -> None:
-        self.electronic_integrals.register_length = reg_length
-
     @property
     def nuclear_repulsion_energy(self) -> Number | None:
         """The nuclear repulsion energy.

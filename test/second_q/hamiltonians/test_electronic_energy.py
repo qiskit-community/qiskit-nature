@@ -50,9 +50,7 @@ class TestElectronicEnergy(PropertyTest):
 
     def test_fock(self):
         """Test fock."""
-        density = ElectronicIntegrals(
-            alpha=PolynomialTensor({"+-": 0.5 * np.eye(2)}, register_length=2)
-        )
+        density = ElectronicIntegrals(alpha=PolynomialTensor({"+-": 0.5 * np.eye(2)}))
         fock_op = self.prop.fock(density)
 
         expected = np.asarray([[-0.34436786423711596, 0.0], [0.0, 0.4515069814257469]])

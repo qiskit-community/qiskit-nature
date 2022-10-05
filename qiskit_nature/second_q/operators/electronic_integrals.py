@@ -194,13 +194,9 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
 
     @property
     def register_length(self) -> int | None:
-        """The register length of the internal
-        :class:`qiskit_nature.second_q.operators.PolynomialTensor` instances."""
-        return self.alpha.register_length
-
-    @register_length.setter
-    def register_length(self, reg_length: int | None) -> None:
-        self.alpha.register_length = reg_length
+        """TODO."""
+        alpha_length = self.alpha.register_length
+        return alpha_length
 
     def __getitem__(self, __k: str) -> PolynomialTensor:
         try:
@@ -422,11 +418,10 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
     def second_q_coeffs(self) -> PolynomialTensor:
         """Constructs the total ``PolynomialTensor`` contained the second-quantized coefficients.
 
-        This function constructs a :class:`qiskit_nature.second_q.operators.PolynomialTensor` whose
-        size is ``alpha.register_length + beta.register_length``. Effectively, it constructs the
-        spin-orbital basis tensor, by arranging the :attr:`alpha` and :attr:`beta` attributes in a
-        block-ordered fashion (up-spin integrals cover the first part, down-spin integrals the
-        second part of the resulting register space).
+        This function constructs the spin-orbital basis tensor as a
+        :class:`qiskit_nature.second_q.operators.PolynomialTensor`, by arranging the :attr:`alpha`
+        and :attr:`beta` attributes in a block-ordered fashion (up-spin integrals cover the first
+        part, down-spin integrals the second part of the resulting register space).
 
         If the :attr:`beta` and/or :attr:`mixed` attributes are empty, the :attr:`alpha` data will
         be used in their place.
@@ -440,7 +435,7 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         kron_one_body = np.zeros((2, 2))
         kron_two_body = np.zeros((2, 2, 2, 2))
         kron_tensor = PolynomialTensor(
-            {"": cast(Number, 1.0), "+-": kron_one_body, "++--": kron_two_body}, register_length=2
+            {"": cast(Number, 1.0), "+-": kron_one_body, "++--": kron_two_body}
         )
 
         if beta_empty and mixed_empty:
@@ -469,7 +464,7 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         kron_two_body[(1, 1, 1, 1)] = 0
         # mixed spin
         if not mixed_empty:
-            kron_tensor = PolynomialTensor({"++--": kron_two_body}, register_length=2)
+            kron_tensor = PolynomialTensor({"++--": kron_two_body})
             kron_two_body[(1, 0, 0, 1)] = 0.5
             tensor_blocked_spin_orbitals += kron_tensor ^ self.beta_alpha
             kron_two_body[(1, 0, 0, 1)] = 0

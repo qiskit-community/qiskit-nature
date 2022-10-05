@@ -350,8 +350,7 @@ class TestFermionicOp(QiskitNatureTestCase):
             {
                 "+-": np.arange(1, 5).reshape((r_l, r_l)),
                 "++--": np.arange(1, 17).reshape((r_l, r_l, r_l, r_l)),
-            },
-            register_length=r_l,
+            }
         )
         op = FermionicOp.from_polynomial_tensor(p_t)
 

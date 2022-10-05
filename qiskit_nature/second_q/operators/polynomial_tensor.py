@@ -36,20 +36,20 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
     def __init__(
         self,
         data: Mapping[str, np.ndarray | Number],
-        register_length: int | None = None,
         *,
         validate: bool = True,
     ) -> None:
         """
         Args:
             data: mapping of string-based operator keys to coefficient matrix values.
-            register_length: dimensions of the value matrices in data mapping.
         Raises:
             ValueError: when length of operator key does not match dimensions of value matrix.
             ValueError: when value matrix does not have consistent dimensions.
             ValueError: when some or all value matrices in ``data`` have different dimensions.
         """
         copy_dict: dict[str, np.ndarray] = {}
+
+        dim: int | None = None
 
         for key, value in data.items():
             if isinstance(value, Number):
@@ -68,40 +68,38 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
                     f"For key {key}: dimensions of value matrix are not identical {value.shape}"
                 )
 
-            if register_length is None and dims:
-                register_length = value.shape[0]
+            if dim is None and dims:
+                # we use the length of the first axis as the dimension of this tensor
+                dim = value.shape[0]
 
-            if validate and len(dims) == 1 and dims.pop() != register_length:
+            if validate and len(dims) == 1 and dims.pop() != dim:
                 raise ValueError(
-                    f"Dimensions of value matrices in data dictionary do not match the provided "
-                    f"register length, {register_length}"
+                    "Dimensions of value matrices in data dictionary do not all agree with each "
+                    f"other. The inferred dimension is {dim}, violating the shape {value.shape} of "
+                    f"key '{key}'."
                 )
 
             copy_dict[key] = value
 
         self._data = copy_dict
-        self._register_length = register_length
 
     @property
-    def register_length(self) -> int:
-        """Returns register length of the operator key in `PolynomialTensor`."""
-        return self._register_length
-
-    @register_length.setter
-    def register_length(self, reg_length: int | None) -> None:
-        self._register_length = reg_length
+    def register_length(self) -> int | None:
+        """TODO."""
+        for key in self._data:
+            if key == "":
+                continue
+            return cast(np.ndarray, self[key]).shape[0]
+        return None
 
     @classmethod
-    def empty(cls, register_length: int | None = None) -> PolynomialTensor:
+    def empty(cls) -> PolynomialTensor:
         """Constructs an empty tensor.
 
-        Args:
-            register_length: the length of the tensor.
-
         Returns:
-            The empty tensor of the given length.
+            The empty tensor.
         """
-        return PolynomialTensor({}, register_length=register_length)
+        return PolynomialTensor({})
 
     def is_empty(self) -> bool:
         """Returns whether this tensor is empty or not."""
@@ -146,7 +144,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
         prod_dict: dict[str, np.ndarray] = {}
         for key, matrix in self._data.items():
             prod_dict[key] = np.multiply(matrix, other)
-        return PolynomialTensor(prod_dict, self._register_length, validate=False)
+        return PolynomialTensor(prod_dict, validate=False)
 
     def _add(self, other: PolynomialTensor, qargs=None) -> PolynomialTensor:
         """Addition of PolynomialTensors
@@ -167,11 +165,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
         other_unique = {key: other._data[key] for key in other._data.keys() - self._data.keys()}
         sum_dict.update(other_unique)
 
-        register_length = self.register_length
-        if other.register_length is not None:
-            register_length = max(register_length or 0, other.register_length)
-
-        return PolynomialTensor(sum_dict, register_length, validate=False)
+        return PolynomialTensor(sum_dict, validate=False)
 
     def __eq__(self, other: object) -> bool:
         """Check equality of first PolynomialTensor with other
@@ -221,7 +215,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
         for key, value in self._data.items():
             conj_dict[key] = np.conjugate(value)
 
-        return PolynomialTensor(conj_dict, self._register_length, validate=False)
+        return PolynomialTensor(conj_dict, validate=False)
 
     def transpose(self) -> PolynomialTensor:
         """Transpose of PolynomialTensor
@@ -233,8 +227,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
         for key, value in self._data.items():
             transpose_dict[key] = np.transpose(value)
 
-        # we explicitly do not pass register_length here, in case we have a non-square entry
-        return PolynomialTensor(transpose_dict, None, validate=False)
+        return PolynomialTensor(transpose_dict, validate=False)
 
     def compose(
         self, other: PolynomialTensor, qargs: None = None, front: bool = False
@@ -272,11 +265,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
             else:
                 new_data[key] = np.matmul(cast(np.ndarray, a[key]), cast(np.ndarray, b[key]))
 
-        register_length = None
-        if self.register_length is not None and other.register_length is not None:
-            register_length = max(self.register_length, other.register_length)
-
-        return PolynomialTensor(new_data, register_length=register_length)
+        return PolynomialTensor(new_data)
 
     def tensor(self, other: PolynomialTensor) -> PolynomialTensor:
         r"""Returns the tensor product with another ``PolynomialTensor``.
@@ -325,7 +314,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
             else:
                 new_data[key] = np.kron(cast(np.ndarray, a[key]), cast(np.ndarray, b[key]))
 
-        return PolynomialTensor(new_data, register_length=a.register_length * b.register_length)
+        return PolynomialTensor(new_data)
 
     @classmethod
     def einsum(

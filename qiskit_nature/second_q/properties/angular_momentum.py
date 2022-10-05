@@ -157,9 +157,7 @@ class AngularMomentum(Property):
         h_1 = x_h1 + y_h1 + z_h1
         h_2 = x_h2 + y_h2 + z_h2
 
-        tensor = PolynomialTensor(
-            {"+-": h_1, "++--": _chem_to_phys(h_2)}, register_length=self._num_spin_orbitals
-        )
+        tensor = PolynomialTensor({"+-": h_1, "++--": _chem_to_phys(h_2)})
 
         op = FermionicOp.from_polynomial_tensor(tensor).simplify()
 

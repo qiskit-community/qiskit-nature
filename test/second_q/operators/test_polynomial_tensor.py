@@ -147,35 +147,28 @@ class TestPolynomialTensor(QiskitNatureTestCase):
             ValueError,
             r"Data key .* of length \d does not match data value matrix of dimensions \(\d+, *\)",
         ):
-            _ = PolynomialTensor(self.sample_poly_1, register_length=4)
+            _ = PolynomialTensor(self.sample_poly_1)
 
         with self.assertRaisesRegex(
             ValueError, r"For key (.*): dimensions of value matrix are not identical \(\d+, .*\)"
         ):
-            _ = PolynomialTensor(self.sample_poly_2, register_length=4)
-
-        with self.assertRaisesRegex(
-            ValueError,
-            r"Dimensions of value matrices in data dictionary "
-            r"do not match the provided register length, \d",
-        ):
-            _ = PolynomialTensor(self.sample_poly_3, register_length=4)
+            _ = PolynomialTensor(self.sample_poly_2)
 
     def test_get_item(self):
         """Test for getting value matrices corresponding to keys in PolynomialTensor"""
-        og_poly_tensor = PolynomialTensor(self.og_poly, 4)
+        og_poly_tensor = PolynomialTensor(self.og_poly)
         for key, value in self.og_poly.items():
             np.testing.assert_array_equal(value, og_poly_tensor[key])
 
     def test_len(self):
         """Test for the length of PolynomialTensor"""
-        length = len(PolynomialTensor(self.sample_poly_4, 2))
+        length = len(PolynomialTensor(self.sample_poly_4))
         exp_len = 4
         self.assertEqual(exp_len, length)
 
     def test_iter(self):
         """Test for the iterator of PolynomialTensor"""
-        og_poly_tensor = PolynomialTensor(self.og_poly, 4)
+        og_poly_tensor = PolynomialTensor(self.og_poly)
         exp_iter = [key for key, _ in self.og_poly.items()]
         self.assertEqual(exp_iter, list(iter(og_poly_tensor)))
 
@@ -189,56 +182,56 @@ class TestPolynomialTensor(QiskitNatureTestCase):
             "++--": self.build_matrix(4, 4, other),
         }
 
-        result = PolynomialTensor(self.og_poly, 4) * other
-        self.assertEqual(result, PolynomialTensor(expected_prod_poly, 4))
+        result = PolynomialTensor(self.og_poly) * other
+        self.assertEqual(result, PolynomialTensor(expected_prod_poly))
 
         with self.assertRaisesRegex(TypeError, r"other .* must be a number"):
-            _ = PolynomialTensor(self.og_poly, 4) * PolynomialTensor(self.og_poly, 4)
+            _ = PolynomialTensor(self.og_poly) * PolynomialTensor(self.og_poly)
 
     def test_add(self):
         """Test for addition of PolynomialTensor"""
-        result = PolynomialTensor(self.og_poly, 4) + PolynomialTensor(self.og_poly, 4)
-        self.assertEqual(result, PolynomialTensor(self.expected_sum_poly, 4))
+        result = PolynomialTensor(self.og_poly) + PolynomialTensor(self.og_poly)
+        self.assertEqual(result, PolynomialTensor(self.expected_sum_poly))
 
         with self.assertRaisesRegex(
             TypeError, "Incorrect argument type: other should be PolynomialTensor"
         ):
-            _ = PolynomialTensor(self.og_poly, 4) + 5
+            _ = PolynomialTensor(self.og_poly) + 5
 
     def test_conjugate(self):
         """Test for conjugate of PolynomialTensor"""
-        result = PolynomialTensor(self.og_poly, 4).conjugate()
-        self.assertEqual(result, PolynomialTensor(self.expected_conjugate_poly, 4))
+        result = PolynomialTensor(self.og_poly).conjugate()
+        self.assertEqual(result, PolynomialTensor(self.expected_conjugate_poly))
 
     def test_transpose(self):
         """Test for transpose of PolynomialTensor"""
-        result = PolynomialTensor(self.og_poly, 4).transpose()
-        self.assertEqual(result, PolynomialTensor(self.expected_transpose_poly, 4))
+        result = PolynomialTensor(self.og_poly).transpose()
+        self.assertEqual(result, PolynomialTensor(self.expected_transpose_poly))
 
     def test_compose(self):
         """Test composition of PolynomialTensor"""
-        pt_a = PolynomialTensor(self.og_poly, 4)
-        pt_b = PolynomialTensor(self.expected_transpose_poly, 4)
+        pt_a = PolynomialTensor(self.og_poly)
+        pt_b = PolynomialTensor(self.expected_transpose_poly)
 
         with self.subTest("compose(front=False)"):
             result = pt_a.compose(pt_b)
-            self.assertEqual(result, PolynomialTensor(self.expected_compose_poly, 4))
+            self.assertEqual(result, PolynomialTensor(self.expected_compose_poly))
 
         with self.subTest("compose(front=True)"):
             result = pt_a.compose(pt_b, front=True)
-            self.assertEqual(result, PolynomialTensor(self.expected_compose_front_poly, 4))
+            self.assertEqual(result, PolynomialTensor(self.expected_compose_front_poly))
 
     def test_tensor(self):
         """Test tensoring of PolynomialTensor"""
-        p_t = PolynomialTensor(self.og_poly, 4)
-        result = PolynomialTensor(self.kronecker, 2).tensor(p_t)
-        self.assertEqual(result, PolynomialTensor(self.expected_tensor_poly, 8))
+        p_t = PolynomialTensor(self.og_poly)
+        result = PolynomialTensor(self.kronecker).tensor(p_t)
+        self.assertEqual(result, PolynomialTensor(self.expected_tensor_poly))
 
     def test_expand(self):
         """Test expanding of PolynomialTensor"""
-        p_t = PolynomialTensor(self.og_poly, 4)
-        result = p_t.expand(PolynomialTensor(self.kronecker, 2))
-        self.assertEqual(result, PolynomialTensor(self.expected_tensor_poly, 8))
+        p_t = PolynomialTensor(self.og_poly)
+        result = p_t.expand(PolynomialTensor(self.kronecker))
+        self.assertEqual(result, PolynomialTensor(self.expected_tensor_poly))
 
     def test_einsum(self):
         """Test PolynomialTensor.einsum"""
