@@ -17,7 +17,6 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 from collections.abc import Collection, MutableMapping
-from itertools import product
 from typing import cast, Iterator
 
 import numpy as np
@@ -196,36 +195,14 @@ class FermionicOp(SparseLabelOp):
             label_template = " ".join(f"{op}_{{}}" for op in key)
 
             # PERF: this matrix unpacking is a performance bottleneck
-            # I am including multiple solutions below to start a discussion on how to implement
-            # this. All of these are single-threaded right now...
+            # we could consider using Rust in the future to improve upon this
 
-            # Another aspect would be to filter non-zero terms. However, so far all solutions I have
-            # tried result in significant performance penalties.
+            ndarray = cast(np.ndarray, tensor[key])
+            for index in np.ndindex(ndarray.shape):
+                data[label_template.format(*index)] = ndarray[index]
 
-            # nditer = np.nditer(tensor[key], flags=["multi_index"], op_flags=["readonly"])
-            # for coeff in nditer:
-            #     data[label_template.format(*nditer.multi_index)] = coeff
-
-            # An alternative solution, not based on a sequential numpy iterator. Could we use this
-            # to our advantage and parallelize this to some degree? A naive attempt at using
-            # qiskit.tools.parallel_map hurt more, than it helped...
-            mat = cast(np.ndarray, tensor[key])
-            for index in product(range(tensor.register_length), repeat=len(key)):
-                # TODO: deal with complexity
-                data[label_template.format(*index)] = cast(float, mat[index])
-
-            # and yet another solution which uses the same numpy iterator as above, but the C-API
-            # instead of Pythonic iterator, which according to their docs could be beneficial when
-            # requiring access to the iterator coordinates/indices
-            # however, here it is even slower than the variant above
-            # Reference: https://numpy.org/doc/stable/reference/generated/numpy.nditer.html
-            # nditer = np.nditer(tensor[key], flags=["multi_index"], op_flags=["readonly"])
-            # while not nditer.finished:
-            #     data[label_template.format(*nditer.multi_index)] = nditer[0]
-            #     nditer.iternext()
-
-            # once the PolynomialTensor supports sparse matrices, these will need to be handled
-            # separately
+            # NOTE: once the PolynomialTensor supports sparse matrices, these will need to be
+            # handled separately
 
         return FermionicOp(data, register_length=tensor.register_length, copy=False).chop()
 
