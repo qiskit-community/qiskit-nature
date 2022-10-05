@@ -153,7 +153,7 @@ class TestFCIDumpDumpH2(QiskitNatureTestCase, BaseTestFCIDumpDumper):
         electronic_energy = problem.hamiltonian
         electronic_integrals = electronic_energy.electronic_integrals
         hijkl = electronic_integrals.alpha.get("++--", None)
-        hijkl_ba = electronic_integrals.mixed.get("++--", None)
+        hijkl_ba = electronic_integrals.beta_alpha.get("++--", None)
         hijkl_bb = electronic_integrals.beta.get("++--", None)
         fcidump = FCIDump(
             hij=electronic_integrals.alpha.get("+-", None),

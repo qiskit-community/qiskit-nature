@@ -227,11 +227,11 @@ class ActiveSpaceTransformer(BaseTransformer):
         self._density_active = self._transform_active.transform_electronic_integrals(
             self._density_total
         )
-        self._density_active.mixed = None
+        self._density_active.beta_alpha = None
         self._density_active = self._transform_active.invert().transform_electronic_integrals(
             self._density_active
         )
-        self._density_active.mixed = None
+        self._density_active.beta_alpha = None
 
         electronic_energy = cast(ElectronicEnergy, self.transform_hamiltonian(problem.hamiltonian))
 

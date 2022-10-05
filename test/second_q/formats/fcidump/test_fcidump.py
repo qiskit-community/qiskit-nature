@@ -98,7 +98,7 @@ class BaseTestFCIDump(ABC):
 
         if self.mo_eri_ba is not None:
             with self.subTest("2-body beta-alpha"):
-                beta_alpha_2body = electronic_energy.electronic_integrals.mixed["++--"]
+                beta_alpha_2body = electronic_energy.electronic_integrals.beta_alpha["++--"]
                 self.log.debug("MO two electron beta-alpha integrals are %s", beta_alpha_2body)
                 self.assertEqual(beta_alpha_2body.shape, self.mo_eri_ba.shape)
                 np.testing.assert_array_almost_equal(

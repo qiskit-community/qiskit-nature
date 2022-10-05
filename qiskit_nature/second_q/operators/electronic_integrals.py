@@ -44,7 +44,7 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
 
     - :attr:`alpha`: which stores the up-spin integrals
     - :attr:`beta`: which stores the down-spin integrals
-    - :attr:`mixed`: which stores mixed-spin multi-body integrals
+    - :attr:`beta_alpha`: which stores beta-alpha-spin two-body integrals
 
     It exposes common mathematical operations performed on these tensors allowing simple
     manipulation of the underlying data structures.
@@ -58,9 +58,9 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
 
         alpha = PolynomialTensor({"+-": h1_a, "++--": h2_aa})
         beta = PolynomialTensor({"+-": h1_b, "++--": h2_bb})
-        mixed = PolynomialTensor({"++--": h2_ba})
+        beta_alpha = PolynomialTensor({"++--": h2_ba})
 
-        integrals = ElectronicIntegrals(alpha, beta, mixed)
+        integrals = ElectronicIntegrals(alpha, beta, beta_alpha)
 
         # addition
         integrals + integrals
@@ -78,7 +78,7 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         self,
         alpha: PolynomialTensor | None = None,
         beta: PolynomialTensor | None = None,
-        mixed: PolynomialTensor | None = None,
+        beta_alpha: PolynomialTensor | None = None,
     ) -> None:
         """
         Any ``None``-valued argument will internally be replaced by an empty ``PolynomialTensor``
@@ -87,11 +87,15 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         Args:
             alpha: the up-spin electronic integrals
             beta: the down-spin electronic integrals
-            mixed: the mixed-spin multi-body electronic integrals
+            beta_alpha: the beta-alpha-spin two-body electronic integrals. This may *only* contain
+                the `++--` key.
+
+        Raises:
+            ValueError: if the `beta_alpha` tensor contains keys other than `++--`.
         """
         self.alpha = alpha
         self.beta = beta
-        self.mixed = mixed
+        self.beta_alpha = beta_alpha
 
     @property
     def alpha(self) -> PolynomialTensor:
@@ -112,25 +116,21 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         self._beta = beta if beta is not None else PolynomialTensor.empty()
 
     @property
-    def mixed(self) -> PolynomialTensor:
-        """The mixed-spin multi-body electronic integrals."""
-        return self._mixed
-
-    @mixed.setter
-    def mixed(self, mixed: PolynomialTensor | None) -> None:
-        self._mixed = mixed if mixed is not None else PolynomialTensor.empty()
-
-    @property
     def beta_alpha(self) -> PolynomialTensor:
-        """The beta-alpha-spin two-body electronic integrals.
+        """The beta-alpha-spin two-body electronic integrals."""
+        return self._beta_alpha
 
-        This extracts specifically the two-body term from :attr:`mixed`.
-        """
-        if "++--" not in self.mixed.keys():
-            return self.mixed
-
-        beta_alpha = cast(np.ndarray, self.mixed["++--"])
-        return PolynomialTensor({"++--": beta_alpha}, validate=False)
+    @beta_alpha.setter
+    def beta_alpha(self, beta_alpha: PolynomialTensor | None) -> None:
+        if beta_alpha is None:
+            self._beta_alpha = PolynomialTensor.empty()
+        else:
+            keys = set(beta_alpha)
+            if keys and keys != {"++--"}:
+                raise ValueError(
+                    f"The beta_alpha tensor may only contain a `++--` key, not {keys}."
+                )
+            self._beta_alpha = beta_alpha
 
     @property
     def alpha_beta(self) -> PolynomialTensor:
@@ -139,10 +139,10 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         These get reconstructed from :attr:`beta_alpha` by transposing in the physicist' ordering
         convention.
         """
-        if "++--" not in self.mixed.keys():
-            return self.mixed
+        if self.beta_alpha.is_empty():
+            return self.beta_alpha
 
-        beta_alpha = cast(np.ndarray, self.mixed["++--"])
+        beta_alpha = cast(np.ndarray, self.beta_alpha["++--"])
         alpha_beta = np.einsum("ijkl->klij", beta_alpha, optimize=settings.optimize_einsum)
         return PolynomialTensor({"++--": alpha_beta}, validate=False)
 
@@ -161,13 +161,7 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
                 {"+-": self.beta["+-"]},
                 validate=False,
             )
-        mixed: PolynomialTensor = None
-        if "+-" in self.mixed:
-            mixed = PolynomialTensor(
-                {"+-": self.mixed["+-"]},
-                validate=False,
-            )
-        return ElectronicIntegrals(alpha, beta, mixed)
+        return ElectronicIntegrals(alpha, beta)
 
     @property
     def two_body(self) -> ElectronicIntegrals:
@@ -184,13 +178,13 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
                 {"++--": self.beta["++--"]},
                 validate=False,
             )
-        mixed: PolynomialTensor = None
-        if "++--" in self.mixed:
-            mixed = PolynomialTensor(
-                {"++--": self.mixed["++--"]},
+        beta_alpha: PolynomialTensor = None
+        if "++--" in self.beta_alpha:
+            beta_alpha = PolynomialTensor(
+                {"++--": self.beta_alpha["++--"]},
                 validate=False,
             )
-        return ElectronicIntegrals(alpha, beta, mixed)
+        return ElectronicIntegrals(alpha, beta, beta_alpha)
 
     @property
     def register_length(self) -> int | None:
@@ -205,7 +199,7 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
             raise KeyError from exc
 
     def __iter__(self) -> Iterator[str]:
-        for key in "alpha", "beta", "mixed":
+        for key in "alpha", "beta", "beta_alpha":
             yield key
 
     def __eq__(self, other: object) -> bool:
@@ -219,7 +213,11 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         if not isinstance(other, ElectronicIntegrals):
             return False
 
-        if self.alpha == other.alpha and self.beta == other.beta and self.mixed == other.mixed:
+        if (
+            self.alpha == other.alpha
+            and self.beta == other.beta
+            and self.beta_alpha == other.beta_alpha
+        ):
             return True
 
         return False
@@ -238,7 +236,7 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         if (
             self.alpha.equiv(other.alpha)
             and self.beta.equiv(other.beta)
-            and self.mixed.equiv(other.mixed)
+            and self.beta_alpha.equiv(other.beta_alpha)
         ):
             return True
 
@@ -251,7 +249,7 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         return ElectronicIntegrals(
             cast(PolynomialTensor, other * self.alpha),
             cast(PolynomialTensor, other * self.beta),
-            cast(PolynomialTensor, other * self.mixed),
+            cast(PolynomialTensor, other * self.beta_alpha),
         )
 
     def _add(self, other: ElectronicIntegrals, qargs=None) -> ElectronicIntegrals:
@@ -270,7 +268,7 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         return ElectronicIntegrals(
             self.alpha + other.alpha,
             beta,
-            self.mixed + other.mixed,
+            self.beta_alpha + other.beta_alpha,
         )
 
     def conjugate(self) -> ElectronicIntegrals:
@@ -282,7 +280,7 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         return ElectronicIntegrals(
             self.alpha.conjugate(),
             self.beta.conjugate(),
-            self.mixed.conjugate(),
+            self.beta_alpha.conjugate(),
         )
 
     def transpose(self) -> ElectronicIntegrals:
@@ -294,7 +292,7 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         return ElectronicIntegrals(
             self.alpha.transpose(),
             self.beta.transpose(),
-            self.mixed.transpose(),
+            self.beta_alpha.transpose(),
         )
 
     @classmethod
@@ -306,19 +304,19 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         """Exposes the :meth:`qiskit_nature.second_q.operators.PolynomialTensor.einsum` method.
 
         This behaves identical to the einsum implementation of the ``PolynomialTensor``, applied to
-        the :attr:`alpha`, :attr:`beta`, and :attr:`mixed` attributes of the provided
+        the :attr:`alpha`, :attr:`beta`, and :attr:`beta_alpha` attributes of the provided
         ``ElectronicIntegrals`` operands.
 
         This method is special, because it handles the scenario in which any operand has a non-empty
         :attr:`beta` attribute, in which case the empty-beta attributes of any other operands will
         be filled with :attr:`alpha` attributes of those operands.
-        The same applies to the :attr:`mixed` attributes.
+        The same applies to the :attr:`beta_alpha` attributes.
 
         Args:
             einsum_map: a dictionary, mapping from :meth:`numpy.einsum` subscripts to a tuple of
                 strings. These strings correspond to the keys of matrices to be extracted from the
-                provided ``ElectronicIntegrals`` operands. The last string in this tuple indicates the
-                key under which to store the result in the returned ``ElectronicIntegrals``.
+                provided ``ElectronicIntegrals`` operands. The last string in this tuple indicates
+                the key under which to store the result in the returned ``ElectronicIntegrals``.
             operands: a sequence of ``ElectronicIntegrals`` instances on which to operate.
 
         Returns:
@@ -335,11 +333,11 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
                 *(op.alpha if op.beta.is_empty() else op.beta for op in operands),
             )
 
-        mixed: PolynomialTensor = None
-        if all(not op.mixed.is_empty() for op in operands):
-            # We can only perform this operation, when all mixed tensors are non-empty.
-            mixed = PolynomialTensor.einsum(einsum_map, *(op.mixed for op in operands))
-        return ElectronicIntegrals(alpha, beta, mixed)
+        beta_alpha: PolynomialTensor = None
+        if all(not op.beta_alpha.is_empty() for op in operands):
+            # We can only perform this operation, when all beta_alpha tensors are non-empty.
+            beta_alpha = PolynomialTensor.einsum(einsum_map, *(op.beta_alpha for op in operands))
+        return ElectronicIntegrals(alpha, beta, beta_alpha)
 
     # pylint: disable=invalid-name
     @classmethod
@@ -409,11 +407,11 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         if beta_dict:
             beta = PolynomialTensor(beta_dict, validate=validate)
 
-        mixed = None
+        beta_alpha = None
         if h2_ba is not None:
-            mixed = PolynomialTensor({"++--": h2_ba}, validate=validate)
+            beta_alpha = PolynomialTensor({"++--": h2_ba}, validate=validate)
 
-        return ElectronicIntegrals(alpha, beta, mixed)
+        return ElectronicIntegrals(alpha, beta, beta_alpha)
 
     def second_q_coeffs(self) -> PolynomialTensor:
         """Constructs the total ``PolynomialTensor`` contained the second-quantized coefficients.
@@ -423,14 +421,14 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         and :attr:`beta` attributes in a block-ordered fashion (up-spin integrals cover the first
         part, down-spin integrals the second part of the resulting register space).
 
-        If the :attr:`beta` and/or :attr:`mixed` attributes are empty, the :attr:`alpha` data will
-        be used in their place.
+        If the :attr:`beta` and/or :attr:`beta_alpha` attributes are empty, the :attr:`alpha` data
+        will be used in their place.
 
         Returns:
             The ``PolynomialTensor`` representing the entire system.
         """
         beta_empty = self.beta.is_empty()
-        mixed_empty = self.mixed.is_empty()
+        beta_alpha_empty = self.beta_alpha.is_empty()
 
         kron_one_body = np.zeros((2, 2))
         kron_two_body = np.zeros((2, 2, 2, 2))
@@ -438,7 +436,7 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
             {"": cast(Number, 1.0), "+-": kron_one_body, "++--": kron_two_body}
         )
 
-        if beta_empty and mixed_empty:
+        if beta_empty and beta_alpha_empty:
             kron_one_body[(0, 0)] = 1
             kron_one_body[(1, 1)] = 1
             kron_two_body[(0, 0, 0, 0)] = 0.5
@@ -462,13 +460,13 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         tensor_blocked_spin_orbitals += kron_tensor ^ self.beta
         kron_one_body[(1, 1)] = 0
         kron_two_body[(1, 1, 1, 1)] = 0
-        # mixed spin
-        if not mixed_empty:
+        # beta_alpha spin
+        if not beta_alpha_empty:
             kron_tensor = PolynomialTensor({"++--": kron_two_body})
             kron_two_body[(1, 0, 0, 1)] = 0.5
             tensor_blocked_spin_orbitals += kron_tensor ^ self.beta_alpha
             kron_two_body[(1, 0, 0, 1)] = 0
-            # extract transposed mixed term
+            # extract transposed beta_alpha term
             kron_two_body[(0, 1, 1, 0)] = 0.5
             tensor_blocked_spin_orbitals += kron_tensor ^ self.alpha_beta
             kron_two_body[(0, 1, 1, 0)] = 0

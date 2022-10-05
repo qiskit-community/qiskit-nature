@@ -51,8 +51,8 @@ class TestBasisTransformer(QiskitNatureTestCase):
         with self.subTest("empty beta-spin coefficients"):
             self.assertTrue(trafo.coefficients.beta.is_empty())
 
-        with self.subTest("empty mixed-spin coefficients"):
-            self.assertTrue(trafo.coefficients.mixed.is_empty())
+        with self.subTest("empty beta-alpha-spin coefficients"):
+            self.assertTrue(trafo.coefficients.beta_alpha.is_empty())
 
         problem_mo = trafo.transform(problem_ao)
         transformed_integrals = cast(ElectronicEnergy, problem_mo.hamiltonian).electronic_integrals
@@ -77,8 +77,8 @@ class TestBasisTransformer(QiskitNatureTestCase):
         with self.subTest("beta-spin is empty"):
             self.assertTrue(transformed_integrals.beta.is_empty())
 
-        with self.subTest("mixed-spin is empty"):
-            self.assertTrue(transformed_integrals.mixed.is_empty())
+        with self.subTest("beta-alpha-spin is empty"):
+            self.assertTrue(transformed_integrals.beta_alpha.is_empty())
 
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_unrestricted_spin(self):
@@ -102,8 +102,8 @@ class TestBasisTransformer(QiskitNatureTestCase):
         with self.subTest("beta-spin coefficients"):
             np.testing.assert_array_almost_equal(trafo.coefficients.beta["+-"], mo_coeff_b)
 
-        with self.subTest("empty mixed-spin coefficients"):
-            self.assertTrue(trafo.coefficients.mixed.is_empty())
+        with self.subTest("empty beta-alpha-spin coefficients"):
+            self.assertTrue(trafo.coefficients.beta_alpha.is_empty())
 
         problem_mo = trafo.transform(problem_ao)
         transformed_integrals = cast(ElectronicEnergy, problem_mo.hamiltonian).electronic_integrals
@@ -142,9 +142,9 @@ class TestBasisTransformer(QiskitNatureTestCase):
                 ),
             )
 
-        with self.subTest("two-body mixed-spin"):
+        with self.subTest("two-body beta-alpha-spin"):
             np.testing.assert_array_almost_equal(
-                transformed_integrals.mixed["++--"],
+                transformed_integrals.beta_alpha["++--"],
                 np.einsum(
                     "pqrs,pi,qj,rk,sl->iklj",
                     driver._mol.intor("int2e", aosym=1),

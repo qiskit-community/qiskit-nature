@@ -41,7 +41,7 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
             }
         )
 
-        self.mixed = PolynomialTensor(
+        self.beta_alpha = PolynomialTensor(
             {
                 "++--": self.build_matrix(4, 4, 0.5),
             }
@@ -87,8 +87,8 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
             self.assertTrue(ints.alpha.is_empty())
             self.assertTrue(isinstance(ints.beta, PolynomialTensor))
             self.assertTrue(ints.beta.is_empty())
-            self.assertTrue(isinstance(ints.mixed, PolynomialTensor))
-            self.assertTrue(ints.mixed.is_empty())
+            self.assertTrue(isinstance(ints.beta_alpha, PolynomialTensor))
+            self.assertTrue(ints.beta_alpha.is_empty())
 
         with self.subTest("pure alpha"):
             ints = ElectronicIntegrals(self.alpha)
@@ -96,44 +96,44 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
             self.assertTrue(ints.alpha.equiv(self.alpha))
             self.assertTrue(isinstance(ints.beta, PolynomialTensor))
             self.assertTrue(ints.beta.is_empty())
-            self.assertTrue(isinstance(ints.mixed, PolynomialTensor))
-            self.assertTrue(ints.mixed.is_empty())
+            self.assertTrue(isinstance(ints.beta_alpha, PolynomialTensor))
+            self.assertTrue(ints.beta_alpha.is_empty())
 
         with self.subTest("all provided"):
-            ints = ElectronicIntegrals(self.alpha, self.beta, self.mixed)
+            ints = ElectronicIntegrals(self.alpha, self.beta, self.beta_alpha)
             self.assertTrue(isinstance(ints.alpha, PolynomialTensor))
             self.assertTrue(ints.alpha.equiv(self.alpha))
             self.assertTrue(isinstance(ints.beta, PolynomialTensor))
             self.assertTrue(ints.beta.equiv(self.beta))
-            self.assertTrue(isinstance(ints.mixed, PolynomialTensor))
-            self.assertTrue(ints.mixed.equiv(self.mixed))
+            self.assertTrue(isinstance(ints.beta_alpha, PolynomialTensor))
+            self.assertTrue(ints.beta_alpha.equiv(self.beta_alpha))
 
         with self.subTest("alpha setter"):
-            ints = ElectronicIntegrals(self.alpha, self.beta, self.mixed)
+            ints = ElectronicIntegrals(self.alpha, self.beta, self.beta_alpha)
             ints.alpha = None
             self.assertTrue(isinstance(ints.alpha, PolynomialTensor))
             self.assertTrue(ints.alpha.is_empty())
 
         with self.subTest("beta setter"):
-            ints = ElectronicIntegrals(self.alpha, self.beta, self.mixed)
+            ints = ElectronicIntegrals(self.alpha, self.beta, self.beta_alpha)
             ints.beta = None
             self.assertTrue(isinstance(ints.beta, PolynomialTensor))
             self.assertTrue(ints.beta.is_empty())
 
-        with self.subTest("mixed setter"):
-            ints = ElectronicIntegrals(self.alpha, self.beta, self.mixed)
-            ints.mixed = None
-            self.assertTrue(isinstance(ints.mixed, PolynomialTensor))
-            self.assertTrue(ints.mixed.is_empty())
+        with self.subTest("beta_alpha setter"):
+            ints = ElectronicIntegrals(self.alpha, self.beta, self.beta_alpha)
+            ints.beta_alpha = None
+            self.assertTrue(isinstance(ints.beta_alpha, PolynomialTensor))
+            self.assertTrue(ints.beta_alpha.is_empty())
 
     def test_beta_alpha(self):
         """Tests the beta_alpha property."""
-        ints = ElectronicIntegrals(mixed=self.mixed)
-        self.assertTrue(ints.beta_alpha.equiv(self.mixed))
+        ints = ElectronicIntegrals(beta_alpha=self.beta_alpha)
+        self.assertTrue(ints.beta_alpha.equiv(self.beta_alpha))
 
     def test_alpha_beta(self):
         """Tests the alpha_beta property."""
-        ints = ElectronicIntegrals(mixed=self.mixed)
+        ints = ElectronicIntegrals(beta_alpha=self.beta_alpha)
         alpha_beta = PolynomialTensor(
             {"++--": np.einsum("ijkl->klij", self.build_matrix(4, 4, 0.5))}
         )
@@ -141,7 +141,7 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
 
     def test_one_body(self):
         """Tests the one_body property."""
-        ints = ElectronicIntegrals(self.alpha, self.beta, self.mixed)
+        ints = ElectronicIntegrals(self.alpha, self.beta, self.beta_alpha)
         one_body = ElectronicIntegrals(
             PolynomialTensor({"+-": self.build_matrix(4, 2)}),
             PolynomialTensor({"+-": -1.0 * self.build_matrix(4, 2)}),
@@ -150,7 +150,7 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
 
     def test_two_body(self):
         """Tests the two_body property."""
-        ints = ElectronicIntegrals(self.alpha, self.beta, self.mixed)
+        ints = ElectronicIntegrals(self.alpha, self.beta, self.beta_alpha)
         two_body = ElectronicIntegrals(
             PolynomialTensor({"++--": self.build_matrix(4, 4)}),
             PolynomialTensor({"++--": -1.0 * self.build_matrix(4, 4)}),
@@ -161,7 +161,7 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
     def test_iter(self):
         """Test for the iterator of ElectronicIntegrals"""
         ints = ElectronicIntegrals()
-        self.assertEqual(["alpha", "beta", "mixed"], list(iter(ints)))
+        self.assertEqual(["alpha", "beta", "beta_alpha"], list(iter(ints)))
 
     @idata(np.linspace(0, 3, 5))
     def test_mul(self, other):
@@ -186,7 +186,7 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
             ),
         )
 
-        result = other * ElectronicIntegrals(self.alpha, self.beta, self.mixed)
+        result = other * ElectronicIntegrals(self.alpha, self.beta, self.beta_alpha)
         self.assertTrue(result.equiv(expected_prod_ints))
 
         with self.assertRaisesRegex(TypeError, r"other .* must be a number"):
@@ -214,7 +214,7 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
             ),
         )
 
-        ints = ElectronicIntegrals(self.alpha, self.beta, self.mixed)
+        ints = ElectronicIntegrals(self.alpha, self.beta, self.beta_alpha)
         result = ints + ints
         self.assertTrue(result.equiv(expected_sum_ints))
 
@@ -228,9 +228,9 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
         expected = ElectronicIntegrals(
             self.alpha.conjugate(),
             self.beta.conjugate(),
-            self.mixed.conjugate(),
+            self.beta_alpha.conjugate(),
         )
-        result = ElectronicIntegrals(self.alpha, self.beta, self.mixed).conjugate()
+        result = ElectronicIntegrals(self.alpha, self.beta, self.beta_alpha).conjugate()
         self.assertTrue(result.equiv(expected))
 
     def test_transpose(self):
@@ -238,9 +238,9 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
         expected = ElectronicIntegrals(
             self.alpha.transpose(),
             self.beta.transpose(),
-            self.mixed.transpose(),
+            self.beta_alpha.transpose(),
         )
-        result = ElectronicIntegrals(self.alpha, self.beta, self.mixed).transpose()
+        result = ElectronicIntegrals(self.alpha, self.beta, self.beta_alpha).transpose()
         self.assertTrue(result.equiv(expected))
 
     def test_einsum(self):
@@ -289,7 +289,7 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
 
             self.assertTrue(result.equiv(expected))
 
-        with self.subTest("alpha ints with mixed coeffs"):
+        with self.subTest("alpha ints with beta_alpha coeffs"):
             alpha = PolynomialTensor({"+-": one_body_a, "++--": two_body_aa})
             ints = ElectronicIntegrals(alpha)
             coeffs_pt = ElectronicIntegrals(
@@ -341,7 +341,7 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
 
             self.assertTrue(result.equiv(expected))
 
-        with self.subTest("mixed ints with mixed coeffs"):
+        with self.subTest("beta_alpha ints with beta_alpha coeffs"):
             alpha = PolynomialTensor({"+-": one_body_a, "++--": two_body_aa})
             beta = PolynomialTensor({"+-": one_body_b, "++--": two_body_bb})
             ints = ElectronicIntegrals(alpha, beta)
@@ -422,7 +422,7 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
             self.assertTrue(np.allclose(ints.beta["+-"], one_body_b))
             self.assertTrue(np.allclose(ints.alpha["++--"], two_body_aa))
             self.assertTrue(np.allclose(ints.beta["++--"], two_body_bb))
-            self.assertTrue(np.allclose(ints.mixed["++--"], two_body_ba))
+            self.assertTrue(np.allclose(ints.beta_alpha["++--"], two_body_ba))
 
     def test_polynomial_tensor(self):
         """Tests the total PolynomialTensor generation method."""
@@ -442,8 +442,8 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
         with self.subTest("alpha and beta"):
             alpha = PolynomialTensor({"+-": one_body_a, "++--": two_body_aa})
             beta = PolynomialTensor({"+-": one_body_b, "++--": two_body_bb})
-            mixed = PolynomialTensor({"++--": two_body_ba})
-            ints = ElectronicIntegrals(alpha, beta, mixed)
+            beta_alpha = PolynomialTensor({"++--": two_body_ba})
+            ints = ElectronicIntegrals(alpha, beta, beta_alpha)
             tensor = ints.second_q_coeffs()
             expected = {}
             one_zeros = np.zeros((2, 2))

@@ -194,10 +194,10 @@ class BasisTransformer(BaseTransformer):
             einsum_map, integrals, *(self.coefficients,) * 4
         )
 
-        if not self.coefficients.beta.is_empty() and transformed_integrals.mixed.is_empty():
-            transformed_integrals.mixed = PolynomialTensor.einsum(
+        if not self.coefficients.beta.is_empty() and transformed_integrals.beta_alpha.is_empty():
+            transformed_integrals.beta_alpha = PolynomialTensor.einsum(
                 {"prsq,pi,qj,rk,sl->iklj": ("++--", *("+-",) * 4, "++--")},
-                integrals.alpha if integrals.mixed.is_empty() else integrals.mixed,
+                integrals.alpha if integrals.beta_alpha.is_empty() else integrals.beta_alpha,
                 *(self.coefficients.beta,) * 2,
                 *(self.coefficients.alpha,) * 2,
             )

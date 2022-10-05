@@ -84,7 +84,7 @@ class TestElectronicEnergy(PropertyTest):
             self.assertTrue(np.allclose(prop.electronic_integrals.beta["+-"], one_body_b))
             self.assertTrue(np.allclose(prop.electronic_integrals.alpha["++--"], two_body_aa))
             self.assertTrue(np.allclose(prop.electronic_integrals.beta["++--"], two_body_bb))
-            self.assertTrue(np.allclose(prop.electronic_integrals.mixed["++--"], two_body_ba))
+            self.assertTrue(np.allclose(prop.electronic_integrals.beta_alpha["++--"], two_body_ba))
 
 
 if __name__ == "__main__":

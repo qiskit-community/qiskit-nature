@@ -199,17 +199,17 @@ class ElectronicEnergy(Hamiltonian):
             {"pqrs,ps->qr": ("++--", "+-", "+-")}, self.electronic_integrals, density
         )
 
-        if self.electronic_integrals.mixed.is_empty():
+        if self.electronic_integrals.beta_alpha.is_empty():
             coulomb *= 2.0  # type: ignore
         else:
             coulomb.alpha += PolynomialTensor.einsum(
                 {"pqrs,ps->qr": ("++--", "+-", "+-")},
-                self.electronic_integrals.mixed,
+                self.electronic_integrals.beta_alpha,
                 density.beta,
             )
             coulomb.beta += PolynomialTensor.einsum(
                 {"rspq,ps->rq": ("++--", "+-", "+-")},
-                self.electronic_integrals.mixed,
+                self.electronic_integrals.beta_alpha,
                 density.alpha,
             )
 
