@@ -12,7 +12,6 @@
 
 """FCIDump dumper."""
 
-from numbers import Number
 from typing import List, Union, TextIO, Tuple, Iterator, Any
 import itertools
 import numpy as np
@@ -87,5 +86,5 @@ def _dump_2e_ints(
             hijkl_elements.add(elem)
 
 
-def _write_to_outfile(outfile: TextIO, value: Number, indices: Tuple):
+def _write_to_outfile(outfile: TextIO, value: float, indices: Tuple):
     outfile.write(f"{value:23.16E}{indices[0]:4d}{indices[1]:4d}{indices[2]:4d}{indices[3]:4d}\n")

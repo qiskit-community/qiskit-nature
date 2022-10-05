@@ -14,8 +14,6 @@
 
 from __future__ import annotations
 
-from numbers import Number
-
 import numpy as np
 
 from qiskit_nature.exceptions import QiskitNatureError
@@ -30,7 +28,7 @@ from .initial_point import InitialPoint
 
 def _compute_mp2(
     num_occ: int, integral_matrix: np.ndarray, orbital_energies: np.ndarray
-) -> tuple[np.ndarray, Number]:
+) -> tuple[np.ndarray, float]:
     """Compute the T2 amplitudes and MP2 energy correction.
 
     Args:
@@ -107,8 +105,8 @@ class MP2InitialPoint(InitialPoint):
         self._ansatz: UCC | None = None
         self._t2_amplitudes: np.ndarray | None = None
         self._parameters: np.ndarray | None = None
-        self._energy_correction: Number = 0.0  # type: ignore
-        self._total_energy: Number = 0.0  # type: ignore
+        self._energy_correction: float = 0.0
+        self._total_energy: float = 0.0
 
     @property
     def ansatz(self) -> UCC:
@@ -201,7 +199,7 @@ class MP2InitialPoint(InitialPoint):
         self._grouped_property = grouped_property
         self._t2_amplitudes = t2_amplitudes
         self._energy_correction = energy_correction
-        self._total_energy = reference_energy + energy_correction  # type: ignore
+        self._total_energy = reference_energy + energy_correction
 
     @property
     def t2_amplitudes(self) -> np.ndarray:
@@ -213,12 +211,12 @@ class MP2InitialPoint(InitialPoint):
         return self._t2_amplitudes
 
     @property
-    def energy_correction(self) -> Number:
+    def energy_correction(self) -> float:
         """The MP2 energy correction."""
         return self._energy_correction
 
     @property
-    def total_energy(self) -> Number:
+    def total_energy(self) -> float:
         """The total energy including the Hartree-Fock energy.
 
         If the reference energy was not obtained from

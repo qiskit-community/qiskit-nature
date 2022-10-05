@@ -17,7 +17,6 @@ from __future__ import annotations
 import logging
 
 from copy import deepcopy
-from numbers import Number
 from typing import cast
 
 import numpy as np
@@ -423,7 +422,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         self, dipole_moment: ElectronicDipoleMoment
     ) -> ElectronicDipoleMoment:
         dipoles: list[ElectronicIntegrals] = []
-        dip_inactive: list[Number] = []
+        dip_inactive: list[float] = []
         for dipole in [dipole_moment.x_dipole, dipole_moment.y_dipole, dipole_moment.z_dipole]:
             # In the dipole case, there are no two-body terms. Thus, the inactive Fock operator
             # is unaffected by the density and equals the one-body terms.

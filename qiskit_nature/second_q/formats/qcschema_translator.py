@@ -14,7 +14,6 @@
 
 from __future__ import annotations
 
-from numbers import Number
 from typing import cast
 
 import numpy as np
@@ -64,9 +63,7 @@ def qcschema_to_problem(
     else:
         raise NotImplementedError(f"The basis {basis} is not supported by the translation method.")
 
-    hamiltonian.nuclear_repulsion_energy = cast(
-        Number, qcschema.properties.nuclear_repulsion_energy
-    )
+    hamiltonian.nuclear_repulsion_energy = qcschema.properties.nuclear_repulsion_energy
 
     natm = len(qcschema.molecule.symbols)
     geo = qcschema.molecule.geometry
@@ -85,7 +82,7 @@ def qcschema_to_problem(
     problem = ElectronicStructureProblem(hamiltonian)
     problem.basis = basis
     problem.molecule = molecule
-    problem.reference_energy = cast(Number, qcschema.properties.return_energy)
+    problem.reference_energy = qcschema.properties.return_energy
     problem.properties.angular_momentum = AngularMomentum(num_spin_orbitals)
     problem.properties.magnetization = Magnetization(num_spin_orbitals)
     problem.properties.particle_number = ParticleNumber(num_spin_orbitals, num_particles)

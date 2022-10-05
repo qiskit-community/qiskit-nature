@@ -15,7 +15,6 @@
 from __future__ import annotations
 
 from copy import copy
-from numbers import Number
 from typing import MutableMapping, TYPE_CHECKING
 
 import numpy as np
@@ -77,7 +76,7 @@ class ElectronicEnergy(Hamiltonian):
         self,
         electronic_integrals: ElectronicIntegrals,
         *,
-        constants: MutableMapping[str, Number] = None,
+        constants: MutableMapping[str, float] = None,
     ) -> None:
         """
         Args:
@@ -92,7 +91,7 @@ class ElectronicEnergy(Hamiltonian):
         return self.electronic_integrals.register_length
 
     @property
-    def nuclear_repulsion_energy(self) -> Number | None:
+    def nuclear_repulsion_energy(self) -> float | None:
         """The nuclear repulsion energy.
 
         This constant energy offset does **not** get included in the generated operator.
@@ -112,7 +111,7 @@ class ElectronicEnergy(Hamiltonian):
         return self.constants.get("nuclear_repulsion_energy", None)
 
     @nuclear_repulsion_energy.setter
-    def nuclear_repulsion_energy(self, e_nuc: Number | None) -> None:
+    def nuclear_repulsion_energy(self, e_nuc: float | None) -> None:
         if e_nuc is None:
             self.constants.pop("nuclear_repulsion_energy")
         else:

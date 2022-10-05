@@ -16,7 +16,6 @@ from __future__ import annotations
 
 from typing import Sequence
 from dataclasses import dataclass
-from numbers import Number
 from pathlib import Path
 import numpy as np
 
@@ -61,7 +60,7 @@ class FCIDump:
     """The number of electrons."""
     num_orbitals: int
     """The number of orbitals."""
-    constant_energy: Number | None
+    constant_energy: float | None
     """The constant energy comprising (for example) the nuclear repulsion energy
     and inactive energies."""
     orbsym: Sequence[str] | None

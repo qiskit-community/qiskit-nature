@@ -14,8 +14,7 @@
 
 from __future__ import annotations
 
-from numbers import Number
-from typing import MutableMapping, Optional, Tuple, cast, TYPE_CHECKING
+from typing import MutableMapping, Tuple, cast, TYPE_CHECKING
 
 from qiskit_nature.second_q.operators import ElectronicIntegrals, FermionicOp
 
@@ -29,7 +28,7 @@ if TYPE_CHECKING:
 # components. However when using Z2Symmetries, if the dipole component operator does not commute
 # with the symmetry then no evaluation is done and None will be used as the 'value' indicating no
 # measurement of the observable took place
-DipoleTuple = Tuple[Optional[Number], Optional[Number], Optional[Number]]
+DipoleTuple = Tuple[float, float, float]
 
 
 class ElectronicDipoleMoment(Property):

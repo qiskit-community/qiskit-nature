@@ -15,7 +15,6 @@
 from __future__ import annotations
 
 from functools import partial
-from numbers import Number
 from typing import cast, Callable, List, Optional, Tuple, Union
 
 import numpy as np
@@ -86,7 +85,7 @@ class ElectronicStructureProblem(BaseProblem):
         self.properties: ElectronicPropertiesContainer = ElectronicPropertiesContainer()
         self.molecule: MoleculeInfo | None = None
         self.basis: ElectronicBasis | None = None
-        self.reference_energy: Number | None = None
+        self.reference_energy: float | None = None
         self.orbital_energies: np.ndarray | None = None
         self.orbital_energies_b: np.ndarray | None = None
         # TODO: further refactoring:
@@ -101,7 +100,7 @@ class ElectronicStructureProblem(BaseProblem):
         return cast(ElectronicEnergy, self._hamiltonian)
 
     @property
-    def nuclear_repulsion_energy(self) -> Number | None:
+    def nuclear_repulsion_energy(self) -> float | None:
         """The nuclear repulsion energy.
 
         See :attr:`qiskit_nature.second_q.hamiltonians.ElectronicEnergy.nuclear_repulsion_energy`
