@@ -19,7 +19,7 @@ from test import QiskitNatureTestCase
 from qiskit.algorithms.optimizers import SLSQP
 from qiskit.primitives import Estimator
 
-from qiskit_nature.second_q.circuit.library import HartreeFock, UCCSD
+from qiskit_nature.second_q.circuit.library import HartreeFock, UCC, UCCSD
 
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.mappers import JordanWignerMapper
@@ -104,8 +104,9 @@ class TestVQEUCCFactory(QiskitNatureTestCase):
 
         with self.subTest("Ansatz"):
             self.assertTrue(isinstance(self._vqe_ucc_factory.ansatz, UCCSD))
-            self._vqe_ucc_factory.ansatz = None
-            self.assertEqual(self._vqe_ucc_factory.ansatz, None)
+            self._vqe_ucc_factory.ansatz = UCC()
+            self.assertTrue(isinstance(self._vqe_ucc_factory.ansatz, UCC))
+            self.assertFalse(isinstance(self._vqe_ucc_factory.ansatz, UCCSD))
 
         with self.subTest("Initial State"):
             self.assertEqual(self._vqe_ucc_factory.initial_state, None)

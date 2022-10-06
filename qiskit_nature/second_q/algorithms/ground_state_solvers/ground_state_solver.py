@@ -76,13 +76,8 @@ class GroundStateSolver(ABC):
         """
 
     @abstractmethod
-    def returns_groundstate(self) -> bool:
-        """Whether this class returns only the ground state energy or also the ground state itself.
-
-        Returns:
-            True, if this class also returns the ground state in the results object.
-            False otherwise.
-        """
+    def supports_aux_operators(self) -> bool:
+        """Returns whether the eigensolver supports auxiliary operators."""
         raise NotImplementedError
 
     @property

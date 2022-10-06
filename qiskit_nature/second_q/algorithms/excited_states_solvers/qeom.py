@@ -69,7 +69,10 @@ class QEOM(ExcitedStatesSolver):
         Args:
             ground_state_solver: a GroundStateSolver object. The qEOM algorithm
                 will use this ground state to compute the EOM matrix elements
-            estimator: TODO.
+            estimator: the :class:`~qiskit.primitives.BaseEstimator` to use for the evaluation of
+                the qubit operators at the ground state ansatz. If the internal solver provided to
+                the `GroundStateSolver` also uses a `BaseEstimator` primitive, you can provide the
+                same estimator instance here.
             excitations: The excitations to be included in the eom pseudo-eigenvalue problem.
 
                 :`str`: which contains the types of excitations. Allowed characters are

@@ -19,7 +19,8 @@ from typing import cast, Callable, List, Optional, Tuple, Union
 
 import numpy as np
 
-from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
+from qiskit.algorithms.eigensolvers import EigensolverResult
+from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
 from qiskit.opflow.primitive_ops import Z2Symmetries
 
 from qiskit_nature.second_q.circuit.library.initial_states.hartree_fock import (

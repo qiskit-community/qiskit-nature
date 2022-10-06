@@ -48,8 +48,7 @@ class GroundStateEigensolver(GroundStateSolver):
     def solver(self) -> MinimumEigensolver | MinimumEigensolverFactory:
         return self._solver
 
-    def returns_groundstate(self) -> bool:
-        """Whether the eigensolver returns the ground state or only ground state energy."""
+    def supports_aux_operators(self):
         return self.solver.supports_aux_operators()
 
     def solve(

@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from typing import Union, Optional, Tuple
 
-from qiskit.algorithms import Eigensolver
+from qiskit.algorithms.eigensolvers import Eigensolver
 from qiskit.opflow import PauliSumOp
 
 from qiskit_nature import QiskitNatureError

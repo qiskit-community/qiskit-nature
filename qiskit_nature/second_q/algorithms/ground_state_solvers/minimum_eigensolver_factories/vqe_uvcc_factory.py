@@ -35,33 +35,8 @@ logger = logging.getLogger(__name__)
 
 
 class VQEUVCCFactory(MinimumEigensolverFactory):
-    """Factory to construct a :class:`VQE` minimum eigensolver with :class:`UVCCSD` ansatz
+    """Factory to construct a :class:`VQE` minimum eigensolver with :class:`UVCC` ansatz
     wavefunction.
-
-    .. note::
-
-       Any ansatz a user might directly set into VQE via the :attr:`minimum_eigensolver` will
-       be overwritten by the factory when producing a solver via :meth:`get_solver`. This is
-       due to the fact that the factory is designed to manage the ansatz and set it up according
-       to the problem. Always pass any custom ansatz to be used when constructing the factory or
-       by using its :attr:`ansatz` setter. The following code sample illustrates this behavior:
-
-    .. code-block:: python
-
-        from qiskit_nature.second_q.algorithms import VQEUVCCFactory
-        from qiskit_nature.second_q.circuit.library import UVCCSD, UVCC
-        factory = VQEUVCCFactory()
-        vqe1 = factory.get_solver(problem, qubit_converter)
-        print(type(vqe1.ansatz))  # UVCC()
-        # Here the minimum_eigensolver ansatz just gets overwritten
-        factory.minimum_eigensolver.ansatz = UVCC()
-        vqe2 = factory.get_solver(problem, qubit_converter)
-        print(type(vqe2.ansatz))  # UVCCSD
-        # Here we change the factory ansatz and thus new VQEs are created with the new ansatz
-        factory.ansatz = UVCC()
-        vqe3 = factory.get_solver(problem, qubit_converter)
-        print(type(vqe3.ansatz))  # UVCC
-
     """
 
     def __init__(
@@ -76,9 +51,13 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
     ) -> None:
         """
         Args:
-            estimator: TODO.
-            ansatz: TODO.
-            optimizer: TODO.
+            estimator: the :class:`~qiskit.primitives.BaseEstimator` class to use for the internal
+                :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`.
+            ansatz: the :class:`~.UVCC` ansatz. Its attributes `qubit_converter`, `num_modals`, and
+                `initial_point` will be completed at runtime based on the problem being solved.
+            optimizer: the :class:`~qiskit.algorithms.optimizers.Optimizer` or
+                :class:`~qiskit.algorithms.optimizers.Minimizer` to use for the internal
+                :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`.
             initial_point: An optional initial point (i.e., initial parameter values for the VQE
                 optimizer). If ``None`` then VQE will use an all-zero initial point of the
                 appropriate length computed using
@@ -100,19 +79,13 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         self._vqe = VQE(estimator, ansatz, optimizer, **kwargs)
 
     @property
-    def ansatz(self) -> UVCC | None:
-        """
-        Gets the user provided ansatz of future VQEs produced by the factory.
-        If value is ``None`` it defaults to :class:`~.UVCCSD`.
-        """
+    def ansatz(self) -> UVCC:
+        """Gets the user provided ansatz of future VQEs produced by the factory."""
         return self.minimum_eigensolver.ansatz
 
     @ansatz.setter
-    def ansatz(self, ansatz: UVCC | None) -> None:
-        """
-        Sets the ansatz of future VQEs produced by the factory.
-        If set to ``None`` it defaults to :class:`~.UVCCSD`.
-        """
+    def ansatz(self, ansatz: UVCC) -> None:
+        """Sets the ansatz of future VQEs produced by the factory."""
         self.minimum_eigensolver.ansatz = ansatz
 
     @property
@@ -145,7 +118,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         problem: VibrationalStructureProblem,
         qubit_converter: QubitConverter,
     ) -> MinimumEigensolver:
-        """Returns a VQE with a :class:`~.UVCCSD` wavefunction ansatz, based on ``qubit_converter``.
+        """Returns a VQE with a :class:`~.UVCC` wavefunction ansatz, based on ``qubit_converter``.
 
         Args:
             problem: a class encoding a problem to be solved.

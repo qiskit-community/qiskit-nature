@@ -19,7 +19,8 @@ from typing import cast, Callable, List, Optional, Union
 
 import numpy as np
 
-from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
+from qiskit.algorithms.eigensolvers import EigensolverResult
+from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
 
 from qiskit_nature.second_q.hamiltonians import VibrationalEnergy
 from qiskit_nature.second_q.operators import SecondQuantizedOp
