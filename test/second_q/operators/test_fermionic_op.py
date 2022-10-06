@@ -21,7 +21,7 @@ from scipy.sparse import csc_matrix
 from scipy.sparse.linalg import eigs
 
 from qiskit_nature.exceptions import QiskitNatureError
-from qiskit_nature.second_q.operators import FermionicOp
+from qiskit_nature.second_q.operators import FermionicOp, PolynomialTensor
 
 
 @ddt
@@ -342,6 +342,70 @@ class TestFermionicOp(QiskitNatureTestCase):
         else:
             with self.assertRaises(QiskitNatureError):
                 _ = FermionicOp({key: 1.0}, register_length=length)
+
+    def test_from_polynomial_tensor(self):
+        """Test from PolynomialTensor construction"""
+        r_l = 2
+        p_t = PolynomialTensor(
+            {
+                "+-": np.arange(1, 5).reshape((r_l, r_l)),
+                "++--": np.arange(1, 17).reshape((r_l, r_l, r_l, r_l)),
+            }
+        )
+        op = FermionicOp.from_polynomial_tensor(p_t)
+
+        expected = FermionicOp(
+            {
+                "+_0 -_0": 1,
+                "+_0 -_1": 2,
+                "+_1 -_0": 3,
+                "+_1 -_1": 4,
+                "+_0 +_0 -_0 -_0": 1,
+                "+_0 +_0 -_0 -_1": 2,
+                "+_0 +_0 -_1 -_0": 3,
+                "+_0 +_0 -_1 -_1": 4,
+                "+_0 +_1 -_0 -_0": 5,
+                "+_0 +_1 -_0 -_1": 6,
+                "+_0 +_1 -_1 -_0": 7,
+                "+_0 +_1 -_1 -_1": 8,
+                "+_1 +_0 -_0 -_0": 9,
+                "+_1 +_0 -_0 -_1": 10,
+                "+_1 +_0 -_1 -_0": 11,
+                "+_1 +_0 -_1 -_1": 12,
+                "+_1 +_1 -_0 -_0": 13,
+                "+_1 +_1 -_0 -_1": 14,
+                "+_1 +_1 -_1 -_0": 15,
+                "+_1 +_1 -_1 -_1": 16,
+            },
+            register_length=r_l,
+        )
+
+        self.assertEqual(op, expected)
+
+    def test_no_register_length(self):
+        """Test operators with automatic register length"""
+        op1 = FermionicOp({"+_0 -_0": 1})
+        op2 = FermionicOp({"-_0 +_1": 2})
+
+        with self.subTest("Inferred register length"):
+            self.assertEqual(op1.register_length, 1)
+            self.assertEqual(op2.register_length, 2)
+
+        with self.subTest("Mathematical operations"):
+            self.assertEqual((op1 + op2).register_length, 2)
+            self.assertEqual((op1 @ op2).register_length, 2)
+            self.assertEqual((op1 ^ op2).register_length, 3)
+
+        with self.subTest("Equality"):
+            op3 = FermionicOp({"+_0 -_0": 1}, register_length=3)
+            self.assertEqual(op1, op3)
+            self.assertTrue(op1.equiv(1.000001 * op3))
+
+        with self.subTest("to_matrix"):
+            ref = np.array([[0, 0], [0, 1]])
+            np.testing.assert_array_almost_equal(op1.to_matrix(False), ref)
+            op1.register_length = 2
+            np.testing.assert_array_almost_equal(op1.to_matrix(False), np.kron(ref, np.eye(2)))
 
 
 if __name__ == "__main__":

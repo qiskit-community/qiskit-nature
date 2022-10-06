@@ -14,17 +14,12 @@
 
 from __future__ import annotations
 
-from typing import Optional, cast, TYPE_CHECKING
+from copy import copy
+from typing import MutableMapping, TYPE_CHECKING
 
 import numpy as np
 
-from qiskit_nature.second_q.operators import FermionicOp
-from qiskit_nature.second_q.properties.bases import ElectronicBasis, ElectronicBasisTransform
-from qiskit_nature.second_q.properties.integrals import (
-    ElectronicIntegrals,
-    OneBodyElectronicIntegrals,
-    TwoBodyElectronicIntegrals,
-)
+from qiskit_nature.second_q.operators import ElectronicIntegrals, FermionicOp, PolynomialTensor
 
 from .hamiltonian import Hamiltonian
 
@@ -33,251 +28,225 @@ if TYPE_CHECKING:
 
 
 class ElectronicEnergy(Hamiltonian):
-    """The ElectronicEnergy property.
+    r"""The electronic energy Hamiltonian.
 
-    This is the main property of any electronic structure problem. It constructs the Hamiltonian
-    whose eigenvalue is the target of a later used Quantum algorithm.
+    This class implements the following Hamiltonian:
 
-    Note that this Property computes **purely** the electronic energy (possibly minus additional
-    shifts introduced via e.g. classical transformers). However, for convenience it provides a
-    storage location for the nuclear repulsion energy. If available, this information will be used
-    during the call of ``interpret`` to provide the electronic, nuclear and total energy components in
-    the result object.
+    .. math::
+        \sum_{p, q} h_{pq} a^\dagger_p a_q
+        + \sum_{p, q, r, s} g_{pqrs} a^\dagger_p a^\dagger_q a_r a_s ,
+
+    where :math:`h_{pq}` and :math:`g_{pqrs}` are the one- and two-body electronic integrals,
+    stored in an :class:`qiskit_nature.second_q.operators.ElectronicIntegrals` container.
+    When dealing with separate coefficients for the :math:`\alpha` and :math:`\beta`-spin electrons,
+    the unrestricted-spin Hamiltonian can be obtained from the one above in a straight-forward
+    manner, following any quantum chemistry textbook.
+
+    It is possible to include constant energy terms inside of the
+    :class:`qiskit_nature.second_q.operators.ElectronicIntegrals` container, which will be included
+    in the qubit operator, once mapping the second-quantized operator to the qubit space (see also
+    :class:`qiskit_nature.second_q.mappers.QubitMapper`).
+
+    .. code-block:: python
+
+        from qiskit_nature.second_q.operators import PolynomialTensor
+
+        # you have obtained your Hamiltonian and stored it in this variable
+        hamiltonian: ElectronicEnergy
+        e_nuc = hamiltonian.nuclear_repulsion_energy
+        hamiltonian.electronic_integrals.alpha += PolynomialTensor({"": e_nuc})
+
+    Alternatively, it is also possible to add constant energy offsets to the :attr:`.constants`
+    attribute of this Hamiltonian. Offsets registered in that dictionary will **not** be mapped to
+    the qubit operator and, thus, will not incur any errors that may arise during the quantum
+    algorithm, used to find the eigenvalue of this Hamiltonian.
+    In particular, this also applies to the :attr:`nuclear_repulsion_energy`, which is why this
+    class implement the purely __electronic__ energy operator.
+
+    .. code-block:: python
+
+        hamiltonian: ElectronicEnergy
+        hamiltonian.nuclear_repulsion_energy = 10.0
+        hamiltonian.constants["my custom offset"] = 5.0
+
+    Attributes:
+        electronic_integrals: the :class:`qiskit_nature.second_q.operators.ElectronicIntegrals`.
+        constants: a mapping of constant energy offsets, not mapped to the qubit operator.
     """
 
     def __init__(
         self,
-        electronic_integrals: list[ElectronicIntegrals],
-        energy_shift: Optional[dict[str, complex]] = None,
-        nuclear_repulsion_energy: Optional[float] = None,
-        reference_energy: Optional[float] = None,
+        electronic_integrals: ElectronicIntegrals,
+        *,
+        constants: MutableMapping[str, float] = None,
     ) -> None:
-        # pylint: disable=line-too-long
         """
         Args:
-            electronic_integrals: a dictionary mapping the ``# body terms`` to the corresponding
-                :class:`~qiskit_nature.second_q.properties.integrals.ElectronicIntegrals`.
-            energy_shift: an optional dictionary of energy shifts.
-            nuclear_repulsion_energy: the optional nuclear repulsion energy.
-            reference_energy: an optional reference energy (such as the HF energy).
+            electronic_integrals: the container with the one- and two-body coefficients.
+            constants: a mapping of constant energy offsets.
         """
-        self._electronic_integrals: dict[ElectronicBasis, dict[int, ElectronicIntegrals]] = {}
-        for integral in electronic_integrals:
-            self.add_electronic_integral(integral)
-        self._shift = energy_shift or {}
-        self._nuclear_repulsion_energy = nuclear_repulsion_energy
-        self._reference_energy = reference_energy
-
-        # Additional, purely informational data (i.e. currently not used by the Stack itself).
-        self._orbital_energies: np.ndarray = None
-        self._kinetic: ElectronicIntegrals = None
-        self._overlap: ElectronicIntegrals = None
+        self.electronic_integrals = electronic_integrals
+        self.constants = constants if constants is not None else {}
 
     @property
-    def nuclear_repulsion_energy(self) -> Optional[float]:
-        """Returns the nuclear repulsion energy."""
-        return self._nuclear_repulsion_energy
+    def register_length(self) -> int | None:
+        return self.electronic_integrals.register_length
+
+    @property
+    def nuclear_repulsion_energy(self) -> float | None:
+        """The nuclear repulsion energy.
+
+        This constant energy offset does **not** get included in the generated operator.
+        Add it as a constant term to the :attr:`electronic_integrals` and remove it here, if you
+        want to include it in the generated operator:
+
+        .. code-block:: python
+
+            from qiskit_nature.second_q.operators import PolynomialTensor
+
+            hamiltonian = ElectronicEnergy(...)
+            hamiltonian.electronic_integrals.alpha += PolynomialTensor({
+                "": hamiltonian.nuclear_repulsion_energy
+            })
+            hamiltonian.nuclear_repulsion_energy = None
+        """
+        return self.constants.get("nuclear_repulsion_energy", None)
 
     @nuclear_repulsion_energy.setter
-    def nuclear_repulsion_energy(self, nuclear_repulsion_energy: Optional[float]) -> None:
-        """Sets the nuclear repulsion energy."""
-        self._nuclear_repulsion_energy = nuclear_repulsion_energy
-
-    @property
-    def reference_energy(self) -> Optional[float]:
-        """Returns the reference energy."""
-        return self._reference_energy
-
-    @reference_energy.setter
-    def reference_energy(self, reference_energy: Optional[float]) -> None:
-        """Sets the reference energy."""
-        self._reference_energy = reference_energy
-
-    @property
-    def orbital_energies(self) -> Optional[np.ndarray]:
-        """Returns the orbital energies.
-
-        If no spin-distinction is made, this is a 1-D array, otherwise it is a 2-D array.
-        """
-        return self._orbital_energies
-
-    @orbital_energies.setter
-    def orbital_energies(self, orbital_energies: Optional[np.ndarray]) -> None:
-        """Sets the orbital energies."""
-        self._orbital_energies = orbital_energies
-
-    @property
-    def kinetic(self) -> Optional[ElectronicIntegrals]:
-        """Returns the AO kinetic integrals."""
-        return self._kinetic
-
-    @kinetic.setter
-    def kinetic(self, kinetic: Optional[ElectronicIntegrals]) -> None:
-        """Sets the AO kinetic integrals."""
-        self._kinetic = kinetic
-
-    @property
-    def overlap(self) -> Optional[ElectronicIntegrals]:
-        """Returns the AO overlap integrals."""
-        return self._overlap
-
-    @overlap.setter
-    def overlap(self, overlap: Optional[ElectronicIntegrals]) -> None:
-        """Sets the AO overlap integrals."""
-        self._overlap = overlap
+    def nuclear_repulsion_energy(self, e_nuc: float | None) -> None:
+        if e_nuc is None:
+            self.constants.pop("nuclear_repulsion_energy")
+        else:
+            self.constants["nuclear_repulsion_energy"] = e_nuc
 
     # pylint: disable=invalid-name
     @classmethod
     def from_raw_integrals(
         cls,
-        basis: ElectronicBasis,
-        h1: np.ndarray,
-        h2: np.ndarray,
-        h1_b: Optional[np.ndarray] = None,
-        h2_bb: Optional[np.ndarray] = None,
-        h2_ba: Optional[np.ndarray] = None,
-        threshold: float = ElectronicIntegrals.INTEGRAL_TRUNCATION_LEVEL,
+        h1_a: np.ndarray,
+        h2_aa: np.ndarray,
+        h1_b: np.ndarray | None = None,
+        h2_bb: np.ndarray | None = None,
+        h2_ba: np.ndarray | None = None,
+        *,
+        validate: bool = True,
+        auto_index_order: bool = True,
     ) -> ElectronicEnergy:
-        """Construct an ``ElectronicEnergy`` from raw integrals in a given basis.
+        """Constructs a hamiltonian instance from raw integrals.
 
-        When setting the basis to
-        :class:`~qiskit_nature.second_q.properties.bases.ElectronicBasis.SO`,
-        all of the arguments ``h1_b``, ``h2_bb`` and ``h2_ba`` will be ignored.
+        This function simply calls
+        :meth:`qiskit_nature.second_q.operators.ElectronicIntegrals.from_raw_integrals`.
+        See its documentation for more details.
 
         Args:
-            basis: the
-                :class:`~qiskit_nature.second_q.properties.bases.ElectronicBasis`
-                of the provided integrals.
-            h1: the one-body integral matrix.
-            h2: the two-body integral matrix.
-            h1_b: the optional beta-spin one-body integral matrix.
-            h2_bb: the optional beta-beta-spin two-body integral matrix.
-            h2_ba: the optional beta-alpha-spin two-body integral matrix.
-            threshold: the truncation level below which to treat the integral in the SO matrix as
-                zero-valued.
+            h1_a: the alpha-spin one-body coefficients.
+            h2_aa: the alpha-alpha-spin two-body coefficients.
+            h1_b: the beta-spin one-body coefficients.
+            h2_bb: the beta-beta-spin two-body coefficients.
+            h2_ba: the beta-alpha-spin two-body coefficients.
+            validate: whether or not to validate the coefficient matrices.
+            auto_index_order: whether or not to automatically convert the matrices to physicists'
+                order.
 
         Returns:
-            An instance of this property.
+            The resulting ``ElectronicEnergy`` instance.
         """
-        if basis == ElectronicBasis.SO:
-            one_body = OneBodyElectronicIntegrals(basis, h1, threshold=threshold)
-            two_body = TwoBodyElectronicIntegrals(basis, h2, threshold=threshold)
-        else:
-            one_body = OneBodyElectronicIntegrals(basis, (h1, h1_b), threshold=threshold)
-            h2_ab: Optional[np.ndarray] = h2_ba.T if h2_ba is not None else None
-            two_body = TwoBodyElectronicIntegrals(
-                basis, (h2, h2_ba, h2_bb, h2_ab), threshold=threshold
+        return cls(
+            ElectronicIntegrals.from_raw_integrals(
+                h1_a,
+                h2_aa,
+                h1_b,
+                h2_bb,
+                h2_ba,
+                validate=validate,
+                auto_index_order=auto_index_order,
             )
-
-        return cls([one_body, two_body])
-
-    def add_electronic_integral(self, integral: ElectronicIntegrals) -> None:
-        """Adds an ElectronicIntegrals instance to the internal storage.
-
-        Internally, the ElectronicIntegrals are stored in a nested dictionary sorted by their basis
-        and number of body terms. This simplifies access based on these properties (see
-        ``get_electronic_integral``) and avoids duplicate, inconsistent entries.
-
-        Args:
-            integral: the ElectronicIntegrals to add.
-        """
-        if integral._basis not in self._electronic_integrals:
-            self._electronic_integrals[integral._basis] = {}
-        self._electronic_integrals[integral._basis][integral._num_body_terms] = integral
-
-    def get_electronic_integral(
-        self, basis: ElectronicBasis, num_body_terms: int
-    ) -> Optional[ElectronicIntegrals]:
-        """Gets an ElectronicIntegrals given the basis and number of body terms.
-
-        Args:
-            basis: the ElectronicBasis of the queried integrals.
-            num_body_terms: the number of body terms of the queried integrals.
-
-        Returns:
-            The queried integrals object (or None if unavailable).
-        """
-        ints_basis = self._electronic_integrals.get(basis, None)
-        if ints_basis is None:
-            return None
-        return ints_basis.get(num_body_terms, None)
-
-    def transform_basis(self, transform: ElectronicBasisTransform) -> None:
-        """Applies an ElectronicBasisTransform to the internal integrals.
-
-        Args:
-            transform: the ElectronicBasisTransform to apply.
-        """
-        for integral in self._electronic_integrals[transform.initial_basis].values():
-            self.add_electronic_integral(integral.transform_basis(transform))
-
-    def integral_operator(self, density: OneBodyElectronicIntegrals) -> OneBodyElectronicIntegrals:
-        """Constructs the Fock operator resulting from this
-        :class:`~qiskit_nature.second_q.hamiltonians.ElectronicEnergy`.
-
-        Args:
-            density: the electronic density at which to compute the operator.
-
-        Returns:
-            OneBodyElectronicIntegrals: the operator stored as ElectronicIntegrals.
-
-        Raises:
-            NotImplementedError: if no AO electronic integrals are available.
-        """
-        if ElectronicBasis.AO not in self._electronic_integrals:
-            raise NotImplementedError(
-                "Construction of the Fock operator outside of the AO basis is not yet implemented."
-            )
-
-        one_e_ints = self.get_electronic_integral(ElectronicBasis.AO, 1)
-        two_e_ints = cast(
-            TwoBodyElectronicIntegrals, self.get_electronic_integral(ElectronicBasis.AO, 2)
         )
-
-        op = one_e_ints
-
-        coulomb = two_e_ints.compose(density, "ijkl,ji->kl")
-        coulomb_inv = OneBodyElectronicIntegrals(
-            ElectronicBasis.AO, (coulomb.get_matrix(1), coulomb.get_matrix(0))
-        )
-        exchange = two_e_ints.compose(density, "ijkl,jk->il")
-        op += coulomb + coulomb_inv - exchange
-
-        return cast(OneBodyElectronicIntegrals, op)
-
-    @property
-    def register_length(self) -> int:
-        ints = None
-        if ElectronicBasis.SO in self._electronic_integrals:
-            ints = self._electronic_integrals[ElectronicBasis.SO]
-        elif ElectronicBasis.MO in self._electronic_integrals:
-            ints = self._electronic_integrals[ElectronicBasis.MO]
-
-        return len(list(ints.values())[0].to_spin())
 
     def second_q_op(self) -> FermionicOp:
         """Returns the second quantized operator constructed from the contained electronic integrals.
 
         Returns:
-            A `dict` of `FermionicOp` objects.
+            A ``FermionicOp`` instance.
         """
-        ints = None
-        if ElectronicBasis.SO in self._electronic_integrals:
-            ints = self._electronic_integrals[ElectronicBasis.SO]
-        elif ElectronicBasis.MO in self._electronic_integrals:
-            ints = self._electronic_integrals[ElectronicBasis.MO]
-
-        op = cast(FermionicOp, sum(int.to_second_q_op() for int in ints.values()))
-
-        return op
+        return FermionicOp.from_polynomial_tensor(self.electronic_integrals.second_q_coeffs())
 
     def interpret(self, result: "EigenstateResult") -> None:
-        """Interprets an :class:`~qiskit_nature.second_q.problems.EigenstateResult`
-        in this property's context.
+        """Interprets an :class:`qiskit_nature.second_q.problems.EigenstateResult`.
+
+        In particular, this adds the constant energy shifts stored in this hamiltonian to the result
+        object.
 
         Args:
             result: the result to add meaning to.
         """
-        result.hartree_fock_energy = self._reference_energy
-        result.nuclear_repulsion_energy = self._nuclear_repulsion_energy
-        result.extracted_transformer_energies = self._shift.copy()
+        result.extracted_transformer_energies = copy(self.constants)
+        result.nuclear_repulsion_energy = result.extracted_transformer_energies.pop(
+            "nuclear_repulsion_energy", None
+        )
+
+    def coulomb(self, density: ElectronicIntegrals) -> ElectronicIntegrals:
+        r"""Computes the Coulomb term for the given reduced density matrix.
+
+        .. math::
+            J_{qr} = \sum g_{pqrs} D_{ps}
+
+        Args:
+            density: the reduced density matrix.
+
+        Returns:
+            The Coulomb operator coefficients.
+        """
+        coulomb = ElectronicIntegrals.einsum(
+            {"pqrs,ps->qr": ("++--", "+-", "+-")}, self.electronic_integrals, density
+        )
+
+        if self.electronic_integrals.beta_alpha.is_empty():
+            coulomb *= 2.0  # type: ignore
+        else:
+            coulomb.alpha += PolynomialTensor.einsum(
+                {"pqrs,ps->qr": ("++--", "+-", "+-")},
+                self.electronic_integrals.beta_alpha,
+                density.beta,
+            )
+            coulomb.beta += PolynomialTensor.einsum(
+                {"rspq,ps->rq": ("++--", "+-", "+-")},
+                self.electronic_integrals.beta_alpha,
+                density.alpha,
+            )
+
+        return coulomb
+
+    def exchange(self, density: ElectronicIntegrals) -> ElectronicIntegrals:
+        r"""Computes the Exchange term for the given reduced density matrix.
+
+        .. math::
+            K_{pr} = \sum g_{pqrs} D_{qs}
+
+        Args:
+            density: the reduced density matrix.
+
+        Returns:
+            The Exchange operator coefficients.
+        """
+        exchange = ElectronicIntegrals.einsum(
+            {"pqrs,qs->pr": ("++--", "+-", "+-")}, self.electronic_integrals, density
+        )
+        return exchange
+
+    def fock(self, density: ElectronicIntegrals) -> ElectronicIntegrals:
+        r"""Computes the Fock operator for the given reduced density matrix.
+
+        .. math::
+            F_{pq} = h_{pq} + J_{pq} - K_{pq}
+
+        where :math:`J` and :math:`K` are the :meth:`coulomb` and :meth:`exchange` terms,
+        respectively.
+
+        Args:
+            density: the reduced density matrix.
+
+        Returns:
+            The Fock operator coefficients.
+        """
+        return self.electronic_integrals + self.coulomb(density) - self.exchange(density)

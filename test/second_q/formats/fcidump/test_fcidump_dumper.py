@@ -15,13 +15,12 @@
 import tempfile
 import unittest
 from abc import ABC, abstractmethod
-from typing import cast
 from test import QiskitNatureTestCase
 from pathlib import Path
 import numpy as np
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_q.properties.bases import ElectronicBasis
 from qiskit_nature.second_q.formats.fcidump import FCIDump
+from qiskit_nature.second_q.operators.tensor_ordering import _phys_to_chem
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.drivers import PySCFDriver
@@ -152,14 +151,16 @@ class TestFCIDumpDumpH2(QiskitNatureTestCase, BaseTestFCIDumpDumper):
         """
 
         electronic_energy = problem.hamiltonian
-        one_body_integrals = electronic_energy.get_electronic_integral(ElectronicBasis.MO, 1)
-        two_body_integrals = electronic_energy.get_electronic_integral(ElectronicBasis.MO, 2)
+        electronic_integrals = electronic_energy.electronic_integrals
+        hijkl = electronic_integrals.alpha.get("++--", None)
+        hijkl_ba = electronic_integrals.beta_alpha.get("++--", None)
+        hijkl_bb = electronic_integrals.beta.get("++--", None)
         fcidump = FCIDump(
-            hij=cast(np.ndarray, one_body_integrals._matrices[0]),
-            hij_b=cast(np.ndarray, one_body_integrals._matrices[0]),
-            hijkl=cast(np.ndarray, two_body_integrals._matrices[0][0:3]),
-            hijkl_ba=cast(np.ndarray, two_body_integrals._matrices[0][0:3]),
-            hijkl_bb=cast(np.ndarray, two_body_integrals._matrices[0][0:3]),
+            hij=electronic_integrals.alpha.get("+-", None),
+            hij_b=electronic_integrals.beta.get("+-", None),
+            hijkl=_phys_to_chem(hijkl) if hijkl is not None else None,
+            hijkl_ba=_phys_to_chem(hijkl_ba) if hijkl_ba is not None else None,
+            hijkl_bb=_phys_to_chem(hijkl_bb) if hijkl_bb is not None else None,
             multiplicity=problem.molecule.multiplicity,
             num_electrons=problem.properties.particle_number.num_alpha
             + problem.properties.particle_number.num_beta,

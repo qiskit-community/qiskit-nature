@@ -14,30 +14,26 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 import numpy as np
 
-from qiskit_nature import QiskitNatureError
 from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
+from qiskit_nature.second_q.operators import ElectronicIntegrals
 from qiskit_nature.second_q.properties import (
     AngularMomentum,
     Magnetization,
     ParticleNumber,
 )
-from qiskit_nature.second_q.properties.bases import ElectronicBasis, ElectronicBasisTransform
-from qiskit_nature.second_q.properties.integrals import (
-    ElectronicIntegrals,
-    OneBodyElectronicIntegrals,
-    TwoBodyElectronicIntegrals,
-)
+from qiskit_nature.second_q.properties.bases import ElectronicBasis
+from qiskit_nature.second_q.transformers import BasisTransformer
 
 from .molecule_info import MoleculeInfo
 from .qcschema import QCSchema
 
 
-# TODO: make use of basis argument, pending further ElectronicStructureProblem refactoring
-# pylint: disable=unused-argument
 def qcschema_to_problem(
     qcschema: QCSchema, *, basis: ElectronicBasis = ElectronicBasis.MO
 ) -> ElectronicStructureProblem:
@@ -52,128 +48,27 @@ def qcschema_to_problem(
 
     Raises:
         QiskitNatureError: if either of the required 1- or 2-body electronic integrals are missing.
+        NotImplementedError: if an unsupported :class:`.ElectronicBasis` is requested.
 
     Returns:
         An :class:`.ElectronicStructureProblem` instance.
     """
-    nao = qcschema.properties.calcinfo_nmo
-    nmo = qcschema.properties.calcinfo_nmo
+    norb = qcschema.properties.calcinfo_nmo
 
-    ints: list[ElectronicIntegrals] = []
-
-    # AO data
-    hij: np.ndarray | None = None
-    hij_b: np.ndarray | None = None
-    eri: np.ndarray | None = None
-    one_body_ao: OneBodyElectronicIntegrals
-    two_body_ao: TwoBodyElectronicIntegrals
-
-    coeff_a: np.ndarray | None = None
-    coeff_b: np.ndarray | None = None
-    basis_transform: ElectronicBasisTransform | None = None
-
-    def reshape_2(arr, dim, dim_2=None):
-        return np.asarray(arr).reshape((dim, dim_2 if dim_2 is not None else dim))
-
-    def reshape_4(arr, dim):
-        return np.asarray(arr).reshape((dim,) * 4)
-
-    if qcschema.wavefunction.scf_fock_a is not None:
-        # TODO: deal with this properly
-        nao = int(np.sqrt(len(qcschema.wavefunction.scf_fock_a)))
-        hij = reshape_2(qcschema.wavefunction.scf_fock_a, nao)
-
-    if qcschema.wavefunction.scf_fock_b is not None:
-        hij_b = reshape_2(qcschema.wavefunction.scf_fock_b, nao)
-
-    if hij is not None:
-        one_body_ao = OneBodyElectronicIntegrals(ElectronicBasis.AO, (hij, hij_b))
-        ints.append(one_body_ao)
-
-    if qcschema.wavefunction.scf_eri is not None:
-        eri = reshape_4(qcschema.wavefunction.scf_eri, nao)
-        two_body_ao = TwoBodyElectronicIntegrals(ElectronicBasis.AO, (eri, None, None, None))
-        ints.append(two_body_ao)
-
-    if qcschema.wavefunction.scf_orbitals_a is not None:
-        coeff_a = reshape_2(qcschema.wavefunction.scf_orbitals_a, nao, nmo)
-    if qcschema.wavefunction.scf_orbitals_b is not None:
-        coeff_b = reshape_2(qcschema.wavefunction.scf_orbitals_b, nao, nmo)
-
-    if coeff_a is not None:
-        basis_transform = ElectronicBasisTransform(
-            ElectronicBasis.AO, ElectronicBasis.MO, coeff_a, coeff_b
-        )
-
-    # MO data
-    hij_mo: np.ndarray | None = None
-    hij_mo_b: np.ndarray | None = None
-    eri_mo: np.ndarray | None = None
-    eri_mo_ba: np.ndarray | None = None
-    eri_mo_bb: np.ndarray | None = None
-    eri_mo_ab: np.ndarray | None = None
-    one_body_mo: OneBodyElectronicIntegrals
-    two_body_mo: TwoBodyElectronicIntegrals
-
-    if qcschema.wavefunction.scf_fock_mo_a is not None:
-        hij_mo = reshape_2(qcschema.wavefunction.scf_fock_mo_a, nmo)
-
-    if qcschema.wavefunction.scf_fock_mo_b is not None:
-        hij_mo_b = reshape_2(qcschema.wavefunction.scf_fock_mo_b, nmo)
-
-    if hij_mo is not None:
-        one_body_mo = OneBodyElectronicIntegrals(ElectronicBasis.MO, (hij_mo, hij_mo_b))
-    elif hij is not None:
-        one_body_mo = one_body_ao.transform_basis(basis_transform)
+    hamiltonian: ElectronicEnergy = None
+    if basis == ElectronicBasis.AO:
+        hamiltonian = _get_ao_hamiltonian(qcschema)
+    elif basis == ElectronicBasis.MO:
+        hamiltonian = _get_mo_hamiltonian(qcschema)
     else:
-        raise QiskitNatureError(
-            "The provided QCSchema object is missing the required 1-body electronic integrals."
-        )
+        raise NotImplementedError(f"The basis {basis} is not supported by the translation method.")
 
-    if one_body_mo is not None:
-        ints.append(one_body_mo)
-
-    if qcschema.wavefunction.scf_eri_mo_aa is not None:
-        eri_mo = reshape_4(qcschema.wavefunction.scf_eri_mo_aa, nmo)
-
-    if qcschema.wavefunction.scf_eri_mo_ba is not None:
-        eri_mo_ba = reshape_4(qcschema.wavefunction.scf_eri_mo_ba, nmo)
-
-    if qcschema.wavefunction.scf_eri_mo_bb is not None:
-        eri_mo_bb = reshape_4(qcschema.wavefunction.scf_eri_mo_bb, nmo)
-
-    if qcschema.wavefunction.scf_eri_mo_ab is not None:
-        eri_mo_ab = reshape_4(qcschema.wavefunction.scf_eri_mo_ab, nmo)
-
-    if eri_mo is not None:
-        two_body_mo = TwoBodyElectronicIntegrals(
-            ElectronicBasis.MO, (eri_mo, eri_mo_ba, eri_mo_bb, eri_mo_ab)
-        )
-    elif eri is not None:
-        two_body_mo = two_body_ao.transform_basis(basis_transform)
-    else:
-        raise QiskitNatureError(
-            "The provided QCSchema object is missing the required 2-body electronic integrals."
-        )
-
-    if two_body_mo is not None:
-        ints.append(two_body_mo)
-
-    e_nuc = qcschema.properties.nuclear_repulsion_energy
-    e_ref = qcschema.properties.return_energy
-    hamiltonian = ElectronicEnergy(
-        ints,
-        nuclear_repulsion_energy=e_nuc,
-        reference_energy=e_ref,
-    )
-    if qcschema.wavefunction.scf_eigenvalues_a is not None:
-        hamiltonian.orbital_energies = np.asarray(qcschema.wavefunction.scf_eigenvalues_a)
+    hamiltonian.nuclear_repulsion_energy = qcschema.properties.nuclear_repulsion_energy
 
     natm = len(qcschema.molecule.symbols)
     geo = qcschema.molecule.geometry
     molecule = MoleculeInfo(
         symbols=qcschema.molecule.symbols,
-        # the following format makes mypy happy:
         coords=[(geo[3 * i], geo[3 * i + 1], geo[3 * i + 2]) for i in range(natm)],
         multiplicity=qcschema.molecule.molecular_multiplicity or 1,
         charge=qcschema.molecule.molecular_charge or 0,
@@ -181,14 +76,98 @@ def qcschema_to_problem(
         masses=qcschema.molecule.masses,
     )
 
-    num_spin_orbitals = 2 * nmo
+    num_spin_orbitals = 2 * norb
     num_particles = (qcschema.properties.calcinfo_nalpha, qcschema.properties.calcinfo_nbeta)
 
     problem = ElectronicStructureProblem(hamiltonian)
+    problem.basis = basis
     problem.molecule = molecule
-    problem.basis_transform = basis_transform
+    problem.reference_energy = qcschema.properties.return_energy
     problem.properties.angular_momentum = AngularMomentum(num_spin_orbitals)
     problem.properties.magnetization = Magnetization(num_spin_orbitals)
     problem.properties.particle_number = ParticleNumber(num_spin_orbitals, num_particles)
 
+    if qcschema.wavefunction.scf_eigenvalues_a is not None:
+        problem.orbital_energies = np.asarray(qcschema.wavefunction.scf_eigenvalues_a)
+    if qcschema.wavefunction.scf_eigenvalues_b is not None:
+        problem.orbital_energies_b = np.asarray(qcschema.wavefunction.scf_eigenvalues_b)
+
     return problem
+
+
+def _reshape_2(arr, dim, dim_2=None):
+    return np.asarray(arr).reshape((dim, dim_2 if dim_2 is not None else dim))
+
+
+def _reshape_4(arr, dim):
+    return np.asarray(arr).reshape((dim,) * 4)
+
+
+def _get_ao_hamiltonian(qcschema) -> ElectronicEnergy:
+    nao = int(np.sqrt(len(qcschema.wavefunction.scf_fock_a)))
+    hcore = _reshape_2(qcschema.wavefunction.scf_fock_a, nao)
+    hcore_b = None
+    if qcschema.wavefunction.scf_fock_b is not None:
+        hcore_b = _reshape_2(qcschema.wavefunction.scf_fock_b, nao)
+    eri = _reshape_4(qcschema.wavefunction.scf_eri, nao)
+
+    hamiltonian = ElectronicEnergy.from_raw_integrals(hcore, eri, hcore_b)
+
+    return hamiltonian
+
+
+def _get_mo_hamiltonian(qcschema) -> ElectronicEnergy:
+    if qcschema.wavefunction.scf_fock_mo_a is not None:
+        return _get_mo_hamiltonian_direct(qcschema)
+
+    hamiltonian = _get_ao_hamiltonian(qcschema)
+    transformer = get_ao_to_mo_from_qcschema(qcschema)
+
+    return cast(ElectronicEnergy, transformer.transform_hamiltonian(hamiltonian))
+
+
+def _get_mo_hamiltonian_direct(qcschema) -> ElectronicEnergy:
+    norb = qcschema.properties.calcinfo_nmo
+    hij = _reshape_2(qcschema.wavefunction.scf_fock_mo_a, norb)
+    hijkl = _reshape_4(qcschema.wavefunction.scf_eri_mo_aa, norb)
+    hij_b = None
+    hijkl_bb = None
+    hijkl_ba = None
+    if qcschema.wavefunction.scf_fock_mo_b is not None:
+        hij_b = _reshape_2(qcschema.wavefunction.scf_fock_mo_b, norb)
+    if qcschema.wavefunction.scf_eri_mo_bb is not None:
+        hijkl_bb = _reshape_4(qcschema.wavefunction.scf_eri_mo_bb, norb)
+    if qcschema.wavefunction.scf_eri_mo_ba is not None:
+        hijkl_ba = _reshape_4(qcschema.wavefunction.scf_eri_mo_ba, norb)
+
+    hamiltonian = ElectronicEnergy.from_raw_integrals(hij, hijkl, hij_b, hijkl_bb, hijkl_ba)
+
+    return hamiltonian
+
+
+def get_ao_to_mo_from_qcschema(qcschema: QCSchema) -> BasisTransformer:
+    """Builds out a :class:`.BasisTransformer` from a :class:`.QCSchema` instance.
+
+    This utility extracts the AO-to-MO conversion coefficients, contained in a :class:`.QCSchema`
+    object.
+
+    Args:
+        qcschema: the :class:`.QCSchema` object from which to build the problem.
+
+    Returns:
+        A :class:`.BasisTransformer` instance.
+    """
+    nmo = qcschema.properties.calcinfo_nmo
+    nao = len(qcschema.wavefunction.scf_orbitals_a) // nmo
+    coeff_a = _reshape_2(qcschema.wavefunction.scf_orbitals_a, nao, nmo)
+    coeff_b = None
+    if qcschema.wavefunction.scf_orbitals_b is not None:
+        coeff_b = _reshape_2(qcschema.wavefunction.scf_orbitals_b, nao, nmo)
+
+    transformer = BasisTransformer(
+        ElectronicBasis.AO,
+        ElectronicBasis.MO,
+        ElectronicIntegrals.from_raw_integrals(coeff_a, h1_b=coeff_b),
+    )
+
+    return transformer

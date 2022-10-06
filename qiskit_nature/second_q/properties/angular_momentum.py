@@ -22,13 +22,9 @@ import itertools
 import h5py
 import numpy as np
 
-from qiskit_nature.second_q.operators import FermionicOp
+from qiskit_nature.second_q.operators import FermionicOp, PolynomialTensor
+from qiskit_nature.second_q.operators.tensor_ordering import _chem_to_phys
 
-from .bases import ElectronicBasis
-from .integrals import (
-    OneBodyElectronicIntegrals,
-    TwoBodyElectronicIntegrals,
-)
 from .property import Property
 
 if TYPE_CHECKING:
@@ -161,10 +157,9 @@ class AngularMomentum(Property):
         h_1 = x_h1 + y_h1 + z_h1
         h_2 = x_h2 + y_h2 + z_h2
 
-        h1_ints = OneBodyElectronicIntegrals(ElectronicBasis.SO, h_1)
-        h2_ints = TwoBodyElectronicIntegrals(ElectronicBasis.SO, h_2)
+        tensor = PolynomialTensor({"+-": h_1, "++--": _chem_to_phys(h_2)})
 
-        op = (h1_ints.to_second_q_op() + h2_ints.to_second_q_op()).simplify()
+        op = FermionicOp.from_polynomial_tensor(tensor).simplify()
 
         return {self.name: op}
 

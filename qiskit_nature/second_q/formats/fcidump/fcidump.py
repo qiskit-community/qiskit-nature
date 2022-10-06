@@ -14,13 +14,18 @@
 
 from __future__ import annotations
 
-from typing import List
+from typing import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
-
+from qiskit_nature.second_q.operators.tensor_ordering import (
+    IndexType,
+    find_index_order,
+    to_chemist_ordering,
+    _phys_to_chem,
+)
 
 from .dumper import _dump_1e_ints, _dump_2e_ints, _write_to_outfile
 
@@ -58,10 +63,44 @@ class FCIDump:
     constant_energy: float | None
     """The constant energy comprising (for example) the nuclear repulsion energy
     and inactive energies."""
-    orbsym: List[str] | None
+    orbsym: Sequence[str] | None
     """A list of spatial symmetries of the orbitals."""
     isym: int
     """The spatial symmetry of the wave function."""
+
+    @property
+    def _hijkl(self) -> np.ndarray:
+        return self._chemist_hijkl
+
+    @_hijkl.setter
+    def _hijkl(self, hijkl: np.ndarray) -> None:
+        self._original_index_order = find_index_order(hijkl)
+        self._chemist_hijkl = to_chemist_ordering(hijkl)
+
+    @property
+    def _hijkl_bb(self) -> np.ndarray | None:
+        return self._chemist_hijkl_bb
+
+    @_hijkl_bb.setter
+    def _hijkl_bb(self, hijkl_bb: np.ndarray | None) -> None:
+        if hijkl_bb is None:
+            self._chemist_hijkl_bb = None
+            return
+        self._chemist_hijkl_bb = to_chemist_ordering(hijkl_bb)
+
+    @property
+    def _hijkl_ba(self) -> np.ndarray | None:
+        return self._chemist_hijkl_ba
+
+    @_hijkl_ba.setter
+    def _hijkl_ba(self, hijkl_ba: np.ndarray | None) -> None:
+        if hijkl_ba is None:
+            self._chemist_hijkl_ba = None
+            return
+        if self._original_index_order == IndexType.CHEMIST:
+            self._chemist_hijkl_ba = hijkl_ba
+        elif self._original_index_order == IndexType.PHYSICIST:
+            self._chemist_hijkl_ba = _phys_to_chem(hijkl_ba)
 
     @classmethod
     def from_file(cls, fcidump: str | Path) -> FCIDump:
@@ -118,4 +157,12 @@ class FCIDump:
                 _dump_1e_ints(self.hij_b, mos, outfile)
             # TODO append MO energies (last three indices are 0)
             # append inactive energy
-            _write_to_outfile(outfile, einact, (0, 0, 0, 0))
+            if einact is not None:
+                _write_to_outfile(outfile, einact, (0, 0, 0, 0))
+
+
+# inject the property getter/setter methods for the dataclass attributes
+# See also: https://stackoverflow.com/a/61480946
+FCIDump.hijkl = FCIDump._hijkl  # type: ignore[assignment]
+FCIDump.hijkl_bb = FCIDump._hijkl_bb  # type: ignore[assignment]
+FCIDump.hijkl_ba = FCIDump._hijkl_ba  # type: ignore[assignment]

@@ -170,10 +170,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
             basis="sto3g",
         )
 
-        transformer = ActiveSpaceTransformer(
-            num_electrons=(1, 2),
-            num_molecular_orbitals=4,
-        )
+        transformer = ActiveSpaceTransformer((1, 2), 4)
         # We define an ActiveSpaceTransformer to reduce the duration of this test example.
 
         converter = QubitConverter(JordanWignerMapper(), z2symmetry_reduction="auto")

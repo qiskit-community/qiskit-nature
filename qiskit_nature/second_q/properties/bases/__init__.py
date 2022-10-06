@@ -21,17 +21,16 @@ Second-Quantization Integral Bases (:mod:`qiskit_nature.second_q.properties.base
    :nosignatures:
 
    ElectronicBasis
-   ElectronicBasisTransform
+   VibrationalBasis
+   HarmonicBasis
 """
 
 from .electronic_basis import ElectronicBasis
-from .electronic_basis_transform import ElectronicBasisTransform
 from .vibrational_basis import VibrationalBasis
 from .harmonic_basis import HarmonicBasis
 
 __all__ = [
     "ElectronicBasis",
-    "ElectronicBasisTransform",
     "HarmonicBasis",
     "VibrationalBasis",
 ]

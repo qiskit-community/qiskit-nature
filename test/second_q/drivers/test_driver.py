@@ -19,9 +19,9 @@ import numpy as np
 
 from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
-from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
-from qiskit_nature.second_q.properties.bases import ElectronicBasis
+from qiskit_nature.second_q.operators.tensor_ordering import _chem_to_phys
+from qiskit_nature.second_q.problems import ElectronicStructureProblem
 
 
 class TestDriver(ABC):
@@ -65,35 +65,39 @@ class TestDriver(ABC):
         electronic_energy = cast(ElectronicEnergy, self.driver_result.hamiltonian)
 
         with self.subTest("reference energy"):
-            self.log.debug("HF energy: %s", electronic_energy.reference_energy)
-            self.assertAlmostEqual(electronic_energy.reference_energy, -1.117, places=3)
+            self.log.debug("HF energy: %s", self.driver_result.reference_energy)
+            self.assertAlmostEqual(self.driver_result.reference_energy, -1.117, places=3)
 
         with self.subTest("nuclear repulsion energy"):
             self.log.debug(
-                "Nuclear repulsion energy: %s", electronic_energy.nuclear_repulsion_energy
+                "Nuclear repulsion energy: %s", self.driver_result.nuclear_repulsion_energy
             )
-            self.assertAlmostEqual(electronic_energy.nuclear_repulsion_energy, 0.72, places=2)
+            self.assertAlmostEqual(self.driver_result.nuclear_repulsion_energy, 0.72, places=2)
 
         with self.subTest("1-body integrals"):
-            mo_onee_ints = electronic_energy.get_electronic_integral(ElectronicBasis.MO, 1)
+            mo_onee_ints = electronic_energy.electronic_integrals.alpha["+-"]
             self.log.debug("MO one electron integrals %s", mo_onee_ints)
-            self.assertEqual(mo_onee_ints._matrices[0].shape, (2, 2))
+            self.assertEqual(mo_onee_ints.shape, (2, 2))
             np.testing.assert_array_almost_equal(
-                np.absolute(mo_onee_ints._matrices[0]),
+                np.absolute(mo_onee_ints),
                 [[1.2563, 0.0], [0.0, 0.4719]],
                 decimal=4,
             )
 
         with self.subTest("2-body integrals"):
-            mo_eri_ints = electronic_energy.get_electronic_integral(ElectronicBasis.MO, 2)
+            mo_eri_ints = electronic_energy.electronic_integrals.alpha["++--"]
             self.log.debug("MO two electron integrals %s", mo_eri_ints)
-            self.assertEqual(mo_eri_ints._matrices[0].shape, (2, 2, 2, 2))
+            self.assertEqual(mo_eri_ints.shape, (2, 2, 2, 2))
             np.testing.assert_array_almost_equal(
-                np.absolute(mo_eri_ints._matrices[0]),
-                [
-                    [[[0.6757, 0.0], [0.0, 0.6646]], [[0.0, 0.1809], [0.1809, 0.0]]],
-                    [[[0.0, 0.1809], [0.1809, 0.0]], [[0.6646, 0.0], [0.0, 0.6986]]],
-                ],
+                np.absolute(mo_eri_ints),
+                _chem_to_phys(
+                    np.asarray(
+                        [
+                            [[[0.6757, 0.0], [0.0, 0.6646]], [[0.0, 0.1809], [0.1809, 0.0]]],
+                            [[[0.0, 0.1809], [0.1809, 0.0]], [[0.6646, 0.0], [0.0, 0.6986]]],
+                        ]
+                    )
+                ),
                 decimal=4,
             )
 
@@ -140,18 +144,6 @@ class TestDriver(ABC):
                 coords, [[0.0, 0.0, 0.0], [0.0, 0.0, 1.3889]], decimal=4
             )
 
-    def test_driver_result_basis_transform(self):
-        """Test the ElectronicBasisTransform object."""
-        basis_transform = self.driver_result.basis_transform
-
-        self.log.debug("MO coeffs xyz %s", basis_transform.coeff_alpha)
-        self.assertEqual(basis_transform.coeff_alpha.shape, (2, 2))
-        np.testing.assert_array_almost_equal(
-            np.absolute(basis_transform.coeff_alpha),
-            [[0.5483, 1.2183], [0.5483, 1.2183]],
-            decimal=4,
-        )
-
     def test_driver_result_electronic_dipole(self):
         """Test the ElectronicDipoleMoment property."""
         dipole = self.driver_result.properties.electronic_dipole_moment
@@ -159,30 +151,24 @@ class TestDriver(ABC):
         self.log.debug("has dipole integrals %s", dipole is not None)
         if dipole is not None:
             with self.subTest("x axis"):
-                mo_x_dip_ints = dipole._dipole_axes["DipoleMomentX"].get_electronic_integral(
-                    ElectronicBasis.MO, 1
-                )
-                self.assertEqual(mo_x_dip_ints._matrices[0].shape, (2, 2))
+                mo_x_dip_ints = dipole.x_dipole.alpha["+-"]
+                self.assertEqual(mo_x_dip_ints.shape, (2, 2))
                 np.testing.assert_array_almost_equal(
-                    np.absolute(mo_x_dip_ints._matrices[0]), [[0.0, 0.0], [0.0, 0.0]], decimal=4
+                    np.absolute(mo_x_dip_ints), [[0.0, 0.0], [0.0, 0.0]], decimal=4
                 )
 
             with self.subTest("y axis"):
-                mo_y_dip_ints = dipole._dipole_axes["DipoleMomentY"].get_electronic_integral(
-                    ElectronicBasis.MO, 1
-                )
-                self.assertEqual(mo_y_dip_ints._matrices[0].shape, (2, 2))
+                mo_y_dip_ints = dipole.y_dipole.alpha["+-"]
+                self.assertEqual(mo_y_dip_ints.shape, (2, 2))
                 np.testing.assert_array_almost_equal(
-                    np.absolute(mo_y_dip_ints._matrices[0]), [[0.0, 0.0], [0.0, 0.0]], decimal=4
+                    np.absolute(mo_y_dip_ints), [[0.0, 0.0], [0.0, 0.0]], decimal=4
                 )
 
             with self.subTest("z axis"):
-                mo_z_dip_ints = dipole._dipole_axes["DipoleMomentZ"].get_electronic_integral(
-                    ElectronicBasis.MO, 1
-                )
-                self.assertEqual(mo_z_dip_ints._matrices[0].shape, (2, 2))
+                mo_z_dip_ints = dipole.z_dipole.alpha["+-"]
+                self.assertEqual(mo_z_dip_ints.shape, (2, 2))
                 np.testing.assert_array_almost_equal(
-                    np.absolute(mo_z_dip_ints._matrices[0]),
+                    np.absolute(mo_z_dip_ints),
                     [[0.6945, 0.9278], [0.9278, 0.6945]],
                     decimal=4,
                 )

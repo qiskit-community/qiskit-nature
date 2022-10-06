@@ -25,14 +25,9 @@ from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.formats.qcschema import QCSchema
 from qiskit_nature.second_q.formats.qcschema_translator import qcschema_to_problem
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
+from qiskit_nature.second_q.operators import ElectronicIntegrals
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.properties import ElectronicDipoleMoment
-from qiskit_nature.second_q.properties.bases import ElectronicBasis
-from qiskit_nature.second_q.properties.dipole_moment import DipoleMoment
-from qiskit_nature.second_q.properties.integrals import (
-    OneBodyElectronicIntegrals,
-    TwoBodyElectronicIntegrals,
-)
 from qiskit_nature.second_q.transformers import ActiveSpaceTransformer
 
 
@@ -46,46 +41,44 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         electronic_energy_exp = expected.hamiltonian
         with self.subTest("MO 1-electron integrals"):
             np.testing.assert_array_almost_equal(
-                np.abs(electronic_energy.get_electronic_integral(ElectronicBasis.MO, 1).to_spin()),
-                np.abs(
-                    electronic_energy_exp.get_electronic_integral(ElectronicBasis.MO, 1).to_spin()
-                ),
+                np.abs(electronic_energy.electronic_integrals.second_q_coeffs()["+-"]),
+                np.abs(electronic_energy_exp.electronic_integrals.second_q_coeffs()["+-"]),
             )
         with self.subTest("MO 2-electron integrals"):
             np.testing.assert_array_almost_equal(
-                np.abs(electronic_energy.get_electronic_integral(ElectronicBasis.MO, 2).to_spin()),
-                np.abs(
-                    electronic_energy_exp.get_electronic_integral(ElectronicBasis.MO, 2).to_spin()
-                ),
+                np.abs(electronic_energy.electronic_integrals.second_q_coeffs()["++--"]),
+                np.abs(electronic_energy_exp.electronic_integrals.second_q_coeffs()["++--"]),
             )
         with self.subTest("Inactive energy"):
-            for key in electronic_energy_exp._shift.keys():
+            for key in electronic_energy_exp.constants.keys():
                 self.assertAlmostEqual(
-                    electronic_energy._shift[key],
-                    electronic_energy_exp._shift[key],
+                    electronic_energy.constants[key],
+                    electronic_energy_exp.constants[key],
                 )
 
         if expected.properties.electronic_dipole_moment is not None:
-            for dipole, dipole_exp in zip(
-                driver_result.properties.electronic_dipole_moment._dipole_axes.values(),
-                expected.properties.electronic_dipole_moment._dipole_axes.values(),
-            ):
-                with self.subTest(f"MO 1-electron {dipole._axis} dipole integrals"):
+            dip_moment = driver_result.properties.electronic_dipole_moment
+            exp_moment = expected.properties.electronic_dipole_moment
+            with self.subTest("Integrals"):
+                for dipole, dipole_exp in zip(
+                    (dip_moment.x_dipole, dip_moment.y_dipole, dip_moment.z_dipole),
+                    (exp_moment.x_dipole, exp_moment.y_dipole, exp_moment.z_dipole),
+                ):
                     np.testing.assert_array_almost_equal(
-                        np.abs(dipole.get_electronic_integral(ElectronicBasis.MO, 1).to_spin()),
-                        np.abs(dipole_exp.get_electronic_integral(ElectronicBasis.MO, 1).to_spin()),
+                        np.abs(dipole.second_q_coeffs()["+-"]),
+                        np.abs(dipole_exp.second_q_coeffs()["+-"]),
                     )
-                with self.subTest(f"{dipole._axis} dipole energy shift"):
-                    for key in dipole_exp._shift.keys():
-                        self.assertAlmostEqual(
-                            dipole._shift[key],
-                            dipole_exp._shift[key],
-                        )
+            with self.subTest("Dipole shift"):
+                for key in exp_moment.constants.keys():
+                    np.testing.assert_array_almost_equal(
+                        dip_moment.constants[key],
+                        exp_moment.constants[key],
+                    )
 
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     @idata(
         [
-            {"num_electrons": 2, "num_molecular_orbitals": 2},
+            {"num_electrons": 2, "num_spatial_orbitals": 2},
         ]
     )
     def test_full_active_space(self, kwargs):
@@ -93,9 +86,12 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         driver = PySCFDriver()
         driver_result = driver.run()
 
-        driver_result.hamiltonian._shift["ActiveSpaceTransformer"] = 0.0
-        for prop in driver_result.properties.electronic_dipole_moment._dipole_axes.values():
-            prop._shift["ActiveSpaceTransformer"] = 0.0
+        driver_result.hamiltonian.constants["ActiveSpaceTransformer"] = 0.0
+        driver_result.properties.electronic_dipole_moment.constants["ActiveSpaceTransformer"] = (
+            0.0,
+            0.0,
+            0.0,
+        )
 
         trafo = ActiveSpaceTransformer(**kwargs)
         driver_result_reduced = trafo.transform(driver_result)
@@ -108,67 +104,35 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         driver = PySCFDriver(basis="631g")
         driver_result = driver.run()
 
-        trafo = ActiveSpaceTransformer(num_electrons=2, num_molecular_orbitals=2)
+        trafo = ActiveSpaceTransformer(2, 2)
         driver_result_reduced = trafo.transform(driver_result)
 
-        expected = ElectronicStructureProblem(
-            ElectronicEnergy(
+        electronic_energy = ElectronicEnergy.from_raw_integrals(
+            np.asarray([[-1.24943841, 0.0], [0.0, -0.547816138]]),
+            np.asarray(
                 [
-                    OneBodyElectronicIntegrals(
-                        ElectronicBasis.MO,
-                        (np.asarray([[-1.24943841, 0.0], [0.0, -0.547816138]]), None),
-                    ),
-                    TwoBodyElectronicIntegrals(
-                        ElectronicBasis.MO,
-                        (
-                            np.asarray(
-                                [
-                                    [
-                                        [[0.652098466, 0.0], [0.0, 0.433536565]],
-                                        [[0.0, 0.0794483182], [0.0794483182, 0.0]],
-                                    ],
-                                    [
-                                        [[0.0, 0.0794483182], [0.0794483182, 0.0]],
-                                        [[0.433536565, 0.0], [0.0, 0.385524695]],
-                                    ],
-                                ]
-                            ),
-                            None,
-                            None,
-                            None,
-                        ),
-                    ),
-                ],
-                energy_shift={"ActiveSpaceTransformer": 0.0},
-            )
-        )
-        expected.properties.electronic_dipole_moment = ElectronicDipoleMoment(
-            [
-                DipoleMoment(
-                    "x",
-                    [OneBodyElectronicIntegrals(ElectronicBasis.MO, (np.zeros((2, 2)), None))],
-                    shift={"ActiveSpaceTransformer": 0.0},
-                ),
-                DipoleMoment(
-                    "y",
-                    [OneBodyElectronicIntegrals(ElectronicBasis.MO, (np.zeros((2, 2)), None))],
-                    shift={"ActiveSpaceTransformer": 0.0},
-                ),
-                DipoleMoment(
-                    "z",
                     [
-                        OneBodyElectronicIntegrals(
-                            ElectronicBasis.MO,
-                            (
-                                np.asarray([[0.69447435, -1.01418298], [-1.01418298, 0.69447435]]),
-                                None,
-                            ),
-                        )
+                        [[0.652098466, 0.0], [0.0, 0.433536565]],
+                        [[0.0, 0.0794483182], [0.0794483182, 0.0]],
                     ],
-                    shift={"ActiveSpaceTransformer": 0.0},
-                ),
-            ]
+                    [
+                        [[0.0, 0.0794483182], [0.0794483182, 0.0]],
+                        [[0.433536565, 0.0], [0.0, 0.385524695]],
+                    ],
+                ]
+            ),
         )
+        electronic_energy.constants["ActiveSpaceTransformer"] = 0.0
+        expected = ElectronicStructureProblem(electronic_energy)
+        dipole_moment = ElectronicDipoleMoment(
+            ElectronicIntegrals.from_raw_integrals(np.zeros((2, 2))),
+            ElectronicIntegrals.from_raw_integrals(np.zeros((2, 2))),
+            ElectronicIntegrals.from_raw_integrals(
+                np.asarray([[0.69447435, -1.01418298], [-1.01418298, 0.69447435]]),
+            ),
+        )
+        dipole_moment.constants["ActiveSpaceTransformer"] = (0.0, 0.0, 0.0)
+        expected.properties.electronic_dipole_moment = dipole_moment
 
         self.assertDriverResult(driver_result_reduced, expected)
 
@@ -178,7 +142,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         driver = PySCFDriver(atom="Be 0 0 0; H 0 0 1.3", basis="sto3g", spin=1)
         driver_result = driver.run()
 
-        trafo = ActiveSpaceTransformer(num_electrons=(2, 1), num_molecular_orbitals=3)
+        trafo = ActiveSpaceTransformer((2, 1), 3)
         driver_result_reduced = trafo.transform(driver_result)
 
         expected = qcschema_to_problem(
@@ -187,7 +151,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
             )
         )
         # add energy shift, which currently cannot be stored in the QCSchema
-        expected.hamiltonian._shift["ActiveSpaceTransformer"] = -14.253802923103054
+        expected.hamiltonian.constants["ActiveSpaceTransformer"] = -14.253802923103054
 
         self.assertDriverResult(driver_result_reduced, expected)
 
@@ -197,69 +161,35 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         driver = PySCFDriver(basis="631g")
         driver_result = driver.run()
 
-        trafo = ActiveSpaceTransformer(
-            num_electrons=2, num_molecular_orbitals=2, active_orbitals=[0, 2]
-        )
+        trafo = ActiveSpaceTransformer(2, 2, [0, 2])
         driver_result_reduced = trafo.transform(driver_result)
 
-        expected = ElectronicStructureProblem(
-            ElectronicEnergy(
+        electronic_energy = ElectronicEnergy.from_raw_integrals(
+            np.asarray([[-1.24943841, -0.16790838], [-0.16790838, -0.18307469]]),
+            np.asarray(
                 [
-                    OneBodyElectronicIntegrals(
-                        ElectronicBasis.MO,
-                        (
-                            np.asarray([[-1.24943841, -0.16790838], [-0.16790838, -0.18307469]]),
-                            None,
-                        ),
-                    ),
-                    TwoBodyElectronicIntegrals(
-                        ElectronicBasis.MO,
-                        (
-                            np.asarray(
-                                [
-                                    [
-                                        [[0.65209847, 0.16790822], [0.16790822, 0.53250905]],
-                                        [[0.16790822, 0.10962908], [0.10962908, 0.11981429]],
-                                    ],
-                                    [
-                                        [[0.16790822, 0.10962908], [0.10962908, 0.11981429]],
-                                        [[0.53250905, 0.11981429], [0.11981429, 0.46345617]],
-                                    ],
-                                ]
-                            ),
-                            None,
-                            None,
-                            None,
-                        ),
-                    ),
-                ],
-                energy_shift={"ActiveSpaceTransformer": 0.0},
-            )
-        )
-        expected.properties.electronic_dipole_moment = ElectronicDipoleMoment(
-            [
-                DipoleMoment(
-                    "x",
-                    [OneBodyElectronicIntegrals(ElectronicBasis.MO, (np.zeros((2, 2)), None))],
-                    shift={"ActiveSpaceTransformer": 0.0},
-                ),
-                DipoleMoment(
-                    "y",
-                    [OneBodyElectronicIntegrals(ElectronicBasis.MO, (np.zeros((2, 2)), None))],
-                    shift={"ActiveSpaceTransformer": 0.0},
-                ),
-                DipoleMoment(
-                    "z",
                     [
-                        OneBodyElectronicIntegrals(
-                            ElectronicBasis.MO,
-                            (np.asarray([[0.69447435, 0.0], [0.0, 0.69447435]]), None),
-                        )
+                        [[0.65209847, 0.16790822], [0.16790822, 0.53250905]],
+                        [[0.16790822, 0.10962908], [0.10962908, 0.11981429]],
                     ],
-                    shift={"ActiveSpaceTransformer": 0.0},
-                ),
-            ]
+                    [
+                        [[0.16790822, 0.10962908], [0.10962908, 0.11981429]],
+                        [[0.53250905, 0.11981429], [0.11981429, 0.46345617]],
+                    ],
+                ]
+            ),
         )
+        electronic_energy.constants["ActiveSpaceTransformer"] = 0.0
+        expected = ElectronicStructureProblem(electronic_energy)
+        dipole_moment = ElectronicDipoleMoment(
+            ElectronicIntegrals.from_raw_integrals(np.zeros((2, 2))),
+            ElectronicIntegrals.from_raw_integrals(np.zeros((2, 2))),
+            ElectronicIntegrals.from_raw_integrals(
+                np.asarray([[0.69447435, 0.0], [0.0, 0.69447435]]),
+            ),
+        )
+        dipole_moment.constants["ActiveSpaceTransformer"] = (0.0, 0.0, 0.0)
+        expected.properties.electronic_dipole_moment = dipole_moment
         self.assertDriverResult(driver_result_reduced, expected)
 
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
@@ -275,16 +205,16 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         ]
     )
     @unpack
-    def test_error_raising(self, num_electrons, num_molecular_orbitals, active_orbitals, message):
+    def test_error_raising(self, num_electrons, num_spatial_orbitals, active_orbitals, message):
         """Test errors are being raised in certain scenarios."""
         driver = PySCFDriver()
         driver_result = driver.run()
 
         with self.assertRaises(QiskitNatureError, msg=message):
             ActiveSpaceTransformer(
-                num_electrons=num_electrons,
-                num_molecular_orbitals=num_molecular_orbitals,
-                active_orbitals=active_orbitals,
+                num_electrons,
+                num_spatial_orbitals,
+                active_orbitals,
             ).transform(driver_result)
 
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
@@ -293,100 +223,37 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         driver = PySCFDriver(basis="631g")
         driver_result = driver.run()
 
-        trafo = ActiveSpaceTransformer(
-            num_electrons=(1, 1),
-            num_molecular_orbitals=2,
-            active_orbitals=[0, 1],
-        )
+        trafo = ActiveSpaceTransformer((1, 1), 2, [0, 1])
         driver_result_reduced = trafo.transform(driver_result)
 
-        expected = ElectronicStructureProblem(
-            ElectronicEnergy(
+        electronic_energy = ElectronicEnergy.from_raw_integrals(
+            np.asarray([[-1.24943841, 0.0], [0.0, -0.547816138]]),
+            np.asarray(
                 [
-                    OneBodyElectronicIntegrals(
-                        ElectronicBasis.MO,
-                        (np.asarray([[-1.24943841, 0.0], [0.0, -0.547816138]]), None),
-                    ),
-                    TwoBodyElectronicIntegrals(
-                        ElectronicBasis.MO,
-                        (
-                            np.asarray(
-                                [
-                                    [
-                                        [[0.652098466, 0.0], [0.0, 0.433536565]],
-                                        [[0.0, 0.0794483182], [0.0794483182, 0.0]],
-                                    ],
-                                    [
-                                        [[0.0, 0.0794483182], [0.0794483182, 0.0]],
-                                        [[0.433536565, 0.0], [0.0, 0.385524695]],
-                                    ],
-                                ]
-                            ),
-                            None,
-                            None,
-                            None,
-                        ),
-                    ),
-                ],
-                energy_shift={"ActiveSpaceTransformer": 0.0},
-            )
-        )
-        expected.properties.electronic_dipole_moment = ElectronicDipoleMoment(
-            [
-                DipoleMoment(
-                    "x",
-                    [OneBodyElectronicIntegrals(ElectronicBasis.MO, (np.zeros((2, 2)), None))],
-                    shift={"ActiveSpaceTransformer": 0.0},
-                ),
-                DipoleMoment(
-                    "y",
-                    [OneBodyElectronicIntegrals(ElectronicBasis.MO, (np.zeros((2, 2)), None))],
-                    shift={"ActiveSpaceTransformer": 0.0},
-                ),
-                DipoleMoment(
-                    "z",
                     [
-                        OneBodyElectronicIntegrals(
-                            ElectronicBasis.MO,
-                            (
-                                np.asarray([[0.69447435, -1.01418298], [-1.01418298, 0.69447435]]),
-                                None,
-                            ),
-                        )
+                        [[0.652098466, 0.0], [0.0, 0.433536565]],
+                        [[0.0, 0.0794483182], [0.0794483182, 0.0]],
                     ],
-                    shift={"ActiveSpaceTransformer": 0.0},
-                ),
-            ]
+                    [
+                        [[0.0, 0.0794483182], [0.0794483182, 0.0]],
+                        [[0.433536565, 0.0], [0.0, 0.385524695]],
+                    ],
+                ]
+            ),
         )
+        electronic_energy.constants["ActiveSpaceTransformer"] = 0.0
+        expected = ElectronicStructureProblem(electronic_energy)
+        dipole_moment = ElectronicDipoleMoment(
+            ElectronicIntegrals.from_raw_integrals(np.zeros((2, 2))),
+            ElectronicIntegrals.from_raw_integrals(np.zeros((2, 2))),
+            ElectronicIntegrals.from_raw_integrals(
+                np.asarray([[0.69447435, -1.01418298], [-1.01418298, 0.69447435]]),
+            ),
+        )
+        dipole_moment.constants["ActiveSpaceTransformer"] = (0.0, 0.0, 0.0)
+        expected.properties.electronic_dipole_moment = dipole_moment
 
         self.assertDriverResult(driver_result_reduced, expected)
-
-    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
-    def test_no_deep_copy(self):
-        """Test that objects are not being deeply copied.
-
-        This is a regression test against the fix applied by
-        https://github.com/Qiskit/qiskit-nature/pull/659
-        """
-        driver = PySCFDriver(basis="631g")
-        driver_result = driver.run()
-
-        trafo = ActiveSpaceTransformer(num_electrons=2, num_molecular_orbitals=2)
-        driver_result_reduced = trafo.transform(driver_result)
-
-        active_transform = np.asarray(
-            [
-                [0.32774803333032304, 0.12166492852424596],
-                [0.27055282555225113, 1.7276386116201712],
-                [0.32774803333032265, -0.12166492852424832],
-                [0.2705528255522547, -1.727638611620168],
-            ]
-        )
-
-        np.testing.assert_array_almost_equal(
-            np.abs(driver_result_reduced.basis_transform.coeff_alpha),
-            np.abs(active_transform),
-        )
 
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_numpy_integer(self):
@@ -406,9 +273,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
 
         driver_result.properties.particle_number = particle_number
 
-        trafo = ActiveSpaceTransformer(
-            num_electrons=particle_number.num_particles, num_molecular_orbitals=2
-        )
+        trafo = ActiveSpaceTransformer(particle_number.num_particles, 2)
         _ = trafo.transform(driver_result)
 
 

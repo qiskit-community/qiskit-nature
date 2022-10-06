@@ -82,7 +82,7 @@ class HFInitialPoint(InitialPoint):
             )
             return
 
-        self._reference_energy = electronic_energy.reference_energy if not None else 0.0
+        self._reference_energy = grouped_property.reference_energy if not None else 0.0
         self._grouped_property = grouped_property
 
     def to_numpy_array(self) -> np.ndarray:
