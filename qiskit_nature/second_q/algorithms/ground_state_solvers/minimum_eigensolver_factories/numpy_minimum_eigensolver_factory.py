@@ -12,7 +12,7 @@
 
 """The numpy minimum eigensolver factory for ground state calculation algorithms."""
 
-from qiskit.algorithms import MinimumEigensolver, NumPyMinimumEigensolver
+from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolver, NumPyMinimumEigensolver
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.problems import BaseProblem
 from .minimum_eigensolver_factory import MinimumEigensolverFactory

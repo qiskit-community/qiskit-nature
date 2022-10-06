@@ -21,12 +21,11 @@ from test import QiskitNatureTestCase
 
 import numpy as np
 
-from qiskit import BasicAer
-from qiskit.algorithms import VQE
+from qiskit.algorithms.minimum_eigensolvers import VQE
 from qiskit.algorithms.optimizers import SLSQP, SPSA
-from qiskit.opflow import AerPauliExpectation, PauliExpectation
+from qiskit.primitives import Estimator
 from qiskit.test import slow_test
-from qiskit.utils import QuantumInstance, algorithm_globals, optionals
+from qiskit.utils import algorithm_globals
 
 import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.algorithms import (
@@ -83,10 +82,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
     def test_vqe_uccsd(self):
         """Test VQE UCCSD case"""
-        solver = VQEUCCFactory(
-            quantum_instance=QuantumInstance(BasicAer.get_backend("statevector_simulator")),
-            ansatz=UCC(excitations="d"),
-        )
+        solver = VQEUCCFactory(Estimator(), UCC(excitations="d"), SLSQP())
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
@@ -98,10 +94,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
             # pylint: disable=unused-argument
             print(f"iterations {nfev}: energy: {energy}")
 
-        solver = VQEUCCFactory(
-            quantum_instance=QuantumInstance(BasicAer.get_backend("statevector_simulator")),
-            callback=callback,
-        )
+        solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP(), callback=callback)
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         with contextlib.redirect_stdout(io.StringIO()) as out:
             res = calc.solve(self.electronic_structure_problem)
@@ -112,9 +105,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
     def test_vqe_ucc_custom(self):
         """Test custom ansatz in Factory use case"""
-        solver = VQEUCCFactory(
-            quantum_instance=QuantumInstance(BasicAer.get_backend("statevector_simulator"))
-        )
+        solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP())
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
@@ -146,9 +137,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
     def _setup_evaluation_operators(self):
         # first we run a ground state calculation
-        solver = VQEUCCFactory(
-            quantum_instance=QuantumInstance(BasicAer.get_backend("statevector_simulator"))
-        )
+        solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP())
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
 
@@ -157,157 +146,6 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         _, second_q_ops = self.electronic_structure_problem.second_q_ops()
         aux_ops_dict = self.qubit_converter.convert_match(second_q_ops)
         return calc, res, aux_ops_dict
-
-    def test_eval_op_single(self):
-        """Test evaluating a single additional operator"""
-        calc, res, aux_ops = self._setup_evaluation_operators()
-        # we filter the list because in this test we test a single operator evaluation
-        add_aux_op = aux_ops["ParticleNumber"][0]
-
-        # now we have the ground state calculation evaluate it
-        add_aux_op_res = calc.evaluate_operators(res.raw_result.eigenstate, add_aux_op)
-        self.assertIsInstance(add_aux_op_res[0], complex)
-        self.assertAlmostEqual(add_aux_op_res[0].real, 2, places=6)
-
-    def test_eval_op_single_none(self):
-        """Test evaluating a single `None` operator"""
-        calc, res, _ = self._setup_evaluation_operators()
-        # we filter the list because in this test we test a single operator evaluation
-        add_aux_op = None
-
-        # now we have the ground state calculation evaluate it
-        add_aux_op_res = calc.evaluate_operators(res.raw_result.eigenstate, add_aux_op)
-        self.assertIsNone(add_aux_op_res)
-
-    def test_eval_op_list(self):
-        """Test evaluating a list of additional operators"""
-        calc, res, aux_ops = self._setup_evaluation_operators()
-        # we filter the list because of simplicity
-        expected_results = {"number of particles": 2, "s^2": 0, "magnetization": 0}
-        add_aux_op = [
-            aux_ops["ParticleNumber"],
-            aux_ops["AngularMomentum"],
-            aux_ops["Magnetization"],
-        ]
-
-        # now we have the ground state calculation evaluate them
-        add_aux_op_res = calc.evaluate_operators(res.raw_result.eigenstate, add_aux_op)
-        self.assertIsInstance(add_aux_op_res, list)
-        # in this list we require that the order of the results remains unchanged
-        for idx, expected in enumerate(expected_results.values()):
-            self.assertAlmostEqual(add_aux_op_res[idx][0].real, expected, places=6)
-
-    def test_eval_op_list_none(self):
-        """Test evaluating a list of additional operators incl. `None`"""
-        calc, res, aux_ops = self._setup_evaluation_operators()
-        # we filter the list because of simplicity
-        expected_results = {"number of particles": 2, "s^2": 0, "magnetization": 0}
-        add_aux_op = [
-            aux_ops["ParticleNumber"],
-            aux_ops["AngularMomentum"],
-            aux_ops["Magnetization"],
-        ] + [None]
-
-        # now we have the ground state calculation evaluate them
-        add_aux_op_res = calc.evaluate_operators(res.raw_result.eigenstate, add_aux_op)
-        self.assertIsInstance(add_aux_op_res, list)
-        # in this list we require that the order of the results remains unchanged
-        for idx, expected in enumerate(expected_results.values()):
-            self.assertAlmostEqual(add_aux_op_res[idx][0].real, expected, places=6)
-        self.assertIsNone(add_aux_op_res[-1])
-
-    def test_eval_op_dict(self):
-        """Test evaluating a dict of additional operators"""
-        calc, res, aux_ops = self._setup_evaluation_operators()
-        # we filter the list because of simplicity
-        expected_results = {"number of particles": 2, "s^2": 0, "magnetization": 0}
-        add_aux_op = [
-            aux_ops["ParticleNumber"],
-            aux_ops["AngularMomentum"],
-            aux_ops["Magnetization"],
-        ]
-        # now we convert it into a dictionary
-        add_aux_op = dict(zip(expected_results.keys(), add_aux_op))
-
-        # now we have the ground state calculation evaluate them
-        add_aux_op_res = calc.evaluate_operators(res.raw_result.eigenstate, add_aux_op)
-        self.assertIsInstance(add_aux_op_res, dict)
-        for name, expected in expected_results.items():
-            self.assertAlmostEqual(add_aux_op_res[name][0].real, expected, places=6)
-
-    def test_eval_op_dict_none(self):
-        """Test evaluating a dict of additional operators incl. `None`"""
-        calc, res, aux_ops = self._setup_evaluation_operators()
-        # we filter the list because of simplicity
-        expected_results = {"number of particles": 2, "s^2": 0, "magnetization": 0}
-        add_aux_op = [
-            aux_ops["ParticleNumber"],
-            aux_ops["AngularMomentum"],
-            aux_ops["Magnetization"],
-        ]
-        # now we convert it into a dictionary
-        add_aux_op = dict(zip(expected_results.keys(), add_aux_op))
-        add_aux_op["None"] = None
-
-        # now we have the ground state calculation evaluate them
-        add_aux_op_res = calc.evaluate_operators(res.raw_result.eigenstate, add_aux_op)
-        self.assertIsInstance(add_aux_op_res, dict)
-        for name, expected in expected_results.items():
-            self.assertAlmostEqual(add_aux_op_res[name][0].real, expected, places=6)
-        self.assertIsNone(add_aux_op_res["None"])
-
-    @slow_test
-    def test_eval_op_qasm(self):
-        """Regression tests against https://github.com/Qiskit/qiskit-nature/issues/53."""
-        solver = VQEUCCFactory(
-            optimizer=SLSQP(maxiter=100),
-            expectation=PauliExpectation(),
-            quantum_instance=QuantumInstance(
-                backend=BasicAer.get_backend("qasm_simulator"),
-                seed_simulator=algorithm_globals.random_seed,
-                seed_transpiler=algorithm_globals.random_seed,
-            ),
-        )
-        calc = GroundStateEigensolver(self.qubit_converter, solver)
-        res_qasm = calc.solve(self.electronic_structure_problem)
-
-        hamiltonian, _ = self.electronic_structure_problem.second_q_ops()
-        qubit_op = self.qubit_converter.map(hamiltonian)
-
-        ansatz = solver.get_solver(self.electronic_structure_problem, self.qubit_converter).ansatz
-        circuit = ansatz.assign_parameters(res_qasm.raw_result.optimal_point)
-        mean = calc.evaluate_operators(circuit, qubit_op)
-
-        self.assertAlmostEqual(res_qasm.eigenenergies[0], mean[0].real)
-
-    @unittest.skipUnless(optionals.HAS_AER, "qiskit-aer is required to run this test")
-    def test_eval_op_qasm_aer(self):
-        """Regression tests against https://github.com/Qiskit/qiskit-nature/issues/53."""
-        from qiskit_aer import Aer
-
-        backend = Aer.get_backend("aer_simulator")
-
-        solver = VQEUCCFactory(
-            optimizer=SLSQP(maxiter=100),
-            expectation=AerPauliExpectation(),
-            include_custom=True,
-            quantum_instance=QuantumInstance(
-                backend=backend,
-                seed_simulator=algorithm_globals.random_seed,
-                seed_transpiler=algorithm_globals.random_seed,
-            ),
-        )
-        calc = GroundStateEigensolver(self.qubit_converter, solver)
-        res_qasm = calc.solve(self.electronic_structure_problem)
-
-        hamiltonian, _ = self.electronic_structure_problem.second_q_ops()
-        qubit_op = self.qubit_converter.map(hamiltonian)
-
-        ansatz = solver.get_solver(self.electronic_structure_problem, self.qubit_converter).ansatz
-        circuit = ansatz.assign_parameters(res_qasm.raw_result.optimal_point)
-        mean = calc.evaluate_operators(circuit, qubit_op)
-
-        self.assertAlmostEqual(res_qasm.eigenenergies[0], mean[0].real)
 
     def _prepare_uccsd_hf(self, qubit_converter):
         initial_state = HartreeFock(self.num_spin_orbitals, self.num_particles, qubit_converter)
@@ -325,11 +163,11 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         ansatz = self._prepare_uccsd_hf(self.qubit_converter)
 
         optimizer = SLSQP(maxiter=100)
-        backend = BasicAer.get_backend("statevector_simulator")
         solver = VQE(
             ansatz=ansatz,
             optimizer=optimizer,
-            quantum_instance=QuantumInstance(backend=backend),
+            estimator=Estimator(),
+            initial_point=[0.0] * ansatz.num_parameters,
         )
 
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
@@ -344,100 +182,18 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         qubit_converter = QubitConverter(ParityMapper())
         ansatz = self._prepare_uccsd_hf(qubit_converter)
 
-        backend = BasicAer.get_backend("qasm_simulator")
-
         optimizer = SPSA(maxiter=200, last_avg=5)
         solver = VQE(
             ansatz=ansatz,
             optimizer=optimizer,
-            expectation=PauliExpectation(),
-            quantum_instance=QuantumInstance(
-                backend=backend,
-                seed_simulator=algorithm_globals.random_seed,
-                seed_transpiler=algorithm_globals.random_seed,
-            ),
+            estimator=Estimator(),
+            initial_point=[0.0] * ansatz.num_parameters,
         )
 
         gsc = GroundStateEigensolver(qubit_converter, solver)
 
         result = gsc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(result.total_energies[0], -1.138, places=2)
-
-    @slow_test
-    @unittest.skipUnless(optionals.HAS_AER, "qiskit-aer is required to run this test")
-    def test_uccsd_hf_aer_statevector(self):
-        """uccsd hf test with Aer statevector"""
-
-        from qiskit_aer import Aer
-
-        backend = Aer.get_backend("aer_simulator_statevector")
-
-        ansatz = self._prepare_uccsd_hf(self.qubit_converter)
-
-        optimizer = SLSQP(maxiter=100)
-        solver = VQE(
-            ansatz=ansatz,
-            optimizer=optimizer,
-            quantum_instance=QuantumInstance(backend=backend),
-        )
-
-        gsc = GroundStateEigensolver(self.qubit_converter, solver)
-
-        result = gsc.solve(self.electronic_structure_problem)
-        self.assertAlmostEqual(result.total_energies[0], self.reference_energy, places=6)
-
-    @slow_test
-    @unittest.skipUnless(optionals.HAS_AER, "qiskit-aer is required to run this test")
-    def test_uccsd_hf_aer_qasm(self):
-        """uccsd hf test with Aer qasm simulator."""
-
-        from qiskit_aer import Aer
-
-        backend = Aer.get_backend("aer_simulator")
-
-        qubit_converter = QubitConverter(JordanWignerMapper(), sort_operators=True)
-        ansatz = self._prepare_uccsd_hf(qubit_converter)
-
-        optimizer = SPSA(maxiter=200, last_avg=5)
-        solver = VQE(
-            ansatz=ansatz,
-            optimizer=optimizer,
-            expectation=PauliExpectation(group_paulis=False),
-            quantum_instance=QuantumInstance(
-                backend=backend,
-                seed_simulator=algorithm_globals.random_seed,
-                seed_transpiler=algorithm_globals.random_seed,
-            ),
-        )
-
-        gsc = GroundStateEigensolver(qubit_converter, solver)
-
-        result = gsc.solve(self.electronic_structure_problem)
-        self.assertAlmostEqual(result.total_energies[0], -1.131, places=2)
-
-    @slow_test
-    @unittest.skipUnless(optionals.HAS_AER, "qiskit-aer is required to run this test")
-    def test_uccsd_hf_aer_qasm_snapshot(self):
-        """uccsd hf test with Aer qasm simulator snapshot."""
-
-        from qiskit_aer import Aer
-
-        backend = Aer.get_backend("aer_simulator")
-
-        ansatz = self._prepare_uccsd_hf(self.qubit_converter)
-
-        optimizer = SPSA(maxiter=200, last_avg=5)
-        solver = VQE(
-            ansatz=ansatz,
-            optimizer=optimizer,
-            expectation=AerPauliExpectation(),
-            quantum_instance=QuantumInstance(backend=backend),
-        )
-
-        gsc = GroundStateEigensolver(self.qubit_converter, solver)
-
-        result = gsc.solve(self.electronic_structure_problem)
-        self.assertAlmostEqual(result.total_energies[0], self.reference_energy, places=3)
 
     def test_freeze_core_z2_symmetry_compatibility(self):
         """Regression test against #192.
@@ -507,9 +263,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
     def test_default_initial_point(self):
         """Test when using the default initial point."""
 
-        solver = VQEUCCFactory(
-            quantum_instance=QuantumInstance(BasicAer.get_backend("statevector_simulator"))
-        )
+        solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP())
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
 
@@ -520,11 +274,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         """Test VQEUCCFactory when using it with a user defined initial point."""
 
         initial_point = np.asarray([1.28074029e-19, 5.92226076e-08, 1.11762559e-01])
-        solver = VQEUCCFactory(
-            quantum_instance=QuantumInstance(BasicAer.get_backend("statevector_simulator")),
-            initial_point=initial_point,
-            optimizer=SLSQP(maxiter=1),
-        )
+        solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP(maxiter=1), initial_point=initial_point)
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
         np.testing.assert_array_almost_equal(res.raw_result.optimal_point, initial_point)
@@ -534,10 +284,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
         initial_point = MP2InitialPoint()
 
-        solver = VQEUCCFactory(
-            quantum_instance=QuantumInstance(BasicAer.get_backend("statevector_simulator")),
-            initial_point=initial_point,
-        )
+        solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP(), initial_point=initial_point)
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
 
@@ -555,10 +302,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
             reps=2,
         )
 
-        solver = VQEUCCFactory(
-            ansatz=ansatz,
-            quantum_instance=QuantumInstance(BasicAer.get_backend("statevector_simulator")),
-        )
+        solver = VQEUCCFactory(Estimator(), ansatz, SLSQP())
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
 
@@ -581,11 +325,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
             reps=2,
         )
 
-        solver = VQEUCCFactory(
-            ansatz=ansatz,
-            quantum_instance=QuantumInstance(BasicAer.get_backend("statevector_simulator")),
-            initial_point=initial_point,
-        )
+        solver = VQEUCCFactory(Estimator(), ansatz, SLSQP(), initial_point=initial_point)
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
 

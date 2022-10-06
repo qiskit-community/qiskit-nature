@@ -17,10 +17,10 @@ import unittest
 from test import QiskitNatureTestCase
 from test.second_q.circuit.library.ansatzes.utils.vibrational_op_label_creator import _create_labels
 
-from qiskit import BasicAer
-from qiskit.utils import QuantumInstance, algorithm_globals
-from qiskit.algorithms import VQE
+from qiskit.utils import algorithm_globals
+from qiskit.algorithms.minimum_eigensolvers import VQE
 from qiskit.algorithms.optimizers import COBYLA
+from qiskit.primitives import Estimator
 from qiskit_nature.second_q.circuit.library import CHC, VSCF
 from qiskit_nature.second_q.circuit.library.ansatzes.utils.vibration_excitation_generator import (
     generate_vibration_excitations,
@@ -87,14 +87,9 @@ class TestCHCVSCF(QiskitNatureTestCase):
             num_qubits, ladder=False, excitations=excitations, initial_state=init_state
         )
 
-        backend = QuantumInstance(
-            BasicAer.get_backend("statevector_simulator"),
-            seed_transpiler=2,
-            seed_simulator=2,
-        )
         optimizer = COBYLA(maxiter=1000)
 
-        algo = VQE(chc_ansatz, optimizer=optimizer, quantum_instance=backend)
+        algo = VQE(Estimator(), chc_ansatz, optimizer)
         vqe_result = algo.compute_minimum_eigenvalue(qubit_op)
         energy = vqe_result.optimal_value
 

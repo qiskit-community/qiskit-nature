@@ -17,7 +17,8 @@ from test import QiskitNatureTestCase
 
 import numpy as np
 
-from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
+from qiskit.algorithms.eigensolvers import EigensolverResult
+from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.hamiltonians import FermiHubbardModel
 from qiskit_nature.second_q.problems import LatticeModelProblem
@@ -59,39 +60,33 @@ class TestLatticeModelProblem(QiskitNatureTestCase):
         boundary_condition = BoundaryCondition.OPEN
         line_lattice = LineLattice(num_nodes=num_nodes, boundary_condition=boundary_condition)
         fhm = FermiHubbardModel(lattice=line_lattice, onsite_interaction=5.0)
-        eigenenergies = np.array([-1])
-        eigenstates = [np.array([1, 0])]
-        aux_operator_eigenvalues = [(1, 2)]
+        eigenvalues = np.array([-1])
+        aux_operators_evaluated = [[1, 2]]
         # For EigenstateResult
         lmp = LatticeModelProblem(fhm)
         eigenstate_result = EigenstateResult()
-        eigenstate_result.eigenenergies = eigenenergies
-        eigenstate_result.eigenstates = eigenstates
-        eigenstate_result.aux_operator_eigenvalues = aux_operator_eigenvalues
+        eigenstate_result.eigenvalues = eigenvalues
+        eigenstate_result.aux_operators_evaluated = aux_operators_evaluated
         lmr = lmp.interpret(eigenstate_result)
-        self.assertEqual(lmr.eigenenergies, eigenstate_result.eigenenergies)
-        self.assertEqual(lmr.eigenstates, eigenstate_result.eigenstates)
-        self.assertEqual(lmr.aux_operator_eigenvalues, eigenstate_result.aux_operator_eigenvalues)
+        self.assertEqual(lmr.eigenvalues, eigenstate_result.eigenvalues)
+        self.assertEqual(lmr.aux_operators_evaluated, eigenstate_result.aux_operators_evaluated)
         # For EigenSOlverResult
         lmp = LatticeModelProblem(fhm)
         eigensolver_result = EigensolverResult()
-        eigensolver_result.eigenvalues = eigenenergies
-        eigensolver_result.eigenstates = eigenstates
-        eigensolver_result.aux_operator_eigenvalues = [aux_operator_eigenvalues]
+        eigensolver_result.eigenvalues = eigenvalues
+        eigensolver_result.aux_operators_evaluated = [[(1, {}), (2, {})]]
         lmr = lmp.interpret(eigensolver_result)
-        self.assertEqual(lmr.eigenenergies, eigensolver_result.eigenvalues)
-        self.assertEqual(lmr.eigenstates, eigensolver_result.eigenstates)
-        self.assertEqual(lmr.aux_operator_eigenvalues, eigensolver_result.aux_operator_eigenvalues)
+        self.assertEqual(lmr.eigenvalues, eigensolver_result.eigenvalues)
+        self.assertEqual(lmr.aux_operators_evaluated, aux_operators_evaluated)
         # For MinimumEigensolverResult
         lmp = LatticeModelProblem(fhm)
         mes_result = MinimumEigensolverResult()
         mes_result.eigenvalue = -1
         mes_result.eigenstate = np.array([1, 0])
-        mes_result.aux_operator_eigenvalues = aux_operator_eigenvalues
+        mes_result.aux_operators_evaluated = [(1, {}), (2, {})]
         lmr = lmp.interpret(mes_result)
-        self.assertEqual(lmr.eigenenergies, np.asarray([mes_result.eigenvalue]))
-        self.assertEqual(lmr.eigenstates, [mes_result.eigenstate])
-        self.assertEqual(lmr.aux_operator_eigenvalues, [mes_result.aux_operator_eigenvalues])
+        self.assertEqual(lmr.eigenvalues, np.asarray([mes_result.eigenvalue]))
+        self.assertEqual(lmr.aux_operators_evaluated, aux_operators_evaluated)
 
 
 if __name__ == "__main__":

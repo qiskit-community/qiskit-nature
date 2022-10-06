@@ -26,7 +26,7 @@ class TestEigenstateResult(QiskitNatureTestCase):
     def test_groundenergy(self):
         """Tests ground energy"""
         eigenstate_result = EigenstateResult()
-        eigenstate_result.eigenenergies = np.array([1, 2, 3])
+        eigenstate_result.eigenvalues = np.array([1, 2, 3])
         self.assertEqual(eigenstate_result.groundenergy, 1)
 
 

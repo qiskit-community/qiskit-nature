@@ -16,7 +16,8 @@ from __future__ import annotations
 
 from typing import cast, Union
 
-from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
+from qiskit.algorithms.eigensolvers import EigensolverResult
+from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
 from qiskit_nature.second_q.hamiltonians import LatticeModel
 
 from .base_problem import BaseProblem
@@ -64,5 +65,5 @@ class LatticeModelProblem(BaseProblem):
         for prop in self.properties:
             if hasattr(prop, "interpret"):
                 prop.interpret(result)  # type: ignore[attr-defined]
-        result.computed_lattice_energies = eigenstate_result.eigenenergies
+        result.computed_lattice_energies = eigenstate_result.eigenvalues
         return result

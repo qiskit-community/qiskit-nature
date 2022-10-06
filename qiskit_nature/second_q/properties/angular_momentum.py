@@ -178,18 +178,18 @@ class AngularMomentum(Property):
         expected = self.spin
         result.total_angular_momentum = []
 
-        if not isinstance(result.aux_operator_eigenvalues, list):
-            aux_operator_eigenvalues = [result.aux_operator_eigenvalues]
+        if not isinstance(result.aux_operators_evaluated, list):
+            aux_operators_evaluated = [result.aux_operators_evaluated]
         else:
-            aux_operator_eigenvalues = result.aux_operator_eigenvalues
-        for aux_op_eigenvalues in aux_operator_eigenvalues:
+            aux_operators_evaluated = result.aux_operators_evaluated
+        for aux_op_eigenvalues in aux_operators_evaluated:
             if aux_op_eigenvalues is None:
                 continue
 
             _key = self.name if isinstance(aux_op_eigenvalues, dict) else 1
 
             if aux_op_eigenvalues[_key] is not None:
-                total_angular_momentum = aux_op_eigenvalues[_key][0].real
+                total_angular_momentum = aux_op_eigenvalues[_key].real
                 result.total_angular_momentum.append(total_angular_momentum)
 
                 if expected is not None:

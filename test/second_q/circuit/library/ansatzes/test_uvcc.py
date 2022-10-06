@@ -19,10 +19,11 @@ import unittest
 
 from ddt import ddt, data, unpack
 
-from qiskit import BasicAer, transpile
-from qiskit.utils import QuantumInstance, algorithm_globals
-from qiskit.algorithms import VQE
+from qiskit import transpile
+from qiskit.utils import algorithm_globals
+from qiskit.algorithms.minimum_eigensolvers import VQE
 from qiskit.algorithms.optimizers import COBYLA
+from qiskit.primitives import Estimator
 from qiskit_nature.second_q.circuit.library import UVCC, VSCF
 from qiskit_nature.second_q.mappers import DirectMapper
 from qiskit_nature.second_q.operators import VibrationalOp
@@ -126,14 +127,9 @@ class TestUVCCVSCF(QiskitNatureTestCase):
 
         uvcc_ansatz = UVCC(converter, num_modals, "sd", initial_state=init_state)
 
-        q_instance = QuantumInstance(
-            BasicAer.get_backend("statevector_simulator"),
-            seed_transpiler=90,
-            seed_simulator=12,
-        )
         optimizer = COBYLA(maxiter=1000)
 
-        algo = VQE(uvcc_ansatz, optimizer=optimizer, quantum_instance=q_instance)
+        algo = VQE(Estimator(), uvcc_ansatz, optimizer)
         vqe_result = algo.compute_minimum_eigenvalue(qubit_op)
 
         energy = vqe_result.optimal_value
