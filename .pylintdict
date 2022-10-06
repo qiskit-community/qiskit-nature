@@ -1,3 +1,4 @@
+aa
 acknowledgment
 adjoint
 aer
@@ -145,6 +146,7 @@ eigenvector
 eigenvectors
 einact
 einsum
+electronicintegrals
 endian
 endif
 enum

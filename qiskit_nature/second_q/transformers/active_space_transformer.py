@@ -66,7 +66,7 @@ class ActiveSpaceTransformer(BaseTransformer):
                number of orbitals occupied by the inactive electrons
 
         - when, `num_electrons` is a tuple, this must indicate the number of alpha- and beta-spin
-          elecrtrons, respectively. The same requirements as listed before must be met.
+          electrons, respectively. The same requirements as listed before must be met.
         - finally, it is possible to select a custom set of active orbitals via their indices using
           `active_orbitals`. This allows selecting an active space which is not placed around the
           Fermi level as described in the first case, above. When using this keyword argument, the

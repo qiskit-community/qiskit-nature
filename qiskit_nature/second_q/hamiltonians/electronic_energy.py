@@ -71,7 +71,7 @@ class ElectronicEnergy(Hamiltonian):
 
     Attributes:
         electronic_integrals: the :class:`qiskit_nature.second_q.operators.ElectronicIntegrals`.
-        constants: a mappping of constant energy offsets, not mapped to the qubit operator.
+        constants: a mapping of constant energy offsets, not mapped to the qubit operator.
     """
 
     def __init__(
@@ -83,7 +83,7 @@ class ElectronicEnergy(Hamiltonian):
         """
         Args:
             electronic_integrals: the container with the one- and two-body coefficients.
-            constants: a mappping of constant energy offsets.
+            constants: a mapping of constant energy offsets.
         """
         self.electronic_integrals = electronic_integrals
         self.constants = constants if constants is not None else {}
