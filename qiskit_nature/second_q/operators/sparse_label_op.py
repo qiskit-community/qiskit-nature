@@ -77,6 +77,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
 
     @register_length.setter
     def register_length(self, reg_length: int | None) -> None:
+        self._validate_keys(self._data.keys(), reg_length)
         self._register_length = reg_length
 
     @classmethod
