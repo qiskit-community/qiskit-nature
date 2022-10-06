@@ -126,18 +126,12 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
             self.assertTrue(isinstance(ints.beta_alpha, PolynomialTensor))
             self.assertTrue(ints.beta_alpha.is_empty())
 
-    def test_beta_alpha(self):
-        """Tests the beta_alpha property."""
-        ints = ElectronicIntegrals(beta_alpha=self.beta_alpha)
-        self.assertTrue(ints.beta_alpha.equiv(self.beta_alpha))
-
-    def test_alpha_beta(self):
-        """Tests the alpha_beta property."""
-        ints = ElectronicIntegrals(beta_alpha=self.beta_alpha)
-        alpha_beta = PolynomialTensor(
-            {"++--": np.einsum("ijkl->klij", self.build_matrix(4, 4, 0.5))}
-        )
-        self.assertTrue(ints.alpha_beta.equiv(alpha_beta))
+        with self.subTest("alpha_beta property"):
+            ints = ElectronicIntegrals(self.alpha, self.beta, self.beta_alpha)
+            alpha_beta = PolynomialTensor(
+                {"++--": np.einsum("ijkl->klij", self.build_matrix(4, 4, 0.5))}
+            )
+            self.assertTrue(ints.alpha_beta.equiv(alpha_beta))
 
     def test_one_body(self):
         """Tests the one_body property."""

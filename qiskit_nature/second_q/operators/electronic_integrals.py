@@ -46,6 +46,11 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
     - :attr:`beta`: which stores the down-spin integrals
     - :attr:`beta_alpha`: which stores beta-alpha-spin two-body integrals
 
+    These tensors are subject to some expectations, namely:
+    - for `alpha` and `beta` only the following keys are allowed: `""`, `"+-"`, `"++--"`
+    - for `beta_alpha` the only allowed key is `"++--"`
+    - the reported `register_length` attributes of all non-empty tensors must match
+
     It exposes common mathematical operations performed on these tensors allowing simple
     manipulation of the underlying data structures.
 
@@ -73,6 +78,22 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         integrals.transpose()
         integrals.adjoint()
 
+    This class will substitute empty `beta` and `beta_alpha` tensors with the `alpha` tensor
+    when necessary. For example, this means the following will happen:
+
+    .. code-block:: python
+
+        integrals_pure = ElectronicIntegrals(alpha)
+        integrals_mixed = ElectronicIntegrals(alpha, beta, beta_alpha)
+
+        sum = integrals_pure + integrals_mixed
+        print(sum.beta.is_empty())  # False
+        print(sum.beta_alpha.is_empty())  # False
+        print(sum.beta.equiv(alpha + beta))  # True
+        print(sum.beta_alpha.equiv(alpha + beta_alpha))  # True
+
+    The same logic holds for other mathematical operations involving multiple `ElectronicIntegrals`.
+
     You can add a custom offset to be included in the operator generated from these coefficients
     like so:
 
@@ -85,6 +106,8 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         offset = 2.5
         integrals.alpha += PolynomialTensor({"": offset})
     """
+
+    _VALID_KEYS = {"", "+-", "++--"}
 
     def __init__(
         self,
@@ -103,11 +126,70 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
                 the `++--` key.
 
         Raises:
-            ValueError: if the `beta_alpha` tensor contains keys other than `++--`.
+            KeyError: if the `alpha` tensor contains keys other than `""`, `"+-"`, and `"++--"`.
+            KeyError: if the `beta` tensor contains keys other than `""`, `"+-"`, and `"++--"`.
+            KeyError: if the `beta_alpha` tensor contains keys other than `"++--"`.
+            ValueError: if the reported :attr:`~.PolynomialTensor.register_length` attributes of the
+                alpha-, beta-, and beta-alpha-spin tensors do not all match.
         """
         self.alpha = alpha
         self.beta = beta
         self.beta_alpha = beta_alpha
+        self._validate()
+
+    def _validate(self):
+        """Performs internal validation."""
+        self._validate_tensor_keys()
+        self._validate_register_lengths()
+
+    def _validate_tensor_keys(self):
+        """Validates the keys of all internal tensors."""
+        if self.alpha.keys() > ElectronicIntegrals._VALID_KEYS:
+            raise KeyError(
+                "The only allowed keys for the alpha-spin tensor are '', '+-', and '++--', but your"
+                f" tensor has keys: {self.alpha.keys()}"
+            )
+
+        if self.beta.keys() > ElectronicIntegrals._VALID_KEYS:
+            raise KeyError(
+                "The only allowed keys for the beta-spin tensor are '', '+-', and '++--', but your"
+                f" tensor has keys: {self.beta.keys()}"
+            )
+
+        if self.beta_alpha.keys() > {"++--"}:
+            raise KeyError(
+                "The only allowed key for the beta-alpha-spin tensor is '++--', but your "
+                f" tensor has keys: {self.beta_alpha.keys()}"
+            )
+
+    def _validate_register_lengths(self):
+        """Validates the reported `register_length` attributes of all internal tensors."""
+        alpha_len = self.alpha.register_length
+        beta_len = self.beta.register_length
+        beta_alpha_len = self.beta_alpha.register_length
+
+        if alpha_len is None:
+            if beta_len is not None:
+                raise ValueError(
+                    f"The reported register_length of your beta-spin tensor, {beta_len}, does not "
+                    f"match the alpha-spin tensor one, {alpha_len}."
+                )
+            if beta_alpha_len is not None:
+                raise ValueError(
+                    f"The reported register_length of your beta-alpha-spin tensor, {beta_alpha_len}"
+                    f", does not match the alpha-spin tensor one, {alpha_len}."
+                )
+        else:
+            if beta_len is not None and alpha_len != beta_len:
+                raise ValueError(
+                    f"The reported register_length of your beta-spin tensor, {beta_len}, does not "
+                    f"match the alpha-spin tensor one, {alpha_len}."
+                )
+            if beta_alpha_len is not None and alpha_len != beta_alpha_len:
+                raise ValueError(
+                    f"The reported register_length of your beta-alpha-spin tensor, {beta_alpha_len}"
+                    f", does not match the alpha-spin tensor one, {alpha_len}."
+                )
 
     @property
     def alpha(self) -> PolynomialTensor:
