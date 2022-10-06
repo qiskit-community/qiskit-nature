@@ -198,7 +198,7 @@ class FermionicOp(SparseLabelOp):
             # we could consider using Rust in the future to improve upon this
 
             ndarray = cast(np.ndarray, tensor[key])
-            for index in np.ndindex(ndarray.shape):
+            for index in np.ndindex(*ndarray.shape):
                 data[label_template.format(*index)] = ndarray[index]
 
             # NOTE: once the PolynomialTensor supports sparse matrices, these will need to be
