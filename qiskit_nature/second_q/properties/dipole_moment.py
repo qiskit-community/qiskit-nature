@@ -51,8 +51,20 @@ class ElectronicDipoleMoment(Property):
     contribution is stored **separately** in the :attr:`nuclear_dipole_moment` attribute and will
     **not** be included into the generated operator. It is however possible, to manually add this
     constant shift to the electronic dipole components as a constant term in the internal
-    :class:`qiskit_nature.second_q.operators.ElectronicIntegrals` instances. Refer to the example
-    provided in :class:`qiskit_nature.second_q.hamiltonians.ElectronicEnergy` for more details.
+    :class:`qiskit_nature.second_q.operators.ElectronicIntegrals` instances. Assuming you have
+    obtained an ``ElectronicDipoleMoment`` instance (for example from one of the classical code
+    drivers), you can add the nuclear component to be included in the qubit operator like so:
+
+    .. code-block:: python
+
+        from qiskit_nature.second_q.operators import PolynomialTensor
+
+        # you have obtained your dipole moment property and store it in this variable
+        dipole: ElectronicDipoleMoment
+        nuclear_dip = dipole.nuclear_dipole_moment
+        dipole.x_dipole.alpha += PolynomialTensor({"": nuclear_dip[0]})
+        dipole.y_dipole.alpha += PolynomialTensor({"": nuclear_dip[1]})
+        dipole.z_dipole.alpha += PolynomialTensor({"": nuclear_dip[2]})
 
     Attributes:
         x_dipole: the :class:`qiskit_nature.second_q.operators.ElectronicIntegrals` for the

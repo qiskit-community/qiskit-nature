@@ -46,8 +46,16 @@ class ElectronicEnergy(Hamiltonian):
     :class:`qiskit_nature.second_q.operators.ElectronicIntegrals` container, which will be included
     in the qubit operator, once mapping the second-quantized operator to the qubit space (see also
     :class:`qiskit_nature.second_q.mappers.QubitMapper`).
-    For more information on how to include such constant energy terms, refer to the documentation of
-    the :class:`qiskit_nature.second_q.operators.ElectronicIntegrals`.
+
+    .. code-block:: python
+
+        from qiskit_nature.second_q.operators import PolynomialTensor
+
+        # you have obtained your Hamiltonian and stored it in this variable
+        hamiltonian: ElectronicEnergy
+        e_nuc = hamiltonian.nuclear_repulsion_energy
+        hamiltonian.electronic_integrals.alpha += PolynomialTensor({"": e_nuc})
+
     Alternatively, it is also possible to add constant energy offsets to the :attr:`.constants`
     attribute of this Hamiltonian. Offsets registered in that dictionary will **not** be mapped to
     the qubit operator and, thus, will not incur any errors that may arise during the quantum
@@ -57,13 +65,7 @@ class ElectronicEnergy(Hamiltonian):
 
     .. code-block:: python
 
-        # assuming, you have your one- and two-body integrals from somewhere
-        h1_a = ...
-        h2_aa = ...
-
-        from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
-
-        hamiltonian = ElectronicEnergy.from_raw_integrals(h1_a, h2_aa)
+        hamiltonian: ElectronicEnergy
         hamiltonian.nuclear_repulsion_energy = 10.0
         hamiltonian.constants["my custom offset"] = 5.0
 

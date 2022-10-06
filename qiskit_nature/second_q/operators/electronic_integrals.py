@@ -72,6 +72,18 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         integrals.conjugate()
         integrals.transpose()
         integrals.adjoint()
+
+    You can add a custom offset to be included in the operator generated from these coefficients
+    like so:
+
+    .. code-block:: python
+
+        from qiskit_nature.second_q.operators import PolynomialTensor
+
+        integrals: ElectronicIntegrals
+
+        offset = 2.5
+        integrals.alpha += PolynomialTensor({"": offset})
     """
 
     def __init__(
