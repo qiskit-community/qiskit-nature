@@ -144,19 +144,19 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
 
     def _validate_tensor_keys(self):
         """Validates the keys of all internal tensors."""
-        if self.alpha.keys() > ElectronicIntegrals._VALID_KEYS:
+        if not self.alpha.keys() <= ElectronicIntegrals._VALID_KEYS:
             raise KeyError(
                 "The only allowed keys for the alpha-spin tensor are '', '+-', and '++--', but your"
                 f" tensor has keys: {self.alpha.keys()}"
             )
 
-        if self.beta.keys() > ElectronicIntegrals._VALID_KEYS:
+        if not self.beta.keys() <= ElectronicIntegrals._VALID_KEYS:
             raise KeyError(
                 "The only allowed keys for the beta-spin tensor are '', '+-', and '++--', but your"
                 f" tensor has keys: {self.beta.keys()}"
             )
 
-        if self.beta_alpha.keys() > {"++--"}:
+        if not self.beta_alpha.keys() <= {"++--"}:
             raise KeyError(
                 "The only allowed key for the beta-alpha-spin tensor is '++--', but your "
                 f" tensor has keys: {self.beta_alpha.keys()}"
