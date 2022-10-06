@@ -21,6 +21,7 @@ Second-Quantization Problems (:mod:`qiskit_nature.second_q.problems`)
    :nosignatures:
 
    BaseProblem
+
    ElectronicStructureProblem
    VibrationalStructureProblem
    LatticeModelProblem

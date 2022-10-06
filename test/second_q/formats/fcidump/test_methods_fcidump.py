@@ -18,7 +18,7 @@ from typing import List, Optional
 
 from test import QiskitNatureTestCase
 from test.second_q.drivers.test_driver_methods_gsc import TestDriverMethods
-from qiskit.algorithms import NumPyMinimumEigensolver
+from qiskit.algorithms.minimum_eigensolvers import NumPyMinimumEigensolver
 from qiskit_nature.second_q.algorithms import GroundStateEigensolver
 from qiskit_nature.second_q.formats.fcidump_translator import fcidump_to_problem
 from qiskit_nature.second_q.formats.fcidump import FCIDump

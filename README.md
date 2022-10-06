@@ -124,17 +124,11 @@ ansatz = TwoLocal(num_spin_orbitals, ['ry', 'rz'], 'cz')
 # add the initial state
 ansatz.compose(init_state, front=True, inplace=True)
 
-# set the backend for the quantum computation
-from qiskit_aer import Aer
-
-backend = Aer.get_backend('aer_simulator_statevector')
-
 # setup and run VQE
-from qiskit.algorithms import VQE
+from qiskit.algorithms.minimum_eigensolvers import VQE
+from qiskit.primitives import Estimator
 
-algorithm = VQE(ansatz,
-                optimizer=optimizer,
-                quantum_instance=backend)
+algorithm = VQE(Estimator(), ansatz, optimizer)
 
 result = algorithm.compute_minimum_eigenvalue(qubit_op)
 print(result.eigenvalue.real)
@@ -154,13 +148,9 @@ The qubit operator is then passed as an input to the Variational Quantum Eigenso
 instantiated with a classical optimizer and a RyRz ansatz (`TwoLocal`). A Hartree-Fock initial state
 is used as a starting point for the ansatz.
 
-The VQE algorithm is then run, in this case on the Qiskit Aer statevector simulator backend.
-Here we pass a backend but it can be wrapped into a `QuantumInstance`, and that passed to the
-`run` instead. The `QuantumInstance` API allows you to customize run-time properties of the backend,
-such as the number of shots, the maximum number of credits to use, settings for the simulator,
-initial layout of qubits in the mapping and the Terra `PassManager` that will handle the compilation
-of the circuits. By passing in a backend as is done above it is internally wrapped into a
-`QuantumInstance` and is a convenience when default setting suffice.
+The VQE algorithm is then run, in this case using the noiseless `Estimator` primitive implemented in
+[Qiskit Terra](https://github.com/Qiskit/qiskit-terra). For more information on the primitives refer to
+[their documentation](https://qiskit.org/documentation/apidoc/primitives.html).
 
 In the end, you are given a result object by the VQE which you can analyze further by interpreting it with
 your problem instance.

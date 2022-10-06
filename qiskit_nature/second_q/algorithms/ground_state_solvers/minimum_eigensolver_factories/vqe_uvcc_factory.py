@@ -12,13 +12,17 @@
 
 """The minimum eigensolver factory for ground state calculation algorithms."""
 
+from __future__ import annotations
+
 import logging
-from typing import Optional, Union
 import numpy as np
 
-from qiskit.algorithms import MinimumEigensolver, VQE
+from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolver, VQE
+from qiskit.algorithms.optimizers import Minimizer, Optimizer
 from qiskit.circuit import QuantumCircuit
-from qiskit_nature.second_q.circuit.library import UVCC, UVCCSD, VSCF
+from qiskit.primitives import BaseEstimator
+
+from qiskit_nature.second_q.circuit.library import UVCC, VSCF
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.problems import (
     VibrationalStructureProblem,
@@ -31,44 +35,29 @@ logger = logging.getLogger(__name__)
 
 
 class VQEUVCCFactory(MinimumEigensolverFactory):
-    """Factory to construct a :class:`VQE` minimum eigensolver with :class:`UVCCSD` ansatz
+    """Factory to construct a :class:`VQE` minimum eigensolver with :class:`UVCC` ansatz
     wavefunction.
-
-    .. note::
-
-       Any ansatz a user might directly set into VQE via the :attr:`minimum_eigensolver` will
-       be overwritten by the factory when producing a solver via :meth:`get_solver`. This is
-       due to the fact that the factory is designed to manage the ansatz and set it up according
-       to the problem. Always pass any custom ansatz to be used when constructing the factory or
-       by using its :attr:`ansatz` setter. The following code sample illustrates this behavior:
-
-    .. code-block:: python
-
-        from qiskit_nature.second_q.algorithms import VQEUVCCFactory
-        from qiskit_nature.second_q.circuit.library import UVCCSD, UVCC
-        factory = VQEUVCCFactory()
-        vqe1 = factory.get_solver(problem, qubit_converter)
-        print(type(vqe1.ansatz))  # UVCC()
-        # Here the minimum_eigensolver ansatz just gets overwritten
-        factory.minimum_eigensolver.ansatz = UVCC()
-        vqe2 = factory.get_solver(problem, qubit_converter)
-        print(type(vqe2.ansatz))  # UVCCSD
-        # Here we change the factory ansatz and thus new VQEs are created with the new ansatz
-        factory.ansatz = UVCC()
-        vqe3 = factory.get_solver(problem, qubit_converter)
-        print(type(vqe3.ansatz))  # UVCC
-
     """
 
     def __init__(
         self,
-        initial_point: Optional[Union[np.ndarray, InitialPoint]] = None,
-        ansatz: Optional[UVCC] = None,
-        initial_state: Optional[QuantumCircuit] = None,
+        estimator: BaseEstimator,
+        ansatz: UVCC,
+        optimizer: Optimizer | Minimizer,
+        *,
+        initial_point: np.ndarray | InitialPoint | None = None,
+        initial_state: QuantumCircuit | None = None,
         **kwargs,
     ) -> None:
         """
         Args:
+            estimator: the :class:`~qiskit.primitives.BaseEstimator` class to use for the internal
+                :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`.
+            ansatz: the :class:`~.UVCC` ansatz. Its attributes `qubit_converter`, `num_modals`, and
+                `initial_point` will be completed at runtime based on the problem being solved.
+            optimizer: the :class:`~qiskit.algorithms.optimizers.Optimizer` or
+                :class:`~qiskit.algorithms.optimizers.Minimizer` to use for the internal
+                :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`.
             initial_point: An optional initial point (i.e., initial parameter values for the VQE
                 optimizer). If ``None`` then VQE will use an all-zero initial point of the
                 appropriate length computed using
@@ -82,40 +71,30 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
             initial_state: Allows specification of a custom `QuantumCircuit` to be used as the
                 initial state of the ansatz. If this is never set by the user, the factory will
                 default to the :class:`~.VSCF` state.
-            ansatz: Allows specification of a custom :class:`~.UCC` instance. This defaults to None
-                where the factory will internally create and use a :class:`~.UVCCSD` ansatz.
             kwargs: Remaining keyword arguments are passed to the :class:`VQE`.
         """
-
         self._initial_state = initial_state
         self._initial_point = initial_point if initial_point is not None else VSCFInitialPoint()
-        self._ansatz = ansatz
 
-        self._vqe = VQE(**kwargs)
+        self._vqe = VQE(estimator, ansatz, optimizer, **kwargs)
 
     @property
-    def ansatz(self) -> Optional[UVCC]:
-        """
-        Gets the user provided ansatz of future VQEs produced by the factory.
-        If value is ``None`` it defaults to :class:`~.UVCCSD`.
-        """
-        return self._ansatz
+    def ansatz(self) -> UVCC:
+        """Gets the user provided ansatz of future VQEs produced by the factory."""
+        return self.minimum_eigensolver.ansatz
 
     @ansatz.setter
-    def ansatz(self, ansatz: Optional[UVCC]) -> None:
-        """
-        Sets the ansatz of future VQEs produced by the factory.
-        If set to ``None`` it defaults to :class:`~.UVCCSD`.
-        """
-        self._ansatz = ansatz
+    def ansatz(self, ansatz: UVCC) -> None:
+        """Sets the ansatz of future VQEs produced by the factory."""
+        self.minimum_eigensolver.ansatz = ansatz
 
     @property
-    def initial_state(self) -> Optional[QuantumCircuit]:
+    def initial_state(self) -> QuantumCircuit | None:
         """Getter of the initial state."""
         return self._initial_state
 
     @initial_state.setter
-    def initial_state(self, initial_state: Optional[QuantumCircuit]) -> None:
+    def initial_state(self, initial_state: QuantumCircuit | None) -> None:
         """
         Setter of the initial state.
         If ``None`` is passed, this factory will default to using the :class:`~.VSCF`.
@@ -123,14 +102,14 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         self._initial_state = initial_state
 
     @property
-    def initial_point(self) -> Optional[Union[np.ndarray, InitialPoint]]:
+    def initial_point(self) -> np.ndarray | InitialPoint | None:
         """
         Gets the initial point of future VQEs produced by the factory.
         """
         return self._initial_point
 
     @initial_point.setter
-    def initial_point(self, initial_point: Optional[Union[np.ndarray, InitialPoint]]) -> None:
+    def initial_point(self, initial_point: np.ndarray | InitialPoint | None) -> None:
         """Sets the initial point of future VQEs produced by the factory."""
         self._initial_point = initial_point
 
@@ -139,7 +118,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         problem: VibrationalStructureProblem,
         qubit_converter: QubitConverter,
     ) -> MinimumEigensolver:
-        """Returns a VQE with a :class:`~.UVCCSD` wavefunction ansatz, based on ``qubit_converter``.
+        """Returns a VQE with a :class:`~.UVCC` wavefunction ansatz, based on ``qubit_converter``.
 
         Args:
             problem: a class encoding a problem to be solved.
@@ -161,21 +140,17 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         if initial_state is None:
             initial_state = VSCF(num_modals)
 
-        ansatz = self._ansatz
-        if ansatz is None:
-            ansatz = UVCCSD()
-        ansatz.qubit_converter = qubit_converter
-        ansatz.num_modals = num_modals
-        ansatz.initial_state = initial_state
+        self.ansatz.qubit_converter = qubit_converter
+        self.ansatz.num_modals = num_modals
+        self.ansatz.initial_state = initial_state
 
         if isinstance(self.initial_point, InitialPoint):
-            self.initial_point.ansatz = ansatz
+            self.initial_point.ansatz = self.ansatz
             initial_point = self.initial_point.to_numpy_array()
         else:
             initial_point = self.initial_point
 
         self.minimum_eigensolver.initial_point = initial_point
-        self.minimum_eigensolver.ansatz = ansatz
         return self.minimum_eigensolver
 
     def supports_aux_operators(self):

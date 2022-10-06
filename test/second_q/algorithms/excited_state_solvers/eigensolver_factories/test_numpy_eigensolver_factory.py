@@ -14,7 +14,7 @@ import unittest
 from test import QiskitNatureTestCase
 import numpy as np
 
-from qiskit.algorithms import NumPyEigensolver
+from qiskit.algorithms.eigensolvers import NumPyEigensolver
 from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.algorithms import NumPyEigensolverFactory
 from qiskit_nature.second_q.drivers import PySCFDriver

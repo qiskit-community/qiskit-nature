@@ -16,11 +16,11 @@ import unittest
 
 from test import QiskitNatureTestCase
 
-from qiskit import BasicAer
-from qiskit.utils import QuantumInstance
-from qiskit.algorithms import VQE
+from qiskit.algorithms.minimum_eigensolvers import VQE
 from qiskit.algorithms.optimizers import SLSQP
+from qiskit.primitives import Estimator
 from qiskit.test import slow_test
+from qiskit.utils import algorithm_globals
 
 from qiskit_nature.second_q.algorithms import GroundStateEigensolver
 from qiskit_nature.second_q.circuit.library import HartreeFock, SUCCD, PUCCD
@@ -39,6 +39,7 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def setUp(self):
         super().setUp()
+        algorithm_globals.random_seed = 42
         self.driver = PySCFDriver(atom="H 0 0 0.735; H 0 0 0", basis="631g")
 
         self.qubit_converter = QubitConverter(ParityMapper(), two_qubit_reduction=True)
@@ -101,7 +102,8 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         solver = VQE(
             ansatz=ansatz,
             optimizer=optimizer,
-            quantum_instance=QuantumInstance(backend=BasicAer.get_backend("statevector_simulator")),
+            estimator=Estimator(),
+            initial_point=[0.0] * ansatz.num_parameters,
         )
 
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
@@ -129,7 +131,8 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         solver = VQE(
             ansatz=ansatz,
             optimizer=optimizer,
-            quantum_instance=QuantumInstance(backend=BasicAer.get_backend("statevector_simulator")),
+            estimator=Estimator(),
+            initial_point=[0.0] * ansatz.num_parameters,
         )
 
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
@@ -138,6 +141,7 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
 
         self.assertAlmostEqual(result.total_energies[0], self.reference_energy_UCCD0, places=6)
 
+    @slow_test
     def test_uccsd_hf_qUCCD0full(self):
         """singlet full uccd test"""
         optimizer = SLSQP(maxiter=100)
@@ -157,7 +161,8 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         solver = VQE(
             ansatz=ansatz,
             optimizer=optimizer,
-            quantum_instance=QuantumInstance(backend=BasicAer.get_backend("statevector_simulator")),
+            estimator=Estimator(),
+            initial_point=[0.0] * ansatz.num_parameters,
         )
 
         gsc = GroundStateEigensolver(self.qubit_converter, solver)

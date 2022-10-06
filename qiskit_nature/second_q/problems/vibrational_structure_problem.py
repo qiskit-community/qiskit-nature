@@ -19,7 +19,8 @@ from typing import cast, Callable, List, Optional, Union
 
 import numpy as np
 
-from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
+from qiskit.algorithms.eigensolvers import EigensolverResult
+from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
 
 from qiskit_nature.second_q.hamiltonians import VibrationalEnergy
 from qiskit_nature.second_q.operators import SecondQuantizedOp
@@ -112,7 +113,7 @@ class VibrationalStructureProblem(BaseProblem):
         for prop in self.properties:
             if hasattr(prop, "interpret"):
                 prop.interpret(result)  # type: ignore[attr-defined]
-        result.computed_vibrational_energies = eigenstate_result.eigenenergies
+        result.computed_vibrational_energies = eigenstate_result.eigenvalues
         return result
 
     def get_default_filter_criterion(

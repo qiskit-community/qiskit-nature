@@ -14,13 +14,14 @@
 
 from __future__ import annotations
 
-from typing import Callable, List, Union, Optional, Tuple, Dict, cast
+from typing import Any, Callable, List, Union, Optional, Tuple, Dict
 import itertools
 import logging
 import sys
 
 import numpy as np
 from scipy import linalg
+from qiskit.algorithms.observables_evaluator import estimate_observables
 from qiskit.tools import parallel_map
 from qiskit.tools.events import TextProgressBar
 from qiskit.utils import algorithm_globals
@@ -31,6 +32,7 @@ from qiskit.opflow import (
     double_commutator,
     PauliSumOp,
 )
+from qiskit.primitives import BaseEstimator
 
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.problems import (
@@ -54,6 +56,7 @@ class QEOM(ExcitedStatesSolver):
     def __init__(
         self,
         ground_state_solver: GroundStateSolver,
+        estimator: BaseEstimator,
         excitations: str
         | int
         | list[int]
@@ -66,6 +69,10 @@ class QEOM(ExcitedStatesSolver):
         Args:
             ground_state_solver: a GroundStateSolver object. The qEOM algorithm
                 will use this ground state to compute the EOM matrix elements
+            estimator: the :class:`~qiskit.primitives.BaseEstimator` to use for the evaluation of
+                the qubit operators at the ground state ansatz. If the internal solver provided to
+                the `GroundStateSolver` also uses a `BaseEstimator` primitive, you can provide the
+                same estimator instance here.
             excitations: The excitations to be included in the eom pseudo-eigenvalue problem.
 
                 :`str`: which contains the types of excitations. Allowed characters are
@@ -83,6 +90,7 @@ class QEOM(ExcitedStatesSolver):
                     respectively.
         """
         self._gsc = ground_state_solver
+        self._estimator = estimator
         self.excitations = excitations
 
         self._untapered_qubit_op_main: PauliSumOp = None
@@ -161,10 +169,13 @@ class QEOM(ExcitedStatesSolver):
         matrix_operators_dict, size = self._prepare_matrix_operators(problem)
 
         # 3. Evaluate eom operators
-        measurement_results = self._gsc.evaluate_operators(
-            groundstate_result.eigenstates[0], matrix_operators_dict
+        ground_state = groundstate_result.eigenstates[0]
+        measurement_results = estimate_observables(
+            self._estimator,
+            ground_state[0],
+            matrix_operators_dict,
+            ground_state[1],
         )
-        measurement_results = cast(Dict[str, List[float]], measurement_results)
 
         # 4. Post-process ground_state_result to construct eom matrices
         (
@@ -194,14 +205,12 @@ class QEOM(ExcitedStatesSolver):
         qeom_result.q_matrix_std = q_mat_std
         qeom_result.w_matrix_std = w_mat_std
 
-        eigenstate_result = EigenstateResult()
-        eigenstate_result.eigenstates = groundstate_result.eigenstates
-        eigenstate_result.aux_operator_eigenvalues = groundstate_result.aux_operator_eigenvalues
+        eigenstate_result = EigenstateResult.from_result(groundstate_result)
         eigenstate_result.raw_result = qeom_result
 
-        eigenstate_result.eigenenergies = np.append(
-            groundstate_result.eigenenergies,
-            np.asarray([groundstate_result.eigenenergies[0] + gap for gap in energy_gaps]),
+        eigenstate_result.eigenvalues = np.append(
+            groundstate_result.eigenvalues,
+            np.asarray([groundstate_result.eigenvalues[0] + gap for gap in energy_gaps]),
         )
 
         result = problem.interpret(eigenstate_result)
@@ -410,7 +419,7 @@ class QEOM(ExcitedStatesSolver):
         return m_u, n_u, q_mat_op, w_mat_op, m_mat_op, v_mat_op
 
     def _build_eom_matrices(
-        self, gs_results: Dict[str, List[float]], size: int
+        self, gs_results: dict[str, tuple[complex, dict[str, Any]]], size: int
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, float, float, float, float]:
         """Constructs the M, V, Q and W matrices from the results on the ground state
 
@@ -456,22 +465,22 @@ class QEOM(ExcitedStatesSolver):
             )
 
             q_mat_std += (
-                gs_results[f"q_{m_u}_{n_u}_std"][0]
+                gs_results[f"q_{m_u}_{n_u}_std"][0].real
                 if gs_results.get(f"q_{m_u}_{n_u}_std") is not None
                 else 0
             )
             w_mat_std += (
-                gs_results[f"w_{m_u}_{n_u}_std"][0]
+                gs_results[f"w_{m_u}_{n_u}_std"][0].real
                 if gs_results.get(f"w_{m_u}_{n_u}_std") is not None
                 else 0
             )
             m_mat_std += (
-                gs_results[f"m_{m_u}_{n_u}_std"][0]
+                gs_results[f"m_{m_u}_{n_u}_std"][0].real
                 if gs_results.get(f"m_{m_u}_{n_u}_std") is not None
                 else 0
             )
             v_mat_std += (
-                gs_results[f"v_{m_u}_{n_u}_std"][0]
+                gs_results[f"v_{m_u}_{n_u}_std"][0].real
                 if gs_results.get(f"v_{m_u}_{n_u}_std") is not None
                 else 0
             )
