@@ -444,3 +444,10 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
             https://en.wikipedia.org/wiki/Norm_(mathematics)#p-norm
         """
         return sum(abs(coeff) ** order for coeff in self.values()) ** (1 / order)
+
+    def is_zero(self) -> bool:
+        """Returns true if operator length is zero or all co-efficients have value zero"""
+        if len(self) == 0:
+            return True
+        else:
+            return all(val == 0 for val in self._data.values())

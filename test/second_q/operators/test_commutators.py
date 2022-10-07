@@ -21,27 +21,32 @@ from qiskit_nature.second_q.operators import FermionicOp
 from qiskit_nature.second_q.operators.commutators import (
     commutator,
     anti_commutator,
-    double_commutator
+    double_commutator,
 )
 
 op1 = FermionicOp({"+_0 -_0": 1}, register_length=1)
 op2 = FermionicOp({"-_0 +_0": 2}, register_length=1)
-op3 = FermionicOp({"+_0 -_0": 1, "-_0 +_0": 2}, register_length=1)
+op3 = FermionicOp({"+_0 -_0": 1, "-_0 +_0": 2 + 0.5j}, register_length=1)
+
 
 class TestCommutators(QiskitNatureTestCase):
     """Commutators tests."""
 
     def test_commutator(self):
         """Test commutator method"""
-        commutator(op1, op2)
+        self.assertEqual(commutator(op1, op2), FermionicOp({}, register_length=1))
 
     def test_anti_commutator(self):
         """Test anti commutator method"""
-        anti_commutator(op1, op2)
+        self.assertEqual(anti_commutator(op1, op2), FermionicOp({}, register_length=1))
 
     def test_double_commutator(self):
         """Test double commutator method"""
-        double_commutator(op1, op2, op3)
+        self.assertEqual(double_commutator(op1, op2, op3), FermionicOp({}, register_length=1))
+
+    def test_commutator_iszero(self):
+        """Test is_zero function with commutator"""
+        self.assertTrue(commutator(op1, op2).is_zero())
 
 
 if __name__ == "__main__":
