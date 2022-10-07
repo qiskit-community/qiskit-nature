@@ -26,7 +26,7 @@ from qiskit_nature.exceptions import QiskitNatureError
 import qiskit_nature.optionals as _optionals
 
 from .polynomial_tensor import PolynomialTensor
-from .sparse_label_op import SparseLabelOp
+from .sparse_label_op import _TCoeff, SparseLabelOp, _to_number
 
 
 class FermionicOp(SparseLabelOp):
@@ -148,6 +148,11 @@ class FermionicOp(SparseLabelOp):
             considered a lower bound, which means that mathematical operations acting on two or more
             operators will result in a new operator with the maximum number of spin orbitals of any
             of the involved operators.
+    .. note::
+
+        A FermionicOp can contain Parameters. However, a FermionicOp containing Parameters
+        does not support the following methods:
+        - ``is_hermitian``
     """
 
     _OPERATION_REGEX = re.compile(r"([\+\-]_\d+\s)*[\+\-]_\d+")
@@ -284,7 +289,7 @@ class FermionicOp(SparseLabelOp):
         )
         return pre + ret
 
-    def terms(self) -> Iterator[tuple[list[tuple[str, int]], complex]]:
+    def terms(self) -> Iterator[tuple[list[tuple[str, int]], _TCoeff]]:
         """Provides an iterator analogous to :meth:`items` but with the labels already split into
         pairs of operation characters and indices.
 
@@ -441,11 +446,11 @@ class FermionicOp(SparseLabelOp):
             {
                 label: coeff
                 for label, coeff in ordered_op.items()
-                if not np.isclose(coeff, 0.0, atol=self.atol)
+                if not np.isclose(_to_number(coeff), 0.0, atol=self.atol)
             }
         )
 
-    def _normal_ordered(self, terms: list[tuple[str, int]], coeff: complex) -> FermionicOp:
+    def _normal_ordered(self, terms: list[tuple[str, int]], coeff: _TCoeff) -> FermionicOp:
         if not terms:
             return self._new_instance({"": coeff})
 
@@ -505,17 +510,19 @@ class FermionicOp(SparseLabelOp):
     def simplify(self, *, atol: float | None = None) -> FermionicOp:
         atol = self.atol if atol is None else atol
 
-        data = defaultdict(complex)  # type: dict[str, complex]
+        data = defaultdict(complex)  # type: dict[str, _TCoeff]
         # TODO: use parallel_map to make this more efficient (?)
         for label, coeff in self.items():
             label, coeff = self._simplify_label(label, coeff)
             data[label] += coeff
         simplified_data = {
-            label: coeff for label, coeff in data.items() if not np.isclose(coeff, 0.0, atol=atol)
+            label: coeff
+            for label, coeff in data.items()
+            if not np.isclose(_to_number(coeff), 0.0, atol=atol)
         }
         return self._new_instance(simplified_data)
 
-    def _simplify_label(self, label: str, coeff: complex) -> tuple[str, complex]:
+    def _simplify_label(self, label: str, coeff: _TCoeff) -> tuple[str, _TCoeff]:
         bits = _BitsContainer()
 
         for lbl in label.split():
