@@ -16,11 +16,15 @@ import unittest
 
 from test import QiskitNatureTestCase
 import numpy as np
-from qiskit import BasicAer
-from qiskit.utils import algorithm_globals, QuantumInstance
-from qiskit.algorithms import NumPyMinimumEigensolver, NumPyEigensolver
+
+from qiskit.algorithms.eigensolvers import NumPyEigensolver
+from qiskit.algorithms.minimum_eigensolvers import NumPyMinimumEigensolver
+from qiskit.algorithms.optimizers import SLSQP
+from qiskit.primitives import Estimator
+from qiskit.utils import algorithm_globals
 
 from qiskit_nature.units import DistanceUnit
+from qiskit_nature.second_q.circuit.library import UCCSD
 from qiskit_nature.second_q.transformers import ActiveSpaceTransformer
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import (
@@ -65,21 +69,25 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
 
         solver = NumPyEigensolver()
         self.ref = solver
-        self.quantum_instance = QuantumInstance(
-            BasicAer.get_backend("statevector_simulator"),
-            seed_transpiler=90,
-            seed_simulator=12,
-        )
+
+    def _assert_energies(self, computed, references, *, places=4):
+        with self.subTest("same number of energies"):
+            self.assertEqual(len(computed), len(references))
+
+        with self.subTest("ground state"):
+            self.assertAlmostEqual(computed[0], references[0], places=places)
+
+        for i in range(1, len(computed)):
+            with self.subTest(f"{i}. excited state"):
+                self.assertAlmostEqual(computed[i], references[i], places=places)
 
     def test_numpy_mes(self):
         """Test NumPyMinimumEigenSolver with QEOM"""
         solver = NumPyMinimumEigensolver()
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
-        esc = QEOM(gsc, "sd")
+        esc = QEOM(gsc, Estimator(), "sd")
         results = esc.solve(self.electronic_structure_problem)
-
-        for idx, energy in enumerate(self.reference_energies):
-            self.assertAlmostEqual(results.computed_energies[idx], energy, places=4)
+        self._assert_energies(results.computed_energies, self.reference_energies)
 
     def test_vqe_mes_jw(self):
         """Test VQEUCCSDFactory with QEOM + Jordan Wigner mapping"""
@@ -124,13 +132,12 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         self._solve_with_vqe_mes(converter)
 
     def _solve_with_vqe_mes(self, converter: QubitConverter):
-        solver = VQEUCCFactory(quantum_instance=self.quantum_instance)
+        estimator = Estimator()
+        solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
         gsc = GroundStateEigensolver(converter, solver)
-        esc = QEOM(gsc, "sd")
+        esc = QEOM(gsc, estimator, "sd")
         results = esc.solve(self.electronic_structure_problem)
-
-        for idx, energy in enumerate(self.reference_energies):
-            self.assertAlmostEqual(results.computed_energies[idx], energy, places=4)
+        self._assert_energies(results.computed_energies, self.reference_energies)
 
     def test_numpy_factory(self):
         """Test NumPyEigenSolverFactory with ExcitedStatesEigensolver"""
@@ -149,8 +156,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
             if not np.isclose(comp_energy, computed_energies[-1]):
                 computed_energies.append(comp_energy)
 
-        for idx, energy in enumerate(self.reference_energies):
-            self.assertAlmostEqual(computed_energies[idx], energy, places=4)
+        self._assert_energies(computed_energies, self.reference_energies)
 
     def test_custom_filter_criterion(self):
         """Test NumPyEigenSolverFactory with ExcitedStatesEigensolver + Custom filter criterion
@@ -164,10 +170,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
             basis="sto3g",
         )
 
-        transformer = ActiveSpaceTransformer(
-            num_electrons=(1, 2),
-            num_molecular_orbitals=4,
-        )
+        transformer = ActiveSpaceTransformer((1, 2), 4)
         # We define an ActiveSpaceTransformer to reduce the duration of this test example.
 
         converter = QubitConverter(JordanWignerMapper(), z2symmetry_reduction="auto")
@@ -205,8 +208,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
             -1.6416831059956618,
         ]
 
-        for idx, energy in enumerate(ref_energies):
-            self.assertAlmostEqual(computed_energies[idx], energy, places=3)
+        self._assert_energies(computed_energies, ref_energies, places=3)
 
 
 if __name__ == "__main__":

@@ -15,10 +15,11 @@
 
 from __future__ import annotations
 
-from typing import Callable, List, Optional, Union
+from typing import Callable
 
 import numpy as np
-from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
+from qiskit.algorithms.eigensolvers import EigensolverResult
+from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
 from qiskit.opflow import Z2Symmetries
 
 from qiskit_nature.second_q.mappers import QubitConverter
@@ -72,7 +73,7 @@ class BaseProblem:
         self,
         z2_symmetries: Z2Symmetries,
         converter: QubitConverter,
-    ) -> Optional[List[int]]:
+    ) -> list[int] | None:
         # pylint: disable=unused-argument
         """Given the detected Z2Symmetries, it can determine the correct sector of the tapered
         operators so the correct one can be returned
@@ -89,7 +90,7 @@ class BaseProblem:
 
     def interpret(
         self,
-        raw_result: Union[EigenstateResult, EigensolverResult, MinimumEigensolverResult],
+        raw_result: EigenstateResult | EigensolverResult | MinimumEigensolverResult,
     ) -> EigenstateResult:
         """Interprets an EigenstateResult in the context of this problem.
 
@@ -100,27 +101,11 @@ class BaseProblem:
             An interpreted `EigenstateResult` in the form of a subclass of it. The actual type
             depends on the problem that implements this method.
         """
-        eigenstate_result = None
-        if isinstance(raw_result, EigenstateResult):
-            eigenstate_result = raw_result
-        elif isinstance(raw_result, EigensolverResult):
-            eigenstate_result = EigenstateResult()
-            eigenstate_result.raw_result = raw_result
-            eigenstate_result.eigenenergies = raw_result.eigenvalues
-            eigenstate_result.eigenstates = raw_result.eigenstates
-            eigenstate_result.aux_operator_eigenvalues = raw_result.aux_operator_eigenvalues
-        elif isinstance(raw_result, MinimumEigensolverResult):
-            eigenstate_result = EigenstateResult()
-            eigenstate_result.raw_result = raw_result
-            eigenstate_result.eigenenergies = np.asarray([raw_result.eigenvalue])
-            eigenstate_result.eigenstates = [raw_result.eigenstate]
-            eigenstate_result.aux_operator_eigenvalues = [raw_result.aux_operator_eigenvalues]
-
-        return eigenstate_result
+        return EigenstateResult.from_result(raw_result)
 
     def get_default_filter_criterion(
         self,
-    ) -> Optional[Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]]:
+    ) -> Callable[[list | np.ndarray, float, list[float] | None], bool] | None:
         """Returns a default filter criterion method to filter the eigenvalues computed by the
         eigen solver. For more information see also
         qiskit.algorithms.eigen_solvers.NumPyEigensolver.filter_criterion.

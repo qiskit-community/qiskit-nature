@@ -14,16 +14,17 @@
 
 from __future__ import annotations
 
+import re
 from collections import defaultdict
 from collections.abc import Collection, MutableMapping
-from typing import Iterator
-
-import re
+from typing import cast, Iterator
 
 import numpy as np
 from scipy.sparse import csc_matrix
 
 from qiskit_nature.exceptions import QiskitNatureError
+
+from .polynomial_tensor import PolynomialTensor
 from .sparse_label_op import SparseLabelOp
 
 
@@ -140,8 +141,10 @@ class FermionicOp(SparseLabelOp):
     _OPERATION_REGEX = re.compile(r"([\+\-]_\d+\s)*[\+\-]_\d+")
 
     @classmethod
-    def _validate_keys(cls, keys: Collection[str], register_length: int) -> None:
+    def _validate_keys(cls, keys: Collection[str], register_length: int | None) -> int:
         super()._validate_keys(keys, register_length)
+
+        max_index = 0
 
         for key in keys:
             # 0. explicitly allow the empty key
@@ -155,11 +158,53 @@ class FermionicOp(SparseLabelOp):
             # 2. validate all indices against register length
             for term in key.split(" "):
                 index = int(term[2:])
-                if index >= register_length:
+                if register_length is None:
+                    if index > max_index:
+                        max_index = index
+                elif index >= register_length:
                     raise QiskitNatureError(
-                        f"The index, {index}, from the label, {key}, exceeds the register length, "
-                        f"{register_length}."
+                        f"The index, {index}, from the label, {key}, exceeds the register "
+                        f"length, {register_length}."
                     )
+
+        return max_index + 1 if register_length is None else register_length
+
+    @classmethod
+    def _validate_polynomial_tensor_key(cls, keys: Collection[str]) -> None:
+        allowed_chars = {"+", "-"}
+
+        for key in keys:
+            if set(key) - allowed_chars:
+                raise QiskitNatureError(
+                    f"The key {key} is invalid. PolynomialTensor keys may only consists of `+` and "
+                    "`-` characters, for them to be expandable into a FermionicOp."
+                )
+
+    @classmethod
+    def from_polynomial_tensor(cls, tensor: PolynomialTensor) -> FermionicOp:
+        cls._validate_polynomial_tensor_key(tensor.keys())
+
+        data: dict[str, complex] = {}
+
+        for key in tensor:
+            if key == "":
+                # TODO: deal with complexity
+                data[""] = cast(float, tensor[key])
+                continue
+
+            label_template = " ".join(f"{op}_{{}}" for op in key)
+
+            # PERF: this matrix unpacking is a performance bottleneck
+            # we could consider using Rust in the future to improve upon this
+
+            ndarray = cast(np.ndarray, tensor[key])
+            for index in np.ndindex(*ndarray.shape):
+                data[label_template.format(*index)] = ndarray[index]
+
+            # NOTE: once the PolynomialTensor supports sparse matrices, these will need to be
+            # handled separately
+
+        return FermionicOp(data, register_length=tensor.register_length, copy=False).chop()
 
     def __repr__(self) -> str:
         data_str = f"{dict(self.items())}"

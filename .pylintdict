@@ -1,3 +1,4 @@
+aa
 acknowledgment
 adjoint
 aer
@@ -22,8 +23,8 @@ antisymmetric
 antisymmetrized
 ao
 april
-arginine
 arg
+arginine
 args
 arrowheads
 arrowstyle
@@ -145,6 +146,7 @@ eigenvector
 eigenvectors
 einact
 einsum
+electronicintegrals
 endian
 endif
 enum
@@ -207,7 +209,7 @@ hijkls
 hijs
 hilbert
 histidine
-HJO
+hjo
 html
 https
 hubbard
@@ -217,7 +219,10 @@ ifdef
 ifortvars
 ij
 ijkl
+ijlk
 ik
+iklj
+il
 init
 initializer
 initio
@@ -248,6 +253,7 @@ jcf
 jcp
 jernigan
 ji
+jk
 jl
 jordan
 jørgensen
@@ -266,12 +272,12 @@ kwargs
 kwds
 labelled
 lda
-leighton
-lexicographically
 ldots
+leighton
 len
 leucine
 levinthal
+lexicographically
 libifcoremd
 libor
 libxc
@@ -288,6 +294,7 @@ lysine
 macos
 majorana
 makefile
+matmul
 matplotlib
 maxdepth
 maxiter
@@ -330,10 +337,10 @@ nbasis
 nd
 ndarray
 nelec
-neutron
 neq
 networkx
 neuropeptide
+neutron
 nicholas
 nielsen
 nisq
@@ -357,8 +364,8 @@ ok
 ollitrault
 onee
 oneeints
-onwards
 onsite
+onwards
 opflow
 oppenheimer
 optimizers
@@ -382,8 +389,8 @@ perturbative
 pes
 phenylalanine
 phonons
-physrevd
 physik
+physrevd
 plesset
 pmatrix
 polynomialtensor
@@ -391,6 +398,7 @@ polypeptides
 popovas
 pos
 posteriori
+pqrs
 pre
 prebuilt
 prepend
@@ -400,6 +408,7 @@ preprocesses
 proline
 protium
 proton
+prsq
 ps
 pseudorandom
 pxd
@@ -410,6 +419,7 @@ qarg
 qargs
 qasm
 qbit
+qc
 qcbase
 qcmatrixio
 qcschema
@@ -417,10 +427,11 @@ qeom
 qfi
 qiskit
 qiskit's
-qc
+qj
 qmolecule
 qn
 qregs
+qs
 quantization
 quantized
 quartic
@@ -446,6 +457,7 @@ rgb
 rgba
 rhf
 rhs
+rk
 robert
 rohf
 rossmannek
@@ -475,8 +487,9 @@ setted
 shende
 siddhartha
 sklearn
-soham
+sl
 slater
+soham
 sparselabelop
 spinop
 springer

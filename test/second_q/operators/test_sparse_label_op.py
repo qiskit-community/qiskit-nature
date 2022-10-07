@@ -19,7 +19,7 @@ from typing import Collection, Iterator
 import unittest
 from test import QiskitNatureTestCase
 
-from qiskit_nature.second_q.operators import SparseLabelOp
+from qiskit_nature.second_q.operators import PolynomialTensor, SparseLabelOp
 
 op1 = {
     "+_0 -_1": 0.0,
@@ -46,7 +46,15 @@ class DummySparseLabelOp(SparseLabelOp):
     """Dummy SparseLabelOp for testing purposes"""
 
     @classmethod
-    def _validate_keys(cls, keys: Collection[str], register_length: int) -> None:
+    def _validate_keys(cls, keys: Collection[str], register_length: int | None) -> int:
+        return register_length
+
+    @classmethod
+    def _validate_polynomial_tensor_key(cls, keys: Collection[str]) -> None:
+        pass
+
+    @classmethod
+    def from_polynomial_tensor(cls, tensor: PolynomialTensor) -> SparseLabelOp:
         pass
 
     def terms(self) -> Iterator[tuple[list[tuple[str, int]], complex]]:

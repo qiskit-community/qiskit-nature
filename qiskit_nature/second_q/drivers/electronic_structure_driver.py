@@ -32,6 +32,7 @@ from qiskit_nature.second_q.formats.qcschema import (
     QCWavefunction,
 )
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
+from qiskit_nature.second_q.properties.bases import ElectronicBasis
 
 from .base_driver import BaseDriver
 
@@ -112,12 +113,14 @@ class ElectronicStructureDriver(BaseDriver):
     def to_problem(
         self,
         *,
+        basis: ElectronicBasis = ElectronicBasis.MO,
         include_dipole: bool = True,
     ) -> ElectronicStructureProblem:
         """Extends the :meth:`to_qcschema` method and translates the :class:`.QCSchema` object to an
         :class:`.ElectronicStructureProblem`.
 
         Args:
+            basis: the :class:`.ElectronicBasis` in which to construct the problem.
             include_dipole: whether or not to include an :class:`.ElectronicDipoleMoment` property
                 in the generated problem (if the data is available).
 

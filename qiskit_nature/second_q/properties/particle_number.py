@@ -247,18 +247,18 @@ class ParticleNumber(Property):
         expected = self.num_alpha + self.num_beta
         result.num_particles = []
 
-        if not isinstance(result.aux_operator_eigenvalues, list):
-            aux_operator_eigenvalues = [result.aux_operator_eigenvalues]
+        if not isinstance(result.aux_operators_evaluated, list):
+            aux_operators_evaluated = [result.aux_operators_evaluated]
         else:
-            aux_operator_eigenvalues = result.aux_operator_eigenvalues
-        for aux_op_eigenvalues in aux_operator_eigenvalues:
+            aux_operators_evaluated = result.aux_operators_evaluated
+        for aux_op_eigenvalues in aux_operators_evaluated:
             if aux_op_eigenvalues is None:
                 continue
 
             _key = self.name if isinstance(aux_op_eigenvalues, dict) else 0
 
             if aux_op_eigenvalues[_key] is not None:
-                n_particles = aux_op_eigenvalues[_key][0].real
+                n_particles = aux_op_eigenvalues[_key].real
                 result.num_particles.append(n_particles)
 
                 if not np.isclose(

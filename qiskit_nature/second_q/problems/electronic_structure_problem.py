@@ -19,7 +19,8 @@ from typing import cast, Callable, List, Optional, Tuple, Union
 
 import numpy as np
 
-from qiskit.algorithms import EigensolverResult, MinimumEigensolverResult
+from qiskit.algorithms.eigensolvers import EigensolverResult
+from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
 from qiskit.opflow.primitive_ops import Z2Symmetries
 
 from qiskit_nature.second_q.circuit.library.initial_states.hartree_fock import (
@@ -28,7 +29,7 @@ from qiskit_nature.second_q.circuit.library.initial_states.hartree_fock import (
 from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
-from qiskit_nature.second_q.properties.bases import ElectronicBasisTransform
+from qiskit_nature.second_q.properties.bases import ElectronicBasis
 
 from .electronic_structure_result import ElectronicStructureResult
 from .electronic_properties_container import ElectronicPropertiesContainer
@@ -80,21 +81,17 @@ class ElectronicStructureProblem(BaseProblem):
         """
         Args:
             hamiltonian: the Hamiltonian of this problem.
-
-        Raises:
-            TypeError: if the provided ``hamiltonian`` is not of type :class:`.ElectronicEnergy`.
         """
         super().__init__(hamiltonian)
         self.properties: ElectronicPropertiesContainer = ElectronicPropertiesContainer()
-        self.molecule: MoleculeInfo = None
-        self.basis_transform: ElectronicBasisTransform = None
+        self.molecule: MoleculeInfo | None = None
+        self.basis: ElectronicBasis | None = None
+        self.reference_energy: float | None = None
+        self.orbital_energies: np.ndarray | None = None
+        self.orbital_energies_b: np.ndarray | None = None
         # TODO: further refactoring:
-        # - remove basis_transform
-        # - store basis on Problem instead of in nested hamiltonian/properties
         # - store data on Problem instead of in nested hamiltonian/properties
-        #   - orbital energies
         #   - orbital occupations
-        #   - reference energy
         #   - number of particles
         #   - system size (number of orbitals)
         #   - overlap matrix (for future extension to generalized eigenvalue problem)
@@ -104,7 +101,17 @@ class ElectronicStructureProblem(BaseProblem):
         return cast(ElectronicEnergy, self._hamiltonian)
 
     @property
+    def nuclear_repulsion_energy(self) -> float | None:
+        """The nuclear repulsion energy.
+
+        See :attr:`qiskit_nature.second_q.hamiltonians.ElectronicEnergy.nuclear_repulsion_energy`
+        for more details.
+        """
+        return self.hamiltonian.nuclear_repulsion_energy
+
+    @property
     def num_particles(self) -> Tuple[int, int]:
+        """Returns the number of alpha and beta spin particles."""
         return self.properties.particle_number.num_particles
 
     @property
@@ -116,7 +123,7 @@ class ElectronicStructureProblem(BaseProblem):
         self,
         raw_result: Union[EigenstateResult, EigensolverResult, MinimumEigensolverResult],
     ) -> ElectronicStructureResult:
-        """Interprets an EigenstateResult in the context of this transformation.
+        """Interprets an EigenstateResult in the context of this problem.
 
         Args:
             raw_result: an eigenstate result object.
@@ -131,7 +138,7 @@ class ElectronicStructureProblem(BaseProblem):
         for prop in self.properties:
             if hasattr(prop, "interpret"):
                 prop.interpret(result)  # type: ignore[attr-defined]
-        result.computed_energies = np.asarray([e.real for e in eigenstate_result.eigenenergies])
+        result.computed_energies = np.asarray([e.real for e in eigenstate_result.eigenvalues])
         return result
 
     def get_default_filter_criterion(

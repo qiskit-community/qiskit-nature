@@ -18,9 +18,9 @@ import numpy as np
 
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import UCC
+from qiskit_nature.second_q.operators import ElectronicIntegrals
+from qiskit_nature.second_q.operators.tensor_ordering import _phys_to_chem
 from qiskit_nature.second_q.problems import BaseProblem, ElectronicStructureProblem
-from qiskit_nature.second_q.properties.bases import ElectronicBasis
-from qiskit_nature.second_q.properties.integrals import ElectronicIntegrals
 
 
 from .initial_point import InitialPoint
@@ -158,29 +158,28 @@ class MP2InitialPoint(InitialPoint):
                 "The `ElectronicEnergy` cannot be obtained from the `grouped_property`."
             )
 
-        two_body_mo_integral: ElectronicIntegrals | None = (
-            electronic_energy.get_electronic_integral(ElectronicBasis.MO, 2)
-        )
-        if two_body_mo_integral is None:
+        two_body_mo_integral: ElectronicIntegrals = electronic_energy.electronic_integrals.two_body
+        if two_body_mo_integral.alpha.is_empty():
             raise QiskitNatureError(
-                "The two-body MO `electronic_integrals` cannot be obtained from the `grouped_property`."
+                "The alpha-alpha spin two-body MO `electronic_integrals` cannot be empty."
             )
 
-        orbital_energies: np.ndarray | None = electronic_energy.orbital_energies
+        orbital_energies: np.ndarray | None = grouped_property.orbital_energies
         if orbital_energies is None:
             raise QiskitNatureError(
                 "The `orbital_energies` cannot be obtained from the `grouped_property`."
             )
 
-        integral_matrix: np.ndarray = two_body_mo_integral.get_matrix()
-        if not np.allclose(integral_matrix, two_body_mo_integral.get_matrix(2)):
+        if two_body_mo_integral.beta.get("++--", None) is not None:
             raise NotImplementedError(
                 "`MP2InitialPoint` only supports restricted-spin setups. "
                 "Alpha and beta spin orbitals must be identical. "
                 "See https://github.com/Qiskit/qiskit-nature/issues/645."
             )
 
-        reference_energy = electronic_energy.reference_energy if not None else 0.0
+        integral_matrix = _phys_to_chem(two_body_mo_integral.alpha.get("++--"))
+
+        reference_energy = grouped_property.reference_energy if not None else 0.0
 
         particle_number = grouped_property.properties.particle_number
         if particle_number is None:

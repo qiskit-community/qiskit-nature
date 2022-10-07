@@ -14,16 +14,22 @@
 
 from __future__ import annotations
 
-from typing import Optional, List, Tuple, Union
-import inspect
+from typing import Any, Sequence
 
 import numpy as np
-from qiskit import QuantumCircuit
-from qiskit.circuit import Instruction
-from qiskit.quantum_info import Statevector
-from qiskit.result import Result
+
 from qiskit.algorithms import AlgorithmResult
-from qiskit.opflow import OperatorBase
+from qiskit.algorithms.eigensolvers import EigensolverResult
+from qiskit.algorithms.list_or_dict import ListOrDict
+from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
+from qiskit.circuit import QuantumCircuit
+from qiskit.quantum_info import Statevector
+
+
+def _statevector_to_circuit(state: Statevector) -> QuantumCircuit:
+    circ = QuantumCircuit(state.num_qubits)
+    circ.initialize(state, circ.qubits)
+    return circ
 
 
 class EigenstateResult(AlgorithmResult):
@@ -31,149 +37,121 @@ class EigenstateResult(AlgorithmResult):
 
     def __init__(self) -> None:
         super().__init__()
-        self._eigenenergies: Optional[np.ndarray] = None
-        self._eigenstates: Optional[
-            List[
-                Union[
-                    str,
-                    dict,
-                    Result,
-                    list,
-                    np.ndarray,
-                    Statevector,
-                    QuantumCircuit,
-                    Instruction,
-                    OperatorBase,
-                ]
-            ]
-        ] = None
-        self._aux_operator_eigenvalues: Optional[List[dict[str, Tuple[complex, complex]]]] = None
-        self._raw_result: Optional[AlgorithmResult] = None
+        self.eigenvalues: np.ndarray | None = None
+        self.eigenstates: list[tuple[QuantumCircuit, Sequence[float] | None]] | None = None
+        self.aux_operators_evaluated: list[ListOrDict[complex]] | None = None
+        self.raw_result: AlgorithmResult | None = None
 
     @property
-    def eigenenergies(self) -> Optional[np.ndarray]:
-        """returns eigen energies"""
-        return self._eigenenergies
-
-    @eigenenergies.setter
-    def eigenenergies(self, value: np.ndarray) -> None:
-        """set eigen energies"""
-        self._eigenenergies = value
-
-    @property
-    def eigenstates(
-        self,
-    ) -> Optional[
-        List[
-            Union[
-                str,
-                dict,
-                Result,
-                list,
-                np.ndarray,
-                Statevector,
-                QuantumCircuit,
-                Instruction,
-                OperatorBase,
-            ]
-        ]
-    ]:
-        """returns eigen states"""
-        return self._eigenstates
-
-    @eigenstates.setter
-    def eigenstates(
-        self,
-        value: List[
-            Union[
-                str,
-                dict,
-                Result,
-                list,
-                np.ndarray,
-                Statevector,
-                QuantumCircuit,
-                Instruction,
-                OperatorBase,
-            ]
-        ],
-    ) -> None:
-        """set eigen states"""
-        self._eigenstates = value
-
-    @property
-    def groundenergy(self) -> Optional[float]:
-        """returns ground energy"""
-        energies = self.eigenenergies
+    def groundenergy(self) -> float | None:
+        """Returns the lowest eigenvalue."""
+        energies = self.eigenvalues
         if isinstance(energies, np.ndarray) and energies.size:
             return energies[0].real
         return None
 
     @property
-    def groundstate(
-        self,
-    ) -> Optional[
-        Union[
-            str,
-            dict,
-            Result,
-            list,
-            np.ndarray,
-            Statevector,
-            QuantumCircuit,
-            Instruction,
-            OperatorBase,
-        ]
-    ]:
-        """returns ground state"""
+    def groundstate(self) -> tuple[QuantumCircuit, Sequence[float] | None] | None:
+        """Returns the lowest eigenstate."""
         states = self.eigenstates
         if states:
             return states[0]
         return None
 
-    @property
-    def aux_operator_eigenvalues(self) -> Optional[List[dict[str, Tuple[complex, complex]]]]:
-        """return aux operator eigen values"""
-        return self._aux_operator_eigenvalues
+    @classmethod
+    def from_result(
+        cls, raw_result: EigenstateResult | EigensolverResult | MinimumEigensolverResult
+    ) -> EigenstateResult:
+        """Constructs an `EigenstateResult` from another result type.
 
-    @aux_operator_eigenvalues.setter
-    def aux_operator_eigenvalues(self, value: List[dict[str, Tuple[complex, complex]]]) -> None:
-        """set aux operator eigen values"""
-        self._aux_operator_eigenvalues = value
-
-    @property
-    def raw_result(self) -> Optional[AlgorithmResult]:
-        """Returns the raw algorithm result."""
-        return self._raw_result
-
-    @raw_result.setter
-    def raw_result(self, result: AlgorithmResult) -> None:
-        self._raw_result = result
-
-    def combine(self, result: AlgorithmResult) -> None:
-        """
-        Any property from the argument that exists in the receiver is
-        updated.
         Args:
-            result: Argument result with properties to be set.
-        Raises:
-            TypeError: Argument is None
-        """
-        if result is None:
-            raise TypeError("Argument result expected.")
-        if result == self:
-            return
+            raw_result: the raw result from which to build the new one.
 
-        # find any result public property that exists in the receiver
-        for name, value in inspect.getmembers(result):
-            if (
-                not name.startswith("_")
-                and not inspect.ismethod(value)
-                and not inspect.isfunction(value)
-                and hasattr(self, name)
-            ):
-                try:
-                    setattr(self, name, value)
-                except AttributeError:
-                    # some attributes may be read only
-                    pass
+        Raises:
+            TypeError: when an unsupported result type is provided as input.
+
+        Returns:
+            The constructed `EigenstateResult`.
+        """
+        if isinstance(raw_result, EigenstateResult):
+            return raw_result
+        if isinstance(raw_result, EigensolverResult):
+            return EigenstateResult.from_eigensolver_result(raw_result)
+        if isinstance(raw_result, MinimumEigensolverResult):
+            return EigenstateResult.from_minimum_eigensolver_result(raw_result)
+        raise TypeError(
+            f"Cannot construct an EigenstateResult from a result of type, {type(raw_result)}."
+        )
+
+    @classmethod
+    def from_eigensolver_result(cls, raw_result: EigensolverResult) -> EigenstateResult:
+        """Constructs an `EigenstateResult` from an
+        :class:`qiskit.algorithms.eigensolvers.EigensolverResult`.
+
+        Args:
+            raw_result: the raw result from which to build the `EigenstateResult`.
+
+        Returns:
+            The constructed `EigenstateResult`.
+        """
+        result = EigenstateResult()
+        result.raw_result = raw_result
+        result.eigenvalues = np.asarray(raw_result.eigenvalues)
+
+        if hasattr(raw_result, "eigenstates"):
+            result.eigenstates = [
+                (_statevector_to_circuit(Statevector(state)), None)
+                for state in raw_result.eigenstates
+            ]
+        elif hasattr(raw_result, "optimal_circuits") and hasattr(raw_result, "optimal_points"):
+            result.eigenstates = list(zip(raw_result.optimal_circuits, raw_result.optimal_points))
+
+        if raw_result.aux_operators_evaluated is not None:
+            result.aux_operators_evaluated = [
+                cls._unwrap_aux_op_values(aux_op_eval)
+                for aux_op_eval in raw_result.aux_operators_evaluated
+            ]
+
+        return result
+
+    @classmethod
+    def from_minimum_eigensolver_result(
+        cls, raw_result: MinimumEigensolverResult
+    ) -> EigenstateResult:
+        """Constructs an `EigenstateResult` from an
+        :class:`qiskit.algorithms.minimum_eigensolvers.MinimumEigensolverResult`.
+
+        Args:
+            raw_result: the raw result from which to build the `EigenstateResult`.
+
+        Returns:
+            The constructed `EigenstateResult`.
+        """
+        result = EigenstateResult()
+        result.raw_result = raw_result
+        result.eigenvalues = np.asarray([raw_result.eigenvalue])
+
+        if hasattr(raw_result, "eigenstate"):
+            result.eigenstates = [
+                (_statevector_to_circuit(Statevector(raw_result.eigenstate)), None)
+            ]
+        elif hasattr(raw_result, "optimal_circuit") and hasattr(raw_result, "optimal_point"):
+            result.eigenstates = [(raw_result.optimal_circuit, raw_result.optimal_point)]
+
+        if raw_result.aux_operators_evaluated is not None:
+            result.aux_operators_evaluated = [
+                cls._unwrap_aux_op_values(raw_result.aux_operators_evaluated)
+            ]
+
+        return result
+
+    @staticmethod
+    def _unwrap_aux_op_values(
+        aux_operators_evaluated: ListOrDict[tuple[complex, dict[str, Any]]]
+    ) -> ListOrDict[complex]:
+        aux_op_values: ListOrDict[complex]
+        if isinstance(aux_operators_evaluated, list):
+            aux_op_values = [val[0] for val in aux_operators_evaluated]
+        else:
+            aux_op_values = {key: val[0] for key, val in aux_operators_evaluated.items()}
+        return aux_op_values

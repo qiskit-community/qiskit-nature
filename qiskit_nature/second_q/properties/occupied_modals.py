@@ -112,19 +112,19 @@ class OccupiedModals(Property):
         """
         result.num_occupied_modals_per_mode = []
 
-        if not isinstance(result.aux_operator_eigenvalues, list):
-            aux_operator_eigenvalues = [result.aux_operator_eigenvalues]
+        if not isinstance(result.aux_operators_evaluated, list):
+            aux_operators_evaluated = [result.aux_operators_evaluated]
         else:
-            aux_operator_eigenvalues = result.aux_operator_eigenvalues
+            aux_operators_evaluated = result.aux_operators_evaluated
 
         num_modes = len(self._basis._num_modals_per_mode)
 
-        for aux_op_eigenvalues in aux_operator_eigenvalues:
+        for aux_op_eigenvalues in aux_operators_evaluated:
             occ_modals = []
             for mode in range(num_modes):
                 _key = str(mode) if isinstance(aux_op_eigenvalues, dict) else mode
                 if aux_op_eigenvalues[_key] is not None:
-                    occ_modals.append(aux_op_eigenvalues[_key][0].real)
+                    occ_modals.append(aux_op_eigenvalues[_key].real)
                 else:
                     occ_modals.append(None)
             result.num_occupied_modals_per_mode.append(occ_modals)

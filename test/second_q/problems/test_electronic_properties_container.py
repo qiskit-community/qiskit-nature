@@ -60,7 +60,7 @@ class TestElectronicPropertiesContainer(QiskitNatureTestCase):
                 container.electronic_dipole_moment = OccupiedModals()  # type: ignore[assignment]
 
         with self.subTest("successful setting"):
-            container.electronic_dipole_moment = ElectronicDipoleMoment()
+            container.electronic_dipole_moment = ElectronicDipoleMoment(None, None, None)
             self.assertIn(ElectronicDipoleMoment, container)
 
         with self.subTest("removal via None setting"):

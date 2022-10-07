@@ -22,13 +22,7 @@ import numpy as np
 import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
-from qiskit_nature.second_q.properties.bases import (
-    ElectronicBasis,
-    ElectronicBasisTransform,
-)
-from qiskit_nature.second_q.properties.integrals import (
-    OneBodyElectronicIntegrals,
-)
+from qiskit_nature.second_q.operators import ElectronicIntegrals, PolynomialTensor
 
 
 @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
@@ -40,7 +34,6 @@ class TestElectronicEnergy(PropertyTest):
         super().setUp()
         driver = PySCFDriver()
         self.prop = cast(ElectronicEnergy, driver.run().hamiltonian)
-        self.prop.get_electronic_integral(ElectronicBasis.MO, 1).set_truncation(2)
 
     def test_second_q_op(self):
         """Test second_q_op."""
@@ -55,17 +48,13 @@ class TestElectronicEnergy(PropertyTest):
             self.assertEqual(key1, key2)
             self.assertTrue(np.isclose(np.abs(val1), np.abs(val2)))
 
-    def test_integral_operator(self):
-        """Test integral_operator."""
-        # duplicate MO integrals into AO basis for this test
-        trafo = ElectronicBasisTransform(ElectronicBasis.MO, ElectronicBasis.AO, np.eye(2))
-        self.prop.transform_basis(trafo)
-
-        density = OneBodyElectronicIntegrals(ElectronicBasis.AO, (0.5 * np.eye(2), None))
-        matrix_op = self.prop.integral_operator(density)
+    def test_fock(self):
+        """Test fock."""
+        density = ElectronicIntegrals(alpha=PolynomialTensor({"+-": 0.5 * np.eye(2)}))
+        fock_op = self.prop.fock(density)
 
         expected = np.asarray([[-0.34436786423711596, 0.0], [0.0, 0.4515069814257469]])
-        self.assertTrue(np.allclose(matrix_op._matrices[0], expected))
+        self.assertTrue(np.allclose(fock_op.alpha["+-"], expected))
 
     def test_from_raw_integrals(self):
         """Test from_raw_integrals utility method."""
@@ -75,71 +64,27 @@ class TestElectronicEnergy(PropertyTest):
         two_body_bb = np.random.random((2, 2, 2, 2))
         two_body_ba = np.random.random((2, 2, 2, 2))
 
-        with self.subTest("minimal SO"):
-            prop = ElectronicEnergy.from_raw_integrals(ElectronicBasis.SO, one_body_a, two_body_aa)
-            self.assertTrue(
-                np.allclose(
-                    prop.get_electronic_integral(ElectronicBasis.SO, 1)._matrices, one_body_a
-                )
-            )
-            self.assertTrue(
-                np.allclose(
-                    prop.get_electronic_integral(ElectronicBasis.SO, 2)._matrices, two_body_aa
-                )
-            )
-
-        with self.subTest("minimal MO"):
-            prop = ElectronicEnergy.from_raw_integrals(ElectronicBasis.MO, one_body_a, two_body_aa)
-            self.assertTrue(
-                np.allclose(
-                    prop.get_electronic_integral(ElectronicBasis.MO, 1)._matrices[0], one_body_a
-                )
-            )
-            self.assertTrue(
-                np.allclose(
-                    prop.get_electronic_integral(ElectronicBasis.MO, 2)._matrices[0], two_body_aa
-                )
-            )
-
-        with self.subTest("minimal MO with beta"):
+        with self.subTest("alpha only"):
             prop = ElectronicEnergy.from_raw_integrals(
-                ElectronicBasis.MO,
+                one_body_a, two_body_aa, auto_index_order=False
+            )
+            self.assertTrue(np.allclose(prop.electronic_integrals.alpha["+-"], one_body_a))
+            self.assertTrue(np.allclose(prop.electronic_integrals.alpha["++--"], two_body_aa))
+
+        with self.subTest("alpha and beta"):
+            prop = ElectronicEnergy.from_raw_integrals(
                 one_body_a,
                 two_body_aa,
                 h1_b=one_body_b,
                 h2_bb=two_body_bb,
                 h2_ba=two_body_ba,
+                auto_index_order=False,
             )
-            self.assertTrue(
-                np.allclose(
-                    prop.get_electronic_integral(ElectronicBasis.MO, 1)._matrices[0], one_body_a
-                )
-            )
-            self.assertTrue(
-                np.allclose(
-                    prop.get_electronic_integral(ElectronicBasis.MO, 1)._matrices[1], one_body_b
-                )
-            )
-            self.assertTrue(
-                np.allclose(
-                    prop.get_electronic_integral(ElectronicBasis.MO, 2)._matrices[0], two_body_aa
-                )
-            )
-            self.assertTrue(
-                np.allclose(
-                    prop.get_electronic_integral(ElectronicBasis.MO, 2)._matrices[1], two_body_ba
-                )
-            )
-            self.assertTrue(
-                np.allclose(
-                    prop.get_electronic_integral(ElectronicBasis.MO, 2)._matrices[2], two_body_bb
-                )
-            )
-            self.assertTrue(
-                np.allclose(
-                    prop.get_electronic_integral(ElectronicBasis.MO, 2)._matrices[3], two_body_ba.T
-                )
-            )
+            self.assertTrue(np.allclose(prop.electronic_integrals.alpha["+-"], one_body_a))
+            self.assertTrue(np.allclose(prop.electronic_integrals.beta["+-"], one_body_b))
+            self.assertTrue(np.allclose(prop.electronic_integrals.alpha["++--"], two_body_aa))
+            self.assertTrue(np.allclose(prop.electronic_integrals.beta["++--"], two_body_bb))
+            self.assertTrue(np.allclose(prop.electronic_integrals.beta_alpha["++--"], two_body_ba))
 
 
 if __name__ == "__main__":

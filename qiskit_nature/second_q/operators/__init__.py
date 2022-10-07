@@ -21,6 +21,7 @@ Operators and mappers for different systems such as fermionic, vibrational and s
 .. autosummary::
    :toctree: ../stubs/
 
+   ElectronicIntegrals
    FermionicOp
    SparseLabelOp
    SpinOp
@@ -38,6 +39,7 @@ Modules
    commutators
 """
 
+from .electronic_integrals import ElectronicIntegrals
 from .fermionic_op import FermionicOp
 from .second_quantized_op import SecondQuantizedOp
 from .spin_op import SpinOp
@@ -46,6 +48,7 @@ from .polynomial_tensor import PolynomialTensor
 from .sparse_label_op import SparseLabelOp
 
 __all__ = [
+    "ElectronicIntegrals",
     "FermionicOp",
     "SecondQuantizedOp",
     "SpinOp",

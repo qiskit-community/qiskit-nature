@@ -27,12 +27,14 @@ from qiskit_nature.units import DistanceUnit
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
 from qiskit_nature.second_q.formats.qcschema import QCSchema
-from qiskit_nature.second_q.formats.qcschema_translator import qcschema_to_problem
-
+from qiskit_nature.second_q.formats.qcschema_translator import (
+    qcschema_to_problem,
+    get_ao_to_mo_from_qcschema,
+)
+from qiskit_nature.second_q.operators import ElectronicIntegrals
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
-from qiskit_nature.second_q.properties import DipoleMoment, ElectronicDipoleMoment
+from qiskit_nature.second_q.properties import ElectronicDipoleMoment
 from qiskit_nature.second_q.properties.bases import ElectronicBasis
-from qiskit_nature.second_q.properties.integrals import OneBodyElectronicIntegrals
 from qiskit_nature.settings import settings
 import qiskit_nature.optionals as _optionals
 
@@ -365,7 +367,6 @@ class PySCFDriver(ElectronicStructureDriver):
         Raises:
             QiskitNatureError: if an error during the PySCF setup or calculation occurred.
         """
-        self._build_molecule()
         self.run_pyscf()
         return self.to_problem()
 
@@ -465,6 +466,8 @@ class PySCFDriver(ElectronicStructureDriver):
         Raises:
             QiskitNatureError: If an invalid HF method type was supplied.
         """
+        self._build_molecule()
+
         # pylint: disable=import-error
         from pyscf import dft, scf
         from pyscf.lib import chkfile as lib_chkfile
@@ -581,11 +584,12 @@ class PySCFDriver(ElectronicStructureDriver):
     def to_problem(
         self,
         *,
+        basis: ElectronicBasis = ElectronicBasis.MO,
         include_dipole: bool = True,
     ) -> ElectronicStructureProblem:
         qcschema = self.to_qcschema()
 
-        problem = qcschema_to_problem(qcschema)
+        problem = qcschema_to_problem(qcschema, basis=basis)
 
         if include_dipole:
             self._mol.set_common_orig((0, 0, 0))
@@ -605,25 +609,22 @@ class PySCFDriver(ElectronicStructureDriver):
             logger.info("Nuclear dipole moment: %s", nucl_dip)
             logger.info("Total dipole moment: %s", nucl_dip + elec_dip)
 
-            x_dip_ints = OneBodyElectronicIntegrals(ElectronicBasis.AO, (ao_dip[0], None))
-            y_dip_ints = OneBodyElectronicIntegrals(ElectronicBasis.AO, (ao_dip[1], None))
-            z_dip_ints = OneBodyElectronicIntegrals(ElectronicBasis.AO, (ao_dip[2], None))
+            x_dip = ElectronicIntegrals.from_raw_integrals(ao_dip[0])
+            y_dip = ElectronicIntegrals.from_raw_integrals(ao_dip[1])
+            z_dip = ElectronicIntegrals.from_raw_integrals(ao_dip[2])
 
-            x_dipole = DipoleMoment(
-                "x", [x_dip_ints, x_dip_ints.transform_basis(problem.basis_transform)]
-            )
-            y_dipole = DipoleMoment(
-                "y", [y_dip_ints, y_dip_ints.transform_basis(problem.basis_transform)]
-            )
-            z_dipole = DipoleMoment(
-                "z", [z_dip_ints, z_dip_ints.transform_basis(problem.basis_transform)]
-            )
+            if basis == ElectronicBasis.MO:
+                basis_transform = get_ao_to_mo_from_qcschema(qcschema)
 
-            problem.properties.electronic_dipole_moment = ElectronicDipoleMoment(
-                [x_dipole, y_dipole, z_dipole],
-                nuclear_dipole_moment=nucl_dip,
-                reverse_dipole_sign=True,
-            )
+                x_dip = basis_transform.transform_electronic_integrals(x_dip)
+                y_dip = basis_transform.transform_electronic_integrals(y_dip)
+                z_dip = basis_transform.transform_electronic_integrals(z_dip)
+
+            dipole_moment = ElectronicDipoleMoment(x_dip, y_dip, z_dip)
+            dipole_moment.nuclear_dipole_moment = nucl_dip
+            dipole_moment.reverse_dipole_sign = True
+
+            problem.properties.electronic_dipole_moment = dipole_moment
 
         return problem
 

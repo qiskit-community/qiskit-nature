@@ -22,13 +22,9 @@ import itertools
 import h5py
 import numpy as np
 
-from qiskit_nature.second_q.operators import FermionicOp
+from qiskit_nature.second_q.operators import FermionicOp, PolynomialTensor
+from qiskit_nature.second_q.operators.tensor_ordering import _chem_to_phys
 
-from .bases import ElectronicBasis
-from .integrals import (
-    OneBodyElectronicIntegrals,
-    TwoBodyElectronicIntegrals,
-)
 from .property import Property
 
 if TYPE_CHECKING:
@@ -161,10 +157,9 @@ class AngularMomentum(Property):
         h_1 = x_h1 + y_h1 + z_h1
         h_2 = x_h2 + y_h2 + z_h2
 
-        h1_ints = OneBodyElectronicIntegrals(ElectronicBasis.SO, h_1)
-        h2_ints = TwoBodyElectronicIntegrals(ElectronicBasis.SO, h_2)
+        tensor = PolynomialTensor({"+-": h_1, "++--": _chem_to_phys(h_2)})
 
-        op = (h1_ints.to_second_q_op() + h2_ints.to_second_q_op()).simplify()
+        op = FermionicOp.from_polynomial_tensor(tensor).simplify()
 
         return {self.name: op}
 
@@ -178,18 +173,18 @@ class AngularMomentum(Property):
         expected = self.spin
         result.total_angular_momentum = []
 
-        if not isinstance(result.aux_operator_eigenvalues, list):
-            aux_operator_eigenvalues = [result.aux_operator_eigenvalues]
+        if not isinstance(result.aux_operators_evaluated, list):
+            aux_operators_evaluated = [result.aux_operators_evaluated]
         else:
-            aux_operator_eigenvalues = result.aux_operator_eigenvalues
-        for aux_op_eigenvalues in aux_operator_eigenvalues:
+            aux_operators_evaluated = result.aux_operators_evaluated
+        for aux_op_eigenvalues in aux_operators_evaluated:
             if aux_op_eigenvalues is None:
                 continue
 
             _key = self.name if isinstance(aux_op_eigenvalues, dict) else 1
 
             if aux_op_eigenvalues[_key] is not None:
-                total_angular_momentum = aux_op_eigenvalues[_key][0].real
+                total_angular_momentum = aux_op_eigenvalues[_key].real
                 result.total_angular_momentum.append(total_angular_momentum)
 
                 if expected is not None:

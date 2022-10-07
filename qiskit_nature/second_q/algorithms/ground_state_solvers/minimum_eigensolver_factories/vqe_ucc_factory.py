@@ -12,14 +12,17 @@
 
 """The minimum eigensolver factory for ground state calculation algorithms."""
 
-from typing import Optional, Union
+from __future__ import annotations
+
 import logging
 import numpy as np
 
-from qiskit.algorithms import MinimumEigensolver, VQE
+from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolver, VQE
+from qiskit.algorithms.optimizers import Minimizer, Optimizer
 from qiskit.circuit import QuantumCircuit
+from qiskit.primitives import BaseEstimator
 
-from qiskit_nature.second_q.circuit.library import HartreeFock, UCC, UCCSD
+from qiskit_nature.second_q.circuit.library import HartreeFock, UCC
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.problems import (
     ElectronicStructureProblem,
@@ -32,45 +35,30 @@ logger = logging.getLogger(__name__)
 
 
 class VQEUCCFactory(MinimumEigensolverFactory):
-    """Factory to construct a :class:`~qiskit.algorithms.VQE` minimum eigensolver with :class:`~.UCCSD`
+    """Factory to construct a :class:`~qiskit.algorithms.VQE` minimum eigensolver with :class:`~.UCC`
     ansatz wavefunction.
-
-    .. note::
-
-       Any ansatz a user might directly set into VQE via the :attr:`minimum_eigensolver` will
-       be overwritten by the factory when producing a solver via :meth:`get_solver`. This is
-       due to the fact that the factory is designed to manage the ansatz and set it up according
-       to the problem. Always pass any custom ansatz to be used when constructing the factory or
-       by using its :attr:`ansatz` setter. The following code sample illustrates this behavior:
-
-    .. code-block:: python
-
-        from qiskit_nature.second_q.algorithms import VQEUCCFactory
-        from qiskit_nature.second_q.circuit.library import UCCSD, UCC
-        factory = VQEUCCFactory()
-        vqe1 = factory.get_solver(problem, qubit_converter)
-        print(type(vqe1.ansatz))  # UCCSD (default)
-        vqe1.ansatz = UCC()
-        # Here the minimum_eigensolver ansatz just gets overwritten
-        factory.minimum_eigensolver.ansatz = UCC()
-        vqe2 = factory.get_solver(problem, qubit_converter)
-        print(type(vqe2.ansatz))  # UCCSD
-        # Here we change the factory ansatz and thus new VQEs are created with the new ansatz
-        factory.ansatz = UCC()
-        vqe3 = factory.get_solver(problem, qubit_converter)
-        print(type(vqe3.ansatz))  # UCC
-
     """
 
     def __init__(
         self,
-        initial_point: Optional[Union[np.ndarray, InitialPoint]] = None,
-        ansatz: Optional[UCC] = None,
-        initial_state: Optional[QuantumCircuit] = None,
+        estimator: BaseEstimator,
+        ansatz: UCC,
+        optimizer: Optimizer | Minimizer,
+        *,
+        initial_point: np.ndarray | InitialPoint | None = None,
+        initial_state: QuantumCircuit | None = None,
         **kwargs,
     ) -> None:
         """
         Args:
+            estimator: the :class:`~qiskit.primitives.BaseEstimator` class to use for the internal
+                :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`.
+            ansatz: the :class:`~.UCC` ansatz. Its attributes `qubit_converter`, `num_particles`,
+                `num_spin_orbitals`, and `initial_point` will be completed at runtime based on the
+                problem being solved.
+            optimizer: the :class:`~qiskit.algorithms.optimizers.Optimizer` or
+                :class:`~qiskit.algorithms.optimizers.Minimizer` to use for the internal
+                :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`.
             initial_point: An optional initial point (i.e., initial parameter values for the VQE
                 optimizer). If ``None`` then VQE will use an all-zero initial point of the
                 appropriate length computed using
@@ -84,45 +72,35 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             initial_state: Allows specification of a custom `QuantumCircuit` to be used as the
                 initial state of the ansatz. If this is never set by the user, the factory will
                 default to the :class:`~.HartreeFock` state.
-            ansatz: Allows specification of a custom :class:`~.UCC` instance. This defaults to None
-                where the factory will internally create and use a :class:`~.UCCSD` ansatz.
             kwargs: Remaining keyword arguments are passed to the :class:`~.VQE`.
         """
-
         self._initial_state = initial_state
-        self.initial_point = initial_point if initial_point is not None else HFInitialPoint()
-        self._ansatz = ansatz
+        self._initial_point = initial_point if initial_point is not None else HFInitialPoint()
 
-        self._vqe = VQE(**kwargs)
+        self._vqe = VQE(estimator, ansatz, optimizer, **kwargs)
 
     @property
-    def ansatz(self) -> Optional[UCC]:
-        """
-        Gets the user provided ansatz of future VQEs produced by the factory.
-        If value is ``None`` it defaults to :class:`~.UCCSD`.
-        """
-        return self._ansatz
+    def ansatz(self) -> UCC:
+        """Gets the user provided ansatz of future VQEs produced by the factory."""
+        return self.minimum_eigensolver.ansatz
 
     @ansatz.setter
-    def ansatz(self, ansatz: Optional[UCC]) -> None:
-        """
-        Sets the ansatz of future VQEs produced by the factory.
-        If set to ``None`` it defaults to :class:`~.UCCSD`.
-        """
-        self._ansatz = ansatz
+    def ansatz(self, ansatz: UCC) -> None:
+        """Sets the ansatz of future VQEs produced by the factory."""
+        self.minimum_eigensolver.ansatz = ansatz
 
     @property
-    def initial_point(self) -> Optional[Union[np.ndarray, InitialPoint]]:
+    def initial_point(self) -> np.ndarray | InitialPoint | None:
         """Gets the initial point of future VQEs produced by the factory."""
         return self._initial_point
 
     @initial_point.setter
-    def initial_point(self, initial_point: Optional[Union[np.ndarray, InitialPoint]]) -> None:
+    def initial_point(self, initial_point: np.ndarray | InitialPoint | None) -> None:
         """Sets the initial point of future VQEs produced by the factory."""
         self._initial_point = initial_point
 
     @property
-    def initial_state(self) -> Optional[QuantumCircuit]:
+    def initial_state(self) -> QuantumCircuit | None:
         """
         Getter of the initial state.
         If value is ``None`` it will default to using the :class:`~.HartreeFock`.
@@ -130,7 +108,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         return self._initial_state
 
     @initial_state.setter
-    def initial_state(self, initial_state: Optional[QuantumCircuit]) -> None:
+    def initial_state(self, initial_state: QuantumCircuit | None) -> None:
         """
         Setter of the initial state.
         If ``None`` is passed, this factory will default to using the :class:`~.HartreeFock`.
@@ -142,7 +120,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         problem: ElectronicStructureProblem,
         qubit_converter: QubitConverter,
     ) -> MinimumEigensolver:
-        """Returns a VQE with a UCCSD wavefunction ansatz, based on ``qubit_converter``.
+        """Returns a VQE with a UCC wavefunction ansatz, based on ``qubit_converter``.
 
         Args:
             problem: a class encoding a problem to be solved.
@@ -161,17 +139,13 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         if initial_state is None:
             initial_state = HartreeFock(num_spin_orbitals, num_particles, qubit_converter)
 
-        ansatz = self.ansatz
-        if ansatz is None:
-            ansatz = UCCSD()
-        ansatz.qubit_converter = qubit_converter
-        ansatz.num_particles = num_particles
-        ansatz.num_spin_orbitals = num_spin_orbitals
-        ansatz.initial_state = initial_state
-        self.minimum_eigensolver.ansatz = ansatz
+        self.ansatz.qubit_converter = qubit_converter
+        self.ansatz.num_particles = num_particles
+        self.ansatz.num_spin_orbitals = num_spin_orbitals
+        self.ansatz.initial_state = initial_state
 
         if isinstance(self.initial_point, InitialPoint):
-            self.initial_point.ansatz = ansatz
+            self.initial_point.ansatz = self.ansatz
             self.initial_point.grouped_property = driver_result
             initial_point = self.initial_point.to_numpy_array()
         else:

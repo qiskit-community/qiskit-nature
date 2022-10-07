@@ -12,15 +12,13 @@
 
 """ Test Driver PySCF """
 
-from typing import cast
-
 import unittest
 from test import QiskitNatureTestCase
 from test.second_q.drivers.test_driver import TestDriver
+
 from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 import qiskit_nature.optionals as _optionals
 
 
@@ -44,16 +42,14 @@ class TestDriverPySCF(QiskitNatureTestCase, TestDriver):
         atom = "H 0 0 0; H 0 0 1; H 0 0 2"
         driver = PySCFDriver(atom=atom, unit=DistanceUnit.ANGSTROM, charge=0, spin=1, basis="sto3g")
         driver_result = driver.run()
-        electronic_energy = cast(ElectronicEnergy, driver_result.hamiltonian)
-        self.assertAlmostEqual(electronic_energy.reference_energy, -1.523996200246108, places=5)
+        self.assertAlmostEqual(driver_result.reference_energy, -1.523996200246108, places=5)
 
     def test_h4(self):
         """Test for H4 chain"""
         atom = "H 0 0 0; H 0 0 1; H 0 0 2; H 0 0 3"
         driver = PySCFDriver(atom=atom, unit=DistanceUnit.ANGSTROM, charge=0, spin=0, basis="sto3g")
         driver_result = driver.run()
-        electronic_energy = cast(ElectronicEnergy, driver_result.hamiltonian)
-        self.assertAlmostEqual(electronic_energy.reference_energy, -2.09854593699776, places=5)
+        self.assertAlmostEqual(driver_result.reference_energy, -2.09854593699776, places=5)
 
     def test_invalid_atom_type(self):
         """Atom is string with ; separator or list of string"""
@@ -65,16 +61,14 @@ class TestDriverPySCF(QiskitNatureTestCase, TestDriver):
         atom = ["H 0 0 0", "H 0 0 1"]
         driver = PySCFDriver(atom=atom, unit=DistanceUnit.ANGSTROM, charge=0, spin=0, basis="sto3g")
         driver_result = driver.run()
-        electronic_energy = cast(ElectronicEnergy, driver_result.hamiltonian)
-        self.assertAlmostEqual(electronic_energy.reference_energy, -1.0661086493179366, places=5)
+        self.assertAlmostEqual(driver_result.reference_energy, -1.0661086493179366, places=5)
 
     def test_zmatrix(self):
         """Check z-matrix input"""
         atom = "H; H 1 1.0"
         driver = PySCFDriver(atom=atom, unit=DistanceUnit.ANGSTROM, charge=0, spin=0, basis="sto3g")
         driver_result = driver.run()
-        electronic_energy = cast(ElectronicEnergy, driver_result.hamiltonian)
-        self.assertAlmostEqual(electronic_energy.reference_energy, -1.0661086493179366, places=5)
+        self.assertAlmostEqual(driver_result.reference_energy, -1.0661086493179366, places=5)
 
 
 if __name__ == "__main__":

@@ -18,7 +18,7 @@ from test import QiskitNatureTestCase
 import numpy as np
 from qiskit_nature.second_q.formats.fcidump import FCIDump
 from qiskit_nature.second_q.formats.fcidump_translator import fcidump_to_problem
-from qiskit_nature.second_q.properties.bases import ElectronicBasis
+from qiskit_nature.second_q.operators.tensor_ordering import _chem_to_phys
 
 
 class BaseTestFCIDump(ABC):
@@ -71,45 +71,47 @@ class BaseTestFCIDump(ABC):
                 places=3,
             )
 
-        mo_onee_ints = electronic_energy.get_electronic_integral(ElectronicBasis.MO, 1)
         with self.subTest("1-body alpha"):
-            self.log.debug("MO one electron integrals are %s", mo_onee_ints)
-            self.assertEqual(mo_onee_ints._matrices[0].shape, self.mo_onee.shape)
+            alpha_1body = electronic_energy.electronic_integrals.alpha["+-"]
+            self.log.debug("MO one electron alpha integrals are %s", alpha_1body)
+            self.assertEqual(alpha_1body.shape, self.mo_onee.shape)
             np.testing.assert_array_almost_equal(
-                np.absolute(mo_onee_ints._matrices[0]),
-                np.absolute(self.mo_onee),
-                decimal=4,
+                np.absolute(alpha_1body), np.absolute(self.mo_onee), decimal=4
             )
 
         if self.mo_onee_b is not None:
             with self.subTest("1-body beta"):
-                self.assertEqual(mo_onee_ints._matrices[1].shape, self.mo_onee_b.shape)
+                beta_1body = electronic_energy.electronic_integrals.beta["+-"]
+                self.log.debug("MO one electron beta integrals are %s", beta_1body)
+                self.assertEqual(beta_1body.shape, self.mo_onee_b.shape)
                 np.testing.assert_array_almost_equal(
-                    np.absolute(mo_onee_ints._matrices[1]),
-                    np.absolute(self.mo_onee_b),
-                    decimal=4,
+                    np.absolute(beta_1body), np.absolute(self.mo_onee_b), decimal=4
                 )
 
-        mo_eri_ints = electronic_energy.get_electronic_integral(ElectronicBasis.MO, 2)
         with self.subTest("2-body alpha-alpha"):
-            self.log.debug("MO two electron integrals %s", mo_eri_ints)
-            self.assertEqual(mo_eri_ints._matrices[0].shape, self.mo_eri.shape)
+            alpha_2body = electronic_energy.electronic_integrals.alpha["++--"]
+            self.log.debug("MO two electron alpha-alpha integrals are %s", alpha_2body)
+            self.assertEqual(alpha_2body.shape, self.mo_eri.shape)
             np.testing.assert_array_almost_equal(
-                np.absolute(mo_eri_ints._matrices[0]), np.absolute(self.mo_eri), decimal=4
+                np.absolute(alpha_2body), np.absolute(self.mo_eri), decimal=4
             )
 
         if self.mo_eri_ba is not None:
             with self.subTest("2-body beta-alpha"):
-                self.assertEqual(mo_eri_ints._matrices[1].shape, self.mo_eri_ba.shape)
+                beta_alpha_2body = electronic_energy.electronic_integrals.beta_alpha["++--"]
+                self.log.debug("MO two electron beta-alpha integrals are %s", beta_alpha_2body)
+                self.assertEqual(beta_alpha_2body.shape, self.mo_eri_ba.shape)
                 np.testing.assert_array_almost_equal(
-                    np.absolute(mo_eri_ints._matrices[1]), np.absolute(self.mo_eri_ba), decimal=4
+                    np.absolute(beta_alpha_2body), np.absolute(self.mo_eri_ba), decimal=4
                 )
 
         if self.mo_eri_bb is not None:
             with self.subTest("2-body beta-beta"):
-                self.assertEqual(mo_eri_ints._matrices[2].shape, self.mo_eri_bb.shape)
+                beta_2body = electronic_energy.electronic_integrals.beta["++--"]
+                self.log.debug("MO two electron beta-alpha integrals are %s", beta_2body)
+                self.assertEqual(beta_2body.shape, self.mo_eri_bb.shape)
                 np.testing.assert_array_almost_equal(
-                    np.absolute(mo_eri_ints._matrices[2]), np.absolute(self.mo_eri_bb), decimal=4
+                    np.absolute(beta_2body), np.absolute(self.mo_eri_bb), decimal=4
                 )
 
     def test_particle_number(self):
@@ -141,11 +143,13 @@ class TestFCIDumpH2(QiskitNatureTestCase, BaseTestFCIDump):
         self.num_beta = 1
         self.mo_onee = np.array([[1.2563, 0.0], [0.0, 0.4719]])
         self.mo_onee_b = None
-        self.mo_eri = np.array(
-            [
-                [[[0.6757, 0.0], [0.0, 0.6646]], [[0.0, 0.1809], [0.1809, 0.0]]],
-                [[[0.0, 0.1809], [0.1809, 0.0]], [[0.6646, 0.0], [0.0, 0.6986]]],
-            ]
+        self.mo_eri = _chem_to_phys(
+            np.array(
+                [
+                    [[[0.6757, 0.0], [0.0, 0.6646]], [[0.0, 0.1809], [0.1809, 0.0]]],
+                    [[[0.0, 0.1809], [0.1809, 0.0]], [[0.6646, 0.0], [0.0, 0.6986]]],
+                ]
+            )
         )
         self.mo_eri_ba = None
         self.mo_eri_bb = None
@@ -167,7 +171,7 @@ class TestFCIDumpLiH(QiskitNatureTestCase, BaseTestFCIDump):
         loaded = np.load(self.get_resource_path("test_fcidump_lih.npz", "second_q/formats/fcidump"))
         self.mo_onee = loaded["mo_onee"]
         self.mo_onee_b = None
-        self.mo_eri = loaded["mo_eri"]
+        self.mo_eri = _chem_to_phys(loaded["mo_eri"])
         self.mo_eri_ba = None
         self.mo_eri_bb = None
         fcidump = FCIDump.from_file(
@@ -188,9 +192,9 @@ class TestFCIDumpOH(QiskitNatureTestCase, BaseTestFCIDump):
         loaded = np.load(self.get_resource_path("test_fcidump_oh.npz", "second_q/formats/fcidump"))
         self.mo_onee = loaded["mo_onee"]
         self.mo_onee_b = loaded["mo_onee_b"]
-        self.mo_eri = loaded["mo_eri"]
-        self.mo_eri_ba = loaded["mo_eri_ba"]
-        self.mo_eri_bb = loaded["mo_eri_bb"]
+        self.mo_eri = _chem_to_phys(loaded["mo_eri"])
+        self.mo_eri_ba = _chem_to_phys(loaded["mo_eri_ba"])
+        self.mo_eri_bb = _chem_to_phys(loaded["mo_eri_bb"])
         fcidump = FCIDump.from_file(
             self.get_resource_path("test_fcidump_oh.fcidump", "second_q/formats/fcidump")
         )

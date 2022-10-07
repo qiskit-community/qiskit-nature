@@ -13,10 +13,8 @@
 """Tests Electronic Structure Problem."""
 import unittest
 from test import QiskitNatureTestCase
-from test.second_q.problems.resources.resource_reader import (
-    read_expected_file,
-)
 
+import json
 import numpy as np
 
 import qiskit_nature.optionals as _optionals
@@ -33,11 +31,12 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
         """Tests that the list of second quantized operators is created if no transformers
         provided."""
         expected_num_of_sec_quant_ops = 6
-        expected_fermionic_op_path = self.get_resource_path(
-            "H2_631g_ferm_op_two_ints",
-            "second_q/problems/resources",
-        )
-        expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
+        with open(
+            self.get_resource_path("H2_631g_ferm_op.json", "second_q/problems/resources"),
+            "r",
+            encoding="utf8",
+        ) as file:
+            expected = json.load(file)
 
         driver = PySCFDriver(basis="631g")
         electronic_structure_problem = driver.run()
@@ -52,7 +51,7 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
         with self.subTest("Check components of electronic second quantized operator."):
             assert all(
                 s[0] == t[0] and np.isclose(np.abs(s[1]), np.abs(t[1]))
-                for s, t in zip(sorted(expected_fermionic_op), sorted(electr_sec_quant_op.items()))
+                for s, t in zip(sorted(expected.items()), sorted(electr_sec_quant_op.items()))
             )
 
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
@@ -60,13 +59,17 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
         """Tests that the correct second quantized operator is created if an active space
         transformer is provided."""
         expected_num_of_sec_quant_ops = 6
-        expected_fermionic_op_path = self.get_resource_path(
-            "H2_631g_ferm_op_active_space",
-            "second_q/problems/resources",
-        )
-        expected_fermionic_op = read_expected_file(expected_fermionic_op_path)
+        with open(
+            self.get_resource_path(
+                "H2_631g_ferm_op_active_space.json", "second_q/problems/resources"
+            ),
+            "r",
+            encoding="utf8",
+        ) as file:
+            expected = json.load(file)
+
         driver = PySCFDriver(basis="631g")
-        trafo = ActiveSpaceTransformer(num_electrons=2, num_molecular_orbitals=2)
+        trafo = ActiveSpaceTransformer(2, 2)
 
         electronic_structure_problem = trafo.transform(driver.run())
         electr_sec_quant_op, second_quantized_ops = electronic_structure_problem.second_q_ops()
@@ -79,7 +82,7 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
         with self.subTest("Check components of electronic second quantized operator."):
             assert all(
                 s[0] == t[0] and np.isclose(np.abs(s[1]), np.abs(t[1]))
-                for s, t in zip(sorted(expected_fermionic_op), sorted(electr_sec_quant_op.items()))
+                for s, t in zip(sorted(expected.items()), sorted(electr_sec_quant_op.items()))
             )
 
 
