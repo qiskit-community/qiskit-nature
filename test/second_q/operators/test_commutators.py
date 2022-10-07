@@ -14,89 +14,34 @@
 
 from __future__ import annotations
 
-from typing import Collection, Iterator
-
 import unittest
 from test import QiskitNatureTestCase
 
-from qiskit_nature.second_q.operators import SparseLabelOp
+from qiskit_nature.second_q.operators import FermionicOp
 from qiskit_nature.second_q.operators.commutators import (
     commutator,
     anti_commutator,
     double_commutator
 )
 
-op1 = {
-    "+_0 -_1": 0.0,
-    "+_0 -_2": 1.0,
-    }
-
-op2 = {
-    "+_0 -_1": 0.5,
-    "+_0 -_2": 1.0,
-}
-
-op3 = {
-    "+_0 -_1": 0.5,
-    "+_0 -_3": 3.0,
-}
-
-opComplex = {
-    "+_0 -_1": 0.5 + 1j,
-    "+_0 -_2": 1.0,
-}
-
-class DummySparseLabelOp(SparseLabelOp):
-    """Dummy SparseLabelOp for testing purposes"""
-
-    @classmethod
-    def _validate_keys(cls, keys: Collection[str], register_length: int) -> None:
-        pass
-
-    def terms(self) -> Iterator[tuple[list[tuple[str, int]], complex]]:
-        pass
-
-    def transpose(self) -> SparseLabelOp:
-        return self
-
-    def compose(self, other, qargs=None, front=False) -> SparseLabelOp:
-        return self
-
-    def tensor(self, other) -> SparseLabelOp:
-        return self
-
-    def expand(self, other) -> SparseLabelOp:
-        return self
-
-    # pylint: disable=unused-argument
-    def simplify(self, *, atol: float | None = None) -> SparseLabelOp:
-        return self
-
+op1 = FermionicOp({"+_0 -_0": 1}, register_length=1)
+op2 = FermionicOp({"-_0 +_0": 2}, register_length=1)
+op3 = FermionicOp({"+_0 -_0": 1, "-_0 +_0": 2}, register_length=1)
 
 class TestCommutators(QiskitNatureTestCase):
     """Commutators tests."""
 
     def test_commutator(self):
         """Test commutator method"""
-        op_a = DummySparseLabelOp(op1, 2)
-        op_b = DummySparseLabelOp(op2, 2)
-
-        print(commutator(op_a, op_b))
+        commutator(op1, op2)
 
     def test_anti_commutator(self):
         """Test anti commutator method"""
-        op_a = DummySparseLabelOp(op1, 2)
-        op_b = DummySparseLabelOp(op2, 2)
-
-        print(anti_commutator(op_a, op_b))
+        anti_commutator(op1, op2)
 
     def test_double_commutator(self):
         """Test double commutator method"""
-        op_a = DummySparseLabelOp(op1, 2)
-        op_b = DummySparseLabelOp(op2, 2)
-        op_c = DummySparseLabelOp(op3, 2)
-
-        print(double_commutator(op_a, op_b, op_c))
+        double_commutator(op1, op2, op3)
 
 
 if __name__ == "__main__":
