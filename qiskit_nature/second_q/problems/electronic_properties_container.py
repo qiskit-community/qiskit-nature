@@ -18,6 +18,7 @@ from typing import cast
 
 from qiskit_nature.second_q.properties import (
     AngularMomentum,
+    ElectronicDensity,
     ElectronicDipoleMoment,
     Magnetization,
     ParticleNumber,
@@ -38,6 +39,16 @@ class ElectronicPropertiesContainer(PropertiesContainer):
     def angular_momentum(self, angular_momentum: AngularMomentum | None) -> None:
         """Sets the angular momentum property."""
         self._setter(angular_momentum, AngularMomentum)
+
+    @property
+    def electronic_density(self) -> ElectronicDensity | None:
+        """Returns the electronic density property."""
+        return cast(ElectronicDensity, self._getter(ElectronicDensity))
+
+    @electronic_density.setter
+    def electronic_density(self, electronic_density: ElectronicDensity | None) -> None:
+        """Sets the electronic density property."""
+        self._setter(electronic_density, ElectronicDensity)
 
     @property
     def electronic_dipole_moment(self) -> ElectronicDipoleMoment | None:

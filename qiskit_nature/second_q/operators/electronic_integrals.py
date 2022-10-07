@@ -255,7 +255,7 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
                 {"+-": self.beta["+-"]},
                 validate=False,
             )
-        return ElectronicIntegrals(alpha, beta)
+        return self.__class__(alpha, beta)
 
     @property
     def two_body(self) -> ElectronicIntegrals:
@@ -278,11 +278,11 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
                 {"++--": self.beta_alpha["++--"]},
                 validate=False,
             )
-        return ElectronicIntegrals(alpha, beta, beta_alpha)
+        return self.__class__(alpha, beta, beta_alpha)
 
     @property
     def register_length(self) -> int | None:
-        """TODO."""
+        """The size of the operator that can be generated from these `ElectronicIntegrals`."""
         alpha_length = self.alpha.register_length
         return alpha_length
 
@@ -340,7 +340,7 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         if not isinstance(other, Number):
             raise TypeError(f"other {other} must be a number")
 
-        return ElectronicIntegrals(
+        return self.__class__(
             cast(PolynomialTensor, other * self.alpha),
             cast(PolynomialTensor, other * self.beta),
             cast(PolynomialTensor, other * self.beta_alpha),
@@ -359,7 +359,7 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
             beta_other = other.alpha if beta_other_empty else other.beta
             beta = beta_self + beta_other
 
-        return ElectronicIntegrals(
+        return self.__class__(
             self.alpha + other.alpha,
             beta,
             self.beta_alpha + other.beta_alpha,
@@ -371,7 +371,7 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         Returns:
             The complex conjugate of the ``ElectronicIntegrals``.
         """
-        return ElectronicIntegrals(
+        return self.__class__(
             self.alpha.conjugate(),
             self.beta.conjugate(),
             self.beta_alpha.conjugate(),
@@ -383,7 +383,7 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         Returns:
             The transpose of the ``ElectronicIntegrals``.
         """
-        return ElectronicIntegrals(
+        return self.__class__(
             self.alpha.transpose(),
             self.beta.transpose(),
             self.beta_alpha.transpose(),
@@ -431,7 +431,7 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         if all(not op.beta_alpha.is_empty() for op in operands):
             # We can only perform this operation, when all beta_alpha tensors are non-empty.
             beta_alpha = PolynomialTensor.einsum(einsum_map, *(op.beta_alpha for op in operands))
-        return ElectronicIntegrals(alpha, beta, beta_alpha)
+        return cls(alpha, beta, beta_alpha)
 
     # pylint: disable=invalid-name
     @classmethod
@@ -505,7 +505,7 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         if h2_ba is not None:
             beta_alpha = PolynomialTensor({"++--": h2_ba}, validate=validate)
 
-        return ElectronicIntegrals(alpha, beta, beta_alpha)
+        return cls(alpha, beta, beta_alpha)
 
     def second_q_coeffs(self) -> PolynomialTensor:
         """Constructs the total ``PolynomialTensor`` contained the second-quantized coefficients.
@@ -566,3 +566,33 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
             kron_two_body[(0, 1, 1, 0)] = 0
 
         return tensor_blocked_spin_orbitals
+
+    def trace_spin(self) -> PolynomialTensor:
+        """Returns a :class:`~.PolynomialTensor` where the spin components have been traced out.
+
+        This will sum the :attr:`alpha` and :attr:`beta` components, tracing out the spin.
+
+        Returns:
+            A ``PolynomialTensor`` with the spin traced out.
+        """
+        beta_empty = self.beta.is_empty()
+        beta_alpha_empty = self.beta_alpha.is_empty()
+
+        if beta_empty and beta_alpha_empty:
+            return cast(PolynomialTensor, 2.0 * self.alpha)
+
+        one_body = self.one_body
+        two_body = self.two_body
+        tensor_spin_traced = PolynomialTensor({})
+        tensor_spin_traced += one_body.alpha
+        tensor_spin_traced += one_body.beta
+        tensor_spin_traced += two_body.alpha
+        tensor_spin_traced += two_body.beta
+        if beta_alpha_empty:
+            tensor_spin_traced += two_body.alpha
+            tensor_spin_traced += two_body.beta
+        else:
+            tensor_spin_traced += two_body.beta_alpha
+            tensor_spin_traced += two_body.alpha_beta
+
+        return tensor_spin_traced

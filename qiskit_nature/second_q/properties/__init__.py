@@ -30,6 +30,7 @@ Electronic Properties
    :nosignatures:
 
    AngularMomentum
+   ElectronicDensity
    ElectronicDipoleMoment
    Magnetization
    ParticleNumber
@@ -48,6 +49,7 @@ from .property import Property
 
 from .angular_momentum import AngularMomentum
 from .dipole_moment import ElectronicDipoleMoment
+from .electronic_density import ElectronicDensity
 from .magnetization import Magnetization
 from .particle_number import ParticleNumber
 
@@ -57,6 +59,7 @@ from .occupied_modals import OccupiedModals
 __all__ = [
     "Property",
     "AngularMomentum",
+    "ElectronicDensity",
     "ElectronicDipoleMoment",
     "Magnetization",
     "ParticleNumber",

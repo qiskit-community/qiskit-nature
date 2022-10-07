@@ -12,14 +12,19 @@
 
 """The electronic structure result."""
 
+from __future__ import annotations
+
 from functools import reduce
-from typing import Dict, List, Optional, Tuple, cast
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, cast
 
 import numpy as np
 
 from qiskit_nature.constants import DEBYE
 
 from .eigenstate_result import EigenstateResult
+
+if TYPE_CHECKING:
+    from qiskit_nature.second_q.properties import ElectronicDensity
 
 # A dipole moment, when present as X, Y and Z components will normally have float values for all
 # the components. However when using Z2Symmetries, if the dipole component operator does not
@@ -44,6 +49,7 @@ class ElectronicStructureResult(EigenstateResult):
         self._num_particles: Optional[List[float]] = None
         self._magnetization: Optional[List[float]] = None
         self._total_angular_momentum: Optional[List[float]] = None
+        self._electronic_density: "ElectronicDensity" | None = None
 
     @property
     def hartree_fock_energy(self) -> float:
@@ -282,6 +288,16 @@ class ElectronicStructureResult(EigenstateResult):
     def magnetization(self, value: List[float]) -> None:
         """Sets measured magnetization"""
         self._magnetization = value
+
+    @property
+    def electronic_density(self) -> "ElectronicDensity" | None:
+        """Returns the measured electronic density."""
+        return self._electronic_density
+
+    @electronic_density.setter
+    def electronic_density(self, electronic_density: "ElectronicDensity" | None) -> None:
+        """Sets the measured electronic density."""
+        self._electronic_density = electronic_density
 
     def __str__(self) -> str:
         """Printable formatted result"""

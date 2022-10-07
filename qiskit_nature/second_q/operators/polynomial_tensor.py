@@ -85,7 +85,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
 
     @property
     def register_length(self) -> int | None:
-        """TODO."""
+        """The size of the operator that can be generated from this `PolynomialTensor`."""
         for key in self._data:
             if key == "":
                 continue
