@@ -212,7 +212,7 @@ intersphinx_mapping = {
     "numpy": ("https://numpy.org/doc/stable/", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/", None),
     "qiskit": ("https://qiskit.org/documentation/", None),
-    "retworkx": ("https://qiskit.org/documentation/retworkx/", None),
+    "rustworkx": ("https://qiskit.org/documentation/rustworkx/", None),
 }
 # -- Extension configuration -------------------------------------------------
 

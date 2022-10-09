@@ -21,8 +21,9 @@ import numbers
 
 import numpy as np
 
-from retworkx import NodeIndices, PyGraph, WeightedEdgeList, adjacency_matrix, networkx_converter
-from retworkx.visualization import mpl_draw
+from rustworkx import NodeIndices, PyGraph, WeightedEdgeList  # pylint: disable=no-name-in-module
+from rustworkx import adjacency_matrix, networkx_converter
+from rustworkx.visualization import mpl_draw
 
 from qiskit.utils import optionals as _optionals
 
@@ -40,7 +41,7 @@ if _optionals.HAS_MATPLOTLIB:
 class LatticeDrawStyle:
     """A stylesheet for lattice figure.
     Please see
-    https://qiskit.org/documentation/retworkx/stubs/retworkx.visualization.mpl_draw.html#retworkx.visualization.mpl_draw
+    https://qiskit.org/documentation/rustworkx/stubs/rustworkx.visualization.mpl_draw.html#rustworkx.visualization.mpl_draw
     for each element.
     """
 
@@ -118,8 +119,8 @@ class Lattice:
     def __init__(self, graph: Union[PyGraph, "nx.Graph"]) -> None:
         """
         Args:
-            graph: Input graph for Lattice. Can be provided as ``retworkx.PyGraph``, which is
-                used internally, or, for convenience, as ``networkx.Graph``. The graph
+            graph: Input graph for Lattice. Can be provided as ``rustworkx.PyGraph``, which is
+                used internally, or, for convenience, as ``rustworkx.Graph``. The graph
                 cannot be a multigraph.
 
         Raises:
@@ -234,7 +235,7 @@ class Lattice:
             A new lattice based on the provided adjacency matrix.
         """
         # make a graph from the interaction matrix.
-        # This should be replaced by from_adjacency_matrix of retworkx.
+        # This should be replaced by from_adjacency_matrix of rustworkx.
         shape = interaction_matrix.shape
         if len(shape) != 2 or shape[0] != shape[1]:
             raise ValueError(
@@ -310,9 +311,9 @@ class Lattice:
 
         Args:
             self_loop : Draw self-loops in the lattice. Defaults to False.
-            style : Styles for retworkx.visualization.mpl_draw.
+            style : Styles for rustworkx.visualization.mpl_draw.
                 Please see
-                https://qiskit.org/documentation/retworkx/stubs/retworkx.visualization.mpl_draw.html#retworkx.visualization.mpl_draw
+                https://qiskit.org/documentation/rustworkx/stubs/rustworkx.visualization.mpl_draw.html#rustworkx.visualization.mpl_draw
                 for details.
         """
 

@@ -17,7 +17,7 @@ from math import pi
 from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
-from retworkx import PyGraph
+from rustworkx import PyGraph  # pylint: disable=no-name-in-module
 
 from .boundary_condition import BoundaryCondition
 from .lattice import Lattice, LatticeDrawStyle
@@ -312,9 +312,9 @@ class HyperCubicLattice(Lattice):
 
         Args:
             self_loop: Draw self-loops in the lattice. Defaults to False.
-            style : Styles for retworkx.visualization.mpl_draw.
+            style : Styles for rustworkx.visualization.mpl_draw.
                 Please see
-                https://qiskit.org/documentation/retworkx/stubs/retworkx.visualization.mpl_draw.html#retworkx.visualization.mpl_draw
+                https://qiskit.org/documentation/rustworkx/stubs/rustworkx.visualization.mpl_draw.html#rustworkx.visualization.mpl_draw
                 for details.
         """
         graph = self.graph

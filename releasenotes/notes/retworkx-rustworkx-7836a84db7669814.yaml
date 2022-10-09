@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Changes usage of library ``retworkx`` to the new substitute ``rustworkx``.
