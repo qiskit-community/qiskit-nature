@@ -16,7 +16,7 @@ from abc import ABC, abstractmethod
 from typing import Optional
 
 import numpy as np
-from retworkx import PyGraph
+from rustworkx import PyGraph
 
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.problems.second_quantization.lattice.lattices import Lattice
@@ -67,7 +67,7 @@ class LatticeModel(ABC):
     @staticmethod
     def _generate_lattice_from_parameters(interaction_matrix: np.ndarray):
         # make a graph from the interaction matrix.
-        # This should be replaced by from_adjacency_matrix of retworkx.
+        # This should be replaced by from_adjacency_matrix of rustworkx.
         shape = interaction_matrix.shape
         if len(shape) != 2 or shape[0] != shape[1]:
             raise ValueError(
