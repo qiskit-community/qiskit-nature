@@ -16,7 +16,7 @@ from abc import ABC, abstractmethod
 from typing import Optional
 
 import numpy as np
-from rustworkx import PyGraph  # pylint: disable=no-name-in-module
+from rustworkx import PyGraph
 
 from qiskit_nature.operators.second_quantization import SecondQuantizedOp
 from qiskit_nature.problems.second_quantization.lattice.lattices import Lattice

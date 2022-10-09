@@ -13,7 +13,7 @@
 """Test HeisenbergModel."""
 
 from test import QiskitNatureTestCase
-from rustworkx import PyGraph, is_isomorphic  # pylint: disable=no-name-in-module
+from rustworkx import PyGraph, is_isomorphic
 from qiskit_nature.second_q.hamiltonians.lattices import Lattice, LineLattice
 from qiskit_nature.second_q.hamiltonians import HeisenbergModel, IsingModel
 

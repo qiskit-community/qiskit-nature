@@ -17,7 +17,7 @@ from math import pi
 from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
-from rustworkx import PyGraph  # pylint: disable=no-name-in-module
+from rustworkx import PyGraph
 
 from .boundary_condition import BoundaryCondition
 from .lattice import Lattice, LatticeDrawStyle

@@ -21,7 +21,7 @@ import numbers
 
 import numpy as np
 
-from rustworkx import NodeIndices, PyGraph, WeightedEdgeList  # pylint: disable=no-name-in-module
+from rustworkx import NodeIndices, PyGraph, WeightedEdgeList
 from rustworkx import adjacency_matrix, networkx_converter
 from rustworkx.visualization import mpl_draw
 

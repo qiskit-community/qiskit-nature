@@ -15,7 +15,7 @@ from test import QiskitNatureTestCase
 
 import numpy as np
 from numpy.testing import assert_array_equal
-from rustworkx import PyGraph, is_isomorphic  # pylint: disable=no-name-in-module
+from rustworkx import PyGraph, is_isomorphic
 
 from qiskit_nature.second_q.hamiltonians import FermiHubbardModel
 from qiskit_nature.second_q.hamiltonians.lattices import Lattice
