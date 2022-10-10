@@ -35,7 +35,91 @@ ARRAY_TYPE = Union[np.ndarray, sp.SparseArray]
 
 
 class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, Mapping):
-    """PolynomialTensor class"""
+    """A container class to store arbitrary operator coefficients.
+
+    This class generalizes the storing of operator coefficients in matrix format. Actual operators
+    can be extracted from it using the
+    :meth:`qiskit_nature.second_q.operators.SparseLabelOp.from_polynomial_tensor` method on the
+    respective subclasses of the ``SparseLabelOp``.
+
+    The storage format maps from string keys to matrix values. By design, **no** assumptions are
+    made about the *contents* of the keys. However, the length of each key determines the dimension
+    of the matrix which it maps, too. For example:
+
+    .. jupyter-execute::
+
+        import numpy as np
+
+        data = {}
+        # the empty string, maps to a 0-dimensional matrix, a single number
+        data[""] = 1.0
+        # a string of length 1, must map to a 1-dimensional array
+        data["+"] = np.array([1, 2])
+        # a string of length 2, must map to a 2-dimensional array
+        data["+-"] = np.array([[1, 2], [3, 4]])
+        # ... and so on
+
+    In general, the idea is that each character in a key will be associated with the corresponding
+    axis of the matrix, when an operator gets built from the tensor. This means, that the previous
+    example would expand for example like so:
+
+    .. jupyter-execute::
+
+        from qiskit_nature.second_q.operators import FermionicOp, PolynomialTensor
+
+        tensor = PolynomialTensor(data)
+        operator = FermionicOp.from_polynomial_tensor(tensor)
+
+        print(operator)
+
+    **Algebra**
+
+    This class supports the following basic arithmetic operations: addition, subtraction, scalar
+    multiplication, operator multiplication, and adjoint.
+    For example,
+
+    Addition
+
+    .. jupyter-execute::
+
+      matrix = np.array([[0, 1], [2, 3]], dtype=float)
+      0.5 * PolynomialTensor({"+-": matrix}) + PolynomialTensor({"+-": matrix})
+
+    Operator multiplication
+
+    .. jupyter-execute::
+
+      tensor = PolynomialTensor({"+-": matrix})
+      print(tensor @ tensor)
+
+    Tensor multiplication
+
+    .. jupyter-execute::
+
+      print(tensor ^ tensor)
+
+    Adjoint
+
+    .. jupyter-execute::
+
+      PolynomialTensor({"+-": 1j * matrix}).adjoint()
+
+    **Sparse Arrays**
+
+    Furthermore, the ``PolynomialTensor`` supports both, dense numpy arrays and sparse arrays. Since
+    it needs to support more than 2-dimensional arrays, we rely on the
+    [sparse](https://sparse.pydata.org/en/stable/index.html) library.
+
+    .. jupyter-execute::
+
+        import sparse as sp
+
+        sparse_matrix = sp.as_coo(matrix)
+        print(PolynomialTensor({"+-": sparse_matrix}))
+
+    One can convert between dense and sparse representation of the same tensor via the
+    :meth:`todense` and :meth:`tosparse` methods, respectively.
+    """
 
     def __init__(
         self,
@@ -46,6 +130,9 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
         """
         Args:
             data: mapping of string-based operator keys to coefficient matrix values.
+            validate: when set to False the `data` will not be validated. Disable this setting with
+                care!
+
         Raises:
             ValueError: when length of operator key does not match dimensions of value matrix.
             ValueError: when value matrix does not have consistent dimensions.
@@ -89,12 +176,22 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
 
     @property
     def register_length(self) -> int | None:
-        """TODO."""
+        """The size of the operator that can be generated from this `PolynomialTensor`."""
         for key in self._data:
             if key == "":
                 continue
             return cast(ARRAY_TYPE, self[key]).shape[0]
         return None
+
+    def __repr__(self) -> str:
+        data_str = f"{dict(self.items())}"
+
+        return "PolynomialTensor(" f"{data_str})"
+
+    def __str__(self) -> str:
+        pre = "Polynomial Tensor\n"
+        ret = " " + "\n ".join([f'"{label}":\n{str(coeff)}' for label, coeff in self.items()])
+        return pre + ret
 
     @classmethod
     def empty(cls) -> PolynomialTensor:
@@ -114,26 +211,22 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
         return any(isinstance(self[key], sp.SparseArray) for key in self)
 
     def __getitem__(self, __k: str) -> (np.ndarray | sp.SparseArray | Number):
-        """
-        Returns value matrix in the `PolynomialTensor`.
+        """Gets the value from the ``PolynomialTensor``.
 
         Args:
             __k: operator key string in the `PolynomialTensor`.
+
         Returns:
-            Value matrix corresponding to the operator key `__k`
+            Value corresponding to the operator key `__k`.
         """
         return self._data.__getitem__(__k)
 
     def __len__(self) -> int:
-        """
-        Returns length of `PolynomialTensor`.
-        """
+        """Returns the length of the ``PolynomialTensor``."""
         return self._data.__len__()
 
     def __iter__(self) -> Iterator[str]:
-        """
-        Returns iterator of the `PolynomialTensor`.
-        """
+        """Returns an iterator of the ``PolynomialTensor``."""
         return self._data.__iter__()
 
     def todense(self) -> PolynomialTensor:
@@ -150,7 +243,15 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
     def tosparse(
         self, *, sparse_type: Type[sp.COO] | Type[sp.DOK] | Type[sp.GCXS] = sp.COO
     ) -> PolynomialTensor:
-        """Converts all internal matrices to sparse arrays."""
+        """Converts all internal matrices to sparse arrays.
+
+        Args:
+            sparse_type: the type of the sparse matrices.
+
+        Returns:
+            A new ``PolynomialTensor`` with all its matrices converted to the requested sparse array
+            type.
+        """
         sparse_dict: dict[str, ARRAY_TYPE] = {}
         for key, value in self._data.items():
             if isinstance(value, np.ndarray):
@@ -160,12 +261,14 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
         return PolynomialTensor(sparse_dict, validate=False)
 
     def _multiply(self, other: complex) -> PolynomialTensor:
-        """Scalar multiplication of PolynomialTensor with complex
+        """Scalar multiplication of a PolynomialTensor with a scalar.
 
         Args:
             other: scalar to be multiplied with the ``PolynomialTensor``.
+
         Returns:
-            the new ``PolynomialTensor`` product object.
+            The new ``PolynomialTensor`` product object.
+
         Raises:
             TypeError: if ``other`` is not a ``Number``.
         """
@@ -179,16 +282,18 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
         return PolynomialTensor(prod_dict, validate=False)
 
     def _add(self, other: PolynomialTensor, qargs=None) -> PolynomialTensor:
-        """Addition of PolynomialTensors
+        """Addition of ``PolynomialTensor`` instances.
 
         Args:
             other: second ``PolynomialTensor`` object to be added to the first.
+
         Returns:
-            the new summed ``PolynomialTensor``.
+            The new summed ``PolynomialTensor``.
+
         Raises:
             TypeError: when ``other`` is not a ``PolynomialTensor``.
-            ValueError: when values corresponding to keys in ``other`` and
-                            the first ``PolynomialTensor`` object do not match.
+            ValueError: when values corresponding to keys in ``other`` and the first
+                ``PolynomialTensor`` object do not match.
         """
         if not isinstance(other, PolynomialTensor):
             raise TypeError("Incorrect argument type: other should be PolynomialTensor")
@@ -201,10 +306,11 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
 
     # pylint: disable=too-many-return-statements
     def __eq__(self, other: object) -> bool:
-        """Check equality of first PolynomialTensor with other
+        """Check equality of ``PolynomialTensor`` instances.
 
         Args:
             other: second ``PolynomialTensor`` object to be compared with the first.
+
         Returns:
             True when ``PolynomialTensor`` objects are equal, False when unequal.
         """
@@ -245,10 +351,11 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
 
     # pylint: disable=too-many-return-statements
     def equiv(self, other: object) -> bool:
-        """Check equivalence of first PolynomialTensor with other
+        """Check equivalence of ``PolynomialTensor`` instances.
 
         Args:
             other: second ``PolynomialTensor`` object to be compared with the first.
+
         Returns:
             True when ``PolynomialTensor`` objects are equivalent, False when not.
         """
@@ -289,10 +396,10 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
         return True
 
     def conjugate(self) -> PolynomialTensor:
-        """Conjugate of PolynomialTensors
+        """Returns the conjugate of the ``PolynomialTensor``.
 
         Returns:
-            the complex conjugate of the ``PolynomialTensor``.
+            The complex conjugate of the starting ``PolynomialTensor``.
         """
         conj_dict: dict[str, ARRAY_TYPE] = {}
         for key, value in self._data.items():
@@ -301,10 +408,10 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
         return PolynomialTensor(conj_dict, validate=False)
 
     def transpose(self) -> PolynomialTensor:
-        """Transpose of PolynomialTensor
+        """Returns the transpose of the ``PolynomialTensor``.
 
         Returns:
-            the transpose of the ``PolynomialTensor``.
+            The transpose of the starting ``PolynomialTensor``.
         """
         transpose_dict: dict[str, ARRAY_TYPE] = {}
         for key, value in self._data.items():

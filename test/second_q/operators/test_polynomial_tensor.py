@@ -257,7 +257,7 @@ class TestPolynomialTensor(QiskitNatureTestCase):
             result = PolynomialTensor(self.sparse_1) * other
             self.assertEqual(result, PolynomialTensor(expected))
 
-        with self.assertRaisesRegex(TypeError, r"other .* must be a number"):
+        with self.assertRaises(TypeError):
             _ = PolynomialTensor(self.og_poly) * PolynomialTensor(self.og_poly)
 
     def test_add(self):
