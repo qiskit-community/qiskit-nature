@@ -34,73 +34,11 @@ class TestPolynomialTensor(QiskitNatureTestCase):
             "++--": self.build_matrix(4, 4),
         }
 
-        self.sample_poly_1 = {
-            "": 1.0,
-            "++": self.build_matrix(4, 1),
-            "+-": self.build_matrix(4, 2),
-            "++--": self.build_matrix(4, 4),
-        }
-
-        self.sample_poly_2 = {
-            "": 1.0,
-            "+": self.build_matrix(4, 1),
-            "+-": self.build_matrix(4, 2),
-            "++--": np.arange(1, 13).reshape(1, 2, 3, 2),
-        }
-
-        self.sample_poly_3 = {
-            "": 1.0,
-            "+": self.build_matrix(4, 1),
-            "+-": self.build_matrix(2, 2),
-            "++--": self.build_matrix(4, 4),
-        }
-
-        self.sample_poly_4 = {
-            "": 1.0,
-            "+": self.build_matrix(2, 1),
-            "+-": self.build_matrix(2, 2),
-            "++--": self.build_matrix(2, 4),
-        }
-
-        self.sample_poly_5 = {
-            "": 1.0,
-            "+": self.build_matrix(2, 1),
-            "+-": self.build_matrix(2, 2),
-        }
-
-        self.expected_conjugate_poly = {
-            "": 1.0,
-            "+": self.build_matrix(4, 1).conjugate(),
-            "+-": self.build_matrix(4, 2).conjugate(),
-            "++--": self.build_matrix(4, 4).conjugate(),
-        }
-
-        self.expected_transpose_poly = {
+        self.og_transposed = {
             "": 1.0,
             "+": self.build_matrix(4, 1).transpose(),
             "+-": self.build_matrix(4, 2).transpose(),
             "++--": self.build_matrix(4, 4).transpose(),
-        }
-
-        self.expected_sum_poly = {
-            "": 2.0,
-            "+": np.add(self.build_matrix(4, 1), self.build_matrix(4, 1)),
-            "+-": np.add(self.build_matrix(4, 2), self.build_matrix(4, 2)),
-            "++--": np.add(self.build_matrix(4, 4), self.build_matrix(4, 4)),
-        }
-
-        self.expected_compose_poly = {
-            "": 1.0,
-            "+": np.multiply(self.build_matrix(4, 1).transpose(), self.build_matrix(4, 1)),
-            "+-": np.matmul(self.build_matrix(4, 2).transpose(), self.build_matrix(4, 2)),
-            "++--": np.matmul(self.build_matrix(4, 4).transpose(), self.build_matrix(4, 4)),
-        }
-
-        self.expected_compose_front_poly = {
-            "": 1.0,
-            "+": np.multiply(self.build_matrix(4, 1), self.build_matrix(4, 1).transpose()),
-            "+-": np.matmul(self.build_matrix(4, 2), self.build_matrix(4, 2).transpose()),
-            "++--": np.matmul(self.build_matrix(4, 4), self.build_matrix(4, 4).transpose()),
         }
 
         self.kronecker = {
@@ -147,12 +85,21 @@ class TestPolynomialTensor(QiskitNatureTestCase):
             ValueError,
             r"Data key .* of length \d does not match data value matrix of dimensions \(\d+, *\)",
         ):
-            _ = PolynomialTensor(self.sample_poly_1)
+            _ = PolynomialTensor(
+                {
+                    "++": self.build_matrix(4, 1),
+                }
+            )
 
         with self.assertRaisesRegex(
             ValueError, r"For key (.*): dimensions of value matrix are not identical \(\d+, .*\)"
         ):
-            _ = PolynomialTensor(self.sample_poly_2)
+            _ = PolynomialTensor(
+                {
+                    "+-": self.build_matrix(4, 2),
+                    "++--": np.arange(1, 13).reshape(1, 2, 3, 2),
+                }
+            )
 
     def test_get_item(self):
         """Test for getting value matrices corresponding to keys in PolynomialTensor"""
@@ -162,7 +109,17 @@ class TestPolynomialTensor(QiskitNatureTestCase):
 
     def test_len(self):
         """Test for the length of PolynomialTensor"""
-        length = len(PolynomialTensor(self.sample_poly_4))
+        length = len(
+            PolynomialTensor(
+                {
+                    "": 1.0,
+                    "+": self.build_matrix(2, 1),
+                    "+-": self.build_matrix(2, 2),
+                    "++--": self.build_matrix(2, 4),
+                }
+            )
+        )
+
         exp_len = 4
         self.assertEqual(exp_len, length)
 
@@ -175,7 +132,7 @@ class TestPolynomialTensor(QiskitNatureTestCase):
     @idata(np.linspace(0, 3, 5))
     def test_mul(self, other):
         """Test for scalar multiplication"""
-        expected_prod_poly = {
+        expected = {
             "": 1.0 * other,
             "+": self.build_matrix(4, 1, other),
             "+-": self.build_matrix(4, 2, other),
@@ -183,7 +140,7 @@ class TestPolynomialTensor(QiskitNatureTestCase):
         }
 
         result = PolynomialTensor(self.og_poly) * other
-        self.assertEqual(result, PolynomialTensor(expected_prod_poly))
+        self.assertEqual(result, PolynomialTensor(expected))
 
         with self.assertRaisesRegex(TypeError, r"other .* must be a number"):
             _ = PolynomialTensor(self.og_poly) * PolynomialTensor(self.og_poly)
@@ -191,7 +148,14 @@ class TestPolynomialTensor(QiskitNatureTestCase):
     def test_add(self):
         """Test for addition of PolynomialTensor"""
         result = PolynomialTensor(self.og_poly) + PolynomialTensor(self.og_poly)
-        self.assertEqual(result, PolynomialTensor(self.expected_sum_poly))
+        expected = {
+            "": 2.0,
+            "+": np.add(self.build_matrix(4, 1), self.build_matrix(4, 1)),
+            "+-": np.add(self.build_matrix(4, 2), self.build_matrix(4, 2)),
+            "++--": np.add(self.build_matrix(4, 4), self.build_matrix(4, 4)),
+        }
+
+        self.assertEqual(result, PolynomialTensor(expected))
 
         with self.assertRaisesRegex(
             TypeError, "Incorrect argument type: other should be PolynomialTensor"
@@ -201,25 +165,44 @@ class TestPolynomialTensor(QiskitNatureTestCase):
     def test_conjugate(self):
         """Test for conjugate of PolynomialTensor"""
         result = PolynomialTensor(self.og_poly).conjugate()
-        self.assertEqual(result, PolynomialTensor(self.expected_conjugate_poly))
+        expected = {
+            "": 1.0,
+            "+": self.build_matrix(4, 1).conjugate(),
+            "+-": self.build_matrix(4, 2).conjugate(),
+            "++--": self.build_matrix(4, 4).conjugate(),
+        }
+
+        self.assertEqual(result, PolynomialTensor(expected))
 
     def test_transpose(self):
         """Test for transpose of PolynomialTensor"""
         result = PolynomialTensor(self.og_poly).transpose()
-        self.assertEqual(result, PolynomialTensor(self.expected_transpose_poly))
+        self.assertEqual(result, PolynomialTensor(self.og_transposed))
 
     def test_compose(self):
         """Test composition of PolynomialTensor"""
         pt_a = PolynomialTensor(self.og_poly)
-        pt_b = PolynomialTensor(self.expected_transpose_poly)
+        pt_b = PolynomialTensor(self.og_transposed)
 
         with self.subTest("compose(front=False)"):
             result = pt_a.compose(pt_b)
-            self.assertEqual(result, PolynomialTensor(self.expected_compose_poly))
+            expected = {
+                "": 1.0,
+                "+": np.multiply(self.build_matrix(4, 1).transpose(), self.build_matrix(4, 1)),
+                "+-": np.matmul(self.build_matrix(4, 2).transpose(), self.build_matrix(4, 2)),
+                "++--": np.matmul(self.build_matrix(4, 4).transpose(), self.build_matrix(4, 4)),
+            }
+            self.assertEqual(result, PolynomialTensor(expected))
 
         with self.subTest("compose(front=True)"):
             result = pt_a.compose(pt_b, front=True)
-            self.assertEqual(result, PolynomialTensor(self.expected_compose_front_poly))
+            expected = {
+                "": 1.0,
+                "+": np.multiply(self.build_matrix(4, 1), self.build_matrix(4, 1).transpose()),
+                "+-": np.matmul(self.build_matrix(4, 2), self.build_matrix(4, 2).transpose()),
+                "++--": np.matmul(self.build_matrix(4, 4), self.build_matrix(4, 4).transpose()),
+            }
+            self.assertEqual(result, PolynomialTensor(expected))
 
     def test_tensor(self):
         """Test tensoring of PolynomialTensor"""
