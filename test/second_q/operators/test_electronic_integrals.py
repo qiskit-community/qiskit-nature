@@ -13,10 +13,15 @@
 """Test for ElectronicIntegrals class"""
 
 from __future__ import annotations
+
 import unittest
 from test import QiskitNatureTestCase
+
 from ddt import ddt, idata
+
 import numpy as np
+import sparse as sp
+
 from qiskit_nature.second_q.operators import ElectronicIntegrals, PolynomialTensor
 
 
@@ -131,6 +136,14 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
             alpha_beta = PolynomialTensor(
                 {"++--": np.einsum("ijkl->klij", self.build_matrix(4, 4, 0.5))}
             )
+            self.assertTrue(ints.alpha_beta.equiv(alpha_beta))
+
+        with self.subTest("sparse alpha_beta property"):
+            beta_alpha = sp.random((2, 2, 2, 2), density=0.5)
+            ints = ElectronicIntegrals(
+                beta_alpha=PolynomialTensor({"++--": beta_alpha}), validate=False
+            )
+            alpha_beta = PolynomialTensor({"++--": np.einsum("ijkl->klij", beta_alpha.todense())})
             self.assertTrue(ints.alpha_beta.equiv(alpha_beta))
 
     def test_one_body(self):

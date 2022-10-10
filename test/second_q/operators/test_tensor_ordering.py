@@ -15,6 +15,7 @@
 from test import QiskitNatureTestCase
 
 import numpy as np
+import sparse as sp
 from ddt import data, ddt, unpack
 
 from qiskit_nature.second_q.operators.tensor_ordering import (
@@ -66,8 +67,14 @@ class TestTwoBodySymmetryConversion(QiskitNatureTestCase):
     )
     def test_to_physicist_ordering(self, initial, expected):
         """Test correct conversion to physicists' index order"""
-        actual = to_physicist_ordering(initial)
-        self.assertTrue(np.allclose(expected, actual))
+
+        with self.subTest("dense"):
+            actual = to_physicist_ordering(initial)
+            self.assertTrue(np.allclose(expected, actual))
+
+        with self.subTest("sparse"):
+            actual = to_physicist_ordering(sp.as_coo(initial))
+            self.assertTrue(np.allclose(expected, actual.todense()))
 
     def test_unknown_to_physicist_ordering(self):
         """Test to_physicist_ordering raises exception with unknown index input"""
@@ -82,8 +89,14 @@ class TestTwoBodySymmetryConversion(QiskitNatureTestCase):
     )
     def test_to_chemist_ordering(self, initial, expected):
         """Test correct conversion to chemists' index order"""
-        actual = to_chemist_ordering(initial)
-        self.assertTrue(np.allclose(expected, actual))
+
+        with self.subTest("dense"):
+            actual = to_chemist_ordering(initial)
+            self.assertTrue(np.allclose(expected, actual))
+
+        with self.subTest("sparse"):
+            actual = to_chemist_ordering(sp.as_coo(initial))
+            self.assertTrue(np.allclose(expected, actual.todense()))
 
     def test_unknown_to_chemist_ordering(self):
         """Test to_chemist_ordering raises exception with unknown index input"""
@@ -99,5 +112,11 @@ class TestTwoBodySymmetryConversion(QiskitNatureTestCase):
     )
     def test_find_index_order(self, initial, expected):
         """Test correctly identifies index order"""
-        result = find_index_order(initial)
-        self.assertEqual(result, expected)
+
+        with self.subTest("dense"):
+            result = find_index_order(initial)
+            self.assertEqual(result, expected)
+
+        with self.subTest("sparse"):
+            result = find_index_order(sp.as_coo(initial))
+            self.assertEqual(result, expected)

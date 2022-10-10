@@ -18,13 +18,13 @@ from numbers import Number
 from typing import Iterator, cast
 
 import numpy as np
+import sparse as sp
 
 from qiskit.quantum_info.operators.mixins import AdjointMixin, LinearMixin
 
 from qiskit_nature.exceptions import QiskitNatureError
-from qiskit_nature.settings import settings
 
-from .polynomial_tensor import PolynomialTensor
+from .polynomial_tensor import ARRAY_TYPE, PolynomialTensor
 from .tensor_ordering import (
     IndexType,
     _chem_to_phys,
@@ -114,6 +114,8 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         alpha: PolynomialTensor | None = None,
         beta: PolynomialTensor | None = None,
         beta_alpha: PolynomialTensor | None = None,
+        *,
+        validate: bool = True,
     ) -> None:
         """
         Any ``None``-valued argument will internally be replaced by an empty ``PolynomialTensor``
@@ -124,6 +126,7 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
             beta: the down-spin electronic integrals
             beta_alpha: the beta-alpha-spin two-body electronic integrals. This may *only* contain
                 the `++--` key.
+            validate: when set to False, no validation will be performed.
 
         Raises:
             KeyError: if the `alpha` tensor contains keys other than `""`, `"+-"`, and `"++--"`.
@@ -135,7 +138,8 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         self.alpha = alpha
         self.beta = beta
         self.beta_alpha = beta_alpha
-        self._validate()
+        if validate:
+            self._validate()
 
     def _validate(self):
         """Performs internal validation."""
@@ -236,8 +240,8 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         if self.beta_alpha.is_empty():
             return self.beta_alpha
 
-        beta_alpha = cast(np.ndarray, self.beta_alpha["++--"])
-        alpha_beta = np.einsum("ijkl->klij", beta_alpha, optimize=settings.optimize_einsum)
+        beta_alpha = cast(ARRAY_TYPE, self.beta_alpha["++--"])
+        alpha_beta = np.moveaxis(beta_alpha, (0, 1), (2, 3))
         return PolynomialTensor({"++--": alpha_beta}, validate=False)
 
     @property
@@ -437,11 +441,11 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
     @classmethod
     def from_raw_integrals(
         cls,
-        h1_a: np.ndarray,
-        h2_aa: np.ndarray | None = None,
-        h1_b: np.ndarray | None = None,
-        h2_bb: np.ndarray | None = None,
-        h2_ba: np.ndarray | None = None,
+        h1_a: np.ndarray | sp.SparseArray,
+        h2_aa: np.ndarray | sp.SparseArray | None = None,
+        h1_b: np.ndarray | sp.SparseArray | None = None,
+        h2_bb: np.ndarray | sp.SparseArray | None = None,
+        h2_ba: np.ndarray | sp.SparseArray | None = None,
         *,
         validate: bool = True,
         auto_index_order: bool = True,

@@ -33,11 +33,14 @@ from __future__ import annotations
 from enum import Enum
 
 import numpy as np
+import sparse as sp
 
 from qiskit_nature import QiskitNatureError
 
 
-def to_chemist_ordering(two_body_tensor: np.ndarray) -> np.ndarray:
+def to_chemist_ordering(
+    two_body_tensor: np.ndarray | sp.SparseArray,
+) -> np.ndarray | sp.SparseArray:
     """Convert the rank-four tensor `two_body_tensor` representing two-body integrals from
     physicists', or intermediate, index order to chemists' index order: i,j,k,l -> i,l,j,k
 
@@ -68,7 +71,9 @@ def to_chemist_ordering(two_body_tensor: np.ndarray) -> np.ndarray:
         )
 
 
-def to_physicist_ordering(two_body_tensor: np.ndarray) -> np.ndarray:
+def to_physicist_ordering(
+    two_body_tensor: np.ndarray | sp.SparseArray,
+) -> np.ndarray | sp.SparseArray:
     """Convert the rank-four tensor `two_body_tensor` representing two-body integrals from
     chemists', or intermediate, index order to physicists' index order: i,j,k,l -> i,l,j,k
 
@@ -99,7 +104,7 @@ def to_physicist_ordering(two_body_tensor: np.ndarray) -> np.ndarray:
         )
 
 
-def _phys_to_chem(two_body_tensor: np.ndarray) -> np.ndarray:
+def _phys_to_chem(two_body_tensor: np.ndarray | sp.SparseArray) -> np.ndarray | sp.SparseArray:
     """Convert the rank-four tensor `two_body_tensor` representing two-body integrals from
     physicists' index order to chemists' index order: i,j,k,l -> i,l,j,k
 
@@ -115,11 +120,11 @@ def _phys_to_chem(two_body_tensor: np.ndarray) -> np.ndarray:
     Returns:
         The same rank-four tensor, now in chemists' index order.
     """
-    permuted_tensor = np.einsum("ijkl->iljk", two_body_tensor)
+    permuted_tensor = np.moveaxis(two_body_tensor, (1, 2), (2, 3))
     return permuted_tensor
 
 
-def _chem_to_phys(two_body_tensor: np.ndarray) -> np.ndarray:
+def _chem_to_phys(two_body_tensor: np.ndarray | sp.SparseArray) -> np.ndarray | sp.SparseArray:
     """Convert the rank-four tensor `two_body_tensor` representing two-body integrals from chemists'
     index order to physicists' index order: i,j,k,l -> i,k,l,j
 
@@ -135,25 +140,36 @@ def _chem_to_phys(two_body_tensor: np.ndarray) -> np.ndarray:
     Returns:
         The same rank-four tensor, now in physicists' index order.
     """
-    permuted_tensor = np.einsum("ijkl->iklj", two_body_tensor)
+    permuted_tensor = np.moveaxis(two_body_tensor, (1,), (3,))
     return permuted_tensor
 
 
-def _check_two_body_symmetry(two_body_tensor: np.ndarray, permutation: str) -> bool:
+def _check_two_body_symmetry(
+    two_body_tensor: np.ndarray | sp.SparseArray,
+    permutation: tuple[tuple[int, ...], tuple[int, ...]],
+) -> bool:
     """Return whether the provided tensor remains identical under the provided permutation.
 
     Args:
         two_body_tensor: the tensor to test.
-        permutation: the einsum permutation to apply.
+        permutation: the source and destination indices of the axis permutations.
 
     Returns:
         Whether the tensor remains unchanged under the applied permutation.
     """
-    permuted_tensor = np.einsum(permutation, two_body_tensor)
+    permuted_tensor = np.moveaxis(two_body_tensor, permutation[0], permutation[1])
+
+    if isinstance(two_body_tensor, sp.SparseArray):
+        return np.allclose(two_body_tensor.data, permuted_tensor.data) and np.array_equal(
+            two_body_tensor.coords, permuted_tensor.coords  # type: ignore[attr-defined]
+        )
+
     return np.allclose(two_body_tensor, permuted_tensor)
 
 
-def _check_two_body_symmetries(two_body_tensor: np.ndarray, chemist: bool = True) -> bool:
+def _check_two_body_symmetries(
+    two_body_tensor: np.ndarray | sp.SparseArray, chemist: bool = True
+) -> bool:
     """Return whether a tensor has the required symmetries to represent two-electron terms.
 
     Return `True` if the rank-4 tensor `two_body_tensor` has the required symmetries for
@@ -184,7 +200,7 @@ def _check_two_body_symmetries(two_body_tensor: np.ndarray, chemist: bool = True
     return True
 
 
-def find_index_order(two_body_tensor: np.ndarray) -> IndexType:
+def find_index_order(two_body_tensor: np.ndarray | sp.SparseArray) -> IndexType:
     """Return the index-order convention of the provided rank-four tensor.
 
     The index convention is determined by checking symmetries of the tensor.
@@ -226,13 +242,13 @@ class _ChemIndexPermutations(Enum):
     two-body integrals in chemists' index order, naming each permutation in order of appearance
     in Molecular Electronic Structure Theory by Helgaker, Jørgensen, Olsen (HJO)."""
 
-    PERM_1 = "pqrs->rspq"  # HJO (1.4.17)
-    PERM_2_AB = "pqrs->qprs"  # HJO (1.4.38)
-    PERM_2_AC = "pqrs->pqsr"  # HJO (1.4.38)
-    PERM_2_AD = "pqrs->qpsr"  # HJO (1.4.38)
-    PERM_3 = "pqrs->rsqp"  # PERM_2_AB and PERM_1
-    PERM_4 = "pqrs->srpq"  # PERM_2_AC and PERM_1
-    PERM_5 = "pqrs->srqp"  # PERM_2_AD and PERM_1
+    PERM_1 = ((0, 1), (2, 3))  # HJO (1.4.17)
+    PERM_2_AB = ((0,), (1,))  # HJO (1.4.38)
+    PERM_2_AC = ((2,), (3,))  # HJO (1.4.38)
+    PERM_2_AD = ((0, 2), (1, 3))  # HJO (1.4.38)
+    PERM_3 = ((0, 1), (3, 2))  # PERM_2_AB and PERM_1
+    PERM_4 = ((0, 1, 2), (2, 3, 1))  # PERM_2_AC and PERM_1
+    PERM_5 = ((0, 1, 2), (3, 2, 1))  # PERM_2_AD and PERM_1
 
 
 class IndexType(Enum):

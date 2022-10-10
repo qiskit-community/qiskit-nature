@@ -17,6 +17,7 @@ from test import QiskitNatureTestCase
 from ddt import ddt, data, unpack
 
 import numpy as np
+import sparse as sp
 from scipy.sparse import csc_matrix
 from scipy.sparse.linalg import eigs
 
@@ -345,42 +346,67 @@ class TestFermionicOp(QiskitNatureTestCase):
 
     def test_from_polynomial_tensor(self):
         """Test from PolynomialTensor construction"""
-        r_l = 2
-        p_t = PolynomialTensor(
-            {
-                "+-": np.arange(1, 5).reshape((r_l, r_l)),
-                "++--": np.arange(1, 17).reshape((r_l, r_l, r_l, r_l)),
-            }
-        )
-        op = FermionicOp.from_polynomial_tensor(p_t)
+        with self.subTest("dense tensor"):
+            r_l = 2
+            p_t = PolynomialTensor(
+                {
+                    "+-": np.arange(1, 5).reshape((r_l, r_l)),
+                    "++--": np.arange(1, 17).reshape((r_l, r_l, r_l, r_l)),
+                }
+            )
+            op = FermionicOp.from_polynomial_tensor(p_t)
 
-        expected = FermionicOp(
-            {
-                "+_0 -_0": 1,
-                "+_0 -_1": 2,
-                "+_1 -_0": 3,
-                "+_1 -_1": 4,
-                "+_0 +_0 -_0 -_0": 1,
-                "+_0 +_0 -_0 -_1": 2,
-                "+_0 +_0 -_1 -_0": 3,
-                "+_0 +_0 -_1 -_1": 4,
-                "+_0 +_1 -_0 -_0": 5,
-                "+_0 +_1 -_0 -_1": 6,
-                "+_0 +_1 -_1 -_0": 7,
-                "+_0 +_1 -_1 -_1": 8,
-                "+_1 +_0 -_0 -_0": 9,
-                "+_1 +_0 -_0 -_1": 10,
-                "+_1 +_0 -_1 -_0": 11,
-                "+_1 +_0 -_1 -_1": 12,
-                "+_1 +_1 -_0 -_0": 13,
-                "+_1 +_1 -_0 -_1": 14,
-                "+_1 +_1 -_1 -_0": 15,
-                "+_1 +_1 -_1 -_1": 16,
-            },
-            register_length=r_l,
-        )
+            expected = FermionicOp(
+                {
+                    "+_0 -_0": 1,
+                    "+_0 -_1": 2,
+                    "+_1 -_0": 3,
+                    "+_1 -_1": 4,
+                    "+_0 +_0 -_0 -_0": 1,
+                    "+_0 +_0 -_0 -_1": 2,
+                    "+_0 +_0 -_1 -_0": 3,
+                    "+_0 +_0 -_1 -_1": 4,
+                    "+_0 +_1 -_0 -_0": 5,
+                    "+_0 +_1 -_0 -_1": 6,
+                    "+_0 +_1 -_1 -_0": 7,
+                    "+_0 +_1 -_1 -_1": 8,
+                    "+_1 +_0 -_0 -_0": 9,
+                    "+_1 +_0 -_0 -_1": 10,
+                    "+_1 +_0 -_1 -_0": 11,
+                    "+_1 +_0 -_1 -_1": 12,
+                    "+_1 +_1 -_0 -_0": 13,
+                    "+_1 +_1 -_0 -_1": 14,
+                    "+_1 +_1 -_1 -_0": 15,
+                    "+_1 +_1 -_1 -_1": 16,
+                },
+                register_length=r_l,
+            )
 
-        self.assertEqual(op, expected)
+            self.assertEqual(op, expected)
+
+        with self.subTest("sparse tensor"):
+            r_l = 2
+            p_t = PolynomialTensor(
+                {
+                    "+-": sp.as_coo({(0, 0): 1, (1, 0): 2}, shape=(r_l, r_l)),
+                    "++--": sp.as_coo(
+                        {(0, 0, 0, 1): 1, (1, 0, 1, 1): 2}, shape=(r_l, r_l, r_l, r_l)
+                    ),
+                }
+            )
+            op = FermionicOp.from_polynomial_tensor(p_t)
+
+            expected = FermionicOp(
+                {
+                    "+_0 -_0": 1,
+                    "+_1 -_0": 2,
+                    "+_0 +_0 -_0 -_1": 1,
+                    "+_1 +_0 -_1 -_1": 2,
+                },
+                register_length=r_l,
+            )
+
+            self.assertEqual(op, expected)
 
     def test_no_register_length(self):
         """Test operators with automatic register length"""
