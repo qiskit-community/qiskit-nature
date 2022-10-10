@@ -16,9 +16,10 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from numbers import Number
-from typing import Iterator, cast
+from typing import Iterator, Type, Union, cast
 
 import numpy as np
+import sparse as sp
 
 from qiskit.quantum_info.operators.mixins import (
     LinearMixin,
@@ -29,13 +30,16 @@ from qiskit.quantum_info.operators.mixins import (
 
 from qiskit_nature.settings import settings
 
+# pylint: disable=invalid-name
+ARRAY_TYPE = Union[np.ndarray, sp.SparseArray]
+
 
 class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, Mapping):
     """PolynomialTensor class"""
 
     def __init__(
         self,
-        data: Mapping[str, np.ndarray | Number],
+        data: Mapping[str, np.ndarray | sp.SparseArray | Number],
         *,
         validate: bool = True,
     ) -> None:
@@ -47,7 +51,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
             ValueError: when value matrix does not have consistent dimensions.
             ValueError: when some or all value matrices in ``data`` have different dimensions.
         """
-        copy_dict: dict[str, np.ndarray] = {}
+        copy_dict: dict[str, ARRAY_TYPE] = {}
 
         dim: int | None = None
 
@@ -89,7 +93,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
         for key in self._data:
             if key == "":
                 continue
-            return cast(np.ndarray, self[key]).shape[0]
+            return cast(ARRAY_TYPE, self[key]).shape[0]
         return None
 
     @classmethod
@@ -105,7 +109,11 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
         """Returns whether this tensor is empty or not."""
         return len(self) == 0
 
-    def __getitem__(self, __k: str) -> (np.ndarray | Number):
+    def contains_sparse(self) -> bool:
+        """Returns whether this tensor contains any sparse matrix."""
+        return any(isinstance(self[key], sp.SparseArray) for key in self)
+
+    def __getitem__(self, __k: str) -> (np.ndarray | sp.SparseArray | Number):
         """
         Returns value matrix in the `PolynomialTensor`.
 
@@ -128,6 +136,29 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
         """
         return self._data.__iter__()
 
+    def todense(self) -> PolynomialTensor:
+        """Converts all internal matrices to dense numpy arrays."""
+        dense_dict: dict[str, ARRAY_TYPE] = {}
+        for key, value in self._data.items():
+            if isinstance(value, sp.SparseArray):
+                dense_dict[key] = value.todense()
+            else:
+                dense_dict[key] = value
+        return PolynomialTensor(dense_dict, validate=False)
+
+    # TODO: change the following type-hint if/when SparseArray dictates the existence of from_numpy
+    def tosparse(
+        self, *, sparse_type: Type[sp.COO] | Type[sp.DOK] | Type[sp.GCXS] = sp.COO
+    ) -> PolynomialTensor:
+        """Converts all internal matrices to sparse arrays."""
+        sparse_dict: dict[str, ARRAY_TYPE] = {}
+        for key, value in self._data.items():
+            if isinstance(value, np.ndarray):
+                sparse_dict[key] = sparse_type.from_numpy(value)
+            else:
+                sparse_dict[key] = value
+        return PolynomialTensor(sparse_dict, validate=False)
+
     def _multiply(self, other: complex) -> PolynomialTensor:
         """Scalar multiplication of PolynomialTensor with complex
 
@@ -141,9 +172,10 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
         if not isinstance(other, Number):
             raise TypeError(f"other {other} must be a number")
 
-        prod_dict: dict[str, np.ndarray] = {}
+        prod_dict: dict[str, ARRAY_TYPE] = {}
         for key, matrix in self._data.items():
             prod_dict[key] = np.multiply(matrix, other)
+
         return PolynomialTensor(prod_dict, validate=False)
 
     def _add(self, other: PolynomialTensor, qargs=None) -> PolynomialTensor:
@@ -167,6 +199,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
 
         return PolynomialTensor(sum_dict, validate=False)
 
+    # pylint: disable=too-many-return-statements
     def __eq__(self, other: object) -> bool:
         """Check equality of first PolynomialTensor with other
 
@@ -182,10 +215,35 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
             return False
 
         for key, value in self._data.items():
-            if not np.array_equal(value, other._data[key]):
+            other_value = other._data[key]
+
+            self_is_sparse = isinstance(value, sp.SparseArray)
+            other_is_sparse = isinstance(other_value, sp.SparseArray)
+
+            if self_is_sparse:
+                value = cast(sp.SparseArray, value)
+                if other_is_sparse:
+                    other_value = cast(sp.SparseArray, other_value)
+                    if value.ndim != other_value.ndim:
+                        return False
+                    if value.nnz != other_value.nnz:
+                        return False
+                    if value.size != other_value.size:
+                        return False
+                    diff = value - other_value
+                    if diff.nnz != 0:
+                        return False
+                    continue
+                value = value.todense()
+            elif other_is_sparse:
+                other_value = cast(sp.SparseArray, other_value).todense()
+
+            if not np.array_equal(value, other_value):
                 return False
+
         return True
 
+    # pylint: disable=too-many-return-statements
     def equiv(self, other: object) -> bool:
         """Check equivalence of first PolynomialTensor with other
 
@@ -201,8 +259,33 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
             return False
 
         for key, value in self._data.items():
-            if not np.allclose(value, other._data[key], atol=self.atol, rtol=self.rtol):
+            other_value = other._data[key]
+
+            self_is_sparse = isinstance(value, sp.SparseArray)
+            other_is_sparse = isinstance(other_value, sp.SparseArray)
+
+            if self_is_sparse:
+                value = cast(sp.SparseArray, value)
+                if other_is_sparse:
+                    other_value = cast(sp.SparseArray, other_value)
+                    if value.ndim != other_value.ndim:
+                        return False
+                    diff = value - other_value
+                    if not np.allclose(
+                        diff.todense(),
+                        sp.zeros_like(diff).todense(),
+                        atol=self.atol,
+                        rtol=self.rtol,
+                    ):
+                        return False
+                    continue
+                value = value.todense()
+            elif other_is_sparse:
+                other_value = cast(sp.SparseArray, other_value).todense()
+
+            if not np.allclose(value, other_value, atol=self.atol, rtol=self.rtol):
                 return False
+
         return True
 
     def conjugate(self) -> PolynomialTensor:
@@ -211,7 +294,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
         Returns:
             the complex conjugate of the ``PolynomialTensor``.
         """
-        conj_dict: dict[str, np.ndarray] = {}
+        conj_dict: dict[str, ARRAY_TYPE] = {}
         for key, value in self._data.items():
             conj_dict[key] = np.conjugate(value)
 
@@ -223,7 +306,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
         Returns:
             the transpose of the ``PolynomialTensor``.
         """
-        transpose_dict: dict[str, np.ndarray] = {}
+        transpose_dict: dict[str, ARRAY_TYPE] = {}
         for key, value in self._data.items():
             transpose_dict[key] = np.transpose(value)
 
@@ -255,7 +338,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
         """
         a = self if front else other
         b = other if front else self
-        new_data: dict[str, np.ndarray | Number] = {}
+        new_data: dict[str, ARRAY_TYPE | Number] = {}
         for key in a:
             if key not in b:
                 continue
@@ -263,7 +346,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
                 # fall back to standard multiplication since matmul only applies to at least 2D
                 new_data[key] = cast(Number, cast(complex, a[key]) * cast(complex, b[key]))
             else:
-                new_data[key] = np.matmul(cast(np.ndarray, a[key]), cast(np.ndarray, b[key]))
+                new_data[key] = np.matmul(cast(ARRAY_TYPE, a[key]), cast(ARRAY_TYPE, b[key]))
 
         return PolynomialTensor(new_data)
 
@@ -304,7 +387,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
     @classmethod
     def _tensor(cls, a: PolynomialTensor, b: PolynomialTensor) -> PolynomialTensor:
         # NOTE: mypy really does not like Number, so a lot of casts are necessary for the time being
-        new_data: dict[str, np.ndarray | Number] = {}
+        new_data: dict[str, ARRAY_TYPE | Number] = {}
         for key in a:
             if key not in b:
                 continue
@@ -312,7 +395,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
                 # handle single value case
                 new_data[key] = cast(Number, cast(complex, a[key]) * cast(complex, b[key]))
             else:
-                new_data[key] = np.kron(cast(np.ndarray, a[key]), cast(np.ndarray, b[key]))
+                new_data[key] = np.kron(cast(ARRAY_TYPE, a[key]), cast(ARRAY_TYPE, b[key]))
 
         return PolynomialTensor(new_data)
 
@@ -368,6 +451,11 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
             )
             # results will be contained in transformed["+-"] and transformed["++--"], respectively
 
+        .. note::
+
+           :class:`sparse.SparseArray` does not support ``numpy.einsum``. Thus, all sparse matrices
+           involved in this operation will be converted to dense matrices!
+
         Args:
             einsum_map: a dictionary, mapping from :meth:`numpy.einsum` subscripts to a tuple of
                 strings. These strings correspond to the keys of matrices to be extracted from the
@@ -378,13 +466,14 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
         Returns:
             A new ``PolynomialTensor``.
         """
-        new_data: dict[str, np.ndarray] = {}
+        dense_operands = [op.todense() if op.contains_sparse() else op for op in operands]
+        new_data: dict[str, ARRAY_TYPE] = {}
         for einsum, terms in einsum_map.items():
             *inputs, output = terms
             try:
                 result = np.einsum(
                     einsum,
-                    *[operands[idx]._data[term] for idx, term in enumerate(inputs)],
+                    *[dense_operands[idx]._data[term] for idx, term in enumerate(inputs)],
                     optimize=settings.optimize_einsum,
                 )
             except KeyError:
