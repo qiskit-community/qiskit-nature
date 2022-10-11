@@ -18,19 +18,21 @@ import unittest
 from test import QiskitNatureTestCase
 
 import numpy as np
-import sparse as sp
 from ddt import ddt, idata
 
 from qiskit.test import slow_test
 from qiskit_nature.second_q.operators import PolynomialTensor
+import qiskit_nature.optionals as _optionals
 
 
 @ddt
 class TestPolynomialTensor(QiskitNatureTestCase):
     """Tests for PolynomialTensor class"""
 
+    @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     def setUp(self) -> None:
         super().setUp()
+        import sparse as sp  # pylint: disable=import-error
 
         self.og_poly = {
             "": 1.0,
@@ -173,6 +175,8 @@ class TestPolynomialTensor(QiskitNatureTestCase):
 
     def test_contains_sparse(self):
         """Test PolynomialTensor.contains_sparse"""
+        import sparse as sp  # pylint: disable=import-error
+
         with self.subTest("sparse"):
             self.assertTrue(PolynomialTensor({"+": sp.as_coo({(0,): 1})}).contains_sparse())
 
@@ -223,6 +227,8 @@ class TestPolynomialTensor(QiskitNatureTestCase):
 
     def tosparse(self):
         """Test PolynomialTensor.tosparse"""
+        import sparse as sp  # pylint: disable=import-error
+
         sparse_tensor = PolynomialTensor(self.og_poly).tosparse()
         expected = {
             "": 1.0,
@@ -235,6 +241,7 @@ class TestPolynomialTensor(QiskitNatureTestCase):
     @idata(np.linspace(0, 3, 5))
     def test_mul(self, other):
         """Test for scalar multiplication"""
+        import sparse as sp  # pylint: disable=import-error
 
         with self.subTest("dense"):
             expected = {
@@ -262,6 +269,7 @@ class TestPolynomialTensor(QiskitNatureTestCase):
 
     def test_add(self):
         """Test for addition of PolynomialTensor"""
+        import sparse as sp  # pylint: disable=import-error
 
         with self.subTest("dense + dense"):
             result = PolynomialTensor(self.og_poly) + PolynomialTensor(self.og_poly)
@@ -312,6 +320,7 @@ class TestPolynomialTensor(QiskitNatureTestCase):
 
     def test_conjugate(self):
         """Test for conjugate of PolynomialTensor"""
+        import sparse as sp  # pylint: disable=import-error
 
         with self.subTest("dense"):
             result = PolynomialTensor(
@@ -392,6 +401,7 @@ class TestPolynomialTensor(QiskitNatureTestCase):
     @slow_test
     def test_compose_sparse(self):
         """Test composition of sparse PolynomialTensor"""
+        import sparse as sp  # pylint: disable=import-error
 
         with self.subTest("sparse with dense"):
             pt_a = PolynomialTensor(self.sparse_1)
@@ -527,6 +537,7 @@ class TestPolynomialTensor(QiskitNatureTestCase):
 
     def test_einsum(self):
         """Test PolynomialTensor.einsum"""
+        import sparse as sp  # pylint: disable=import-error
 
         with self.subTest("all dense"):
             one_body = np.random.random((2, 2))

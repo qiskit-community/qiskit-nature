@@ -20,10 +20,10 @@ from collections.abc import Collection, MutableMapping
 from typing import cast, Iterator
 
 import numpy as np
-import sparse as sp
 from scipy.sparse import csc_matrix
 
 from qiskit_nature.exceptions import QiskitNatureError
+import qiskit_nature.optionals as _optionals
 
 from .polynomial_tensor import PolynomialTensor
 from .sparse_label_op import SparseLabelOp
@@ -182,6 +182,7 @@ class FermionicOp(SparseLabelOp):
                 )
 
     @classmethod
+    @_optionals.HAS_SPARSE.require_in_call
     def from_polynomial_tensor(cls, tensor: PolynomialTensor) -> FermionicOp:
         cls._validate_polynomial_tensor_key(tensor.keys())
 
@@ -197,6 +198,7 @@ class FermionicOp(SparseLabelOp):
 
             # PERF: the following matrix unpacking is a performance bottleneck!
             # We could consider using Rust in the future to improve upon this.
+            import sparse as sp  # pylint: disable=import-error
 
             mat = tensor[key]
             if isinstance(mat, np.ndarray):

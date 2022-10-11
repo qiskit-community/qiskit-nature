@@ -18,11 +18,11 @@ from numbers import Number
 from typing import Iterator, cast
 
 import numpy as np
-import sparse as sp
 
 from qiskit.quantum_info.operators.mixins import AdjointMixin, LinearMixin
 
 from qiskit_nature.exceptions import QiskitNatureError
+import qiskit_nature.optionals as _optionals
 
 from .polynomial_tensor import ARRAY_TYPE, PolynomialTensor
 from .tensor_ordering import (
@@ -30,6 +30,18 @@ from .tensor_ordering import (
     _chem_to_phys,
     find_index_order,
 )
+
+if _optionals.HAS_SPARSE:
+    # pylint: disable=import-error
+    from sparse import SparseArray
+else:
+
+    class SparseArray:  # type: ignore
+        """Empty SparseArray class
+        Replacement if sparse.SparseArray is not present.
+        """
+
+        pass
 
 
 class ElectronicIntegrals(AdjointMixin, LinearMixin):
@@ -441,11 +453,11 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
     @classmethod
     def from_raw_integrals(
         cls,
-        h1_a: np.ndarray | sp.SparseArray,
-        h2_aa: np.ndarray | sp.SparseArray | None = None,
-        h1_b: np.ndarray | sp.SparseArray | None = None,
-        h2_bb: np.ndarray | sp.SparseArray | None = None,
-        h2_ba: np.ndarray | sp.SparseArray | None = None,
+        h1_a: np.ndarray | SparseArray,
+        h2_aa: np.ndarray | SparseArray | None = None,
+        h1_b: np.ndarray | SparseArray | None = None,
+        h2_bb: np.ndarray | SparseArray | None = None,
+        h2_ba: np.ndarray | SparseArray | None = None,
         *,
         validate: bool = True,
         auto_index_order: bool = True,

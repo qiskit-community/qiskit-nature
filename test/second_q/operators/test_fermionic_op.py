@@ -17,12 +17,12 @@ from test import QiskitNatureTestCase
 from ddt import ddt, data, unpack
 
 import numpy as np
-import sparse as sp
 from scipy.sparse import csc_matrix
 from scipy.sparse.linalg import eigs
 
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.operators import FermionicOp, PolynomialTensor
+import qiskit_nature.optionals as _optionals
 
 
 @ddt
@@ -344,8 +344,11 @@ class TestFermionicOp(QiskitNatureTestCase):
             with self.assertRaises(QiskitNatureError):
                 _ = FermionicOp({key: 1.0}, register_length=length)
 
+    @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     def test_from_polynomial_tensor(self):
         """Test from PolynomialTensor construction"""
+        import sparse as sp  # pylint: disable=import-error
+
         with self.subTest("dense tensor"):
             r_l = 2
             p_t = PolynomialTensor(

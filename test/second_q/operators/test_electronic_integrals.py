@@ -20,9 +20,9 @@ from test import QiskitNatureTestCase
 from ddt import ddt, idata
 
 import numpy as np
-import sparse as sp
 
 from qiskit_nature.second_q.operators import ElectronicIntegrals, PolynomialTensor
+import qiskit_nature.optionals as _optionals
 
 
 @ddt
@@ -84,8 +84,11 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
         """Build dictionary value matrix"""
         return (np.arange(1, dim_size**num_dim + 1) * val).reshape((dim_size,) * num_dim)
 
+    @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     def test_attributes(self):
         """Tests the various ElectronicIntegrals attributes."""
+        import sparse as sp  # pylint: disable=import-error
+
         with self.subTest("all empty"):
             ints = ElectronicIntegrals()
             self.assertTrue(isinstance(ints.alpha, PolynomialTensor))
@@ -250,6 +253,7 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
         result = ElectronicIntegrals(self.alpha, self.beta, self.beta_alpha).transpose()
         self.assertTrue(result.equiv(expected))
 
+    @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     def test_einsum(self):
         """Test ElectronicIntegrals.einsum"""
         one_body_a = np.random.random((2, 2))

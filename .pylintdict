@@ -129,6 +129,7 @@ dll
 docstring
 dof
 doi
+dok
 dt
 dtype
 dumitrescu
@@ -182,6 +183,7 @@ gauopen
 gaussian
 gaussiand
 gcc
+gcxs
 getitem
 getter
 gfortran

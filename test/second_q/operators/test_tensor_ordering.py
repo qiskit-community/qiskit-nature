@@ -12,10 +12,10 @@
 
 """Test two body symmetry conversion utils"""
 
+import unittest
 from test import QiskitNatureTestCase
 
 import numpy as np
-import sparse as sp
 from ddt import data, ddt, unpack
 
 from qiskit_nature.second_q.operators.tensor_ordering import (
@@ -25,6 +25,7 @@ from qiskit_nature.second_q.operators.tensor_ordering import (
     IndexType,
 )
 from qiskit_nature.exceptions import QiskitNatureError
+import qiskit_nature.optionals as _optionals
 
 
 @ddt
@@ -59,6 +60,7 @@ class TestTwoBodySymmetryConversion(QiskitNatureTestCase):
         ]
     )
 
+    @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     @unpack
     @data(
         (TWO_BODY_CHEM, TWO_BODY_PHYS),  # test chem to phys
@@ -67,6 +69,7 @@ class TestTwoBodySymmetryConversion(QiskitNatureTestCase):
     )
     def test_to_physicist_ordering(self, initial, expected):
         """Test correct conversion to physicists' index order"""
+        import sparse as sp  # pylint: disable=import-error
 
         with self.subTest("dense"):
             actual = to_physicist_ordering(initial)
@@ -81,6 +84,7 @@ class TestTwoBodySymmetryConversion(QiskitNatureTestCase):
         with self.assertRaises(QiskitNatureError):
             to_physicist_ordering(self.TWO_BODY_UNKNOWN)
 
+    @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     @unpack
     @data(
         (TWO_BODY_PHYS, TWO_BODY_CHEM),  # test phys to chem
@@ -89,6 +93,7 @@ class TestTwoBodySymmetryConversion(QiskitNatureTestCase):
     )
     def test_to_chemist_ordering(self, initial, expected):
         """Test correct conversion to chemists' index order"""
+        import sparse as sp  # pylint: disable=import-error
 
         with self.subTest("dense"):
             actual = to_chemist_ordering(initial)
@@ -103,6 +108,7 @@ class TestTwoBodySymmetryConversion(QiskitNatureTestCase):
         with self.assertRaises(QiskitNatureError):
             to_chemist_ordering(self.TWO_BODY_UNKNOWN)
 
+    @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     @unpack
     @data(
         (TWO_BODY_PHYS, IndexType.PHYSICIST),
@@ -112,6 +118,7 @@ class TestTwoBodySymmetryConversion(QiskitNatureTestCase):
     )
     def test_find_index_order(self, initial, expected):
         """Test correctly identifies index order"""
+        import sparse as sp  # pylint: disable=import-error
 
         with self.subTest("dense"):
             result = find_index_order(initial)
@@ -120,3 +127,7 @@ class TestTwoBodySymmetryConversion(QiskitNatureTestCase):
         with self.subTest("sparse"):
             result = find_index_order(sp.as_coo(initial))
             self.assertEqual(result, expected)
+
+
+if __name__ == "__main__":
+    unittest.main()

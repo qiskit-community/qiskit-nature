@@ -18,11 +18,13 @@ from test import QiskitNatureTestCase
 from test.second_q.drivers.test_driver import TestDriver
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.drivers import GaussianDriver
+import qiskit_nature.optionals as _optionals
 
 
 class TestDriverGaussianFromMat(QiskitNatureTestCase, TestDriver):
     """Gaussian Driver tests using a saved output matrix file."""
 
+    @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     def setUp(self):
         super().setUp()
         matfile = self.get_resource_path(
