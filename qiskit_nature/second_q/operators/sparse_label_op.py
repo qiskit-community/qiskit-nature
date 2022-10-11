@@ -447,10 +447,10 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
 
     def is_zero(self, tol: int = None) -> bool:
         r"""Returns true if operator length is zero or all co-efficients have value zero
-        
+
         Args:
             tol: tolerance for checking co-efficient values
-        
+
         Returns:
             if operator length is zero or all co-efficients are zero
         """

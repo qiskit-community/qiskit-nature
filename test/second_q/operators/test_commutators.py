@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import unittest
 from test import QiskitNatureTestCase
+from ddt import ddt, data, unpack
 
 from qiskit_nature.second_q.operators import FermionicOp
 from qiskit_nature.second_q.operators.commutators import (
@@ -27,22 +28,48 @@ from qiskit_nature.second_q.operators.commutators import (
 op1 = FermionicOp({"+_0 -_0": 1}, register_length=1)
 op2 = FermionicOp({"-_0 +_0": 2}, register_length=1)
 op3 = FermionicOp({"+_0 -_0": 1, "-_0 +_0": 2 + 0.5j}, register_length=1)
+op4 = FermionicOp({"+_0": 1}, register_length=1)
+op5 = FermionicOp({"-_0": 1}, register_length=1)
 
 
+@ddt
 class TestCommutators(QiskitNatureTestCase):
     """Commutators tests."""
 
-    def test_commutator(self):
+    @unpack
+    @data(
+        (op1, op2, {}),
+        (op4, op5, {"+_0 -_0": (1 + 0j), "-_0 +_0": (-1 + 0j)}),
+    )
+    def test_commutator(self, op_a: FermionicOp, op_b: FermionicOp, expected: dict):
         """Test commutator method"""
-        self.assertEqual(commutator(op1, op2), FermionicOp({}, register_length=1))
+        self.assertEqual(commutator(op_a, op_b), FermionicOp(expected, register_length=1))
 
-    def test_anti_commutator(self):
+    @unpack
+    @data(
+        (op1, op2, {}),
+        (op1, op3, {"+_0 -_0": (2 + 0j)}),
+    )
+    def test_anti_commutator(self, op_a: FermionicOp, op_b: FermionicOp, expected: dict):
         """Test anti commutator method"""
-        self.assertEqual(anti_commutator(op1, op2), FermionicOp({}, register_length=1))
+        self.assertEqual(anti_commutator(op_a, op_b), FermionicOp(expected, register_length=1))
 
-    def test_double_commutator(self):
+    @unpack
+    @data(
+        (op1, op2, op3, {}),
+        (op1, op4, op3, {"+_0": (1 + 0.5j)}),
+    )
+    def test_double_commutator(
+        self,
+        op_a: FermionicOp,
+        op_b: FermionicOp,
+        op_c: FermionicOp,
+        expected: dict,
+    ):
         """Test double commutator method"""
-        self.assertEqual(double_commutator(op1, op2, op3), FermionicOp({}, register_length=1))
+        self.assertEqual(
+            double_commutator(op_a, op_b, op_c), FermionicOp(expected, register_length=1)
+        )
 
     def test_commutator_iszero(self):
         """Test is_zero function with commutator"""
