@@ -49,13 +49,15 @@ def commutator(op_a: SparseLabelOp, op_b: SparseLabelOp) -> SparseLabelOp:
 
 
 def anti_commutator(op_a: SparseLabelOp, op_b: SparseLabelOp) -> SparseLabelOp:
-    r"""
-    Compute anti-commutator of `op_a` and `op_b`.
+    r"""Compute anti-commutator of `op_a` and `op_b`.
+
     .. math::
         AB + BA.
+
     Args:
         op_a: Operator A
         op_b: Operator B
+
     Returns:
         SparseLabelOp: the anti-commutator
     """
@@ -68,22 +70,26 @@ def double_commutator(
     op_c: SparseLabelOp,
     sign: bool = False,
 ) -> SparseLabelOp:
-    r"""
-    Compute symmetric double commutator of `op_a`, `op_b` and `op_c`.
+    r"""Compute symmetric double commutator of `op_a`, `op_b` and `op_c`.
     See McWeeny chapter 13.6 Equation of motion methods (page 479)
     If `sign` is `False`, it returns
+
     .. math::
          [[A, B], C]/2 + [A, [B, C]]/2
          = (2ABC + 2CBA - BAC - CAB - ACB - BCA)/2.
+
     If `sign` is `True`, it returns
+
     .. math::
          \lbrace[A, B], C\rbrace/2 + \lbrace A, [B, C]\rbrace/2
          = (2ABC - 2CBA - BAC + CAB - ACB + BCA)/2.
+
     Args:
         op_a: Operator A
         op_b: Operator B
         op_c: Operator C
         sign: False anti-commutes, True commutes
+
     Returns:
         SparseLabelOp: the double commutator
     """
