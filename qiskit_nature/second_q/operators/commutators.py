@@ -14,7 +14,7 @@
 Commutator Utilities (:mod:`qiskit_nature.second_q.operators.commutators`)
 ===================================================================================
 
-.. currentmodule:: qiskit_nature.second_q.operators.commutator
+.. currentmodule:: qiskit_nature.second_q.operators.commutators
 
 Utility functions to generate compute commutators for
 :class:`qiskit_nature.second_q.operators.sparse_label_op`.
