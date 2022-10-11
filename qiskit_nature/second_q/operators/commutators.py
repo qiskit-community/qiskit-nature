@@ -16,8 +16,8 @@ Commutator Utilities (:mod:`qiskit_nature.second_q.operators.commutators`)
 
 .. currentmodule:: qiskit_nature.second_q.operators.commutators
 
-Utility functions to generate compute commutators for
-:class:`qiskit_nature.second_q.operators.sparse_label_op`.
+Utility functions to compute commutators of
+:class:`qiskit_nature.second_q.operators.SparseLabelOp` instances.
 
 .. autosummary::
    :toctree: ../stubs/
@@ -32,13 +32,16 @@ from .sparse_label_op import SparseLabelOp
 
 
 def commutator(op_a: SparseLabelOp, op_b: SparseLabelOp) -> SparseLabelOp:
-    r"""
-    Compute commutator of `op_a` and `op_b`.
+    r"""Compute commutator of `op_a` and `op_b`.
+
     .. math::
+
         AB - BA.
+
     Args:
         op_a: Operator A
         op_b: Operator B
+
     Returns:
         SparseLabelOp: the commutator
     """
