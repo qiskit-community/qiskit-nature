@@ -71,10 +71,6 @@ class TestCommutators(QiskitNatureTestCase):
             double_commutator(op_a, op_b, op_c), FermionicOp(expected, register_length=1)
         )
 
-    def test_commutator_iszero(self):
-        """Test is_zero function with commutator"""
-        self.assertTrue(commutator(op1, op2).is_zero())
-
 
 if __name__ == "__main__":
     unittest.main()

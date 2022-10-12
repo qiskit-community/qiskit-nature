@@ -36,7 +36,7 @@ def commutator(op_a: SparseLabelOp, op_b: SparseLabelOp) -> SparseLabelOp:
 
     .. math::
 
-        AB - BA
+        AB - BA.
 
     Args:
         op_a: Operator A.
@@ -55,11 +55,11 @@ def anti_commutator(op_a: SparseLabelOp, op_b: SparseLabelOp) -> SparseLabelOp:
         AB + BA.
 
     Args:
-        op_a: Operator A
-        op_b: Operator B
+        op_a: Operator A.
+        op_b: Operator B.
 
     Returns:
-        SparseLabelOp: the anti-commutator
+        The computed anti-commutator.
     """
     return (op_a @ op_b + op_b @ op_a).simplify()
 
@@ -86,14 +86,14 @@ def double_commutator(
          = (2ABC - 2CBA - BAC + CAB - ACB + BCA)/2.
 
     Args:
-        op_a: Operator A
-        op_b: Operator B
-        op_c: Operator C
-        sign: False anti-commutes, True commutes
+        op_a: Operator A.
+        op_b: Operator B.
+        op_c: Operator C.
+        sign: False anti-commutes, True commutes.
 
     Returns:
-        SparseLabelOp: the double commutator
-        
+        The computed double commutator.
+
         References:
             [1]: R. McWeeny.
                 Methods of Molecular Quantum Mechanics.
