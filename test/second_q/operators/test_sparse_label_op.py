@@ -49,6 +49,7 @@ class DummySparseLabelOp(SparseLabelOp):
     def register_length(self) -> int | None:
         return None
 
+    # pylint: disable=unused-argument
     def _new_instance(
         self, data: Mapping[str, complex], *, other: SparseLabelOp | None = None
     ) -> SparseLabelOp:
