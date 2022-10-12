@@ -36,14 +36,14 @@ def commutator(op_a: SparseLabelOp, op_b: SparseLabelOp) -> SparseLabelOp:
 
     .. math::
 
-        AB - BA.
+        AB - BA
 
     Args:
-        op_a: Operator A
-        op_b: Operator B
+        op_a: Operator A.
+        op_b: Operator B.
 
     Returns:
-        SparseLabelOp: the commutator
+        The computed commutator.
     """
     return (op_a @ op_b - op_b @ op_a).simplify()
 
@@ -71,7 +71,8 @@ def double_commutator(
     sign: bool = False,
 ) -> SparseLabelOp:
     r"""Compute symmetric double commutator of `op_a`, `op_b` and `op_c`.
-    See McWeeny chapter 13.6 Equation of motion methods (page 479)
+
+    See also Equation (13.6.18) in [1].
     If `sign` is `False`, it returns
 
     .. math::
@@ -92,6 +93,12 @@ def double_commutator(
 
     Returns:
         SparseLabelOp: the double commutator
+        
+        References:
+            [1]: R. McWeeny.
+                Methods of Molecular Quantum Mechanics.
+                2nd Edition, Academic Press, 1992.
+                ISBN 0-12-486552-6.
     """
     sign_num = 1 if sign else -1
 
