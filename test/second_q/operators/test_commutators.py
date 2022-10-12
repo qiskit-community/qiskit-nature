@@ -56,19 +56,21 @@ class TestCommutators(QiskitNatureTestCase):
 
     @unpack
     @data(
-        (op1, op2, op3, {}),
-        (op1, op4, op3, {"+_0": (1 + 0.5j)}),
+        (op1, op2, op3, False, {}),
+        (op1, op4, op3, False, {"+_0": (1 + 0.5j)}),
+        (op1, op4, op3, True, {'+_0': (2+0.5j)}),
     )
     def test_double_commutator(
         self,
         op_a: FermionicOp,
         op_b: FermionicOp,
         op_c: FermionicOp,
+        sign: bool,
         expected: dict,
     ):
         """Test double commutator method"""
         self.assertEqual(
-            double_commutator(op_a, op_b, op_c), FermionicOp(expected, register_length=1)
+            double_commutator(op_a, op_b, op_c, sign), FermionicOp(expected, register_length=1)
         )
 
 
