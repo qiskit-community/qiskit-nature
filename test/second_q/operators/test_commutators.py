@@ -58,7 +58,7 @@ class TestCommutators(QiskitNatureTestCase):
     @data(
         (op1, op2, op3, False, {}),
         (op1, op4, op3, False, {"+_0": (1 + 0.5j)}),
-        (op1, op4, op3, True, {'+_0': (2+0.5j)}),
+        (op1, op4, op3, True, {"+_0": (2 + 0.5j)}),
     )
     def test_double_commutator(
         self,
