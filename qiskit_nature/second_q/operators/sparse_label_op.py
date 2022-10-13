@@ -450,7 +450,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
 
         Args:
             tol: tolerance for checking coefficient values. If this is `None`,
-            :attr:`atol` will be used instead.
+                :attr:`atol` will be used instead.
 
         Returns:
             if operator length is zero or all coefficients are zero
