@@ -54,8 +54,8 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             estimator: the :class:`~qiskit.primitives.BaseEstimator` class to use for the internal
                 :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`.
             ansatz: the :class:`~.UCC` ansatz. Its attributes `qubit_converter`, `num_particles`,
-                `num_spin_orbitals`, and `initial_point` will be completed at runtime based on the
-                problem being solved.
+                `num_spatial_orbitals`, and `initial_point` will be completed at runtime based on
+                the problem being solved.
             optimizer: the :class:`~qiskit.algorithms.optimizers.Optimizer` or
                 :class:`~qiskit.algorithms.optimizers.Minimizer` to use for the internal
                 :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`.
@@ -131,16 +131,16 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             A VQE suitable to compute the ground state of the molecule.
         """
         driver_result = problem
-        num_spin_orbitals = problem.num_spin_orbitals
+        num_spatial_orbitals = problem.num_spatial_orbitals
         num_particles = problem.num_alpha, problem.num_beta
 
         initial_state = self.initial_state
         if initial_state is None:
-            initial_state = HartreeFock(num_spin_orbitals, num_particles, qubit_converter)
+            initial_state = HartreeFock(num_spatial_orbitals, num_particles, qubit_converter)
 
         self.ansatz.qubit_converter = qubit_converter
         self.ansatz.num_particles = num_particles
-        self.ansatz.num_spin_orbitals = num_spin_orbitals
+        self.ansatz.num_spatial_orbitals = num_spatial_orbitals
         self.ansatz.initial_state = initial_state
 
         if isinstance(self.initial_point, InitialPoint):

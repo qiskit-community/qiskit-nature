@@ -260,7 +260,7 @@ class QEOM(ExcitedStatesSolver):
         if isinstance(problem, ElectronicStructureProblem):
             return build_electronic_ops(
                 (problem.num_alpha, problem.num_beta),
-                problem.num_spin_orbitals,
+                problem.num_spatial_orbitals,
                 self._gsc.qubit_converter,
                 self.excitations,
             )

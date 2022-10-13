@@ -113,7 +113,7 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
 
         hopping_operators, commutativities, indices = build_electronic_ops(
             self.electronic_structure_problem.num_particles,
-            self.electronic_structure_problem.num_spin_orbitals,
+            self.electronic_structure_problem.num_spatial_orbitals,
             self.qubit_converter,
         )
 

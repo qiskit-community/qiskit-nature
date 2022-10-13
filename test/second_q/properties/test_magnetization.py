@@ -23,8 +23,8 @@ class TestMagnetization(PropertyTest):
     def setUp(self):
         """Setup."""
         super().setUp()
-        num_molecular_orbitals = 4
-        self.prop = Magnetization(num_molecular_orbitals * 2)
+        num_spatial_orbitals = 4
+        self.prop = Magnetization(num_spatial_orbitals)
 
     def test_second_q_ops(self):
         """Test second_q_ops."""

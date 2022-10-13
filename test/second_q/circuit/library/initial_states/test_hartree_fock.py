@@ -37,7 +37,7 @@ class TestHartreeFock(QiskitNatureTestCase):
 
     def test_bitstring(self):
         """Simple test for the bitstring function."""
-        bitstr = hartree_fock_bitstring(4, (1, 1))
+        bitstr = hartree_fock_bitstring(2, (1, 1))
         self.assertTrue(all(bitstr == np.array([True, False, True, False])))
 
     def test_bitstring_invalid_input(self):
@@ -45,7 +45,7 @@ class TestHartreeFock(QiskitNatureTestCase):
 
         with self.subTest("too many particles"):
             with self.assertRaises(ValueError):
-                _ = hartree_fock_bitstring(4, (3, 3))
+                _ = hartree_fock_bitstring(2, (3, 3))
 
         with self.subTest("too few orbitals"):
             with self.assertRaises(ValueError):
@@ -53,21 +53,21 @@ class TestHartreeFock(QiskitNatureTestCase):
 
     def test_qubits_4_jw_h2(self):
         """qubits 4 jw h2 test"""
-        state = HartreeFock(4, (1, 1), QubitConverter(JordanWignerMapper()))
+        state = HartreeFock(2, (1, 1), QubitConverter(JordanWignerMapper()))
         ref = QuantumCircuit(4)
         ref.x([0, 2])
         self.assertEqual(state, ref)
 
     def test_qubits_4_py_h2(self):
         """qubits 4 py h2 test"""
-        state = HartreeFock(4, (1, 1), QubitConverter(ParityMapper()))
+        state = HartreeFock(2, (1, 1), QubitConverter(ParityMapper()))
         ref = QuantumCircuit(4)
         ref.x([0, 1])
         self.assertEqual(state, ref)
 
     def test_qubits_4_bk_h2(self):
         """qubits 4 bk h2 test"""
-        state = HartreeFock(4, (1, 1), QubitConverter(BravyiKitaevMapper()))
+        state = HartreeFock(2, (1, 1), QubitConverter(BravyiKitaevMapper()))
         ref = QuantumCircuit(4)
         ref.x([0, 1, 2])
         self.assertEqual(state, ref)
@@ -77,7 +77,7 @@ class TestHartreeFock(QiskitNatureTestCase):
         num_particles = (1, 1)
         converter = QubitConverter(ParityMapper(), two_qubit_reduction=True)
         converter.force_match(num_particles=num_particles)
-        state = HartreeFock(4, num_particles, converter)
+        state = HartreeFock(2, num_particles, converter)
         ref = QuantumCircuit(2)
         ref.x(0)
         self.assertEqual(state, ref)
@@ -93,7 +93,7 @@ class TestHartreeFock(QiskitNatureTestCase):
             tapering_values=[1, 1],
         )
         converter.force_match(num_particles=num_particles, z2symmetries=z2symmetries)
-        state = HartreeFock(10, num_particles, converter)
+        state = HartreeFock(5, num_particles, converter)
         ref = QuantumCircuit(6)
         ref.x([0, 1])
         self.assertEqual(state, ref)
@@ -109,7 +109,7 @@ class TestHartreeFock(QiskitNatureTestCase):
         #    spin=0,
         #    basis='sto-3g',
         #    hf_method=HFMethodType.RHF)
-        num_spin_orbitals = 14
+        num_spatial_orbitals = 7
         num_particles = (5, 5)
         converter = QubitConverter(ParityMapper(), two_qubit_reduction=True)
         z2symmetries = Z2Symmetries(
@@ -121,7 +121,7 @@ class TestHartreeFock(QiskitNatureTestCase):
         with self.subTest("Matched bitsring creation"):
             converter.force_match(num_particles=num_particles, z2symmetries=z2symmetries)
             bitstr = hartree_fock_bitstring_mapped(
-                num_spin_orbitals=num_spin_orbitals,
+                num_spatial_orbitals=num_spatial_orbitals,
                 num_particles=num_particles,
                 qubit_converter=converter,
             )
@@ -129,7 +129,7 @@ class TestHartreeFock(QiskitNatureTestCase):
             self.assertListEqual(bitstr, ref_matched)
         with self.subTest("Bitsring creation with no tapering"):
             bitstr = hartree_fock_bitstring_mapped(
-                num_spin_orbitals=num_spin_orbitals,
+                num_spatial_orbitals=num_spatial_orbitals,
                 num_particles=num_particles,
                 qubit_converter=converter,
                 match_convert=False,

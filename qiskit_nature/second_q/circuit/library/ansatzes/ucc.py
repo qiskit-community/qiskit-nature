@@ -74,7 +74,7 @@ class UCC(EvolvedOperatorAnsatz):
 
         # you can even define a fully custom list of excitations:
 
-        def custom_excitation_list(num_spin_orbitals: int,
+        def custom_excitation_list(num_spatial_orbitals: int,
                                    num_particles: tuple[int, int]
                                    ) -> list[tuple[tuple[Any, ...], ...]]:
             # generate your list of excitations...
@@ -91,7 +91,7 @@ class UCC(EvolvedOperatorAnsatz):
 
     - `qubit_converter`
     - `num_particles`
-    - `num_spin_orbitals`
+    - `num_spatial_orbitals`
 
     If you are using this Ansatz with a Qiskit Nature algorithm, these arguments will be set for
     you, depending on the rest of the stack.
@@ -113,7 +113,7 @@ class UCC(EvolvedOperatorAnsatz):
         self,
         qubit_converter: QubitConverter | None = None,
         num_particles: tuple[int, int] | None = None,
-        num_spin_orbitals: int | None = None,
+        num_spatial_orbitals: int | None = None,
         excitations: str
         | int
         | list[int]
@@ -137,7 +137,7 @@ class UCC(EvolvedOperatorAnsatz):
                 :class:`~.SecondQuantizedOp` to a :class:`PauliSumOp` as well as performing all
                 configured symmetry reductions on it.
             num_particles: the tuple of the number of alpha- and beta-spin particles.
-            num_spin_orbitals: the number of spin orbitals.
+            num_spatial_orbitals: the number of spatial orbitals.
             excitations: this can be any of the following types:
 
                 :`str`: which contains the types of excitations. Allowed characters are
@@ -150,7 +150,7 @@ class UCC(EvolvedOperatorAnsatz):
                 :`list[int]`: a list of positive integers generalizing the above to multiple numbers
                     of excitations ([1, 2] == `sd`, etc.)
                 :`Callable`: a function which is used to generate the excitations.
-                    The callable must take the __keyword__ arguments `num_spin_orbitals` and
+                    The callable must take the __keyword__ arguments `num_spatial_orbitals` and
                     `num_particles` (with identical types to those explained above) and must return
                     a `list[tuple[tuple[int, ...], tuple[int, ...]]]`. For more information on how
                     to write such a callable refer to the default method
@@ -175,7 +175,7 @@ class UCC(EvolvedOperatorAnsatz):
         """
         self._qubit_converter = qubit_converter
         self._num_particles = num_particles
-        self._num_spin_orbitals = num_spin_orbitals
+        self._num_spatial_orbitals = num_spatial_orbitals
         self._excitations = excitations
         self._alpha_spin = alpha_spin
         self._beta_spin = beta_spin
@@ -213,16 +213,16 @@ class UCC(EvolvedOperatorAnsatz):
         self._qubit_converter = conv
 
     @property
-    def num_spin_orbitals(self) -> int:
-        """The number of spin orbitals."""
-        return self._num_spin_orbitals
+    def num_spatial_orbitals(self) -> int:
+        """The number of spatial orbitals."""
+        return self._num_spatial_orbitals
 
-    @num_spin_orbitals.setter
-    def num_spin_orbitals(self, n: int) -> None:
-        """Sets the number of spin orbitals."""
+    @num_spatial_orbitals.setter
+    def num_spatial_orbitals(self, n: int) -> None:
+        """Sets the number of spatial orbitals."""
         self._operators = None
         self._invalidate()
-        self._num_spin_orbitals = n
+        self._num_spatial_orbitals = n
 
     @property
     def num_particles(self) -> tuple[int, int]:
@@ -324,15 +324,15 @@ class UCC(EvolvedOperatorAnsatz):
     def _check_ucc_configuration(self, raise_on_failure: bool = True) -> bool:
         # Check the local config, separated out that it can be checked via build
         # or ahead of building operators to make sure everything needed is present.
-        if self.num_spin_orbitals is None:
+        if self.num_spatial_orbitals is None:
             if raise_on_failure:
-                raise ValueError("The number of spin orbitals cannot be 'None'.")
+                raise ValueError("The number of spatial orbitals cannot be 'None'.")
             return False
 
-        if self.num_spin_orbitals <= 0:
+        if self.num_spatial_orbitals <= 0:
             if raise_on_failure:
                 raise ValueError(
-                    f"The number of spin orbitals must be > 0 was {self.num_spin_orbitals}."
+                    f"The number of spatial orbitals must be > 0 was {self.num_spatial_orbitals}."
                 )
             return False
 
@@ -348,12 +348,12 @@ class UCC(EvolvedOperatorAnsatz):
                 )
             return False
 
-        if sum(self.num_particles) >= self.num_spin_orbitals:
+        if any(n >= self.num_spatial_orbitals for n in self.num_particles):
             if raise_on_failure:
                 raise ValueError(
-                    f"The number of spin orbitals {self.num_spin_orbitals}"
-                    f"must be greater than total number of particles "
-                    f"{sum(self.num_particles)}."
+                    f"The number of spatial orbitals {self.num_spatial_orbitals}"
+                    f"must be greater than number of particles of any spin kind "
+                    f"{self.num_particles}."
                 )
             return False
 
@@ -400,7 +400,7 @@ class UCC(EvolvedOperatorAnsatz):
         for gen in generators:
             excitations.extend(
                 gen(
-                    num_spin_orbitals=self.num_spin_orbitals,
+                    num_spatial_orbitals=self.num_spatial_orbitals,
                     num_particles=self.num_particles,
                 )
             )
@@ -496,6 +496,7 @@ class UCC(EvolvedOperatorAnsatz):
         Returns:
             The list of excitation operators in the second quantized formalism.
         """
+        num_spin_orbitals = 2 * self.num_spatial_orbitals
         operators = []
 
         for exc in excitations:
@@ -504,7 +505,7 @@ class UCC(EvolvedOperatorAnsatz):
                 label.append(f"+_{occ}")
             for unocc in exc[1]:
                 label.append(f"-_{unocc}")
-            op = FermionicOp({" ".join(label): 1}, num_spin_orbitals=self.num_spin_orbitals)
+            op = FermionicOp({" ".join(label): 1}, num_spin_orbitals=num_spin_orbitals)
             op -= op.adjoint()
             # we need to account for an additional imaginary phase in the exponent (see also
             # `PauliTrotterEvolution.convert`)

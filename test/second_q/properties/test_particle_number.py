@@ -23,8 +23,8 @@ class TestParticleNumber(PropertyTest):
     def setUp(self):
         """Setup."""
         super().setUp()
-        num_molecular_orbitals = 4
-        self.prop = ParticleNumber(num_molecular_orbitals * 2)
+        num_spatial_orbitals = 4
+        self.prop = ParticleNumber(num_spatial_orbitals)
 
     def test_second_q_ops(self):
         """Test second_q_ops."""

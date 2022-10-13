@@ -70,17 +70,17 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         problem.second_q_ops()
 
         num_particles = (problem.num_alpha, problem.num_beta)
-        num_spin_orbitals = problem.num_spin_orbitals
+        num_spatial_orbitals = problem.num_spatial_orbitals
 
         qubit_converter = QubitConverter(mapper=JordanWignerMapper())
 
         initial_state = HartreeFock(
-            num_spin_orbitals=num_spin_orbitals,
+            num_spatial_orbitals=num_spatial_orbitals,
             num_particles=num_particles,
             qubit_converter=qubit_converter,
         )
         ansatz = UCC(
-            num_spin_orbitals=num_spin_orbitals,
+            num_spatial_orbitals=num_spatial_orbitals,
             num_particles=num_particles,
             excitations="sd",
             qubit_converter=qubit_converter,

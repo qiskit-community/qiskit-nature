@@ -105,8 +105,8 @@ class TestDriver(ABC):
         """Test the system size problem attributes."""
 
         with self.subTest("orbital number"):
-            self.log.debug("Number of orbitals is %s", self.driver_result.num_spin_orbitals)
-            self.assertEqual(self.driver_result.num_spin_orbitals, 4)
+            self.log.debug("Number of orbitals is %s", self.driver_result.num_spatial_orbitals)
+            self.assertEqual(self.driver_result.num_spatial_orbitals, 2)
 
         with self.subTest("alpha electron number"):
             self.log.debug("Number of alpha electrons is %s", self.driver_result.num_alpha)

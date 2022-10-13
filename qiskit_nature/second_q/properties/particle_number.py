@@ -25,12 +25,12 @@ if TYPE_CHECKING:
 class ParticleNumber:
     """The ParticleNumber property."""
 
-    def __init__(self, num_spin_orbitals: int) -> None:
+    def __init__(self, num_spatial_orbitals: int) -> None:
         """
         Args:
-            num_spin_orbitals: the number of spin orbitals in the system.
+            num_spatial_orbitals: the number of spatial orbitals in the system.
         """
-        self.num_spin_orbitals = num_spin_orbitals
+        self.num_spatial_orbitals = num_spatial_orbitals
 
     def second_q_ops(self) -> dict[str, FermionicOp]:
         """Returns the second quantized particle number operator.
@@ -38,9 +38,10 @@ class ParticleNumber:
         Returns:
             A `dict` of `FermionicOp` objects.
         """
+        num_spin_orbitals = 2 * self.num_spatial_orbitals
         op = FermionicOp(
-            {f"+_{o} -_{o}": 1.0 for o in range(self.num_spin_orbitals)},
-            num_spin_orbitals=self.num_spin_orbitals,
+            {f"+_{o} -_{o}": 1.0 for o in range(num_spin_orbitals)},
+            num_spin_orbitals=num_spin_orbitals,
         )
 
         return {self.__class__.__name__: op}

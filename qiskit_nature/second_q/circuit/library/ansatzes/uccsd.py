@@ -30,7 +30,7 @@ class UCCSD(UCC):
         self,
         qubit_converter: Optional[QubitConverter] = None,
         num_particles: Optional[Tuple[int, int]] = None,
-        num_spin_orbitals: Optional[int] = None,
+        num_spatial_orbitals: Optional[int] = None,
         reps: int = 1,
         initial_state: Optional[QuantumCircuit] = None,
         generalized: bool = False,
@@ -42,7 +42,7 @@ class UCCSD(UCC):
                 :class:`~.SecondQuantizedOp` to a :class:`PauliSumOp` as well as performing all
                 configured symmetry reductions on it.
             num_particles: the tuple of the number of alpha- and beta-spin particles.
-            num_spin_orbitals: the number of spin orbitals.
+            num_spatial_orbitals: the number of spatial orbitals.
             reps: The number of times to repeat the evolved operators.
             initial_state: A `QuantumCircuit` object to prepend to the circuit.
             generalized: boolean flag whether or not to use generalized excitations, which ignore
@@ -54,7 +54,7 @@ class UCCSD(UCC):
         super().__init__(
             qubit_converter=qubit_converter,
             num_particles=num_particles,
-            num_spin_orbitals=num_spin_orbitals,
+            num_spatial_orbitals=num_spatial_orbitals,
             excitations="sd",
             alpha_spin=True,
             beta_spin=True,

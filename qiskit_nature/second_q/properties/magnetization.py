@@ -25,13 +25,13 @@ if TYPE_CHECKING:
 class Magnetization:
     """The Magnetization property."""
 
-    def __init__(self, num_spin_orbitals: int) -> None:
+    def __init__(self, num_spatial_orbitals: int) -> None:
         """
         Args:
 
-            num_spin_orbitals: the number of spin orbitals in the system.
+            num_spatial_orbitals: the number of spatial orbitals in the system.
         """
-        self.num_spin_orbitals = num_spin_orbitals
+        self.num_spatial_orbitals = num_spatial_orbitals
 
     def second_q_ops(self) -> dict[str, FermionicOp]:
         """Returns the second quantized magnetization operator.
@@ -39,12 +39,13 @@ class Magnetization:
         Returns:
             A `dict` of `SecondQuantizedOp` objects.
         """
+        num_spin_orbitals = 2 * self.num_spatial_orbitals
         op = FermionicOp(
             {
-                f"+_{o} -_{o}": 0.5 if o < self.num_spin_orbitals // 2 else -0.5
-                for o in range(self.num_spin_orbitals)
+                f"+_{o} -_{o}": 0.5 if o < self.num_spatial_orbitals else -0.5
+                for o in range(num_spin_orbitals)
             },
-            num_spin_orbitals=self.num_spin_orbitals,
+            num_spin_orbitals=num_spin_orbitals,
         )
 
         return {self.__class__.__name__: op}

@@ -276,7 +276,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         """
         driver = PySCFDriver(basis="631g")
         driver_result = driver.run()
-        driver_result.num_spin_orbitals = np.int64(driver_result.num_spin_orbitals)
+        driver_result.num_spatial_orbitals = np.int64(driver_result.num_spatial_orbitals)
         driver_result.num_particles = (
             np.int64(driver_result.num_alpha),
             np.int64(driver_result.num_beta),

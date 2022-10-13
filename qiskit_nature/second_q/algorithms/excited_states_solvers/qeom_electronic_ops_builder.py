@@ -28,7 +28,7 @@ from qiskit_nature.second_q.mappers import QubitConverter
 
 def build_electronic_ops(
     num_particles: Tuple[int, int],
-    num_spin_orbitals: int,
+    num_spatial_orbitals: int,
     qubit_converter: QubitConverter,
     excitations: str
     | int
@@ -46,7 +46,7 @@ def build_electronic_ops(
 
     Args:
         num_particles: the number of alpha- and beta-spin particles as a tuple.
-        num_spin_orbitals: the number of spin orbitals.
+        num_spatial_orbitals: the number of spatial orbitals.
         qubit_converter: the `QubitConverter` to use for mapping and symmetry reduction. The Z2
                          symmetries stored in this instance are the basis for the commutativity
                          information returned by this method.
@@ -65,7 +65,7 @@ def build_electronic_ops(
 
     num_alpha, num_beta = num_particles
 
-    ansatz = UCC(qubit_converter, (num_alpha, num_beta), num_spin_orbitals, excitations)
+    ansatz = UCC(qubit_converter, (num_alpha, num_beta), num_spatial_orbitals, excitations)
     excitations_list = ansatz._get_excitation_list()
     size = len(excitations_list)
 
@@ -86,7 +86,7 @@ def build_electronic_ops(
     result = parallel_map(
         _build_single_hopping_operator,
         to_be_executed_list,
-        task_args=(num_spin_orbitals, qubit_converter),
+        task_args=(num_spatial_orbitals, qubit_converter),
         num_processes=algorithm_globals.num_processes,
     )
 
@@ -99,7 +99,7 @@ def build_electronic_ops(
 
 def _build_single_hopping_operator(
     excitation: Tuple[Tuple[int, ...], Tuple[int, ...]],
-    num_spin_orbitals: int,
+    num_spatial_orbitals: int,
     qubit_converter: QubitConverter,
 ) -> Tuple[PauliSumOp, List[bool]]:
     label = []
@@ -108,7 +108,7 @@ def _build_single_hopping_operator(
     for unocc in excitation[1]:
         label.append(f"-_{unocc}")
     fer_op = FermionicOp(
-        {" ".join(label): 4.0 ** len(excitation[0])}, num_spin_orbitals=num_spin_orbitals
+        {" ".join(label): 4.0 ** len(excitation[0])}, num_spin_orbitals=2 * num_spatial_orbitals
     )
 
     qubit_op = qubit_converter.convert_only(fer_op, qubit_converter.num_particles)

@@ -30,12 +30,12 @@ if TYPE_CHECKING:
 class AngularMomentum:
     """The AngularMomentum property."""
 
-    def __init__(self, num_spin_orbitals: int) -> None:
+    def __init__(self, num_spatial_orbitals: int) -> None:
         """
         Args:
-            num_spin_orbitals: the number of spin orbitals in the system.
+            num_spatial_orbitals: the number of spatial orbitals in the system.
         """
-        self.num_spin_orbitals = num_spin_orbitals
+        self.num_spatial_orbitals = num_spatial_orbitals
 
     def second_q_ops(self) -> dict[str, FermionicOp]:
         """Returns the second quantized angular momentum operator.
@@ -43,9 +43,9 @@ class AngularMomentum:
         Returns:
             A `dict` of `FermionicOp` objects.
         """
-        x_h1, x_h2 = _calc_s_x_squared_ints(self.num_spin_orbitals)
-        y_h1, y_h2 = _calc_s_y_squared_ints(self.num_spin_orbitals)
-        z_h1, z_h2 = _calc_s_z_squared_ints(self.num_spin_orbitals)
+        x_h1, x_h2 = _calc_s_x_squared_ints(self.num_spatial_orbitals)
+        y_h1, y_h2 = _calc_s_y_squared_ints(self.num_spatial_orbitals)
+        z_h1, z_h2 = _calc_s_z_squared_ints(self.num_spatial_orbitals)
         h_1 = x_h1 + y_h1 + z_h1
         h_2 = x_h2 + y_h2 + z_h2
 
@@ -79,46 +79,54 @@ class AngularMomentum:
                 result.total_angular_momentum.append(None)
 
 
-def _calc_s_x_squared_ints(num_modes: int) -> tuple[np.ndarray, np.ndarray]:
-    return _calc_squared_ints(num_modes, _modify_s_x_squared_ints_neq, _modify_s_x_squared_ints_eq)
+def _calc_s_x_squared_ints(num_spatial_orbitals: int) -> tuple[np.ndarray, np.ndarray]:
+    return _calc_squared_ints(
+        num_spatial_orbitals, _modify_s_x_squared_ints_neq, _modify_s_x_squared_ints_eq
+    )
 
 
-def _calc_s_y_squared_ints(num_modes: int) -> tuple[np.ndarray, np.ndarray]:
-    return _calc_squared_ints(num_modes, _modify_s_y_squared_ints_neq, _modify_s_y_squared_ints_eq)
+def _calc_s_y_squared_ints(num_spatial_orbitals: int) -> tuple[np.ndarray, np.ndarray]:
+    return _calc_squared_ints(
+        num_spatial_orbitals, _modify_s_y_squared_ints_neq, _modify_s_y_squared_ints_eq
+    )
 
 
-def _calc_s_z_squared_ints(num_modes: int) -> tuple[np.ndarray, np.ndarray]:
-    return _calc_squared_ints(num_modes, _modify_s_z_squared_ints_neq, _modify_s_z_squared_ints_eq)
+def _calc_s_z_squared_ints(num_spatial_orbitals: int) -> tuple[np.ndarray, np.ndarray]:
+    return _calc_squared_ints(
+        num_spatial_orbitals, _modify_s_z_squared_ints_neq, _modify_s_z_squared_ints_eq
+    )
 
 
-def _calc_squared_ints(num_modes: int, func_neq, func_eq) -> tuple[np.ndarray, np.ndarray]:
+def _calc_squared_ints(
+    num_spatial_orbitals: int, func_neq, func_eq
+) -> tuple[np.ndarray, np.ndarray]:
     # calculates 1- and 2-body integrals for a given angular momentum axis (x or y or z,
     # specified by func_neq and func_eq)
-    num_modes_2 = num_modes // 2
-    h_1 = np.zeros((num_modes, num_modes))
-    h_2 = np.zeros((num_modes, num_modes, num_modes, num_modes))
+    num_spin_orbitals = 2 * num_spatial_orbitals
+    h_1 = np.zeros((num_spin_orbitals, num_spin_orbitals))
+    h_2 = np.zeros((num_spin_orbitals, num_spin_orbitals, num_spin_orbitals, num_spin_orbitals))
 
     # pylint: disable=invalid-name
-    for p, q in itertools.product(range(num_modes_2), repeat=2):
+    for p, q in itertools.product(range(num_spatial_orbitals), repeat=2):
         if p != q:
-            h_2 = func_neq(h_2, p, q, num_modes_2)
+            h_2 = func_neq(h_2, p, q, num_spatial_orbitals)
         else:
-            h_2 = func_eq(h_2, p, num_modes_2)
+            h_2 = func_eq(h_2, p, num_spatial_orbitals)
             h_1[p, p] += 1.0
-            h_1[p + num_modes_2, p + num_modes_2] += 1.0
+            h_1[p + num_spatial_orbitals, p + num_spatial_orbitals] += 1.0
     h_1 *= 0.25
     h_2 *= 0.25
     return h_1, h_2
 
 
 def _modify_s_x_squared_ints_neq(
-    h_2: np.ndarray, p_ind: int, q_ind: int, num_modes_2: int
+    h_2: np.ndarray, p_ind: int, q_ind: int, num_spatial_orbitals: int
 ) -> np.ndarray:
     indices = [
-        (p_ind, p_ind + num_modes_2, q_ind, q_ind + num_modes_2),
-        (p_ind + num_modes_2, p_ind, q_ind, q_ind + num_modes_2),
-        (p_ind, p_ind + num_modes_2, q_ind + num_modes_2, q_ind),
-        (p_ind + num_modes_2, p_ind, q_ind + num_modes_2, q_ind),
+        (p_ind, p_ind + num_spatial_orbitals, q_ind, q_ind + num_spatial_orbitals),
+        (p_ind + num_spatial_orbitals, p_ind, q_ind, q_ind + num_spatial_orbitals),
+        (p_ind, p_ind + num_spatial_orbitals, q_ind + num_spatial_orbitals, q_ind),
+        (p_ind + num_spatial_orbitals, p_ind, q_ind + num_spatial_orbitals, q_ind),
     ]
     values = [1, 1, 1, 1]
     # adds provided values to values of 2-body integrals (x axis of angular momentum) at given
@@ -126,12 +134,14 @@ def _modify_s_x_squared_ints_neq(
     return _add_values_to_s_squared_ints(h_2, indices, values)
 
 
-def _modify_s_x_squared_ints_eq(h_2: np.ndarray, p_ind: int, num_modes_2: int) -> np.ndarray:
+def _modify_s_x_squared_ints_eq(
+    h_2: np.ndarray, p_ind: int, num_spatial_orbitals: int
+) -> np.ndarray:
     indices = [
-        (p_ind, p_ind + num_modes_2, p_ind, p_ind + num_modes_2),
-        (p_ind + num_modes_2, p_ind, p_ind + num_modes_2, p_ind),
-        (p_ind, p_ind, p_ind + num_modes_2, p_ind + num_modes_2),
-        (p_ind + num_modes_2, p_ind + num_modes_2, p_ind, p_ind),
+        (p_ind, p_ind + num_spatial_orbitals, p_ind, p_ind + num_spatial_orbitals),
+        (p_ind + num_spatial_orbitals, p_ind, p_ind + num_spatial_orbitals, p_ind),
+        (p_ind, p_ind, p_ind + num_spatial_orbitals, p_ind + num_spatial_orbitals),
+        (p_ind + num_spatial_orbitals, p_ind + num_spatial_orbitals, p_ind, p_ind),
     ]
     values = [-1, -1, -1, -1]
     # adds provided values to values of 2-body integrals (x axis of angular momentum) at given
@@ -140,13 +150,13 @@ def _modify_s_x_squared_ints_eq(h_2: np.ndarray, p_ind: int, num_modes_2: int) -
 
 
 def _modify_s_y_squared_ints_neq(
-    h_2: np.ndarray, p_ind: int, q_ind: int, num_modes_2: int
+    h_2: np.ndarray, p_ind: int, q_ind: int, num_spatial_orbitals: int
 ) -> np.ndarray:
     indices = [
-        (p_ind, p_ind + num_modes_2, q_ind, q_ind + num_modes_2),
-        (p_ind + num_modes_2, p_ind, q_ind, q_ind + num_modes_2),
-        (p_ind, p_ind + num_modes_2, q_ind + num_modes_2, q_ind),
-        (p_ind + num_modes_2, p_ind, q_ind + num_modes_2, q_ind),
+        (p_ind, p_ind + num_spatial_orbitals, q_ind, q_ind + num_spatial_orbitals),
+        (p_ind + num_spatial_orbitals, p_ind, q_ind, q_ind + num_spatial_orbitals),
+        (p_ind, p_ind + num_spatial_orbitals, q_ind + num_spatial_orbitals, q_ind),
+        (p_ind + num_spatial_orbitals, p_ind, q_ind + num_spatial_orbitals, q_ind),
     ]
     values = [-1, 1, 1, -1]
     # adds provided values to values of 2-body integrals (y axis of angular momentum) at given
@@ -154,12 +164,14 @@ def _modify_s_y_squared_ints_neq(
     return _add_values_to_s_squared_ints(h_2, indices, values)
 
 
-def _modify_s_y_squared_ints_eq(h_2: np.ndarray, p_ind: int, num_modes_2: int) -> np.ndarray:
+def _modify_s_y_squared_ints_eq(
+    h_2: np.ndarray, p_ind: int, num_spatial_orbitals: int
+) -> np.ndarray:
     indices = [
-        (p_ind, p_ind + num_modes_2, p_ind, p_ind + num_modes_2),
-        (p_ind + num_modes_2, p_ind, p_ind + num_modes_2, p_ind),
-        (p_ind, p_ind, p_ind + num_modes_2, p_ind + num_modes_2),
-        (p_ind + num_modes_2, p_ind + num_modes_2, p_ind, p_ind),
+        (p_ind, p_ind + num_spatial_orbitals, p_ind, p_ind + num_spatial_orbitals),
+        (p_ind + num_spatial_orbitals, p_ind, p_ind + num_spatial_orbitals, p_ind),
+        (p_ind, p_ind, p_ind + num_spatial_orbitals, p_ind + num_spatial_orbitals),
+        (p_ind + num_spatial_orbitals, p_ind + num_spatial_orbitals, p_ind, p_ind),
     ]
     values = [1, 1, -1, -1]
     # adds provided values to values of 2-body integrals (y axis of angular momentum) at given
@@ -168,17 +180,17 @@ def _modify_s_y_squared_ints_eq(h_2: np.ndarray, p_ind: int, num_modes_2: int) -
 
 
 def _modify_s_z_squared_ints_neq(
-    h_2: np.ndarray, p_ind: int, q_ind: int, num_modes_2: int
+    h_2: np.ndarray, p_ind: int, q_ind: int, num_spatial_orbitals: int
 ) -> np.ndarray:
     indices = [
         (p_ind, p_ind, q_ind, q_ind),
-        (p_ind + num_modes_2, p_ind + num_modes_2, q_ind, q_ind),
-        (p_ind, p_ind, q_ind + num_modes_2, q_ind + num_modes_2),
+        (p_ind + num_spatial_orbitals, p_ind + num_spatial_orbitals, q_ind, q_ind),
+        (p_ind, p_ind, q_ind + num_spatial_orbitals, q_ind + num_spatial_orbitals),
         (
-            p_ind + num_modes_2,
-            p_ind + num_modes_2,
-            q_ind + num_modes_2,
-            q_ind + num_modes_2,
+            p_ind + num_spatial_orbitals,
+            p_ind + num_spatial_orbitals,
+            q_ind + num_spatial_orbitals,
+            q_ind + num_spatial_orbitals,
         ),
     ]
     values = [1, -1, -1, 1]
@@ -187,10 +199,12 @@ def _modify_s_z_squared_ints_neq(
     return _add_values_to_s_squared_ints(h_2, indices, values)
 
 
-def _modify_s_z_squared_ints_eq(h_2: np.ndarray, p_ind: int, num_modes_2: int) -> np.ndarray:
+def _modify_s_z_squared_ints_eq(
+    h_2: np.ndarray, p_ind: int, num_spatial_orbitals: int
+) -> np.ndarray:
     indices = [
-        (p_ind, p_ind + num_modes_2, p_ind + num_modes_2, p_ind),
-        (p_ind + num_modes_2, p_ind, p_ind, p_ind + num_modes_2),
+        (p_ind, p_ind + num_spatial_orbitals, p_ind + num_spatial_orbitals, p_ind),
+        (p_ind + num_spatial_orbitals, p_ind, p_ind, p_ind + num_spatial_orbitals),
     ]
     values = [1, 1]
     # adds provided values to values of 2-body integrals (z axis of angular momentum) at given

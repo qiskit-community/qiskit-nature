@@ -43,10 +43,6 @@ from .base_problem import BaseProblem
 class ElectronicStructureProblem(BaseProblem):
     """The Electronic Structure Problem.
 
-    The attributes `num_particles` and `num_spin_orbitals` are only available _after_ the
-    `second_q_ops()` method has been called! Note, that if you do so, the method will be executed
-    again when the problem is being solved.
-
     In the fermionic case the default filter ensures that the number of particles is being
     preserved.
 
@@ -89,7 +85,7 @@ class ElectronicStructureProblem(BaseProblem):
         self.molecule: MoleculeInfo | None = None
         self.basis: ElectronicBasis | None = None
         self.num_particles: int | tuple[int, int] | None = None
-        self.num_spin_orbitals: int | None = None
+        self.num_spatial_orbitals: int | None = None
         self._orbital_occupations: np.ndarray | None = None
         self._orbital_occupations_b: np.ndarray | None = None
         self.reference_energy: float | None = None
@@ -128,19 +124,26 @@ class ElectronicStructureProblem(BaseProblem):
         return self.num_particles // 2
 
     @property
+    def num_spin_orbitals(self) -> int | None:
+        """Returns the total number of spin orbitals."""
+        if self.num_spatial_orbitals is None:
+            return None
+        return 2 * self.num_spatial_orbitals
+
+    @property
     def orbital_occupations(self) -> np.ndarray | None:
         """Returns the occupations of the alpha-spin orbitals."""
         if self._orbital_occupations is not None:
             return self._orbital_occupations
 
-        if self.num_spin_orbitals is None:
+        num_orbs = self.num_spatial_orbitals
+        if num_orbs is None:
             return None
 
         num_alpha = self.num_alpha
         if num_alpha is None:
             return None
-
-        return np.asarray([1.0] * num_alpha + [0.0] * (self.num_spin_orbitals // 2 - num_alpha))
+        return np.asarray([1.0] * num_alpha + [0.0] * (num_orbs - num_alpha))
 
     @orbital_occupations.setter
     def orbital_occupations(self, occ: np.ndarray | None) -> None:
@@ -152,14 +155,15 @@ class ElectronicStructureProblem(BaseProblem):
         if self._orbital_occupations_b is not None:
             return self._orbital_occupations_b
 
-        if self.num_spin_orbitals is None:
+        num_orbs = self.num_spatial_orbitals
+        if num_orbs is None:
             return None
 
         num_beta = self.num_beta
         if num_beta is None:
             return None
 
-        return np.asarray([1.0] * num_beta + [0.0] * (self.num_spin_orbitals // 2 - num_beta))
+        return np.asarray([1.0] * num_beta + [0.0] * (num_orbs - num_beta))
 
     @orbital_occupations_b.setter
     def orbital_occupations_b(self, occ: np.ndarray | None) -> None:
@@ -245,7 +249,7 @@ class ElectronicStructureProblem(BaseProblem):
         # by the converter (just qubit mapping and any two qubit reduction) since we are
         # going to determine the tapering sector
         hf_bitstr = hartree_fock_bitstring_mapped(
-            num_spin_orbitals=self.num_spin_orbitals,
+            num_spatial_orbitals=self.num_spatial_orbitals,
             num_particles=num_particles,
             qubit_converter=converter,
             match_convert=False,

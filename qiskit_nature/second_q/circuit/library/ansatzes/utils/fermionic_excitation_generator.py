@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 def get_alpha_excitations(
     num_alpha: int,
-    num_spin_orbitals: int,
+    num_spatial_orbitals: int,
     generalized: bool = False,
 ) -> List[Tuple[int, int]]:
     """Generates all possible single alpha-electron excitations.
@@ -33,7 +33,7 @@ def get_alpha_excitations(
 
     Args:
         num_alpha: the number of alpha electrons.
-        num_spin_orbitals: the total number of spin-orbitals (alpha + alpha spin).
+        num_spatial_orbitals: the number of spatial-orbitals.
         generalized: boolean flag whether or not to use generalized excitations, which ignore the
             occupation of the spin orbitals. As such, the set of generalized excitations is only
             determined from the number of spin orbitals and independent from the number of alpha
@@ -44,17 +44,17 @@ def get_alpha_excitations(
         the occupied spin orbital index and the second entry the unoccupied one.
     """
     if generalized:
-        return list(itertools.combinations(range(num_spin_orbitals // 2), 2))
+        return list(itertools.combinations(range(num_spatial_orbitals), 2))
 
     alpha_occ = range(num_alpha)
-    alpha_unocc = range(num_alpha, num_spin_orbitals // 2)
+    alpha_unocc = range(num_alpha, num_spatial_orbitals)
 
     return list(itertools.product(alpha_occ, alpha_unocc))
 
 
 def get_beta_excitations(
     num_beta: int,
-    num_spin_orbitals: int,
+    num_spatial_orbitals: int,
     generalized: bool = False,
 ) -> List[Tuple[int, int]]:
     """Generates all possible single beta-electron excitations.
@@ -63,7 +63,7 @@ def get_beta_excitations(
 
     Args:
         num_beta: the number of beta electrons.
-        num_spin_orbitals: the total number of spin-orbitals (alpha + beta spin).
+        num_spatial_orbitals: the total number of spatial-orbitals.
         generalized: boolean flag whether or not to use generalized excitations, which ignore the
             occupation of the spin orbitals. As such, the set of generalized excitations is only
             determined from the number of spin orbitals and independent from the number of beta
@@ -73,10 +73,11 @@ def get_beta_excitations(
         The list of excitations encoded as tuples. Each tuple is a pair. The first entry contains
         the occupied spin orbital index and the second entry the unoccupied one.
     """
+    num_spin_orbitals = 2 * num_spatial_orbitals
     if generalized:
-        return list(itertools.combinations(range(num_spin_orbitals // 2, num_spin_orbitals), 2))
+        return list(itertools.combinations(range(num_spatial_orbitals, num_spin_orbitals), 2))
 
-    beta_index_offset = num_spin_orbitals // 2
+    beta_index_offset = num_spatial_orbitals
     beta_occ = range(beta_index_offset, beta_index_offset + num_beta)
     beta_unocc = range(beta_index_offset + num_beta, num_spin_orbitals)
 
@@ -85,7 +86,7 @@ def get_beta_excitations(
 
 def generate_fermionic_excitations(
     num_excitations: int,
-    num_spin_orbitals: int,
+    num_spatial_orbitals: int,
     num_particles: Tuple[int, int],
     alpha_spin: bool = True,
     beta_spin: bool = True,
@@ -95,19 +96,19 @@ def generate_fermionic_excitations(
 ) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
     # pylint: disable=line-too-long
     """Generates all possible excitations with the given number of excitations for the specified
-    number of particles distributed among the given number of spin orbitals.
+    number of particles distributed among the given number of spatial orbitals.
 
     The method must be called for each type of excitation (singles, doubles, etc.) that is to be
     considered in the Ansatz. Excitations will be produced based on an initial `Hartree-Fock`
     occupation by default unless `generalized` is set to `True`, in which case the excitations are
-    only determined based on the number of spin orbitals and are independent from
+    only determined based on the number of spatial orbitals and are independent from
     the number of particles.
 
     This method assumes block-ordered spin-orbitals.
 
     Args:
         num_excitations: number of excitations per operator (1 means single excitations, etc.).
-        num_spin_orbitals: number of spin-orbitals.
+        num_spatial_orbitals: number of spatial-orbitals.
         num_particles: number of alpha and beta particles.
         alpha_spin: boolean flag whether to include alpha-spin excitations.
         beta_spin: boolean flag whether to include beta-spin excitations.
@@ -130,28 +131,29 @@ def generate_fermionic_excitations(
         Generate excitations with basic inputs.
 
         >>> from qiskit_nature.second_q.circuit.library.ansatzes.utils.fermionic_excitation_generator import generate_fermionic_excitations
-        >>> generate_fermionic_excitations(num_excitations=1, num_spin_orbitals=6, num_particles=(1,1))
+        >>> generate_fermionic_excitations(num_excitations=1, num_spatial_orbitals=3, num_particles=(1,1))
         [((0,), (1,)), ((0,), (2,)), ((3,), (4,)), ((3,), (5,))]
 
         Generate generalized excitations.
 
-        >>> generate_fermionic_excitations(1, 6, (1, 1), generalized=True)
+        >>> generate_fermionic_excitations(1, 3, (1, 1), generalized=True)
         [((0,), (1,)), ((0,), (2,)), ((1,), (2,)), ((3,), (4,)), ((3,), (5,)), ((4,), (5,))]
 
     """
+    num_spin_orbitals = 2 * num_spatial_orbitals
     alpha_excitations: List[Tuple[int, int]] = []
     beta_excitations: List[Tuple[int, int]] = []
 
     if preserve_spin:
         if alpha_spin:
             alpha_excitations = get_alpha_excitations(
-                num_particles[0], num_spin_orbitals, generalized
+                num_particles[0], num_spatial_orbitals, generalized
             )
             logger.debug("Generated list of single alpha excitations: %s", alpha_excitations)
 
         if beta_spin:
             beta_excitations = get_beta_excitations(
-                num_particles[1], num_spin_orbitals, generalized
+                num_particles[1], num_spatial_orbitals, generalized
             )
             logger.debug("Generated list of single beta excitations: %s", beta_excitations)
 
@@ -163,16 +165,16 @@ def generate_fermionic_excitations(
             # this does _not_ include de-excitations, which need to be filtered!
 
             # First, we get the generalized alpha-spin single excitations
-            single_excitations = get_alpha_excitations(sum(num_particles), num_spin_orbitals, True)
-
-            half_spin_orbitals = num_spin_orbitals // 2
+            single_excitations = get_alpha_excitations(
+                sum(num_particles), num_spatial_orbitals, True
+            )
 
             # We can now obtain the alpha excitations by complementing the previously generated list
             # of single excitations with the non-spin-preserving excitations.
             alpha_excitations = sorted(
                 itertools.chain.from_iterable(
                     itertools.starmap(
-                        lambda i, a: [(i, a), (i, a + half_spin_orbitals)], single_excitations
+                        lambda i, a: [(i, a), (i, a + num_spatial_orbitals)], single_excitations
                     )
                 )
             )
@@ -181,8 +183,8 @@ def generate_fermionic_excitations(
                 itertools.chain.from_iterable(
                     itertools.starmap(
                         lambda i, a: [
-                            (i + half_spin_orbitals, a),
-                            (i + half_spin_orbitals, a + half_spin_orbitals),
+                            (i + num_spatial_orbitals, a),
+                            (i + num_spatial_orbitals, a + num_spatial_orbitals),
                         ],
                         single_excitations,
                     )
@@ -194,7 +196,7 @@ def generate_fermionic_excitations(
             # For this, we can reuse the alpha single excitation generator in a system of double the
             # actual size.
             single_excitations = get_alpha_excitations(
-                sum(num_particles), num_spin_orbitals * 2, False
+                sum(num_particles), num_spatial_orbitals * 2, False
             )
 
             def interleaved2blocked(index: int, total: int) -> int:

@@ -57,13 +57,14 @@ class TestExcitationPreserving(QiskitNatureTestCase):
         _ = problem.second_q_ops()
 
         num_particles = problem.num_particles
-        num_spin_orbitals = problem.num_spin_orbitals
+        num_spatial_orbitals = problem.num_spatial_orbitals
 
         optimizer = SLSQP(maxiter=100)
 
-        initial_state = HartreeFock(num_spin_orbitals, num_particles, converter)
+        initial_state = HartreeFock(num_spatial_orbitals, num_particles, converter)
 
-        wavefunction = ExcitationPreserving(int(num_spin_orbitals))
+        num_qubits = 2 * num_spatial_orbitals
+        wavefunction = ExcitationPreserving(int(num_qubits))
         wavefunction.compose(initial_state, front=True, inplace=True)
 
         solver = VQE(

@@ -27,8 +27,8 @@ class TestAngularMomentum(PropertyTest):
     def setUp(self):
         """Setup."""
         super().setUp()
-        num_molecular_orbitals = 4
-        self.prop = AngularMomentum(num_molecular_orbitals * 2)
+        num_spatial_orbitals = 4
+        self.prop = AngularMomentum(num_spatial_orbitals)
 
     @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     def test_second_q_ops(self):

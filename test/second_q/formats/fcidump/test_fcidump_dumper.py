@@ -163,7 +163,7 @@ class TestFCIDumpDumpH2(QiskitNatureTestCase, BaseTestFCIDumpDumper):
             hijkl_bb=_phys_to_chem(hijkl_bb) if hijkl_bb is not None else None,
             multiplicity=problem.molecule.multiplicity,
             num_electrons=problem.num_alpha + problem.num_beta,
-            num_orbitals=problem.num_spin_orbitals // 2,
+            num_orbitals=problem.num_spatial_orbitals,
             constant_energy=electronic_energy.nuclear_repulsion_energy,
             orbsym=None,
             isym=1,

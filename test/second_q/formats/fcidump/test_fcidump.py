@@ -118,8 +118,8 @@ class BaseTestFCIDump(ABC):
         """Test the system size problem attributes."""
 
         with self.subTest("orbital number"):
-            self.log.debug("Number of orbitals is %s", self.problem.num_spin_orbitals)
-            self.assertEqual(self.problem.num_spin_orbitals, self.num_molecular_orbitals * 2)
+            self.log.debug("Number of orbitals is %s", self.problem.num_spatial_orbitals)
+            self.assertEqual(self.problem.num_spatial_orbitals, self.num_molecular_orbitals)
 
         with self.subTest("alpha electron number"):
             self.log.debug("Number of alpha electrons is %s", self.problem.num_alpha)

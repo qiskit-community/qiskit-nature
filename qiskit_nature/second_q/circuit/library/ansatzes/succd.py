@@ -54,7 +54,7 @@ class SUCCD(UCC):
         self,
         qubit_converter: Optional[QubitConverter] = None,
         num_particles: Optional[Tuple[int, int]] = None,
-        num_spin_orbitals: Optional[int] = None,
+        num_spatial_orbitals: Optional[int] = None,
         reps: int = 1,
         initial_state: Optional[QuantumCircuit] = None,
         include_singles: Tuple[bool, bool] = (False, False),
@@ -67,7 +67,7 @@ class SUCCD(UCC):
                 :class:`~.SecondQuantizedOp` to a :class:`PauliSumOp` as well as performing all
                 configured symmetry reductions on it.
             num_particles: the tuple of the number of alpha- and beta-spin particles.
-            num_spin_orbitals: the number of spin orbitals.
+            num_spatial_orbitals: the number of spatial orbitals.
             reps: The number of times to repeat the evolved operators.
             initial_state: A `QuantumCircuit` object to prepend to the circuit.
             include_singles: enables the inclusion of single excitations per spin species.
@@ -90,7 +90,7 @@ class SUCCD(UCC):
         super().__init__(
             qubit_converter=qubit_converter,
             num_particles=num_particles,
-            num_spin_orbitals=num_spin_orbitals,
+            num_spatial_orbitals=num_spatial_orbitals,
             excitations=self.generate_excitations,
             alpha_spin=True,
             beta_spin=True,
@@ -135,12 +135,12 @@ class SUCCD(UCC):
         self.operators = valid_operators
 
     def generate_excitations(
-        self, num_spin_orbitals: int, num_particles: Tuple[int, int]
+        self, num_spatial_orbitals: int, num_particles: Tuple[int, int]
     ) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
         """Generates the excitations for the SUCCD Ansatz.
 
         Args:
-            num_spin_orbitals: the number of spin orbitals.
+            num_spatial_orbitals: the number of spatial orbitals.
             num_particles: the number of alpha and beta electrons. Note, these must be identical for
                 this class.
 
@@ -159,14 +159,14 @@ class SUCCD(UCC):
         excitations.extend(
             generate_fermionic_excitations(
                 1,
-                num_spin_orbitals,
+                num_spatial_orbitals,
                 num_particles,
                 alpha_spin=self.include_singles[0],
                 beta_spin=self.include_singles[1],
             )
         )
         num_electrons = num_particles[0]
-        beta_index_shift = num_spin_orbitals // 2
+        beta_index_shift = num_spatial_orbitals
 
         if self._mirror:
             # We can use `generate_fermionic_excitations` here because we want to include the
@@ -174,7 +174,7 @@ class SUCCD(UCC):
             excitations.extend(
                 generate_fermionic_excitations(
                     2,
-                    num_spin_orbitals,
+                    num_spatial_orbitals,
                     num_particles,
                     max_spin_excitation=1,
                     generalized=self._generalized,
@@ -184,7 +184,7 @@ class SUCCD(UCC):
         else:
             # generate alpha-spin orbital indices for occupied and unoccupied ones
             alpha_excitations = get_alpha_excitations(
-                num_electrons, num_spin_orbitals, self._generalized
+                num_electrons, num_spatial_orbitals, self._generalized
             )
             logger.debug("Generated list of single alpha excitations: %s", alpha_excitations)
 
@@ -235,7 +235,7 @@ class SUCCD(UCC):
         excitations_dictionary: Dict[
             str, List[Tuple[Tuple[int, ...], Tuple[int, ...]]]
         ] = defaultdict(list)
-        beta_index_shift = self.num_spin_orbitals // 2
+        beta_index_shift = self.num_spatial_orbitals
 
         # Reform the excitations list to a dictionary. Each items in the dictionary
         # corresponds to a parameter.

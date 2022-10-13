@@ -46,7 +46,7 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
 
         self.electronic_structure_problem = FreezeCoreTransformer().transform(self.driver.run())
 
-        self.num_spin_orbitals = 8
+        self.num_spatial_orbitals = 4
         self.num_particles = (1, 1)
 
         # because we create the initial state and ansatzes early, we need to ensure the qubit
@@ -89,13 +89,13 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         optimizer = SLSQP(maxiter=100)
 
         initial_state = HartreeFock(
-            self.num_spin_orbitals, self.num_particles, self.qubit_converter
+            self.num_spatial_orbitals, self.num_particles, self.qubit_converter
         )
 
         ansatz = PUCCD(
             self.qubit_converter,
             self.num_particles,
-            self.num_spin_orbitals,
+            self.num_spatial_orbitals,
             initial_state=initial_state,
         )
 
@@ -118,13 +118,13 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         optimizer = SLSQP(maxiter=100)
 
         initial_state = HartreeFock(
-            self.num_spin_orbitals, self.num_particles, self.qubit_converter
+            self.num_spatial_orbitals, self.num_particles, self.qubit_converter
         )
 
         ansatz = SUCCD(
             self.qubit_converter,
             self.num_particles,
-            self.num_spin_orbitals,
+            self.num_spatial_orbitals,
             initial_state=initial_state,
         )
 
@@ -147,13 +147,13 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         optimizer = SLSQP(maxiter=100)
 
         initial_state = HartreeFock(
-            self.num_spin_orbitals, self.num_particles, self.qubit_converter
+            self.num_spatial_orbitals, self.num_particles, self.qubit_converter
         )
 
         ansatz = SUCCD(
             self.qubit_converter,
             self.num_particles,
-            self.num_spin_orbitals,
+            self.num_spatial_orbitals,
             initial_state=initial_state,
             mirror=True,
         )
