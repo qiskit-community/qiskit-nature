@@ -247,9 +247,13 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
         return len(self) == 0
 
     @_optionals.HAS_SPARSE.require_in_call
-    def contains_sparse(self) -> bool:
-        """Returns whether this tensor contains any sparse matrix."""
-        return any(isinstance(self[key], SparseArray) for key in self)
+    def issparse(self) -> bool:
+        """Returns whether all matrices in this tensor are sparse."""
+        return all(isinstance(self[key], SparseArray) for key in self if key != "")
+
+    def isdense(self) -> bool:
+        """Returns whether all matrices in this tensor are dense."""
+        return all(isinstance(self[key], np.ndarray) for key in self if key != "")
 
     def __getitem__(self, __k: str) -> (np.ndarray | SparseArray | Number):
         """Gets the value from the ``PolynomialTensor``.
@@ -272,7 +276,14 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
 
     @_optionals.HAS_SPARSE.require_in_call
     def todense(self) -> PolynomialTensor:
-        """Converts all internal matrices to dense numpy arrays."""
+        """Returns a new instance where all matrices are now dense numpy arrays.
+
+        If the instance on which this method was called already fulfilled this requirement, it is
+        returned unchanged.
+        """
+        if self.isdense():
+            return self
+
         dense_dict: dict[str, ARRAY_TYPE] = {}
         for key, value in self._data.items():
             if isinstance(value, SparseArray):
@@ -286,15 +297,23 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
     def tosparse(
         self, *, sparse_type: Type[COO] | Type[DOK] | Type[GCXS] = COO
     ) -> PolynomialTensor:
-        """Converts all internal matrices to sparse arrays.
+        """Returns a new instance where all matrices are now sparse arrays.
+
+        If the instance on which this method was called already fulfilled this requirement, it is
+        returned unchanged.
 
         Args:
-            sparse_type: the type of the sparse matrices.
+            sparse_type: the type to use for the conversion to sparse matrices. Note, that this will
+                only be applied to matrices which were previously dense numpy arrays. Sparse arrays
+                of another type will not be explicitly converted.
 
         Returns:
             A new ``PolynomialTensor`` with all its matrices converted to the requested sparse array
             type.
         """
+        if self.issparse():
+            return self
+
         sparse_dict: dict[str, ARRAY_TYPE] = {}
         for key, value in self._data.items():
             if isinstance(value, np.ndarray):
@@ -351,6 +370,12 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
     def __eq__(self, other: object) -> bool:
         """Check equality of ``PolynomialTensor`` instances.
 
+        .. note::
+            This check only assert the internal matrix elements for equality but ignores the type of
+            the matrices. As such, it will indicate equality of two ``PolynomialTensor`` instances
+            even if one contains sparse and the other dense numpy arrays, as long as their elements
+            are identical.
+
         Args:
             other: second ``PolynomialTensor`` object to be compared with the first.
 
@@ -395,6 +420,12 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
     # pylint: disable=too-many-return-statements
     def equiv(self, other: object) -> bool:
         """Check equivalence of ``PolynomialTensor`` instances.
+
+        .. note::
+            This check only assert the internal matrix elements for equivalence but ignores the type
+            of the matrices. As such, it will indicate equivalence of two ``PolynomialTensor``
+            instances even if one contains sparse and the other dense numpy arrays, as long as their
+            elements match.
 
         Args:
             other: second ``PolynomialTensor`` object to be compared with the first.
@@ -603,8 +634,10 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
 
         .. note::
 
-           :class:`sparse.SparseArray` does not support ``numpy.einsum``. Thus, all sparse matrices
-           involved in this operation will be converted to dense matrices!
+           :class:`sparse.SparseArray` does not support ``numpy.einsum``. Thus, the resultant
+           ``PolynomialTensor`` will contain all dense numpy arrays. If a user would like to work
+           with a sparse array instead, they should convert it explicitly using the :meth:`tosparse`
+           method.
 
         Args:
             einsum_map: a dictionary, mapping from :meth:`numpy.einsum` subscripts to a tuple of
@@ -616,7 +649,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
         Returns:
             A new ``PolynomialTensor``.
         """
-        dense_operands = [op.todense() if op.contains_sparse() else op for op in operands]
+        dense_operands = [op.todense() for op in operands]
         new_data: dict[str, ARRAY_TYPE] = {}
         for einsum, terms in einsum_map.items():
             *inputs, output = terms

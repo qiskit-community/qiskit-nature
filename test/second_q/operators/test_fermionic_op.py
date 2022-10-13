@@ -384,7 +384,7 @@ class TestFermionicOp(QiskitNatureTestCase):
                     "+_1 +_1 -_1 -_0": 15,
                     "+_1 +_1 -_1 -_1": 16,
                 },
-                register_length=r_l,
+                num_spin_orbitals=r_l,
             )
 
             self.assertEqual(op, expected)
@@ -408,7 +408,7 @@ class TestFermionicOp(QiskitNatureTestCase):
                     "+_0 +_0 -_0 -_1": 1,
                     "+_1 +_0 -_1 -_1": 2,
                 },
-                register_length=r_l,
+                num_spin_orbitals=r_l,
             )
 
             self.assertEqual(op, expected)

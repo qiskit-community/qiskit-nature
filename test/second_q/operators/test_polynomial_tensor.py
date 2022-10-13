@@ -173,15 +173,41 @@ class TestPolynomialTensor(QiskitNatureTestCase):
         with self.subTest("non-empty"):
             self.assertFalse(PolynomialTensor({"": 1.0}).is_empty())
 
-    def test_contains_sparse(self):
-        """Test PolynomialTensor.contains_sparse"""
+    def test_issparse(self):
+        """Test PolynomialTensor.issparse"""
         import sparse as sp  # pylint: disable=import-error
 
         with self.subTest("sparse"):
-            self.assertTrue(PolynomialTensor({"+": sp.as_coo({(0,): 1})}).contains_sparse())
+            self.assertTrue(PolynomialTensor({"+": sp.as_coo({(0,): 1})}).issparse())
 
-        with self.subTest("non-sparse"):
-            self.assertFalse(PolynomialTensor({"+": np.array([1])}).contains_sparse())
+        with self.subTest("sparse with empty key"):
+            self.assertTrue(PolynomialTensor({"": 1.0, "+": sp.as_coo({(0,): 1})}).issparse())
+
+        with self.subTest("dense"):
+            self.assertFalse(PolynomialTensor({"+": np.array([1])}).issparse())
+
+        with self.subTest("mixed"):
+            self.assertFalse(
+                PolynomialTensor({"+": sp.as_coo({(1,): 1}), "+-": np.eye(2)}).issparse()
+            )
+
+    def test_isdense(self):
+        """Test PolynomialTensor.isdense"""
+        import sparse as sp  # pylint: disable=import-error
+
+        with self.subTest("dense"):
+            self.assertTrue(PolynomialTensor({"+": np.array([1])}).isdense())
+
+        with self.subTest("dense with empty key"):
+            self.assertTrue(PolynomialTensor({"": 1.0, "+": np.array([1])}).isdense())
+
+        with self.subTest("sparse"):
+            self.assertFalse(PolynomialTensor({"+": sp.as_coo({(0,): 1})}).isdense())
+
+        with self.subTest("mixed"):
+            self.assertFalse(
+                PolynomialTensor({"+": sp.as_coo({(1,): 1}), "+-": np.eye(2)}).isdense()
+            )
 
     def test_get_item(self):
         """Test for getting value matrices corresponding to keys in PolynomialTensor"""
