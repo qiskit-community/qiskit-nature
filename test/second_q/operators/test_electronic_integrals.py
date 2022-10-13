@@ -84,10 +84,8 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
         """Build dictionary value matrix"""
         return (np.arange(1, dim_size**num_dim + 1) * val).reshape((dim_size,) * num_dim)
 
-    @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     def test_attributes(self):
         """Tests the various ElectronicIntegrals attributes."""
-        import sparse as sp  # pylint: disable=import-error
 
         with self.subTest("all empty"):
             ints = ElectronicIntegrals()
@@ -141,13 +139,18 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
             )
             self.assertTrue(ints.alpha_beta.equiv(alpha_beta))
 
-        with self.subTest("sparse alpha_beta property"):
-            beta_alpha = sp.random((2, 2, 2, 2), density=0.5)
-            ints = ElectronicIntegrals(
-                beta_alpha=PolynomialTensor({"++--": beta_alpha}), validate=False
-            )
-            alpha_beta = PolynomialTensor({"++--": np.einsum("ijkl->klij", beta_alpha.todense())})
-            self.assertTrue(ints.alpha_beta.equiv(alpha_beta))
+        if _optionals.HAS_SPARSE:
+            import sparse as sp  # pylint: disable=import-error
+
+            with self.subTest("sparse alpha_beta property"):
+                beta_alpha = sp.random((2, 2, 2, 2), density=0.5)
+                ints = ElectronicIntegrals(
+                    beta_alpha=PolynomialTensor({"++--": beta_alpha}), validate=False
+                )
+                alpha_beta = PolynomialTensor(
+                    {"++--": np.einsum("ijkl->klij", beta_alpha.todense())}
+                )
+                self.assertTrue(ints.alpha_beta.equiv(alpha_beta))
 
     def test_one_body(self):
         """Tests the one_body property."""
@@ -253,7 +256,6 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
         result = ElectronicIntegrals(self.alpha, self.beta, self.beta_alpha).transpose()
         self.assertTrue(result.equiv(expected))
 
-    @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     def test_einsum(self):
         """Test ElectronicIntegrals.einsum"""
         one_body_a = np.random.random((2, 2))

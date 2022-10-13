@@ -238,7 +238,6 @@ class FermionicOp(SparseLabelOp):
                 )
 
     @classmethod
-    @_optionals.HAS_SPARSE.require_in_call
     def from_polynomial_tensor(cls, tensor: PolynomialTensor) -> FermionicOp:
         cls._validate_polynomial_tensor_key(tensor.keys())
 
@@ -254,16 +253,19 @@ class FermionicOp(SparseLabelOp):
 
             # PERF: the following matrix unpacking is a performance bottleneck!
             # We could consider using Rust in the future to improve upon this.
-            import sparse as sp  # pylint: disable=import-error
 
             mat = tensor[key]
             if isinstance(mat, np.ndarray):
                 for index in np.ndindex(*mat.shape):
                     data[label_template.format(*index)] = mat[index]
-            elif isinstance(mat, sp.SparseArray):
-                coo = sp.as_coo(mat)
-                for value, *index in zip(coo.data, *coo.coords):
-                    data[label_template.format(*index)] = value
+            else:
+                _optionals.HAS_SPARSE.require_now("SparseArray")
+                import sparse as sp  # pylint: disable=import-error
+
+                if isinstance(mat, sp.SparseArray):
+                    coo = sp.as_coo(mat)
+                    for value, *index in zip(coo.data, *coo.coords):
+                        data[label_template.format(*index)] = value
 
         return cls(data, copy=False, num_spin_orbitals=tensor.register_length).chop()
 

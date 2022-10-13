@@ -60,7 +60,6 @@ class TestTwoBodySymmetryConversion(QiskitNatureTestCase):
         ]
     )
 
-    @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     @unpack
     @data(
         (TWO_BODY_CHEM, TWO_BODY_PHYS),  # test chem to phys
@@ -69,22 +68,23 @@ class TestTwoBodySymmetryConversion(QiskitNatureTestCase):
     )
     def test_to_physicist_ordering(self, initial, expected):
         """Test correct conversion to physicists' index order"""
-        import sparse as sp  # pylint: disable=import-error
 
         with self.subTest("dense"):
             actual = to_physicist_ordering(initial)
             self.assertTrue(np.allclose(expected, actual))
 
-        with self.subTest("sparse"):
-            actual = to_physicist_ordering(sp.as_coo(initial))
-            self.assertTrue(np.allclose(expected, actual.todense()))
+        if _optionals.HAS_SPARSE:
+            import sparse as sp  # pylint: disable=import-error
+
+            with self.subTest("sparse"):
+                actual = to_physicist_ordering(sp.as_coo(initial))
+                self.assertTrue(np.allclose(expected, actual.todense()))
 
     def test_unknown_to_physicist_ordering(self):
         """Test to_physicist_ordering raises exception with unknown index input"""
         with self.assertRaises(QiskitNatureError):
             to_physicist_ordering(self.TWO_BODY_UNKNOWN)
 
-    @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     @unpack
     @data(
         (TWO_BODY_PHYS, TWO_BODY_CHEM),  # test phys to chem
@@ -93,22 +93,23 @@ class TestTwoBodySymmetryConversion(QiskitNatureTestCase):
     )
     def test_to_chemist_ordering(self, initial, expected):
         """Test correct conversion to chemists' index order"""
-        import sparse as sp  # pylint: disable=import-error
 
         with self.subTest("dense"):
             actual = to_chemist_ordering(initial)
             self.assertTrue(np.allclose(expected, actual))
 
-        with self.subTest("sparse"):
-            actual = to_chemist_ordering(sp.as_coo(initial))
-            self.assertTrue(np.allclose(expected, actual.todense()))
+        if _optionals.HAS_SPARSE:
+            import sparse as sp  # pylint: disable=import-error
+
+            with self.subTest("sparse"):
+                actual = to_chemist_ordering(sp.as_coo(initial))
+                self.assertTrue(np.allclose(expected, actual.todense()))
 
     def test_unknown_to_chemist_ordering(self):
         """Test to_chemist_ordering raises exception with unknown index input"""
         with self.assertRaises(QiskitNatureError):
             to_chemist_ordering(self.TWO_BODY_UNKNOWN)
 
-    @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     @unpack
     @data(
         (TWO_BODY_PHYS, IndexType.PHYSICIST),
@@ -118,15 +119,17 @@ class TestTwoBodySymmetryConversion(QiskitNatureTestCase):
     )
     def test_find_index_order(self, initial, expected):
         """Test correctly identifies index order"""
-        import sparse as sp  # pylint: disable=import-error
 
         with self.subTest("dense"):
             result = find_index_order(initial)
             self.assertEqual(result, expected)
 
-        with self.subTest("sparse"):
-            result = find_index_order(sp.as_coo(initial))
-            self.assertEqual(result, expected)
+        if _optionals.HAS_SPARSE:
+            import sparse as sp  # pylint: disable=import-error
+
+            with self.subTest("sparse"):
+                result = find_index_order(sp.as_coo(initial))
+                self.assertEqual(result, expected)
 
 
 if __name__ == "__main__":
