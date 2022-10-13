@@ -27,7 +27,7 @@ from qiskit_nature.second_q.formats.qcschema_translator import qcschema_to_probl
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.operators import ElectronicIntegrals
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
-from qiskit_nature.second_q.properties import ElectronicDipoleMoment
+from qiskit_nature.second_q.properties import ElectronicDensity, ElectronicDipoleMoment
 from qiskit_nature.second_q.transformers import ActiveSpaceTransformer
 
 
@@ -75,6 +75,12 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
                         exp_moment.constants[key],
                     )
 
+        if expected.properties.electronic_density is not None:
+            density = driver_result.properties.electronic_density
+            expected_density = expected.properties.electronic_density
+            with self.subTest("ElectronicDensity"):
+                self.assertTrue(density.equiv(expected_density))
+
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     @idata(
         [
@@ -103,6 +109,11 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         """Test a minimal active space manually."""
         driver = PySCFDriver(basis="631g")
         driver_result = driver.run()
+        particle_number = driver_result.properties.particle_number
+        driver_result.properties.electronic_density = ElectronicDensity.from_orbital_occupation(
+            particle_number.occupation_alpha,
+            particle_number.occupation_beta,
+        )
 
         trafo = ActiveSpaceTransformer(2, 2)
         driver_result_reduced = trafo.transform(driver_result)
@@ -133,6 +144,8 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         )
         dipole_moment.constants["ActiveSpaceTransformer"] = (0.0, 0.0, 0.0)
         expected.properties.electronic_dipole_moment = dipole_moment
+        density = ElectronicDensity.from_orbital_occupation([1, 0], [1, 0])
+        expected.properties.electronic_density = density
 
         self.assertDriverResult(driver_result_reduced, expected)
 

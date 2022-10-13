@@ -19,6 +19,7 @@ from test import QiskitNatureTestCase
 from qiskit_nature.second_q.problems import ElectronicPropertiesContainer
 from qiskit_nature.second_q.properties import (
     AngularMomentum,
+    ElectronicDensity,
     ElectronicDipoleMoment,
     Magnetization,
     OccupiedModals,
@@ -47,6 +48,25 @@ class TestElectronicPropertiesContainer(QiskitNatureTestCase):
         with self.subTest("removal via None setting"):
             container.angular_momentum = None
             self.assertNotIn(AngularMomentum, container)
+
+    def test_electronic_density(self) -> None:
+        """Tests the ElectronicDensity property."""
+        container = ElectronicPropertiesContainer()
+
+        with self.subTest("initially None"):
+            self.assertIsNone(container.electronic_density)
+
+        with self.subTest("wrong setting type"):
+            with self.assertRaises(TypeError):
+                container.electronic_density = OccupiedModals()  # type: ignore[assignment]
+
+        with self.subTest("successful setting"):
+            container.electronic_density = ElectronicDensity()
+            self.assertIn(ElectronicDensity, container)
+
+        with self.subTest("removal via None setting"):
+            container.electronic_density = None
+            self.assertNotIn(ElectronicDensity, container)
 
     def test_electronic_dipole_moment(self) -> None:
         """Tests the ElectronicDipoleMoment property."""

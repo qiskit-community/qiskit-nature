@@ -27,6 +27,7 @@ from qiskit_nature.second_q.operators import ElectronicIntegrals
 from qiskit_nature.second_q.problems import BaseProblem, ElectronicStructureProblem
 from qiskit_nature.second_q.properties import (
     AngularMomentum,
+    ElectronicDensity,
     ElectronicDipoleMoment,
     Magnetization,
     ParticleNumber,
@@ -255,9 +256,12 @@ class ActiveSpaceTransformer(BaseTransformer):
                     active_occ_beta,
                 )
                 new_problem.properties.particle_number = particle_number
-            elif isinstance(prop, (AngularMomentum, Magnetization, ParticleNumber)):
-                new_problem.properties.add(
-                    prop.__class__(len(self._active_orbs_indices) * 2)  # type: ignore
+            elif isinstance(prop, (AngularMomentum, Magnetization)):
+                new_problem.properties.add(prop.__class__(len(self._active_orbs_indices) * 2))
+            elif isinstance(prop, ElectronicDensity):
+                transformed = self._transform_active.transform_electronic_integrals(prop)
+                new_problem.properties.electronic_density = ElectronicDensity(
+                    transformed.alpha, transformed.beta, transformed.beta_alpha
                 )
 
             else:
