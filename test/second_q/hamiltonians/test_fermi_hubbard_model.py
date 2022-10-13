@@ -72,7 +72,7 @@ class TestFermiHubbardModel(QiskitNatureTestCase):
 
             ham = {**hopping, **interaction}
 
-            self.assertEqual(FermionicOp(ham, register_length=6, copy=False), fhm.second_q_op())
+            self.assertEqual(FermionicOp(ham, num_spin_orbitals=6, copy=False), fhm.second_q_op())
 
     def test_uniform_parameters(self):
         """Test uniform_parameters."""
@@ -139,7 +139,7 @@ class TestFermiHubbardModel(QiskitNatureTestCase):
 
             ham = {**hopping, **interaction}
 
-            self.assertEqual(FermionicOp(ham, register_length=6, copy=False), fhm.second_q_op())
+            self.assertEqual(FermionicOp(ham, num_spin_orbitals=6, copy=False), fhm.second_q_op())
 
     def test_from_parameters(self):
         """Test from_parameters."""
@@ -185,4 +185,4 @@ class TestFermiHubbardModel(QiskitNatureTestCase):
 
             ham = {**hopping, **interaction}
 
-            self.assertEqual(FermionicOp(ham, register_length=6, copy=False), fhm.second_q_op())
+            self.assertEqual(FermionicOp(ham, num_spin_orbitals=6, copy=False), fhm.second_q_op())

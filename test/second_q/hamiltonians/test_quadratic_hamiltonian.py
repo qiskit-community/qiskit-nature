@@ -184,7 +184,7 @@ class TestQuadraticHamiltonian(QiskitNatureTestCase):
             "+_0 +_1": 4j,
             "-_0 -_1": 4j,
         }
-        expected_op = FermionicOp(expected_terms, register_length=2)
+        expected_op = FermionicOp(expected_terms, num_spin_orbitals=2)
         matrix = fermionic_op.to_matrix(sparse=False)
         expected_matrix = expected_op.to_matrix(sparse=False)
         np.testing.assert_allclose(matrix, expected_matrix)

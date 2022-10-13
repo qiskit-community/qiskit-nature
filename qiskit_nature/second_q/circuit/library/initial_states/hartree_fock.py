@@ -93,7 +93,7 @@ def hartree_fock_bitstring_mapped(
     # encode the bitstring as a `FermionicOp`
     bitstr_op = FermionicOp(
         {" ".join(f"+_{idx}" for idx, bit in enumerate(bitstr) if bit): 1.0},
-        register_length=num_spin_orbitals,
+        num_spin_orbitals=num_spin_orbitals,
     )
 
     # map the `FermionicOp` to a qubit operator

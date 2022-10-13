@@ -35,22 +35,22 @@ class TestSUCCD(QiskitNatureTestCase):
         (
             4,
             (1, 1),
-            [FermionicOp({"+_0 +_2 -_1 -_3": 1j, "+_3 +_1 -_2 -_0": -1j}, register_length=4)],
+            [FermionicOp({"+_0 +_2 -_1 -_3": 1j, "+_3 +_1 -_2 -_0": -1j}, num_spin_orbitals=4)],
         ),
         (
             8,
             (2, 2),
             [
-                FermionicOp({"+_0 +_4 -_2 -_6": 1j, "+_6 +_2 -_4 -_0": -1j}, register_length=8),
-                FermionicOp({"+_0 +_4 -_2 -_7": 1j, "+_7 +_2 -_4 -_0": -1j}, register_length=8),
-                FermionicOp({"+_0 +_5 -_2 -_6": 1j, "+_6 +_2 -_5 -_0": -1j}, register_length=8),
-                FermionicOp({"+_0 +_5 -_2 -_7": 1j, "+_7 +_2 -_5 -_0": -1j}, register_length=8),
-                FermionicOp({"+_0 +_4 -_3 -_7": 1j, "+_7 +_3 -_4 -_0": -1j}, register_length=8),
-                FermionicOp({"+_0 +_5 -_3 -_6": 1j, "+_6 +_3 -_5 -_0": -1j}, register_length=8),
-                FermionicOp({"+_0 +_5 -_3 -_7": 1j, "+_7 +_3 -_5 -_0": -1j}, register_length=8),
-                FermionicOp({"+_1 +_5 -_2 -_6": 1j, "+_6 +_2 -_5 -_1": -1j}, register_length=8),
-                FermionicOp({"+_1 +_5 -_2 -_7": 1j, "+_7 +_2 -_5 -_1": -1j}, register_length=8),
-                FermionicOp({"+_1 +_5 -_3 -_7": 1j, "+_7 +_3 -_5 -_1": -1j}, register_length=8),
+                FermionicOp({"+_0 +_4 -_2 -_6": 1j, "+_6 +_2 -_4 -_0": -1j}, num_spin_orbitals=8),
+                FermionicOp({"+_0 +_4 -_2 -_7": 1j, "+_7 +_2 -_4 -_0": -1j}, num_spin_orbitals=8),
+                FermionicOp({"+_0 +_5 -_2 -_6": 1j, "+_6 +_2 -_5 -_0": -1j}, num_spin_orbitals=8),
+                FermionicOp({"+_0 +_5 -_2 -_7": 1j, "+_7 +_2 -_5 -_0": -1j}, num_spin_orbitals=8),
+                FermionicOp({"+_0 +_4 -_3 -_7": 1j, "+_7 +_3 -_4 -_0": -1j}, num_spin_orbitals=8),
+                FermionicOp({"+_0 +_5 -_3 -_6": 1j, "+_6 +_3 -_5 -_0": -1j}, num_spin_orbitals=8),
+                FermionicOp({"+_0 +_5 -_3 -_7": 1j, "+_7 +_3 -_5 -_0": -1j}, num_spin_orbitals=8),
+                FermionicOp({"+_1 +_5 -_2 -_6": 1j, "+_6 +_2 -_5 -_1": -1j}, num_spin_orbitals=8),
+                FermionicOp({"+_1 +_5 -_2 -_7": 1j, "+_7 +_2 -_5 -_1": -1j}, num_spin_orbitals=8),
+                FermionicOp({"+_1 +_5 -_3 -_7": 1j, "+_7 +_3 -_5 -_1": -1j}, num_spin_orbitals=8),
             ],
         ),
     )
@@ -73,9 +73,9 @@ class TestSUCCD(QiskitNatureTestCase):
             (1, 1),
             (True, True),
             [
-                FermionicOp({"+_0 -_1": 1j, "+_1 -_0": -1j}, register_length=4),
-                FermionicOp({"+_2 -_3": 1j, "+_3 -_2": -1j}, register_length=4),
-                FermionicOp({"+_0 +_2 -_1 -_3": 1j, "+_3 +_1 -_2 -_0": -1j}, register_length=4),
+                FermionicOp({"+_0 -_1": 1j, "+_1 -_0": -1j}, num_spin_orbitals=4),
+                FermionicOp({"+_2 -_3": 1j, "+_3 -_2": -1j}, num_spin_orbitals=4),
+                FermionicOp({"+_0 +_2 -_1 -_3": 1j, "+_3 +_1 -_2 -_0": -1j}, num_spin_orbitals=4),
             ],
         ),
         (
@@ -83,8 +83,8 @@ class TestSUCCD(QiskitNatureTestCase):
             (1, 1),
             (True, False),
             [
-                FermionicOp({"+_0 -_1": 1j, "+_1 -_0": -1j}, register_length=4),
-                FermionicOp({"+_0 +_2 -_1 -_3": 1j, "+_3 +_1 -_2 -_0": -1j}, register_length=4),
+                FermionicOp({"+_0 -_1": 1j, "+_1 -_0": -1j}, num_spin_orbitals=4),
+                FermionicOp({"+_0 +_2 -_1 -_3": 1j, "+_3 +_1 -_2 -_0": -1j}, num_spin_orbitals=4),
             ],
         ),
         (
@@ -92,8 +92,8 @@ class TestSUCCD(QiskitNatureTestCase):
             (1, 1),
             (False, True),
             [
-                FermionicOp({"+_2 -_3": 1j, "+_3 -_2": -1j}, register_length=4),
-                FermionicOp({"+_0 +_2 -_1 -_3": 1j, "+_3 +_1 -_2 -_0": -1j}, register_length=4),
+                FermionicOp({"+_2 -_3": 1j, "+_3 -_2": -1j}, num_spin_orbitals=4),
+                FermionicOp({"+_0 +_2 -_1 -_3": 1j, "+_3 +_1 -_2 -_0": -1j}, num_spin_orbitals=4),
             ],
         ),
     )
@@ -123,24 +123,24 @@ class TestSUCCD(QiskitNatureTestCase):
             6,
             (1, 1),
             [
-                FermionicOp({"+_0 +_3 -_1 -_4": 1j, "+_4 +_1 -_3 -_0": -1j}, register_length=6),
-                FermionicOp({"+_0 +_3 -_1 -_5": 1j, "+_5 +_1 -_3 -_0": -1j}, register_length=6),
-                FermionicOp({"+_0 +_4 -_1 -_5": 1j, "+_5 +_1 -_4 -_0": -1j}, register_length=6),
-                FermionicOp({"+_0 +_3 -_2 -_5": 1j, "+_5 +_2 -_3 -_0": -1j}, register_length=6),
-                FermionicOp({"+_0 +_4 -_2 -_5": 1j, "+_5 +_2 -_4 -_0": -1j}, register_length=6),
-                FermionicOp({"+_1 +_4 -_2 -_5": 1j, "+_5 +_2 -_4 -_1": -1j}, register_length=6),
+                FermionicOp({"+_0 +_3 -_1 -_4": 1j, "+_4 +_1 -_3 -_0": -1j}, num_spin_orbitals=6),
+                FermionicOp({"+_0 +_3 -_1 -_5": 1j, "+_5 +_1 -_3 -_0": -1j}, num_spin_orbitals=6),
+                FermionicOp({"+_0 +_4 -_1 -_5": 1j, "+_5 +_1 -_4 -_0": -1j}, num_spin_orbitals=6),
+                FermionicOp({"+_0 +_3 -_2 -_5": 1j, "+_5 +_2 -_3 -_0": -1j}, num_spin_orbitals=6),
+                FermionicOp({"+_0 +_4 -_2 -_5": 1j, "+_5 +_2 -_4 -_0": -1j}, num_spin_orbitals=6),
+                FermionicOp({"+_1 +_4 -_2 -_5": 1j, "+_5 +_2 -_4 -_1": -1j}, num_spin_orbitals=6),
             ],
         ),
         (
             6,
             (2, 2),
             [
-                FermionicOp({"+_0 +_3 -_1 -_4": 1j, "+_4 +_1 -_3 -_0": -1j}, register_length=6),
-                FermionicOp({"+_0 +_3 -_1 -_5": 1j, "+_5 +_1 -_3 -_0": -1j}, register_length=6),
-                FermionicOp({"+_0 +_4 -_1 -_5": 1j, "+_5 +_1 -_4 -_0": -1j}, register_length=6),
-                FermionicOp({"+_0 +_3 -_2 -_5": 1j, "+_5 +_2 -_3 -_0": -1j}, register_length=6),
-                FermionicOp({"+_0 +_4 -_2 -_5": 1j, "+_5 +_2 -_4 -_0": -1j}, register_length=6),
-                FermionicOp({"+_1 +_4 -_2 -_5": 1j, "+_5 +_2 -_4 -_1": -1j}, register_length=6),
+                FermionicOp({"+_0 +_3 -_1 -_4": 1j, "+_4 +_1 -_3 -_0": -1j}, num_spin_orbitals=6),
+                FermionicOp({"+_0 +_3 -_1 -_5": 1j, "+_5 +_1 -_3 -_0": -1j}, num_spin_orbitals=6),
+                FermionicOp({"+_0 +_4 -_1 -_5": 1j, "+_5 +_1 -_4 -_0": -1j}, num_spin_orbitals=6),
+                FermionicOp({"+_0 +_3 -_2 -_5": 1j, "+_5 +_2 -_3 -_0": -1j}, num_spin_orbitals=6),
+                FermionicOp({"+_0 +_4 -_2 -_5": 1j, "+_5 +_2 -_4 -_0": -1j}, num_spin_orbitals=6),
+                FermionicOp({"+_1 +_4 -_2 -_5": 1j, "+_5 +_2 -_4 -_1": -1j}, num_spin_orbitals=6),
             ],
         ),
     )
@@ -163,7 +163,7 @@ class TestSUCCD(QiskitNatureTestCase):
             6,
             (1, 1),
             [
-                FermionicOp({"+_0 +_3 -_1 -_4": 1j, "+_4 +_1 -_3 -_0": -1j}, register_length=6),
+                FermionicOp({"+_0 +_3 -_1 -_4": 1j, "+_4 +_1 -_3 -_0": -1j}, num_spin_orbitals=6),
                 FermionicOp(
                     {
                         "+_0 +_3 -_1 -_5": 1j,
@@ -171,9 +171,9 @@ class TestSUCCD(QiskitNatureTestCase):
                         "+_0 +_3 -_2 -_4": 1j,
                         "+_4 +_2 -_3 -_0": -1j,
                     },
-                    register_length=6,
+                    num_spin_orbitals=6,
                 ),
-                FermionicOp({"+_0 +_3 -_2 -_5": 1j, "+_5 +_2 -_3 -_0": -1j}, register_length=6),
+                FermionicOp({"+_0 +_3 -_2 -_5": 1j, "+_5 +_2 -_3 -_0": -1j}, num_spin_orbitals=6),
             ],
         ),
     )
@@ -197,11 +197,11 @@ class TestSUCCD(QiskitNatureTestCase):
             (1, 1),
             (True, True),
             [
-                FermionicOp({"+_0 -_1": 1j, "+_1 -_0": -1j}, register_length=6),
-                FermionicOp({"+_0 -_2": 1j, "+_2 -_0": -1j}, register_length=6),
-                FermionicOp({"+_3 -_4": 1j, "+_4 -_3": -1j}, register_length=6),
-                FermionicOp({"+_3 -_5": 1j, "+_5 -_3": -1j}, register_length=6),
-                FermionicOp({"+_0 +_3 -_1 -_4": 1j, "+_4 +_1 -_3 -_0": -1j}, register_length=6),
+                FermionicOp({"+_0 -_1": 1j, "+_1 -_0": -1j}, num_spin_orbitals=6),
+                FermionicOp({"+_0 -_2": 1j, "+_2 -_0": -1j}, num_spin_orbitals=6),
+                FermionicOp({"+_3 -_4": 1j, "+_4 -_3": -1j}, num_spin_orbitals=6),
+                FermionicOp({"+_3 -_5": 1j, "+_5 -_3": -1j}, num_spin_orbitals=6),
+                FermionicOp({"+_0 +_3 -_1 -_4": 1j, "+_4 +_1 -_3 -_0": -1j}, num_spin_orbitals=6),
                 FermionicOp(
                     {
                         "+_0 +_3 -_1 -_5": 1j,
@@ -209,9 +209,9 @@ class TestSUCCD(QiskitNatureTestCase):
                         "+_0 +_3 -_2 -_4": 1j,
                         "+_4 +_2 -_3 -_0": -1j,
                     },
-                    register_length=6,
+                    num_spin_orbitals=6,
                 ),
-                FermionicOp({"+_0 +_3 -_2 -_5": 1j, "+_5 +_2 -_3 -_0": -1j}, register_length=6),
+                FermionicOp({"+_0 +_3 -_2 -_5": 1j, "+_5 +_2 -_3 -_0": -1j}, num_spin_orbitals=6),
             ],
         ),
         (
@@ -219,9 +219,9 @@ class TestSUCCD(QiskitNatureTestCase):
             (1, 1),
             (True, False),
             [
-                FermionicOp({"+_0 -_1": 1j, "+_1 -_0": -1j}, register_length=6),
-                FermionicOp({"+_0 -_2": 1j, "+_2 -_0": -1j}, register_length=6),
-                FermionicOp({"+_0 +_3 -_1 -_4": 1j, "+_4 +_1 -_3 -_0": -1j}, register_length=6),
+                FermionicOp({"+_0 -_1": 1j, "+_1 -_0": -1j}, num_spin_orbitals=6),
+                FermionicOp({"+_0 -_2": 1j, "+_2 -_0": -1j}, num_spin_orbitals=6),
+                FermionicOp({"+_0 +_3 -_1 -_4": 1j, "+_4 +_1 -_3 -_0": -1j}, num_spin_orbitals=6),
                 FermionicOp(
                     {
                         "+_0 +_3 -_1 -_5": 1j,
@@ -229,9 +229,9 @@ class TestSUCCD(QiskitNatureTestCase):
                         "+_0 +_3 -_2 -_4": 1j,
                         "+_4 +_2 -_3 -_0": -1j,
                     },
-                    register_length=6,
+                    num_spin_orbitals=6,
                 ),
-                FermionicOp({"+_0 +_3 -_2 -_5": 1j, "+_5 +_2 -_3 -_0": -1j}, register_length=6),
+                FermionicOp({"+_0 +_3 -_2 -_5": 1j, "+_5 +_2 -_3 -_0": -1j}, num_spin_orbitals=6),
             ],
         ),
         (
@@ -239,9 +239,9 @@ class TestSUCCD(QiskitNatureTestCase):
             (1, 1),
             (False, True),
             [
-                FermionicOp({"+_3 -_4": 1j, "+_4 -_3": -1j}, register_length=6),
-                FermionicOp({"+_3 -_5": 1j, "+_5 -_3": -1j}, register_length=6),
-                FermionicOp({"+_0 +_3 -_1 -_4": 1j, "+_4 +_1 -_3 -_0": -1j}, register_length=6),
+                FermionicOp({"+_3 -_4": 1j, "+_4 -_3": -1j}, num_spin_orbitals=6),
+                FermionicOp({"+_3 -_5": 1j, "+_5 -_3": -1j}, num_spin_orbitals=6),
+                FermionicOp({"+_0 +_3 -_1 -_4": 1j, "+_4 +_1 -_3 -_0": -1j}, num_spin_orbitals=6),
                 FermionicOp(
                     {
                         "+_0 +_3 -_1 -_5": 1j,
@@ -249,9 +249,9 @@ class TestSUCCD(QiskitNatureTestCase):
                         "+_0 +_3 -_2 -_4": 1j,
                         "+_4 +_2 -_3 -_0": -1j,
                     },
-                    register_length=6,
+                    num_spin_orbitals=6,
                 ),
-                FermionicOp({"+_0 +_3 -_2 -_5": 1j, "+_5 +_2 -_3 -_0": -1j}, register_length=6),
+                FermionicOp({"+_0 +_3 -_2 -_5": 1j, "+_5 +_2 -_3 -_0": -1j}, num_spin_orbitals=6),
             ],
         ),
     )
@@ -277,7 +277,7 @@ class TestSUCCD(QiskitNatureTestCase):
             6,
             (1, 1),
             [
-                FermionicOp({"+_0 +_3 -_1 -_4": 1j, "+_4 +_1 -_3 -_0": -1j}, register_length=6),
+                FermionicOp({"+_0 +_3 -_1 -_4": 1j, "+_4 +_1 -_3 -_0": -1j}, num_spin_orbitals=6),
                 FermionicOp(
                     {
                         "+_0 +_3 -_1 -_5": 1j,
@@ -285,7 +285,7 @@ class TestSUCCD(QiskitNatureTestCase):
                         "+_0 +_3 -_2 -_4": 1j,
                         "+_4 +_2 -_3 -_0": -1j,
                     },
-                    register_length=6,
+                    num_spin_orbitals=6,
                 ),
                 FermionicOp(
                     {
@@ -294,9 +294,9 @@ class TestSUCCD(QiskitNatureTestCase):
                         "+_1 +_3 -_2 -_4": 1j,
                         "+_4 +_2 -_3 -_1": -1j,
                     },
-                    register_length=6,
+                    num_spin_orbitals=6,
                 ),
-                FermionicOp({"+_0 +_3 -_2 -_5": 1j, "+_5 +_2 -_3 -_0": -1j}, register_length=6),
+                FermionicOp({"+_0 +_3 -_2 -_5": 1j, "+_5 +_2 -_3 -_0": -1j}, num_spin_orbitals=6),
                 FermionicOp(
                     {
                         "+_0 +_4 -_2 -_5": 1j,
@@ -304,9 +304,9 @@ class TestSUCCD(QiskitNatureTestCase):
                         "+_1 +_3 -_2 -_5": 1j,
                         "+_5 +_2 -_3 -_1": -1j,
                     },
-                    register_length=6,
+                    num_spin_orbitals=6,
                 ),
-                FermionicOp({"+_1 +_4 -_2 -_5": 1j, "+_5 +_2 -_4 -_1": -1j}, register_length=6),
+                FermionicOp({"+_1 +_4 -_2 -_5": 1j, "+_5 +_2 -_4 -_1": -1j}, num_spin_orbitals=6),
             ],
         )
     )

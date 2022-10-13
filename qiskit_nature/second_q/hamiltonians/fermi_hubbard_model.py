@@ -79,4 +79,4 @@ class FermiHubbardModel(LatticeModel):
 
         ham = {**kinetic_ham, **interaction_ham}
 
-        return FermionicOp(ham, register_length=register_length, copy=False)
+        return FermionicOp(ham, num_spin_orbitals=register_length, copy=False)

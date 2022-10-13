@@ -102,13 +102,17 @@ class TestBravyiKitaevSuperFastMapper(QiskitNatureTestCase):
         """Test H2 molecule"""
         with self.subTest("Excitation edges 1"):
             assert np.alltrue(
-                _bksf_edge_list_fermionic_op(FermionicOp({"+_0 -_1 +_2 -_3": 1}, register_length=4))
+                _bksf_edge_list_fermionic_op(
+                    FermionicOp({"+_0 -_1 +_2 -_3": 1}, num_spin_orbitals=4)
+                )
                 == np.array([[0, 1], [2, 3]])
             )
 
         with self.subTest("Excitation edges 2"):
             assert np.alltrue(
-                _bksf_edge_list_fermionic_op(FermionicOp({"+_0 -_1 -_2 +_3": 1}, register_length=4))
+                _bksf_edge_list_fermionic_op(
+                    FermionicOp({"+_0 -_1 -_2 +_3": 1}, num_spin_orbitals=4)
+                )
                 == np.array([[0, 1], [3, 2]])
             )
 
@@ -130,7 +134,7 @@ class TestBravyiKitaevSuperFastMapper(QiskitNatureTestCase):
                 "+_0 -_0 +_2 -_2": 0.6744887663568382,
                 "+_0 -_0 +_1 -_1": 0.48217928821207245,
             },
-            register_length=4,
+            num_spin_orbitals=4,
             copy=False,
         )
 
@@ -171,13 +175,14 @@ class TestBravyiKitaevSuperFastMapper(QiskitNatureTestCase):
             self.assertEqual(op1, op2_from_sparse)
 
         with self.subTest("Test accepting identity with zero coefficient"):
-            h2_fop_zero_term = h2_fop + FermionicOp({"": 0.0}, register_length=4)
+            h2_fop_zero_term = h2_fop + FermionicOp({"": 0.0}, num_spin_orbitals=4)
             pauli_sum_op_extra = BravyiKitaevSuperFastMapper().map(h2_fop_zero_term)
             op3 = _sort_simplify(pauli_sum_op_extra.primitive)
             self.assertEqual(op1, op3)
 
         with self.subTest("Test zero FermiOp"):
-            fermi_op = FermionicOp.zero(4)
+            fermi_op = FermionicOp.zero()
+            fermi_op.num_spin_orbitals = 4
             pauli_op = BravyiKitaevSuperFastMapper().map(fermi_op).primitive
             x = np.array([], dtype="bool")
             z = np.array([], dtype="bool")
