@@ -114,7 +114,7 @@ FERMIONIC_HAMILTONIAN = FermionicOp(
         "+_0 -_0 +_2 -_2": 0.24674881903629914,
         "+_0 -_0 +_1 -_1": 0.2105460611420031,
     },
-    register_length=6,
+    num_spin_orbitals=6,
     copy=False,
 )
 

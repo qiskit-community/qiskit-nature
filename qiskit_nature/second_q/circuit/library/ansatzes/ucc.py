@@ -504,7 +504,7 @@ class UCC(EvolvedOperatorAnsatz):
                 label.append(f"+_{occ}")
             for unocc in exc[1]:
                 label.append(f"-_{unocc}")
-            op = FermionicOp({" ".join(label): 1}, register_length=self.num_spin_orbitals)
+            op = FermionicOp({" ".join(label): 1}, num_spin_orbitals=self.num_spin_orbitals)
             op -= op.adjoint()
             # we need to account for an additional imaginary phase in the exponent (see also
             # `PauliTrotterEvolution.convert`)

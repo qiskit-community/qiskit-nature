@@ -91,7 +91,7 @@ class Magnetization(Property):
                 f"+_{o} -_{o}": 0.5 if o < self._num_spin_orbitals // 2 else -0.5
                 for o in range(self._num_spin_orbitals)
             },
-            register_length=self._num_spin_orbitals,
+            num_spin_orbitals=self._num_spin_orbitals,
         )
 
         return {self.name: op}

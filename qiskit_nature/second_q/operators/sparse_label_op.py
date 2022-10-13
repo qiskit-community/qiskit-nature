@@ -33,12 +33,26 @@ from .polynomial_tensor import PolynomialTensor
 
 
 class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC, Mapping):
-    """The Sparse Label Operator base class."""
+    """The base class for sparse second-quantized operators.
+
+    This class generalizes the storing of operators down to a mapping from string-based labels to
+    coefficients. No assumptions are to be made about the contents of the string keys, which is
+    entirely left up to concrete subclasses of this base.
+
+    Since this is an abstract base class, we cannot show concrete computation examples here, but
+    operators implementing this interface will support:
+
+    - linear operations such as addition and scalar multiplication
+    - operator multiplication such as composition and tensor products
+    - transposition, conjugation and (by extension) the :meth:`adjoint`
+    - equality and equivalence (using the :attr:`atol` and :attr:`rtol` tolerances) comparisons
+
+    Furthermore, several general utility methods exist which are documented below.
+    """
 
     def __init__(
         self,
         data: Mapping[str, complex],
-        register_length: int | None = None,
         *,
         copy: bool = True,
         validate: bool = True,
@@ -46,9 +60,6 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         """
         Args:
             data: the operator data, mapping string-based keys to numerical values.
-            register_length: the length of the operators register. This coincides with the maximum
-                index on which an operation may be performed by this operator. When omitted, the
-                register length is inferred from the maximum occurring index.
             copy: when set to False the `data` will not be copied and the dictionary will be
                 stored by reference rather than by value (which is the default; `copy=True`). Note,
                 that this requires you to not change the contents of the dictionary after
@@ -64,33 +75,51 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         self._data: Mapping[str, complex] = {}
         if copy:
             if validate:
-                register_length = self.__class__._validate_keys(data.keys(), register_length)
+                self._validate_keys(data.keys())
             self._data = dict(data.items())
         else:
             self._data = data
-        self._register_length = register_length
 
     @property
-    def register_length(self) -> int:
-        """Returns the register length"""
-        return self._register_length
-
-    @register_length.setter
-    def register_length(self, reg_length: int | None) -> None:
-        self._validate_keys(self._data.keys(), reg_length)
-        self._register_length = reg_length
-
-    @classmethod
     @abstractmethod
-    def _validate_keys(cls, keys: Collection[str], register_length: int | None) -> int:
+    def register_length(self) -> int | None:
+        """Returns the register length"""
+
+    @abstractmethod
+    def _new_instance(
+        self,
+        data: Mapping[str, complex],
+        *,
+        other: SparseLabelOp | None = None,
+    ) -> SparseLabelOp:
+        """A utility method constructing a new operator instance from self and the provided data.
+
+        This method should be used whenever the class constructor would need to be called. It
+        handles the operator instance construction in a single place with an unchanged signature
+        compared to the potentially varying number of arguments on concrete implementations of this
+        abstract base operator class.
+
+        To be more concrete, this method should construct a new operator with the provided ``data``
+        using otherwise unchanged additional information from ``self``.
+        This method can be overwritten by a subclass in order to allow handling of additional data
+        from ``self`` and ``other``, an optional second operator instance.
+        To provide a concrete example, lower bounded values such as those which yield the
+        :attr:`register_length` attribute can be dealt with in a consistent way.
+
+        Args:
+            data: the new data from which to construct the new operator instance.
+            other: an optional second operator instance.
+
+        Returns:
+            The new operator instance.
+        """
+
+    @abstractmethod
+    def _validate_keys(self, keys: Collection[str]) -> None:
         """Validates the keys of the operator.
 
         Args:
             keys: the keys to validate.
-            register_length: the register length of the operator.
-
-        Returns:
-            The actual register length of the operator.
 
         Raises:
             QiskitNatureError: when an invalid key is encountered.
@@ -121,28 +150,22 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         """
 
     @classmethod
-    def zero(cls, register_length: int | None = None) -> SparseLabelOp:
+    def zero(cls) -> SparseLabelOp:
         """Constructs a zero-operator.
-
-        Args:
-            register_length: the length of the operator.
 
         Returns:
             The zero-operator of the given length.
         """
-        return cls({}, register_length=register_length, copy=False)
+        return cls({}, copy=False)
 
     @classmethod
-    def one(cls, register_length: int | None = None) -> SparseLabelOp:
+    def one(cls) -> SparseLabelOp:
         """Constructs a unity-operator.
-
-        Args:
-            register_length: the length of the operator.
 
         Returns:
             The unity-operator of the given length.
         """
-        return cls({"": 1.0}, register_length=register_length, copy=False)
+        return cls({"": 1.0}, copy=False)
 
     def _add(self, other: SparseLabelOp, qargs: None = None) -> SparseLabelOp:
         """Return Operator addition of self and other.
@@ -157,18 +180,16 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         Raises:
             ValueError: when ``qargs`` argument is not ``None``
         """
-        if not isinstance(other, SparseLabelOp):
+        if not isinstance(other, self.__class__):
             raise ValueError(
-                f"Unsupported operand type(s) for +: 'SparseLabelOp' and '{type(other).__name__}'"
+                f"Unsupported operand type(s) for +: '{type(self)}' and '{type(other).__name__}'"
             )
 
         new_data = {key: value + other._data.get(key, 0) for key, value in self._data.items()}
         other_unique = {key: other._data[key] for key in other._data.keys() - self._data.keys()}
         new_data.update(other_unique)
 
-        register_length = max(self.register_length, other.register_length)
-
-        return self.__class__(new_data, register_length, copy=False)
+        return self._new_instance(new_data, other=other)
 
     def _multiply(self, other: complex) -> SparseLabelOp:
         """Return scalar multiplication of self and other.
@@ -188,7 +209,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
             )
         new_data = {key: val * other for key, val in self._data.items()}
 
-        return self.__class__(new_data, self.register_length, copy=False)
+        return self._new_instance(new_data)
 
     def conjugate(self) -> SparseLabelOp:
         """Returns the conjugate of the ``SparseLabelOp``.
@@ -198,7 +219,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         """
         new_data = {key: np.conjugate(val) for key, val in self._data.items()}
 
-        return self.__class__(new_data, self.register_length, copy=False)
+        return self._new_instance(new_data)
 
     @abstractmethod
     def transpose(self) -> SparseLabelOp:
@@ -286,8 +307,9 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         Returns:
             True if operators are equivalent, False if not.
         """
-        if not isinstance(other, SparseLabelOp):
+        if not isinstance(other, self.__class__):
             return False
+
         if self._data.keys() != other._data.keys():
             return False
 
@@ -308,8 +330,9 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         Returns:
             True if operators are equal, False if not.
         """
-        if not isinstance(other, SparseLabelOp):
+        if not isinstance(other, self.__class__):
             return False
+
         return self._data == other._data
 
     def __getitem__(self, __k: str) -> complex:
@@ -338,7 +361,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
 
     def __pow__(self, power):
         if power == 0:
-            return self.__class__.one(self.register_length)
+            return self.__class__.one()
 
         return super().__pow__(power)
 
@@ -368,9 +391,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
             A new operator instance with its contents sorted.
         """
         indices = self.argsort(weight=weight)
-        return self.__class__(
-            {ind: self[ind] for ind in indices}, register_length=self.register_length, copy=False
-        )
+        return self._new_instance({ind: self[ind] for ind in indices})
 
     def chop(self, tol: float | None = None) -> SparseLabelOp:
         """Chops the real and imaginary phases of the operator coefficients.
@@ -399,7 +420,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
             else:
                 new_data[key] = value
 
-        return self.__class__(new_data, register_length=self.register_length, copy=False)
+        return self._new_instance(new_data)
 
     @abstractmethod
     def simplify(self, *, atol: float | None = None) -> SparseLabelOp:

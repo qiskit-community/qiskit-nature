@@ -43,7 +43,7 @@ class TestAngularMomentum(PropertyTest):
             encoding="utf8",
         ) as file:
             expected = json.load(file)
-            expected_op = FermionicOp(expected, register_length=8).simplify()
+            expected_op = FermionicOp(expected, num_spin_orbitals=8).simplify()
         self.assertEqual(op, expected_op)
 
     def test_to_hdf5(self):

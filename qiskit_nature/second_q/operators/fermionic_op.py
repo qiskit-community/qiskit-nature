@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
-from collections.abc import Collection, MutableMapping
+from collections.abc import Collection, Mapping, MutableMapping
 from typing import cast, Iterator
 
 import numpy as np
@@ -37,9 +37,8 @@ class FermionicOp(SparseLabelOp):
     expressions. Each expression must look like :code:`[+-]_<index>`, where the :code:`<index>` is a
     non-negative integer representing the index of the fermionic mode where the `+` (creation) or
     `-` (annihilation) operation is to be performed. The value of :code:`index` is bound by the
-    `register_length` of the operator, which indicates the number of fermionic modes on which the
-    operator acts (Note: since Python indices are 0-based, the maximum value an index can take is
-    given by :code:`register_length-1`).
+    number of spin orbitals (`num_spin_orbitals`) of the operator (Note: since Python indices are
+    0-based, the maximum value an index can take is given by :code:`num_spin_orbitals-1`).
 
     **Initialization**
 
@@ -55,7 +54,7 @@ class FermionicOp(SparseLabelOp):
                 "+_0 -_0": 1.0,
                 "+_1 -_1": -1.0,
             },
-            register_length=2,
+            num_spin_orbitals=2,
         )
 
     By default, this way of initializing will create a full copy of the dictionary of coefficients.
@@ -72,7 +71,7 @@ class FermionicOp(SparseLabelOp):
 
         op = FermionicOp(
             some_big_data,
-            register_length=2,
+            num_spin_orbitals=2,
             copy=False,
         )
 
@@ -93,34 +92,40 @@ class FermionicOp(SparseLabelOp):
 
     .. jupyter-execute::
 
-      0.5 * FermionicOp({"+_1": 1}, register_length=2) + FermionicOp({"+_0": 1}, register_length=2)
+      FermionicOp({"+_1": 1}, num_spin_orbitals=2) + FermionicOp({"+_0": 1}, num_spin_orbitals=2)
 
     Sum
 
     .. jupyter-execute::
 
-      0.25 * sum(FermionicOp({label: 1}, register_length=3) for label in ["+_0", "-_1", "+_2 -_2"])
+      sum(FermionicOp({label: 1}, num_spin_orbitals=3) for label in ["+_0", "-_1", "+_2 -_2"])
+
+    Scalar multiplication
+
+    .. jupyter-execute::
+
+      0.5 * FermionicOp({"+_1": 1}, num_spin_orbitals=2)
 
     Operator multiplication
 
     .. jupyter-execute::
 
-      op1 = FermionicOp({"+_0 -_1": 1}, register_length=2)
-      op2 = FermionicOp({"-_0 +_0 +_1": 1}, register_length=2)
+      op1 = FermionicOp({"+_0 -_1": 1}, num_spin_orbitals=2)
+      op2 = FermionicOp({"-_0 +_0 +_1": 1}, num_spin_orbitals=2)
       print(op1 @ op2)
 
     Tensor multiplication
 
     .. jupyter-execute::
 
-      op = FermionicOp({"+_0 -_1": 1}, register_length=2)
+      op = FermionicOp({"+_0 -_1": 1}, num_spin_orbitals=2)
       print(op ^ op)
 
     Adjoint
 
     .. jupyter-execute::
 
-      FermionicOp({"+_0 -_1": 1j}, register_length=2).adjoint()
+      FermionicOp({"+_0 -_1": 1j}, num_spin_orbitals=2).adjoint()
 
     In principle, you can also add :class:`FermionicOp` and integers, but the only valid case is the
     addition of `0 + FermionicOp`. This makes the `sum` operation from the example above possible
@@ -137,13 +142,64 @@ class FermionicOp(SparseLabelOp):
 
     Instances of `FermionicOp` are iterable. Iterating a FermionicOp yields (term, coefficient)
     pairs describing the terms contained in the operator.
+
+    Attributes:
+        num_spin_orbitals: the number of spin orbitals on which this operator acts. This is
+            considered a lower bound, which means that mathematical operations acting on two or more
+            operators will result in a new operator with the maximum number of spin orbitals of any
+            of the involved operators.
     """
 
     _OPERATION_REGEX = re.compile(r"([\+\-]_\d+\s)*[\+\-]_\d+")
 
-    @classmethod
-    def _validate_keys(cls, keys: Collection[str], register_length: int | None) -> int:
-        super()._validate_keys(keys, register_length)
+    def __init__(
+        self,
+        data: Mapping[str, complex],
+        num_spin_orbitals: int | None = None,
+        *,
+        copy: bool = True,
+        validate: bool = True,
+    ) -> None:
+        """
+        Args:
+            data: the operator data, mapping string-based keys to numerical values.
+            num_spin_orbitals: the number of spin orbitals on which this operator acts.
+            copy: when set to False the `data` will not be copied and the dictionary will be
+                stored by reference rather than by value (which is the default; `copy=True`). Note,
+                that this requires you to not change the contents of the dictionary after
+                constructing the operator. This also implies `validate=False`. Use with care!
+            validate: when set to False the `data` keys will not be validated. Note, that the
+                SparseLabelOp base class, makes no assumption about the data keys, so will not
+                perform any validation by itself. Only concrete subclasses are encouraged to
+                implement a key validation method. Disable this setting with care!
+
+        Raises:
+            QiskitNatureError: when an invalid key is encountered during validation.
+        """
+        self.num_spin_orbitals = num_spin_orbitals
+        super().__init__(data, copy=copy, validate=validate)
+
+    @property
+    def register_length(self) -> int | None:
+        return self.num_spin_orbitals
+
+    def _new_instance(
+        self, data: Mapping[str, complex], *, other: FermionicOp | None = None
+    ) -> FermionicOp:
+        num_so = self.num_spin_orbitals
+        if other is not None:
+            other_num_so = other.num_spin_orbitals
+            if num_so is None:
+                num_so = other_num_so
+            elif other_num_so is not None:
+                num_so = max(num_so, other_num_so)
+
+        return self.__class__(data, copy=False, num_spin_orbitals=num_so)
+
+    def _validate_keys(self, keys: Collection[str]) -> None:
+        super()._validate_keys(keys)
+
+        num_so = self.num_spin_orbitals
 
         max_index = 0
 
@@ -159,16 +215,16 @@ class FermionicOp(SparseLabelOp):
             # 2. validate all indices against register length
             for term in key.split(" "):
                 index = int(term[2:])
-                if register_length is None:
+                if num_so is None:
                     if index > max_index:
                         max_index = index
-                elif index >= register_length:
+                elif index >= num_so:
                     raise QiskitNatureError(
-                        f"The index, {index}, from the label, {key}, exceeds the register "
-                        f"length, {register_length}."
+                        f"The index, {index}, from the label, {key}, exceeds the number of spin "
+                        f"orbitals, {num_so}."
                     )
 
-        return max_index + 1 if register_length is None else register_length
+        self.num_spin_orbitals = max_index + 1 if num_so is None else num_so
 
     @classmethod
     def _validate_polynomial_tensor_key(cls, keys: Collection[str]) -> None:
@@ -209,17 +265,17 @@ class FermionicOp(SparseLabelOp):
                 for value, *index in zip(coo.data, *coo.coords):
                     data[label_template.format(*index)] = value
 
-        return FermionicOp(data, register_length=tensor.register_length, copy=False).chop()
+        return cls(data, copy=False, num_spin_orbitals=tensor.register_length).chop()
 
     def __repr__(self) -> str:
         data_str = f"{dict(self.items())}"
 
-        return "FermionicOp(" f"{data_str}, " f"register_length={self.register_length}, " ")"
+        return "FermionicOp(" f"{data_str}, " f"num_spin_orbitals={self.num_spin_orbitals}, " ")"
 
     def __str__(self) -> str:
         pre = (
             "Fermionic Operator\n"
-            f"register length={self.register_length}, number terms={len(self)}\n"
+            f"number spin orbitals={self.num_spin_orbitals}, number terms={len(self)}\n"
         )
         ret = "  " + "\n+ ".join(
             [f"{coeff} * ( {label} )" if label else f"{coeff}" for label, coeff in self.items()]
@@ -265,7 +321,7 @@ class FermionicOp(SparseLabelOp):
 
     @classmethod
     def _tensor(cls, a: FermionicOp, b: FermionicOp, *, offset: bool = True) -> FermionicOp:
-        shift = a.register_length if offset else 0
+        shift = a.num_spin_orbitals if offset else 0
 
         new_data = {
             f"{label1} {' '.join(f'{c}_{i+shift}' for c, i in terms2)}".strip(): cf1 * cf2
@@ -273,12 +329,10 @@ class FermionicOp(SparseLabelOp):
             for label1, cf1 in a.items()
         }
 
+        new_op = a._new_instance(new_data, other=b)
         if offset:
-            register_length = a.register_length + b.register_length
-        else:
-            register_length = max(a.register_length, b.register_length)
-
-        return FermionicOp(new_data, register_length, copy=False)
+            new_op.num_spin_orbitals = a.num_spin_orbitals + b.num_spin_orbitals
+        return new_op
 
     # TODO: do we want to change the returned type to be non-scipy sparse matrix?
     def to_matrix(self, sparse: bool | None = True) -> csc_matrix | np.ndarray:
@@ -297,11 +351,11 @@ class FermionicOp(SparseLabelOp):
 
         csc_data, csc_col, csc_row = [], [], []
 
-        dimension = 1 << self.register_length
+        dimension = 1 << self.num_spin_orbitals
 
         # loop over all columns of the matrix
         for col_idx in range(dimension):
-            initial_occupations = [occ == "1" for occ in f"{col_idx:0{self.register_length}b}"]
+            initial_occupations = [occ == "1" for occ in f"{col_idx:0{self.num_spin_orbitals}b}"]
             # loop over the terms in the operator data
             for terms, prefactor in self.simplify().terms():
                 # check if op string is the identity
@@ -352,7 +406,7 @@ class FermionicOp(SparseLabelOp):
         for label, coeff in self.items():
             data[" ".join(lbl.translate(trans) for lbl in reversed(label.split(" ")))] = coeff
 
-        return FermionicOp(data, register_length=self.register_length, copy=False)
+        return self._new_instance(data)
 
     def normal_ordered(self) -> FermionicOp:
         """Convert to the equivalent operator with normal order.
@@ -372,7 +426,7 @@ class FermionicOp(SparseLabelOp):
         Returns:
             The normal ordered operator.
         """
-        ordered_op = FermionicOp.zero(self.register_length)
+        ordered_op = FermionicOp.zero()
 
         for terms, coeff in self.terms():
             ordered_op += self._normal_ordered(terms, coeff)
@@ -381,9 +435,9 @@ class FermionicOp(SparseLabelOp):
 
     def _normal_ordered(self, terms: list[tuple[str, int]], coeff: complex) -> FermionicOp:
         if not terms:
-            return FermionicOp({"": coeff}, self.register_length)
+            return self._new_instance({"": coeff})
 
-        ordered_op = FermionicOp.zero(self.register_length)
+        ordered_op = FermionicOp.zero()
 
         # perform insertion sorting
         for i in range(1, len(terms)):
@@ -420,7 +474,7 @@ class FermionicOp(SparseLabelOp):
                         coeff *= -1.0
 
         new_label = " ".join(f"{term[0]}_{term[1]}" for term in terms)
-        ordered_op += FermionicOp({new_label: coeff}, self.register_length, copy=False)
+        ordered_op += self._new_instance({new_label: coeff})
         return ordered_op
 
     def is_hermitian(self, *, atol: float | None = None) -> bool:
@@ -447,7 +501,7 @@ class FermionicOp(SparseLabelOp):
         simplified_data = {
             label: coeff for label, coeff in data.items() if not np.isclose(coeff, 0.0, atol=atol)
         }
-        return FermionicOp(simplified_data, self.register_length, copy=False)
+        return self._new_instance(simplified_data)
 
     def _simplify_label(self, label: str, coeff: complex) -> tuple[str, complex]:
         bits = _BitsContainer()
@@ -482,9 +536,9 @@ class FermionicOp(SparseLabelOp):
                 # we also update the last bit to the current char
                 bits.set_last(idx, char_b)
 
-            if idx != self.register_length:
+            if idx != self.num_spin_orbitals:
                 num_exchange = 0
-                for i in range(idx + 1, self.register_length):
+                for i in range(idx + 1, self.num_spin_orbitals):
                     if i in bits:
                         num_exchange += (bits.get_plus(i) + bits.get_minus(i)) % 2
                 coeff *= -1 if num_exchange % 2 else 1
