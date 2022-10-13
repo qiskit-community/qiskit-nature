@@ -40,7 +40,7 @@ jobs:
         shell: bash
       - name: Install Nature
         run: |
-          pip install -e .[pyscf,mpl]
+          pip install -e .[pyscf,mpl,sparse]
           pip install -U -c constraints.txt -r requirements-dev.txt
         shell: bash
       - name: Build and publish

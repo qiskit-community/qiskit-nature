@@ -89,3 +89,11 @@ HAS_PSI4 = NatureLazySubprocessTester(
     name=PSI4_DESC,
     msg="See https://psicode.org",
 )
+
+HAS_SPARSE = LazyImportTester(
+    {
+        "sparse": ("SparseArray", "COO", "DOK"),
+    },
+    name="sparse",
+    install="pip install 'qiskit-nature[sparse]'",
+)

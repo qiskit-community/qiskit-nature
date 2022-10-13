@@ -23,6 +23,7 @@ import numpy as np
 from scipy.sparse import csc_matrix
 
 from qiskit_nature.exceptions import QiskitNatureError
+import qiskit_nature.optionals as _optionals
 
 from .polynomial_tensor import PolynomialTensor
 from .sparse_label_op import SparseLabelOp
@@ -237,6 +238,7 @@ class FermionicOp(SparseLabelOp):
                 )
 
     @classmethod
+    @_optionals.HAS_SPARSE.require_in_call
     def from_polynomial_tensor(cls, tensor: PolynomialTensor) -> FermionicOp:
         cls._validate_polynomial_tensor_key(tensor.keys())
 
@@ -250,15 +252,18 @@ class FermionicOp(SparseLabelOp):
 
             label_template = " ".join(f"{op}_{{}}" for op in key)
 
-            # PERF: this matrix unpacking is a performance bottleneck
-            # we could consider using Rust in the future to improve upon this
+            # PERF: the following matrix unpacking is a performance bottleneck!
+            # We could consider using Rust in the future to improve upon this.
+            import sparse as sp  # pylint: disable=import-error
 
-            ndarray = cast(np.ndarray, tensor[key])
-            for index in np.ndindex(*ndarray.shape):
-                data[label_template.format(*index)] = ndarray[index]
-
-            # NOTE: once the PolynomialTensor supports sparse matrices, these will need to be
-            # handled separately
+            mat = tensor[key]
+            if isinstance(mat, np.ndarray):
+                for index in np.ndindex(*mat.shape):
+                    data[label_template.format(*index)] = mat[index]
+            elif isinstance(mat, sp.SparseArray):
+                coo = sp.as_coo(mat)
+                for value, *index in zip(coo.data, *coo.coords):
+                    data[label_template.format(*index)] = value
 
         return cls(data, copy=False, num_spin_orbitals=tensor.register_length).chop()
 
@@ -329,6 +334,7 @@ class FermionicOp(SparseLabelOp):
             new_op.num_spin_orbitals = a.num_spin_orbitals + b.num_spin_orbitals
         return new_op
 
+    # TODO: do we want to change the returned type to be non-scipy sparse matrix?
     def to_matrix(self, sparse: bool | None = True) -> csc_matrix | np.ndarray:
         """Convert to a matrix representation over the full fermionic Fock space in the occupation
         number basis.

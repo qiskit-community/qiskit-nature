@@ -22,6 +22,7 @@ from scipy.sparse.linalg import eigs
 
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.operators import FermionicOp, PolynomialTensor
+import qiskit_nature.optionals as _optionals
 
 
 @ddt
@@ -345,44 +346,72 @@ class TestFermionicOp(QiskitNatureTestCase):
             with self.assertRaises(QiskitNatureError):
                 _ = FermionicOp({key: 1.0}, num_spin_orbitals=length)
 
+    @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     def test_from_polynomial_tensor(self):
         """Test from PolynomialTensor construction"""
-        r_l = 2
-        p_t = PolynomialTensor(
-            {
-                "+-": np.arange(1, 5).reshape((r_l, r_l)),
-                "++--": np.arange(1, 17).reshape((r_l, r_l, r_l, r_l)),
-            }
-        )
-        op = FermionicOp.from_polynomial_tensor(p_t)
+        import sparse as sp  # pylint: disable=import-error
 
-        expected = FermionicOp(
-            {
-                "+_0 -_0": 1,
-                "+_0 -_1": 2,
-                "+_1 -_0": 3,
-                "+_1 -_1": 4,
-                "+_0 +_0 -_0 -_0": 1,
-                "+_0 +_0 -_0 -_1": 2,
-                "+_0 +_0 -_1 -_0": 3,
-                "+_0 +_0 -_1 -_1": 4,
-                "+_0 +_1 -_0 -_0": 5,
-                "+_0 +_1 -_0 -_1": 6,
-                "+_0 +_1 -_1 -_0": 7,
-                "+_0 +_1 -_1 -_1": 8,
-                "+_1 +_0 -_0 -_0": 9,
-                "+_1 +_0 -_0 -_1": 10,
-                "+_1 +_0 -_1 -_0": 11,
-                "+_1 +_0 -_1 -_1": 12,
-                "+_1 +_1 -_0 -_0": 13,
-                "+_1 +_1 -_0 -_1": 14,
-                "+_1 +_1 -_1 -_0": 15,
-                "+_1 +_1 -_1 -_1": 16,
-            },
-            num_spin_orbitals=r_l,
-        )
+        with self.subTest("dense tensor"):
+            r_l = 2
+            p_t = PolynomialTensor(
+                {
+                    "+-": np.arange(1, 5).reshape((r_l, r_l)),
+                    "++--": np.arange(1, 17).reshape((r_l, r_l, r_l, r_l)),
+                }
+            )
+            op = FermionicOp.from_polynomial_tensor(p_t)
 
-        self.assertEqual(op, expected)
+            expected = FermionicOp(
+                {
+                    "+_0 -_0": 1,
+                    "+_0 -_1": 2,
+                    "+_1 -_0": 3,
+                    "+_1 -_1": 4,
+                    "+_0 +_0 -_0 -_0": 1,
+                    "+_0 +_0 -_0 -_1": 2,
+                    "+_0 +_0 -_1 -_0": 3,
+                    "+_0 +_0 -_1 -_1": 4,
+                    "+_0 +_1 -_0 -_0": 5,
+                    "+_0 +_1 -_0 -_1": 6,
+                    "+_0 +_1 -_1 -_0": 7,
+                    "+_0 +_1 -_1 -_1": 8,
+                    "+_1 +_0 -_0 -_0": 9,
+                    "+_1 +_0 -_0 -_1": 10,
+                    "+_1 +_0 -_1 -_0": 11,
+                    "+_1 +_0 -_1 -_1": 12,
+                    "+_1 +_1 -_0 -_0": 13,
+                    "+_1 +_1 -_0 -_1": 14,
+                    "+_1 +_1 -_1 -_0": 15,
+                    "+_1 +_1 -_1 -_1": 16,
+                },
+                num_spin_orbitals=r_l,
+            )
+
+            self.assertEqual(op, expected)
+
+        with self.subTest("sparse tensor"):
+            r_l = 2
+            p_t = PolynomialTensor(
+                {
+                    "+-": sp.as_coo({(0, 0): 1, (1, 0): 2}, shape=(r_l, r_l)),
+                    "++--": sp.as_coo(
+                        {(0, 0, 0, 1): 1, (1, 0, 1, 1): 2}, shape=(r_l, r_l, r_l, r_l)
+                    ),
+                }
+            )
+            op = FermionicOp.from_polynomial_tensor(p_t)
+
+            expected = FermionicOp(
+                {
+                    "+_0 -_0": 1,
+                    "+_1 -_0": 2,
+                    "+_0 +_0 -_0 -_1": 1,
+                    "+_1 +_0 -_1 -_1": 2,
+                },
+                num_spin_orbitals=r_l,
+            )
+
+            self.assertEqual(op, expected)
 
     def test_no_num_spin_orbitals(self):
         """Test operators with automatic register length"""

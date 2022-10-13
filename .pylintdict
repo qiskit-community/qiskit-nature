@@ -129,6 +129,7 @@ dll
 docstring
 dof
 doi
+dok
 dt
 dtype
 dumitrescu
@@ -182,6 +183,7 @@ gauopen
 gaussian
 gaussiand
 gcc
+gcxs
 getitem
 getter
 gfortran
@@ -413,6 +415,7 @@ ps
 pseudorandom
 pxd
 py
+pydata
 pyquante
 pyscf
 qarg
@@ -491,6 +494,8 @@ sklearn
 sl
 slater
 soham
+sp
+sparsearray
 sparselabelop
 spinop
 springer
