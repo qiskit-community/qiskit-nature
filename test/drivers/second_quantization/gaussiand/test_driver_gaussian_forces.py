@@ -170,9 +170,6 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
         )
         result = driver.run()
         self._check_driver_result(self._get_expected_values(), result)
-        
-
-
 
     @data(
         ("A03", _A03_REV_EXPECTED),
