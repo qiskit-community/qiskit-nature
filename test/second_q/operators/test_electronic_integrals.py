@@ -435,7 +435,7 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
             self.assertTrue(np.allclose(ints.beta["++--"], two_body_bb))
             self.assertTrue(np.allclose(ints.beta_alpha["++--"], two_body_ba))
 
-    def test_polynomial_tensor(self):
+    def test_second_q_coeffs(self):
         """Tests the total PolynomialTensor generation method."""
         one_body_a = np.random.random((2, 2))
         one_body_b = np.random.random((2, 2))
@@ -475,6 +475,65 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
             two_kron[(0, 1, 1, 0)] = 0.0
             expected["++--"] = two_body
             self.assertTrue(tensor.equiv(PolynomialTensor(expected)))
+
+    def test_trace_spin(self):
+        """Test the trace_spin method."""
+        one_body_a = np.random.random((2, 2))
+        one_body_b = np.random.random((2, 2))
+        two_body_aa = np.random.random((2, 2, 2, 2))
+        two_body_bb = np.random.random((2, 2, 2, 2))
+        two_body_ba = np.random.random((2, 2, 2, 2))
+
+        with self.subTest("alpha only"):
+            ints = ElectronicIntegrals.from_raw_integrals(
+                one_body_a, two_body_aa, auto_index_order=False
+            )
+            tensor = ints.trace_spin()
+            expected = PolynomialTensor(
+                {
+                    "+-": 2.0 * one_body_a,
+                    "++--": 2.0 * two_body_aa,
+                }
+            )
+            self.assertTrue(tensor.equiv(expected))
+
+        with self.subTest("alpha and beta without beta_alpha"):
+            ints = ElectronicIntegrals.from_raw_integrals(
+                one_body_a,
+                two_body_aa,
+                h1_b=one_body_b,
+                h2_bb=two_body_bb,
+                auto_index_order=False,
+            )
+            tensor = ints.trace_spin()
+            expected = PolynomialTensor(
+                {
+                    "+-": one_body_a + one_body_b,
+                    "++--": 2.0 * (two_body_aa + two_body_bb),
+                }
+            )
+            self.assertTrue(tensor.equiv(expected))
+
+        with self.subTest("alpha and beta with beta_alpha"):
+            ints = ElectronicIntegrals.from_raw_integrals(
+                one_body_a,
+                two_body_aa,
+                h1_b=one_body_b,
+                h2_bb=two_body_bb,
+                h2_ba=two_body_ba,
+                auto_index_order=False,
+            )
+            tensor = ints.trace_spin()
+            expected = PolynomialTensor(
+                {
+                    "+-": one_body_a + one_body_b,
+                    "++--": two_body_aa
+                    + two_body_bb
+                    + two_body_ba
+                    + np.einsum("ijkl->klij", two_body_ba),
+                }
+            )
+            self.assertTrue(tensor.equiv(expected))
 
 
 if __name__ == "__main__":

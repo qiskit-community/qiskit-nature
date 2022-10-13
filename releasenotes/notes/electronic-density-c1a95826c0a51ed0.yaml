@@ -1,0 +1,23 @@
+---
+features:
+  - |
+    Adds a new Property for the electronic structure stack to evaluate the 1-
+    and 2-body reduced density matrices. Assuming that you already have an
+    instance of your :class:`qiskit_nature.second_q.problems.ElectronicStructureProblem`,
+    you can add the :class:`qiskit_nature.second_q.properties.ElectronicDensity`
+    to it like so:
+
+    .. code-block:: python
+
+      problem: ElectronicStructureProblem = ...
+
+      from qiskit_nature.second_q.properties import ElectronicDensity
+
+      # initialize the density in an orthonormal basis simply based on the
+      # orbital occupation numbers
+      alpha_occupation = [1.0, 1.0, 0.0, 0.0]
+      beta_occupation = [1.0, 1.0, 0.0, 0.0]
+
+      problem.properties.electronic_density = ElectronicDensity.from_orbital_occupation(
+        alpha_occupation, beta_occupation
+      )
