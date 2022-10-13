@@ -39,7 +39,7 @@ jobs:
     steps:
       - name: Print Concurrency Group
         env:
-          CONCURRENCY_GROUP: ${{ github.repository }}-${{ github.ref }}-${{ github.head_ref }}
+          CONCURRENCY_GROUP: ${{ github.repository }}-${{ github.ref }}-${{ github.head_ref }}-${{ github.workflow }}
         run: |
           echo -e "\033[31;1;4mConcurrency Group\033[0m"
           echo -e "$CONCURRENCY_GROUP\n"
@@ -256,13 +256,13 @@ jobs:
         with:
           name: ${{ matrix.os }}-${{ matrix.python-version }}
           path: ./ci-artifact-data/*
-      - name: Nature Unit Tests without matplotlib/pyscf/psi4/pyquante2 under Python ${{ matrix.python-version }}
+      - name: Nature Unit Tests without matplotlib/pyscf/psi4/pyquante2/sparse under Python ${{ matrix.python-version }}
         env:
           PYTHONWARNINGS: default
         run: |
           source "$CONDA/etc/profile.d/conda.sh"
           conda activate psi4env
-          pip uninstall -y matplotlib pyscf
+          pip uninstall -y matplotlib pyscf sparse
           if [[ "${{ matrix.os }}" != "windows-2019" || ("${{ matrix.os }}" == "windows-2019" && "${{ matrix.python-version }}" != "3.10") ]]; then
               echo 'Uninstall psi4'
               conda remove -y --force psi4

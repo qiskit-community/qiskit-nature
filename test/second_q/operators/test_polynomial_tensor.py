@@ -13,19 +13,26 @@
 """Test for PolynomialTensor class"""
 
 from __future__ import annotations
+
 import unittest
 from test import QiskitNatureTestCase
-from ddt import ddt, idata
+
 import numpy as np
+from ddt import ddt, idata
+
+from qiskit.test import slow_test
 from qiskit_nature.second_q.operators import PolynomialTensor
+import qiskit_nature.optionals as _optionals
 
 
 @ddt
 class TestPolynomialTensor(QiskitNatureTestCase):
     """Tests for PolynomialTensor class"""
 
+    @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     def setUp(self) -> None:
         super().setUp()
+        import sparse as sp  # pylint: disable=import-error
 
         self.og_poly = {
             "": 1.0,
@@ -34,73 +41,11 @@ class TestPolynomialTensor(QiskitNatureTestCase):
             "++--": self.build_matrix(4, 4),
         }
 
-        self.sample_poly_1 = {
-            "": 1.0,
-            "++": self.build_matrix(4, 1),
-            "+-": self.build_matrix(4, 2),
-            "++--": self.build_matrix(4, 4),
-        }
-
-        self.sample_poly_2 = {
-            "": 1.0,
-            "+": self.build_matrix(4, 1),
-            "+-": self.build_matrix(4, 2),
-            "++--": np.arange(1, 13).reshape(1, 2, 3, 2),
-        }
-
-        self.sample_poly_3 = {
-            "": 1.0,
-            "+": self.build_matrix(4, 1),
-            "+-": self.build_matrix(2, 2),
-            "++--": self.build_matrix(4, 4),
-        }
-
-        self.sample_poly_4 = {
-            "": 1.0,
-            "+": self.build_matrix(2, 1),
-            "+-": self.build_matrix(2, 2),
-            "++--": self.build_matrix(2, 4),
-        }
-
-        self.sample_poly_5 = {
-            "": 1.0,
-            "+": self.build_matrix(2, 1),
-            "+-": self.build_matrix(2, 2),
-        }
-
-        self.expected_conjugate_poly = {
-            "": 1.0,
-            "+": self.build_matrix(4, 1).conjugate(),
-            "+-": self.build_matrix(4, 2).conjugate(),
-            "++--": self.build_matrix(4, 4).conjugate(),
-        }
-
-        self.expected_transpose_poly = {
+        self.og_transposed = {
             "": 1.0,
             "+": self.build_matrix(4, 1).transpose(),
             "+-": self.build_matrix(4, 2).transpose(),
             "++--": self.build_matrix(4, 4).transpose(),
-        }
-
-        self.expected_sum_poly = {
-            "": 2.0,
-            "+": np.add(self.build_matrix(4, 1), self.build_matrix(4, 1)),
-            "+-": np.add(self.build_matrix(4, 2), self.build_matrix(4, 2)),
-            "++--": np.add(self.build_matrix(4, 4), self.build_matrix(4, 4)),
-        }
-
-        self.expected_compose_poly = {
-            "": 1.0,
-            "+": np.multiply(self.build_matrix(4, 1).transpose(), self.build_matrix(4, 1)),
-            "+-": np.matmul(self.build_matrix(4, 2).transpose(), self.build_matrix(4, 2)),
-            "++--": np.matmul(self.build_matrix(4, 4).transpose(), self.build_matrix(4, 4)),
-        }
-
-        self.expected_compose_front_poly = {
-            "": 1.0,
-            "+": np.multiply(self.build_matrix(4, 1), self.build_matrix(4, 1).transpose()),
-            "+-": np.matmul(self.build_matrix(4, 2), self.build_matrix(4, 2).transpose()),
-            "++--": np.matmul(self.build_matrix(4, 4), self.build_matrix(4, 4).transpose()),
         }
 
         self.kronecker = {
@@ -129,11 +74,62 @@ class TestPolynomialTensor(QiskitNatureTestCase):
                 dtype=float,
             ).reshape((2, 2, 2, 2)),
         }
+
         self.expected_tensor_poly = {
             "": 1.0,
             "+": np.concatenate([self.build_matrix(4, 1), self.build_matrix(4, 1)]),
             "+-": np.kron(self.kronecker["+-"], self.build_matrix(4, 2)),
             "++--": np.kron(self.kronecker["++--"], self.build_matrix(4, 4)),
+        }
+
+        self.sparse_1 = {
+            "": 1.0,
+            "+": sp.as_coo({(0,): 1, (2,): 2}, shape=(4,)),
+            "+-": sp.as_coo({(0, 0): 1, (1, 0): 2}, shape=(4, 4)),
+            "++--": sp.as_coo({(0, 0, 0, 1): 1, (1, 0, 2, 1): 2}, shape=(4, 4, 4, 4)),
+        }
+
+        self.sparse_1_transposed = {
+            "": 1.0,
+            "+": sp.as_coo({(0,): 1, (2,): 2}, shape=(4,)),
+            "+-": sp.as_coo({(0, 0): 1, (0, 1): 2}, shape=(4, 4)),
+            "++--": sp.as_coo({(1, 0, 0, 0): 1, (1, 2, 0, 1): 2}, shape=(4, 4, 4, 4)),
+        }
+
+        self.sparse_2 = {
+            "": 2.0,
+            "+": sp.as_coo({(1,): 1}, shape=(4,)),
+            "+-": sp.as_coo({(0, 1): 1, (1, 0): 2}, shape=(4, 4)),
+            "++--": sp.as_coo({(0, 1, 0, 1): 1, (1, 0, 2, 1): -2}, shape=(4, 4, 4, 4)),
+        }
+
+        self.sparse_kronecker = {
+            "": 1.0,
+            "+": sp.as_coo({(0,): 1, (1,): 1}, shape=(2,)),
+            "+-": sp.as_coo({(0, 0): 1, (1, 1): 1}, shape=(2, 2)),
+            "++--": sp.as_coo(
+                {(0, 0, 0, 0): 1, (1, 0, 0, 1): 1, (0, 1, 1, 0): 1, (1, 1, 1, 1): 1},
+                shape=(2, 2, 2, 2),
+            ),
+        }
+
+        self.expected_sparse_tensor_poly = {
+            "": 1.0,
+            "+": sp.as_coo({(0,): 1, (2,): 2, (4,): 1, (6,): 2}, shape=(8,)),
+            "+-": sp.as_coo({(0, 0): 1, (1, 0): 2, (4, 4): 1, (5, 4): 2}, shape=(8, 8)),
+            "++--": sp.as_coo(
+                {
+                    (0, 0, 0, 1): 1,
+                    (0, 4, 4, 1): 1,
+                    (1, 0, 2, 1): 2,
+                    (1, 4, 6, 1): 2,
+                    (4, 0, 0, 5): 1,
+                    (4, 4, 4, 5): 1,
+                    (5, 0, 2, 5): 2,
+                    (5, 4, 6, 5): 2,
+                },
+                shape=(8, 8, 8, 8),
+            ),
         }
 
     @staticmethod
@@ -143,16 +139,75 @@ class TestPolynomialTensor(QiskitNatureTestCase):
 
     def test_init(self):
         """Test for errors in constructor for PolynomialTensor"""
+        with self.subTest("normal dense"):
+            _ = PolynomialTensor(self.og_poly)
+
+        with self.subTest("normal sparse"):
+            _ = PolynomialTensor(self.sparse_1)
+
         with self.assertRaisesRegex(
             ValueError,
             r"Data key .* of length \d does not match data value matrix of dimensions \(\d+, *\)",
         ):
-            _ = PolynomialTensor(self.sample_poly_1)
+            _ = PolynomialTensor(
+                {
+                    "++": self.build_matrix(4, 1),
+                }
+            )
 
         with self.assertRaisesRegex(
             ValueError, r"For key (.*): dimensions of value matrix are not identical \(\d+, .*\)"
         ):
-            _ = PolynomialTensor(self.sample_poly_2)
+            _ = PolynomialTensor(
+                {
+                    "+-": self.build_matrix(4, 2),
+                    "++--": np.arange(1, 13).reshape(1, 2, 3, 2),
+                }
+            )
+
+    def test_is_empty(self):
+        """Test PolynomialTensor.is_empty"""
+        with self.subTest("empty"):
+            self.assertTrue(PolynomialTensor.empty().is_empty())
+
+        with self.subTest("non-empty"):
+            self.assertFalse(PolynomialTensor({"": 1.0}).is_empty())
+
+    def test_issparse(self):
+        """Test PolynomialTensor.issparse"""
+        import sparse as sp  # pylint: disable=import-error
+
+        with self.subTest("sparse"):
+            self.assertTrue(PolynomialTensor({"+": sp.as_coo({(0,): 1})}).issparse())
+
+        with self.subTest("sparse with empty key"):
+            self.assertTrue(PolynomialTensor({"": 1.0, "+": sp.as_coo({(0,): 1})}).issparse())
+
+        with self.subTest("dense"):
+            self.assertFalse(PolynomialTensor({"+": np.array([1])}).issparse())
+
+        with self.subTest("mixed"):
+            self.assertFalse(
+                PolynomialTensor({"+": sp.as_coo({(1,): 1}), "+-": np.eye(2)}).issparse()
+            )
+
+    def test_isdense(self):
+        """Test PolynomialTensor.isdense"""
+        import sparse as sp  # pylint: disable=import-error
+
+        with self.subTest("dense"):
+            self.assertTrue(PolynomialTensor({"+": np.array([1])}).isdense())
+
+        with self.subTest("dense with empty key"):
+            self.assertTrue(PolynomialTensor({"": 1.0, "+": np.array([1])}).isdense())
+
+        with self.subTest("sparse"):
+            self.assertFalse(PolynomialTensor({"+": sp.as_coo({(0,): 1})}).isdense())
+
+        with self.subTest("mixed"):
+            self.assertFalse(
+                PolynomialTensor({"+": sp.as_coo({(1,): 1}), "+-": np.eye(2)}).isdense()
+            )
 
     def test_get_item(self):
         """Test for getting value matrices corresponding to keys in PolynomialTensor"""
@@ -162,7 +217,17 @@ class TestPolynomialTensor(QiskitNatureTestCase):
 
     def test_len(self):
         """Test for the length of PolynomialTensor"""
-        length = len(PolynomialTensor(self.sample_poly_4))
+        length = len(
+            PolynomialTensor(
+                {
+                    "": 1.0,
+                    "+": self.build_matrix(2, 1),
+                    "+-": self.build_matrix(2, 2),
+                    "++--": self.build_matrix(2, 4),
+                }
+            )
+        )
+
         exp_len = 4
         self.assertEqual(exp_len, length)
 
@@ -172,26 +237,107 @@ class TestPolynomialTensor(QiskitNatureTestCase):
         exp_iter = [key for key, _ in self.og_poly.items()]
         self.assertEqual(exp_iter, list(iter(og_poly_tensor)))
 
+    def test_todense(self):
+        """Test PolynomialTensor.todense"""
+        dense_tensor = PolynomialTensor(self.sparse_1).todense()
+        two_body = np.zeros((4, 4, 4, 4))
+        two_body[0, 0, 0, 1] = 1
+        two_body[1, 0, 2, 1] = 2
+        expected = {
+            "": 1.0,
+            "+": np.array([1, 0, 2, 0]),
+            "+-": np.array([[1, 0, 0, 0], [2, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]),
+            "++--": two_body,
+        }
+        self.assertEqual(dense_tensor, PolynomialTensor(expected))
+
+    def tosparse(self):
+        """Test PolynomialTensor.tosparse"""
+        import sparse as sp  # pylint: disable=import-error
+
+        sparse_tensor = PolynomialTensor(self.og_poly).tosparse()
+        expected = {
+            "": 1.0,
+            "+": sp.as_coo(np.arange(1, 5)),
+            "+-": sp.as_coo(np.arange(1, 17).reshape((4, 4))),
+            "++--": sp.as_coo(np.arange(1, 257).reshape((4, 4, 4, 4))),
+        }
+        self.assertEqual(sparse_tensor, PolynomialTensor(expected))
+
     @idata(np.linspace(0, 3, 5))
     def test_mul(self, other):
         """Test for scalar multiplication"""
-        expected_prod_poly = {
-            "": 1.0 * other,
-            "+": self.build_matrix(4, 1, other),
-            "+-": self.build_matrix(4, 2, other),
-            "++--": self.build_matrix(4, 4, other),
-        }
+        import sparse as sp  # pylint: disable=import-error
 
-        result = PolynomialTensor(self.og_poly) * other
-        self.assertEqual(result, PolynomialTensor(expected_prod_poly))
+        with self.subTest("dense"):
+            expected = {
+                "": 1.0 * other,
+                "+": self.build_matrix(4, 1, other),
+                "+-": self.build_matrix(4, 2, other),
+                "++--": self.build_matrix(4, 4, other),
+            }
 
-        with self.assertRaisesRegex(TypeError, r"other .* must be a number"):
+            result = PolynomialTensor(self.og_poly) * other
+            self.assertEqual(result, PolynomialTensor(expected))
+
+        with self.subTest("sparse"):
+            expected = {
+                "": other,
+                "+": other * sp.as_coo({(0,): 1, (2,): 2}, shape=(4,)),
+                "+-": other * sp.as_coo({(0, 0): 1, (1, 0): 2}, shape=(4, 4)),
+                "++--": other * sp.as_coo({(0, 0, 0, 1): 1, (1, 0, 2, 1): 2}, shape=(4, 4, 4, 4)),
+            }
+            result = PolynomialTensor(self.sparse_1) * other
+            self.assertEqual(result, PolynomialTensor(expected))
+
+        with self.assertRaises(TypeError):
             _ = PolynomialTensor(self.og_poly) * PolynomialTensor(self.og_poly)
 
     def test_add(self):
         """Test for addition of PolynomialTensor"""
-        result = PolynomialTensor(self.og_poly) + PolynomialTensor(self.og_poly)
-        self.assertEqual(result, PolynomialTensor(self.expected_sum_poly))
+        import sparse as sp  # pylint: disable=import-error
+
+        with self.subTest("dense + dense"):
+            result = PolynomialTensor(self.og_poly) + PolynomialTensor(self.og_poly)
+            expected = {
+                "": 2.0,
+                "+": np.add(self.build_matrix(4, 1), self.build_matrix(4, 1)),
+                "+-": np.add(self.build_matrix(4, 2), self.build_matrix(4, 2)),
+                "++--": np.add(self.build_matrix(4, 4), self.build_matrix(4, 4)),
+            }
+            self.assertEqual(result, PolynomialTensor(expected))
+
+        with self.subTest("sparse + dense"):
+            result = PolynomialTensor(self.sparse_1) + PolynomialTensor(self.og_poly)
+            expected = {
+                "": 2.0,
+                "+": self.build_matrix(4, 1),
+                "+-": self.build_matrix(4, 2),
+                "++--": self.build_matrix(4, 4),
+            }
+            expected["+"][0] += 1
+            expected["+"][2] += 2
+            expected["+-"][0, 0] += 1
+            expected["+-"][1, 0] += 2
+            expected["++--"][0, 0, 0, 1] += 1
+            expected["++--"][1, 0, 2, 1] += 2
+            self.assertEqual(result, PolynomialTensor(expected))
+            self.assertIsInstance(result["+"], np.ndarray)
+            self.assertIsInstance(result["+-"], np.ndarray)
+            self.assertIsInstance(result["++--"], np.ndarray)
+
+        with self.subTest("sparse + sparse"):
+            result = PolynomialTensor(self.sparse_1) + PolynomialTensor(self.sparse_2)
+            expected = {
+                "": 3.0,
+                "+": sp.as_coo({(0,): 1, (1,): 1, (2,): 2}, shape=(4,)),
+                "+-": sp.as_coo({(0, 0): 1, (0, 1): 1, (1, 0): 4}, shape=(4, 4)),
+                "++--": sp.as_coo({(0, 0, 0, 1): 1, (0, 1, 0, 1): 1}, shape=(4, 4, 4, 4)),
+            }
+            self.assertEqual(result, PolynomialTensor(expected))
+            self.assertIsInstance(result["+"], sp.COO)
+            self.assertIsInstance(result["+-"], sp.COO)
+            self.assertIsInstance(result["++--"], sp.COO)
 
         with self.assertRaisesRegex(
             TypeError, "Incorrect argument type: other should be PolynomialTensor"
@@ -200,75 +346,337 @@ class TestPolynomialTensor(QiskitNatureTestCase):
 
     def test_conjugate(self):
         """Test for conjugate of PolynomialTensor"""
-        result = PolynomialTensor(self.og_poly).conjugate()
-        self.assertEqual(result, PolynomialTensor(self.expected_conjugate_poly))
+        import sparse as sp  # pylint: disable=import-error
+
+        with self.subTest("dense"):
+            result = PolynomialTensor(
+                {
+                    "": 1 + 1j,
+                    "+": self.build_matrix(4, 1, 1j),
+                    "+-": self.build_matrix(4, 2, 1j),
+                    "++--": self.build_matrix(4, 4, 1j),
+                }
+            ).conjugate()
+            expected = PolynomialTensor(
+                {
+                    "": 1 - 1j,
+                    "+": self.build_matrix(4, 1, -1j),
+                    "+-": self.build_matrix(4, 2, -1j),
+                    "++--": self.build_matrix(4, 4, -1j),
+                }
+            )
+            self.assertEqual(result, expected)
+
+        with self.subTest("sparse"):
+            result = PolynomialTensor(
+                {
+                    "": 1 + 1j,
+                    "+": sp.as_coo({(0,): 1j, (2,): 2j}, shape=(4,)),
+                    "+-": sp.as_coo({(0, 0): 1j, (1, 0): 2j}, shape=(4, 4)),
+                    "++--": sp.as_coo({(0, 0, 0, 1): 1j, (1, 0, 2, 1): 2j}, shape=(4, 4, 4, 4)),
+                }
+            ).conjugate()
+            expected = PolynomialTensor(
+                {
+                    "": 1 - 1j,
+                    "+": sp.as_coo({(0,): -1j, (2,): -2j}, shape=(4,)),
+                    "+-": sp.as_coo({(0, 0): -1j, (1, 0): -2j}, shape=(4, 4)),
+                    "++--": sp.as_coo({(0, 0, 0, 1): -1j, (1, 0, 2, 1): -2j}, shape=(4, 4, 4, 4)),
+                }
+            )
+            self.assertEqual(result, expected)
 
     def test_transpose(self):
         """Test for transpose of PolynomialTensor"""
-        result = PolynomialTensor(self.og_poly).transpose()
-        self.assertEqual(result, PolynomialTensor(self.expected_transpose_poly))
+
+        with self.subTest("dense"):
+            result = PolynomialTensor(self.og_poly).transpose()
+            self.assertEqual(result, PolynomialTensor(self.og_transposed))
+
+        with self.subTest("sparse"):
+            result = PolynomialTensor(self.sparse_1).transpose()
+            self.assertEqual(result, PolynomialTensor(self.sparse_1_transposed))
 
     def test_compose(self):
         """Test composition of PolynomialTensor"""
-        pt_a = PolynomialTensor(self.og_poly)
-        pt_b = PolynomialTensor(self.expected_transpose_poly)
 
-        with self.subTest("compose(front=False)"):
-            result = pt_a.compose(pt_b)
-            self.assertEqual(result, PolynomialTensor(self.expected_compose_poly))
+        with self.subTest("dense with dense"):
+            pt_a = PolynomialTensor(self.og_poly)
+            pt_b = PolynomialTensor(self.og_transposed)
 
-        with self.subTest("compose(front=True)"):
-            result = pt_a.compose(pt_b, front=True)
-            self.assertEqual(result, PolynomialTensor(self.expected_compose_front_poly))
+            with self.subTest("compose(front=False)"):
+                result = pt_a.compose(pt_b)
+                expected = {
+                    "": 1.0,
+                    "+": np.multiply(self.build_matrix(4, 1).transpose(), self.build_matrix(4, 1)),
+                    "+-": np.matmul(self.build_matrix(4, 2).transpose(), self.build_matrix(4, 2)),
+                    "++--": np.matmul(self.build_matrix(4, 4).transpose(), self.build_matrix(4, 4)),
+                }
+                self.assertEqual(result, PolynomialTensor(expected))
+
+            with self.subTest("compose(front=True)"):
+                result = pt_a.compose(pt_b, front=True)
+                expected = {
+                    "": 1.0,
+                    "+": np.multiply(self.build_matrix(4, 1), self.build_matrix(4, 1).transpose()),
+                    "+-": np.matmul(self.build_matrix(4, 2), self.build_matrix(4, 2).transpose()),
+                    "++--": np.matmul(self.build_matrix(4, 4), self.build_matrix(4, 4).transpose()),
+                }
+                self.assertEqual(result, PolynomialTensor(expected))
+
+    @slow_test
+    def test_compose_sparse(self):
+        """Test composition of sparse PolynomialTensor"""
+        import sparse as sp  # pylint: disable=import-error
+
+        with self.subTest("sparse with dense"):
+            pt_a = PolynomialTensor(self.sparse_1)
+            pt_b = PolynomialTensor(self.og_poly)
+
+            with self.subTest("compose(front=False)"):
+                result = pt_a.compose(pt_b)
+                expected = {
+                    "": 1.0,
+                    "+": sp.as_coo({(0,): 1, (2,): 6}, shape=(4,)),
+                    "+-": sp.as_coo(
+                        {(0, 0): 5, (1, 0): 17, (2, 0): 29, (3, 0): 41}, shape=(4, 4)
+                    ).todense(),
+                    "++--": sp.as_coo(
+                        {
+                            (0, 0, 0, 1): 1,
+                            (0, 0, 1, 1): 5,
+                            (0, 0, 2, 1): 9,
+                            (0, 0, 3, 1): 13,
+                            (1, 0, 0, 1): 134,
+                            (1, 0, 1, 1): 142,
+                            (1, 0, 2, 1): 150,
+                            (1, 0, 3, 1): 158,
+                        },
+                        shape=(4, 4, 4, 4),
+                    ).todense(),
+                }
+                self.assertEqual(result, PolynomialTensor(expected))
+
+            with self.subTest("compose(front=True)"):
+                result = pt_a.compose(pt_b, front=True)
+                expected = {
+                    "": 1.0,
+                    "+": sp.as_coo({(0,): 1, (2,): 6}, shape=(4,)),
+                    "+-": sp.as_coo(
+                        {
+                            (0, 0): 1,
+                            (0, 1): 2,
+                            (0, 2): 3,
+                            (0, 3): 4,
+                            (1, 0): 2,
+                            (1, 1): 4,
+                            (1, 2): 6,
+                            (1, 3): 8,
+                        },
+                        shape=(4, 4),
+                    ).todense(),
+                    "++--": sp.as_coo(
+                        {
+                            (0, 0, 0, 0): 5,
+                            (0, 0, 0, 1): 6,
+                            (0, 0, 0, 2): 7,
+                            (0, 0, 0, 3): 8,
+                            (1, 0, 2, 0): 138,
+                            (1, 0, 2, 1): 140,
+                            (1, 0, 2, 2): 142,
+                            (1, 0, 2, 3): 144,
+                        },
+                        shape=(4, 4, 4, 4),
+                    ).todense(),
+                }
+                self.assertEqual(result, PolynomialTensor(expected))
+
+        with self.subTest("sparse with sparse"):
+            pt_a = PolynomialTensor(self.sparse_1)
+            pt_b = PolynomialTensor(self.sparse_1_transposed)
+
+            with self.subTest("compose(front=False)"):
+                result = pt_a.compose(pt_b)
+                expected = {
+                    "": 1.0,
+                    "+": sp.as_coo({(0,): 1, (2,): 4}, shape=(4,)),
+                    "+-": sp.as_coo({(0, 0): 5}, shape=(4, 4)),
+                    "++--": sp.as_coo({}, shape=(4, 4, 4, 4)),
+                }
+                self.assertEqual(result, PolynomialTensor(expected))
+
+            with self.subTest("compose(front=True)"):
+                result = pt_a.compose(pt_b, front=True)
+                expected = {
+                    "": 1.0,
+                    "+": sp.as_coo({(0,): 1, (2,): 4}, shape=(4,)),
+                    "+-": sp.as_coo({(0, 0): 1, (0, 1): 2, (1, 0): 2, (1, 1): 4}, shape=(4, 4)),
+                    "++--": sp.as_coo({}, shape=(4, 4, 4, 4)),
+                }
+                self.assertEqual(result, PolynomialTensor(expected))
 
     def test_tensor(self):
         """Test tensoring of PolynomialTensor"""
-        p_t = PolynomialTensor(self.og_poly)
-        result = PolynomialTensor(self.kronecker).tensor(p_t)
-        self.assertEqual(result, PolynomialTensor(self.expected_tensor_poly))
+
+        with self.subTest("dense with dense"):
+            p_t = PolynomialTensor(self.og_poly)
+            result = PolynomialTensor(self.kronecker).tensor(p_t)
+            self.assertEqual(result, PolynomialTensor(self.expected_tensor_poly))
+
+        with self.subTest("sparse with dense"):
+            p_t = PolynomialTensor(self.og_poly)
+            result = PolynomialTensor(self.sparse_kronecker).tensor(p_t)
+            self.assertEqual(result, PolynomialTensor(self.expected_tensor_poly))
+
+        with self.subTest("sparse with sparse"):
+            p_t = PolynomialTensor(self.sparse_1)
+            result = PolynomialTensor(self.sparse_kronecker).tensor(p_t)
+            self.assertEqual(result, PolynomialTensor(self.expected_sparse_tensor_poly))
+
+        with self.subTest("dense with sparse"):
+            p_t = PolynomialTensor(self.sparse_1)
+            result = PolynomialTensor(self.kronecker).tensor(p_t)
+            self.assertEqual(result, PolynomialTensor(self.expected_sparse_tensor_poly))
 
     def test_expand(self):
         """Test expanding of PolynomialTensor"""
-        p_t = PolynomialTensor(self.og_poly)
-        result = p_t.expand(PolynomialTensor(self.kronecker))
-        self.assertEqual(result, PolynomialTensor(self.expected_tensor_poly))
+
+        with self.subTest("dense with dense"):
+            p_t = PolynomialTensor(self.og_poly)
+            result = p_t.expand(PolynomialTensor(self.kronecker))
+            self.assertEqual(result, PolynomialTensor(self.expected_tensor_poly))
+
+        with self.subTest("dense with sparse"):
+            p_t = PolynomialTensor(self.og_poly)
+            result = p_t.expand(PolynomialTensor(self.sparse_kronecker))
+            self.assertEqual(result, PolynomialTensor(self.expected_tensor_poly))
+
+        with self.subTest("sparse with sparse"):
+            p_t = PolynomialTensor(self.sparse_1)
+            result = p_t.expand(PolynomialTensor(self.sparse_kronecker))
+            self.assertEqual(result, PolynomialTensor(self.expected_sparse_tensor_poly))
+
+        with self.subTest("sparse with dense"):
+            p_t = PolynomialTensor(self.sparse_1)
+            result = p_t.expand(PolynomialTensor(self.kronecker))
+            self.assertEqual(result, PolynomialTensor(self.expected_sparse_tensor_poly))
 
     def test_einsum(self):
         """Test PolynomialTensor.einsum"""
-        one_body = np.random.random((2, 2))
-        two_body = np.random.random((2, 2, 2, 2))
-        tensor = PolynomialTensor({"+-": one_body, "++--": two_body})
-        coeffs = np.random.random((2, 2))
-        coeffs_pt = PolynomialTensor({"+-": coeffs})
+        import sparse as sp  # pylint: disable=import-error
 
-        result = PolynomialTensor.einsum(
-            {
-                "jk,ji,kl->il": ("+-", "+-", "+-", "+-"),
-                "pqrs,pi,qj,rk,sl->ijkl": ("++--", "+-", "+-", "+-", "+-", "++--"),
-            },
-            tensor,
-            coeffs_pt,
-            coeffs_pt,
-            coeffs_pt,
-            coeffs_pt,
-        )
+        with self.subTest("all dense"):
+            one_body = np.random.random((2, 2))
+            two_body = np.random.random((2, 2, 2, 2))
+            tensor = PolynomialTensor({"+-": one_body, "++--": two_body})
+            coeffs = np.random.random((2, 2))
+            coeffs_pt = PolynomialTensor({"+-": coeffs})
 
-        expected = PolynomialTensor(
-            {
-                "+-": np.dot(np.dot(coeffs.T, one_body), coeffs),
-                "++--": np.einsum(
-                    "pqrs,pi,qj,rk,sl->ijkl",
-                    two_body,
-                    coeffs,
-                    coeffs,
-                    coeffs,
-                    coeffs,
-                    optimize=True,
-                ),
-            }
-        )
+            result = PolynomialTensor.einsum(
+                {
+                    "jk,ji,kl->il": ("+-", "+-", "+-", "+-"),
+                    "pqrs,pi,qj,rk,sl->ijkl": ("++--", "+-", "+-", "+-", "+-", "++--"),
+                },
+                tensor,
+                coeffs_pt,
+                coeffs_pt,
+                coeffs_pt,
+                coeffs_pt,
+            )
 
-        self.assertTrue(result.equiv(expected))
+            expected = PolynomialTensor(
+                {
+                    "+-": np.dot(np.dot(coeffs.T, one_body), coeffs),
+                    "++--": np.einsum(
+                        "pqrs,pi,qj,rk,sl->ijkl",
+                        two_body,
+                        coeffs,
+                        coeffs,
+                        coeffs,
+                        coeffs,
+                        optimize=True,
+                    ),
+                }
+            )
+
+            self.assertTrue(result.equiv(expected))
+
+        with self.subTest("all sparse"):
+            one_body = sp.random((2, 2), density=0.5)
+            two_body = sp.random((2, 2, 2, 2), density=0.5)
+            tensor = PolynomialTensor({"+-": one_body, "++--": two_body})
+            coeffs = sp.random((2, 2), density=0.5)
+            coeffs_pt = PolynomialTensor({"+-": coeffs})
+
+            result = PolynomialTensor.einsum(
+                {
+                    "jk,ji,kl->il": ("+-", "+-", "+-", "+-"),
+                    "pqrs,pi,qj,rk,sl->ijkl": ("++--", "+-", "+-", "+-", "+-", "++--"),
+                },
+                tensor,
+                coeffs_pt,
+                coeffs_pt,
+                coeffs_pt,
+                coeffs_pt,
+            )
+
+            dense_one_body = one_body.todense()
+            dense_two_body = two_body.todense()
+            dense_coeffs = coeffs.todense()
+            expected = PolynomialTensor(
+                {
+                    "+-": np.dot(np.dot(dense_coeffs.T, dense_one_body), dense_coeffs),
+                    "++--": np.einsum(
+                        "pqrs,pi,qj,rk,sl->ijkl",
+                        dense_two_body,
+                        dense_coeffs,
+                        dense_coeffs,
+                        dense_coeffs,
+                        dense_coeffs,
+                        optimize=True,
+                    ),
+                }
+            )
+
+            self.assertTrue(result.equiv(expected))
+
+        with self.subTest("mixed"):
+            one_body = sp.random((2, 2), density=0.5)
+            two_body = sp.random((2, 2, 2, 2), density=0.5)
+            tensor = PolynomialTensor({"+-": one_body, "++--": two_body})
+            coeffs = np.random.random((2, 2))
+            coeffs_pt = PolynomialTensor({"+-": coeffs})
+
+            result = PolynomialTensor.einsum(
+                {
+                    "jk,ji,kl->il": ("+-", "+-", "+-", "+-"),
+                    "pqrs,pi,qj,rk,sl->ijkl": ("++--", "+-", "+-", "+-", "+-", "++--"),
+                },
+                tensor,
+                coeffs_pt,
+                coeffs_pt,
+                coeffs_pt,
+                coeffs_pt,
+            )
+
+            dense_one_body = one_body.todense()
+            dense_two_body = two_body.todense()
+            expected = PolynomialTensor(
+                {
+                    "+-": np.dot(np.dot(coeffs.T, dense_one_body), coeffs),
+                    "++--": np.einsum(
+                        "pqrs,pi,qj,rk,sl->ijkl",
+                        dense_two_body,
+                        coeffs,
+                        coeffs,
+                        coeffs,
+                        coeffs,
+                        optimize=True,
+                    ),
+                }
+            )
+
+            self.assertTrue(result.equiv(expected))
 
 
 if __name__ == "__main__":
