@@ -54,16 +54,16 @@ class VSCFInitialPoint(InitialPoint):
         self._ansatz = ansatz
 
     @property
-    def grouped_property(self) -> BaseProblem | None:
-        """The grouped property.
+    def problem(self) -> BaseProblem | None:
+        """The problem.
 
-        The grouped property is not required to compute the VSCF initial point.
+        The problem is not required to compute the VSCF initial point.
         """
-        return self._grouped_property
+        return self._problem
 
-    @grouped_property.setter
-    def grouped_property(self, grouped_property: BaseProblem) -> None:
-        self._grouped_property = grouped_property
+    @problem.setter
+    def problem(self, problem: BaseProblem) -> None:
+        self._problem = problem
 
     def to_numpy_array(self) -> np.ndarray:
         """The initial point as an array."""
@@ -74,14 +74,14 @@ class VSCFInitialPoint(InitialPoint):
     def compute(
         self,
         ansatz: UVCC | None = None,
-        grouped_property: BaseProblem | None = None,
+        problem: BaseProblem | None = None,
     ) -> None:
         """Compute the initial point parameter for each excitation.
 
         See class documentation for more information.
 
         Args:
-            grouped_property: The :attr:`grouped_property`.
+            problem: The :attr:`problem`.
             ansatz: The :attr:`ansatz`.
 
         Raises:

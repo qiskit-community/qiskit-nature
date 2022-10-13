@@ -145,7 +145,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
 
         if isinstance(self.initial_point, InitialPoint):
             self.initial_point.ansatz = self.ansatz
-            self.initial_point.grouped_property = driver_result
+            self.initial_point.problem = driver_result
             initial_point = self.initial_point.to_numpy_array()
         else:
             initial_point = self.initial_point

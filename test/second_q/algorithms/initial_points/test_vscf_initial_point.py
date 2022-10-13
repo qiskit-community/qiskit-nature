@@ -46,12 +46,12 @@ class TestVSCFInitialPoint(QiskitNatureTestCase):
         self.vscf_initial_point.ansatz = self.ansatz
         self.assertEqual(self.vscf_initial_point.ansatz, self.ansatz)
 
-    def test_set_grouped_property(self):
-        """Test set get grouped_property (not used for VSCF)."""
-        self.assertIsNone(self.vscf_initial_point.grouped_property)
-        grouped_property = Mock(spec=VibrationalStructureProblem)
-        self.vscf_initial_point.grouped_property = grouped_property
-        self.assertEqual(grouped_property, self.vscf_initial_point.grouped_property)
+    def test_set_problem(self):
+        """Test set get problem (not used for VSCF)."""
+        self.assertIsNone(self.vscf_initial_point.problem)
+        problem = Mock(spec=VibrationalStructureProblem)
+        self.vscf_initial_point.problem = problem
+        self.assertEqual(problem, self.vscf_initial_point.problem)
 
     def test_vscf_compute(self):
         """Test VSCF initial point is all zero when called via compute."""
