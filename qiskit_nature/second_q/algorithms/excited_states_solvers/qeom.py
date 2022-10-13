@@ -163,8 +163,12 @@ class QEOM(ExcitedStatesSolver):
         # 2. Prepare the excitation operators
         main_second_q_op, _ = problem.second_q_ops()
 
+        num_particles = None
+        if hasattr(problem, "num_particles"):
+            num_particles = problem.num_particles  # type: ignore[attr-defined]
+
         self._untapered_qubit_op_main = self._gsc.qubit_converter.convert_only(
-            main_second_q_op, problem.num_particles
+            main_second_q_op, num_particles
         )
         matrix_operators_dict, size = self._prepare_matrix_operators(problem)
 
@@ -255,7 +259,8 @@ class QEOM(ExcitedStatesSolver):
         """
         if isinstance(problem, ElectronicStructureProblem):
             return build_electronic_ops(
-                problem.properties.particle_number,
+                (problem.num_alpha, problem.num_beta),
+                problem.num_spin_orbitals,
                 self._gsc.qubit_converter,
                 self.excitations,
             )

@@ -24,11 +24,11 @@ from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import UCC
 from qiskit_nature.second_q.operators import FermionicOp
 from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.properties import ParticleNumber
 
 
 def build_electronic_ops(
-    particle_number: ParticleNumber,
+    num_particles: Tuple[int, int],
+    num_spin_orbitals: int,
     qubit_converter: QubitConverter,
     excitations: str
     | int
@@ -45,7 +45,8 @@ def build_electronic_ops(
     """Builds the product of raising and lowering operators (basic excitation operators)
 
     Args:
-        particle_number: the `ParticleNumber` property containing relevant sector information.
+        num_particles: the number of alpha- and beta-spin particles as a tuple.
+        num_spin_orbitals: the number of spin orbitals.
         qubit_converter: the `QubitConverter` to use for mapping and symmetry reduction. The Z2
                          symmetries stored in this instance are the basis for the commutativity
                          information returned by this method.
@@ -62,8 +63,7 @@ def build_electronic_ops(
         indices.
     """
 
-    num_alpha, num_beta = particle_number.num_alpha, particle_number.num_beta
-    num_spin_orbitals = particle_number.num_spin_orbitals
+    num_alpha, num_beta = num_particles
 
     ansatz = UCC(qubit_converter, (num_alpha, num_beta), num_spin_orbitals, excitations)
     excitations_list = ansatz._get_excitation_list()

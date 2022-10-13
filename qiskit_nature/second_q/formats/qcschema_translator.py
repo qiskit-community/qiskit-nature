@@ -82,10 +82,12 @@ def qcschema_to_problem(
     problem = ElectronicStructureProblem(hamiltonian)
     problem.basis = basis
     problem.molecule = molecule
+    problem.num_particles = num_particles
+    problem.num_spin_orbitals = num_spin_orbitals
     problem.reference_energy = qcschema.properties.return_energy
     problem.properties.angular_momentum = AngularMomentum(num_spin_orbitals)
     problem.properties.magnetization = Magnetization(num_spin_orbitals)
-    problem.properties.particle_number = ParticleNumber(num_spin_orbitals, num_particles)
+    problem.properties.particle_number = ParticleNumber(num_spin_orbitals)
 
     if qcschema.wavefunction.scf_eigenvalues_a is not None:
         problem.orbital_energies = np.asarray(qcschema.wavefunction.scf_eigenvalues_a)

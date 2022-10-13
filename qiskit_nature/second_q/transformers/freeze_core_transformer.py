@@ -78,7 +78,6 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
             )
 
         molecule = problem.molecule
-        particle_number = problem.properties.particle_number
 
         inactive_orbs_idxs: List[int] = []
         if self._freeze_core:
@@ -86,7 +85,7 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         if self._remove_orbitals is not None:
             inactive_orbs_idxs.extend(self._remove_orbitals)
         active_orbs_idxs = [
-            o for o, _ in enumerate(particle_number.occupation_alpha) if o not in inactive_orbs_idxs
+            o for o, _ in enumerate(problem.orbital_occupations) if o not in inactive_orbs_idxs
         ]
         self._active_orbitals = active_orbs_idxs
         self._num_spatial_orbitals = len(active_orbs_idxs)

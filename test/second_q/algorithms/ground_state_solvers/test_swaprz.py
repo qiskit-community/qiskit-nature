@@ -56,9 +56,8 @@ class TestExcitationPreserving(QiskitNatureTestCase):
 
         _ = problem.second_q_ops()
 
-        particle_number = problem.properties.particle_number
-        num_particles = (particle_number.num_alpha, particle_number.num_beta)
-        num_spin_orbitals = particle_number.num_spin_orbitals
+        num_particles = problem.num_particles
+        num_spin_orbitals = problem.num_spin_orbitals
 
         optimizer = SLSQP(maxiter=100)
 

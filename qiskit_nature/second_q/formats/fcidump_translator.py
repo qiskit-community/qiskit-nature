@@ -37,11 +37,9 @@ def fcidump_to_problem(fcidump: FCIDump) -> ElectronicStructureProblem:
 
     num_beta = (fcidump.num_electrons - (fcidump.multiplicity - 1)) // 2
     num_alpha = fcidump.num_electrons - num_beta
+    num_spin_orbitals = 2 * fcidump.num_orbitals
 
-    particle_number = ParticleNumber(
-        num_spin_orbitals=fcidump.num_orbitals * 2,
-        num_particles=(num_alpha, num_beta),
-    )
+    particle_number = ParticleNumber(num_spin_orbitals)
 
     electronic_energy = ElectronicEnergy.from_raw_integrals(
         fcidump.hij, fcidump.hijkl, fcidump.hij_b, fcidump.hijkl_bb, fcidump.hijkl_ba
@@ -50,5 +48,8 @@ def fcidump_to_problem(fcidump: FCIDump) -> ElectronicStructureProblem:
 
     problem = ElectronicStructureProblem(electronic_energy)
     problem.basis = ElectronicBasis.MO
+    problem.num_particles = (num_alpha, num_beta)
+    problem.num_spin_orbitals = num_spin_orbitals
     problem.properties.particle_number = particle_number
+
     return problem

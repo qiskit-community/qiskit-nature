@@ -15,7 +15,7 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import cast, Callable, List, Optional, Tuple, Union
+from typing import cast, Callable, List, Optional, Union
 
 import numpy as np
 
@@ -23,6 +23,7 @@ from qiskit.algorithms.eigensolvers import EigensolverResult
 from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
 from qiskit.opflow.primitive_ops import Z2Symmetries
 
+from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library.initial_states.hartree_fock import (
     hartree_fock_bitstring_mapped,
 )
@@ -87,15 +88,13 @@ class ElectronicStructureProblem(BaseProblem):
         self.properties: ElectronicPropertiesContainer = ElectronicPropertiesContainer()
         self.molecule: MoleculeInfo | None = None
         self.basis: ElectronicBasis | None = None
+        self.num_particles: int | tuple[int, int] | None = None
+        self.num_spin_orbitals: int | None = None
+        self._orbital_occupations: np.ndarray | None = None
+        self._orbital_occupations_b: np.ndarray | None = None
         self.reference_energy: float | None = None
         self.orbital_energies: np.ndarray | None = None
         self.orbital_energies_b: np.ndarray | None = None
-        # TODO: further refactoring:
-        # - store data on Problem instead of in nested hamiltonian/properties
-        #   - orbital occupations
-        #   - number of particles
-        #   - system size (number of orbitals)
-        #   - overlap matrix (for future extension to generalized eigenvalue problem)
 
     @property
     def hamiltonian(self) -> ElectronicEnergy:
@@ -111,14 +110,60 @@ class ElectronicStructureProblem(BaseProblem):
         return self.hamiltonian.nuclear_repulsion_energy
 
     @property
-    def num_particles(self) -> Tuple[int, int]:
-        """Returns the number of alpha and beta spin particles."""
-        return self.properties.particle_number.num_particles
+    def num_alpha(self) -> int | None:
+        """Returns the number of alpha-spin particles."""
+        if self.num_particles is None:
+            return None
+        if isinstance(self.num_particles, tuple):
+            return self.num_particles[0]
+        return self.num_particles // 2 + self.num_particles % 2
 
     @property
-    def num_spin_orbitals(self) -> int:
-        """Returns the number of spin orbitals."""
-        return self.properties.particle_number.num_spin_orbitals
+    def num_beta(self) -> int | None:
+        """Returns the number of beta-spin particles."""
+        if self.num_particles is None:
+            return None
+        if isinstance(self.num_particles, tuple):
+            return self.num_particles[1]
+        return self.num_particles // 2
+
+    @property
+    def orbital_occupations(self) -> np.ndarray | None:
+        """Returns the occupations of the alpha-spin orbitals."""
+        if self._orbital_occupations is not None:
+            return self._orbital_occupations
+
+        if self.num_spin_orbitals is None:
+            return None
+
+        num_alpha = self.num_alpha
+        if num_alpha is None:
+            return None
+
+        return np.asarray([1.0] * num_alpha + [0.0] * (self.num_spin_orbitals // 2 - num_alpha))
+
+    @orbital_occupations.setter
+    def orbital_occupations(self, occ: np.ndarray | None) -> None:
+        self._orbital_occupations = occ
+
+    @property
+    def orbital_occupations_b(self) -> np.ndarray | None:
+        """Returns the occupations of the beta-spin orbitals."""
+        if self._orbital_occupations_b is not None:
+            return self._orbital_occupations_b
+
+        if self.num_spin_orbitals is None:
+            return None
+
+        num_beta = self.num_beta
+        if num_beta is None:
+            return None
+
+        return np.asarray([1.0] * num_beta + [0.0] * (self.num_spin_orbitals // 2 - num_beta))
+
+    @orbital_occupations_b.setter
+    def orbital_occupations_b(self, occ: np.ndarray | None) -> None:
+        self._orbital_occupations_b = occ
 
     def interpret(
         self,
@@ -158,9 +203,8 @@ class ElectronicStructureProblem(BaseProblem):
         def filter_criterion(self, eigenstate, eigenvalue, aux_values):
             num_particles_aux = aux_values["ParticleNumber"][0]
             total_angular_momentum_aux = aux_values["AngularMomentum"][0]
-            particle_number = self.properties.particle_number
             return np.isclose(
-                particle_number.num_alpha + particle_number.num_beta,
+                self.num_alpha + self.num_beta,
                 num_particles_aux,
             ) and np.isclose(0.0, total_angular_momentum_aux)
 
@@ -179,15 +223,30 @@ class ElectronicStructureProblem(BaseProblem):
             converter: the qubit converter instance used for the operator conversion that
                 symmetries are to be determined for.
 
+        Raises:
+            QiskitNatureError: if the :attr:`num_particles` attribute is ``None``.
+
         Returns:
             The sector of the tapered operators with the problem solution.
         """
+        if self.num_particles is None:
+            raise QiskitNatureError(
+                "Determining the correct symmetry sector for Z2 symmetry reduction requires the "
+                "number of particles to be set on the problem instance. Please set "
+                "ElectronicStructureProblem.num_particles or disable the use of Z2Symmetries to "
+                "fix this."
+            )
+
+        num_particles = self.num_particles
+        if not isinstance(num_particles, tuple):
+            num_particles = (self.num_alpha, self.num_beta)
+
         # We need the HF bitstring mapped to the qubit space but without any tapering done
         # by the converter (just qubit mapping and any two qubit reduction) since we are
         # going to determine the tapering sector
         hf_bitstr = hartree_fock_bitstring_mapped(
             num_spin_orbitals=self.num_spin_orbitals,
-            num_particles=self.num_particles,
+            num_particles=num_particles,
             qubit_converter=converter,
             match_convert=False,
         )

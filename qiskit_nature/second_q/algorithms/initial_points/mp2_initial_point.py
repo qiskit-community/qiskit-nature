@@ -80,11 +80,9 @@ class MP2InitialPoint(InitialPoint):
     :attr:`grouped_property` and :attr:`ansatz` to be passed as arguments or the
     :attr:`grouped_property` and :attr:`ansatz` attributes to be set already.
 
-    The :attr:`grouped_property` is required to contain
-    :class:`~qiskit_nature.second_q.properties.particle_number.ParticleNumber` and
-    :class:`~qiskit_nature.second_q.hamiltonians.electronic_energy.ElectronicEnergy`. From
-    :class:`~qiskit_nature.second_q.properties.particle_number.ParticleNumber` we obtain the
-    ``num_particles`` to infer the number of occupied orbitals.
+    The :attr:`grouped_property` is required to contain an
+    :class:`~qiskit_nature.second_q.hamiltonians.electronic_energy.ElectronicEnergy` hamiltonian as
+    well as have its ``num_particles`` attribute specified.
     :class:`~qiskit_nature.second_q.hamiltonians.electronic_energy.ElectronicEnergy` must contain
     the two-body, molecular-orbital ``electronic_integrals`` and the ``orbital_energies``.
     Optionally, the setter will obtain the Hartree-Fock ``reference_energy`` to compute the
@@ -137,8 +135,8 @@ class MP2InitialPoint(InitialPoint):
                 missing or the two-body molecular orbitals matrix or the orbital energies are not
                 found.
             QiskitNatureError: If
-                :class:`~qiskit_nature.second_q.properties.particle_number.ParticleNumber` is
-                missing.
+                :attr:`~qiskit_nature.second_q.problems.ElectronicStructureProblem.num_particles` is
+                ``None``.
             NotImplementedError: If alpha and beta spin molecular orbitals are not
                 identical.
         """
@@ -177,19 +175,18 @@ class MP2InitialPoint(InitialPoint):
                 "See https://github.com/Qiskit/qiskit-nature/issues/645."
             )
 
+        # Get number of occupied molecular orbitals as the number of alpha particles.
+        # Only valid for restricted-spin setups.
+        num_occ = grouped_property.num_alpha
+        if num_occ is None:
+            raise QiskitNatureError(
+                "The `num_particles` attribute of the `ElectronicStructureProblem` is required by "
+                "the MP2InitialPoint."
+            )
+
         integral_matrix = _phys_to_chem(two_body_mo_integral.alpha.get("++--"))
 
         reference_energy = grouped_property.reference_energy if not None else 0.0
-
-        particle_number = grouped_property.properties.particle_number
-        if particle_number is None:
-            raise QiskitNatureError(
-                "The `ParticleNumber` cannot be obtained from the `grouped_property`."
-            )
-
-        # Get number of occupied molecular orbitals as the number of alpha particles.
-        # Only valid for restricted-spin setups.
-        num_occ = particle_number.num_particles[0]
 
         self._invalidate()
 

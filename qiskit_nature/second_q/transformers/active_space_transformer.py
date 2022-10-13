@@ -169,10 +169,10 @@ class ActiveSpaceTransformer(BaseTransformer):
             NotImplementedError: when an unsupported problem type is provided.
             NotImplementedError: when the ``ElectronicStructureProblem`` is not in the
                 :attr:`qiskit_nature.second_q.properties.bases.ElectronicBasis.MO` basis.
-            QiskitNatureError: If the provided ``ElectronicStructureProblem`` does not contain a
-                               ``ParticleNumber``, if more electrons or orbitals are requested than
-                               are available, or if the amount of selected active orbital indices
-                               does not match the total number of active orbitals.
+            QiskitNatureError: If the provided ``ElectronicStructureProblem`` does not specify the
+                number of particles (``num_particles``) and number of orbitals
+                (``num_spin_orbitals``), or if the amount of selected active orbital indices does
+                not match the total number of active orbitals.
 
         Returns:
             A new `BaseProblem` instance.
@@ -195,25 +195,30 @@ class ActiveSpaceTransformer(BaseTransformer):
                 " basis first, for example by using a BasisTransformer."
             )
 
-        particle_number = problem.properties.particle_number
-        if particle_number is None:
+        if problem.num_spin_orbitals is None:
             raise QiskitNatureError(
-                "The provided ElectronicStructureProblem does not contain a `ParticleNumber` "
-                "property, which is required by this transformer!"
+                "Using the ActiveSpaceTransformer requires the number of orbitals to be set on the "
+                "problem instance. Please set ElectronicStructureProblem.num_spin_orbitals to use "
+                "this transformer."
             )
+        num_spin_orbitals = problem.num_spin_orbitals
 
         # get spatial orbital occupation numbers
-        occupation_alpha = particle_number.occupation_alpha
-        occupation_beta = particle_number.occupation_beta
-        self._mo_occ_total = occupation_alpha + occupation_beta
+        occupation_alpha = problem.orbital_occupations
+        occupation_beta = problem.orbital_occupations_b
+        if occupation_alpha is None or occupation_beta is None:
+            # simply disable the validation done against self._mo_occ_total
+            self._mo_occ_total = None
+        else:
+            self._mo_occ_total = occupation_alpha + occupation_beta
 
         # determine the active space
         self._active_orbs_indices = self._determine_active_space(problem)
 
         # initialize size-reducing basis transformation
-        coeff_alpha = np.zeros((particle_number.num_spin_orbitals // 2, self._num_spatial_orbitals))
+        coeff_alpha = np.zeros((num_spin_orbitals // 2, self._num_spatial_orbitals))
         coeff_alpha[self._active_orbs_indices, range(self._num_spatial_orbitals)] = 1.0
-        coeff_beta = np.zeros((particle_number.num_spin_orbitals // 2, self._num_spatial_orbitals))
+        coeff_beta = np.zeros((num_spin_orbitals // 2, self._num_spatial_orbitals))
         coeff_beta[self._active_orbs_indices, range(self._num_spatial_orbitals)] = 1.0
         self._transform_active = BasisTransformer(
             ElectronicBasis.MO,
@@ -240,23 +245,20 @@ class ActiveSpaceTransformer(BaseTransformer):
         new_problem = ElectronicStructureProblem(electronic_energy)
         new_problem.basis = ElectronicBasis.MO
         new_problem.molecule = problem.molecule
+        new_problem.num_spin_orbitals = len(self._active_orbs_indices) * 2
+
+        active_occ_alpha = occupation_alpha[self._active_orbs_indices]
+        active_occ_beta = occupation_beta[self._active_orbs_indices]
+        new_problem.num_particles = (int(sum(active_occ_alpha)), int(sum(active_occ_beta)))
+        new_problem.orbital_occupations = active_occ_alpha
+        new_problem.orbital_occupations_b = active_occ_beta
 
         for prop in problem.properties:
             if isinstance(prop, ElectronicDipoleMoment):
                 new_problem.properties.electronic_dipole_moment = (
                     self._transform_electronic_dipole_moment(prop)
                 )
-            elif isinstance(prop, ParticleNumber):
-                active_occ_alpha = prop.occupation_alpha[self._active_orbs_indices]
-                active_occ_beta = prop.occupation_beta[self._active_orbs_indices]
-                particle_number = ParticleNumber(
-                    len(self._active_orbs_indices) * 2,
-                    (int(sum(active_occ_alpha)), int(sum(active_occ_beta))),
-                    active_occ_alpha,
-                    active_occ_beta,
-                )
-                new_problem.properties.particle_number = particle_number
-            elif isinstance(prop, (AngularMomentum, Magnetization)):
+            elif isinstance(prop, (AngularMomentum, Magnetization, ParticleNumber)):
                 new_problem.properties.add(prop.__class__(len(self._active_orbs_indices) * 2))
             elif isinstance(prop, ElectronicDensity):
                 transformed = self._transform_active.transform_electronic_integrals(prop)
@@ -278,18 +280,17 @@ class ActiveSpaceTransformer(BaseTransformer):
         Returns:
             The list of active and inactive orbital indices.
         """
-        particle_number = problem.properties.particle_number
         if isinstance(self._num_electrons, tuple):
             num_alpha, num_beta = self._num_electrons
         elif isinstance(self._num_electrons, (int, np.integer)):
             num_alpha = num_beta = self._num_electrons // 2
 
         # compute number of inactive electrons
-        nelec_total = particle_number._num_alpha + particle_number._num_beta
+        nelec_total = problem.num_alpha + problem.num_beta
         nelec_inactive = nelec_total - num_alpha - num_beta
 
         self._validate_num_electrons(nelec_inactive)
-        self._validate_num_orbitals(nelec_inactive, particle_number)
+        self._validate_num_orbitals(nelec_inactive, problem.num_spin_orbitals)
 
         # determine active and inactive orbital indices
         if self._active_orbitals is None:
@@ -315,12 +316,12 @@ class ActiveSpaceTransformer(BaseTransformer):
         if nelec_inactive % 2 != 0:
             raise QiskitNatureError("The number of inactive electrons must be even.")
 
-    def _validate_num_orbitals(self, nelec_inactive: int, particle_number: ParticleNumber) -> None:
+    def _validate_num_orbitals(self, nelec_inactive: int, num_spin_orbitals: int) -> None:
         """Validates the number of orbitals.
 
         Args:
             nelec_inactive: the computed number of inactive electrons.
-            particle_number: the `ParticleNumber` containing system size information.
+            num_spin_orbitals: the total number of spin orbitals available.
 
         Raises:
             QiskitNatureError: if more orbitals were requested than are available in total or if the
@@ -329,10 +330,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         """
         if self._active_orbitals is None:
             norbs_inactive = nelec_inactive // 2
-            if (
-                norbs_inactive + self._num_spatial_orbitals
-                > particle_number._num_spin_orbitals // 2
-            ):
+            if norbs_inactive + self._num_spatial_orbitals > num_spin_orbitals // 2:
                 raise QiskitNatureError("More orbitals requested than available.")
         else:
             if self._num_spatial_orbitals != len(self._active_orbitals):
@@ -340,7 +338,7 @@ class ActiveSpaceTransformer(BaseTransformer):
                     "The number of selected active orbital indices does not "
                     "match the specified number of active orbitals."
                 )
-            if max(self._active_orbitals) >= particle_number._num_spin_orbitals // 2:
+            if max(self._active_orbitals) >= num_spin_orbitals // 2:
                 raise QiskitNatureError("More orbitals requested than available.")
             expected_num_electrons = (
                 self._num_electrons

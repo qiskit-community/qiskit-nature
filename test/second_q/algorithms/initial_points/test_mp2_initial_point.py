@@ -28,7 +28,6 @@ from qiskit_nature.second_q.circuit.library import HartreeFock, UCC
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
-from qiskit_nature.second_q.properties import ParticleNumber
 from qiskit_nature.second_q.mappers import QubitConverter, JordanWignerMapper
 from qiskit_nature.second_q.algorithms.initial_points import MP2InitialPoint
 
@@ -44,15 +43,13 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         self.mock_ansatz.reps = 1
         self.mock_ansatz.excitation_list = self.excitation_list
 
-        self.particle_number = Mock(spec=ParticleNumber)
-        self.particle_number.num_particles = (1, 1)
         self.electronic_energy = ElectronicEnergy.from_raw_integrals(
             np.zeros((2, 2)), np.zeros((2, 2, 2, 2))
         )
         self.mock_grouped_property = ElectronicStructureProblem(self.electronic_energy)
-        self.mock_grouped_property.properties.particle_number = self.particle_number
         self.mock_grouped_property.reference_energy = 123.45
         self.mock_grouped_property.orbital_energies = np.asarray([])
+        self.mock_grouped_property.num_particles = (1, 1)
 
     @unittest.skipIf(not optionals.HAS_PYSCF, "pyscf not available.")
     @data("H 0 0 0; H 0 0 0.7", "Li 0 0 0; H 0 0 1.6")
@@ -73,9 +70,8 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         problem.second_q_ops()
         grouped_property = problem
 
-        particle_number = grouped_property.properties.particle_number
-        num_particles = (particle_number.num_alpha, particle_number.num_beta)
-        num_spin_orbitals = particle_number.num_spin_orbitals
+        num_particles = (grouped_property.num_alpha, grouped_property.num_beta)
+        num_spin_orbitals = grouped_property.num_spin_orbitals
 
         qubit_converter = QubitConverter(mapper=JordanWignerMapper())
 
@@ -181,7 +177,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         """Test when the particle number is missing."""
 
         mp2_initial_point = MP2InitialPoint()
-        self.mock_grouped_property.properties.particle_number = None
+        self.mock_grouped_property.num_particles = None
         with self.assertRaises(QiskitNatureError):
             mp2_initial_point.compute(
                 ansatz=self.mock_ansatz, grouped_property=self.mock_grouped_property

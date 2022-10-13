@@ -85,8 +85,7 @@ class TestQubitConverter(QiskitNatureTestCase):
         super().setUp()
         driver = PySCFDriver()
         self.driver_result = driver.run()
-        particle_number = self.driver_result.properties.particle_number
-        self.num_particles = (particle_number.num_alpha, particle_number.num_beta)
+        self.num_particles = self.driver_result.num_particles
         self.h2_op, _ = self.driver_result.second_q_ops()
 
     def test_mapping_basic(self):

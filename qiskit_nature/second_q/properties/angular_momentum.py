@@ -14,8 +14,7 @@
 
 from __future__ import annotations
 
-import logging
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 import itertools
 
@@ -27,76 +26,16 @@ from qiskit_nature.second_q.operators.tensor_ordering import _chem_to_phys
 if TYPE_CHECKING:
     from qiskit_nature.second_q.problems import EigenstateResult
 
-LOGGER = logging.getLogger(__name__)
-
 
 class AngularMomentum:
     """The AngularMomentum property."""
 
-    ABSOLUTE_TOLERANCE = 1e-05
-    RELATIVE_TOLERANCE = 1e-02
-
-    def __init__(
-        self,
-        num_spin_orbitals: int,
-        spin: Optional[float] = None,
-        absolute_tolerance: float = ABSOLUTE_TOLERANCE,
-        relative_tolerance: float = RELATIVE_TOLERANCE,
-    ) -> None:
+    def __init__(self, num_spin_orbitals: int) -> None:
         """
         Args:
             num_spin_orbitals: the number of spin orbitals in the system.
-            spin: the expected spin of the system. This is only used during result interpretation.
-                If the measured value does not match this one, this will be logged on the INFO level.
-            absolute_tolerance: the absolute tolerance used for checking whether the measured
-                particle number matches the expected one.
-            relative_tolerance: the relative tolerance used for checking whether the measured
-                particle number matches the expected one.
         """
-        self._num_spin_orbitals = num_spin_orbitals
-        self._spin = spin
-        self._absolute_tolerance = absolute_tolerance
-        self._relative_tolerance = relative_tolerance
-
-    @property
-    def num_spin_orbitals(self) -> int:
-        """Returns the number of spin orbitals."""
-        return self._num_spin_orbitals
-
-    @num_spin_orbitals.setter
-    def num_spin_orbitals(self, num_spin_orbitals: int) -> None:
-        """Sets the number of spin orbitals."""
-        self._num_spin_orbitals = num_spin_orbitals
-
-    @property
-    def spin(self) -> Optional[float]:
-        """Returns the expected spin."""
-        return self._spin
-
-    @spin.setter
-    def spin(self, spin: Optional[float]) -> None:
-        """Sets the expected spin."""
-        self._spin = spin
-
-    @property
-    def absolute_tolerance(self) -> float:
-        """Returns the absolute tolerance."""
-        return self._absolute_tolerance
-
-    @absolute_tolerance.setter
-    def absolute_tolerance(self, absolute_tolerance: float) -> None:
-        """Sets the absolute tolerance."""
-        self._absolute_tolerance = absolute_tolerance
-
-    @property
-    def relative_tolerance(self) -> float:
-        """Returns the relative tolerance."""
-        return self._relative_tolerance
-
-    @relative_tolerance.setter
-    def relative_tolerance(self, relative_tolerance: float) -> None:
-        """Sets the relative tolerance."""
-        self._relative_tolerance = relative_tolerance
+        self.num_spin_orbitals = num_spin_orbitals
 
     def second_q_ops(self) -> dict[str, FermionicOp]:
         """Returns the second quantized angular momentum operator.
@@ -104,9 +43,9 @@ class AngularMomentum:
         Returns:
             A `dict` of `FermionicOp` objects.
         """
-        x_h1, x_h2 = _calc_s_x_squared_ints(self._num_spin_orbitals)
-        y_h1, y_h2 = _calc_s_y_squared_ints(self._num_spin_orbitals)
-        z_h1, z_h2 = _calc_s_z_squared_ints(self._num_spin_orbitals)
+        x_h1, x_h2 = _calc_s_x_squared_ints(self.num_spin_orbitals)
+        y_h1, y_h2 = _calc_s_y_squared_ints(self.num_spin_orbitals)
+        z_h1, z_h2 = _calc_s_z_squared_ints(self.num_spin_orbitals)
         h_1 = x_h1 + y_h1 + z_h1
         h_2 = x_h2 + y_h2 + z_h2
 
@@ -123,36 +62,19 @@ class AngularMomentum:
         Args:
             result: the result to add meaning to.
         """
-        expected = self.spin
         result.total_angular_momentum = []
 
-        if not isinstance(result.aux_operators_evaluated, list):
-            aux_operators_evaluated = [result.aux_operators_evaluated]
-        else:
-            aux_operators_evaluated = result.aux_operators_evaluated
-        for aux_op_eigenvalues in aux_operators_evaluated:
-            if aux_op_eigenvalues is None:
+        if result.aux_operators_evaluated is None:
+            return
+
+        for aux_op_eigenvalues in result.aux_operators_evaluated:
+            if not isinstance(aux_op_eigenvalues, dict):
                 continue
 
-            _key = self.__class__.__name__ if isinstance(aux_op_eigenvalues, dict) else 1
+            _key = self.__class__.__name__
 
             if aux_op_eigenvalues[_key] is not None:
-                total_angular_momentum = aux_op_eigenvalues[_key].real
-                result.total_angular_momentum.append(total_angular_momentum)
-
-                if expected is not None:
-                    spin = (-1.0 + np.sqrt(1 + 4 * total_angular_momentum)) / 2
-                    if not np.isclose(
-                        spin,
-                        expected,
-                        rtol=self._relative_tolerance,
-                        atol=self._absolute_tolerance,
-                    ):
-                        LOGGER.info(
-                            "The measured spin %s does NOT match the expected spin %s!",
-                            spin,
-                            expected,
-                        )
+                result.total_angular_momentum.append(aux_op_eigenvalues[_key].real)
             else:
                 result.total_angular_momentum.append(None)
 

@@ -112,10 +112,9 @@ class TestElectronicDensity(QiskitNatureTestCase):
         """A validation test against PySCF."""
         driver = PySCFDriver(method=method)
         problem = driver.run()
-        particle_number = problem.properties.particle_number
         electronic_density = ElectronicDensity.from_orbital_occupation(
-            particle_number.occupation_alpha,
-            particle_number.occupation_beta,
+            problem.orbital_occupations,
+            problem.orbital_occupations_b,
         )
         problem.properties.electronic_density = electronic_density
 
@@ -130,8 +129,8 @@ class TestElectronicDensity(QiskitNatureTestCase):
         # pylint: disable=import-outside-toplevel,import-error
         from pyscf.mcscf import CASCI
 
-        norb = particle_number.num_spin_orbitals // 2
-        nelec = particle_number.num_particles
+        norb = problem.num_spatial_orbitals
+        nelec = problem.num_particles
 
         casci = CASCI(driver._calc, norb, nelec)
         _, _, ci_vec, _, _ = casci.kernel()

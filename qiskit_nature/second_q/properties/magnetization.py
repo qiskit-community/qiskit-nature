@@ -31,17 +31,7 @@ class Magnetization:
 
             num_spin_orbitals: the number of spin orbitals in the system.
         """
-        self._num_spin_orbitals = num_spin_orbitals
-
-    @property
-    def num_spin_orbitals(self) -> int:
-        """Returns the number of spin orbitals."""
-        return self._num_spin_orbitals
-
-    @num_spin_orbitals.setter
-    def num_spin_orbitals(self, num_spin_orbitals: int) -> None:
-        """Sets the number of spin orbitals."""
-        self._num_spin_orbitals = num_spin_orbitals
+        self.num_spin_orbitals = num_spin_orbitals
 
     def second_q_ops(self) -> dict[str, FermionicOp]:
         """Returns the second quantized magnetization operator.
@@ -51,10 +41,10 @@ class Magnetization:
         """
         op = FermionicOp(
             {
-                f"+_{o} -_{o}": 0.5 if o < self._num_spin_orbitals // 2 else -0.5
-                for o in range(self._num_spin_orbitals)
+                f"+_{o} -_{o}": 0.5 if o < self.num_spin_orbitals // 2 else -0.5
+                for o in range(self.num_spin_orbitals)
             },
-            num_spin_orbitals=self._num_spin_orbitals,
+            num_spin_orbitals=self.num_spin_orbitals,
         )
 
         return {self.__class__.__name__: op}
@@ -68,15 +58,14 @@ class Magnetization:
         """
         result.magnetization = []
 
-        if not isinstance(result.aux_operators_evaluated, list):
-            aux_operators_evaluated = [result.aux_operators_evaluated]
-        else:
-            aux_operators_evaluated = result.aux_operators_evaluated
-        for aux_op_eigenvalues in aux_operators_evaluated:
-            if aux_op_eigenvalues is None:
+        if result.aux_operators_evaluated is None:
+            return
+
+        for aux_op_eigenvalues in result.aux_operators_evaluated:
+            if not isinstance(aux_op_eigenvalues, dict):
                 continue
 
-            _key = self.__class__.__name__ if isinstance(aux_op_eigenvalues, dict) else 2
+            _key = self.__class__.__name__
 
             if aux_op_eigenvalues[_key] is not None:
                 result.magnetization.append(aux_op_eigenvalues[_key].real)

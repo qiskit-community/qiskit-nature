@@ -144,12 +144,10 @@ class ElectronicDipoleMoment:
         result.computed_dipole_moment = []
         result.extracted_transformer_dipoles = []
 
-        if not isinstance(result.aux_operators_evaluated, list):
-            aux_operators_evaluated = [result.aux_operators_evaluated]
-        else:
-            aux_operators_evaluated = result.aux_operators_evaluated
+        if result.aux_operators_evaluated is None:
+            return
 
-        for aux_op_eigenvalues in aux_operators_evaluated:
+        for aux_op_eigenvalues in result.aux_operators_evaluated:
             if not isinstance(aux_op_eigenvalues, dict):
                 continue
 

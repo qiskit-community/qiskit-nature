@@ -14,8 +14,6 @@
 
 from test.second_q.properties.property_test import PropertyTest
 
-import numpy as np
-
 from qiskit_nature.second_q.properties import ParticleNumber
 
 
@@ -26,12 +24,7 @@ class TestParticleNumber(PropertyTest):
         """Setup."""
         super().setUp()
         num_molecular_orbitals = 4
-        num_alpha = 2
-        num_beta = 2
-        self.prop = ParticleNumber(
-            num_molecular_orbitals * 2,
-            (num_alpha, num_beta),
-        )
+        self.prop = ParticleNumber(num_molecular_orbitals * 2)
 
     def test_second_q_ops(self):
         """Test second_q_ops."""
@@ -47,9 +40,3 @@ class TestParticleNumber(PropertyTest):
             "+_7 -_7": 1.0,
         }
         self.assertEqual(dict(ops.items()), expected)
-
-    def test_non_singlet_occupation(self):
-        """Regression test against occupation computation of non-singlet state."""
-        prop = ParticleNumber(4, (2, 1), [2.0, 1.0])
-        self.assertTrue(np.allclose(prop.occupation_alpha, [1.0, 1.0]))
-        self.assertTrue(np.allclose(prop.occupation_beta, [1.0, 0.0]))

@@ -131,9 +131,8 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             A VQE suitable to compute the ground state of the molecule.
         """
         driver_result = problem
-        particle_number = driver_result.properties.particle_number
-        num_spin_orbitals = particle_number.num_spin_orbitals
-        num_particles = particle_number.num_alpha, particle_number.num_beta
+        num_spin_orbitals = problem.num_spin_orbitals
+        num_particles = problem.num_alpha, problem.num_beta
 
         initial_state = self.initial_state
         if initial_state is None:
