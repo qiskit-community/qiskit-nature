@@ -185,8 +185,8 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
             num_particles_aux = aux_values["ParticleNumber"][0]
             total_angular_momentum_aux = aux_values["AngularMomentum"][0]
 
-            return np.isclose(expected_spin, total_angular_momentum_aux) and np.isclose(
-                expected_num_electrons, num_particles_aux
+            return np.isclose(total_angular_momentum_aux, expected_spin) and np.isclose(
+                num_particles_aux, expected_num_electrons
             )
 
         solver = NumPyEigensolverFactory(filter_criterion=custom_filter_criterion)

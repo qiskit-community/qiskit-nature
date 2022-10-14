@@ -63,8 +63,7 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
     - for `beta_alpha` the only allowed key is `"++--"`
     - the reported `register_length` attributes of all non-empty tensors must match
 
-    It exposes common mathematical operations performed on these tensors allowing simple
-    manipulation of the underlying data structures.
+    There are two ways of constructing the ``ElectronicIntegrals``:
 
     .. code-block:: python
 
@@ -78,6 +77,14 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         beta_alpha = PolynomialTensor({"++--": h2_ba})
 
         integrals = ElectronicIntegrals(alpha, beta, beta_alpha)
+
+        # or you can achieve exactly the same via:
+        integrals = ElectronicIntegrals.from_raw_integrals(h1_a, h2_aa, h1_b, h2_bb, h2_ba)
+
+    This class then exposes common mathematical operations performed on these tensors allowing
+    simple manipulation of the underlying data structures.
+
+    .. code-block:: python
 
         # addition
         integrals + integrals

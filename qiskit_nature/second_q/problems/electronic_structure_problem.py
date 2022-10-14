@@ -41,7 +41,23 @@ from .base_problem import BaseProblem
 
 
 class ElectronicStructureProblem(BaseProblem):
-    """The Electronic Structure Problem.
+    r"""The Electronic Structure Problem.
+
+    This class represents the problem of the electronic Schrödinger equation:
+
+    .. math::
+        \hat{H}|\Psi\rangle = E|\Psi\rangle,
+
+    where :math:`\hat{H}` is the :class:`qiskit_nature.second_q.hamiltonians.ElectronicEnergy`
+    hamiltonian, :math:`\Psi` is the wave function of the system and :math:`E` is the eigenvalue.
+    When passed to a :class:`qiskit_nature.second_q.algorithms.GroundStateSolver`, you will be
+    solving for the ground-state energy, :math:`E_0`.
+
+    This class has various attributes (see below) which allow you to add additional information
+    about the problem which you are trying to solve, which can be used by various modules in the
+    stack. For example, specifying the number of particles in the system :attr:`num_particles` is
+    useful (and even required) for many components that interact with this problem instance to make
+    your life easier (for example the :class:`qiskit_nature.second_q.algorithms.VQEUCCFactory`).
 
     In the fermionic case the default filter ensures that the number of particles is being
     preserved.
@@ -67,12 +83,23 @@ class ElectronicStructureProblem(BaseProblem):
             total_angular_momentum_aux = aux_values["AngularMomentum"][0]
 
             return (
-                np.isclose(expected_spin, total_angular_momentum_aux) and
-                np.isclose(expected_num_electrons, num_particles_aux)
+                np.isclose(total_angular_momentum_aux, expected_spin) and
+                np.isclose(num_particles_aux, expected_num_electrons)
             )
 
         solver = NumPyEigensolverFactory(filter_criterion=filter_criterion_spin)
 
+    Attributes:
+        properties: a container for additional observable operator factories.
+        molecule: a container for molecular system data.
+        basis: the electronic basis of all contained orbital coefficients.
+        num_particles: the number of particles (in this case electrons) in the system. When this is
+            a tuple, it indicates the number of alpha- and beta-spin electrons separately, otherwise
+            it corresponds to the total number of electrons.
+        num_spatial_orbitals: the number of spatial orbitals in the system.
+        reference_energy: a reference energy for the ground state of the problem.
+        orbital_energies: the energy values of the alpha-spin orbitals.
+        orbital_energies_b: the energy values of the beta-spin orbitals.
     """
 
     def __init__(self, hamiltonian: ElectronicEnergy) -> None:
@@ -85,7 +112,7 @@ class ElectronicStructureProblem(BaseProblem):
         self.molecule: MoleculeInfo | None = None
         self.basis: ElectronicBasis | None = None
         self.num_particles: int | tuple[int, int] | None = None
-        self.num_spatial_orbitals: int | None = None
+        self.num_spatial_orbitals: int | None = hamiltonian.register_length
         self._orbital_occupations: np.ndarray | None = None
         self._orbital_occupations_b: np.ndarray | None = None
         self.reference_energy: float | None = None
@@ -107,7 +134,7 @@ class ElectronicStructureProblem(BaseProblem):
 
     @property
     def num_alpha(self) -> int | None:
-        """Returns the number of alpha-spin particles."""
+        """The number of alpha-spin particles."""
         if self.num_particles is None:
             return None
         if isinstance(self.num_particles, tuple):
@@ -116,7 +143,7 @@ class ElectronicStructureProblem(BaseProblem):
 
     @property
     def num_beta(self) -> int | None:
-        """Returns the number of beta-spin particles."""
+        """The number of beta-spin particles."""
         if self.num_particles is None:
             return None
         if isinstance(self.num_particles, tuple):
@@ -125,14 +152,14 @@ class ElectronicStructureProblem(BaseProblem):
 
     @property
     def num_spin_orbitals(self) -> int | None:
-        """Returns the total number of spin orbitals."""
+        """The total number of spin orbitals."""
         if self.num_spatial_orbitals is None:
             return None
         return 2 * self.num_spatial_orbitals
 
     @property
     def orbital_occupations(self) -> np.ndarray | None:
-        """Returns the occupations of the alpha-spin orbitals."""
+        """The occupations of the alpha-spin orbitals."""
         if self._orbital_occupations is not None:
             return self._orbital_occupations
 
@@ -151,7 +178,7 @@ class ElectronicStructureProblem(BaseProblem):
 
     @property
     def orbital_occupations_b(self) -> np.ndarray | None:
-        """Returns the occupations of the beta-spin orbitals."""
+        """The occupations of the beta-spin orbitals."""
         if self._orbital_occupations_b is not None:
             return self._orbital_occupations_b
 
@@ -196,21 +223,26 @@ class ElectronicStructureProblem(BaseProblem):
         self,
     ) -> Optional[Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]]:
         """Returns a default filter criterion method to filter the eigenvalues computed by the
-        eigen solver. For more information see also
-        qiskit.algorithms.eigen_solvers.NumPyEigensolver.filter_criterion.
+        eigensolver. For more information see also
+        :class:`qiskit.algorithms.eigensolvers.NumPyEigensolver.filter_criterion`.
 
-        In the fermionic case the default filter ensures that the number of particles is being
-        preserved.
+        This particular default ensures that the total number of particles is conserved and that the
+        angular momentum (if computed) evaluates to 0.
         """
 
         # pylint: disable=unused-argument
         def filter_criterion(self, eigenstate, eigenvalue, aux_values):
-            num_particles_aux = aux_values["ParticleNumber"][0]
-            total_angular_momentum_aux = aux_values["AngularMomentum"][0]
-            return np.isclose(
-                self.num_alpha + self.num_beta,
-                num_particles_aux,
-            ) and np.isclose(0.0, total_angular_momentum_aux)
+            eval_num_particles = aux_values.get("ParticleNumber", None)
+            if eval_num_particles is None:
+                return True
+            num_particles_close = np.isclose(eval_num_particles[0], self.num_alpha + self.num_beta)
+
+            eval_angular_momentum = aux_values.get("AngularMomentum", None)
+            if eval_angular_momentum is None:
+                return num_particles_close
+            angular_momentum_close = np.isclose(eval_angular_momentum[0], 0.0)
+
+            return num_particles_close and angular_momentum_close
 
         return partial(filter_criterion, self)
 
