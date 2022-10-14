@@ -146,9 +146,7 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
             charge=0,
         )
 
-        driver = GaussianForcesDriver.from_molecule(  # type: ignore
-            molecule, "6-31g", {}, "B3LYP"
-        )
+        driver = GaussianForcesDriver.from_molecule(molecule, "6-31g", {}, "B3LYP")  # type: ignore
         # test result has the value 'B3LYP'
         self.assertIn("B3LYP", driver._jcf)
 

@@ -86,7 +86,7 @@ class GaussianForcesDriver(VibrationalStructureDriver):
         molecule: Molecule,
         basis: str = "sto-3g",
         driver_kwargs: Optional[dict[str, Any]] = None,
-        xcf: str = "B3LYP"
+        xcf: str = "B3LYP",
     ) -> "GaussianForcesDriver":
         """
         Args:
