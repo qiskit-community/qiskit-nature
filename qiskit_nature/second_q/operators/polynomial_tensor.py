@@ -274,7 +274,6 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
         """Returns an iterator of the ``PolynomialTensor``."""
         return self._data.__iter__()
 
-    @_optionals.HAS_SPARSE.require_in_call
     def todense(self) -> PolynomialTensor:
         """Returns a new instance where all matrices are now dense numpy arrays.
 
@@ -284,6 +283,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
         if self.isdense():
             return self
 
+        _optionals.HAS_SPARSE.require_now("SparseArray")
         dense_dict: dict[str, ARRAY_TYPE] = {}
         for key, value in self._data.items():
             if isinstance(value, SparseArray):

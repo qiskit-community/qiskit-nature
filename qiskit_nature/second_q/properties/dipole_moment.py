@@ -14,12 +14,10 @@
 
 from __future__ import annotations
 
-from typing import Mapping, MutableMapping, Optional, Tuple, cast, TYPE_CHECKING
+from typing import Mapping, MutableMapping, Optional, Tuple, cast
 
+import qiskit_nature  # pylint: disable=unused-import
 from qiskit_nature.second_q.operators import ElectronicIntegrals, FermionicOp
-
-if TYPE_CHECKING:
-    from qiskit_nature.second_q.problems import EigenstateResult
 
 
 # A dipole moment, when present as X, Y and Z components will normally have float values for all the
@@ -129,7 +127,9 @@ class ElectronicDipoleMoment:
         ops["ZDipole"] = FermionicOp.from_polynomial_tensor(self.z_dipole.second_q_coeffs())
         return ops
 
-    def interpret(self, result: "EigenstateResult") -> None:
+    def interpret(
+        self, result: "qiskit_nature.second_q.problemsEigenstateResult"  # type: ignore[name-defined]
+    ) -> None:
         """Interprets an :class:`qiskit_nature.second_q.problems.EigenstateResult`.
 
         In particular, this extracts the evaluated electronic dipole moment values from the

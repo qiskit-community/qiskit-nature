@@ -14,10 +14,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Mapping
+from typing import Mapping
 
 import sys
 
+import qiskit_nature  # pylint: disable=unused-import
 from qiskit_nature.second_q.operators import SparseLabelOp
 
 if sys.version_info >= (3, 8):
@@ -25,9 +26,6 @@ if sys.version_info >= (3, 8):
     from typing import runtime_checkable, Protocol
 else:
     from typing_extensions import runtime_checkable, Protocol
-
-if TYPE_CHECKING:
-    from qiskit_nature.second_q.problems import EigenstateResult
 
 
 @runtime_checkable
@@ -49,7 +47,9 @@ class Interpretable(Protocol):
     An object is considered interpretable if it implements an `interpret` method.
     """
 
-    def interpret(self, result: "EigenstateResult") -> None:
+    def interpret(
+        self, result: "qiskit_nature.second_q.problemsEigenstateResult"  # type: ignore[name-defined]
+    ) -> None:
         """Interprets an :class:`~qiskit_nature.second_q.problems.EigenstateResult`
         in the object's context.
 

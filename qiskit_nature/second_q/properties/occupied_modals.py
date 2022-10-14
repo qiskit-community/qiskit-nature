@@ -14,14 +14,12 @@
 
 from __future__ import annotations
 
-from typing import Optional, Mapping, TYPE_CHECKING
+from typing import Optional, Mapping
 
+import qiskit_nature  # pylint: disable=unused-import
 from qiskit_nature.second_q.operators import VibrationalOp
 
 from .bases import VibrationalBasis
-
-if TYPE_CHECKING:
-    from qiskit_nature.second_q.problems import EigenstateResult
 
 
 class OccupiedModals:
@@ -79,7 +77,9 @@ class OccupiedModals:
 
         return VibrationalOp(labels, len(num_modals_per_mode), num_modals_per_mode)
 
-    def interpret(self, result: "EigenstateResult") -> None:
+    def interpret(
+        self, result: "qiskit_nature.second_q.problemsEigenstateResult"  # type: ignore[name-defined]
+    ) -> None:
         """Interprets an :class:`~qiskit_nature.second_q.problems.EigenstateResult`
         in this property's context.
 

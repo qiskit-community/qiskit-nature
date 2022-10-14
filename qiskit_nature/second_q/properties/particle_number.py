@@ -14,12 +14,10 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Mapping
+from typing import Mapping
 
+import qiskit_nature  # pylint: disable=unused-import
 from qiskit_nature.second_q.operators import FermionicOp
-
-if TYPE_CHECKING:
-    from qiskit_nature.second_q.problems import EigenstateResult
 
 
 class ParticleNumber:
@@ -46,7 +44,9 @@ class ParticleNumber:
 
         return {self.__class__.__name__: op}
 
-    def interpret(self, result: "EigenstateResult") -> None:
+    def interpret(
+        self, result: "qiskit_nature.second_q.problemsEigenstateResult"  # type: ignore[name-defined]
+    ) -> None:
         """Interprets an :class:`~qiskit_nature.second_q.problems.EigenstateResult`
         in this property's context.
 

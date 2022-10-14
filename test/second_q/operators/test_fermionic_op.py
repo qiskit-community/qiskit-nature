@@ -346,10 +346,8 @@ class TestFermionicOp(QiskitNatureTestCase):
             with self.assertRaises(QiskitNatureError):
                 _ = FermionicOp({key: 1.0}, num_spin_orbitals=length)
 
-    @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     def test_from_polynomial_tensor(self):
         """Test from PolynomialTensor construction"""
-        import sparse as sp  # pylint: disable=import-error
 
         with self.subTest("dense tensor"):
             r_l = 2
@@ -389,29 +387,32 @@ class TestFermionicOp(QiskitNatureTestCase):
 
             self.assertEqual(op, expected)
 
-        with self.subTest("sparse tensor"):
-            r_l = 2
-            p_t = PolynomialTensor(
-                {
-                    "+-": sp.as_coo({(0, 0): 1, (1, 0): 2}, shape=(r_l, r_l)),
-                    "++--": sp.as_coo(
-                        {(0, 0, 0, 1): 1, (1, 0, 1, 1): 2}, shape=(r_l, r_l, r_l, r_l)
-                    ),
-                }
-            )
-            op = FermionicOp.from_polynomial_tensor(p_t)
+        if _optionals.HAS_SPARSE:
+            import sparse as sp  # pylint: disable=import-error
 
-            expected = FermionicOp(
-                {
-                    "+_0 -_0": 1,
-                    "+_1 -_0": 2,
-                    "+_0 +_0 -_0 -_1": 1,
-                    "+_1 +_0 -_1 -_1": 2,
-                },
-                num_spin_orbitals=r_l,
-            )
+            with self.subTest("sparse tensor"):
+                r_l = 2
+                p_t = PolynomialTensor(
+                    {
+                        "+-": sp.as_coo({(0, 0): 1, (1, 0): 2}, shape=(r_l, r_l)),
+                        "++--": sp.as_coo(
+                            {(0, 0, 0, 1): 1, (1, 0, 1, 1): 2}, shape=(r_l, r_l, r_l, r_l)
+                        ),
+                    }
+                )
+                op = FermionicOp.from_polynomial_tensor(p_t)
 
-            self.assertEqual(op, expected)
+                expected = FermionicOp(
+                    {
+                        "+_0 -_0": 1,
+                        "+_1 -_0": 2,
+                        "+_0 +_0 -_0 -_1": 1,
+                        "+_1 +_0 -_1 -_1": 2,
+                    },
+                    num_spin_orbitals=r_l,
+                )
+
+                self.assertEqual(op, expected)
 
     def test_no_num_spin_orbitals(self):
         """Test operators with automatic register length"""
