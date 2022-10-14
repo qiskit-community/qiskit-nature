@@ -132,7 +132,7 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
         )
         result = driver.run()
         self._check_driver_result(self._get_expected_values(), result)
-        
+
     @unittest.skipIf(not _optionals.HAS_GAUSSIAN, "gaussian not available.")
     def test_driver_xcf(self):
         """Test the GaussianForcesDriver.from_molecule accept xcf argument"""
@@ -149,9 +149,8 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
         driver = GaussianForcesDriver.from_molecule(  # type: ignore
             molecule, "6-31g", {}, "B3LYP"
         )
-        result = driver.run()
         # test result has the value 'B3LYP'
-        self.assertIn("B3LYP", result._jcf)
+        self.assertIn("B3LYP", driver._jcf)
 
     @unittest.skipIf(not _optionals.HAS_GAUSSIAN, "gaussian not available.")
     def test_driver_molecule(self):
