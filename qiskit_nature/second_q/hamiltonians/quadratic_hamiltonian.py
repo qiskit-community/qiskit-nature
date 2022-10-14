@@ -19,7 +19,7 @@ from typing import Optional
 import numpy as np
 import scipy.linalg
 from qiskit.quantum_info.operators.mixins import TolerancesMixin
-from qiskit_nature.second_q.operators import FermionicOp
+from qiskit_nature.second_q.operators import FermionicOp, PolynomialTensor
 
 from .hamiltonian import Hamiltonian
 
@@ -32,7 +32,7 @@ def _is_antisymmetric(mat: np.ndarray, rtol: float = 1e-5, atol: float = 1e-8) -
     return np.allclose(mat, -mat.T, rtol=rtol, atol=atol)
 
 
-class QuadraticHamiltonian(Hamiltonian, TolerancesMixin):
+class QuadraticHamiltonian(PolynomialTensor, Hamiltonian, TolerancesMixin):
     r"""A Hamiltonian that is quadratic in the fermionic ladder operators.
 
     A quadratic Hamiltonian is an operator of the form
@@ -123,29 +123,40 @@ class QuadraticHamiltonian(Hamiltonian, TolerancesMixin):
                 if not _is_antisymmetric(antisymmetric_part, rtol=rtol, atol=atol):
                     raise ValueError("Antisymmetric part must be antisymmetric.")
 
-        self._hermitian_part = hermitian_part
-        self._antisymmetric_part = antisymmetric_part
-        self._constant = constant
+        data = {"": constant}
+        if hermitian_part is not None:
+            data["+-"] = hermitian_part
+        if antisymmetric_part is not None:
+            data["++"] = antisymmetric_part
+        super().__init__(data)
 
-        if self._hermitian_part is None:
-            self._hermitian_part = np.zeros((self._num_modes, self._num_modes))
-        if self._antisymmetric_part is None:
-            self._antisymmetric_part = np.zeros((self._num_modes, self._num_modes))
+    def __repr__(self) -> str:
+        return (
+            f"QuadraticHamiltonian("
+            f"hermitian_part={self.hermitian_part}, "
+            f"antisymmetric_part={self.antisymmetric_part}, "
+            f"constant={self.constant}, "
+            f"num_modes={self._num_modes})"
+        )
 
     @property
     def hermitian_part(self) -> np.ndarray:
         """The matrix of coefficients of terms that conserve particle number."""
-        return self._hermitian_part
+        if "+-" in self:
+            return self["+-"]
+        return np.zeros((self._num_modes, self._num_modes), dtype=complex)
 
     @property
     def antisymmetric_part(self) -> np.ndarray:
         """The matrix of coefficients of terms that do not conserve particle number."""
-        return self._antisymmetric_part
+        if "++" in self:
+            return self["++"]
+        return np.zeros((self._num_modes, self._num_modes), dtype=complex)
 
     @property
     def constant(self) -> float:
         """The constant."""
-        return self._constant
+        return self[""]
 
     @property
     def num_modes(self) -> float:
