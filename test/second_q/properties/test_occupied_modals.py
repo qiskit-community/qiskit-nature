@@ -12,10 +12,7 @@
 
 """Test OccupiedModals Property"""
 
-import tempfile
 from test.second_q.properties.property_test import PropertyTest
-
-import h5py
 
 from qiskit_nature.second_q.properties import OccupiedModals
 from qiskit_nature.second_q.properties.bases import HarmonicBasis
@@ -46,20 +43,3 @@ class TestOccupiedModals(PropertyTest):
         ]
         for op, expected_op_list in zip(ops, expected):
             self.assertEqual(op.to_list(), expected_op_list)
-
-    def test_to_hdf5(self):
-        """Test to_hdf5."""
-        with tempfile.TemporaryFile() as tmp_file:
-            with h5py.File(tmp_file, "w") as file:
-                self.prop.to_hdf5(file)
-
-    def test_from_hdf5(self):
-        """Test from_hdf5."""
-        with tempfile.TemporaryFile() as tmp_file:
-            with h5py.File(tmp_file, "w") as file:
-                self.prop.to_hdf5(file)
-
-            with h5py.File(tmp_file, "r") as file:
-                read_prop = OccupiedModals.from_hdf5(file["OccupiedModals"])
-
-                self.assertEqual(self.prop, read_prop)

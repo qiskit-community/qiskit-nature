@@ -49,11 +49,6 @@ class BaseProblem:
         """Returns the hamiltonian wrapped by this problem."""
         return self._hamiltonian
 
-    @property
-    def num_particles(self) -> tuple[int, int] | None:
-        """Returns the number of particles, if available."""
-        return None
-
     def second_q_ops(self) -> tuple[SecondQuantizedOp, dict[str, SecondQuantizedOp]]:
         """Returns the second quantized operators associated with this problem.
 

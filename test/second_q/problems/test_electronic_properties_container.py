@@ -118,7 +118,7 @@ class TestElectronicPropertiesContainer(QiskitNatureTestCase):
                 container.particle_number = OccupiedModals()  # type: ignore[assignment]
 
         with self.subTest("successful setting"):
-            container.particle_number = ParticleNumber(1, 1)
+            container.particle_number = ParticleNumber(1)
             self.assertIn(ParticleNumber, container)
 
         with self.subTest("removal via None setting"):

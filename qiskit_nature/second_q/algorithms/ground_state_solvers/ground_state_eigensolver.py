@@ -92,9 +92,14 @@ class GroundStateEigensolver(GroundStateSolver):
         # Note that ``aux_ops`` contains not only the transformed ``aux_operators`` passed by the
         # user but also additional ones from the transformation
         main_second_q_op, aux_second_q_ops = problem.second_q_ops()
+
+        num_particles = None
+        if hasattr(problem, "num_particles"):
+            num_particles = problem.num_particles  # type: ignore[attr-defined]
+
         main_operator = self._qubit_converter.convert(
             main_second_q_op,
-            num_particles=problem.num_particles,
+            num_particles=num_particles,
             sector_locator=problem.symmetry_sector_locator,
         )
         aux_ops = self._qubit_converter.convert_match(aux_second_q_ops)

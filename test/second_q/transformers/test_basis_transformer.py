@@ -23,7 +23,7 @@ import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.drivers import PySCFDriver, MethodType
 from qiskit_nature.second_q.formats.qcschema_translator import get_ao_to_mo_from_qcschema
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
-from qiskit_nature.second_q.properties.bases import ElectronicBasis
+from qiskit_nature.second_q.problems import ElectronicBasis
 
 
 class TestBasisTransformer(QiskitNatureTestCase):

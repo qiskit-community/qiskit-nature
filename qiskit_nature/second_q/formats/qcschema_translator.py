@@ -19,7 +19,7 @@ from typing import cast
 import numpy as np
 
 from qiskit_nature.units import DistanceUnit
-from qiskit_nature.second_q.problems import ElectronicStructureProblem
+from qiskit_nature.second_q.problems import ElectronicBasis, ElectronicStructureProblem
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.operators import ElectronicIntegrals
 from qiskit_nature.second_q.properties import (
@@ -27,7 +27,6 @@ from qiskit_nature.second_q.properties import (
     Magnetization,
     ParticleNumber,
 )
-from qiskit_nature.second_q.properties.bases import ElectronicBasis
 from qiskit_nature.second_q.transformers import BasisTransformer
 
 from .molecule_info import MoleculeInfo
@@ -76,16 +75,17 @@ def qcschema_to_problem(
         masses=qcschema.molecule.masses,
     )
 
-    num_spin_orbitals = 2 * norb
     num_particles = (qcschema.properties.calcinfo_nalpha, qcschema.properties.calcinfo_nbeta)
 
     problem = ElectronicStructureProblem(hamiltonian)
     problem.basis = basis
     problem.molecule = molecule
+    problem.num_particles = num_particles
+    problem.num_spatial_orbitals = norb
     problem.reference_energy = qcschema.properties.return_energy
-    problem.properties.angular_momentum = AngularMomentum(num_spin_orbitals)
-    problem.properties.magnetization = Magnetization(num_spin_orbitals)
-    problem.properties.particle_number = ParticleNumber(num_spin_orbitals, num_particles)
+    problem.properties.angular_momentum = AngularMomentum(norb)
+    problem.properties.magnetization = Magnetization(norb)
+    problem.properties.particle_number = ParticleNumber(norb)
 
     if qcschema.wavefunction.scf_eigenvalues_a is not None:
         problem.orbital_energies = np.asarray(qcschema.wavefunction.scf_eigenvalues_a)

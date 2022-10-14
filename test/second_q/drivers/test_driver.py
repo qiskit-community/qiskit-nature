@@ -101,21 +101,20 @@ class TestDriver(ABC):
                 decimal=4,
             )
 
-    def test_driver_result_particle_number(self):
-        """Test the ParticleNumber property."""
-        particle_number = self.driver_result.properties.particle_number
+    def test_driver_result_system_size(self):
+        """Test the system size problem attributes."""
 
         with self.subTest("orbital number"):
-            self.log.debug("Number of orbitals is %s", particle_number.num_spin_orbitals)
-            self.assertEqual(particle_number.num_spin_orbitals, 4)
+            self.log.debug("Number of orbitals is %s", self.driver_result.num_spatial_orbitals)
+            self.assertEqual(self.driver_result.num_spatial_orbitals, 2)
 
         with self.subTest("alpha electron number"):
-            self.log.debug("Number of alpha electrons is %s", particle_number.num_alpha)
-            self.assertEqual(particle_number.num_alpha, 1)
+            self.log.debug("Number of alpha electrons is %s", self.driver_result.num_alpha)
+            self.assertEqual(self.driver_result.num_alpha, 1)
 
         with self.subTest("beta electron number"):
-            self.log.debug("Number of beta electrons is %s", particle_number.num_beta)
-            self.assertEqual(particle_number.num_beta, 1)
+            self.log.debug("Number of beta electrons is %s", self.driver_result.num_beta)
+            self.assertEqual(self.driver_result.num_beta, 1)
 
     def test_driver_result_molecule(self):
         """Test the Molecule object."""

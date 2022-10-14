@@ -36,9 +36,8 @@ from qiskit_nature.second_q.formats.qcschema_translator import (
     get_ao_to_mo_from_qcschema,
 )
 from qiskit_nature.second_q.operators import ElectronicIntegrals
-from qiskit_nature.second_q.problems import ElectronicStructureProblem
+from qiskit_nature.second_q.problems import ElectronicBasis, ElectronicStructureProblem
 from qiskit_nature.second_q.properties import ElectronicDipoleMoment
-from qiskit_nature.second_q.properties.bases import ElectronicBasis
 
 from .gaussian_utils import run_g16
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType, _QCSchemaData

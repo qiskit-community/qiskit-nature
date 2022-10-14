@@ -109,10 +109,9 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         """Test a minimal active space manually."""
         driver = PySCFDriver(basis="631g")
         driver_result = driver.run()
-        particle_number = driver_result.properties.particle_number
         driver_result.properties.electronic_density = ElectronicDensity.from_orbital_occupation(
-            particle_number.occupation_alpha,
-            particle_number.occupation_beta,
+            driver_result.orbital_occupations,
+            driver_result.orbital_occupations_b,
         )
 
         trafo = ActiveSpaceTransformer(2, 2)
@@ -277,16 +276,13 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         """
         driver = PySCFDriver(basis="631g")
         driver_result = driver.run()
+        driver_result.num_spatial_orbitals = np.int64(driver_result.num_spatial_orbitals)
+        driver_result.num_particles = (
+            np.int64(driver_result.num_alpha),
+            np.int64(driver_result.num_beta),
+        )
 
-        particle_number = driver_result.properties.particle_number
-        driver_result.properties.particle_number = None
-        particle_number.num_alpha = np.int64(particle_number.num_alpha)
-        particle_number.num_beta = np.int64(particle_number.num_beta)
-        particle_number.num_spin_orbitals = np.int64(particle_number.num_spin_orbitals)
-
-        driver_result.properties.particle_number = particle_number
-
-        trafo = ActiveSpaceTransformer(particle_number.num_particles, 2)
+        trafo = ActiveSpaceTransformer(driver_result.num_particles, 2)
         _ = trafo.transform(driver_result)
 
 

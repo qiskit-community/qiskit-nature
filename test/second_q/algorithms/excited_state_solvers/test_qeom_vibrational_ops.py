@@ -115,5 +115,5 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
             },
         )
 
-        hopping_operators = build_vibrational_ops(self.num_modals, self.qubit_converter)
+        hopping_operators = build_vibrational_ops(self.num_modals, "sd", self.qubit_converter)
         self.assertEqual(hopping_operators, expected_hopping_operators)

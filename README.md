@@ -91,10 +91,8 @@ problem = driver.run()
 # generate the second-quantized operators
 main_op, _ = problem.second_q_ops()
 
-particle_number = problem.properties.particle_number
-
-num_particles = (particle_number.num_alpha, particle_number.num_beta)
-num_spin_orbitals = particle_number.num_spin_orbitals
+num_particles = problem.num_particles
+num_spatial_orbitals = problem.num_spatial_orbitals
 
 # setup the classical optimizer for VQE
 from qiskit.algorithms.optimizers import L_BFGS_B
@@ -114,12 +112,13 @@ qubit_op = converter.convert(main_op, num_particles=num_particles)
 # setup the initial state for the ansatz
 from qiskit_nature.second_q.circuit.library import HartreeFock
 
-init_state = HartreeFock(num_spin_orbitals, num_particles, converter)
+init_state = HartreeFock(num_spatial_orbitals, num_particles, converter)
 
 # setup the ansatz for VQE
 from qiskit.circuit.library import TwoLocal
 
-ansatz = TwoLocal(num_spin_orbitals, ['ry', 'rz'], 'cz')
+num_qubits = 2 * num_spatial_orbitals
+ansatz = TwoLocal(num_qubits, ['ry', 'rz'], 'cz')
 
 # add the initial state
 ansatz.compose(init_state, front=True, inplace=True)

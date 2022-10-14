@@ -15,7 +15,7 @@
 from __future__ import annotations
 
 import re
-from typing import Sequence, cast
+from typing import Mapping, Sequence, cast
 
 import numpy as np
 
@@ -65,11 +65,11 @@ class ElectronicDensity(ElectronicIntegrals):
             rdm1_a, rdm2_aa, rdm1_b, rdm2_bb, rdm2_ba, auto_index_order=False
         )
 
-    def second_q_ops(self) -> dict[str, FermionicOp]:
+    def second_q_ops(self) -> Mapping[str, FermionicOp]:
         """Returns the density evaluation operators.
 
         Returns:
-            A `dict` of `FermionicOp` objects.
+            A mapping of strings to `FermionicOp` objects.
         """
         tensor = self.second_q_coeffs()
         register_length = tensor.register_length

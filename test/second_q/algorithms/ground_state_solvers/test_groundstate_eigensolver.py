@@ -57,7 +57,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         self.qubit_converter = QubitConverter(JordanWignerMapper())
         self.electronic_structure_problem = self.driver.run()
 
-        self.num_spin_orbitals = 4
+        self.num_spatial_orbitals = 2
         self.num_particles = (1, 1)
         self.mp2_initial_point = [0.0, 0.0, -0.07197145]
 
@@ -136,11 +136,11 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         return calc, res, aux_ops_dict
 
     def _prepare_uccsd_hf(self, qubit_converter):
-        initial_state = HartreeFock(self.num_spin_orbitals, self.num_particles, qubit_converter)
+        initial_state = HartreeFock(self.num_spatial_orbitals, self.num_particles, qubit_converter)
         ansatz = UCCSD(
-            qubit_converter,
+            self.num_spatial_orbitals,
             self.num_particles,
-            self.num_spin_orbitals,
+            qubit_converter,
             initial_state=initial_state,
         )
 
@@ -286,7 +286,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         ansatz = UCCSD(
             qubit_converter=self.qubit_converter,
             num_particles=self.num_particles,
-            num_spin_orbitals=self.num_spin_orbitals,
+            num_spatial_orbitals=self.num_spatial_orbitals,
             reps=2,
         )
 
@@ -309,7 +309,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         ansatz = UCCSD(
             qubit_converter=self.qubit_converter,
             num_particles=self.num_particles,
-            num_spin_orbitals=self.num_spin_orbitals,
+            num_spatial_orbitals=self.num_spatial_orbitals,
             reps=2,
         )
 

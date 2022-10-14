@@ -19,6 +19,7 @@ from typing import cast, Union
 from qiskit.algorithms.eigensolvers import EigensolverResult
 from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
 from qiskit_nature.second_q.hamiltonians import LatticeModel
+from qiskit_nature.second_q.properties import Interpretable
 
 from .base_problem import BaseProblem
 from .lattice_model_result import LatticeModelResult
@@ -60,10 +61,10 @@ class LatticeModelProblem(BaseProblem):
         eigenstate_result = super().interpret(raw_result)
         result = LatticeModelResult()
         result.combine(eigenstate_result)
-        if hasattr(self.hamiltonian, "interpret"):
+        if isinstance(self.hamiltonian, Interpretable):
             self.hamiltonian.interpret(result)
         for prop in self.properties:
-            if hasattr(prop, "interpret"):
-                prop.interpret(result)  # type: ignore[attr-defined]
+            if isinstance(prop, Interpretable):
+                prop.interpret(result)
         result.computed_lattice_energies = eigenstate_result.eigenvalues
         return result

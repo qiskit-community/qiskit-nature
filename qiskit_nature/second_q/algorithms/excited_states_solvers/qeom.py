@@ -163,8 +163,10 @@ class QEOM(ExcitedStatesSolver):
         # 2. Prepare the excitation operators
         main_second_q_op, _ = problem.second_q_ops()
 
+        num_particles = getattr(problem, "num_particles", None)
+
         self._untapered_qubit_op_main = self._gsc.qubit_converter.convert_only(
-            main_second_q_op, problem.num_particles
+            main_second_q_op, num_particles
         )
         matrix_operators_dict, size = self._prepare_matrix_operators(problem)
 
@@ -255,15 +257,16 @@ class QEOM(ExcitedStatesSolver):
         """
         if isinstance(problem, ElectronicStructureProblem):
             return build_electronic_ops(
-                problem.properties.particle_number,
-                self._gsc.qubit_converter,
+                problem.num_spatial_orbitals,
+                (problem.num_alpha, problem.num_beta),
                 self.excitations,
+                self._gsc.qubit_converter,
             )
         elif isinstance(problem, VibrationalStructureProblem):
             return build_vibrational_ops(
                 problem.num_modals,
-                self._gsc.qubit_converter,
                 self.excitations,
+                self._gsc.qubit_converter,
             )
         else:
             raise NotImplementedError(
