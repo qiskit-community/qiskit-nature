@@ -154,9 +154,8 @@ class UCC(EvolvedOperatorAnsatz):
                     to write such a callable refer to the default method
                     :meth:`~qiskit_nature.second_q.circuit.library.ansatzes.utils.\
                     generate_fermionic_excitations`.
-            qubit_converter: the QubitConverter instance which takes care of mapping a
-                :class:`~.SecondQuantizedOp` to a :class:`PauliSumOp` as well as performing all
-                configured symmetry reductions on it.
+            qubit_converter: the QubitConverter instance which takes care of mapping to a qubit
+                operator.
             alpha_spin: boolean flag whether to include alpha-spin excitations.
             beta_spin: boolean flag whether to include beta-spin excitations.
             max_spin_excitation: the largest number of excitations within a spin. E.g. you can set

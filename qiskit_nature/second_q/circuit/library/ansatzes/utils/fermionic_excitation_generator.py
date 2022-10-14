@@ -14,7 +14,9 @@ These utility methods are used by the :class:`~.UCC` Ansatz in order to construc
 operators.
 """
 
-from typing import Iterator, List, Tuple, Optional
+from __future__ import annotations
+
+from typing import Iterator
 
 import itertools
 import logging
@@ -27,7 +29,7 @@ def get_alpha_excitations(
     num_alpha: int,
     *,
     generalized: bool = False,
-) -> List[Tuple[int, int]]:
+) -> list[tuple[int, int]]:
     """Generates all possible single alpha-electron excitations.
 
     This method assumes block-ordered spin-orbitals.
@@ -58,7 +60,7 @@ def get_beta_excitations(
     num_beta: int,
     *,
     generalized: bool = False,
-) -> List[Tuple[int, int]]:
+) -> list[tuple[int, int]]:
     """Generates all possible single beta-electron excitations.
 
     This method assumes block-ordered spin-orbitals.
@@ -89,14 +91,14 @@ def get_beta_excitations(
 def generate_fermionic_excitations(
     num_excitations: int,
     num_spatial_orbitals: int,
-    num_particles: Tuple[int, int],
+    num_particles: tuple[int, int],
     *,
     alpha_spin: bool = True,
     beta_spin: bool = True,
-    max_spin_excitation: Optional[int] = None,
+    max_spin_excitation: int | None = None,
     generalized: bool = False,
     preserve_spin: bool = True,
-) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
+) -> list[tuple[tuple[int, ...], tuple[int, ...]]]:
     # pylint: disable=line-too-long
     """Generates all possible excitations with the given number of excitations for the specified
     number of particles distributed among the given number of spatial orbitals.
@@ -144,8 +146,8 @@ def generate_fermionic_excitations(
 
     """
     num_spin_orbitals = 2 * num_spatial_orbitals
-    alpha_excitations: List[Tuple[int, int]] = []
-    beta_excitations: List[Tuple[int, int]] = []
+    alpha_excitations: list[tuple[int, int]] = []
+    beta_excitations: list[tuple[int, int]] = []
 
     if preserve_spin:
         if alpha_spin:
@@ -231,7 +233,7 @@ def generate_fermionic_excitations(
     # we can find the actual list of excitations by doing the following:
     #   1. combine the single alpha- and beta-spin excitations
     #   2. find all possible combinations of length `num_excitations`
-    pool: Iterator[Tuple[Tuple[int, int], ...]] = itertools.combinations(
+    pool: Iterator[tuple[tuple[int, int], ...]] = itertools.combinations(
         alpha_excitations + beta_excitations, num_excitations
     )
 
@@ -255,7 +257,7 @@ def generate_fermionic_excitations(
                 lambda exc: len(set(exc) & beta_exc_set) > max_spin_excitation, pool
             )
 
-    excitations: List[Tuple[Tuple[int, ...], Tuple[int, ...]]] = []
+    excitations: list[tuple[tuple[int, ...], tuple[int, ...]]] = []
     visited_excitations = set()
 
     for exc in pool:
@@ -266,8 +268,8 @@ def generate_fermionic_excitations(
         #   3. and we also don't want to include permuted variants of identical excitations
         if len(exc_set) == num_excitations * 2 and exc_set not in visited_excitations:
             visited_excitations.add(exc_set)
-            occ: Tuple[int, ...]
-            unocc: Tuple[int, ...]
+            occ: tuple[int, ...]
+            unocc: tuple[int, ...]
             occ, unocc = zip(*exc)
             exc_tuple = (occ, unocc)
             excitations.append(exc_tuple)

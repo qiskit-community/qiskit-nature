@@ -80,13 +80,14 @@ class MP2InitialPoint(InitialPoint):
     :attr:`problem` and :attr:`ansatz` to be passed as arguments or the
     :attr:`problem` and :attr:`ansatz` attributes to be set already.
 
-    The :attr:`problem` is required to contain an
-    :class:`~qiskit_nature.second_q.hamiltonians.ElectronicEnergy` hamiltonian as
-    well as have its ``num_particles`` attribute specified.
-    :class:`~qiskit_nature.second_q.hamiltonians.ElectronicEnergy` must contain
-    the two-body, molecular-orbital ``electronic_integrals`` and the ``orbital_energies``.
-    Optionally, the setter will obtain the Hartree-Fock ``reference_energy`` to compute the
+    The :attr:`problem` is required to be an
+    :class:`~qiskit_nature.second_q.problems.ElectronicStructureProblem` which contains an
+    :class:`~qiskit_nature.second_q.hamiltonians.ElectronicEnergy` hamiltonian.
+    It also must have its ``num_particles`` and ``orbital_energies`` attributes specified. If its
+    ``reference_energy`` attribute is provided, this will be used to compute the
     :attr:`total_energy`.
+    :class:`~qiskit_nature.second_q.hamiltonians.ElectronicEnergy` must contain
+    the two-body, molecular-orbital ``electronic_integrals``.
 
     Setting the :attr:`problem` will compute the :attr:`t2_amplitudes` and
     :attr:`energy_correction`.
@@ -125,20 +126,17 @@ class MP2InitialPoint(InitialPoint):
     def problem(self) -> BaseProblem | None:
         """The problem instance.
 
-        See
-        :class:`~qiskit_nature.second_q.algorithms.initial_points.MP2InitialPoint`
-        for information on the required properties.
+        See :class:`~qiskit_nature.second_q.algorithms.initial_points.MP2InitialPoint` for more
+        information on the required properties.
 
         Raises:
+            QiskitNatureError: If :class:`~qiskit_nature.second_q.hamiltonians.ElectronicEnergy` is
+                missing or the two-body molecular orbitals matrix.
             QiskitNatureError: If
-                :class:`~qiskit_nature.second_q.hamiltonians.ElectronicEnergy` is
-                missing or the two-body molecular orbitals matrix or the orbital energies are not
-                found.
-            QiskitNatureError: If
-                :attr:`~qiskit_nature.second_q.problems.ElectronicStructureProblem.num_particles` is
-                ``None``.
-            NotImplementedError: If alpha and beta spin molecular orbitals are not
-                identical.
+                :attr:`~qiskit_nature.second_q.problems.ElectronicStructureProblem.num_particles` or
+                :attr:`~qiskit_nature.second_q.problems.ElectronicStructureProblem.orbital_energies`
+                is ``None``.
+            NotImplementedError: If alpha and beta spin molecular orbitals are not identical.
         """
         return self._problem
 

@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, Mapping, TYPE_CHECKING
 
 from qiskit_nature.second_q.operators import VibrationalOp
 
@@ -50,11 +50,11 @@ class OccupiedModals:
         """Sets the basis."""
         self._basis = basis
 
-    def second_q_ops(self) -> dict[str, VibrationalOp]:
+    def second_q_ops(self) -> Mapping[str, VibrationalOp]:
         """Returns the second quantized operators indicating the occupied modals per mode.
 
         Returns:
-            A `dict` of `VibrationalOp` objects.
+            A mapping of strings to `VibrationalOp` objects.
         """
         num_modals_per_mode = self.basis._num_modals_per_mode
         num_modes = len(num_modals_per_mode)

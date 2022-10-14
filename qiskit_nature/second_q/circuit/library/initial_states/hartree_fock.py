@@ -37,7 +37,8 @@ class HartreeFock(QuantumCircuit):
             num_spatial_orbitals: The number of spatial orbitals, has a min. value of 1.
             num_particles: The number of particles as a tuple storing the number of alpha- and
                            beta-spin electrons in the first and second number, respectively.
-            qubit_converter: a QubitConverter instance.
+            qubit_converter: the QubitConverter instance which takes care of mapping to a qubit
+                operator.
 
         Raises:
             TypeError: If qubit_converter contains BravyiKitaevSuperFastMapper. See

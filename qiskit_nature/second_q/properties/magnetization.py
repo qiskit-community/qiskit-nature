@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Mapping
 
 from qiskit_nature.second_q.operators import FermionicOp
 
@@ -33,11 +33,11 @@ class Magnetization:
         """
         self.num_spatial_orbitals = num_spatial_orbitals
 
-    def second_q_ops(self) -> dict[str, FermionicOp]:
+    def second_q_ops(self) -> Mapping[str, FermionicOp]:
         """Returns the second quantized magnetization operator.
 
         Returns:
-            A `dict` of `SecondQuantizedOp` objects.
+            A mapping of strings to `FermionicOp` objects.
         """
         num_spin_orbitals = 2 * self.num_spatial_orbitals
         op = FermionicOp(

@@ -93,9 +93,6 @@ class ElectronicStructureProblem(BaseProblem):
         properties: a container for additional observable operator factories.
         molecule: a container for molecular system data.
         basis: the electronic basis of all contained orbital coefficients.
-        num_particles: the number of particles (in this case electrons) in the system. When this is
-            a tuple, it indicates the number of alpha- and beta-spin electrons separately, otherwise
-            it corresponds to the total number of electrons.
         num_spatial_orbitals: the number of spatial orbitals in the system.
         reference_energy: a reference energy for the ground state of the problem.
         orbital_energies: the energy values of the alpha-spin orbitals.
@@ -111,7 +108,7 @@ class ElectronicStructureProblem(BaseProblem):
         self.properties: ElectronicPropertiesContainer = ElectronicPropertiesContainer()
         self.molecule: MoleculeInfo | None = None
         self.basis: ElectronicBasis | None = None
-        self.num_particles: int | tuple[int, int] | None = None
+        self._num_particles: int | tuple[int, int] | None = None
         self.num_spatial_orbitals: int | None = hamiltonian.register_length
         self._orbital_occupations: np.ndarray | None = None
         self._orbital_occupations_b: np.ndarray | None = None
@@ -133,22 +130,33 @@ class ElectronicStructureProblem(BaseProblem):
         return self.hamiltonian.nuclear_repulsion_energy
 
     @property
+    def num_particles(self) -> tuple[int, int] | None:
+        """The number of particles in alpha- and beta-spin."""
+        if self._num_particles is None:
+            return None
+        if isinstance(self._num_particles, tuple):
+            return self._num_particles
+        num_beta = self._num_particles // 2
+        num_alpha = self._num_particles - num_beta
+        return (num_alpha, num_beta)
+
+    @num_particles.setter
+    def num_particles(self, num_particles: int | tuple[int, int] | None) -> None:
+        self._num_particles = num_particles
+
+    @property
     def num_alpha(self) -> int | None:
         """The number of alpha-spin particles."""
         if self.num_particles is None:
             return None
-        if isinstance(self.num_particles, tuple):
-            return self.num_particles[0]
-        return self.num_particles // 2 + self.num_particles % 2
+        return self.num_particles[0]
 
     @property
     def num_beta(self) -> int | None:
         """The number of beta-spin particles."""
         if self.num_particles is None:
             return None
-        if isinstance(self.num_particles, tuple):
-            return self.num_particles[1]
-        return self.num_particles // 2
+        return self.num_particles[1]
 
     @property
     def num_spin_orbitals(self) -> int | None:

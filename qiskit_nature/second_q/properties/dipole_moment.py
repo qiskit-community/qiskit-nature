@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import MutableMapping, Optional, Tuple, cast, TYPE_CHECKING
+from typing import Mapping, MutableMapping, Optional, Tuple, cast, TYPE_CHECKING
 
 from qiskit_nature.second_q.operators import ElectronicIntegrals, FermionicOp
 
@@ -117,11 +117,11 @@ class ElectronicDipoleMoment:
     def nuclear_dipole_moment(self, d_nuc: DipoleTuple) -> None:
         self.constants["nuclear_dipole_moment"] = d_nuc
 
-    def second_q_ops(self) -> dict[str, FermionicOp]:
+    def second_q_ops(self) -> Mapping[str, FermionicOp]:
         """Returns the second quantized dipole moment operators.
 
         Returns:
-            A `dict` of `FermionicOp` objects.
+            A mapping of strings to `FermionicOp` objects.
         """
         ops = {}
         ops["XDipole"] = FermionicOp.from_polynomial_tensor(self.x_dipole.second_q_coeffs())

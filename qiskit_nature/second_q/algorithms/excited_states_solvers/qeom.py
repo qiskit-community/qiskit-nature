@@ -163,9 +163,7 @@ class QEOM(ExcitedStatesSolver):
         # 2. Prepare the excitation operators
         main_second_q_op, _ = problem.second_q_ops()
 
-        num_particles = None
-        if hasattr(problem, "num_particles"):
-            num_particles = problem.num_particles  # type: ignore[attr-defined]
+        num_particles = getattr(problem, "num_particles", None)
 
         self._untapered_qubit_op_main = self._gsc.qubit_converter.convert_only(
             main_second_q_op, num_particles

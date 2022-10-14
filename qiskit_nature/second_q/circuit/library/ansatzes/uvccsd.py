@@ -13,7 +13,7 @@
 The UVCCSD Ansatz.
 """
 
-from typing import Optional, List
+from __future__ import annotations
 
 from qiskit.circuit import QuantumCircuit
 from qiskit_nature.second_q.mappers import QubitConverter
@@ -28,19 +28,18 @@ class UVCCSD(UVCC):
 
     def __init__(
         self,
-        num_modals: Optional[List[int]] = None,
-        qubit_converter: Optional[QubitConverter] = None,
+        num_modals: list[int] | None = None,
+        qubit_converter: QubitConverter | None = None,
         *,
         reps: int = 1,
-        initial_state: Optional[QuantumCircuit] = None,
+        initial_state: QuantumCircuit | None = None,
     ):
         """
         Args:
             num_modals: Is a list defining the number of modals per mode. E.g. for a 3 modes system
                 with 4 modals per mode num_modals = [4,4,4]
-            qubit_converter: the QubitConverter instance which takes care of mapping a
-                :class:`~.SecondQuantizedOp` to a :class:`PauliSumOp` as well as performing all
-                configured symmetry reductions on it.
+            qubit_converter: the QubitConverter instance which takes care of mapping to a qubit
+                operator.
             reps: The number of times to repeat the evolved operators.
             initial_state: A `QuantumCircuit` object to prepend to the circuit.
         """

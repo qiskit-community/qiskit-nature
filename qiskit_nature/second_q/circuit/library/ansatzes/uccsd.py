@@ -13,7 +13,7 @@
 The UCCSD Ansatz.
 """
 
-from typing import Optional, Tuple
+from __future__ import annotations
 
 from qiskit.circuit import QuantumCircuit
 from qiskit_nature.second_q.mappers import QubitConverter
@@ -28,12 +28,12 @@ class UCCSD(UCC):
 
     def __init__(
         self,
-        num_spatial_orbitals: Optional[int] = None,
-        num_particles: Optional[Tuple[int, int]] = None,
-        qubit_converter: Optional[QubitConverter] = None,
+        num_spatial_orbitals: int | None = None,
+        num_particles: tuple[int, int] | None = None,
+        qubit_converter: QubitConverter | None = None,
         *,
         reps: int = 1,
-        initial_state: Optional[QuantumCircuit] = None,
+        initial_state: QuantumCircuit | None = None,
         generalized: bool = False,
         preserve_spin: bool = True,
     ):
@@ -41,9 +41,8 @@ class UCCSD(UCC):
         Args:
             num_spatial_orbitals: the number of spatial orbitals.
             num_particles: the tuple of the number of alpha- and beta-spin particles.
-            qubit_converter: the QubitConverter instance which takes care of mapping a
-                :class:`~.SecondQuantizedOp` to a :class:`PauliSumOp` as well as performing all
-                configured symmetry reductions on it.
+            qubit_converter: the QubitConverter instance which takes care of mapping to a qubit
+                operator.
             reps: The number of times to repeat the evolved operators.
             initial_state: A `QuantumCircuit` object to prepend to the circuit.
             generalized: boolean flag whether or not to use generalized excitations, which ignore

@@ -68,9 +68,7 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         # user but also additional ones from the transformation
         main_second_q_op, aux_second_q_ops = problem.second_q_ops()
 
-        num_particles = None
-        if hasattr(problem, "num_particles"):
-            num_particles = problem.num_particles  # type: ignore[attr-defined]
+        num_particles = getattr(problem, "num_particles", None)
 
         main_operator = self._qubit_converter.convert(
             main_second_q_op,

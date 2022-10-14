@@ -13,7 +13,9 @@
 The SUCCD Ansatz.
 """
 
-from typing import List, Optional, Tuple, Sequence, Dict, cast
+from __future__ import annotations
+
+from typing import Sequence, cast
 from collections import defaultdict
 
 import itertools
@@ -52,13 +54,13 @@ class SUCCD(UCC):
 
     def __init__(
         self,
-        num_spatial_orbitals: Optional[int] = None,
-        num_particles: Optional[Tuple[int, int]] = None,
-        qubit_converter: Optional[QubitConverter] = None,
+        num_spatial_orbitals: int | None = None,
+        num_particles: tuple[int, int] | None = None,
+        qubit_converter: QubitConverter | None = None,
         *,
         reps: int = 1,
-        initial_state: Optional[QuantumCircuit] = None,
-        include_singles: Tuple[bool, bool] = (False, False),
+        initial_state: QuantumCircuit | None = None,
+        include_singles: tuple[bool, bool] = (False, False),
         generalized: bool = False,
         mirror: bool = False,
     ):
@@ -66,9 +68,8 @@ class SUCCD(UCC):
         Args:
             num_spatial_orbitals: the number of spatial orbitals.
             num_particles: the tuple of the number of alpha- and beta-spin particles.
-            qubit_converter: the QubitConverter instance which takes care of mapping a
-                :class:`~.SecondQuantizedOp` to a :class:`PauliSumOp` as well as performing all
-                configured symmetry reductions on it.
+            qubit_converter: the QubitConverter instance which takes care of mapping to a qubit
+                operator.
             reps: The number of times to repeat the evolved operators.
             initial_state: A `QuantumCircuit` object to prepend to the circuit.
             include_singles: enables the inclusion of single excitations per spin species.
@@ -87,7 +88,7 @@ class SUCCD(UCC):
         self._validate_num_particles(num_particles)
         self._include_singles = include_singles
         self._mirror = mirror
-        self._excitations_dict: Dict[str, List[Tuple[Tuple[int, ...], Tuple[int, ...]]]] = None
+        self._excitations_dict: dict[str, list[tuple[tuple[int, ...], tuple[int, ...]]]] = None
         super().__init__(
             num_spatial_orbitals=num_spatial_orbitals,
             num_particles=num_particles,
@@ -102,12 +103,12 @@ class SUCCD(UCC):
         )
 
     @property
-    def include_singles(self) -> Tuple[bool, bool]:
+    def include_singles(self) -> tuple[bool, bool]:
         """Whether to include single excitations."""
         return self._include_singles
 
     @include_singles.setter
-    def include_singles(self, include_singles: Tuple[bool, bool]) -> None:
+    def include_singles(self, include_singles: tuple[bool, bool]) -> None:
         """Sets whether to include single excitations."""
         self._operators = None
         self._invalidate()
@@ -136,8 +137,8 @@ class SUCCD(UCC):
         self.operators = valid_operators
 
     def generate_excitations(
-        self, num_spatial_orbitals: int, num_particles: Tuple[int, int]
-    ) -> List[Tuple[Tuple[int, ...], Tuple[int, ...]]]:
+        self, num_spatial_orbitals: int, num_particles: tuple[int, int]
+    ) -> list[tuple[tuple[int, ...], tuple[int, ...]]]:
         """Generates the excitations for the SUCCD Ansatz.
 
         Args:
@@ -155,7 +156,7 @@ class SUCCD(UCC):
         """
         self._validate_num_particles(num_particles)
 
-        excitations: List[Tuple[Tuple[int, ...], Tuple[int, ...]]] = []
+        excitations: list[tuple[tuple[int, ...], tuple[int, ...]]] = []
 
         excitations.extend(
             generate_fermionic_excitations(
@@ -203,8 +204,8 @@ class SUCCD(UCC):
                     second_exc[1] + beta_index_shift,
                 )
                 # add the excitation tuple
-                occ: Tuple[int, ...]
-                unocc: Tuple[int, ...]
+                occ: tuple[int, ...]
+                unocc: tuple[int, ...]
                 occ, unocc = zip(alpha_exc, beta_exc)
                 exc_tuple = (occ, unocc)
                 excitations.append(exc_tuple)
@@ -222,7 +223,7 @@ class SUCCD(UCC):
                 str(num_particles),
             ) from exc
 
-    def _build_fermionic_excitation_ops(self, excitations: Sequence) -> List[FermionicOp]:
+    def _build_fermionic_excitation_ops(self, excitations: Sequence) -> list[FermionicOp]:
         """Builds all possible excitation operators with the given number of excitations for the
         specified number of particles distributed in the number of orbitals.
 
@@ -232,9 +233,9 @@ class SUCCD(UCC):
         Returns:
             The list of excitation operators in the second quantized formalism.
         """
-        operators: List[FermionicOp] = []
-        excitations_dictionary: Dict[
-            str, List[Tuple[Tuple[int, ...], Tuple[int, ...]]]
+        operators: list[FermionicOp] = []
+        excitations_dictionary: dict[
+            str, list[tuple[tuple[int, ...], tuple[int, ...]]]
         ] = defaultdict(list)
         beta_index_shift = self.num_spatial_orbitals
 

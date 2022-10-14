@@ -84,9 +84,8 @@ class UVCC(EvolvedOperatorAnsatz):
                     write such a callable refer to the default method
                     :meth:`~qiskit_nature.second_q.circuit.library.ansatzes.utils.\
                     generate_vibration_excitations`.
-            qubit_converter: the QubitConverter instance which takes care of mapping a
-                :class:`~.SecondQuantizedOp` to a :class:`PauliSumOp` as well as performing all
-                configured symmetry reductions on it.
+            qubit_converter: the QubitConverter instance which takes care of mapping to a qubit
+                operator.
             reps: number of repetitions of basic module
             initial_state: A `QuantumCircuit` object to prepend to the circuit.
         """

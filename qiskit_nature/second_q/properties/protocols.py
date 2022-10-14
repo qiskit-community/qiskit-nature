@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Mapping
 
 import sys
 
@@ -34,11 +34,11 @@ if TYPE_CHECKING:
 class SparseLabelOpFactory(Protocol):
     """A protocol indicating :class:`qiskit_nature.second_q.operators.SparseLabelOp` generators."""
 
-    def second_q_ops(self) -> dict[str, SparseLabelOp]:
+    def second_q_ops(self) -> Mapping[str, SparseLabelOp]:
         """Builds the :class:`qiskit_nature.second_q.operators.SparseLabelOp` instances.
 
         Returns:
-            A `dict` of `SparseLabelOp` objects.
+            A mapping of strings to `SparseLabelOp` objects.
         """
 
 

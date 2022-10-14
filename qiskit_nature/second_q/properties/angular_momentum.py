@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Mapping
 
 import itertools
 
@@ -37,11 +37,11 @@ class AngularMomentum:
         """
         self.num_spatial_orbitals = num_spatial_orbitals
 
-    def second_q_ops(self) -> dict[str, FermionicOp]:
+    def second_q_ops(self) -> Mapping[str, FermionicOp]:
         """Returns the second quantized angular momentum operator.
 
         Returns:
-            A `dict` of `FermionicOp` objects.
+            A mapping of strings to `FermionicOp` objects.
         """
         x_h1, x_h2 = _calc_s_x_squared_ints(self.num_spatial_orbitals)
         y_h1, y_h2 = _calc_s_y_squared_ints(self.num_spatial_orbitals)
