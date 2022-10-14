@@ -144,7 +144,7 @@ class TestSUCCD(QiskitNatureTestCase):
             ],
         ),
     )
-    def test_puccd_ansatz_generalized(self, num_spatial_orbitals, num_particles, expect):
+    def test_succd_ansatz_generalized(self, num_spatial_orbitals, num_particles, expect):
         """Tests the generalized SUCCD Ansatz."""
         converter = QubitConverter(JordanWignerMapper())
 

@@ -27,16 +27,16 @@ from qiskit_nature.second_q.mappers import QubitConverter
 
 
 def build_electronic_ops(
-    num_particles: Tuple[int, int],
     num_spatial_orbitals: int,
-    qubit_converter: QubitConverter,
+    num_particles: Tuple[int, int],
     excitations: str
     | int
     | list[int]
     | Callable[
         [int, tuple[int, int]],
         list[tuple[tuple[int, ...], tuple[int, ...]]],
-    ] = "sd",
+    ],
+    qubit_converter: QubitConverter,
 ) -> Tuple[
     Dict[str, PauliSumOp],
     Dict[str, List[bool]],
@@ -45,11 +45,8 @@ def build_electronic_ops(
     """Builds the product of raising and lowering operators (basic excitation operators)
 
     Args:
-        num_particles: the number of alpha- and beta-spin particles as a tuple.
         num_spatial_orbitals: the number of spatial orbitals.
-        qubit_converter: the `QubitConverter` to use for mapping and symmetry reduction. The Z2
-                         symmetries stored in this instance are the basis for the commutativity
-                         information returned by this method.
+        num_particles: the number of alpha- and beta-spin particles as a tuple.
         excitations: the types of excitations to consider. The simple cases for this input are:
             - a `str` containing any of the following characters: `s`, `d`, `t` or `q`.
             - a single, positive `int` denoting the excitation type (1 == `s`, etc.).
@@ -57,6 +54,9 @@ def build_electronic_ops(
             - and finally a callable which can be used to specify a custom list of excitations.
               For more details on how to write such a function refer to the default method,
               :meth:`generate_fermionic_excitations`.
+        qubit_converter: the `QubitConverter` to use for mapping and symmetry reduction. The Z2
+                         symmetries stored in this instance are the basis for the commutativity
+                         information returned by this method.
 
     Returns:
         A tuple containing the hopping operators, the types of commutativities and the excitation
@@ -65,7 +65,7 @@ def build_electronic_ops(
 
     num_alpha, num_beta = num_particles
 
-    ansatz = UCC(qubit_converter, (num_alpha, num_beta), num_spatial_orbitals, excitations)
+    ansatz = UCC(num_spatial_orbitals, (num_alpha, num_beta), excitations, qubit_converter)
     excitations_list = ansatz._get_excitation_list()
     size = len(excitations_list)
 

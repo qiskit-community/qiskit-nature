@@ -23,8 +23,9 @@ logger = logging.getLogger(__name__)
 
 
 def get_alpha_excitations(
-    num_alpha: int,
     num_spatial_orbitals: int,
+    num_alpha: int,
+    *,
     generalized: bool = False,
 ) -> List[Tuple[int, int]]:
     """Generates all possible single alpha-electron excitations.
@@ -53,8 +54,9 @@ def get_alpha_excitations(
 
 
 def get_beta_excitations(
-    num_beta: int,
     num_spatial_orbitals: int,
+    num_beta: int,
+    *,
     generalized: bool = False,
 ) -> List[Tuple[int, int]]:
     """Generates all possible single beta-electron excitations.
@@ -88,6 +90,7 @@ def generate_fermionic_excitations(
     num_excitations: int,
     num_spatial_orbitals: int,
     num_particles: Tuple[int, int],
+    *,
     alpha_spin: bool = True,
     beta_spin: bool = True,
     max_spin_excitation: Optional[int] = None,
@@ -147,13 +150,13 @@ def generate_fermionic_excitations(
     if preserve_spin:
         if alpha_spin:
             alpha_excitations = get_alpha_excitations(
-                num_particles[0], num_spatial_orbitals, generalized
+                num_spatial_orbitals, num_particles[0], generalized=generalized
             )
             logger.debug("Generated list of single alpha excitations: %s", alpha_excitations)
 
         if beta_spin:
             beta_excitations = get_beta_excitations(
-                num_particles[1], num_spatial_orbitals, generalized
+                num_spatial_orbitals, num_particles[1], generalized=generalized
             )
             logger.debug("Generated list of single beta excitations: %s", beta_excitations)
 
@@ -166,7 +169,7 @@ def generate_fermionic_excitations(
 
             # First, we get the generalized alpha-spin single excitations
             single_excitations = get_alpha_excitations(
-                sum(num_particles), num_spatial_orbitals, True
+                num_spatial_orbitals, sum(num_particles), generalized=True
             )
 
             # We can now obtain the alpha excitations by complementing the previously generated list
@@ -196,7 +199,7 @@ def generate_fermionic_excitations(
             # For this, we can reuse the alpha single excitation generator in a system of double the
             # actual size.
             single_excitations = get_alpha_excitations(
-                sum(num_particles), num_spatial_orbitals * 2, False
+                num_spin_orbitals, sum(num_particles), generalized=False
             )
 
             def interleaved2blocked(index: int, total: int) -> int:

@@ -38,6 +38,7 @@ class CHC(BlueprintCircuit):
         self,
         num_qubits: Optional[int] = None,
         excitations: Optional[List[Tuple[Tuple[Any, ...], ...]]] = None,
+        *,
         reps: int = 1,
         ladder: bool = False,
         initial_state: Optional[QuantumCircuit] = None,

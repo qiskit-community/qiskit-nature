@@ -259,16 +259,16 @@ class QEOM(ExcitedStatesSolver):
         """
         if isinstance(problem, ElectronicStructureProblem):
             return build_electronic_ops(
-                (problem.num_alpha, problem.num_beta),
                 problem.num_spatial_orbitals,
-                self._gsc.qubit_converter,
+                (problem.num_alpha, problem.num_beta),
                 self.excitations,
+                self._gsc.qubit_converter,
             )
         elif isinstance(problem, VibrationalStructureProblem):
             return build_vibrational_ops(
                 problem.num_modals,
-                self._gsc.qubit_converter,
                 self.excitations,
+                self._gsc.qubit_converter,
             )
         else:
             raise NotImplementedError(

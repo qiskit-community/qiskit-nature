@@ -117,6 +117,7 @@ class FermionicGaussianState(QuantumCircuit):
         transformation_matrix: np.ndarray,
         occupied_orbitals: Optional[Sequence[int]] = None,
         qubit_converter: QubitConverter = None,
+        *,
         validate: bool = True,
         rtol: float = 1e-5,
         atol: float = 1e-8,

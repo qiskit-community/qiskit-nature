@@ -52,7 +52,7 @@ class HartreeFock(QuantumCircuit):
         # Get the mapped/tapered hartree fock bitstring as we need it to match to whatever
         # conversion was done by the given qubit converter
         bitstr = hartree_fock_bitstring_mapped(
-            num_spatial_orbitals, num_particles, qubit_converter, True
+            num_spatial_orbitals, num_particles, qubit_converter, match_convert=True
         )
         # Construct the circuit for this bitstring. Since this is defined as an initial state
         # circuit its assumed that this is applied first to the qubits that are initialized to
@@ -69,6 +69,7 @@ def hartree_fock_bitstring_mapped(
     num_spatial_orbitals: int,
     num_particles: tuple[int, int],
     qubit_converter: QubitConverter,
+    *,
     match_convert: bool = True,
 ) -> list[bool]:
     """Compute the bitstring representing the mapped Hartree-Fock state for the specified system.

@@ -125,7 +125,7 @@ class TestUVCCVSCF(QiskitNatureTestCase):
 
         init_state = VSCF(num_modals)
 
-        uvcc_ansatz = UVCC(converter, num_modals, "sd", initial_state=init_state)
+        uvcc_ansatz = UVCC(num_modals, "sd", converter, initial_state=init_state)
 
         optimizer = COBYLA(maxiter=1000)
 

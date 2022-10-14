@@ -52,9 +52,10 @@ class SUCCD(UCC):
 
     def __init__(
         self,
-        qubit_converter: Optional[QubitConverter] = None,
-        num_particles: Optional[Tuple[int, int]] = None,
         num_spatial_orbitals: Optional[int] = None,
+        num_particles: Optional[Tuple[int, int]] = None,
+        qubit_converter: Optional[QubitConverter] = None,
+        *,
         reps: int = 1,
         initial_state: Optional[QuantumCircuit] = None,
         include_singles: Tuple[bool, bool] = (False, False),
@@ -63,11 +64,11 @@ class SUCCD(UCC):
     ):
         """
         Args:
+            num_spatial_orbitals: the number of spatial orbitals.
+            num_particles: the tuple of the number of alpha- and beta-spin particles.
             qubit_converter: the QubitConverter instance which takes care of mapping a
                 :class:`~.SecondQuantizedOp` to a :class:`PauliSumOp` as well as performing all
                 configured symmetry reductions on it.
-            num_particles: the tuple of the number of alpha- and beta-spin particles.
-            num_spatial_orbitals: the number of spatial orbitals.
             reps: The number of times to repeat the evolved operators.
             initial_state: A `QuantumCircuit` object to prepend to the circuit.
             include_singles: enables the inclusion of single excitations per spin species.
@@ -88,10 +89,10 @@ class SUCCD(UCC):
         self._mirror = mirror
         self._excitations_dict: Dict[str, List[Tuple[Tuple[int, ...], Tuple[int, ...]]]] = None
         super().__init__(
-            qubit_converter=qubit_converter,
-            num_particles=num_particles,
             num_spatial_orbitals=num_spatial_orbitals,
+            num_particles=num_particles,
             excitations=self.generate_excitations,
+            qubit_converter=qubit_converter,
             alpha_spin=True,
             beta_spin=True,
             max_spin_excitation=None,
@@ -184,7 +185,7 @@ class SUCCD(UCC):
         else:
             # generate alpha-spin orbital indices for occupied and unoccupied ones
             alpha_excitations = get_alpha_excitations(
-                num_electrons, num_spatial_orbitals, self._generalized
+                num_spatial_orbitals, num_electrons, generalized=self._generalized
             )
             logger.debug("Generated list of single alpha excitations: %s", alpha_excitations)
 

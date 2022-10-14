@@ -111,9 +111,8 @@ class UCC(EvolvedOperatorAnsatz):
 
     def __init__(
         self,
-        qubit_converter: QubitConverter | None = None,
-        num_particles: tuple[int, int] | None = None,
         num_spatial_orbitals: int | None = None,
+        num_particles: tuple[int, int] | None = None,
         excitations: str
         | int
         | list[int]
@@ -122,6 +121,8 @@ class UCC(EvolvedOperatorAnsatz):
             list[tuple[tuple[int, ...], tuple[int, ...]]],
         ]
         | None = None,
+        qubit_converter: QubitConverter | None = None,
+        *,
         alpha_spin: bool = True,
         beta_spin: bool = True,
         max_spin_excitation: int | None = None,
@@ -133,11 +134,8 @@ class UCC(EvolvedOperatorAnsatz):
         """
 
         Args:
-            qubit_converter: the QubitConverter instance which takes care of mapping a
-                :class:`~.SecondQuantizedOp` to a :class:`PauliSumOp` as well as performing all
-                configured symmetry reductions on it.
-            num_particles: the tuple of the number of alpha- and beta-spin particles.
             num_spatial_orbitals: the number of spatial orbitals.
+            num_particles: the tuple of the number of alpha- and beta-spin particles.
             excitations: this can be any of the following types:
 
                 :`str`: which contains the types of excitations. Allowed characters are
@@ -156,6 +154,9 @@ class UCC(EvolvedOperatorAnsatz):
                     to write such a callable refer to the default method
                     :meth:`~qiskit_nature.second_q.circuit.library.ansatzes.utils.\
                     generate_fermionic_excitations`.
+            qubit_converter: the QubitConverter instance which takes care of mapping a
+                :class:`~.SecondQuantizedOp` to a :class:`PauliSumOp` as well as performing all
+                configured symmetry reductions on it.
             alpha_spin: boolean flag whether to include alpha-spin excitations.
             beta_spin: boolean flag whether to include beta-spin excitations.
             max_spin_excitation: the largest number of excitations within a spin. E.g. you can set

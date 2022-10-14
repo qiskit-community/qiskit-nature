@@ -28,25 +28,26 @@ class UVCCSD(UVCC):
 
     def __init__(
         self,
-        qubit_converter: Optional[QubitConverter] = None,
         num_modals: Optional[List[int]] = None,
+        qubit_converter: Optional[QubitConverter] = None,
+        *,
         reps: int = 1,
         initial_state: Optional[QuantumCircuit] = None,
     ):
         """
         Args:
+            num_modals: Is a list defining the number of modals per mode. E.g. for a 3 modes system
+                with 4 modals per mode num_modals = [4,4,4]
             qubit_converter: the QubitConverter instance which takes care of mapping a
                 :class:`~.SecondQuantizedOp` to a :class:`PauliSumOp` as well as performing all
                 configured symmetry reductions on it.
-            num_modals: Is a list defining the number of modals per mode. E.g. for a 3 modes system
-                with 4 modals per mode num_modals = [4,4,4]
             reps: The number of times to repeat the evolved operators.
             initial_state: A `QuantumCircuit` object to prepend to the circuit.
         """
         super().__init__(
-            qubit_converter=qubit_converter,
             num_modals=num_modals,
             excitations="sd",
+            qubit_converter=qubit_converter,
             reps=reps,
             initial_state=initial_state,
         )

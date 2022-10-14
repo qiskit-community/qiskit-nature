@@ -93,9 +93,9 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         )
 
         ansatz = PUCCD(
-            self.qubit_converter,
-            self.num_particles,
             self.num_spatial_orbitals,
+            self.num_particles,
+            self.qubit_converter,
             initial_state=initial_state,
         )
 
@@ -122,9 +122,9 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         )
 
         ansatz = SUCCD(
-            self.qubit_converter,
-            self.num_particles,
             self.num_spatial_orbitals,
+            self.num_particles,
+            self.qubit_converter,
             initial_state=initial_state,
         )
 
@@ -151,9 +151,9 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         )
 
         ansatz = SUCCD(
-            self.qubit_converter,
-            self.num_particles,
             self.num_spatial_orbitals,
+            self.num_particles,
+            self.qubit_converter,
             initial_state=initial_state,
             mirror=True,
         )
