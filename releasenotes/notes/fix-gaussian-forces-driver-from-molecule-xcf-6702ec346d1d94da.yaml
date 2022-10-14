@@ -1,0 +1,4 @@
+---
+fixes:
+  - |
+    Added xcf argument for gaussian force driver from_molecule so that cfg1 is not hardcoded to B3LYP
