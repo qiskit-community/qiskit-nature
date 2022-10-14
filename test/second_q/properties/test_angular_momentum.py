@@ -21,7 +21,6 @@ import h5py
 
 from qiskit_nature.second_q.properties import AngularMomentum
 from qiskit_nature.second_q.operators import FermionicOp
-import qiskit_nature.optionals as _optionals
 
 
 class TestAngularMomentum(PropertyTest):
@@ -33,7 +32,6 @@ class TestAngularMomentum(PropertyTest):
         num_molecular_orbitals = 4
         self.prop = AngularMomentum(num_molecular_orbitals * 2)
 
-    @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     def test_second_q_ops(self):
         """Test second_q_ops."""
         op = self.prop.second_q_ops()["AngularMomentum"]
