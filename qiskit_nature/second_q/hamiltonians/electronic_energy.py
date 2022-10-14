@@ -15,16 +15,14 @@
 from __future__ import annotations
 
 from copy import copy
-from typing import MutableMapping, TYPE_CHECKING
+from typing import MutableMapping
 
 import numpy as np
 
+import qiskit_nature  # pylint: disable=unused-import
 from qiskit_nature.second_q.operators import ElectronicIntegrals, FermionicOp, PolynomialTensor
 
 from .hamiltonian import Hamiltonian
-
-if TYPE_CHECKING:
-    from qiskit_nature.second_q.problems import EigenstateResult
 
 
 class ElectronicEnergy(Hamiltonian):
@@ -171,7 +169,9 @@ class ElectronicEnergy(Hamiltonian):
         """
         return FermionicOp.from_polynomial_tensor(self.electronic_integrals.second_q_coeffs())
 
-    def interpret(self, result: "EigenstateResult") -> None:
+    def interpret(
+        self, result: "qiskit_nature.second_q.problemsEigenstateResult"  # type: ignore[name-defined]
+    ) -> None:
         """Interprets an :class:`qiskit_nature.second_q.problems.EigenstateResult`.
 
         In particular, this adds the constant energy shifts stored in this hamiltonian to the result
