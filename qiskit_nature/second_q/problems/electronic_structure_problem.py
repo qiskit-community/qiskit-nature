@@ -29,6 +29,7 @@ from qiskit_nature.second_q.circuit.library.initial_states.hartree_fock import (
 from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
+from qiskit_nature.second_q.properties import Interpretable
 from qiskit_nature.second_q.properties.bases import ElectronicBasis
 
 from .electronic_structure_result import ElectronicStructureResult
@@ -134,10 +135,11 @@ class ElectronicStructureProblem(BaseProblem):
         eigenstate_result = super().interpret(raw_result)
         result = ElectronicStructureResult()
         result.combine(eigenstate_result)
-        self.hamiltonian.interpret(result)
+        if isinstance(self.hamiltonian, Interpretable):
+            self.hamiltonian.interpret(result)
         for prop in self.properties:
-            if hasattr(prop, "interpret"):
-                prop.interpret(result)  # type: ignore[attr-defined]
+            if isinstance(prop, Interpretable):
+                prop.interpret(result)
         result.computed_energies = np.asarray([e.real for e in eigenstate_result.eigenvalues])
         return result
 

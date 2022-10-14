@@ -18,8 +18,6 @@ from typing import MutableMapping, Optional, Tuple, cast, TYPE_CHECKING
 
 from qiskit_nature.second_q.operators import ElectronicIntegrals, FermionicOp
 
-from .property import Property
-
 if TYPE_CHECKING:
     from qiskit_nature.second_q.problems import EigenstateResult
 
@@ -31,7 +29,7 @@ if TYPE_CHECKING:
 DipoleTuple = Tuple[Optional[float], Optional[float], Optional[float]]
 
 
-class ElectronicDipoleMoment(Property):
+class ElectronicDipoleMoment:
     r"""The ElectronicDipoleMoment property.
 
     This Property implements the operator which evaluates the **electronic** dipole moment, based on
@@ -98,7 +96,6 @@ class ElectronicDipoleMoment(Property):
             constants: a mapping of constant dipole offsets, not mapped to the qubit operator.
                 Each entry must be a tuple of length three (for the three Cartesian axes).
         """
-        super().__init__(self.__class__.__name__)
         self.x_dipole = x_dipole
         self.y_dipole = y_dipole
         self.z_dipole = z_dipole

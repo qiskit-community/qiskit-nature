@@ -19,13 +19,10 @@ from typing import Optional, TYPE_CHECKING
 
 import itertools
 
-import h5py
 import numpy as np
 
 from qiskit_nature.second_q.operators import FermionicOp, PolynomialTensor
 from qiskit_nature.second_q.operators.tensor_ordering import _chem_to_phys
-
-from .property import Property
 
 if TYPE_CHECKING:
     from qiskit_nature.second_q.problems import EigenstateResult
@@ -33,7 +30,7 @@ if TYPE_CHECKING:
 LOGGER = logging.getLogger(__name__)
 
 
-class AngularMomentum(Property):
+class AngularMomentum:
     """The AngularMomentum property."""
 
     ABSOLUTE_TOLERANCE = 1e-05
@@ -56,7 +53,6 @@ class AngularMomentum(Property):
             relative_tolerance: the relative tolerance used for checking whether the measured
                 particle number matches the expected one.
         """
-        super().__init__(self.__class__.__name__)
         self._num_spin_orbitals = num_spin_orbitals
         self._spin = spin
         self._absolute_tolerance = absolute_tolerance
@@ -102,49 +98,6 @@ class AngularMomentum(Property):
         """Sets the relative tolerance."""
         self._relative_tolerance = relative_tolerance
 
-    def __str__(self) -> str:
-        string = [super().__str__() + ":"]
-        string += [f"\t{self._num_spin_orbitals} SOs"]
-        if self.spin is not None:
-            string += [f"\tExpected spin: {self.spin}"]
-        return "\n".join(string)
-
-    def to_hdf5(self, parent: h5py.Group) -> None:
-        """Stores this instance in an HDF5 group inside of the provided parent group.
-
-        See also :func:`~qiskit_nature.hdf5.HDF5Storable.to_hdf5` for more details.
-
-        Args:
-            parent: the parent HDF5 group.
-        """
-        super().to_hdf5(parent)
-        group = parent.require_group(self.name)
-
-        group.attrs["num_spin_orbitals"] = self._num_spin_orbitals
-        if self._spin:
-            group.attrs["spin"] = self._spin
-        group.attrs["absolute_tolerance"] = self._absolute_tolerance
-        group.attrs["relative_tolerance"] = self._relative_tolerance
-
-    @staticmethod
-    def from_hdf5(h5py_group: h5py.Group) -> AngularMomentum:
-        """Constructs a new instance from the data stored in the provided HDF5 group.
-
-        See also :func:`~qiskit_nature.hdf5.HDF5Storable.from_hdf5` for more details.
-
-        Args:
-            h5py_group: the HDF5 group from which to load the data.
-
-        Returns:
-            A new instance of this class.
-        """
-        return AngularMomentum(
-            int(h5py_group.attrs["num_spin_orbitals"]),
-            h5py_group.attrs.get("spin", None),
-            h5py_group.attrs["absolute_tolerance"],
-            h5py_group.attrs["relative_tolerance"],
-        )
-
     def second_q_ops(self) -> dict[str, FermionicOp]:
         """Returns the second quantized angular momentum operator.
 
@@ -161,7 +114,7 @@ class AngularMomentum(Property):
 
         op = FermionicOp.from_polynomial_tensor(tensor).simplify()
 
-        return {self.name: op}
+        return {self.__class__.__name__: op}
 
     def interpret(self, result: "EigenstateResult") -> None:
         """Interprets an :class:`~qiskit_nature.second_q.problems.EigenstateResult`
@@ -181,7 +134,7 @@ class AngularMomentum(Property):
             if aux_op_eigenvalues is None:
                 continue
 
-            _key = self.name if isinstance(aux_op_eigenvalues, dict) else 1
+            _key = self.__class__.__name__ if isinstance(aux_op_eigenvalues, dict) else 1
 
             if aux_op_eigenvalues[_key] is not None:
                 total_angular_momentum = aux_op_eigenvalues[_key].real

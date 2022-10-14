@@ -12,10 +12,7 @@
 
 """Test Magnetization Property"""
 
-import tempfile
 from test.second_q.properties.property_test import PropertyTest
-
-import h5py
 
 from qiskit_nature.second_q.properties import Magnetization
 
@@ -43,20 +40,3 @@ class TestMagnetization(PropertyTest):
             "+_7 -_7": -0.5,
         }
         self.assertEqual(dict(ops.items()), expected)
-
-    def test_to_hdf5(self):
-        """Test to_hdf5."""
-        with tempfile.TemporaryFile() as tmp_file:
-            with h5py.File(tmp_file, "w") as file:
-                self.prop.to_hdf5(file)
-
-    def test_from_hdf5(self):
-        """Test from_hdf5."""
-        with tempfile.TemporaryFile() as tmp_file:
-            with h5py.File(tmp_file, "w") as file:
-                self.prop.to_hdf5(file)
-
-            with h5py.File(tmp_file, "r") as file:
-                read_prop = Magnetization.from_hdf5(file["Magnetization"])
-
-                self.assertEqual(self.prop, read_prop)

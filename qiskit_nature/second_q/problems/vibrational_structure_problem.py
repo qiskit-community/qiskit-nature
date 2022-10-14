@@ -24,6 +24,7 @@ from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
 
 from qiskit_nature.second_q.hamiltonians import VibrationalEnergy
 from qiskit_nature.second_q.operators import SecondQuantizedOp
+from qiskit_nature.second_q.properties import Interpretable
 from qiskit_nature.second_q.properties.bases import HarmonicBasis
 
 from .base_problem import BaseProblem
@@ -109,10 +110,11 @@ class VibrationalStructureProblem(BaseProblem):
         eigenstate_result = super().interpret(raw_result)
         result = VibrationalStructureResult()
         result.combine(eigenstate_result)
-        self.hamiltonian.interpret(result)
+        if isinstance(self.hamiltonian, Interpretable):
+            self.hamiltonian.interpret(result)
         for prop in self.properties:
-            if hasattr(prop, "interpret"):
-                prop.interpret(result)  # type: ignore[attr-defined]
+            if isinstance(prop, Interpretable):
+                prop.interpret(result)
         result.computed_vibrational_energies = eigenstate_result.eigenvalues
         return result
 

@@ -16,7 +16,6 @@ import unittest
 
 from typing import List, Optional
 
-from test import QiskitNatureTestCase
 from test.second_q.drivers.test_driver_methods_gsc import TestDriverMethods
 from qiskit.algorithms.minimum_eigensolvers import NumPyMinimumEigensolver
 from qiskit_nature.second_q.algorithms import GroundStateEigensolver
@@ -86,20 +85,6 @@ class TestMethodsFCIDump(TestDriverMethods):
         )
         result = self._run_fcidump(fcidump, transformers=[ActiveSpaceTransformer((5, 4), 6)])
         self._assert_energy(result, "oh")
-
-
-class TestFCIDumpResult(QiskitNatureTestCase):
-    """rResult FCIDump tests."""
-
-    def test_result_log(self):
-        """Test Result log function."""
-        fcidump = FCIDump.from_file(
-            self.get_resource_path("test_fcidump_h2.fcidump", "second_q/formats/fcidump")
-        )
-        properties = fcidump_to_problem(fcidump).properties
-        with self.assertLogs("qiskit_nature", level="DEBUG") as _:
-            for prop in properties:
-                prop.log()
 
 
 if __name__ == "__main__":
