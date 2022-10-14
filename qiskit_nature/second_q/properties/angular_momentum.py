@@ -15,20 +15,18 @@
 from __future__ import annotations
 
 import logging
-from typing import Optional, TYPE_CHECKING
+from typing import Optional
 
 import itertools
 
 import h5py
 import numpy as np
 
+import qiskit_nature  # pylint: disable=unused-import
 from qiskit_nature.second_q.operators import FermionicOp, PolynomialTensor
 from qiskit_nature.second_q.operators.tensor_ordering import _chem_to_phys
 
 from .property import Property
-
-if TYPE_CHECKING:
-    from qiskit_nature.second_q.problems import EigenstateResult
 
 LOGGER = logging.getLogger(__name__)
 
@@ -163,7 +161,9 @@ class AngularMomentum(Property):
 
         return {self.name: op}
 
-    def interpret(self, result: "EigenstateResult") -> None:
+    def interpret(
+        self, result: "qiskit_nature.second_q.problemsEigenstateResult"  # type: ignore[name-defined]
+    ) -> None:
         """Interprets an :class:`~qiskit_nature.second_q.problems.EigenstateResult`
         in this property's context.
 
