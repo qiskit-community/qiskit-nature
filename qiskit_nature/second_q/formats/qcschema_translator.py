@@ -19,7 +19,7 @@ from typing import cast
 import numpy as np
 
 from qiskit_nature.units import DistanceUnit
-from qiskit_nature.second_q.problems import ElectronicStructureProblem
+from qiskit_nature.second_q.problems import ElectronicBasis, ElectronicStructureProblem
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.operators import ElectronicIntegrals
 from qiskit_nature.second_q.properties import (
@@ -27,7 +27,6 @@ from qiskit_nature.second_q.properties import (
     Magnetization,
     ParticleNumber,
 )
-from qiskit_nature.second_q.properties.bases import ElectronicBasis
 from qiskit_nature.second_q.transformers import BasisTransformer
 
 from .molecule_info import MoleculeInfo

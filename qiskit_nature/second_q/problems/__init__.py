@@ -21,6 +21,7 @@ Second-Quantization Problems (:mod:`qiskit_nature.second_q.problems`)
    :nosignatures:
 
    BaseProblem
+   ElectronicBasis
 
    ElectronicStructureProblem
    VibrationalStructureProblem
@@ -38,6 +39,7 @@ Second-Quantization Problems (:mod:`qiskit_nature.second_q.problems`)
 """
 
 from .base_problem import BaseProblem, EigenstateResult
+from .electronic_basis import ElectronicBasis
 from .properties_container import PropertiesContainer
 
 from .electronic_properties_container import ElectronicPropertiesContainer
@@ -56,6 +58,7 @@ __all__ = [
     "BaseProblem",
     "EigenstateResult",
     "PropertiesContainer",
+    "ElectronicBasis",
     "ElectronicStructureProblem",
     "ElectronicStructureResult",
     "ElectronicPropertiesContainer",

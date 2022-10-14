@@ -15,9 +15,8 @@
 from __future__ import annotations
 
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
-from qiskit_nature.second_q.problems import ElectronicStructureProblem
+from qiskit_nature.second_q.problems import ElectronicBasis, ElectronicStructureProblem
 from qiskit_nature.second_q.properties import ParticleNumber
-from qiskit_nature.second_q.properties.bases import ElectronicBasis
 
 from .fcidump import FCIDump
 

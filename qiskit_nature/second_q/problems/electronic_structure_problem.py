@@ -31,13 +31,13 @@ from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.properties import Interpretable
-from qiskit_nature.second_q.properties.bases import ElectronicBasis
 
 from .electronic_structure_result import ElectronicStructureResult
 from .electronic_properties_container import ElectronicPropertiesContainer
 from .eigenstate_result import EigenstateResult
 
 from .base_problem import BaseProblem
+from .electronic_basis import ElectronicBasis
 
 
 class ElectronicStructureProblem(BaseProblem):

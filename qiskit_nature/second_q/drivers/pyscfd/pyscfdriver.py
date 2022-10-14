@@ -32,9 +32,8 @@ from qiskit_nature.second_q.formats.qcschema_translator import (
     get_ao_to_mo_from_qcschema,
 )
 from qiskit_nature.second_q.operators import ElectronicIntegrals
-from qiskit_nature.second_q.problems import ElectronicStructureProblem
+from qiskit_nature.second_q.problems import ElectronicBasis, ElectronicStructureProblem
 from qiskit_nature.second_q.properties import ElectronicDipoleMoment
-from qiskit_nature.second_q.properties.bases import ElectronicBasis
 from qiskit_nature.settings import settings
 import qiskit_nature.optionals as _optionals
 

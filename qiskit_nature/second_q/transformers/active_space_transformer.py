@@ -24,7 +24,7 @@ import numpy as np
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy, Hamiltonian
 from qiskit_nature.second_q.operators import ElectronicIntegrals
-from qiskit_nature.second_q.problems import BaseProblem, ElectronicStructureProblem
+from qiskit_nature.second_q.problems import BaseProblem, ElectronicBasis, ElectronicStructureProblem
 from qiskit_nature.second_q.properties import (
     AngularMomentum,
     ElectronicDensity,
@@ -32,7 +32,6 @@ from qiskit_nature.second_q.properties import (
     Magnetization,
     ParticleNumber,
 )
-from qiskit_nature.second_q.properties.bases import ElectronicBasis
 
 from .base_transformer import BaseTransformer
 from .basis_transformer import BasisTransformer
@@ -168,7 +167,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         Raises:
             NotImplementedError: when an unsupported problem type is provided.
             NotImplementedError: when the ``ElectronicStructureProblem`` is not in the
-                :attr:`qiskit_nature.second_q.properties.bases.ElectronicBasis.MO` basis.
+                :attr:`qiskit_nature.second_q.problems.ElectronicBasis.MO` basis.
             QiskitNatureError: If the provided ``ElectronicStructureProblem`` does not specify the
                 number of particles (``num_particles``) and number of orbitals
                 (``num_spatial_orbitals``), or if the amount of selected active orbital indices does
