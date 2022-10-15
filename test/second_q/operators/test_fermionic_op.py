@@ -416,15 +416,19 @@ class TestFermionicOp(QiskitNatureTestCase):
 
     def test_no_num_spin_orbitals(self):
         """Test operators with automatic register length"""
+        op0 = FermionicOp({"": 1})
         op1 = FermionicOp({"+_0 -_0": 1})
         op2 = FermionicOp({"-_0 +_1": 2})
 
         with self.subTest("Inferred register length"):
+            self.assertEqual(op0.num_spin_orbitals, 0)
             self.assertEqual(op1.num_spin_orbitals, 1)
             self.assertEqual(op2.num_spin_orbitals, 2)
 
         with self.subTest("Mathematical operations"):
+            self.assertEqual((op0 + op2).num_spin_orbitals, 2)
             self.assertEqual((op1 + op2).num_spin_orbitals, 2)
+            self.assertEqual((op0 @ op2).num_spin_orbitals, 2)
             self.assertEqual((op1 @ op2).num_spin_orbitals, 2)
             self.assertEqual((op1 ^ op2).num_spin_orbitals, 3)
 
@@ -438,6 +442,9 @@ class TestFermionicOp(QiskitNatureTestCase):
             np.testing.assert_array_almost_equal(op1.to_matrix(False), ref)
             op1.num_spin_orbitals = 2
             np.testing.assert_array_almost_equal(op1.to_matrix(False), np.kron(ref, np.eye(2)))
+
+            ref = np.array([[1]])
+            np.testing.assert_array_almost_equal(op0.to_matrix(False), ref)
 
 
 if __name__ == "__main__":
