@@ -201,7 +201,7 @@ class FermionicOp(SparseLabelOp):
 
         num_so = self.num_spin_orbitals
 
-        max_index = 0
+        max_index = -1
 
         for key in keys:
             # 0. explicitly allow the empty key
