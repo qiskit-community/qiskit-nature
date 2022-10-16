@@ -433,7 +433,14 @@ class FermionicOp(SparseLabelOp):
         for terms, coeff in self.terms():
             ordered_op += self._normal_ordered(terms, coeff)
 
-        return ordered_op
+        # after successful normal ordering, we remove all zero coefficients
+        return self._new_instance(
+            {
+                label: coeff
+                for label, coeff in ordered_op.items()
+                if not np.isclose(coeff, 0.0, atol=self.atol)
+            }
+        )
 
     def _normal_ordered(self, terms: list[tuple[str, int]], coeff: complex) -> FermionicOp:
         if not terms:
