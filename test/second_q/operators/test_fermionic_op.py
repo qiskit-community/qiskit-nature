@@ -310,7 +310,7 @@ class TestFermionicOp(QiskitNatureTestCase):
             self.assertEqual(fer_op, targ)
 
         with self.subTest("Test normal ordering simplifies"):
-            orig = FermionicOp({"-_0 +_1": 1, "+_1 -_0": -1}, num_spin_orbitals=2)
+            orig = FermionicOp({"-_0 +_1": 1, "+_1 -_0": -1, "+_0": 0.0}, num_spin_orbitals=2)
             fer_op = orig.normal_ordered()
             targ = FermionicOp({"+_1 -_0": -2}, num_spin_orbitals=2)
             self.assertEqual(fer_op, targ)
