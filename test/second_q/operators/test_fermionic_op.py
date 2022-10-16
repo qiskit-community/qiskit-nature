@@ -414,6 +414,30 @@ class TestFermionicOp(QiskitNatureTestCase):
 
                 self.assertEqual(op, expected)
 
+        with self.subTest("compose operation order"):
+            r_l = 2
+            p_t = PolynomialTensor(
+                {
+                    "+-": np.arange(1, 5).reshape((r_l, r_l)),
+                    "++--": np.arange(1, 17).reshape((r_l, r_l, r_l, r_l)),
+                }
+            )
+            op = FermionicOp.from_polynomial_tensor(p_t)
+
+            self.assertEqual(op @ op, FermionicOp.from_polynomial_tensor(p_t @ p_t))
+
+        with self.subTest("tensor operation order"):
+            r_l = 2
+            p_t = PolynomialTensor(
+                {
+                    "+-": np.arange(1, 5).reshape((r_l, r_l)),
+                    "++--": np.arange(1, 17).reshape((r_l, r_l, r_l, r_l)),
+                }
+            )
+            op = FermionicOp.from_polynomial_tensor(p_t)
+
+            self.assertEqual(op ^ op, FermionicOp.from_polynomial_tensor(p_t ^ p_t))
+
     def test_no_num_spin_orbitals(self):
         """Test operators with automatic register length"""
         op0 = FermionicOp({"": 1})

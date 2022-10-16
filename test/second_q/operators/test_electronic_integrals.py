@@ -236,26 +236,6 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
         ):
             _ = ElectronicIntegrals(self.alpha) + 5
 
-    def test_conjugate(self):
-        """Test for conjugate of ElectronicIntegrals"""
-        expected = ElectronicIntegrals(
-            self.alpha.conjugate(),
-            self.beta.conjugate(),
-            self.beta_alpha.conjugate(),
-        )
-        result = ElectronicIntegrals(self.alpha, self.beta, self.beta_alpha).conjugate()
-        self.assertTrue(result.equiv(expected))
-
-    def test_transpose(self):
-        """Test for transpose of ElectronicIntegrals"""
-        expected = ElectronicIntegrals(
-            self.alpha.transpose(),
-            self.beta.transpose(),
-            self.beta_alpha.transpose(),
-        )
-        result = ElectronicIntegrals(self.alpha, self.beta, self.beta_alpha).transpose()
-        self.assertTrue(result.equiv(expected))
-
     def test_einsum(self):
         """Test ElectronicIntegrals.einsum"""
         one_body_a = np.random.random((2, 2))
@@ -449,7 +429,12 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
             alpha = PolynomialTensor({"+-": one_body_a, "++--": two_body_aa})
             ints = ElectronicIntegrals(alpha)
             tensor = ints.second_q_coeffs()
-            expected = self.kronecker ^ alpha
+            expected = PolynomialTensor(
+                {
+                    "+-": np.kron(self.kronecker["+-"], one_body_a),
+                    "++--": np.kron(self.kronecker["++--"], two_body_aa),
+                }
+            )
             self.assertTrue(tensor.equiv(expected))
 
         with self.subTest("alpha and beta"):
