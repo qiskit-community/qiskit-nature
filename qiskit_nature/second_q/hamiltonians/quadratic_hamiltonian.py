@@ -133,8 +133,8 @@ class QuadraticHamiltonian(PolynomialTensor, Hamiltonian, TolerancesMixin):
     def __repr__(self) -> str:
         return (
             f"QuadraticHamiltonian("
-            f"hermitian_part={self.hermitian_part}, "
-            f"antisymmetric_part={self.antisymmetric_part}, "
+            f"hermitian_part={repr(self.hermitian_part)}, "
+            f"antisymmetric_part={repr(self.antisymmetric_part)}, "
             f"constant={self.constant}, "
             f"num_modes={self._num_modes})"
         )

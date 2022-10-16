@@ -254,7 +254,7 @@ class TestQuadraticHamiltonian(QiskitNatureTestCase):
         self.assertEqual(
             repr(quad_ham),
             "QuadraticHamiltonian("
-            "hermitian_part=[[ 1.+0.j  0.+2.j]\n [-0.-2.j  3.+0.j]], "
-            "antisymmetric_part=[[ 0  4]\n [-4  0]], "
+            "hermitian_part=array([[ 1.+0.j,  0.+2.j],\n       [-0.-2.j,  3.+0.j]]), "
+            "antisymmetric_part=array([[ 0,  4],\n       [-4,  0]]), "
             "constant=5.0, num_modes=2)",
         )
