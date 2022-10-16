@@ -15,8 +15,9 @@
 from __future__ import annotations
 
 import logging
-import sys
-from typing import cast, TypeVar
+from typing import cast
+
+import numpy as np
 
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy, Hamiltonian
@@ -31,24 +32,7 @@ from qiskit_nature.second_q.properties import (
 
 from .base_transformer import BaseTransformer
 
-if sys.version_info >= (3, 8):
-    # pylint: disable=no-name-in-module
-    from typing import Protocol
-else:
-    from typing_extensions import Protocol
-
 LOGGER = logging.getLogger(__name__)
-
-
-# pylint: disable=invalid-name
-T = TypeVar("T", bound="Transposable")
-
-
-class Transposable(Protocol):
-    """A Protocol indicating the existence of a ``.transpose()`` function."""
-
-    def transpose(self: T) -> T:
-        """Returns the transposed version of itself."""
 
 
 class BasisTransformer(BaseTransformer):
@@ -90,7 +74,7 @@ class BasisTransformer(BaseTransformer):
         self,
         initial_basis: ElectronicBasis,
         final_basis: ElectronicBasis,
-        coefficients: PolynomialTensor | Transposable,
+        coefficients: PolynomialTensor | ElectronicIntegrals,
     ) -> None:
         """
         Args:
@@ -111,7 +95,7 @@ class BasisTransformer(BaseTransformer):
         return BasisTransformer(
             self.final_basis,
             self.initial_basis,
-            self.coefficients.transpose(),
+            self.coefficients.__class__.apply(np.transpose, self.coefficients, validate=False),
         )
 
     def transform(self, problem: BaseProblem) -> BaseProblem:

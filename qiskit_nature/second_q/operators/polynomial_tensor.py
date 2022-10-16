@@ -14,15 +14,16 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
+from itertools import product
 from numbers import Number
 from typing import Iterator, Type, Union, cast
+import string
 
 import numpy as np
 
 from qiskit.quantum_info.operators.mixins import (
     LinearMixin,
-    AdjointMixin,
     GroupMixin,
     TolerancesMixin,
 )
@@ -74,7 +75,7 @@ else:
 ARRAY_TYPE = Union[np.ndarray, SparseArray]
 
 
-class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, Mapping):
+class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
     """A container class to store arbitrary operator coefficients.
 
     This class generalizes the storing of operator coefficients in matrix format. Actual operators
@@ -115,7 +116,7 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
     **Algebra**
 
     This class supports the following basic arithmetic operations: addition, subtraction, scalar
-    multiplication, operator multiplication, and adjoint.
+    multiplication, and operator multiplication.
     For example,
 
     Addition
@@ -138,11 +139,16 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
 
       print(tensor ^ tensor)
 
-    Adjoint
+    You can also implement more advanced arithmetic via the :meth:`apply` and :meth:`einsum`
+    methods.
 
     .. jupyter-execute::
 
-      PolynomialTensor({"+-": 1j * matrix}).adjoint()
+      print(PolynomialTensor.apply(np.transpose, tensor))
+      print(PolynomialTensor.apply(np.conjugate, 1j * tensor))
+      print(PolynomialTensor.apply(np.kron, tensor, tensor))
+
+      print(PolynomialTensor.einsum({"ij,ji": ("+-", "+-", "")}, tensor, tensor))
 
     **Sparse Arrays**
 
@@ -469,30 +475,6 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
 
         return True
 
-    def conjugate(self) -> PolynomialTensor:
-        """Returns the conjugate of the ``PolynomialTensor``.
-
-        Returns:
-            The complex conjugate of the starting ``PolynomialTensor``.
-        """
-        conj_dict: dict[str, ARRAY_TYPE] = {}
-        for key, value in self._data.items():
-            conj_dict[key] = np.conjugate(value)
-
-        return PolynomialTensor(conj_dict, validate=False)
-
-    def transpose(self) -> PolynomialTensor:
-        """Returns the transpose of the ``PolynomialTensor``.
-
-        Returns:
-            The transpose of the starting ``PolynomialTensor``.
-        """
-        transpose_dict: dict[str, ARRAY_TYPE] = {}
-        for key, value in self._data.items():
-            transpose_dict[key] = np.transpose(value)
-
-        return PolynomialTensor(transpose_dict, validate=False)
-
     def compose(
         self, other: PolynomialTensor, qargs: None = None, front: bool = False
     ) -> PolynomialTensor:
@@ -503,6 +485,9 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
             qargs: UNUSED.
             front: If True composition uses right matrix multiplication, otherwise left
                 multiplication is used (the default).
+
+        Raises:
+            NotImplementedError: when the two tensors do not have the same :attr:`register_length`.
 
         Returns:
             The operator resulting from the composition.
@@ -519,15 +504,23 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
         """
         a = self if front else other
         b = other if front else self
+
+        if a.register_length != b.register_length:
+            raise NotImplementedError()
+
         new_data: dict[str, ARRAY_TYPE | Number] = {}
-        for key in a:
-            if key not in b:
-                continue
-            if len(key) < 2:
-                # fall back to standard multiplication since matmul only applies to at least 2D
-                new_data[key] = cast(Number, cast(complex, a[key]) * cast(complex, b[key]))
+        for akey, bkey in product(a, b):
+            new_key = akey + bkey
+
+            amat = cast(ARRAY_TYPE, a[akey])
+            bmat = cast(ARRAY_TYPE, b[bkey])
+
+            outer = np.outer(amat, bmat).reshape(amat.shape + bmat.shape)
+
+            if new_key in new_data:
+                new_data[new_key] = new_data[new_key] + outer
             else:
-                new_data[key] = np.matmul(cast(ARRAY_TYPE, a[key]), cast(ARRAY_TYPE, b[key]))
+                new_data[new_key] = outer
 
         return PolynomialTensor(new_data)
 
@@ -536,6 +529,9 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
 
         Args:
             other: the other PolynomialTensor.
+
+        Raises:
+            NotImplementedError: when the two tensors do not have the same :attr:`register_length`.
 
         Returns:
             The tensor resulting from the tensor product, :math:`self \otimes other`.
@@ -556,6 +552,9 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
         Args:
             other: the other PolynomialTensor.
 
+        Raises:
+            NotImplementedError: when the two tensors do not have the same :attr:`register_length`.
+
         Returns:
             The tensor resulting from the tensor product, :math:`othr \otimes self`.
 
@@ -567,24 +566,114 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
 
     @classmethod
     def _tensor(cls, a: PolynomialTensor, b: PolynomialTensor) -> PolynomialTensor:
+        if a.register_length != b.register_length:
+            raise NotImplementedError()
+
         # NOTE: mypy really does not like Number, so a lot of casts are necessary for the time being
         new_data: dict[str, ARRAY_TYPE | Number] = {}
-        for key in a:
-            if key not in b:
-                continue
-            if len(key) < 1:
-                # handle single value case
-                new_data[key] = cast(Number, cast(complex, a[key]) * cast(complex, b[key]))
+        for akey, bkey in product(a, b):
+            # expand a-matrix into upper left sector
+            amat = cast(ARRAY_TYPE, a[akey])
+            adim = len(amat.shape)
+            aones = np.zeros((2,) * adim)
+            aones[(0,) * adim] = 1.0
+            amat = np.kron(aones, amat)
+            aeinsum = string.ascii_lowercase[:adim] if adim > 0 else ""
+
+            # expand b-matrix into lower right sector
+            bmat = cast(ARRAY_TYPE, b[bkey])
+            bdim = len(bmat.shape)
+            bones = np.zeros((2,) * bdim)
+            bones[(1,) * bdim] = 1.0
+            bmat = np.kron(bones, bmat)
+            beinsum = string.ascii_lowercase[-bdim:] if bdim > 0 else ""
+
+            make_sparse = False
+            if isinstance(amat, SparseArray):
+                # pylint: disable=no-member
+                amat = amat.todense()
+                make_sparse = True
+            if isinstance(bmat, SparseArray):
+                # pylint: disable=no-member
+                bmat = bmat.todense()
+                make_sparse = True
+            einsum = np.einsum(f"{aeinsum},{beinsum}", amat, bmat)
+            if make_sparse:
+                einsum = COO(einsum)
+
+            new_key = akey + bkey
+            if new_key in new_data:
+                new_data[new_key] = new_data[new_key] + einsum
             else:
-                new_data[key] = np.kron(cast(ARRAY_TYPE, a[key]), cast(ARRAY_TYPE, b[key]))
+                new_data[new_key] = einsum
 
         return PolynomialTensor(new_data)
+
+    @classmethod
+    def apply(
+        cls,
+        function: Callable[..., np.ndarray | SparseArray | Number],
+        *operands: PolynomialTensor,
+        validate: bool = True,
+    ) -> PolynomialTensor:
+        """Applies the provided function to the common set of keys of the provided tensors.
+
+        The usage of this method is best explained by some examples:
+
+        .. code-block:: python
+
+            import numpy as np
+            from qiskit_nature.second_q.opertors import PolynomialTensor
+            rand_a = np.random.random((2, 2))
+            rand_b = np.random.random((2, 2))
+            a = PolynomialTensor({"+-": rand_a})
+            b = PolynomialTensor({"+": np.random.random(2), "+-": rand_b})
+
+            # transpose
+            a_transpose = PolynomialTensor.apply(np.transpose, a)
+            print(a_transpose == PolynomialTensor({"+-": rand_a.transpose()}))  # True
+
+            # conjugate
+            a_complex = 1j * a
+            a_conjugate = PolynomialTensor.apply(np.conjugate, a_complex)
+            print(a_conjugate == PolynomialTensor({"+-": -1j * rand_a}))  # True
+
+            # kronecker product
+            ab_kron = PolynomialTensor.apply(np.kron, a, b)
+            print(ab_kron == PolynomialTensor({"+-": np.kron(rand_a, rand_b)}))  # True
+            # Note: that ab_kron does NOT contain the "+" and "+-+" keys although b contained the
+            # "+" key. That is because the function only gets applied to the keys which are common
+            # to all tensors passed to it.
+
+        .. note::
+
+            The provided function will only be applied to the internal arrays of the common keys of
+            all provided ``PolynomialTensor`` instances. That means, that no cross-products will be
+            generated.
+
+        Args:
+            function: the function to apply to the internal arrays of the provided operands. This
+                function must take numpy (or sparse) arrays as its positional arguments. The number
+                of arguments must match the number of provided operands.
+            operands: a sequence of ``PolynomialTensor`` instances on which to operate.
+            validate: when set to False the `data` will not be validated. Disable this setting with
+                care!
+
+        Returns:
+            A new ``PolynomialTensor`` instance with the resulting arrays.
+        """
+        common_keys = set.intersection(*(set(op) for op in operands))
+        new_data: dict[str, ARRAY_TYPE | Number] = {}
+        for key in common_keys:
+            new_data[key] = function(*(op[key] for op in operands))
+        return cls(new_data, validate=validate)
 
     @classmethod
     def einsum(
         cls,
         einsum_map: dict[str, tuple[str, ...]],
         *operands: PolynomialTensor,
+        validate: bool = True,
     ) -> PolynomialTensor:
         """Applies the various Einsum convention operations to the provided tensors.
 
@@ -645,6 +734,8 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
                 provided ``PolynomialTensor`` operands. The last string in this tuple indicates the
                 key under which to store the result in the returned ``PolynomialTensor``.
             operands: a sequence of ``PolynomialTensor`` instances on which to operate.
+            validate: when set to False the `data` will not be validated. Disable this setting with
+                care!
 
         Returns:
             A new ``PolynomialTensor``.
@@ -666,4 +757,4 @@ class PolynomialTensor(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, M
             else:
                 new_data[output] = result
 
-        return PolynomialTensor(new_data)
+        return cls(new_data, validate=validate)

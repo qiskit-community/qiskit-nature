@@ -325,11 +325,14 @@ class FermionicOp(SparseLabelOp):
     def _tensor(cls, a: FermionicOp, b: FermionicOp, *, offset: bool = True) -> FermionicOp:
         shift = a.num_spin_orbitals if offset else 0
 
-        new_data = {
-            f"{label1} {' '.join(f'{c}_{i+shift}' for c, i in terms2)}".strip(): cf1 * cf2
-            for terms2, cf2 in b.terms()
-            for label1, cf1 in a.items()
-        }
+        new_data: dict[str, complex] = {}
+        for label1, cf1 in a.items():
+            for terms2, cf2 in b.terms():
+                new_label = f"{label1} {' '.join(f'{c}_{i+shift}' for c, i in terms2)}".strip()
+                if new_label in new_data:
+                    new_data[new_label] += cf1 * cf2
+                else:
+                    new_data[new_label] = cf1 * cf2
 
         new_op = a._new_instance(new_data, other=b)
         if offset:
