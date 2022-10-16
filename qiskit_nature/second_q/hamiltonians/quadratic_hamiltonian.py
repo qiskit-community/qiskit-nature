@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, cast
 
 import numpy as np
 import scipy.linalg
@@ -123,7 +123,7 @@ class QuadraticHamiltonian(PolynomialTensor, Hamiltonian, TolerancesMixin):
                 if not _is_antisymmetric(antisymmetric_part, rtol=rtol, atol=atol):
                     raise ValueError("Antisymmetric part must be antisymmetric.")
 
-        data = {"": constant}
+        data: dict[str, float | np.ndarray] = {"": constant}
         if hermitian_part is not None:
             data["+-"] = hermitian_part
         if antisymmetric_part is not None:
@@ -143,20 +143,20 @@ class QuadraticHamiltonian(PolynomialTensor, Hamiltonian, TolerancesMixin):
     def hermitian_part(self) -> np.ndarray:
         """The matrix of coefficients of terms that conserve particle number."""
         if "+-" in self:
-            return self["+-"]
+            return cast(np.ndarray, self["+-"])
         return np.zeros((self._num_modes, self._num_modes), dtype=complex)
 
     @property
     def antisymmetric_part(self) -> np.ndarray:
         """The matrix of coefficients of terms that do not conserve particle number."""
         if "++" in self:
-            return self["++"]
+            return cast(np.ndarray, self["++"])
         return np.zeros((self._num_modes, self._num_modes), dtype=complex)
 
     @property
     def constant(self) -> float:
         """The constant."""
-        return self[""]
+        return cast(float, self[""])
 
     @property
     def num_modes(self) -> float:
