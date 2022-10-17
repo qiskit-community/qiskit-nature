@@ -18,7 +18,12 @@ as it relies on the mathematical representation of spin matrices as (e.g.) expla
 [1]: https://en.wikipedia.org/wiki/Spin_(physics)#Higher_spins
 """
 
+from __future__ import annotations
+
 import re
+from collections.abc import Collection, Mapping, MutableMapping
+from collections import defaultdict
+from typing import cast, Iterator
 from fractions import Fraction
 from functools import lru_cache, partial, reduce
 from itertools import product
@@ -28,12 +33,14 @@ import numpy as np
 from qiskit.utils.validation import validate_min
 from qiskit_nature import QiskitNatureError
 
-from .second_quantized_op import SecondQuantizedOp
+# from .second_quantized_op import SecondQuantizedOp
+from .polynomial_tensor import PolynomialTensor
+from .sparse_label_op import SparseLabelOp
 
-
-class SpinOp(SecondQuantizedOp):
+class SpinOp(SparseLabelOp):
     """XYZ-ordered Spin operators.
 
+    # TODO: Update docstring
     **Label**
 
     Allowed characters for primitives of labels are I, X, Y, Z, +, and -.
@@ -166,384 +173,330 @@ class SpinOp(SecondQuantizedOp):
 
     """
 
+    _OPERATION_REGEX = re.compile(r"([XYZI]_\d+(\^\d+)?\s)*[XYZI]_\d+(\^\d+)?")
+
     def __init__(
         self,
-        data: Union[
-            str,
-            List[Tuple[str, complex]],
-            Tuple[np.ndarray, np.ndarray],
-        ],
-        spin: Union[float, Fraction] = Fraction(1, 2),
-        register_length: Optional[int] = None,
+        data: Mapping[str, complex],
+        spin: float | Fraction = Fraction(1, 2), # TODO: extend to list
+        num_orbitals: int | None = None,
+        *,
+        copy: bool = True,
+        validate: bool = True,
     ):
         r"""
         Args:
             data: label string, list of labels and coefficients. See the label section in
                   the documentation of :class:`SpinOp` for more details.
             spin: positive half-integer (integer or half-odd-integer) that represents spin.
-            register_length: length of the particle register.
+            num_orbitals: the number orbitals on which this operator acts.
+            copy: when set to False the `data` will not be copied and the dictionary will be
+                stored by reference rather than by value (which is the default; `copy=True`). Note,
+                that this requires you to not change the contents of the dictionary after
+                constructing the operator. This also implies `validate=False`. Use with care!
+            validate: when set to False the `data` keys will not be validated. Note, that the
+                SparseLabelOp base class, makes no assumption about the data keys, so will not
+                perform any validation by itself. Only concrete subclasses are encouraged to
+                implement a key validation method. Disable this setting with care!
 
         Raises:
-            ValueError: invalid data is given.
-            QiskitNatureError: invalid spin value
+            QiskitNatureError: when an invalid key is encountered during validation.
+            QiskitNatureError: when spin is not a positive half-integer.
         """
-        self._coeffs: np.ndarray
-        self._spin_array: np.ndarray
-        dtype = np.complex128  # TODO: configurable data type. mixin?
-
+        self.num_orbitals = num_orbitals
         spin = Fraction(spin)
         if spin.denominator not in (1, 2):
             raise QiskitNatureError(
                 f"spin must be a positive half-integer (integer or half-odd-integer), not {spin}."
             )
-        self._dim = int(2 * spin + 1)
+        self.spin = spin
+        print("data", data)
+        super().__init__(data, copy=copy, validate=validate)
 
-        if isinstance(data, tuple) and all(isinstance(datum, np.ndarray) for datum in data):
-            self._spin_array = np.array(data[0], dtype=np.uint8)
-            self._register_length = self._spin_array.shape[2]
-            self._coeffs = np.array(data[1], dtype=dtype)
+    @property
+    def register_length(self) -> int | None:
+        return self.num_orbitals
 
-        if (
-            isinstance(data, tuple)
-            and isinstance(data[0], str)
-            and isinstance(data[1], (int, float, complex))
-        ):
-            data = [data]
+    def _new_instance(
+        self, data: Mapping[str, complex], *, other: SpinOp | None = None
+    ) -> SpinOp:
+        num_o = self.num_orbitals
+        spin = self.spin
+        if other is not None:
+            other_num_o = other.num_orbitals
+            other_spin = other.spin
+            if spin != other_spin:
+                raise TypeError(f"Invalid operation between operators with different spin"
+                                f"values. Found spin_1={spin} and spin_2={other_spin}.")
+            if num_o is None:
+                num_o = other_num_o
+            elif other_num_o is not None:
+                num_o = max(num_o, other_num_o)
 
-        if isinstance(data, str):
-            data = [(data, 1)]
+        return self.__class__(data, copy=False, num_orbitals=num_o)
 
-        if isinstance(data, list):
-            if register_length is not None:  # Sparse label
-                # [IXYZ]_index^power (power is optional) or [+-]_index
-                sparse = r"([IXYZ]_\d+(\^\d+)?|[\+\-]_\d+?)"
-                # space (\s) separated sparse label or empty string
-                label_pattern = re.compile(rf"^({sparse}\s)*{sparse}(?!\s)$|^$")
-                invalid_labels = [label for label, _ in data if not label_pattern.match(label)]
-                if invalid_labels:
-                    raise ValueError(f"Invalid labels for sparse labels: {invalid_labels}.")
-            else:  # dense_label
-                # dense label (repeat of [IXYZ+-])
-                label_pattern = re.compile(r"^[IXYZ\+\-]+$")
-                invalid_labels = [label for label, _ in data if not label_pattern.match(label)]
-                if invalid_labels:
-                    raise ValueError(
-                        f"Invalid labels for dense labels: {invalid_labels} (if you want to use "
-                        "sparse label, you forgot a parameter `register_length`.)"
+    def _validate_keys(self, keys: Collection[str]) -> None:
+        super()._validate_keys(keys)
+
+        num_o = self.num_orbitals
+
+        max_index = -1
+
+        for key in keys:
+            # 0. explicitly allow the empty key
+            if key == "":
+                continue
+
+            # 1. validate overall key structure
+            if not re.fullmatch(SpinOp._OPERATION_REGEX, key):
+                raise QiskitNatureError(f"{key} is not a valid SpinOp label.")
+
+            # 2. validate all indices against register length
+            for term in key.split(" "):
+                sub_terms = term.split("^")
+                # sub_terms[0] is the base, sub_terms[1] is the (optional) exponent
+                index = int(sub_terms[0][2:])
+                if num_o is None:
+                    if index > max_index:
+                        max_index = index
+                elif index >= num_o:
+                    raise QiskitNatureError(
+                        f"The index, {index}, from the label, {key}, exceeds the number of "
+                        f"orbitals, {num_o}."
                     )
 
-            # Parse ladder operators for special patterns.
-            if register_length is not None:
-                data = self._flatten_raising_lowering_ops(data, register_length)
-            data = self._flatten_ladder_ops(data)
+            # TODO: do we need to validate the exponent?
 
-            # set coeffs
-            labels, coeffs = zip(*data)
-            self._coeffs = np.array(coeffs, dtype=dtype)
+        self.num_orbitals = max_index + 1 if num_o is None else num_o
 
-            # set labels
-            if register_length is None:  # Dense label
-                self._register_length = len(labels[0])
-                label_pattern = re.compile(r"^[IXYZ]+$")
-                invalid_labels = [label for label in labels if not label_pattern.match(label)]
-                if invalid_labels:
-                    raise ValueError(f"Invalid labels for dense labels are given: {invalid_labels}")
-                self._spin_array = np.array(
-                    [
-                        [[char == "X", char == "Y", char == "Z"] for char in label]
-                        for label in labels
-                    ],
-                    dtype=np.uint8,
-                ).transpose((2, 0, 1))
-            else:  # Sparse label
-                validate_min("register_length", register_length, 1)
-                label_pattern = re.compile(r"^[IXYZ]_\d+(\^\d+)?$")
-                invalid_labels = [
-                    label
-                    for label in labels
-                    if not all(label_pattern.match(lb) for lb in label.split())
-                ]
-                if invalid_labels:
-                    raise ValueError(
-                        f"Invalid labels for sparse labels are given: {invalid_labels}"
-                    )
-                self._register_length = register_length
-                self._from_sparse_label(labels)
+    @classmethod
+    def _validate_polynomial_tensor_key(cls, keys: Collection[str]) -> None:
+        allowed_chars = {"I", "X", "Y", "Z"}
+        for key in keys:
+            if set(key) - allowed_chars:
+                raise QiskitNatureError(
+                    f"The key {key} is invalid. PolynomialTensor keys may only consists of `I`, `X`, "
+                    "`Y` and `Z` characters, for them to be expandable into a SpinOp."
+                )
 
-        # Make immutable
-        self._spin_array.flags.writeable = False
-        self._coeffs.flags.writeable = False
+    @classmethod
+    def from_polynomial_tensor(cls, tensor: PolynomialTensor) -> SpinOp:
+        cls._validate_polynomial_tensor_key(tensor.keys())
+
+        data: dict[str, complex] = {}
+
+        for key in tensor:
+            if key == "":
+                # TODO: deal with complexity
+                data[""] = cast(float, tensor[key])
+                continue
+
+            label_template = " ".join(f"{op}_{{}}" for op in key)
+
+            # PERF: the following matrix unpacking is a performance bottleneck!
+            # We could consider using Rust in the future to improve upon this.
+
+            mat = tensor[key]
+            if isinstance(mat, np.ndarray):
+                for index in np.ndindex(*mat.shape):
+                    data[label_template.format(*index)] = mat[index]
+            else:
+                _optionals.HAS_SPARSE.require_now("SparseArray")
+                import sparse as sp  # pylint: disable=import-error
+
+                if isinstance(mat, sp.SparseArray):
+                    coo = sp.as_coo(mat)
+                    for value, *index in zip(coo.data, *coo.coords):
+                        data[label_template.format(*index)] = value
+
+        return cls(data, copy=False, num_spin_orbitals=tensor.register_length).chop()
 
     def __repr__(self) -> str:
-        spin = self.spin
-        reg_len = self.register_length
-        if len(self) == 1:
-            if self._coeffs[0] == 1:  # str
-                data_str = f"'{self.to_list()[0][0]}'"
-            else:  # tuple
-                data_str = repr(self.to_list()[0])
-        else:  # list
-            data_str = repr(self.to_list())
-        return f"SpinOp({data_str}, spin={spin}, register_length={reg_len})"  # TODO truncate
+        data_str = f"{dict(self.items())}"
+
+        return "SpinOp(" f"{data_str}, " f"spin={self.spin}, "f"num_orbitals={self.num_orbitals}, " ")"
 
     def __str__(self) -> str:
-        if len(self) == 1:
-            label, coeff = self.to_list()[0]
-            return f"{label} * {coeff}"
-        return "  " + "\n+ ".join([f"{label} * {coeff}" for label, coeff in self.to_list()])
-
-    def __len__(self) -> int:
-        return len(self._coeffs)
-
-    @property
-    def register_length(self):
-        return self._register_length
-
-    @property
-    def spin(self) -> Fraction:
-        """The spin number.
-
-        Returns:
-            Spin number
-        """
-        return Fraction(self._dim - 1, 2)
-
-    @property
-    def x(self) -> np.ndarray:
-        """A np.ndarray storing the power i of (spin) X operators on the spin system.
-        I.e. [0, 4, 2] corresponds to X_0^0 \\otimes X_1^4 \\otimes X_2^2, where X_i acts on the
-        i-th spin system in the register.
-        """
-        return self._spin_array[0]
-
-    @property
-    def y(self) -> np.ndarray:
-        """A np.ndarray storing the power i of (spin) Y operators on the spin system.
-        I.e. [0, 4, 2] corresponds to Y_0^0 \\otimes Y_1^4 \\otimes Y_2^2, where Y_i acts on the
-        i-th spin system in the register.
-        """
-        return self._spin_array[1]
-
-    @property
-    def z(self) -> np.ndarray:
-        """A np.ndarray storing the power i of (spin) Z operators on the spin system.
-        I.e. [0, 4, 2] corresponds to Z_0^0 \\otimes Z_1^4 \\otimes Z_2^2, where Z_i acts on the
-        i-th spin system in the register.
-        """
-        return self._spin_array[2]
-
-    def add(self, other: "SpinOp") -> "SpinOp":
-        if not isinstance(other, SpinOp):
-            raise TypeError(
-                "Unsupported operand type(s) for +: 'SpinOp' and " f"'{type(other).__name__}'"
-            )
-
-        if self.register_length != other.register_length:
-            raise TypeError("Incompatible register lengths for '+'.")
-
-        if self.spin != other.spin:
-            raise TypeError(f"Addition between spin {self.spin} and spin {other.spin} is invalid.")
-
-        return SpinOp(
-            (
-                np.hstack((self._spin_array, other._spin_array)),
-                np.hstack((self._coeffs, other._coeffs)),
-            ),
-            spin=self.spin,
+        pre = (
+            "Spin Operator\n"
+            f"spin={self.spin}, number orbitals={self.num_orbitals}, number terms={len(self)}\n"
         )
+        ret = "  " + "\n+ ".join(
+            [f"{coeff} * ( {label} )" if label else f"{coeff}" for label, coeff in self.items()]
+        )
+        return pre + ret
 
-    def compose(self, other):
-        # TODO: implement
-        raise NotImplementedError
+    def terms(self) -> Iterator[tuple[list[tuple[str, int]], complex]]:
+        """Provides an iterator analogous to :meth:`items` but with the labels already split into
+        pairs of operation characters and indices.
 
-    def mul(self, other: complex) -> "SpinOp":
-        if not isinstance(other, (int, float, complex)):
+        Yields:
+            # TODO: update docstring to spin
+            A tuple with two items; the first one being a list of pairs of the form (char, int)
+            where char is either `+` or `-` and the integer corresponds to the fermionic mode index
+            on which the operator gets applied; the second item of the returned tuple is the
+            coefficient of this term.
+        """
+        for label in iter(self):
+            if not label:
+                yield ([], self[label])
+                continue
+
+            # the result of lbl.split(" ") gives labels that are splitted again
+            # we hard-code the result of lbl.split("^") as follows:
+            #   parts[0][0] is X, Y, Z or I
+            #   parts[0][2:] corresponds to the index
+            #   parts[1] if exists, corresponds to the number of time this operator is repeated
+
+            # TODO: do we want to use the exponents like this??
+            #  Do we want to return the exponent as part of the tuple?
+            #  I am not sure of how terms is going to be used.
+
+            terms = []
+            for lbl in label.split(" "):
+                parts = lbl.split("^")
+                sub_terms = [(parts[0][0], int(parts[0][2:]))] * (int(parts[1]) if len(parts) > 1 else 1)
+                terms += sub_terms
+
+            yield (terms, self[label])
+
+    def compose(self, other: SpinOp, qargs=None, front: bool = False) -> SpinOp:
+        if not isinstance(other, SpinOp):
             raise TypeError(
                 f"Unsupported operand type(s) for *: 'SpinOp' and '{type(other).__name__}'"
             )
 
-        return SpinOp((self._spin_array, self._coeffs * other), spin=self.spin)
+        if front:
+            return self._tensor(self, other, offset=False)
+        else:
+            return self._tensor(other, self, offset=False)
 
-    def adjoint(self) -> "SpinOp":
-        if (self._spin_array.sum(axis=0) > 1).any():
-            # TODO: implement this when compose() will be implemented.
-            raise NotImplementedError(
-                "Adjoint for an operator which have multiple operators for the same register."
-            )
-        # Note: X, Y, Z are hermitian, therefore the dagger operation on a SpinOperator amounts
-        # to simply complex conjugating the coefficient.
-        return SpinOp((self._spin_array, self._coeffs.conjugate()), spin=self.spin)
+    def tensor(self, other: SpinOp) -> SpinOp:
+        return self._tensor(self, other)
 
-    def simplify(self, atol: Optional[float] = None) -> "SpinOp":
-        if atol is None:
-            atol = self.atol
+    def expand(self, other: SpinOp) -> SpinOp:
+        return self._tensor(other, self)
 
-        flatten_array, indices = np.unique(
-            np.column_stack(cast(Sequence, self._spin_array)),
-            return_inverse=True,
-            axis=0,
-        )
-        coeff_list = np.zeros(flatten_array.shape[0], dtype=np.complex128)
-        np.add.at(coeff_list, indices, self._coeffs)
-        is_zero = np.isclose(coeff_list, 0, atol=atol)
-        if np.all(is_zero):
-            return SpinOp(
-                (
-                    np.zeros((3, 1, self.register_length), dtype=np.int8),
-                    np.array([0], dtype=np.complex128),
-                ),
-                spin=self.spin,
-            )
-        non_zero = np.logical_not(is_zero)
-        new_array = (
-            flatten_array[non_zero]
-            .reshape((np.count_nonzero(non_zero), 3, self.register_length))
-            .transpose(1, 0, 2)
-        )
-        new_coeff = coeff_list[non_zero]
-        return SpinOp((new_array, new_coeff), spin=self.spin)
+    @classmethod
+    def _tensor(cls, a: SpinOp, b: SpinOp, *, offset: bool = True) -> SpinOp:
+        shift = a.num_orbitals if offset else 0
 
-    def to_list(self) -> List[Tuple[str, complex]]:
-        """Getter for the list which represents `self`
+        new_data: dict[str, complex] = {}
+        for label1, cf1 in a.items():
+            for terms2, cf2 in b.terms():
+                new_label = f"{label1} {' '.join(f'{c}_{i + shift}' for c, i in terms2)}".strip()
+                if new_label in new_data:
+                    new_data[new_label] += cf1 * cf2
+                else:
+                    new_data[new_label] = cf1 * cf2
+
+        new_op = a._new_instance(new_data, other=b)
+        if offset:
+            new_op.num_orbitals = a.num_orbitals + b.num_orbitals
+        return new_op
+
+    def transpose(self) -> SpinOp:
+        data = {}
+
+        trans = "".maketrans("+-", "-+")
+
+        for label, coeff in self.items():
+            data[" ".join(lbl.translate(trans) for lbl in reversed(label.split(" ")))] = coeff
+
+        return self._new_instance(data)
+
+    def simplify(self, *, atol: float | None = None) -> SpinOp:
+        atol = self.atol if atol is None else atol
+
+        data = defaultdict(complex)  # type: dict[str, complex]
+        # TODO: use parallel_map to make this more efficient (?)
+        for label, coeff in self.items():
+            label, coeff = self._simplify_label(label, coeff)
+            data[label] += coeff
+        simplified_data = {
+            label: coeff for label, coeff in data.items() if not np.isclose(coeff, 0.0, atol=atol)
+        }
+        return self._new_instance(simplified_data)
+
+    def _simplify_label(self, label: str, coeff: complex) -> tuple[str, complex]:
+        bits = _BitsContainer()
+
+        for lbl in label.split():
+            char, index = lbl.split("_")
+            base = index.split("^")[0]
+            exponent = int(index.split("^")[1]) if len(index.split("^")) > 1 else 1
+            idx = int(base)
+
+            if idx not in bits:
+                bits[idx] = char
+                exponent -= 1
+
+            bits.flip(idx, char, exponent)
+
+        new_label = []
+        for idx in sorted(bits):
+            label_x = f"X_{idx}" if bits.get_x(idx) else None
+            label_y = f"Y_{idx}" if bits.get_y(idx) else None
+            label_z = f"Z_{idx}" if bits.get_z(idx) else None
+
+            # TODO: how do we want to deal with empty labels?
+            #  I know that filling with Is is not expected.
+            empty_label = label_x is None and label_y is None and label_z is None
+            label_i = f"I_{idx}" if empty_label else None
+
+            new_label.extend([label_x, label_y, label_z, label_i])
+
+        return " ".join(lbl for lbl in new_label if lbl is not None), coeff
+
+class _BitsContainer(MutableMapping):
+    """A bit-storage container.
+    """
+
+    def __init__(self):
+        self.data: dict[int, int] = {}
+        self._map = {
+                    "X": int(f"{1:b}{0:b}{0:b}", base=2),
+                    "Y": int(f"{0:b}{1:b}{0:b}", base=2),
+                    "Z": int(f"{0:b}{0:b}{1:b}", base=2),
+                    "I": int(f"{0:b}{0:b}{0:b}", base=2),
+                    }
+
+    def flip(self, index: int, char: str, times: int) -> None:
+        if times % 2 != 0:
+            self.data[index] = self.data[index] ^ self._map[char]
+
+    def get_x(self, index) -> int:
+        return self.get_bit(index, 2)
+
+    def get_y(self, index) -> int:
+        return self.get_bit(index, 1)
+
+    def get_z(self, index) -> int:
+        return self.get_bit(index, 0)
+
+    def get_bit(self, index: int, offset: int) -> int:
+        """Returns the value of a requested register.
+
+        Args:
+            index: the internal data key (corresponding to the fermionic mode).
+            offset: the bit-wise offset for the bit-shift operation to obtain the desired register.
 
         Returns:
-            The list [(label, coeff)]
+            1 if the register was set, 0 otherwise.
         """
-        coeff_list = self._coeffs.tolist()
-        return [(self._generate_label(i), coeff_list[i]) for i in range(len(self))]
+        return (self.data[index] >> offset) & 1
 
-    def _generate_label(self, i):
-        """Generates the string description of `self`."""
-        labels_list = []
-        for pos, (n_x, n_y, n_z) in enumerate(self._spin_array[:, i].T):
-            if n_x >= 1:
-                labels_list.append(f"X_{pos}" + (f"^{n_x}" if n_x > 1 else ""))
-            if n_y >= 1:
-                labels_list.append(f"Y_{pos}" + (f"^{n_y}" if n_y > 1 else ""))
-            if n_z >= 1:
-                labels_list.append(f"Z_{pos}" + (f"^{n_z}" if n_z > 1 else ""))
-        if not labels_list:
-            return f"I_{self.register_length - 1}"
-        return " ".join(labels_list)
+    def __getitem__(self, __k):
+        return self.data.__getitem__(__k)
 
-    @lru_cache(maxsize=128)
-    def to_matrix(self) -> np.ndarray:
-        """Convert to dense matrix.
+    def __setitem__(self, __k, __v):
+        return self.data.__setitem__(__k, self._map[__v])
 
-        Returns:
-            The matrix (numpy.ndarray with dtype=numpy.complex128)
-        """
-        # TODO: use scipy.sparse.csr_matrix() and add parameter `sparse: bool`.
-        x_mat = np.fromfunction(
-            lambda i, j: np.where(
-                np.abs(i - j) == 1,
-                np.sqrt((self._dim + 1) * (i + j + 1) / 2 - (i + 1) * (j + 1)) / 2,
-                0,
-            ),
-            (self._dim, self._dim),
-            dtype=np.complex128,
-        )
-        y_mat = np.fromfunction(
-            lambda i, j: np.where(
-                np.abs(i - j) == 1,
-                1j * (i - j) * np.sqrt((self._dim + 1) * (i + j + 1) / 2 - (i + 1) * (j + 1)) / 2,
-                0,
-            ),
-            (self._dim, self._dim),
-            dtype=np.complex128,
-        )
-        z_mat = np.fromfunction(
-            lambda i, j: np.where(i == j, (self._dim - 2 * i - 1) / 2, 0),
-            (self._dim, self._dim),
-            dtype=np.complex128,
-        )
+    def __delitem__(self, __v):
+        return self.data.__delitem__(__v)
 
-        tensorall = partial(reduce, np.kron)
+    def __iter__(self):
+        return self.data.__iter__()
 
-        mat = sum(
-            self._coeffs[i]
-            * tensorall(
-                np.linalg.matrix_power(x_mat, x)
-                @ np.linalg.matrix_power(y_mat, y)
-                @ np.linalg.matrix_power(z_mat, z)
-                for x, y, z in self._spin_array[:, i].T
-            )
-            for i in range(len(self))
-        )
-        mat = cast(np.ndarray, mat)
-        mat.flags.writeable = False
-        return mat.view()
-
-    def _from_sparse_label(self, labels):
-        xyz_dict = {"X": 0, "Y": 1, "Z": 2}
-
-        # 3-dimensional ndarray (XYZ, terms, register)
-        self._spin_array = np.zeros((3, len(labels), self.register_length), dtype=np.uint8)
-        for term, label in enumerate(labels):
-            for split_label in label.split():
-                xyz, nums = split_label.split("_", 1)
-
-                if xyz not in xyz_dict:
-                    continue
-
-                xyz_num = xyz_dict[xyz]
-                index, power = map(int, nums.split("^", 1)) if "^" in nums else (int(nums), 1)
-                if index >= self.register_length:
-                    raise ValueError(
-                        f"Index {index} must be smaller than register_length {self.register_length}"
-                    )
-                # Check the order of X, Y, and Z whether it has been already assigned.
-                if self._spin_array[range(xyz_num + 1, 3), term, index].any():
-                    raise ValueError(f"Label must be in XYZ order, but {label}.")
-                # same index is not assigned.
-                if self._spin_array[xyz_num, term, index]:
-                    raise ValueError(f"Duplicate index label {index} is given.")
-
-                self._spin_array[xyz_num, term, index] = power
-
-    @staticmethod
-    def _flatten_ladder_ops(data):
-        """Convert `+` to `X + 1j Y` and `-` to `X - 1j Y` with the distributive law"""
-        new_data = []
-        for label, coeff in data:
-            plus_indices = [i for i, char in enumerate(label) if char == "+"]
-            minus_indices = [i for i, char in enumerate(label) if char == "-"]
-            len_plus = len(plus_indices)
-            len_minus = len(minus_indices)
-            pm_indices = plus_indices + minus_indices
-            label_list = list(label)
-            for indices in product(["X", "Y"], repeat=len_plus + len_minus):
-                for i, index in enumerate(indices):
-                    label_list[pm_indices[i]] = index
-                # The phase is determined by the number of Y in + and - respectively. For example,
-                # S_+ otimes S_- = (X + i Y) otimes (X - i Y)
-                # = i^{0-0} XX + i^{1-0} YX + i^{0-1} XY + i^{1-1} YY
-                # = XX + i YX - i XY + YY
-                phase = indices[:len_plus].count("Y") - indices[len_plus:].count("Y")
-                new_data.append(("".join(label_list), coeff * 1j**phase))
-
-        return new_data
-
-    @staticmethod
-    def _flatten_raising_lowering_ops(data, register_length):
-        """Convert +_i -_i to X_i^2 + Y_i^2 + Z_i"""
-        new_data = []
-        for label, coeff in data:
-            positions = []
-            indices = []
-            label_list = label.split()
-            for i in range(register_length):
-                if f"+_{i}" in label_list and f"-_{i}" in label_list:
-                    plus_pos = label_list.index(f"+_{i}")
-                    minus_pos = label_list.index(f"-_{i}")
-                    if minus_pos - plus_pos == 1:
-                        positions.append(plus_pos)
-                        indices.append(i)
-            for ops in product(*([f"X_{i}^2", f"Y_{i}^2", f"Z_{i}"] for i in indices)):
-                label_list = label.split()
-                for pos, op in zip(positions, ops):
-                    label_list[pos] = op
-                for pos in sorted(positions, reverse=True):
-                    label_list.pop(pos + 1)
-                new_data.append((" ".join(label_list), coeff))
-        return new_data
+    def __len__(self):
+        return self.data.__len__()
