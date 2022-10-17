@@ -220,7 +220,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         Raises:
             TypeError: if ``other`` is not compatible type (int, float or complex)
         """
-        if not isinstance(other, Complex | ParameterExpression):
+        if not isinstance(other, (Complex, ParameterExpression)):
             raise TypeError(
                 f"Unsupported operand type(s) for *: 'SparseLabelOp' and '{type(other).__name__}'"
             )
