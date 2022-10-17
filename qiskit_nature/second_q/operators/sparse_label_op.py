@@ -426,6 +426,8 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
 
         new_data = {}
         for key, value in self.items():
+            if _to_number(value) == 0:
+                continue
             if not isinstance(value, ParameterExpression):
                 zero_real = cmath.isclose(value.real, 0.0, abs_tol=tol)
                 zero_imag = cmath.isclose(value.imag, 0.0, abs_tol=tol)
