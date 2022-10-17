@@ -377,7 +377,7 @@ class TestSparseLabelOp(QiskitNatureTestCase):
         op = DummySparseLabelOp({"+_0 -_1": 1e-12 + 1j, "+_0 -_2": a})
         self.assertEqual(op.chop(), DummySparseLabelOp({"+_0 -_1": 1j, "+_0 -_2": a}))
 
-        self.assertEqual((op - op).chop(), DummySparseLabelOp.zero())  # False
+        self.assertEqual((op - op).chop(), DummySparseLabelOp.zero())
 
 
 if __name__ == "__main__":
