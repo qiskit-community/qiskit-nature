@@ -18,7 +18,6 @@ from typing import Optional, cast
 
 import numpy as np
 import scipy.linalg
-from qiskit.quantum_info.operators.mixins import TolerancesMixin
 from qiskit_nature.second_q.operators import FermionicOp, PolynomialTensor
 
 from .hamiltonian import Hamiltonian
