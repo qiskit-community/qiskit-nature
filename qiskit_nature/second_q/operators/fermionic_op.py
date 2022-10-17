@@ -150,9 +150,10 @@ class FermionicOp(SparseLabelOp):
             of the involved operators.
     .. note::
 
-        A FermionicOp can contain Parameters. However, a FermionicOp containing Parameters
-        does not support the following methods:
+        A FermionicOp can contain :class:`qiskit.circuit.Parameter` objects as coefficients.
+        However, a FermionicOp containing Parameters does not support the following methods:
         - ``is_hermitian``
+        - ``to_matrix``
     """
 
     _OPERATION_REGEX = re.compile(r"([\+\-]_\d+\s)*[\+\-]_\d+")
