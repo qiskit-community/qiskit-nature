@@ -151,7 +151,7 @@ class QuadraticHamiltonian(PolynomialTensor, Hamiltonian):
     def antisymmetric_part(self) -> np.ndarray:
         """The matrix of coefficients of terms that do not conserve particle number."""
         if "++" in self:
-            return cast(np.ndarray, 2 * self["++"])
+            return 2 * cast(np.ndarray, self["++"])
         return np.zeros((self._num_modes, self._num_modes), dtype=complex)
 
     @property
