@@ -43,7 +43,7 @@ class SpinOp(SparseLabelOp):
     # TODO: Update docstring
     **Label**
 
-    Allowed characters for primitives of labels are I, X, Y, Z, +, and -.
+    Allowed characters for primitives of labels are I, X, Y, Z, (+, and -).
 
     .. list-table::
         :header-rows: 1
@@ -70,26 +70,6 @@ class SpinOp(SparseLabelOp):
           - :math:`S^-`
           - Lowering operator
 
-    There are two types of label modes for :class:`SpinOp`.
-    The label mode is automatically detected.
-
-    1. Dense Label (default, `register_length = None`)
-
-    Dense labels are strings in which each character maps to a unique spin mode.
-    This is similar to Qiskit's string-based representation of qubit operators.
-    For example,
-
-    .. code-block:: python
-
-        "X"
-        "IIYYZ-IX++"
-
-    are possible labels.
-    Note, that dense labels are less powerful than sparse ones because they cannot represent
-    all possible :class:`SpinOp`. You will, for example, not be able to apply multiple operators
-    on the same index within a single label.
-
-    2. Sparse Label (`register_length` is passed)
 
     A sparse label is a string consisting of a space-separated list of words.
     Each word must look like :code:`[XYZI+-]_<index>^<power>`,
@@ -450,6 +430,17 @@ class SpinOp(SparseLabelOp):
 
 class _BitsContainer(MutableMapping):
     """A bit-storage container.
+
+    This is a utility object used during the simplification process of a `SpinOp`.
+    It manages access to an internal data container, which maps from integers to bytes.
+    Each integer key corresponds to a (?) mode of an operator term.
+    Each value consists of three bits which provide a one-hot encoding for the
+    following operators terms:
+
+        * `X` -> "100" = 4
+        * `Y` -> "010" = 2
+        * `Z` -> "001" = 1
+        * `I` -> "000" = 0
     """
 
     def __init__(self):
@@ -462,16 +453,47 @@ class _BitsContainer(MutableMapping):
                     }
 
     def flip(self, index: int, char: str, times: int) -> None:
+        """Flips the bit corresponding to `char` a total of `times` times.
+
+        Args:
+            index: the internal data key (corresponding to the mode (?)).
+            char: the string indicating the bit to be flipped.
+            times: how many times to apply the flip.
+        """
         if times % 2 != 0:
             self.data[index] = self.data[index] ^ self._map[char]
 
     def get_x(self, index) -> int:
+        """Returns the value of the `X`-register.
+
+        Args:
+            index: the internal data key (corresponding to the mode (?)).
+
+        Returns:
+            1 if `X` has been applied, 0 otherwise.
+        """
         return self.get_bit(index, 2)
 
     def get_y(self, index) -> int:
+        """Returns the value of the `Y`-register.
+
+        Args:
+            index: the internal data key (corresponding to the mode (?)).
+
+        Returns:
+            1 if `Y` has been applied, 0 otherwise.
+        """
         return self.get_bit(index, 1)
 
     def get_z(self, index) -> int:
+        """Returns the value of the `Z`-register.
+
+        Args:
+            index: the internal data key (corresponding to the mode (?)).
+
+        Returns:
+            1 if `Z` has been applied, 0 otherwise.
+        """
         return self.get_bit(index, 0)
 
     def get_bit(self, index: int, offset: int) -> int:
