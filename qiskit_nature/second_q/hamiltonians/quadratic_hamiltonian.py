@@ -178,7 +178,6 @@ class QuadraticHamiltonian(PolynomialTensor, Hamiltonian):
                 terms[f"+_{j} -_{i}"] = self.hermitian_part[j, i]
                 terms[f"+_{i} +_{j}"] = self.antisymmetric_part[i, j]
                 terms[f"-_{j} -_{i}"] = self.antisymmetric_part[i, j].conjugate()
-        # TODO remove display_format="sparse" once it's no longer needed to suppress warning
         return FermionicOp(terms, num_spin_orbitals=self._num_modes, copy=False)
 
     def conserves_particle_number(self) -> bool:
