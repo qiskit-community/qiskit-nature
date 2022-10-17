@@ -315,7 +315,7 @@ class TestSparseLabelOp(QiskitNatureTestCase):
     def test_is_zero(self):
         """test if coefficients are all zero"""
         with self.subTest("operator length is zero"):
-            test_op = DummySparseLabelOp({}, 0)
+            test_op = DummySparseLabelOp({})
             self.assertTrue(test_op.is_zero())
 
         with self.subTest("coefficients are all zero"):
@@ -323,8 +323,7 @@ class TestSparseLabelOp(QiskitNatureTestCase):
                 {
                     "+_0 -_1": 0.0,
                     "+_0 -_3": 0.0,
-                },
-                2,
+                }
             )
             self.assertTrue(test_op.is_zero())
 
@@ -333,8 +332,7 @@ class TestSparseLabelOp(QiskitNatureTestCase):
                 {
                     "+_0 -_1": 0.05,
                     "+_0 -_3": 0.0,
-                },
-                2,
+                }
             )
             self.assertTrue(test_op.is_zero(tol=0.1))
 

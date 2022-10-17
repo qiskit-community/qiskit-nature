@@ -25,11 +25,11 @@ from qiskit_nature.second_q.operators.commutators import (
     double_commutator,
 )
 
-op1 = FermionicOp({"+_0 -_0": 1}, register_length=1)
-op2 = FermionicOp({"-_0 +_0": 2}, register_length=1)
-op3 = FermionicOp({"+_0 -_0": 1, "-_0 +_0": 2 + 0.5j}, register_length=1)
-op4 = FermionicOp({"+_0": 1}, register_length=1)
-op5 = FermionicOp({"-_0": 1}, register_length=1)
+op1 = FermionicOp({"+_0 -_0": 1}, num_spin_orbitals=1)
+op2 = FermionicOp({"-_0 +_0": 2}, num_spin_orbitals=1)
+op3 = FermionicOp({"+_0 -_0": 1, "-_0 +_0": 2 + 0.5j}, num_spin_orbitals=1)
+op4 = FermionicOp({"+_0": 1}, num_spin_orbitals=1)
+op5 = FermionicOp({"-_0": 1}, num_spin_orbitals=1)
 
 
 @ddt
@@ -43,7 +43,7 @@ class TestCommutators(QiskitNatureTestCase):
     )
     def test_commutator(self, op_a: FermionicOp, op_b: FermionicOp, expected: dict):
         """Test commutator method"""
-        self.assertEqual(commutator(op_a, op_b), FermionicOp(expected, register_length=1))
+        self.assertEqual(commutator(op_a, op_b), FermionicOp(expected, num_spin_orbitals=1))
 
     @unpack
     @data(
@@ -52,7 +52,7 @@ class TestCommutators(QiskitNatureTestCase):
     )
     def test_anti_commutator(self, op_a: FermionicOp, op_b: FermionicOp, expected: dict):
         """Test anti commutator method"""
-        self.assertEqual(anti_commutator(op_a, op_b), FermionicOp(expected, register_length=1))
+        self.assertEqual(anti_commutator(op_a, op_b), FermionicOp(expected, num_spin_orbitals=1))
 
     @unpack
     @data(
@@ -70,7 +70,7 @@ class TestCommutators(QiskitNatureTestCase):
     ):
         """Test double commutator method"""
         self.assertEqual(
-            double_commutator(op_a, op_b, op_c, sign), FermionicOp(expected, register_length=1)
+            double_commutator(op_a, op_b, op_c, sign), FermionicOp(expected, num_spin_orbitals=1)
         )
 
 
