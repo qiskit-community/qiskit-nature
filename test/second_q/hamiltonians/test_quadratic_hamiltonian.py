@@ -249,12 +249,12 @@ class TestQuadraticHamiltonian(QiskitNatureTestCase):
     def test_repr(self):
         """Test repr"""
         quad_ham = QuadraticHamiltonian(
-            np.array([[1, 2j], [-2j, 3]]), np.array([[0, 4], [-4, 0]]), 5.0
+            np.array([[1, 2j], [-2j, 3]]), np.array([[0, 4.0], [-4.0, 0]]), 5.0
         )
         self.assertEqual(
             repr(quad_ham),
             "QuadraticHamiltonian("
             "hermitian_part=array([[ 1.+0.j,  0.+2.j],\n       [-0.-2.j,  3.+0.j]]), "
-            "antisymmetric_part=array([[ 0,  4],\n       [-4,  0]]), "
+            "antisymmetric_part=array([[ 0.,  4.],\n       [-4.,  0.]]), "
             "constant=5.0, num_modes=2)",
         )

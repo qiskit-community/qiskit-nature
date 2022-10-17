@@ -267,7 +267,7 @@ class FermionicOp(SparseLabelOp):
                     for value, *index in zip(coo.data, *coo.coords):
                         data[label_template.format(*index)] = value
 
-        return cls(data, copy=False, num_spin_orbitals=tensor.register_length).chop()
+        return cls(data, copy=False, num_spin_orbitals=tensor.register_length)
 
     def __repr__(self) -> str:
         data_str = f"{dict(self.items())}"

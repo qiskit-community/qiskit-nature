@@ -127,7 +127,8 @@ class QuadraticHamiltonian(PolynomialTensor, Hamiltonian):
         if hermitian_part is not None:
             data["+-"] = hermitian_part
         if antisymmetric_part is not None:
-            data["++"] = antisymmetric_part
+            data["++"] = 0.5 * antisymmetric_part
+            data["--"] = -0.5 * antisymmetric_part.conj()
         super().__init__(data, validate=validate)
 
     def __repr__(self) -> str:
@@ -150,7 +151,7 @@ class QuadraticHamiltonian(PolynomialTensor, Hamiltonian):
     def antisymmetric_part(self) -> np.ndarray:
         """The matrix of coefficients of terms that do not conserve particle number."""
         if "++" in self:
-            return cast(np.ndarray, self["++"])
+            return cast(np.ndarray, 2 * self["++"])
         return np.zeros((self._num_modes, self._num_modes), dtype=complex)
 
     @property
@@ -169,15 +170,7 @@ class QuadraticHamiltonian(PolynomialTensor, Hamiltonian):
 
     def second_q_op(self) -> FermionicOp:
         """Convert to FermionicOp."""
-        terms = {"": self.constant}
-        for i in range(self._num_modes):
-            terms[f"+_{i} -_{i}"] = self.hermitian_part[i, i]
-            for j in range(i + 1, self._num_modes):
-                terms[f"+_{i} -_{j}"] = self.hermitian_part[i, j]
-                terms[f"+_{j} -_{i}"] = self.hermitian_part[j, i]
-                terms[f"+_{i} +_{j}"] = self.antisymmetric_part[i, j]
-                terms[f"-_{j} -_{i}"] = self.antisymmetric_part[i, j].conjugate()
-        return FermionicOp(terms, num_spin_orbitals=self._num_modes, copy=False)
+        return FermionicOp.from_polynomial_tensor(self)
 
     def conserves_particle_number(self) -> bool:
         """Whether the Hamiltonian conserves particle number."""
