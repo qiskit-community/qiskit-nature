@@ -32,7 +32,7 @@ def _is_antisymmetric(mat: np.ndarray, rtol: float = 1e-5, atol: float = 1e-8) -
     return np.allclose(mat, -mat.T, rtol=rtol, atol=atol)
 
 
-class QuadraticHamiltonian(PolynomialTensor, Hamiltonian, TolerancesMixin):
+class QuadraticHamiltonian(PolynomialTensor, Hamiltonian):
     r"""A Hamiltonian that is quadratic in the fermionic ladder operators.
 
     A quadratic Hamiltonian is an operator of the form
@@ -129,7 +129,7 @@ class QuadraticHamiltonian(PolynomialTensor, Hamiltonian, TolerancesMixin):
             data["+-"] = hermitian_part
         if antisymmetric_part is not None:
             data["++"] = antisymmetric_part
-        super().__init__(data)
+        super().__init__(data, validate=validate)
 
     def __repr__(self) -> str:
         return (
