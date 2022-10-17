@@ -340,6 +340,23 @@ class SpinOp(SparseLabelOp):
 
             yield (terms, self[label])
 
+    def conjugate(self) -> SpinOp:
+        """Returns the conjugate of the ``SpinOp``.
+
+        Returns:
+            The complex conjugate of the starting ``SpinOp``.
+        """
+        new_data = {}
+        for label, coeff in self._data.items():
+            coeff = np.conjugate(coeff)
+            for lbl in label.split():
+                char, index = lbl.split("_")
+                exponent = int(index.split("^")[1]) if len(index.split("^")) > 1 else 1
+                coeff *= (-1)**exponent if char == "Y" else 1
+            new_data[label] = coeff
+
+        return self._new_instance(new_data)
+
     def compose(self, other: SpinOp, qargs=None, front: bool = False) -> SpinOp:
         if not isinstance(other, SpinOp):
             raise TypeError(
