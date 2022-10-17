@@ -47,7 +47,6 @@ class UVCC(EvolvedOperatorAnsatz):
 
     def __init__(
         self,
-        qubit_converter: QubitConverter | None = None,
         num_modals: list[int] | None = None,
         excitations: str
         | int
@@ -57,15 +56,14 @@ class UVCC(EvolvedOperatorAnsatz):
             list[tuple[tuple[int, ...], tuple[int, ...]]],
         ]
         | None = None,
+        qubit_converter: QubitConverter | None = None,
+        *,
         reps: int = 1,
         initial_state: QuantumCircuit | None = None,
     ):
         """
 
         Args:
-            qubit_converter: the QubitConverter instance which takes care of mapping a
-                :class:`~.SecondQuantizedOp` to a :class:`PauliSumOp` as well as performing all
-                configured symmetry reductions on it.
             num_modals: Is a list defining the number of modals per mode. E.g. for a 3 modes system
                 with 4 modals per mode num_modals = [4,4,4]
             excitations: this can be any of the following types:
@@ -86,6 +84,8 @@ class UVCC(EvolvedOperatorAnsatz):
                     write such a callable refer to the default method
                     :meth:`~qiskit_nature.second_q.circuit.library.ansatzes.utils.\
                     generate_vibration_excitations`.
+            qubit_converter: the QubitConverter instance which takes care of mapping to a qubit
+                operator.
             reps: number of repetitions of basic module
             initial_state: A `QuantumCircuit` object to prepend to the circuit.
         """

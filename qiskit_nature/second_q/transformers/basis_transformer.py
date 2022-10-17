@@ -15,48 +15,31 @@
 from __future__ import annotations
 
 import logging
-import sys
-from typing import cast, TypeVar
+from typing import cast
+
+import numpy as np
 
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy, Hamiltonian
 from qiskit_nature.second_q.operators import ElectronicIntegrals, PolynomialTensor
-from qiskit_nature.second_q.problems import BaseProblem, ElectronicStructureProblem
+from qiskit_nature.second_q.problems import BaseProblem, ElectronicBasis, ElectronicStructureProblem
 from qiskit_nature.second_q.properties import (
     AngularMomentum,
     ElectronicDipoleMoment,
     Magnetization,
     ParticleNumber,
 )
-from qiskit_nature.second_q.properties.bases import ElectronicBasis
 
 from .base_transformer import BaseTransformer
 
-if sys.version_info >= (3, 8):
-    # pylint: disable=no-name-in-module
-    from typing import Protocol
-else:
-    from typing_extensions import Protocol
-
 LOGGER = logging.getLogger(__name__)
-
-
-# pylint: disable=invalid-name
-T = TypeVar("T", bound="Transposable")
-
-
-class Transposable(Protocol):
-    """A Protocol indicating the existence of a ``.transpose()`` function."""
-
-    def transpose(self: T) -> T:
-        """Returns the transposed version of itself."""
 
 
 class BasisTransformer(BaseTransformer):
     """A transformer to map from one basis to another.
 
     Since problems have a basis associated with them (e.g. the
-    :class:`qiskit_nature.second_q.properties.bases.ElectronicBasis` in the case of the
+    :class:`qiskit_nature.second_q.problems.ElectronicBasis` in the case of the
     :class:`qiskit_nature.second_q.problems.ElectronicStructureProblem`), this transformer can be
     used to map from one :attr:`initial_basis` to another :attr:`final_basis`.
 
@@ -69,7 +52,7 @@ class BasisTransformer(BaseTransformer):
         ao2mo_coeff, ao2mo_coeff_b = ...
 
         from qiskit_nature.second_q.operators import ElectronicIntegrals
-        from qiskit_nature.second_q.properties.bases import ElectronicBasis
+        from qiskit_nature.second_q.problems import ElectronicBasis
         from qiskit_nature.second_q.transformers import BasisTransformer
 
         transformer = BasisTransformer(
@@ -91,7 +74,7 @@ class BasisTransformer(BaseTransformer):
         self,
         initial_basis: ElectronicBasis,
         final_basis: ElectronicBasis,
-        coefficients: PolynomialTensor | Transposable,
+        coefficients: PolynomialTensor | ElectronicIntegrals,
     ) -> None:
         """
         Args:
@@ -112,7 +95,7 @@ class BasisTransformer(BaseTransformer):
         return BasisTransformer(
             self.final_basis,
             self.initial_basis,
-            self.coefficients.transpose(),
+            self.coefficients.__class__.apply(np.transpose, self.coefficients, validate=False),
         )
 
     def transform(self, problem: BaseProblem) -> BaseProblem:

@@ -132,6 +132,7 @@ dll
 docstring
 dof
 doi
+dok
 dt
 dtype
 dumitrescu
@@ -185,6 +186,7 @@ gauopen
 gaussian
 gaussiand
 gcc
+gcxs
 getitem
 getter
 gfortran
@@ -269,6 +271,7 @@ ket
 kitaev
 knowles
 kohn
+kron
 kronecker
 kwarg
 kwargs
@@ -417,6 +420,7 @@ ps
 pseudorandom
 pxd
 py
+pydata
 pyquante
 pyscf
 qarg
@@ -468,6 +472,7 @@ rossmannek
 rtol
 rtype
 runtime
+rustworkx
 rv
 rx
 rxx
@@ -479,6 +484,7 @@ rzz
 scalable
 scf
 schroedinger
+schrödinger
 schur
 scikit
 scipy
@@ -494,6 +500,8 @@ sklearn
 sl
 slater
 soham
+sp
+sparsearray
 sparselabelop
 spinop
 springer

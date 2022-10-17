@@ -15,7 +15,7 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import cast, Callable, List, Optional, Tuple, Union
+from typing import cast, Callable, List, Optional, Union
 
 import numpy as np
 
@@ -23,27 +23,41 @@ from qiskit.algorithms.eigensolvers import EigensolverResult
 from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
 from qiskit.opflow.primitive_ops import Z2Symmetries
 
+from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library.initial_states.hartree_fock import (
     hartree_fock_bitstring_mapped,
 )
 from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
-from qiskit_nature.second_q.properties.bases import ElectronicBasis
+from qiskit_nature.second_q.properties import Interpretable
 
 from .electronic_structure_result import ElectronicStructureResult
 from .electronic_properties_container import ElectronicPropertiesContainer
 from .eigenstate_result import EigenstateResult
 
 from .base_problem import BaseProblem
+from .electronic_basis import ElectronicBasis
 
 
 class ElectronicStructureProblem(BaseProblem):
-    """The Electronic Structure Problem.
+    r"""The Electronic Structure Problem.
 
-    The attributes `num_particles` and `num_spin_orbitals` are only available _after_ the
-    `second_q_ops()` method has been called! Note, that if you do so, the method will be executed
-    again when the problem is being solved.
+    This class represents the problem of the electronic Schrödinger equation:
+
+    .. math::
+        \hat{H}|\Psi\rangle = E|\Psi\rangle,
+
+    where :math:`\hat{H}` is the :class:`qiskit_nature.second_q.hamiltonians.ElectronicEnergy`
+    hamiltonian, :math:`\Psi` is the wave function of the system and :math:`E` is the eigenvalue.
+    When passed to a :class:`qiskit_nature.second_q.algorithms.GroundStateSolver`, you will be
+    solving for the ground-state energy, :math:`E_0`.
+
+    This class has various attributes (see below) which allow you to add additional information
+    about the problem which you are trying to solve, which can be used by various modules in the
+    stack. For example, specifying the number of particles in the system :attr:`num_particles` is
+    useful (and even required) for many components that interact with this problem instance to make
+    your life easier (for example the :class:`qiskit_nature.second_q.algorithms.VQEUCCFactory`).
 
     In the fermionic case the default filter ensures that the number of particles is being
     preserved.
@@ -69,12 +83,20 @@ class ElectronicStructureProblem(BaseProblem):
             total_angular_momentum_aux = aux_values["AngularMomentum"][0]
 
             return (
-                np.isclose(expected_spin, total_angular_momentum_aux) and
-                np.isclose(expected_num_electrons, num_particles_aux)
+                np.isclose(total_angular_momentum_aux, expected_spin) and
+                np.isclose(num_particles_aux, expected_num_electrons)
             )
 
         solver = NumPyEigensolverFactory(filter_criterion=filter_criterion_spin)
 
+    Attributes:
+        properties: a container for additional observable operator factories.
+        molecule: a container for molecular system data.
+        basis: the electronic basis of all contained orbital coefficients.
+        num_spatial_orbitals: the number of spatial orbitals in the system.
+        reference_energy: a reference energy for the ground state of the problem.
+        orbital_energies: the energy values of the alpha-spin orbitals.
+        orbital_energies_b: the energy values of the beta-spin orbitals.
     """
 
     def __init__(self, hamiltonian: ElectronicEnergy) -> None:
@@ -86,15 +108,13 @@ class ElectronicStructureProblem(BaseProblem):
         self.properties: ElectronicPropertiesContainer = ElectronicPropertiesContainer()
         self.molecule: MoleculeInfo | None = None
         self.basis: ElectronicBasis | None = None
+        self._num_particles: int | tuple[int, int] | None = None
+        self.num_spatial_orbitals: int | None = hamiltonian.register_length
+        self._orbital_occupations: np.ndarray | None = None
+        self._orbital_occupations_b: np.ndarray | None = None
         self.reference_energy: float | None = None
         self.orbital_energies: np.ndarray | None = None
         self.orbital_energies_b: np.ndarray | None = None
-        # TODO: further refactoring:
-        # - store data on Problem instead of in nested hamiltonian/properties
-        #   - orbital occupations
-        #   - number of particles
-        #   - system size (number of orbitals)
-        #   - overlap matrix (for future extension to generalized eigenvalue problem)
 
     @property
     def hamiltonian(self) -> ElectronicEnergy:
@@ -110,14 +130,79 @@ class ElectronicStructureProblem(BaseProblem):
         return self.hamiltonian.nuclear_repulsion_energy
 
     @property
-    def num_particles(self) -> Tuple[int, int]:
-        """Returns the number of alpha and beta spin particles."""
-        return self.properties.particle_number.num_particles
+    def num_particles(self) -> tuple[int, int] | None:
+        """The number of particles in alpha- and beta-spin."""
+        if self._num_particles is None:
+            return None
+        if isinstance(self._num_particles, tuple):
+            return self._num_particles
+        num_beta = self._num_particles // 2
+        num_alpha = self._num_particles - num_beta
+        return (num_alpha, num_beta)
+
+    @num_particles.setter
+    def num_particles(self, num_particles: int | tuple[int, int] | None) -> None:
+        self._num_particles = num_particles
 
     @property
-    def num_spin_orbitals(self) -> int:
-        """Returns the number of spin orbitals."""
-        return self.properties.particle_number.num_spin_orbitals
+    def num_alpha(self) -> int | None:
+        """The number of alpha-spin particles."""
+        if self.num_particles is None:
+            return None
+        return self.num_particles[0]
+
+    @property
+    def num_beta(self) -> int | None:
+        """The number of beta-spin particles."""
+        if self.num_particles is None:
+            return None
+        return self.num_particles[1]
+
+    @property
+    def num_spin_orbitals(self) -> int | None:
+        """The total number of spin orbitals."""
+        if self.num_spatial_orbitals is None:
+            return None
+        return 2 * self.num_spatial_orbitals
+
+    @property
+    def orbital_occupations(self) -> np.ndarray | None:
+        """The occupations of the alpha-spin orbitals."""
+        if self._orbital_occupations is not None:
+            return self._orbital_occupations
+
+        num_orbs = self.num_spatial_orbitals
+        if num_orbs is None:
+            return None
+
+        num_alpha = self.num_alpha
+        if num_alpha is None:
+            return None
+        return np.asarray([1.0] * num_alpha + [0.0] * (num_orbs - num_alpha))
+
+    @orbital_occupations.setter
+    def orbital_occupations(self, occ: np.ndarray | None) -> None:
+        self._orbital_occupations = occ
+
+    @property
+    def orbital_occupations_b(self) -> np.ndarray | None:
+        """The occupations of the beta-spin orbitals."""
+        if self._orbital_occupations_b is not None:
+            return self._orbital_occupations_b
+
+        num_orbs = self.num_spatial_orbitals
+        if num_orbs is None:
+            return None
+
+        num_beta = self.num_beta
+        if num_beta is None:
+            return None
+
+        return np.asarray([1.0] * num_beta + [0.0] * (num_orbs - num_beta))
+
+    @orbital_occupations_b.setter
+    def orbital_occupations_b(self, occ: np.ndarray | None) -> None:
+        self._orbital_occupations_b = occ
 
     def interpret(
         self,
@@ -134,10 +219,11 @@ class ElectronicStructureProblem(BaseProblem):
         eigenstate_result = super().interpret(raw_result)
         result = ElectronicStructureResult()
         result.combine(eigenstate_result)
-        self.hamiltonian.interpret(result)
+        if isinstance(self.hamiltonian, Interpretable):
+            self.hamiltonian.interpret(result)
         for prop in self.properties:
-            if hasattr(prop, "interpret"):
-                prop.interpret(result)  # type: ignore[attr-defined]
+            if isinstance(prop, Interpretable):
+                prop.interpret(result)
         result.computed_energies = np.asarray([e.real for e in eigenstate_result.eigenvalues])
         return result
 
@@ -145,22 +231,26 @@ class ElectronicStructureProblem(BaseProblem):
         self,
     ) -> Optional[Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]]:
         """Returns a default filter criterion method to filter the eigenvalues computed by the
-        eigen solver. For more information see also
-        qiskit.algorithms.eigen_solvers.NumPyEigensolver.filter_criterion.
+        eigensolver. For more information see also
+        :class:`qiskit.algorithms.eigensolvers.NumPyEigensolver.filter_criterion`.
 
-        In the fermionic case the default filter ensures that the number of particles is being
-        preserved.
+        This particular default ensures that the total number of particles is conserved and that the
+        angular momentum (if computed) evaluates to 0.
         """
 
         # pylint: disable=unused-argument
         def filter_criterion(self, eigenstate, eigenvalue, aux_values):
-            num_particles_aux = aux_values["ParticleNumber"][0]
-            total_angular_momentum_aux = aux_values["AngularMomentum"][0]
-            particle_number = self.properties.particle_number
-            return np.isclose(
-                particle_number.num_alpha + particle_number.num_beta,
-                num_particles_aux,
-            ) and np.isclose(0.0, total_angular_momentum_aux)
+            eval_num_particles = aux_values.get("ParticleNumber", None)
+            if eval_num_particles is None:
+                return True
+            num_particles_close = np.isclose(eval_num_particles[0], self.num_alpha + self.num_beta)
+
+            eval_angular_momentum = aux_values.get("AngularMomentum", None)
+            if eval_angular_momentum is None:
+                return num_particles_close
+            angular_momentum_close = np.isclose(eval_angular_momentum[0], 0.0)
+
+            return num_particles_close and angular_momentum_close
 
         return partial(filter_criterion, self)
 
@@ -177,15 +267,30 @@ class ElectronicStructureProblem(BaseProblem):
             converter: the qubit converter instance used for the operator conversion that
                 symmetries are to be determined for.
 
+        Raises:
+            QiskitNatureError: if the :attr:`num_particles` attribute is ``None``.
+
         Returns:
             The sector of the tapered operators with the problem solution.
         """
+        if self.num_particles is None:
+            raise QiskitNatureError(
+                "Determining the correct symmetry sector for Z2 symmetry reduction requires the "
+                "number of particles to be set on the problem instance. Please set "
+                "ElectronicStructureProblem.num_particles or disable the use of Z2Symmetries to "
+                "fix this."
+            )
+
+        num_particles = self.num_particles
+        if not isinstance(num_particles, tuple):
+            num_particles = (self.num_alpha, self.num_beta)
+
         # We need the HF bitstring mapped to the qubit space but without any tapering done
         # by the converter (just qubit mapping and any two qubit reduction) since we are
         # going to determine the tapering sector
         hf_bitstr = hartree_fock_bitstring_mapped(
-            num_spin_orbitals=self.num_spin_orbitals,
-            num_particles=self.num_particles,
+            num_spatial_orbitals=self.num_spatial_orbitals,
+            num_particles=num_particles,
             qubit_converter=converter,
             match_convert=False,
         )

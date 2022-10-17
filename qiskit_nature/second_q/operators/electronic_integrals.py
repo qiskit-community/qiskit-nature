@@ -14,25 +14,38 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from numbers import Number
 from typing import Iterator, cast
 
 import numpy as np
 
-from qiskit.quantum_info.operators.mixins import AdjointMixin, LinearMixin
+from qiskit.quantum_info.operators.mixins import LinearMixin
 
 from qiskit_nature.exceptions import QiskitNatureError
-from qiskit_nature.settings import settings
+import qiskit_nature.optionals as _optionals
 
-from .polynomial_tensor import PolynomialTensor
+from .polynomial_tensor import ARRAY_TYPE, PolynomialTensor
 from .tensor_ordering import (
     IndexType,
     _chem_to_phys,
     find_index_order,
 )
 
+if _optionals.HAS_SPARSE:
+    # pylint: disable=import-error
+    from sparse import SparseArray
+else:
 
-class ElectronicIntegrals(AdjointMixin, LinearMixin):
+    class SparseArray:  # type: ignore
+        """Empty SparseArray class
+        Replacement if sparse.SparseArray is not present.
+        """
+
+        pass
+
+
+class ElectronicIntegrals(LinearMixin):
     r"""A container class for electronic operator coefficients (a.k.a. electronic integrals).
 
     This class contains multiple :class:`qiskit_nature.second_q.operators.PolynomialTensor`
@@ -51,8 +64,7 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
     - for `beta_alpha` the only allowed key is `"++--"`
     - the reported `register_length` attributes of all non-empty tensors must match
 
-    It exposes common mathematical operations performed on these tensors allowing simple
-    manipulation of the underlying data structures.
+    There are two ways of constructing the ``ElectronicIntegrals``:
 
     .. code-block:: python
 
@@ -67,16 +79,19 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
 
         integrals = ElectronicIntegrals(alpha, beta, beta_alpha)
 
+        # or you can achieve exactly the same via:
+        integrals = ElectronicIntegrals.from_raw_integrals(h1_a, h2_aa, h1_b, h2_bb, h2_ba)
+
+    This class then exposes common mathematical operations performed on these tensors allowing
+    simple manipulation of the underlying data structures.
+
+    .. code-block:: python
+
         # addition
         integrals + integrals
 
         # scalar multiplication
         2.0 * integrals
-
-        # conjugation, transposition, adjoint
-        integrals.conjugate()
-        integrals.transpose()
-        integrals.adjoint()
 
     This class will substitute empty `beta` and `beta_alpha` tensors with the `alpha` tensor
     when necessary. For example, this means the following will happen:
@@ -114,6 +129,8 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         alpha: PolynomialTensor | None = None,
         beta: PolynomialTensor | None = None,
         beta_alpha: PolynomialTensor | None = None,
+        *,
+        validate: bool = True,
     ) -> None:
         """
         Any ``None``-valued argument will internally be replaced by an empty ``PolynomialTensor``
@@ -124,6 +141,7 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
             beta: the down-spin electronic integrals
             beta_alpha: the beta-alpha-spin two-body electronic integrals. This may *only* contain
                 the `++--` key.
+            validate: when set to False, no validation will be performed.
 
         Raises:
             KeyError: if the `alpha` tensor contains keys other than `""`, `"+-"`, and `"++--"`.
@@ -135,7 +153,8 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         self.alpha = alpha
         self.beta = beta
         self.beta_alpha = beta_alpha
-        self._validate()
+        if validate:
+            self._validate()
 
     def _validate(self):
         """Performs internal validation."""
@@ -236,8 +255,8 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         if self.beta_alpha.is_empty():
             return self.beta_alpha
 
-        beta_alpha = cast(np.ndarray, self.beta_alpha["++--"])
-        alpha_beta = np.einsum("ijkl->klij", beta_alpha, optimize=settings.optimize_einsum)
+        beta_alpha = cast(ARRAY_TYPE, self.beta_alpha["++--"])
+        alpha_beta = np.moveaxis(beta_alpha, (0, 1), (2, 3))
         return PolynomialTensor({"++--": alpha_beta}, validate=False)
 
     @property
@@ -255,7 +274,7 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
                 {"+-": self.beta["+-"]},
                 validate=False,
             )
-        return ElectronicIntegrals(alpha, beta)
+        return self.__class__(alpha, beta)
 
     @property
     def two_body(self) -> ElectronicIntegrals:
@@ -278,11 +297,11 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
                 {"++--": self.beta_alpha["++--"]},
                 validate=False,
             )
-        return ElectronicIntegrals(alpha, beta, beta_alpha)
+        return self.__class__(alpha, beta, beta_alpha)
 
     @property
     def register_length(self) -> int | None:
-        """TODO."""
+        """The size of the operator that can be generated from these `ElectronicIntegrals`."""
         alpha_length = self.alpha.register_length
         return alpha_length
 
@@ -340,7 +359,7 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         if not isinstance(other, Number):
             raise TypeError(f"other {other} must be a number")
 
-        return ElectronicIntegrals(
+        return self.__class__(
             cast(PolynomialTensor, other * self.alpha),
             cast(PolynomialTensor, other * self.beta),
             cast(PolynomialTensor, other * self.beta_alpha),
@@ -359,46 +378,71 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
             beta_other = other.alpha if beta_other_empty else other.beta
             beta = beta_self + beta_other
 
-        return ElectronicIntegrals(
+        return self.__class__(
             self.alpha + other.alpha,
             beta,
             self.beta_alpha + other.beta_alpha,
         )
 
-    def conjugate(self) -> ElectronicIntegrals:
-        """Complex conjugate of ``ElectronicIntegrals``.
+    @classmethod
+    def apply(
+        cls,
+        function: Callable[..., np.ndarray | SparseArray | Number],
+        *operands: ElectronicIntegrals,
+        validate: bool = True,
+    ) -> ElectronicIntegrals:
+        """Exposes the :meth:`qiskit_nature.second_q.operators.PolynomialTensor.apply` method.
+
+        This behaves identical to the ``apply`` implementation of the ``PolynomialTensor``, applied
+        to the :attr:`alpha`, :attr:`beta`, and :attr:`beta_alpha` attributes of the provided
+        ``ElectronicIntegrals`` operands.
+
+        This method is special, because it handles the scenario in which any operand has a non-empty
+        :attr:`beta` attribute, in which case the empty-beta attributes of any other operands will
+        be filled with :attr:`alpha` attributes of those operands.
+        The same applies to the :attr:`beta_alpha` attributes.
+
+        Args:
+            function: the function to apply to the internal arrays of the provided operands. This
+                function must take numpy (or sparse) arrays as its positional arguments. The number
+                of arguments must match the number of provided operands.
+            operands: a sequence of ``ElectronicIntegrals`` instances on which to operate.
+            validate: when set to False, no validation will be performed.
 
         Returns:
-            The complex conjugate of the ``ElectronicIntegrals``.
+            A new ``PolynomialTensor``.
         """
-        return ElectronicIntegrals(
-            self.alpha.conjugate(),
-            self.beta.conjugate(),
-            self.beta_alpha.conjugate(),
-        )
+        alpha = PolynomialTensor.apply(function, *(op.alpha for op in operands), validate=validate)
 
-    def transpose(self) -> ElectronicIntegrals:
-        """Transpose of ``ElectronicIntegrals``.
+        beta: PolynomialTensor = None
+        if any(not op.beta.is_empty() for op in operands):
+            # If any beta-entry is non-empty, we have to perform this computation.
+            # Empty tensors will be populated with their alpha-terms automatically.
+            beta = PolynomialTensor.apply(
+                function,
+                *(op.alpha if op.beta.is_empty() else op.beta for op in operands),
+                validate=validate,
+            )
 
-        Returns:
-            The transpose of the ``ElectronicIntegrals``.
-        """
-        return ElectronicIntegrals(
-            self.alpha.transpose(),
-            self.beta.transpose(),
-            self.beta_alpha.transpose(),
-        )
+        beta_alpha: PolynomialTensor = None
+        if all(not op.beta_alpha.is_empty() for op in operands):
+            # We can only perform this operation, when all beta_alpha tensors are non-empty.
+            beta_alpha = PolynomialTensor.apply(
+                function, *(op.beta_alpha for op in operands), validate=validate
+            )
+        return cls(alpha, beta, beta_alpha, validate=validate)
 
     @classmethod
     def einsum(
         cls,
         einsum_map: dict[str, tuple[str, ...]],
         *operands: ElectronicIntegrals,
+        validate: bool = True,
     ) -> ElectronicIntegrals:
         """Exposes the :meth:`qiskit_nature.second_q.operators.PolynomialTensor.einsum` method.
 
-        This behaves identical to the einsum implementation of the ``PolynomialTensor``, applied to
-        the :attr:`alpha`, :attr:`beta`, and :attr:`beta_alpha` attributes of the provided
+        This behaves identical to the ``einsum`` implementation of the ``PolynomialTensor``, applied
+        to the :attr:`alpha`, :attr:`beta`, and :attr:`beta_alpha` attributes of the provided
         ``ElectronicIntegrals`` operands.
 
         This method is special, because it handles the scenario in which any operand has a non-empty
@@ -412,11 +456,14 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
                 provided ``ElectronicIntegrals`` operands. The last string in this tuple indicates
                 the key under which to store the result in the returned ``ElectronicIntegrals``.
             operands: a sequence of ``ElectronicIntegrals`` instances on which to operate.
+            validate: when set to False, no validation will be performed.
 
         Returns:
             A new ``PolynomialTensor``.
         """
-        alpha = PolynomialTensor.einsum(einsum_map, *(op.alpha for op in operands))
+        alpha = PolynomialTensor.einsum(
+            einsum_map, *(op.alpha for op in operands), validate=validate
+        )
 
         beta: PolynomialTensor = None
         if any(not op.beta.is_empty() for op in operands):
@@ -425,23 +472,26 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
             beta = PolynomialTensor.einsum(
                 einsum_map,
                 *(op.alpha if op.beta.is_empty() else op.beta for op in operands),
+                validate=validate,
             )
 
         beta_alpha: PolynomialTensor = None
         if all(not op.beta_alpha.is_empty() for op in operands):
             # We can only perform this operation, when all beta_alpha tensors are non-empty.
-            beta_alpha = PolynomialTensor.einsum(einsum_map, *(op.beta_alpha for op in operands))
-        return ElectronicIntegrals(alpha, beta, beta_alpha)
+            beta_alpha = PolynomialTensor.einsum(
+                einsum_map, *(op.beta_alpha for op in operands), validate=validate
+            )
+        return cls(alpha, beta, beta_alpha, validate=validate)
 
     # pylint: disable=invalid-name
     @classmethod
     def from_raw_integrals(
         cls,
-        h1_a: np.ndarray,
-        h2_aa: np.ndarray | None = None,
-        h1_b: np.ndarray | None = None,
-        h2_bb: np.ndarray | None = None,
-        h2_ba: np.ndarray | None = None,
+        h1_a: np.ndarray | SparseArray,
+        h2_aa: np.ndarray | SparseArray | None = None,
+        h1_b: np.ndarray | SparseArray | None = None,
+        h2_bb: np.ndarray | SparseArray | None = None,
+        h2_ba: np.ndarray | SparseArray | None = None,
         *,
         validate: bool = True,
         auto_index_order: bool = True,
@@ -505,7 +555,7 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
         if h2_ba is not None:
             beta_alpha = PolynomialTensor({"++--": h2_ba}, validate=validate)
 
-        return ElectronicIntegrals(alpha, beta, beta_alpha)
+        return cls(alpha, beta, beta_alpha)
 
     def second_q_coeffs(self) -> PolynomialTensor:
         """Constructs the total ``PolynomialTensor`` contained the second-quantized coefficients.
@@ -538,31 +588,65 @@ class ElectronicIntegrals(AdjointMixin, LinearMixin):
             kron_two_body[(1, 0, 0, 1)] = 0.5
             kron_two_body[(1, 1, 1, 1)] = 0.5
 
-            tensor_blocked_spin_orbitals = kron_tensor ^ self.alpha
+            tensor_blocked_spin_orbitals = PolynomialTensor.apply(np.kron, kron_tensor, self.alpha)
             return tensor_blocked_spin_orbitals
 
         tensor_blocked_spin_orbitals = PolynomialTensor({})
         # pure alpha spin
         kron_one_body[(0, 0)] = 1
         kron_two_body[(0, 0, 0, 0)] = 0.5
-        tensor_blocked_spin_orbitals += kron_tensor ^ self.alpha
+        tensor_blocked_spin_orbitals += PolynomialTensor.apply(np.kron, kron_tensor, self.alpha)
         kron_one_body[(0, 0)] = 0
         kron_two_body[(0, 0, 0, 0)] = 0
         # pure beta spin
         kron_one_body[(1, 1)] = 1
         kron_two_body[(1, 1, 1, 1)] = 0.5
-        tensor_blocked_spin_orbitals += kron_tensor ^ self.beta
+        tensor_blocked_spin_orbitals += PolynomialTensor.apply(np.kron, kron_tensor, self.beta)
         kron_one_body[(1, 1)] = 0
         kron_two_body[(1, 1, 1, 1)] = 0
         # beta_alpha spin
         if not beta_alpha_empty:
             kron_tensor = PolynomialTensor({"++--": kron_two_body})
             kron_two_body[(1, 0, 0, 1)] = 0.5
-            tensor_blocked_spin_orbitals += kron_tensor ^ self.beta_alpha
+            tensor_blocked_spin_orbitals += PolynomialTensor.apply(
+                np.kron, kron_tensor, self.beta_alpha
+            )
             kron_two_body[(1, 0, 0, 1)] = 0
             # extract transposed beta_alpha term
             kron_two_body[(0, 1, 1, 0)] = 0.5
-            tensor_blocked_spin_orbitals += kron_tensor ^ self.alpha_beta
+            tensor_blocked_spin_orbitals += PolynomialTensor.apply(
+                np.kron, kron_tensor, self.alpha_beta
+            )
             kron_two_body[(0, 1, 1, 0)] = 0
 
         return tensor_blocked_spin_orbitals
+
+    def trace_spin(self) -> PolynomialTensor:
+        """Returns a :class:`~.PolynomialTensor` where the spin components have been traced out.
+
+        This will sum the :attr:`alpha` and :attr:`beta` components, tracing out the spin.
+
+        Returns:
+            A ``PolynomialTensor`` with the spin traced out.
+        """
+        beta_empty = self.beta.is_empty()
+        beta_alpha_empty = self.beta_alpha.is_empty()
+
+        if beta_empty and beta_alpha_empty:
+            return cast(PolynomialTensor, 2.0 * self.alpha)
+
+        one_body = self.one_body
+        two_body = self.two_body
+        tensor_spin_traced = PolynomialTensor({})
+        tensor_spin_traced += one_body.alpha
+        tensor_spin_traced += one_body.beta
+        tensor_spin_traced += two_body.alpha
+        tensor_spin_traced += two_body.beta
+        if beta_alpha_empty:
+            tensor_spin_traced += two_body.alpha
+            tensor_spin_traced += two_body.beta
+        else:
+            tensor_spin_traced += two_body.beta_alpha
+            tensor_spin_traced += two_body.alpha_beta
+
+        return tensor_spin_traced

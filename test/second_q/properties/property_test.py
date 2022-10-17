@@ -33,39 +33,21 @@ class PropertyTest(QiskitNatureTestCase):
         self, first: AngularMomentum, second: AngularMomentum, msg: str = None
     ) -> None:
         """Compares two AngularMomentum instances."""
-        if first.num_spin_orbitals != second.num_spin_orbitals:
-            raise self.failureException(msg)
-        if first.spin != second.spin:
-            raise self.failureException(msg)
-        if not np.isclose(first.absolute_tolerance, second.absolute_tolerance):
-            raise self.failureException(msg)
-        if not np.isclose(first.relative_tolerance, second.relative_tolerance):
+        if first.num_spatial_orbitals != second.num_spatial_orbitals:
             raise self.failureException(msg)
 
     def compare_magnetization(
         self, first: Magnetization, second: Magnetization, msg: str = None
     ) -> None:
         """Compares two Magnetization instances."""
-        if first.num_spin_orbitals != second.num_spin_orbitals:
+        if first.num_spatial_orbitals != second.num_spatial_orbitals:
             raise self.failureException(msg)
 
     def compare_particle_number(
         self, first: ParticleNumber, second: ParticleNumber, msg: str = None
     ) -> None:
         """Compares two ParticleNumber instances."""
-        if first.num_spin_orbitals != second.num_spin_orbitals:
-            raise self.failureException(msg)
-        if first.num_alpha != second.num_alpha:
-            raise self.failureException(msg)
-        if first.num_beta != second.num_beta:
-            raise self.failureException(msg)
-        if not np.allclose(first.occupation_alpha, second.occupation_alpha):
-            raise self.failureException(msg)
-        if not np.allclose(first.occupation_beta, second.occupation_beta):
-            raise self.failureException(msg)
-        if not np.isclose(first.absolute_tolerance, second.absolute_tolerance):
-            raise self.failureException(msg)
-        if not np.isclose(first.relative_tolerance, second.relative_tolerance):
+        if first.num_spatial_orbitals != second.num_spatial_orbitals:
             raise self.failureException(msg)
 
     def compare_vibrational_integral(

@@ -14,14 +14,10 @@
 
 from __future__ import annotations
 
-from typing import MutableMapping, Optional, Tuple, cast, TYPE_CHECKING
+from typing import Mapping, MutableMapping, Optional, Tuple, cast
 
+import qiskit_nature  # pylint: disable=unused-import
 from qiskit_nature.second_q.operators import ElectronicIntegrals, FermionicOp
-
-from .property import Property
-
-if TYPE_CHECKING:
-    from qiskit_nature.second_q.problems import EigenstateResult
 
 
 # A dipole moment, when present as X, Y and Z components will normally have float values for all the
@@ -31,7 +27,7 @@ if TYPE_CHECKING:
 DipoleTuple = Tuple[Optional[float], Optional[float], Optional[float]]
 
 
-class ElectronicDipoleMoment(Property):
+class ElectronicDipoleMoment:
     r"""The ElectronicDipoleMoment property.
 
     This Property implements the operator which evaluates the **electronic** dipole moment, based on
@@ -98,7 +94,6 @@ class ElectronicDipoleMoment(Property):
             constants: a mapping of constant dipole offsets, not mapped to the qubit operator.
                 Each entry must be a tuple of length three (for the three Cartesian axes).
         """
-        super().__init__(self.__class__.__name__)
         self.x_dipole = x_dipole
         self.y_dipole = y_dipole
         self.z_dipole = z_dipole
@@ -120,11 +115,11 @@ class ElectronicDipoleMoment(Property):
     def nuclear_dipole_moment(self, d_nuc: DipoleTuple) -> None:
         self.constants["nuclear_dipole_moment"] = d_nuc
 
-    def second_q_ops(self) -> dict[str, FermionicOp]:
+    def second_q_ops(self) -> Mapping[str, FermionicOp]:
         """Returns the second quantized dipole moment operators.
 
         Returns:
-            A `dict` of `FermionicOp` objects.
+            A mapping of strings to `FermionicOp` objects.
         """
         ops = {}
         ops["XDipole"] = FermionicOp.from_polynomial_tensor(self.x_dipole.second_q_coeffs())
@@ -132,7 +127,9 @@ class ElectronicDipoleMoment(Property):
         ops["ZDipole"] = FermionicOp.from_polynomial_tensor(self.z_dipole.second_q_coeffs())
         return ops
 
-    def interpret(self, result: "EigenstateResult") -> None:
+    def interpret(
+        self, result: "qiskit_nature.second_q.problemsEigenstateResult"  # type: ignore[name-defined]
+    ) -> None:
         """Interprets an :class:`qiskit_nature.second_q.problems.EigenstateResult`.
 
         In particular, this extracts the evaluated electronic dipole moment values from the
@@ -147,12 +144,10 @@ class ElectronicDipoleMoment(Property):
         result.computed_dipole_moment = []
         result.extracted_transformer_dipoles = []
 
-        if not isinstance(result.aux_operators_evaluated, list):
-            aux_operators_evaluated = [result.aux_operators_evaluated]
-        else:
-            aux_operators_evaluated = result.aux_operators_evaluated
+        if result.aux_operators_evaluated is None:
+            return
 
-        for aux_op_eigenvalues in aux_operators_evaluated:
+        for aux_op_eigenvalues in result.aux_operators_evaluated:
             if not isinstance(aux_op_eigenvalues, dict):
                 continue
 

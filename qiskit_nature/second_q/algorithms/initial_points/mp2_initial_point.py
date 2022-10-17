@@ -74,23 +74,22 @@ class MP2InitialPoint(InitialPoint):
 
     The computed MP2 correction coefficients are intended for use as an initial point for the VQE
     parameters in combination with a
-    :class:`~qiskit_nature.second_q.circuit.library.ansatzes.ucc.UCC` ansatz.
+    :class:`~qiskit_nature.second_q.circuit.library.ansatzes.UCC` ansatz.
 
     The initial point parameters are computed using the :meth:`compute` method, which requires the
-    :attr:`grouped_property` and :attr:`ansatz` to be passed as arguments or the
-    :attr:`grouped_property` and :attr:`ansatz` attributes to be set already.
+    :attr:`problem` and :attr:`ansatz` to be passed as arguments or the
+    :attr:`problem` and :attr:`ansatz` attributes to be set already.
 
-    The :attr:`grouped_property` is required to contain
-    :class:`~qiskit_nature.second_q.properties.particle_number.ParticleNumber` and
-    :class:`~qiskit_nature.second_q.hamiltonians.electronic_energy.ElectronicEnergy`. From
-    :class:`~qiskit_nature.second_q.properties.particle_number.ParticleNumber` we obtain the
-    ``num_particles`` to infer the number of occupied orbitals.
-    :class:`~qiskit_nature.second_q.hamiltonians.electronic_energy.ElectronicEnergy` must contain
-    the two-body, molecular-orbital ``electronic_integrals`` and the ``orbital_energies``.
-    Optionally, the setter will obtain the Hartree-Fock ``reference_energy`` to compute the
+    The :attr:`problem` is required to be an
+    :class:`~qiskit_nature.second_q.problems.ElectronicStructureProblem` which contains an
+    :class:`~qiskit_nature.second_q.hamiltonians.ElectronicEnergy` hamiltonian.
+    It also must have its ``num_particles`` and ``orbital_energies`` attributes specified. If its
+    ``reference_energy`` attribute is provided, this will be used to compute the
     :attr:`total_energy`.
+    :class:`~qiskit_nature.second_q.hamiltonians.ElectronicEnergy` must contain
+    the two-body, molecular-orbital ``electronic_integrals``.
 
-    Setting the :attr:`grouped_property` will compute the :attr:`t2_amplitudes` and
+    Setting the :attr:`problem` will compute the :attr:`t2_amplitudes` and
     :attr:`energy_correction`.
 
     Following computation, one can obtain the initial point array via the :meth:`to_numpy_array`
@@ -124,39 +123,34 @@ class MP2InitialPoint(InitialPoint):
         self._ansatz = ansatz
 
     @property
-    def grouped_property(self) -> BaseProblem | None:
-        """The grouped property.
+    def problem(self) -> BaseProblem | None:
+        """The problem instance.
 
-        See
-        :class:`~qiskit_nature.second_q.algorithms.initial_points.mp2_initial_point.MP2InitialPoint`
-        for information on the required properties.
+        See :class:`~qiskit_nature.second_q.algorithms.initial_points.MP2InitialPoint` for more
+        information on the required properties.
 
         Raises:
+            QiskitNatureError: If :class:`~qiskit_nature.second_q.hamiltonians.ElectronicEnergy` is
+                missing or the two-body molecular orbitals matrix.
             QiskitNatureError: If
-                :class:`~qiskit_nature.second_q.hamiltonians.electronic_energy.ElectronicEnergy` is
-                missing or the two-body molecular orbitals matrix or the orbital energies are not
-                found.
-            QiskitNatureError: If
-                :class:`~qiskit_nature.second_q.properties.particle_number.ParticleNumber` is
-                missing.
-            NotImplementedError: If alpha and beta spin molecular orbitals are not
-                identical.
+                :attr:`~qiskit_nature.second_q.problems.ElectronicStructureProblem.num_particles` or
+                :attr:`~qiskit_nature.second_q.problems.ElectronicStructureProblem.orbital_energies`
+                is ``None``.
+            NotImplementedError: If alpha and beta spin molecular orbitals are not identical.
         """
-        return self._grouped_property
+        return self._problem
 
-    @grouped_property.setter
-    def grouped_property(self, grouped_property: BaseProblem) -> None:
-        if not isinstance(grouped_property, ElectronicStructureProblem):
+    @problem.setter
+    def problem(self, problem: BaseProblem) -> None:
+        if not isinstance(problem, ElectronicStructureProblem):
             raise QiskitNatureError(
                 "Only an `ElectronicStructureProblem` is compatible with the MP2InitialPoint, not a"
-                f" problem of type, {type(grouped_property)}."
+                f" problem of type, {type(problem)}."
             )
 
-        electronic_energy = grouped_property.hamiltonian
+        electronic_energy = problem.hamiltonian
         if electronic_energy is None:
-            raise QiskitNatureError(
-                "The `ElectronicEnergy` cannot be obtained from the `grouped_property`."
-            )
+            raise QiskitNatureError("The `ElectronicEnergy` cannot be obtained from the `problem`.")
 
         two_body_mo_integral: ElectronicIntegrals = electronic_energy.electronic_integrals.two_body
         if two_body_mo_integral.alpha.is_empty():
@@ -164,11 +158,9 @@ class MP2InitialPoint(InitialPoint):
                 "The alpha-alpha spin two-body MO `electronic_integrals` cannot be empty."
             )
 
-        orbital_energies: np.ndarray | None = grouped_property.orbital_energies
+        orbital_energies: np.ndarray | None = problem.orbital_energies
         if orbital_energies is None:
-            raise QiskitNatureError(
-                "The `orbital_energies` cannot be obtained from the `grouped_property`."
-            )
+            raise QiskitNatureError("The `orbital_energies` cannot be obtained from the `problem`.")
 
         if two_body_mo_integral.beta.get("++--", None) is not None:
             raise NotImplementedError(
@@ -177,26 +169,25 @@ class MP2InitialPoint(InitialPoint):
                 "See https://github.com/Qiskit/qiskit-nature/issues/645."
             )
 
-        integral_matrix = _phys_to_chem(two_body_mo_integral.alpha.get("++--"))
-
-        reference_energy = grouped_property.reference_energy if not None else 0.0
-
-        particle_number = grouped_property.properties.particle_number
-        if particle_number is None:
-            raise QiskitNatureError(
-                "The `ParticleNumber` cannot be obtained from the `grouped_property`."
-            )
-
         # Get number of occupied molecular orbitals as the number of alpha particles.
         # Only valid for restricted-spin setups.
-        num_occ = particle_number.num_particles[0]
+        num_occ = problem.num_alpha
+        if num_occ is None:
+            raise QiskitNatureError(
+                "The `num_particles` attribute of the `ElectronicStructureProblem` is required by "
+                "the MP2InitialPoint."
+            )
+
+        integral_matrix = _phys_to_chem(two_body_mo_integral.alpha.get("++--"))
+
+        reference_energy = problem.reference_energy if not None else 0.0
 
         self._invalidate()
 
         t2_amplitudes, energy_correction = _compute_mp2(num_occ, integral_matrix, orbital_energies)
 
         # Save state.
-        self._grouped_property = grouped_property
+        self._problem = problem
         self._t2_amplitudes = t2_amplitudes
         self._energy_correction = energy_correction
         self._total_energy = reference_energy + energy_correction
@@ -244,18 +235,18 @@ class MP2InitialPoint(InitialPoint):
     def compute(
         self,
         ansatz: UCC | None = None,
-        grouped_property: BaseProblem | None = None,
+        problem: BaseProblem | None = None,
     ) -> None:
         """Compute the initial point parameter for each excitation.
 
         See class documentation for more information.
 
         Args:
-            grouped_property: The :attr:`grouped_property`.
+            problem: The :attr:`problem`.
             ansatz: The :attr:`ansatz`.
 
         Raises:
-            QiskitNatureError: If :attr:`ansatz` or :attr:`grouped_property` is not set.
+            QiskitNatureError: If :attr:`ansatz` or :attr:`problem` is not set.
         """
         if ansatz is not None:
             self.ansatz = ansatz
@@ -267,11 +258,11 @@ class MP2InitialPoint(InitialPoint):
                 "Set the ansatz or call compute with it as an argument. "
             )
 
-        if grouped_property is not None:
-            self.grouped_property = grouped_property
+        if problem is not None:
+            self.problem = problem
 
-        if self._grouped_property is None:
-            raise QiskitNatureError("The grouped_property has not been set.")
+        if self._problem is None:
+            raise QiskitNatureError("The problem has not been set.")
 
         self._compute()
 

@@ -31,8 +31,7 @@ from qiskit_nature.second_q.formats.qcschema import (
     QCTopology,
     QCWavefunction,
 )
-from qiskit_nature.second_q.problems import ElectronicStructureProblem
-from qiskit_nature.second_q.properties.bases import ElectronicBasis
+from qiskit_nature.second_q.problems import ElectronicBasis, ElectronicStructureProblem
 
 from .base_driver import BaseDriver
 

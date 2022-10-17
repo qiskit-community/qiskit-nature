@@ -167,7 +167,7 @@ class QuadraticHamiltonian(Hamiltonian, TolerancesMixin):
                 terms[f"+_{i} +_{j}"] = self.antisymmetric_part[i, j]
                 terms[f"-_{j} -_{i}"] = self.antisymmetric_part[i, j].conjugate()
         # TODO remove display_format="sparse" once it's no longer needed to suppress warning
-        return FermionicOp(terms, register_length=self._num_modes, copy=False)
+        return FermionicOp(terms, num_spin_orbitals=self._num_modes, copy=False)
 
     def conserves_particle_number(self) -> bool:
         """Whether the Hamiltonian conserves particle number."""

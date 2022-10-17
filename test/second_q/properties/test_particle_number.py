@@ -12,11 +12,7 @@
 
 """Test ParticleNumber Property"""
 
-import tempfile
 from test.second_q.properties.property_test import PropertyTest
-
-import h5py
-import numpy as np
 
 from qiskit_nature.second_q.properties import ParticleNumber
 
@@ -27,13 +23,8 @@ class TestParticleNumber(PropertyTest):
     def setUp(self):
         """Setup."""
         super().setUp()
-        num_molecular_orbitals = 4
-        num_alpha = 2
-        num_beta = 2
-        self.prop = ParticleNumber(
-            num_molecular_orbitals * 2,
-            (num_alpha, num_beta),
-        )
+        num_spatial_orbitals = 4
+        self.prop = ParticleNumber(num_spatial_orbitals)
 
     def test_second_q_ops(self):
         """Test second_q_ops."""
@@ -49,26 +40,3 @@ class TestParticleNumber(PropertyTest):
             "+_7 -_7": 1.0,
         }
         self.assertEqual(dict(ops.items()), expected)
-
-    def test_non_singlet_occupation(self):
-        """Regression test against occupation computation of non-singlet state."""
-        prop = ParticleNumber(4, (2, 1), [2.0, 1.0])
-        self.assertTrue(np.allclose(prop.occupation_alpha, [1.0, 1.0]))
-        self.assertTrue(np.allclose(prop.occupation_beta, [1.0, 0.0]))
-
-    def test_to_hdf5(self):
-        """Test to_hdf5."""
-        with tempfile.TemporaryFile() as tmp_file:
-            with h5py.File(tmp_file, "w") as file:
-                self.prop.to_hdf5(file)
-
-    def test_from_hdf5(self):
-        """Test from_hdf5."""
-        with tempfile.TemporaryFile() as tmp_file:
-            with h5py.File(tmp_file, "w") as file:
-                self.prop.to_hdf5(file)
-
-            with h5py.File(tmp_file, "r") as file:
-                read_prop = ParticleNumber.from_hdf5(file["ParticleNumber"])
-
-                self.assertEqual(self.prop, read_prop)

@@ -28,16 +28,17 @@ class HartreeFock(QuantumCircuit):
 
     def __init__(
         self,
-        num_spin_orbitals: int,
+        num_spatial_orbitals: int,
         num_particles: tuple[int, int],
         qubit_converter: QubitConverter,
     ) -> None:
         """
         Args:
-            num_spin_orbitals: The number of spin orbitals, has a min. value of 1.
+            num_spatial_orbitals: The number of spatial orbitals, has a min. value of 1.
             num_particles: The number of particles as a tuple storing the number of alpha- and
                            beta-spin electrons in the first and second number, respectively.
-            qubit_converter: a QubitConverter instance.
+            qubit_converter: the QubitConverter instance which takes care of mapping to a qubit
+                operator.
 
         Raises:
             TypeError: If qubit_converter contains BravyiKitaevSuperFastMapper. See
@@ -52,7 +53,7 @@ class HartreeFock(QuantumCircuit):
         # Get the mapped/tapered hartree fock bitstring as we need it to match to whatever
         # conversion was done by the given qubit converter
         bitstr = hartree_fock_bitstring_mapped(
-            num_spin_orbitals, num_particles, qubit_converter, True
+            num_spatial_orbitals, num_particles, qubit_converter, match_convert=True
         )
         # Construct the circuit for this bitstring. Since this is defined as an initial state
         # circuit its assumed that this is applied first to the qubits that are initialized to
@@ -66,15 +67,16 @@ class HartreeFock(QuantumCircuit):
 
 
 def hartree_fock_bitstring_mapped(
-    num_spin_orbitals: int,
+    num_spatial_orbitals: int,
     num_particles: tuple[int, int],
     qubit_converter: QubitConverter,
+    *,
     match_convert: bool = True,
 ) -> list[bool]:
     """Compute the bitstring representing the mapped Hartree-Fock state for the specified system.
 
     Args:
-        num_spin_orbitals: The number of spin orbitals, has a min. value of 1.
+        num_spatial_orbitals: The number of spatial orbitals, has a min. value of 1.
         num_particles: The number of particles as a tuple (alpha, beta) containing the number of
             alpha- and  beta-spin electrons, respectively.
         qubit_converter: A QubitConverter instance.
@@ -88,12 +90,12 @@ def hartree_fock_bitstring_mapped(
     """
 
     # get the bitstring encoding the Hartree Fock state
-    bitstr = hartree_fock_bitstring(num_spin_orbitals, num_particles)
+    bitstr = hartree_fock_bitstring(num_spatial_orbitals, num_particles)
 
     # encode the bitstring as a `FermionicOp`
     bitstr_op = FermionicOp(
         {" ".join(f"+_{idx}" for idx, bit in enumerate(bitstr) if bit): 1.0},
-        register_length=num_spin_orbitals,
+        num_spin_orbitals=2 * num_spatial_orbitals,
     )
 
     # map the `FermionicOp` to a qubit operator
@@ -112,11 +114,11 @@ def hartree_fock_bitstring_mapped(
     return bits
 
 
-def hartree_fock_bitstring(num_spin_orbitals: int, num_particles: tuple[int, int]) -> list[bool]:
+def hartree_fock_bitstring(num_spatial_orbitals: int, num_particles: tuple[int, int]) -> list[bool]:
     """Compute the bitstring representing the Hartree-Fock state for the specified system.
 
     Args:
-        num_spin_orbitals: The number of spin orbitals, has a min. value of 1.
+        num_spatial_orbitals: The number of spatial orbitals, has a min. value of 1.
         num_particles: The number of particles as a tuple storing the number of alpha- and beta-spin
                        electrons in the first and second number, respectively.
 
@@ -127,14 +129,14 @@ def hartree_fock_bitstring(num_spin_orbitals: int, num_particles: tuple[int, int
         ValueError: If the total number of particles is larger than the number of orbitals.
     """
     # validate the input
-    validate_min("num_spin_orbitals", num_spin_orbitals, 1)
+    validate_min("num_spatial_orbitals", num_spatial_orbitals, 1)
     num_alpha, num_beta = num_particles
 
-    if sum(num_particles) > num_spin_orbitals:
+    if any(n > num_spatial_orbitals for n in num_particles):
         raise ValueError("# of particles must be less than or equal to # of orbitals.")
 
-    half_orbitals = num_spin_orbitals // 2
-    bitstr = np.zeros(num_spin_orbitals, bool)
+    half_orbitals = num_spatial_orbitals
+    bitstr = np.zeros(2 * num_spatial_orbitals, bool)
     bitstr[:num_alpha] = True
     bitstr[half_orbitals : (half_orbitals + num_beta)] = True
 

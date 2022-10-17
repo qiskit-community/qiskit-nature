@@ -14,20 +14,15 @@
 
 from __future__ import annotations
 
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, Mapping
 
-import h5py
-
+import qiskit_nature  # pylint: disable=unused-import
 from qiskit_nature.second_q.operators import VibrationalOp
 
 from .bases import VibrationalBasis
-from .property import Property
-
-if TYPE_CHECKING:
-    from qiskit_nature.second_q.problems import EigenstateResult
 
 
-class OccupiedModals(Property):
+class OccupiedModals:
     """The OccupiedModals property."""
 
     def __init__(
@@ -41,7 +36,6 @@ class OccupiedModals(Property):
                 through which to map the integrals into second quantization. This attribute **MUST**
                 be set before the second-quantized operator can be constructed.
         """
-        super().__init__(self.__class__.__name__)
         self._basis: VibrationalBasis = basis
 
     @property
@@ -54,31 +48,11 @@ class OccupiedModals(Property):
         """Sets the basis."""
         self._basis = basis
 
-    def __str__(self) -> str:
-        string = [super().__str__() + ":"]
-        string += [f"\t{line}" for line in str(self.basis).split("\n")]
-        return "\n".join(string)
-
-    @staticmethod
-    def from_hdf5(h5py_group: h5py.Group) -> OccupiedModals:
-        # pylint: disable=unused-argument
-        """Constructs a new instance from the data stored in the provided HDF5 group.
-
-        See also :func:`~qiskit_nature.hdf5.HDF5Storable.from_hdf5` for more details.
-
-        Args:
-            h5py_group: the HDF5 group from which to load the data.
-
-        Returns:
-            A new instance of this class.
-        """
-        return OccupiedModals()
-
-    def second_q_ops(self) -> dict[str, VibrationalOp]:
+    def second_q_ops(self) -> Mapping[str, VibrationalOp]:
         """Returns the second quantized operators indicating the occupied modals per mode.
 
         Returns:
-            A `dict` of `VibrationalOp` objects.
+            A mapping of strings to `VibrationalOp` objects.
         """
         num_modals_per_mode = self.basis._num_modals_per_mode
         num_modes = len(num_modals_per_mode)
@@ -103,7 +77,9 @@ class OccupiedModals(Property):
 
         return VibrationalOp(labels, len(num_modals_per_mode), num_modals_per_mode)
 
-    def interpret(self, result: "EigenstateResult") -> None:
+    def interpret(
+        self, result: "qiskit_nature.second_q.problemsEigenstateResult"  # type: ignore[name-defined]
+    ) -> None:
         """Interprets an :class:`~qiskit_nature.second_q.problems.EigenstateResult`
         in this property's context.
 

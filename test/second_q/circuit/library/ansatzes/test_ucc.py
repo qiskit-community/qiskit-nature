@@ -26,7 +26,7 @@ from qiskit_nature.second_q.mappers import JordanWignerMapper, ParityMapper
 from qiskit_nature.second_q.operators import FermionicOp
 
 
-def assert_ucc_like_ansatz(test_case, ansatz, num_spin_orbitals, expected_ops):
+def assert_ucc_like_ansatz(test_case, ansatz, num_spatial_orbitals, expected_ops):
     """Assertion utility."""
     excitation_ops = ansatz.excitation_ops()
 
@@ -35,7 +35,7 @@ def assert_ucc_like_ansatz(test_case, ansatz, num_spin_orbitals, expected_ops):
         test_case.assertEqual(op, exp)
 
     ansatz._build()
-    test_case.assertEqual(ansatz.num_qubits, num_spin_orbitals)
+    test_case.assertEqual(ansatz.num_qubits, 2 * num_spatial_orbitals)
 
 
 @ddt
@@ -49,127 +49,127 @@ class TestUCC(QiskitNatureTestCase):
     @data(
         (
             "t",
-            8,
+            4,
             (2, 2),
             [
                 FermionicOp(
                     {"+_0 +_1 +_4 -_2 -_3 -_6": 1j, "+_6 +_3 +_2 -_4 -_1 -_0": -1j},
-                    register_length=8,
+                    num_spin_orbitals=8,
                 ),
                 FermionicOp(
                     {"+_0 +_1 +_4 -_2 -_3 -_7": 1j, "+_7 +_3 +_2 -_4 -_1 -_0": -1j},
-                    register_length=8,
+                    num_spin_orbitals=8,
                 ),
                 FermionicOp(
                     {"+_0 +_1 +_5 -_2 -_3 -_6": 1j, "+_6 +_3 +_2 -_5 -_1 -_0": -1j},
-                    register_length=8,
+                    num_spin_orbitals=8,
                 ),
                 FermionicOp(
                     {"+_0 +_1 +_5 -_2 -_3 -_7": 1j, "+_7 +_3 +_2 -_5 -_1 -_0": -1j},
-                    register_length=8,
+                    num_spin_orbitals=8,
                 ),
                 FermionicOp(
                     {"+_0 +_4 +_5 -_2 -_6 -_7": 1j, "+_7 +_6 +_2 -_5 -_4 -_0": -1j},
-                    register_length=8,
+                    num_spin_orbitals=8,
                 ),
                 FermionicOp(
                     {"+_0 +_4 +_5 -_3 -_6 -_7": 1j, "+_7 +_6 +_3 -_5 -_4 -_0": -1j},
-                    register_length=8,
+                    num_spin_orbitals=8,
                 ),
                 FermionicOp(
                     {"+_1 +_4 +_5 -_2 -_6 -_7": 1j, "+_7 +_6 +_2 -_5 -_4 -_1": -1j},
-                    register_length=8,
+                    num_spin_orbitals=8,
                 ),
                 FermionicOp(
                     {"+_1 +_4 +_5 -_3 -_6 -_7": 1j, "+_7 +_6 +_3 -_5 -_4 -_1": -1j},
-                    register_length=8,
+                    num_spin_orbitals=8,
                 ),
             ],
         ),
         (
             "t",
-            8,
+            4,
             (2, 1),
             [
                 FermionicOp(
                     {"+_0 +_1 +_4 -_2 -_3 -_5": 1j, "+_5 +_3 +_2 -_4 -_1 -_0": -1j},
-                    register_length=8,
+                    num_spin_orbitals=8,
                 ),
                 FermionicOp(
                     {"+_0 +_1 +_4 -_2 -_3 -_6": 1j, "+_6 +_3 +_2 -_4 -_1 -_0": -1j},
-                    register_length=8,
+                    num_spin_orbitals=8,
                 ),
                 FermionicOp(
                     {"+_0 +_1 +_4 -_2 -_3 -_7": 1j, "+_7 +_3 +_2 -_4 -_1 -_0": -1j},
-                    register_length=8,
+                    num_spin_orbitals=8,
                 ),
             ],
         ),
         (
             "q",
-            8,
+            4,
             (2, 2),
             [
                 FermionicOp(
                     {"+_0 +_1 +_4 +_5 -_2 -_3 -_6 -_7": 1j, "+_7 +_6 +_3 +_2 -_5 -_4 -_1 -_0": -1j},
-                    register_length=8,
+                    num_spin_orbitals=8,
                 )
             ],
         ),
         # TODO: add more edge cases?
     )
-    def test_ucc_ansatz(self, excitations, num_spin_orbitals, num_particles, expect):
+    def test_ucc_ansatz(self, excitations, num_spatial_orbitals, num_particles, expect):
         """Tests the UCC Ansatz."""
         converter = QubitConverter(JordanWignerMapper())
 
         ansatz = UCC(
             qubit_converter=converter,
             num_particles=num_particles,
-            num_spin_orbitals=num_spin_orbitals,
+            num_spatial_orbitals=num_spatial_orbitals,
             excitations=excitations,
         )
 
-        assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)
+        assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
 
     @unpack
     @data(
         # Excitations not a list of pairs
         (
-            8,
+            4,
             (2, 2),
             [((0, 1, 4), (2, 3, 6), (2, 3, 7))],
         ),
         # Excitation pair has not same length
         (
-            8,
+            4,
             (2, 2),
             [((0, 1, 4), (2, 3, 6, 7))],
         ),
         # Excitation pair with non-unique indices
         (
-            8,
+            4,
             (2, 2),
             [((0, 1, 4), (2, 4, 6))],
         ),
         (
-            8,
+            4,
             (2, 2),
             [((0, 1, 1), (2, 3, 6))],
         ),
     )
-    def test_custom_excitations(self, num_spin_orbitals, num_particles, excitations):
+    def test_custom_excitations(self, num_spatial_orbitals, num_particles, excitations):
         """Tests if an error is raised when the excitations have a wrong format"""
         converter = QubitConverter(JordanWignerMapper())
 
         # pylint: disable=unused-argument
-        def custom_excitations(num_spin_orbitals, num_particles):
+        def custom_excitations(num_spatial_orbitals, num_particles):
             return excitations
 
         with self.assertRaises(QiskitNatureError):
             ansatz = UCC(
                 qubit_converter=converter,
                 num_particles=num_particles,
-                num_spin_orbitals=num_spin_orbitals,
+                num_spatial_orbitals=num_spatial_orbitals,
                 excitations=custom_excitations,
             )
             ansatz.excitation_ops()
@@ -177,12 +177,12 @@ class TestUCC(QiskitNatureTestCase):
     def test_transpile_no_parameters(self):
         """Test transpilation without parameters"""
 
-        num_spin_orbitals = 8
+        num_spatial_orbitals = 4
         num_particles = (2, 2)
         qubit_converter = QubitConverter(mapper=JordanWignerMapper())
 
         ansatz = UCC(
-            num_spin_orbitals=num_spin_orbitals,
+            num_spatial_orbitals=num_spatial_orbitals,
             num_particles=num_particles,
             qubit_converter=qubit_converter,
             excitations="s",
@@ -197,7 +197,7 @@ class TestUCC(QiskitNatureTestCase):
 
         with self.subTest("Check defaulted construction"):
             self.assertIsNone(ucc.num_particles)
-            self.assertIsNone(ucc.num_spin_orbitals)
+            self.assertIsNone(ucc.num_spatial_orbitals)
             self.assertIsNone(ucc.excitations)
             self.assertIsNone(ucc.qubit_converter)
             self.assertIsNone(ucc.operators)
@@ -213,9 +213,9 @@ class TestUCC(QiskitNatureTestCase):
             with self.assertRaises(ValueError):
                 _ = ucc.data
 
-        with self.subTest("Set num spin orbitals"):
-            ucc.num_spin_orbitals = 4
-            self.assertEqual(ucc.num_spin_orbitals, 4)
+        with self.subTest("Set num spatial orbitals"):
+            ucc.num_spatial_orbitals = 2
+            self.assertEqual(ucc.num_spatial_orbitals, 2)
             self.assertIsNone(ucc.operators)
             with self.assertRaises(ValueError):
                 _ = ucc.data
@@ -259,8 +259,8 @@ class TestUCC(QiskitNatureTestCase):
             self.assertIsNotNone(ucc.operators)
             self.assertEqual(len(ucc.operators), 3)
 
-        with self.subTest("Change num spin orbitals"):
-            ucc.num_spin_orbitals = 6
+        with self.subTest("Change num spatial orbitals"):
+            ucc.num_spatial_orbitals = 3
             self.assertIsNotNone(ucc.operators)
             self.assertEqual(len(ucc.operators), 8)
 

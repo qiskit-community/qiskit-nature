@@ -24,19 +24,19 @@ from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import UCC
 from qiskit_nature.second_q.operators import FermionicOp
 from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.properties import ParticleNumber
 
 
 def build_electronic_ops(
-    particle_number: ParticleNumber,
-    qubit_converter: QubitConverter,
+    num_spatial_orbitals: int,
+    num_particles: Tuple[int, int],
     excitations: str
     | int
     | list[int]
     | Callable[
         [int, tuple[int, int]],
         list[tuple[tuple[int, ...], tuple[int, ...]]],
-    ] = "sd",
+    ],
+    qubit_converter: QubitConverter,
 ) -> Tuple[
     Dict[str, PauliSumOp],
     Dict[str, List[bool]],
@@ -45,10 +45,8 @@ def build_electronic_ops(
     """Builds the product of raising and lowering operators (basic excitation operators)
 
     Args:
-        particle_number: the `ParticleNumber` property containing relevant sector information.
-        qubit_converter: the `QubitConverter` to use for mapping and symmetry reduction. The Z2
-                         symmetries stored in this instance are the basis for the commutativity
-                         information returned by this method.
+        num_spatial_orbitals: the number of spatial orbitals.
+        num_particles: the number of alpha- and beta-spin particles as a tuple.
         excitations: the types of excitations to consider. The simple cases for this input are:
             - a `str` containing any of the following characters: `s`, `d`, `t` or `q`.
             - a single, positive `int` denoting the excitation type (1 == `s`, etc.).
@@ -56,16 +54,18 @@ def build_electronic_ops(
             - and finally a callable which can be used to specify a custom list of excitations.
               For more details on how to write such a function refer to the default method,
               :meth:`generate_fermionic_excitations`.
+        qubit_converter: the `QubitConverter` to use for mapping and symmetry reduction. The Z2
+                         symmetries stored in this instance are the basis for the commutativity
+                         information returned by this method.
 
     Returns:
         A tuple containing the hopping operators, the types of commutativities and the excitation
         indices.
     """
 
-    num_alpha, num_beta = particle_number.num_alpha, particle_number.num_beta
-    num_spin_orbitals = particle_number.num_spin_orbitals
+    num_alpha, num_beta = num_particles
 
-    ansatz = UCC(qubit_converter, (num_alpha, num_beta), num_spin_orbitals, excitations)
+    ansatz = UCC(num_spatial_orbitals, (num_alpha, num_beta), excitations, qubit_converter)
     excitations_list = ansatz._get_excitation_list()
     size = len(excitations_list)
 
@@ -86,7 +86,7 @@ def build_electronic_ops(
     result = parallel_map(
         _build_single_hopping_operator,
         to_be_executed_list,
-        task_args=(num_spin_orbitals, qubit_converter),
+        task_args=(num_spatial_orbitals, qubit_converter),
         num_processes=algorithm_globals.num_processes,
     )
 
@@ -99,7 +99,7 @@ def build_electronic_ops(
 
 def _build_single_hopping_operator(
     excitation: Tuple[Tuple[int, ...], Tuple[int, ...]],
-    num_spin_orbitals: int,
+    num_spatial_orbitals: int,
     qubit_converter: QubitConverter,
 ) -> Tuple[PauliSumOp, List[bool]]:
     label = []
@@ -108,7 +108,7 @@ def _build_single_hopping_operator(
     for unocc in excitation[1]:
         label.append(f"-_{unocc}")
     fer_op = FermionicOp(
-        {" ".join(label): 4.0 ** len(excitation[0])}, register_length=num_spin_orbitals
+        {" ".join(label): 4.0 ** len(excitation[0])}, num_spin_orbitals=2 * num_spatial_orbitals
     )
 
     qubit_op = qubit_converter.convert_only(fer_op, qubit_converter.num_particles)

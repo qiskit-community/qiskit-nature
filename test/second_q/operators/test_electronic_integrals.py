@@ -13,11 +13,16 @@
 """Test for ElectronicIntegrals class"""
 
 from __future__ import annotations
+
 import unittest
 from test import QiskitNatureTestCase
+
 from ddt import ddt, idata
+
 import numpy as np
+
 from qiskit_nature.second_q.operators import ElectronicIntegrals, PolynomialTensor
+import qiskit_nature.optionals as _optionals
 
 
 @ddt
@@ -81,6 +86,7 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
 
     def test_attributes(self):
         """Tests the various ElectronicIntegrals attributes."""
+
         with self.subTest("all empty"):
             ints = ElectronicIntegrals()
             self.assertTrue(isinstance(ints.alpha, PolynomialTensor))
@@ -132,6 +138,19 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
                 {"++--": np.einsum("ijkl->klij", self.build_matrix(4, 4, 0.5))}
             )
             self.assertTrue(ints.alpha_beta.equiv(alpha_beta))
+
+        if _optionals.HAS_SPARSE:
+            import sparse as sp  # pylint: disable=import-error
+
+            with self.subTest("sparse alpha_beta property"):
+                beta_alpha = sp.random((2, 2, 2, 2), density=0.5)
+                ints = ElectronicIntegrals(
+                    beta_alpha=PolynomialTensor({"++--": beta_alpha}), validate=False
+                )
+                alpha_beta = PolynomialTensor(
+                    {"++--": np.einsum("ijkl->klij", beta_alpha.todense())}
+                )
+                self.assertTrue(ints.alpha_beta.equiv(alpha_beta))
 
     def test_one_body(self):
         """Tests the one_body property."""
@@ -216,26 +235,6 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
             TypeError, "Incorrect argument type: other should be ElectronicIntegrals"
         ):
             _ = ElectronicIntegrals(self.alpha) + 5
-
-    def test_conjugate(self):
-        """Test for conjugate of ElectronicIntegrals"""
-        expected = ElectronicIntegrals(
-            self.alpha.conjugate(),
-            self.beta.conjugate(),
-            self.beta_alpha.conjugate(),
-        )
-        result = ElectronicIntegrals(self.alpha, self.beta, self.beta_alpha).conjugate()
-        self.assertTrue(result.equiv(expected))
-
-    def test_transpose(self):
-        """Test for transpose of ElectronicIntegrals"""
-        expected = ElectronicIntegrals(
-            self.alpha.transpose(),
-            self.beta.transpose(),
-            self.beta_alpha.transpose(),
-        )
-        result = ElectronicIntegrals(self.alpha, self.beta, self.beta_alpha).transpose()
-        self.assertTrue(result.equiv(expected))
 
     def test_einsum(self):
         """Test ElectronicIntegrals.einsum"""
@@ -418,7 +417,7 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
             self.assertTrue(np.allclose(ints.beta["++--"], two_body_bb))
             self.assertTrue(np.allclose(ints.beta_alpha["++--"], two_body_ba))
 
-    def test_polynomial_tensor(self):
+    def test_second_q_coeffs(self):
         """Tests the total PolynomialTensor generation method."""
         one_body_a = np.random.random((2, 2))
         one_body_b = np.random.random((2, 2))
@@ -430,7 +429,12 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
             alpha = PolynomialTensor({"+-": one_body_a, "++--": two_body_aa})
             ints = ElectronicIntegrals(alpha)
             tensor = ints.second_q_coeffs()
-            expected = self.kronecker ^ alpha
+            expected = PolynomialTensor(
+                {
+                    "+-": np.kron(self.kronecker["+-"], one_body_a),
+                    "++--": np.kron(self.kronecker["++--"], two_body_aa),
+                }
+            )
             self.assertTrue(tensor.equiv(expected))
 
         with self.subTest("alpha and beta"):
@@ -458,6 +462,65 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
             two_kron[(0, 1, 1, 0)] = 0.0
             expected["++--"] = two_body
             self.assertTrue(tensor.equiv(PolynomialTensor(expected)))
+
+    def test_trace_spin(self):
+        """Test the trace_spin method."""
+        one_body_a = np.random.random((2, 2))
+        one_body_b = np.random.random((2, 2))
+        two_body_aa = np.random.random((2, 2, 2, 2))
+        two_body_bb = np.random.random((2, 2, 2, 2))
+        two_body_ba = np.random.random((2, 2, 2, 2))
+
+        with self.subTest("alpha only"):
+            ints = ElectronicIntegrals.from_raw_integrals(
+                one_body_a, two_body_aa, auto_index_order=False
+            )
+            tensor = ints.trace_spin()
+            expected = PolynomialTensor(
+                {
+                    "+-": 2.0 * one_body_a,
+                    "++--": 2.0 * two_body_aa,
+                }
+            )
+            self.assertTrue(tensor.equiv(expected))
+
+        with self.subTest("alpha and beta without beta_alpha"):
+            ints = ElectronicIntegrals.from_raw_integrals(
+                one_body_a,
+                two_body_aa,
+                h1_b=one_body_b,
+                h2_bb=two_body_bb,
+                auto_index_order=False,
+            )
+            tensor = ints.trace_spin()
+            expected = PolynomialTensor(
+                {
+                    "+-": one_body_a + one_body_b,
+                    "++--": 2.0 * (two_body_aa + two_body_bb),
+                }
+            )
+            self.assertTrue(tensor.equiv(expected))
+
+        with self.subTest("alpha and beta with beta_alpha"):
+            ints = ElectronicIntegrals.from_raw_integrals(
+                one_body_a,
+                two_body_aa,
+                h1_b=one_body_b,
+                h2_bb=two_body_bb,
+                h2_ba=two_body_ba,
+                auto_index_order=False,
+            )
+            tensor = ints.trace_spin()
+            expected = PolynomialTensor(
+                {
+                    "+-": one_body_a + one_body_b,
+                    "++--": two_body_aa
+                    + two_body_bb
+                    + two_body_ba
+                    + np.einsum("ijkl->klij", two_body_ba),
+                }
+            )
+            self.assertTrue(tensor.equiv(expected))
 
 
 if __name__ == "__main__":

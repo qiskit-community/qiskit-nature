@@ -20,7 +20,8 @@ Second-Quantization Properties (:mod:`qiskit_nature.second_q.properties`)
    :toctree: ../stubs/
    :nosignatures:
 
-    Property
+    SparseLabelOpFactory
+    Interpretable
 
 Electronic Properties
 ---------------------
@@ -30,6 +31,7 @@ Electronic Properties
    :nosignatures:
 
    AngularMomentum
+   ElectronicDensity
    ElectronicDipoleMoment
    Magnetization
    ParticleNumber
@@ -44,10 +46,11 @@ Vibrational Properties
    OccupiedModals
 """
 
-from .property import Property
+from .protocols import SparseLabelOpFactory, Interpretable
 
 from .angular_momentum import AngularMomentum
 from .dipole_moment import ElectronicDipoleMoment
+from .electronic_density import ElectronicDensity
 from .magnetization import Magnetization
 from .particle_number import ParticleNumber
 
@@ -55,8 +58,10 @@ from .occupied_modals import OccupiedModals
 
 
 __all__ = [
-    "Property",
+    "SparseLabelOpFactory",
+    "Interpretable",
     "AngularMomentum",
+    "ElectronicDensity",
     "ElectronicDipoleMoment",
     "Magnetization",
     "ParticleNumber",

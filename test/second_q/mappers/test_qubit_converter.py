@@ -85,8 +85,7 @@ class TestQubitConverter(QiskitNatureTestCase):
         super().setUp()
         driver = PySCFDriver()
         self.driver_result = driver.run()
-        particle_number = self.driver_result.properties.particle_number
-        self.num_particles = (particle_number.num_alpha, particle_number.num_beta)
+        self.num_particles = self.driver_result.num_particles
         self.h2_op, _ = self.driver_result.second_q_ops()
 
     def test_mapping_basic(self):
@@ -165,7 +164,7 @@ class TestQubitConverter(QiskitNatureTestCase):
         # Regression test against https://github.com/Qiskit/qiskit-nature/issues/271
         with self.subTest("Two qubit reduction skipped when operator too small"):
             qubit_conv.two_qubit_reduction = True
-            small_op = FermionicOp({"+_0 -_0": 1.0, "-_1 +_1": 1.0}, register_length=2)
+            small_op = FermionicOp({"+_0 -_0": 1.0, "-_1 +_1": 1.0}, num_spin_orbitals=2)
             expected_op = 1.0 * (I ^ I) - 0.5 * (I ^ Z) + 0.5 * (Z ^ Z)
             with contextlib.redirect_stderr(io.StringIO()) as out:
                 qubit_op = qubit_conv.convert(small_op, num_particles=self.num_particles)

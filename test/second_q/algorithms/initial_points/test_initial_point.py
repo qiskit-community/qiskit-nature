@@ -43,15 +43,15 @@ class TestInitialPoint(QiskitNatureTestCase):
         with self.assertRaises(NotImplementedError):
             self.initial_point.ansatz = None
 
-    def test_get_grouped_property(self):
-        """Test get grouped_property."""
+    def test_get_problem(self):
+        """Test get problem."""
         with self.assertRaises(NotImplementedError):
-            _ = self.initial_point.grouped_property
+            _ = self.initial_point.problem
 
-    def test_set_grouped_property(self):
-        """Test set grouped_property."""
+    def test_set_problem(self):
+        """Test set problem."""
         with self.assertRaises(NotImplementedError):
-            self.initial_point.grouped_property = None
+            self.initial_point.problem = None
 
     def test_compute(self):
         """Test compute."""

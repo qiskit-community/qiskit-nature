@@ -28,7 +28,6 @@ from qiskit_nature.second_q.circuit.library import HartreeFock, UCC
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
-from qiskit_nature.second_q.properties import ParticleNumber
 from qiskit_nature.second_q.mappers import QubitConverter, JordanWignerMapper
 from qiskit_nature.second_q.algorithms.initial_points import MP2InitialPoint
 
@@ -44,15 +43,13 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         self.mock_ansatz.reps = 1
         self.mock_ansatz.excitation_list = self.excitation_list
 
-        self.particle_number = Mock(spec=ParticleNumber)
-        self.particle_number.num_particles = (1, 1)
         self.electronic_energy = ElectronicEnergy.from_raw_integrals(
             np.zeros((2, 2)), np.zeros((2, 2, 2, 2))
         )
-        self.mock_grouped_property = ElectronicStructureProblem(self.electronic_energy)
-        self.mock_grouped_property.properties.particle_number = self.particle_number
-        self.mock_grouped_property.reference_energy = 123.45
-        self.mock_grouped_property.orbital_energies = np.asarray([])
+        self.mock_problem = ElectronicStructureProblem(self.electronic_energy)
+        self.mock_problem.reference_energy = 123.45
+        self.mock_problem.orbital_energies = np.asarray([])
+        self.mock_problem.num_particles = (1, 1)
 
     @unittest.skipIf(not optionals.HAS_PYSCF, "pyscf not available.")
     @data("H 0 0 0; H 0 0 0.7", "Li 0 0 0; H 0 0 1.6")
@@ -71,21 +68,19 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
 
         problem = driver.run()
         problem.second_q_ops()
-        grouped_property = problem
 
-        particle_number = grouped_property.properties.particle_number
-        num_particles = (particle_number.num_alpha, particle_number.num_beta)
-        num_spin_orbitals = particle_number.num_spin_orbitals
+        num_particles = (problem.num_alpha, problem.num_beta)
+        num_spatial_orbitals = problem.num_spatial_orbitals
 
         qubit_converter = QubitConverter(mapper=JordanWignerMapper())
 
         initial_state = HartreeFock(
-            num_spin_orbitals=num_spin_orbitals,
+            num_spatial_orbitals=num_spatial_orbitals,
             num_particles=num_particles,
             qubit_converter=qubit_converter,
         )
         ansatz = UCC(
-            num_spin_orbitals=num_spin_orbitals,
+            num_spatial_orbitals=num_spatial_orbitals,
             num_particles=num_particles,
             excitations="sd",
             qubit_converter=qubit_converter,
@@ -93,7 +88,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         )
 
         mp2_initial_point = MP2InitialPoint()
-        mp2_initial_point.grouped_property = grouped_property
+        mp2_initial_point.problem = problem
         mp2_initial_point.ansatz = ansatz
 
         with self.subTest("Test the MP2 energy correction."):
@@ -124,45 +119,45 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         mp2_initial_point = MP2InitialPoint(threshold=-3.0)
         self.assertEqual(mp2_initial_point.threshold, 3.0)
 
-    def test_no_grouped_property_and_no_ansatz(self):
-        """Test when no grouped property and no ansatz are provided."""
+    def test_no_problem_and_no_ansatz(self):
+        """Test when no problem and no ansatz are provided."""
 
         mp2_initial_point = MP2InitialPoint()
         with self.assertRaises(QiskitNatureError):
-            mp2_initial_point.compute(ansatz=None, grouped_property=None)
+            mp2_initial_point.compute(ansatz=None, problem=None)
 
-    def test_no_grouped_property(self):
-        """Test when no grouped property is provided."""
+    def test_no_problem(self):
+        """Test when no problem is provided."""
 
         mp2_initial_point = MP2InitialPoint()
         with self.assertRaises(QiskitNatureError):
-            mp2_initial_point.compute(ansatz=self.mock_ansatz, grouped_property=None)
+            mp2_initial_point.compute(ansatz=self.mock_ansatz, problem=None)
 
     def test_no_ansatz(self):
         """Test when no ansatz is provided."""
 
         mp2_initial_point = MP2InitialPoint()
         with self.assertRaises(QiskitNatureError):
-            mp2_initial_point.compute(ansatz=None, grouped_property=self.mock_grouped_property)
+            mp2_initial_point.compute(ansatz=None, problem=self.mock_problem)
 
     def test_no_electronic_energy(self):
         """Test when the electronic energy is missing."""
         mp2_initial_point = MP2InitialPoint()
-        grouped_property = Mock(spec=ElectronicStructureProblem)
-        grouped_property.hamiltonian = None
+        problem = Mock(spec=ElectronicStructureProblem)
+        problem.hamiltonian = None
         with self.assertRaises(QiskitNatureError):
-            mp2_initial_point.compute(ansatz=self.mock_ansatz, grouped_property=grouped_property)
+            mp2_initial_point.compute(ansatz=self.mock_ansatz, problem=problem)
 
     def test_no_two_body_mo_integrals(self):
         """Test when the two body MO integrals are missing."""
 
         electronic_energy = ElectronicEnergy.from_raw_integrals(np.zeros((2, 2)), None)
-        grouped_property = ElectronicStructureProblem(electronic_energy)
-        grouped_property.orbital_energies = np.asarray([])
+        problem = ElectronicStructureProblem(electronic_energy)
+        problem.orbital_energies = np.asarray([])
 
         mp2_initial_point = MP2InitialPoint()
         with self.assertRaises(QiskitNatureError):
-            mp2_initial_point.compute(ansatz=self.mock_ansatz, grouped_property=grouped_property)
+            mp2_initial_point.compute(ansatz=self.mock_ansatz, problem=problem)
 
     def test_no_orbital_energies(self):
         """Test when the orbital energies are missing."""
@@ -170,33 +165,29 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         electronic_energy = ElectronicEnergy.from_raw_integrals(
             np.zeros((2, 2)), np.zeros((2, 2, 2, 2))
         )
-        grouped_property = ElectronicStructureProblem(electronic_energy)
-        grouped_property.orbital_energies = None
+        problem = ElectronicStructureProblem(electronic_energy)
+        problem.orbital_energies = None
 
         mp2_initial_point = MP2InitialPoint()
         with self.assertRaises(QiskitNatureError):
-            mp2_initial_point.compute(ansatz=self.mock_ansatz, grouped_property=grouped_property)
+            mp2_initial_point.compute(ansatz=self.mock_ansatz, problem=problem)
 
     def test_no_particle_number(self):
         """Test when the particle number is missing."""
 
         mp2_initial_point = MP2InitialPoint()
-        self.mock_grouped_property.properties.particle_number = None
+        self.mock_problem.num_particles = None
         with self.assertRaises(QiskitNatureError):
-            mp2_initial_point.compute(
-                ansatz=self.mock_ansatz, grouped_property=self.mock_grouped_property
-            )
+            mp2_initial_point.compute(ansatz=self.mock_ansatz, problem=self.mock_problem)
 
     def test_compute(self):
-        """Test when grouped_property and ansatz are set via compute."""
+        """Test when problem and ansatz are set via compute."""
 
         mp2_initial_point = MP2InitialPoint()
-        mp2_initial_point.compute(
-            ansatz=self.mock_ansatz, grouped_property=self.mock_grouped_property
-        )
+        mp2_initial_point.compute(ansatz=self.mock_ansatz, problem=self.mock_problem)
 
         with self.subTest("Test grouped property is set."):
-            self.assertEqual(self.mock_grouped_property, mp2_initial_point.grouped_property)
+            self.assertEqual(self.mock_problem, mp2_initial_point.problem)
         with self.subTest("Test ansatz is set."):
             self.assertEqual(self.mock_ansatz, mp2_initial_point.ansatz)
         with self.subTest("Test initial_point array is computed."):
@@ -212,17 +203,17 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
             np.testing.assert_array_equal(mp2_initial_point.total_energy, 123.45)
 
     def test_raises_error_for_non_restricted_spins(self):
-        """Test when grouped_property and ansatz are set via compute."""
+        """Test when problem and ansatz are set via compute."""
 
         electronic_energy = ElectronicEnergy.from_raw_integrals(
             np.zeros((2, 2)), np.zeros((2, 2, 2, 2)), np.zeros((2, 2)), np.zeros((2, 2, 2, 2))
         )
-        grouped_property = ElectronicStructureProblem(electronic_energy)
-        grouped_property.orbital_energies = Mock(spec=np.ndarray)
+        problem = ElectronicStructureProblem(electronic_energy)
+        problem.orbital_energies = Mock(spec=np.ndarray)
 
         mp2_initial_point = MP2InitialPoint()
         with self.assertRaises(NotImplementedError):
-            mp2_initial_point.compute(ansatz=self.mock_ansatz, grouped_property=grouped_property)
+            mp2_initial_point.compute(ansatz=self.mock_ansatz, problem=problem)
 
 
 if __name__ == "__main__":

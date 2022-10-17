@@ -33,66 +33,66 @@ class TestPUCC(QiskitNatureTestCase):
     @unpack
     @data(
         (
-            4,
+            2,
             (1, 1),
-            [FermionicOp({"+_0 +_2 -_1 -_3": 1j, "+_3 +_1 -_2 -_0": -1j}, register_length=4)],
+            [FermionicOp({"+_0 +_2 -_1 -_3": 1j, "+_3 +_1 -_2 -_0": -1j}, num_spin_orbitals=4)],
         ),
         (
-            8,
+            4,
             (2, 2),
             [
-                FermionicOp({"+_0 +_4 -_2 -_6": 1j, "+_6 +_2 -_4 -_0": -1j}, register_length=8),
-                FermionicOp({"+_0 +_4 -_3 -_7": 1j, "+_7 +_3 -_4 -_0": -1j}, register_length=8),
-                FermionicOp({"+_1 +_5 -_2 -_6": 1j, "+_6 +_2 -_5 -_1": -1j}, register_length=8),
-                FermionicOp({"+_1 +_5 -_3 -_7": 1j, "+_7 +_3 -_5 -_1": -1j}, register_length=8),
+                FermionicOp({"+_0 +_4 -_2 -_6": 1j, "+_6 +_2 -_4 -_0": -1j}, num_spin_orbitals=8),
+                FermionicOp({"+_0 +_4 -_3 -_7": 1j, "+_7 +_3 -_4 -_0": -1j}, num_spin_orbitals=8),
+                FermionicOp({"+_1 +_5 -_2 -_6": 1j, "+_6 +_2 -_5 -_1": -1j}, num_spin_orbitals=8),
+                FermionicOp({"+_1 +_5 -_3 -_7": 1j, "+_7 +_3 -_5 -_1": -1j}, num_spin_orbitals=8),
             ],
         ),
     )
-    def test_puccd_ansatz(self, num_spin_orbitals, num_particles, expect):
+    def test_puccd_ansatz(self, num_spatial_orbitals, num_particles, expect):
         """Tests the PUCCD Ansatz."""
         converter = QubitConverter(JordanWignerMapper())
 
         ansatz = PUCCD(
             qubit_converter=converter,
             num_particles=num_particles,
-            num_spin_orbitals=num_spin_orbitals,
+            num_spatial_orbitals=num_spatial_orbitals,
         )
 
-        assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)
+        assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
 
     @unpack
     @data(
         (
-            4,
+            2,
             (1, 1),
             (True, True),
             [
-                FermionicOp({"+_0 -_1": 1j, "+_1 -_0": -1j}, register_length=4),
-                FermionicOp({"+_2 -_3": 1j, "+_3 -_2": -1j}, register_length=4),
-                FermionicOp({"+_0 +_2 -_1 -_3": 1j, "+_3 +_1 -_2 -_0": -1j}, register_length=4),
+                FermionicOp({"+_0 -_1": 1j, "+_1 -_0": -1j}, num_spin_orbitals=4),
+                FermionicOp({"+_2 -_3": 1j, "+_3 -_2": -1j}, num_spin_orbitals=4),
+                FermionicOp({"+_0 +_2 -_1 -_3": 1j, "+_3 +_1 -_2 -_0": -1j}, num_spin_orbitals=4),
             ],
         ),
         (
-            4,
+            2,
             (1, 1),
             (True, False),
             [
-                FermionicOp({"+_0 -_1": 1j, "+_1 -_0": -1j}, register_length=4),
-                FermionicOp({"+_0 +_2 -_1 -_3": 1j, "+_3 +_1 -_2 -_0": -1j}, register_length=4),
+                FermionicOp({"+_0 -_1": 1j, "+_1 -_0": -1j}, num_spin_orbitals=4),
+                FermionicOp({"+_0 +_2 -_1 -_3": 1j, "+_3 +_1 -_2 -_0": -1j}, num_spin_orbitals=4),
             ],
         ),
         (
-            4,
+            2,
             (1, 1),
             (False, True),
             [
-                FermionicOp({"+_2 -_3": 1j, "+_3 -_2": -1j}, register_length=4),
-                FermionicOp({"+_0 +_2 -_1 -_3": 1j, "+_3 +_1 -_2 -_0": -1j}, register_length=4),
+                FermionicOp({"+_2 -_3": 1j, "+_3 -_2": -1j}, num_spin_orbitals=4),
+                FermionicOp({"+_0 +_2 -_1 -_3": 1j, "+_3 +_1 -_2 -_0": -1j}, num_spin_orbitals=4),
             ],
         ),
     )
     def test_puccd_ansatz_with_singles(
-        self, num_spin_orbitals, num_particles, include_singles, expect
+        self, num_spatial_orbitals, num_particles, include_singles, expect
     ):
         """Tests the PUCCD Ansatz with included single excitations."""
         converter = QubitConverter(JordanWignerMapper())
@@ -100,11 +100,11 @@ class TestPUCC(QiskitNatureTestCase):
         ansatz = PUCCD(
             qubit_converter=converter,
             num_particles=num_particles,
-            num_spin_orbitals=num_spin_orbitals,
+            num_spatial_orbitals=num_spatial_orbitals,
             include_singles=include_singles,
         )
 
-        assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)
+        assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
 
     def test_raise_non_singlet(self):
         """Test an error is raised when the number of alpha and beta electrons differ."""
@@ -114,36 +114,36 @@ class TestPUCC(QiskitNatureTestCase):
     @unpack
     @data(
         (
-            6,
+            3,
             (1, 1),
             [
-                FermionicOp({"+_0 +_3 -_1 -_4": 1j, "+_4 +_1 -_3 -_0": -1j}, register_length=6),
-                FermionicOp({"+_0 +_3 -_2 -_5": 1j, "+_5 +_2 -_3 -_0": -1j}, register_length=6),
-                FermionicOp({"+_1 +_4 -_2 -_5": 1j, "+_5 +_2 -_4 -_1": -1j}, register_length=6),
+                FermionicOp({"+_0 +_3 -_1 -_4": 1j, "+_4 +_1 -_3 -_0": -1j}, num_spin_orbitals=6),
+                FermionicOp({"+_0 +_3 -_2 -_5": 1j, "+_5 +_2 -_3 -_0": -1j}, num_spin_orbitals=6),
+                FermionicOp({"+_1 +_4 -_2 -_5": 1j, "+_5 +_2 -_4 -_1": -1j}, num_spin_orbitals=6),
             ],
         ),
         (
-            6,
+            3,
             (2, 2),
             [
-                FermionicOp({"+_0 +_3 -_1 -_4": 1j, "+_4 +_1 -_3 -_0": -1j}, register_length=6),
-                FermionicOp({"+_0 +_3 -_2 -_5": 1j, "+_5 +_2 -_3 -_0": -1j}, register_length=6),
-                FermionicOp({"+_1 +_4 -_2 -_5": 1j, "+_5 +_2 -_4 -_1": -1j}, register_length=6),
+                FermionicOp({"+_0 +_3 -_1 -_4": 1j, "+_4 +_1 -_3 -_0": -1j}, num_spin_orbitals=6),
+                FermionicOp({"+_0 +_3 -_2 -_5": 1j, "+_5 +_2 -_3 -_0": -1j}, num_spin_orbitals=6),
+                FermionicOp({"+_1 +_4 -_2 -_5": 1j, "+_5 +_2 -_4 -_1": -1j}, num_spin_orbitals=6),
             ],
         ),
     )
-    def test_puccd_ansatz_generalized(self, num_spin_orbitals, num_particles, expect):
+    def test_puccd_ansatz_generalized(self, num_spatial_orbitals, num_particles, expect):
         """Tests the generalized PUCCD Ansatz."""
         converter = QubitConverter(JordanWignerMapper())
 
         ansatz = PUCCD(
             qubit_converter=converter,
             num_particles=num_particles,
-            num_spin_orbitals=num_spin_orbitals,
+            num_spatial_orbitals=num_spatial_orbitals,
             generalized=True,
         )
 
-        assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)
+        assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
 
 
 if __name__ == "__main__":
