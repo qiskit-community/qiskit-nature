@@ -49,7 +49,7 @@ class Magnetization:
         return {self.__class__.__name__: op}
 
     def interpret(
-        self, result: "qiskit_nature.second_q.problemsEigenstateResult"  # type: ignore[name-defined]
+        self, result: "qiskit_nature.second_q.problems.EigenstateResult"  # type: ignore[name-defined]
     ) -> None:
         """Interprets an :class:`~qiskit_nature.second_q.problems.EigenstateResult`
         in this property's context.
