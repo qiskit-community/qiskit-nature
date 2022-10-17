@@ -37,8 +37,7 @@ for _n in range(0, _q_molecule.num_atoms):
     _q_molecule.atom_xyz[_n][2] = _q_mol.z(_n)
 
 # 1 and 2 electron integrals
-_q_h1 = _q_mints.ao_kinetic()
-_q_h1.add(_q_mints.ao_potential())
+_q_h1 = _q_hf_wavefn.H()
 _q_h1.name = "Core-Hamiltonian"
 _q_h1b = _q_h1.clone() if _has_B else None
 _q_molecule.hcore = numpy.asarray(_q_h1.clone())
