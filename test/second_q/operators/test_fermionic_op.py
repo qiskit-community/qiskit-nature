@@ -128,7 +128,7 @@ class TestFermionicOp(QiskitNatureTestCase):
                 {
                     "+_0 +_1 -_1": self.a,
                     "-_0 +_0 -_1": 1,
-                    "+_0 -_0 +_1": self.a * self.b,
+                    "+_0 +_1 -_0": -self.a * self.b,
                     "-_0 -_1 +_1": -self.b,
                 }
             )
