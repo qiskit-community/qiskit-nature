@@ -552,17 +552,24 @@ class FermionicOp(SparseLabelOp):
 
             elif bits.get_plus(idx) and bits.get_minus(idx):
                 # If both, `+` and `-`, have already been applied, we cancel the opposite to the
-                # current one (i.e. `+` will cancel `-` and vice versa). We update the bit container
+                # current one (i.e. `+` will cancel `-` and vice versa).
+                # 1. we construct the reversed label which is the key we need to pop
+                pop_lbl = f"{'-' if char_b else '+'}_{idx}"
+                # 2. we find its index in the insertion order of the new label
+                pop_idx = list(new_label).index(pop_lbl)
+                # 3. we use this index plus the current length of the new label to determine the
+                #    number of exchange operations necessary to move the current term next to the
+                #    one being popped
+                num_exchange = len(new_label) - pop_idx - 1
+                # 4. we perform the information update by:
+                #  a) updating the coefficient sign
+                coeff *= -1 if num_exchange % 2 else 1
+                #  b) popping the key we just canceled out
+                new_label.pop(pop_lbl)
+                #  c) updating the bits container
                 bits.set_plus_or_minus(idx, not char_b, False)
-                # and pop the reverse label from the ordered set
-                new_label.pop(f"{'-' if char_b else '+'}_{idx}")
-                # we also update the last bit to the current char
+                #  d) and updating the last bit to the current char
                 bits.set_last(idx, char_b)
-                # and finally, we need to update the coefficient to account for the swap operations
-                # which were necessary to place the canceling terms next to each other
-                if idx != self.num_spin_orbitals:
-                    num_exchange = sum(i in bits for i in range(idx + 1, self.num_spin_orbitals))
-                    coeff *= -1 if num_exchange % 2 else 1
 
             else:
                 # else, we simply set the bit of the currently applied char

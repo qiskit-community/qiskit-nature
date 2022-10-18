@@ -114,7 +114,7 @@ class TestFermionicOp(QiskitNatureTestCase):
             ) @ FermionicOp({"": 1, "-_0 +_1": 1}, num_spin_orbitals=2)
             fer_op = fer_op.simplify()
             targ = FermionicOp(
-                {"+_0 +_1 -_1": 1, "-_0 +_0 -_1": 1, "+_0 +_1 -_0": 1, "-_0 -_1 +_1": -1},
+                {"+_0 +_1 -_1": 1, "-_0 +_0 -_1": 1, "+_0 +_1 -_0": -1, "-_0 -_1 +_1": -1},
                 num_spin_orbitals=2,
             )
             self.assertEqual(fer_op, targ)
