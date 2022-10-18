@@ -195,14 +195,13 @@ def _parse(fcidump: Path) -> FCIDump:
             hijkl_ba = hijkl_ab.transpose()
 
     return FCIDump(
+        num_electrons=output.get("NELEC"),
         hij=hij,
         hijkl=hijkl,
         hij_b=hij_b,
         hijkl_ba=hijkl_ba,
         hijkl_bb=hijkl_bb,
         multiplicity=output.get("MS2", 0) + 1,
-        num_electrons=output.get("NELEC"),
-        num_orbitals=output.get("NORB"),
         constant_energy=output.get("ecore", None),
         orbsym=output.get("ORBSYM", None),
         isym=output.get("ISYM"),
