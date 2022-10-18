@@ -114,7 +114,7 @@ class TestFermionicOp(QiskitNatureTestCase):
             ) @ FermionicOp({"": 1, "-_0 +_1": 1}, num_spin_orbitals=2)
             fer_op = fer_op.simplify()
             targ = FermionicOp(
-                {"+_0 +_1 -_1": 1, "-_0 +_0 -_1": 1, "+_0 -_0 +_1": 1, "-_0 -_1 +_1": -1},
+                {"+_0 +_1 -_1": 1, "-_0 +_0 -_1": 1, "+_0 +_1 -_0": 1, "-_0 -_1 +_1": -1},
                 num_spin_orbitals=2,
             )
             self.assertEqual(fer_op, targ)
@@ -222,6 +222,10 @@ class TestFermionicOp(QiskitNatureTestCase):
             simplified_op = fer_op.simplify()
             self.assertEqual(simplified_op, fer_op)
 
+            fer_op = FermionicOp({"-_1 +_0": 1 + 0j}, num_spin_orbitals=2)
+            simplified_op = fer_op.simplify()
+            self.assertEqual(simplified_op, fer_op)
+
         with self.subTest("simplify zero"):
             fer_op = self.op1 - self.op1
             simplified_op = fer_op.simplify()
@@ -233,6 +237,10 @@ class TestFermionicOp(QiskitNatureTestCase):
             simplified_op = fer_op.simplify()
             targ = FermionicOp({"+_0 -_0": self.a + 1j})
             self.assertEqual(simplified_op, targ)
+
+        with self.subTest("simplify commutes with normal_ordered"):
+            fer_op = FermionicOp({"-_0 +_1": 1}, num_spin_orbitals=2)
+            self.assertEqual(fer_op.simplify().normal_ordered(), fer_op.normal_ordered().simplify())
 
     def test_hermiticity(self):
         """test is_hermitian"""
