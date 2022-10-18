@@ -151,10 +151,10 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
             units=DistanceUnit.ANGSTROM,
         )
 
-        driver = GaussianForcesDriver.from_molecule(molecule, "6-31g", {}, "B3LYP")  # type: ignore
+        driver = GaussianForcesDriver.from_molecule(molecule, "6-31g", {}, "B3LYP")
         # test result has the value 'B3LYP'
         self.assertIn("B3LYP", driver._jcf)
-        driver = GaussianForcesDriver.from_molecule(molecule, "6-31g", {}, "Invalid")  # type: ignore
+        driver = GaussianForcesDriver.from_molecule(molecule, "6-31g", {}, "Invalid")
         # test result does not have the value 'B3LYP'
         self.assertNotIn("B3LYP", driver._jcf)
         
