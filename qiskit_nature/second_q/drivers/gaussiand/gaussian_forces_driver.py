@@ -84,8 +84,8 @@ class GaussianForcesDriver(VibrationalStructureDriver):
         molecule: MoleculeInfo,
         *,
         basis: str = "sto-3g",
-        driver_kwargs: Optional[dict[str, Any]] = None,
         xcf: str = "B3LYP",
+        driver_kwargs: Optional[dict[str, Any]] = None
     ) -> "GaussianForcesDriver":
         """
         Args:
@@ -94,8 +94,8 @@ class GaussianForcesDriver(VibrationalStructureDriver):
                        `logfile` or the `jcf` params.
             basis: The basis set to be used in the resultant job control file when a
                     molecule is provided.
+            xcf: The exchange-correlation functional to be used in the resultant job control file.
             driver_kwargs: kwargs to be passed to driver
-            xcf: example string value `B3LYP`
         Returns:
             driver
         Raises:
