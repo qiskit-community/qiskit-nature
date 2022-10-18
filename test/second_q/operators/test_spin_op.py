@@ -88,17 +88,17 @@ class TestSpinOp(QiskitNatureTestCase):
             targ = SpinOp({"Y_1": 1}, num_orbitals=2)
             self.assertEqual(simplified_op, targ)
 
-        with self.subTest("simplify doesn't reorder if reorder=False"):
+        with self.subTest("simplify without reorder"):
             spin_op = SpinOp({"Y_0 X_0": 1 + 0j}, num_orbitals=2)
             simplified_op = spin_op.simplify()
             self.assertEqual(simplified_op, spin_op)
 
-        with self.subTest("simplify doesn't reorder if reorder=False"):
+        with self.subTest("another simplify without reorder"):
             spin_op = SpinOp({"Y_1 X_0": 1 + 0j}, num_orbitals=2)
             simplified_op = spin_op.simplify()
             self.assertEqual(simplified_op, spin_op)
 
-        with self.subTest("simplify does reorder by index if reorder=True"):
+        with self.subTest("simplify with reorder"):
             spin_op = SpinOp({"Y_2 X_0 X_1 X_0 Z_0": 1, "X_1 Z_0 Y_2": 2}, num_orbitals=3)
             simplified_op = spin_op.simplify(reorder=True)
             targ = SpinOp({"Z_0 X_1 Y_2": 3}, num_orbitals=3)
