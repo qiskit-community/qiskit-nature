@@ -153,7 +153,7 @@ class SpinOp(SparseLabelOp):
 
     """
 
-    _OPERATION_REGEX = re.compile(r"([XYZI]_\d+(\^\d+)?\s)*[XYZI]_\d+(\^\d+)?")
+    _OPERATION_REGEX = re.compile(r"([XYZI]_\d+\s)*[XYZI]_\d+")
 
     def __init__(
         self,
@@ -190,7 +190,6 @@ class SpinOp(SparseLabelOp):
                 f"spin must be a positive half-integer (integer or half-odd-integer), not {spin}."
             )
         self.spin = spin
-        print("data", data)
         super().__init__(data, copy=copy, validate=validate)
 
     @property
@@ -233,9 +232,7 @@ class SpinOp(SparseLabelOp):
 
             # 2. validate all indices against register length
             for term in key.split(" "):
-                sub_terms = term.split("^")
-                # sub_terms[0] is the base, sub_terms[1] is the (optional) exponent
-                index = int(sub_terms[0][2:])
+                index = int(term[2:])
                 if num_o is None:
                     if index > max_index:
                         max_index = index
@@ -244,7 +241,6 @@ class SpinOp(SparseLabelOp):
                         f"The index, {index}, from the label, {key}, exceeds the number of "
                         f"orbitals, {num_o}."
                     )
-
             # TODO: do we need to validate the exponent?
 
         self.num_orbitals = max_index + 1 if num_o is None else num_o
@@ -321,23 +317,10 @@ class SpinOp(SparseLabelOp):
             if not label:
                 yield ([], self[label])
                 continue
-
-            # the result of lbl.split(" ") gives labels that are splitted again
-            # we hard-code the result of lbl.split("^") as follows:
-            #   parts[0][0] is X, Y, Z or I
-            #   parts[0][2:] corresponds to the index
-            #   parts[1] if exists, corresponds to the number of time this operator is repeated
-
-            # TODO: do we want to use the exponents like this??
-            #  Do we want to return the exponent as part of the tuple?
-            #  I am not sure of how terms is going to be used.
-
-            terms = []
-            for lbl in label.split(" "):
-                parts = lbl.split("^")
-                sub_terms = [(parts[0][0], int(parts[0][2:]))] * (int(parts[1]) if len(parts) > 1 else 1)
-                terms += sub_terms
-
+            # we hard-code the result of lbl.split("_") as follows:
+            #   lbl[0] is X, Y, Z or I
+            #   lbl[2:] corresponds to the index
+            terms = [(lbl[0], int(lbl[2:])) for lbl in label.split(" ")]
             yield (terms, self[label])
 
     def conjugate(self) -> SpinOp:
@@ -347,15 +330,32 @@ class SpinOp(SparseLabelOp):
             The complex conjugate of the starting ``SpinOp``.
         """
         new_data = {}
-        for label, coeff in self._data.items():
+        for label, coeff in self.items():
+            num_ys = label.count("Y")
+            # calculate conjugate of coefficients
             coeff = np.conjugate(coeff)
-            for lbl in label.split():
-                char, index = lbl.split("_")
-                exponent = int(index.split("^")[1]) if len(index.split("^")) > 1 else 1
-                coeff *= (-1)**exponent if char == "Y" else 1
+            # add sign from Y-terms (Y.conj() = -Y)
+            coeff *= -1 if num_ys % 2 != 0 else 1
             new_data[label] = coeff
 
         return self._new_instance(new_data)
+
+    def transpose(self) -> SpinOp:
+        """Returns the transpose of the ``SpinOp``.
+
+        Returns:
+            The transpose of the ``SpinOp``.
+        """
+        # note: X^T=X, Y^T=-Y, Z^T=Z
+        # note: (XY)^T = Y^T X^T
+        data = {}
+        for label, coeff in self.items():
+            num_ys = label.count("Y")
+            # add sign from Y-terms (Y^T=-Y)
+            coeff *= -1 if num_ys % 2 != 0 else 1
+            data[" ".join(lbl for lbl in reversed(label.split(" ")))] = coeff
+
+        return self._new_instance(data)
 
     def compose(self, other: SpinOp, qargs=None, front: bool = False) -> SpinOp:
         if not isinstance(other, SpinOp):
@@ -392,16 +392,6 @@ class SpinOp(SparseLabelOp):
             new_op.num_orbitals = a.num_orbitals + b.num_orbitals
         return new_op
 
-    def transpose(self) -> SpinOp:
-        data = {}
-
-        trans = "".maketrans("+-", "-+")
-
-        for label, coeff in self.items():
-            data[" ".join(lbl.translate(trans) for lbl in reversed(label.split(" ")))] = coeff
-
-        return self._new_instance(data)
-
     def simplify(self, *, atol: float | None = None) -> SpinOp:
         atol = self.atol if atol is None else atol
 
@@ -419,16 +409,12 @@ class SpinOp(SparseLabelOp):
         bits = _BitsContainer()
 
         for lbl in label.split():
-            char, index = lbl.split("_")
-            base = index.split("^")[0]
-            exponent = int(index.split("^")[1]) if len(index.split("^")) > 1 else 1
-            idx = int(base)
-
+            char = lbl[0]
+            idx = int(lbl[2:])
             if idx not in bits:
                 bits[idx] = char
-                exponent -= 1
-
-            bits.flip(idx, char, exponent)
+            else:
+                bits.flip(idx, char)
 
         new_label = []
         for idx in sorted(bits):
@@ -469,7 +455,7 @@ class _BitsContainer(MutableMapping):
                     "I": int(f"{0:b}{0:b}{0:b}", base=2),
                     }
 
-    def flip(self, index: int, char: str, times: int) -> None:
+    def flip(self, index: int, char: str) -> None:
         """Flips the bit corresponding to `char` a total of `times` times.
 
         Args:
@@ -477,8 +463,7 @@ class _BitsContainer(MutableMapping):
             char: the string indicating the bit to be flipped.
             times: how many times to apply the flip.
         """
-        if times % 2 != 0:
-            self.data[index] = self.data[index] ^ self._map[char]
+        self.data[index] = self.data[index] ^ self._map[char]
 
     def get_x(self, index) -> int:
         """Returns the value of the `X`-register.

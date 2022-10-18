@@ -12,30 +12,10 @@
 
 """Test for SpinOp"""
 
-import unittest
-from fractions import Fraction
-from functools import lru_cache
-from itertools import product
-from test import QiskitNatureTestCase
-from test.second_q.operators.utils import str2list, str2str, str2tuple
-
-import numpy as np
-from ddt import data, ddt, unpack
-from qiskit.quantum_info import Pauli
-
-from qiskit_nature.second_q.operators import SpinOp, FermionicOp
+from qiskit_nature.second_q.operators import SpinOp
 import unittest
 from test import QiskitNatureTestCase
 from ddt import ddt, data, unpack
-
-import numpy as np
-from scipy.sparse import csc_matrix
-from scipy.sparse.linalg import eigs
-
-from qiskit_nature.exceptions import QiskitNatureError
-from qiskit_nature.second_q.operators import FermionicOp, PolynomialTensor
-import qiskit_nature.optionals as _optionals
-
 
 
 @ddt
@@ -45,6 +25,8 @@ class TestSpinOp(QiskitNatureTestCase):
     op1 = SpinOp({"X_0 Y_0": 1}, num_orbitals=1)
     op2 = SpinOp({"X_0 Z_0": 2}, num_orbitals=1)
     op3 = SpinOp({"X_0 Y_0": 1, "X_0 Z_0": 2}, num_orbitals=1)
+
+    print(op1, op2, op3)
 
     def test_neg(self):
         """Test __neg__"""
@@ -80,6 +62,62 @@ class TestSpinOp(QiskitNatureTestCase):
         """Test __sub__"""
         spin_op = self.op3 - self.op2
         targ = SpinOp({"X_0 Y_0": 1, "X_0 Z_0": 0}, num_orbitals=1)
+        self.assertEqual(spin_op, targ)
+
+    def test_simplify(self):
+        """Test simplify"""
+        with self.subTest("simplify integer"):
+            spin_op = SpinOp({"X_0 Y_0": 1, "X_0 X_0 X_0 Y_0": 1}, num_orbitals=1)
+            simplified_op = spin_op.simplify()
+            targ = SpinOp({"X_0 Y_0": 2}, num_orbitals=1)
+            self.assertEqual(simplified_op, targ)
+
+        with self.subTest("simplify complex"):
+            spin_op = SpinOp({"X_0 Y_0": 1, "X_0 X_0 X_0 Y_0": 1j}, num_orbitals=1)
+            simplified_op = spin_op.simplify()
+            targ = SpinOp({"X_0 Y_0": 1 + 1j}, num_orbitals=1)
+            self.assertEqual(simplified_op, targ)
+
+        # with self.subTest("simplify doesn't reorder"):
+        #     # TODO: WHY?
+        #     spin_op = SpinOp({"Y_0 X_0": 1 + 0j}, num_orbitals=2)
+        #     simplified_op = spin_op.simplify()
+        #     self.assertEqual(simplified_op, spin_op * 2)
+
+        with self.subTest("simplify zero"):
+            spin_op = self.op1 - self.op1
+            simplified_op = spin_op.simplify()
+            targ = SpinOp.zero()
+            self.assertEqual(simplified_op, targ)
+
+    def test_conjugate(self):
+        """Test conjugate method"""
+        spin_op = SpinOp(
+            {"": 1j, "X_0 Y_1 X_1": 3, "X_0 Y_0 X_1": 1j, "Y_0 Y_1": 2 + 4j}, num_orbitals=3
+        ).conjugate()
+        targ = SpinOp(
+            {"": -1j, "X_0 Y_1 X_1": -3, "X_0 Y_0 X_1": 1j, "Y_0 Y_1": 2 - 4j}, num_orbitals=3
+        )
+        self.assertEqual(spin_op, targ)
+
+    def test_transpose(self):
+        """Test transpose method"""
+        spin_op = SpinOp(
+            {"": 1j, "X_0 Y_1 X_1": 3, "X_0 Y_0 X_1": 1j, "Y_0 Y_1": 2 + 4j}, num_orbitals=3
+        ).transpose()
+        targ = SpinOp(
+            {"": 1j, "X_1 Y_1 X_0": -3, "X_1 Y_0 X_0": -1j, "Y_1 Y_0": 2 + 4j}, num_orbitals=3
+        )
+        self.assertEqual(spin_op, targ)
+
+    def test_adjoint(self):
+        """Test adjoint method"""
+        spin_op = SpinOp(
+            {"": 1j, "X_0 Y_1 X_1": 3, "X_0 Y_0 X_1": 1j, "Y_0 Y_1": 2 + 4j}, num_orbitals=3
+        ).adjoint()
+        targ = SpinOp(
+            {"": -1j, "X_1 Y_1 X_0": 3, "X_1 Y_0 X_0": -1j, "Y_1 Y_0": 2 - 4j}, num_orbitals=3
+        )
         self.assertEqual(spin_op, targ)
 
     def test_tensor(self):
@@ -120,41 +158,6 @@ class TestSpinOp(QiskitNatureTestCase):
     #         targ = SpinOp.one()
     #         self.assertEqual(spin_op, targ)
 
-    def test_adjoint(self):
-        """Test adjoint method"""
-        spin_op = SpinOp(
-            {"": 1j, "X_0 Y_1 X_1": 3, "X_0 Y_0 Y_1": 1, "Y_0 Y_1": 2 + 4j}, num_orbitals=3
-        ).adjoint()
-
-        targ = SpinOp(
-            {"": -1j, "X_0 Y_1 X_1": -3, 'X_1 Y_1 X_0': 1, 'Y_1 Y_0 X_0': 2 - 4j}, num_orbitals=3
-        )
-        self.assertEqual(spin_op, targ)
-
-    # def test_simplify(self):
-    #     """Test simplify"""
-    #     with self.subTest("simplify integer"):
-    #         fer_op = FermionicOp({"+_0 -_0": 1, "+_0 -_0 +_0 -_0": 1}, num_spin_orbitals=1)
-    #         simplified_op = fer_op.simplify()
-    #         targ = FermionicOp({"+_0 -_0": 2}, num_spin_orbitals=1)
-    #         self.assertEqual(simplified_op, targ)
-    #
-    #     with self.subTest("simplify complex"):
-    #         fer_op = FermionicOp({"+_0 -_0": 1, "+_0 -_0 +_0 -_0": 1j}, num_spin_orbitals=1)
-    #         simplified_op = fer_op.simplify()
-    #         targ = FermionicOp({"+_0 -_0": 1 + 1j}, num_spin_orbitals=1)
-    #         self.assertEqual(simplified_op, targ)
-    #
-    #     with self.subTest("simplify doesn't reorder"):
-    #         fer_op = FermionicOp({"-_0 +_1": 1 + 0j}, num_spin_orbitals=2)
-    #         simplified_op = fer_op.simplify()
-    #         self.assertEqual(simplified_op, fer_op)
-    #
-    #     with self.subTest("simplify zero"):
-    #         fer_op = self.op1 - self.op1
-    #         simplified_op = fer_op.simplify()
-    #         targ = FermionicOp.zero()
-    #         self.assertEqual(simplified_op, targ)
 
     # def test_compose(self):
     #     """Test operator composition"""
