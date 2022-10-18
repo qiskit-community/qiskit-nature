@@ -20,12 +20,7 @@ from pathlib import Path
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_q.operators.tensor_ordering import (
-    IndexType,
-    find_index_order,
-    to_chemist_ordering,
-    _phys_to_chem,
-)
+from qiskit_nature.second_q.operators.tensor_ordering import find_index_order, to_chemist_ordering
 
 from .dumper import _dump_1e_ints, _dump_2e_ints, _write_to_outfile
 
@@ -97,10 +92,9 @@ class FCIDump:
         if hijkl_ba is None:
             self._chemist_hijkl_ba = None
             return
-        if self._original_index_order == IndexType.CHEMIST:
-            self._chemist_hijkl_ba = hijkl_ba
-        elif self._original_index_order == IndexType.PHYSICIST:
-            self._chemist_hijkl_ba = _phys_to_chem(hijkl_ba)
+        self._chemist_hijkl_ba = to_chemist_ordering(
+            hijkl_ba, index_order=self._original_index_order
+        )
 
     @classmethod
     def from_file(cls, fcidump: str | Path) -> FCIDump:
