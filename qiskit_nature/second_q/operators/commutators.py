@@ -12,7 +12,7 @@
 
 """
 Commutator Utilities (:mod:`qiskit_nature.second_q.operators.commutators`)
-===================================================================================
+==========================================================================
 
 .. currentmodule:: qiskit_nature.second_q.operators.commutators
 
@@ -94,11 +94,11 @@ def double_commutator(
     Returns:
         The computed double commutator.
 
-        References:
-            [1]: R. McWeeny.
-                Methods of Molecular Quantum Mechanics.
-                2nd Edition, Academic Press, 1992.
-                ISBN 0-12-486552-6.
+    References:
+        [1]: R. McWeeny.
+            Methods of Molecular Quantum Mechanics.
+            2nd Edition, Academic Press, 1992.
+            ISBN 0-12-486552-6.
     """
     sign_num = 1 if sign else -1
 
