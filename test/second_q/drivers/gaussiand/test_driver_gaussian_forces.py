@@ -157,10 +157,7 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
         driver = GaussianForcesDriver.from_molecule(molecule, "6-31g", {}, "Invalid")
         # test result does not have the value 'B3LYP'
         self.assertNotIn("B3LYP", driver._jcf)
-        
-        
-
-        
+  
     @unittest.skipIf(not _optionals.HAS_GAUSSIAN, "gaussian not available.")
     def test_driver_molecule(self):
         """Test the driver works with Molecule"""
