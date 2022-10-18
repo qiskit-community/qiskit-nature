@@ -15,6 +15,7 @@
 import unittest
 
 from test import QiskitNatureTestCase
+import numpy as np
 from qiskit_nature.second_q.drivers import PSI4Driver
 from qiskit_nature import QiskitNatureError
 import qiskit_nature.optionals as _optionals
@@ -46,7 +47,12 @@ class TestDriverPSI4Extra(QiskitNatureTestCase):
             ]
         )
         driver_result = driver.run()
-        self.assertAlmostEqual(driver_result.reference_energy, -1.117, places=3)
+        with self.subTest("energy"):
+            self.assertAlmostEqual(driver_result.reference_energy, -1.117, places=3)
+        with self.subTest("masses"):
+            np.testing.assert_array_almost_equal(
+                driver_result.molecule.masses, [1.00782503, 1.00782503]
+            )
 
     def test_input_format_string(self):
         """input as a multi line string"""
@@ -65,7 +71,12 @@ scf_type pk
 """
         driver = PSI4Driver(cfg)
         driver_result = driver.run()
-        self.assertAlmostEqual(driver_result.reference_energy, -1.117, places=3)
+        with self.subTest("energy"):
+            self.assertAlmostEqual(driver_result.reference_energy, -1.117, places=3)
+        with self.subTest("masses"):
+            np.testing.assert_array_almost_equal(
+                driver_result.molecule.masses, [1.00782503, 1.00782503]
+            )
 
     def test_input_format_fail(self):
         """input type failure"""

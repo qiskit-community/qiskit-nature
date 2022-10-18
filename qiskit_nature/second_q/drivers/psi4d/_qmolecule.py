@@ -82,6 +82,7 @@ class _QMolecule:
         self.num_atoms = None
         self.atom_symbol = None
         self.atom_xyz = None
+        self.masses = None
 
         # 1 and 2 electron ints in AO basis
         self.hcore = None  # v2
@@ -214,6 +215,7 @@ class _QMolecule:
                 data = file["geometry/atom_symbol"][...]
                 self.atom_symbol = [a.decode("utf8") for a in data]
                 self.atom_xyz = file["geometry/atom_xyz"][...]
+                self.masses = read_array("geometry/masses")
 
                 # 1 and 2 electron integrals in AO basis
                 self.hcore = read_array("integrals/hcore") if version > 1 else None
@@ -352,6 +354,7 @@ class _QMolecule:
                 ),
             )
             create_dataset(g_geometry, "atom_xyz", self.atom_xyz)
+            create_dataset(g_geometry, "masses", self.masses)
 
             # 1 and 2 electron integrals
             g_integrals = file.create_group("integrals")

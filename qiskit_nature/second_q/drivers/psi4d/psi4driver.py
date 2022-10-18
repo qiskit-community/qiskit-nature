@@ -237,7 +237,7 @@ class PSI4Driver(ElectronicStructureDriver):
         data.coords = qmolecule.atom_xyz.flatten()
         data.multiplicity = qmolecule.multiplicity
         data.charge = qmolecule.molecular_charge
-        data.masses = None
+        data.masses = qmolecule.masses
         data.method = None
         data.basis = None
         data.creator = "PSI4"

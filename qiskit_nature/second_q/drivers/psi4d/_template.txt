@@ -28,6 +28,7 @@ _q_molecule.orbital_energies_b       = numpy.asarray(_q_hf_wavefn.epsilon_b()) i
 _q_molecule.molecular_charge = _q_mol.molecular_charge()
 _q_molecule.multiplicity     = _q_mol.multiplicity()
 _q_molecule.num_atoms        = _q_mol.natom()
+_q_molecule.masses           = numpy.asarray([_q_mol.mass(at) for at in range(_q_mol.natom())])
 _q_molecule.atom_symbol      = []
 _q_molecule.atom_xyz         = numpy.empty([_q_mol.natom(), 3])
 for _n in range(0, _q_molecule.num_atoms):
