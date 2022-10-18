@@ -392,135 +392,43 @@ class SpinOp(SparseLabelOp):
             new_op.num_orbitals = a.num_orbitals + b.num_orbitals
         return new_op
 
-    def simplify(self, *, atol: float | None = None) -> SpinOp:
+    def simplify(self, *, atol: float | None = None, reorder: bool = False) -> SpinOp:
         atol = self.atol if atol is None else atol
 
         data = defaultdict(complex)  # type: dict[str, complex]
-        # TODO: use parallel_map to make this more efficient (?)
         for label, coeff in self.items():
-            label, coeff = self._simplify_label(label, coeff)
+            label, coeff = self._simplify_label(label, coeff, reorder)
             data[label] += coeff
         simplified_data = {
             label: coeff for label, coeff in data.items() if not np.isclose(coeff, 0.0, atol=atol)
         }
         return self._new_instance(simplified_data)
 
-    def _simplify_label(self, label: str, coeff: complex) -> tuple[str, complex]:
-        bits = _BitsContainer()
+    def _simplify_label(self, label: str, coeff: complex, reorder: bool = False) -> tuple[str, complex]:
 
-        for lbl in label.split():
+        bits = {}
+        new_label = []
+        for i, lbl in enumerate(label.split()):
             char = lbl[0]
             idx = int(lbl[2:])
-            if idx not in bits:
-                bits[idx] = char
+
+            if idx in bits and bits[idx][-1] == char:
+                bits[idx][-1] = ""
+                # remove last instance of lbl
+                new_label.reverse()
+                new_label.remove(lbl)
+                new_label.reverse()
             else:
-                bits.flip(idx, char)
+                if idx not in bits:
+                    bits[idx] = [char]
+                else:
+                    bits[idx].append(char)
+                new_label.append(lbl)
 
-        new_label = []
-        for idx in sorted(bits):
-            label_x = f"X_{idx}" if bits.get_x(idx) else None
-            label_y = f"Y_{idx}" if bits.get_y(idx) else None
-            label_z = f"Z_{idx}" if bits.get_z(idx) else None
-
-            # TODO: how do we want to deal with empty labels?
-            #  I know that filling with Is is not expected.
-            empty_label = label_x is None and label_y is None and label_z is None
-            label_i = f"I_{idx}" if empty_label else None
-
-            new_label.extend([label_x, label_y, label_z, label_i])
+        if reorder:
+            new_label = []
+            for idx in sorted(bits):
+                new_label.extend([f"{char}_{idx}" for char in bits[idx] if char != ""])
 
         return " ".join(lbl for lbl in new_label if lbl is not None), coeff
 
-class _BitsContainer(MutableMapping):
-    """A bit-storage container.
-
-    This is a utility object used during the simplification process of a `SpinOp`.
-    It manages access to an internal data container, which maps from integers to bytes.
-    Each integer key corresponds to a (?) mode of an operator term.
-    Each value consists of three bits which provide a one-hot encoding for the
-    following operators terms:
-
-        * `X` -> "100" = 4
-        * `Y` -> "010" = 2
-        * `Z` -> "001" = 1
-        * `I` -> "000" = 0
-    """
-
-    def __init__(self):
-        self.data: dict[int, int] = {}
-        self._map = {
-                    "X": int(f"{1:b}{0:b}{0:b}", base=2),
-                    "Y": int(f"{0:b}{1:b}{0:b}", base=2),
-                    "Z": int(f"{0:b}{0:b}{1:b}", base=2),
-                    "I": int(f"{0:b}{0:b}{0:b}", base=2),
-                    }
-
-    def flip(self, index: int, char: str) -> None:
-        """Flips the bit corresponding to `char` a total of `times` times.
-
-        Args:
-            index: the internal data key (corresponding to the mode (?)).
-            char: the string indicating the bit to be flipped.
-            times: how many times to apply the flip.
-        """
-        self.data[index] = self.data[index] ^ self._map[char]
-
-    def get_x(self, index) -> int:
-        """Returns the value of the `X`-register.
-
-        Args:
-            index: the internal data key (corresponding to the mode (?)).
-
-        Returns:
-            1 if `X` has been applied, 0 otherwise.
-        """
-        return self.get_bit(index, 2)
-
-    def get_y(self, index) -> int:
-        """Returns the value of the `Y`-register.
-
-        Args:
-            index: the internal data key (corresponding to the mode (?)).
-
-        Returns:
-            1 if `Y` has been applied, 0 otherwise.
-        """
-        return self.get_bit(index, 1)
-
-    def get_z(self, index) -> int:
-        """Returns the value of the `Z`-register.
-
-        Args:
-            index: the internal data key (corresponding to the mode (?)).
-
-        Returns:
-            1 if `Z` has been applied, 0 otherwise.
-        """
-        return self.get_bit(index, 0)
-
-    def get_bit(self, index: int, offset: int) -> int:
-        """Returns the value of a requested register.
-
-        Args:
-            index: the internal data key (corresponding to the fermionic mode).
-            offset: the bit-wise offset for the bit-shift operation to obtain the desired register.
-
-        Returns:
-            1 if the register was set, 0 otherwise.
-        """
-        return (self.data[index] >> offset) & 1
-
-    def __getitem__(self, __k):
-        return self.data.__getitem__(__k)
-
-    def __setitem__(self, __k, __v):
-        return self.data.__setitem__(__k, self._map[__v])
-
-    def __delitem__(self, __v):
-        return self.data.__delitem__(__v)
-
-    def __iter__(self):
-        return self.data.__iter__()
-
-    def __len__(self):
-        return self.data.__len__()

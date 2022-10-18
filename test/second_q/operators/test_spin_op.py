@@ -26,8 +26,6 @@ class TestSpinOp(QiskitNatureTestCase):
     op2 = SpinOp({"X_0 Z_0": 2}, num_orbitals=1)
     op3 = SpinOp({"X_0 Y_0": 1, "X_0 Z_0": 2}, num_orbitals=1)
 
-    print(op1, op2, op3)
-
     def test_neg(self):
         """Test __neg__"""
         spin_op = -self.op1
@@ -66,23 +64,45 @@ class TestSpinOp(QiskitNatureTestCase):
 
     def test_simplify(self):
         """Test simplify"""
-        with self.subTest("simplify integer"):
+        with self.subTest("simplify"):
             spin_op = SpinOp({"X_0 Y_0": 1, "X_0 X_0 X_0 Y_0": 1}, num_orbitals=1)
             simplified_op = spin_op.simplify()
             targ = SpinOp({"X_0 Y_0": 2}, num_orbitals=1)
             self.assertEqual(simplified_op, targ)
 
-        with self.subTest("simplify complex"):
-            spin_op = SpinOp({"X_0 Y_0": 1, "X_0 X_0 X_0 Y_0": 1j}, num_orbitals=1)
+        with self.subTest("simplify to identity"):
+            spin_op = SpinOp({"X_0 X_0": 1}, num_orbitals=1)
             simplified_op = spin_op.simplify()
-            targ = SpinOp({"X_0 Y_0": 1 + 1j}, num_orbitals=1)
+            targ = SpinOp({"": 1}, num_orbitals=1)
             self.assertEqual(simplified_op, targ)
 
-        # with self.subTest("simplify doesn't reorder"):
-        #     # TODO: WHY?
-        #     spin_op = SpinOp({"Y_0 X_0": 1 + 0j}, num_orbitals=2)
-        #     simplified_op = spin_op.simplify()
-        #     self.assertEqual(simplified_op, spin_op * 2)
+        with self.subTest("do not simplify if not adjacent within same index"):
+            spin_op = SpinOp({"X_0 Y_0 X_0": 1}, num_orbitals=2)
+            simplified_op = spin_op.simplify()
+            targ = spin_op
+            self.assertEqual(simplified_op, targ)
+
+        with self.subTest("simplify if adjacent within same index"):
+            spin_op = SpinOp({"X_0 Y_1 X_0": 1}, num_orbitals=2)
+            simplified_op = spin_op.simplify()
+            targ = SpinOp({"Y_1": 1}, num_orbitals=2)
+            self.assertEqual(simplified_op, targ)
+
+        with self.subTest("simplify doesn't reorder if reorder=False"):
+            spin_op = SpinOp({"Y_0 X_0": 1 + 0j}, num_orbitals=2)
+            simplified_op = spin_op.simplify()
+            self.assertEqual(simplified_op, spin_op)
+
+        with self.subTest("simplify doesn't reorder if reorder=False"):
+            spin_op = SpinOp({"Y_1 X_0": 1 + 0j}, num_orbitals=2)
+            simplified_op = spin_op.simplify()
+            self.assertEqual(simplified_op, spin_op)
+
+        with self.subTest("simplify does reorder by index if reorder=True"):
+            spin_op = SpinOp({"Y_2 X_0 X_1 X_0 Z_0": 1, "X_1 Z_0 Y_2": 2}, num_orbitals=3)
+            simplified_op = spin_op.simplify(reorder=True)
+            targ = SpinOp({"Z_0 X_1 Y_2": 3}, num_orbitals=3)
+            self.assertEqual(simplified_op, targ)
 
         with self.subTest("simplify zero"):
             spin_op = self.op1 - self.op1
@@ -132,52 +152,26 @@ class TestSpinOp(QiskitNatureTestCase):
         targ = SpinOp({"X_0 Z_0 X_1 Y_1": 2}, num_orbitals=2)
         self.assertEqual(spin_op, targ)
 
-    # def test_pow(self):
-    #     """Test __pow__"""
-    #     # TODO
-    #     with self.subTest("square trivial"):
-    #         spin_op = SpinOp({"X_0 X_1": 3, "X_0 X_1": -3}, num_orbitals=2) ** 2
-    #         spin_op = spin_op.simplify()
-    #         targ = SpinOp.zero()
-    #         self.assertEqual(spin_op, targ)
-    #
-    #     with self.subTest("square nontrivial"):
-    #         spin_op = SpinOp({"X_0 X_1 Y_1": 3, "X_0 Y_0 Y_1": 1}, num_orbitals=2) ** 2
-    #         spin_op = spin_op.simplify()
-    #         targ = SpinOp({"Y_0 X_1": 6}, num_orbitals=2)
-    #         self.assertEqual(spin_op, targ)
-    #
-    #     with self.subTest("3rd power"):
-    #         spin_op = (3 * SpinOp.one()) ** 3
-    #         targ = 27 * SpinOp.one()
-    #         self.assertEqual(spin_op, targ)
-    #
-    #     with self.subTest("0th power"):
-    #         spin_op = SpinOp({"X_0 X_1 Y_1": 3, "Y_0 X_0 Y_1": 1}, num_orbitals=2) ** 0
-    #         spin_op = spin_op.simplify()
-    #         targ = SpinOp.one()
-    #         self.assertEqual(spin_op, targ)
+    def test_compose(self):
+        """Test operator composition"""
+        with self.subTest("single compose"):
+            spin_op = SpinOp({"X_0 X_1": 1}, num_orbitals=2) @ SpinOp(
+                {"Y_0": 2}, num_orbitals=2
+            )
+            targ = SpinOp({"X_0 X_1 Y_0": 2}, num_orbitals=2)
+            self.assertEqual(spin_op, targ)
 
+        with self.subTest("multi compose"):
+            spin_op = SpinOp(
+                {"X_0 X_1 Y_1": 1, "X_0 Y_0 Y_1": -1}, num_orbitals=2
+            ) @ SpinOp({"Y_0": 1, "X_0 Y_1": -1}, num_orbitals=2)
+            spin_op = spin_op.simplify(reorder=True)
+            targ = SpinOp(
+                {"X_0 Y_0 X_1 Y_1": 1, "X_1": -1, "X_0 Y_1": -1, "X_0 Y_0 X_0": 1},
+                num_orbitals=2,
+            )
+            self.assertEqual(spin_op, targ)
 
-    # def test_compose(self):
-    #     """Test operator composition"""
-    #     with self.subTest("single compose"):
-    #         fer_op = FermionicOp({"+_0 -_1": 1}, num_spin_orbitals=2) @ FermionicOp(
-    #             {"-_0": 1}, num_spin_orbitals=2
-    #         )
-    #         targ = FermionicOp({"+_0 -_1 -_0": 1}, num_spin_orbitals=2)
-    #         self.assertEqual(fer_op, targ)
-    #
-    #     with self.subTest("multi compose"):
-    #         fer_op = FermionicOp(
-    #             {"+_0 +_1 -_1": 1, "-_0 +_0 -_1": 1}, num_spin_orbitals=2
-    #         ) @ FermionicOp({"": 1, "-_0 +_1": 1}, num_spin_orbitals=2)
-    #         fer_op = fer_op.simplify()
-    #         targ = FermionicOp(
-    #             {"+_0 +_1 -_1": 1, "-_0 +_0 -_1": 1, "+_0 -_0 +_1": 1, "-_0 -_1 +_1": -1},
-    #             num_spin_orbitals=2,
-    #         )
-    #         self.assertEqual(fer_op, targ)
 
 if __name__ == "__main__":
     unittest.main()
