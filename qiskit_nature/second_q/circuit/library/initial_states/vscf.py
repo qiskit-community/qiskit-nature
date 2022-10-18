@@ -18,7 +18,8 @@ import logging
 
 import numpy as np
 
-from qiskit import QuantumRegister, QuantumCircuit
+from qiskit import QuantumRegister
+from qiskit.circuit.library import BlueprintCircuit
 from qiskit.opflow import PauliSumOp
 from qiskit_nature.second_q.mappers import DirectMapper
 from qiskit_nature.second_q.mappers import QubitConverter
@@ -27,7 +28,7 @@ from qiskit_nature.second_q.operators import VibrationalOp
 logger = logging.getLogger(__name__)
 
 
-class VSCF(QuantumCircuit):
+class VSCF(BlueprintCircuit):
     r"""Initial state for vibrational modes.
 
     Creates an occupation number vector as defined in [1].
@@ -40,7 +41,7 @@ class VSCF(QuantumCircuit):
 
     def __init__(
         self,
-        num_modals: list[int],
+        num_modals: list[int] | None = None,
         qubit_converter: QubitConverter | None = None,
     ) -> None:
         """
@@ -52,32 +53,141 @@ class VSCF(QuantumCircuit):
                              that of the :class:`DirectMapper`. However, for future-compatibility of
                              this functions signature, the argument has already been inserted.
         """
-        # get the bitstring encoding initial state
-        bitstr = vscf_bitstring(num_modals)
+        super().__init__()
+        self._num_modals = num_modals
+        self._qubit_converter = None
+        self._bitstr: list[bool] | None = None
 
-        # encode the bitstring in a `VibrationalOp`
-        label = ["+" if bit else "I" for bit in bitstr]
-        bitstr_op = VibrationalOp("".join(label), num_modes=len(num_modals), num_modals=num_modals)
+        self.qubit_converter = qubit_converter
 
-        # map the `VibrationalOp` to a qubit operator
-        if qubit_converter is not None:
+        if num_modals is not None:
+            self.num_modals = num_modals
+
+    @property
+    def qubit_converter(self) -> QubitConverter:
+        """The qubit operator converter."""
+        return self._qubit_converter
+
+    @qubit_converter.setter
+    def qubit_converter(self, conv: QubitConverter) -> None:
+        """Sets the qubit operator converter."""
+        self._invalidate()
+        if conv is not None and not isinstance(conv.mapper, DirectMapper):
             logger.warning(
                 "The only supported `QubitConverter` is one with a `DirectMapper` as the mapper "
                 "instance. However you specified %s as an input, which will be ignored until more "
                 "variants will be supported.",
-                str(qubit_converter),
+                type(conv.mapper),
             )
-        qubit_converter = QubitConverter(DirectMapper())
-        qubit_op: PauliSumOp = qubit_converter.convert_match(bitstr_op)
+        self._qubit_converter = QubitConverter(DirectMapper())
+        self._reset_register()
 
-        # construct the circuit
-        qr = QuantumRegister(qubit_op.num_qubits, "q")
-        super().__init__(qr, name="VSCF")
+    @property
+    def num_modals(self) -> list[int]:
+        """The number of modals per mode."""
+        return self._num_modals
 
-        # add gates in the right positions
-        for i, bit in enumerate(qubit_op.primitive.paulis.x[0]):
-            if bit:
-                self.x(i)
+    @num_modals.setter
+    def num_modals(self, num_modals: list[int]) -> None:
+        """Sets the number of modals."""
+        self._invalidate()
+        self._num_modals = num_modals
+        self._reset_register()
+
+    def _check_configuration(self, raise_on_failure: bool = True) -> bool:
+        """Check if the configuration of the VSCF class is valid.
+        Args:
+            raise_on_failure: Whether to raise on failure.
+        Returns:
+            True, if the configuration is valid and the circuit can be constructed. Otherwise
+            an ValueError or TypeError is raised.
+        Raises:
+            ValueError: If the number of modals per mode is not specified.
+            ValueError: If the number of modals is specified is less than or equal to zero.
+            ValueError: If the qubit converter is not specified.
+        """
+        if self.num_modals is None:
+            if raise_on_failure:
+                raise ValueError("The number of modals cannot be 'None'.")
+            return False
+
+        if any(n < 0 for n in self.num_modals):
+            if raise_on_failure:
+                raise ValueError(
+                    f"The number of modals cannot be smaller than 0 was {self.num_modals}."
+                )
+            return False
+
+        if self.qubit_converter is None:
+            if raise_on_failure:
+                raise ValueError("The qubit_converter cannot be `None`.")
+            return False
+
+        return True
+
+    def _reset_register(self):
+        """Reset the register and recompute the mapped VSCF bitstring."""
+        self.qregs = []
+        self._bitstr = None
+
+        if self._check_configuration(raise_on_failure=False):
+            self._bitstr = vscf_bitstring_mapped(self.num_modals, self.qubit_converter)
+            self.qregs = [QuantumRegister(len(self._bitstr), name="q")]
+
+    def _build(self) -> None:
+        """
+        Construct the VSCF initial state given its parameters.
+        Returns:
+            QuantumCircuit: a quantum circuit preparing the VSCF initial state
+            given a number of modals per mode and a qubit converter.
+        """
+        if self._is_built:
+            return
+
+        super()._build()
+
+        # Construct the circuit for bitstring. Since this is defined as an initial state
+        # circuit its assumed that this is applied first to the qubits that are initialized to
+        # the zero state. Hence we just need to account for all True entries and set those.
+        if self._bitstr is not None:
+            for i, bit in enumerate(self._bitstr):
+                if bit:
+                    self.x(i)
+
+
+def vscf_bitstring_mapped(
+    num_modals: list[int],
+    qubit_converter: QubitConverter,
+) -> list[bool]:
+    """Compute the bitstring representing the mapped VSCF initial state
+    based on the given the number of modals per mode and qubit converter.
+
+    Args:
+        num_modals: A list defining the number of modals per mode. E.g. for a 3 modes system
+            with 4 modals per mode num_modals = [4,4,4].
+        qubit_converter: A QubitConverter instance.
+
+    Returns:
+        The bitstring representing the mapped state of the VSCF initial state as array of bools.
+    """
+
+    # get the bitstring encoding initial state
+    bitstr = vscf_bitstring(num_modals)
+
+    # encode the bitstring in a `VibrationalOp`
+    label = ["+" if bit else "I" for bit in bitstr]
+    bitstr_op = VibrationalOp("".join(label), num_modes=len(num_modals), num_modals=num_modals)
+
+    # map the `VibrationalOp` to a qubit operator
+    qubit_op: PauliSumOp = qubit_converter.convert_match(bitstr_op, check_commutes=False)
+
+    # We check the mapped operator `x` part of the paulis because we want to have particles
+    # i.e. True, where the initial state introduced a creation (`+`) operator.
+    bits = []
+    for bit in qubit_op.primitive.paulis.x[0]:
+        bits.append(bit)
+
+    return bits
 
 
 def vscf_bitstring(num_modals: list[int]) -> list[bool]:
