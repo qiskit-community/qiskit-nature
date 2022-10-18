@@ -1,4 +1,5 @@
 ---
-fixes:
+features:
   - |
-    Added xcf argument for gaussian force driver from_molecule so that cfg1 is not hardcoded to B3LYP
+    Added the `xcf` argument to the :meth:`qiskit_nature.second_q.drivers.GaussianForcesDriver.from_molecule`
+    which allows specifying the exchange-correlation functional to be used by Gaussian.

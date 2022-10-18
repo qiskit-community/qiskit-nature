@@ -135,6 +135,33 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
         self._check_driver_result(self._get_expected_values(), result)
 
     @unittest.skipIf(not _optionals.HAS_GAUSSIAN, "gaussian not available.")
+    def test_driver_xcf(self):
+        """Test the GaussianForcesDriver.from_molecule accept xcf argument"""
+        molecule = MoleculeInfo(
+            symbols=["C", "O", "O"],
+            coords=np.asarray(
+                [
+                    [-0.848629, 2.067624, 0.160992],
+                    [0.098816, 2.655801, -0.159738],
+                    [-1.796073, 1.479446, 0.481721],
+                ]
+            ),
+            multiplicity=1,
+            charge=0,
+            units=DistanceUnit.ANGSTROM,
+        )
+
+        driver = GaussianForcesDriver.from_molecule(molecule, "6-31g", {}, "B3LYP")  # type: ignore
+        # test result has the value 'B3LYP'
+        self.assertIn("B3LYP", driver._jcf)
+        driver = GaussianForcesDriver.from_molecule(molecule, "6-31g", {}, "Invalid")  # type: ignore
+        # test result does not have the value 'B3LYP'
+        self.assertNotIn("B3LYP", driver._jcf)
+        
+        
+
+        
+    @unittest.skipIf(not _optionals.HAS_GAUSSIAN, "gaussian not available.")
     def test_driver_molecule(self):
         """Test the driver works with Molecule"""
         molecule = MoleculeInfo(
