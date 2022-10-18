@@ -398,5 +398,6 @@ class TestSparseLabelOp(QiskitNatureTestCase):
                 },
             )
 
+
 if __name__ == "__main__":
     unittest.main()
