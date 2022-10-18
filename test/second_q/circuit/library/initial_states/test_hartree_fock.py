@@ -28,6 +28,7 @@ from qiskit_nature.second_q.mappers import (
     BravyiKitaevMapper,
     JordanWignerMapper,
     ParityMapper,
+    BravyiKitaevSuperFastMapper,
 )
 from qiskit_nature.second_q.mappers import QubitConverter
 
@@ -51,9 +52,28 @@ class TestHartreeFock(QiskitNatureTestCase):
             with self.assertRaises(ValueError):
                 _ = hartree_fock_bitstring(-1, (2, 2))
 
+    def test_raises_on_unsupported_mapper(self):
+        """Test if an error is raised for an unsupported mapper."""
+        with self.assertRaises(TypeError):
+            converter = QubitConverter(BravyiKitaevSuperFastMapper())
+            state = HartreeFock(
+                num_spatial_orbitals=2, num_particles=(1, 1), qubit_converter=converter
+            )
+            state.draw()
+
     def test_qubits_4_jw_h2(self):
         """qubits 4 jw h2 test"""
         state = HartreeFock(2, (1, 1), QubitConverter(JordanWignerMapper()))
+        ref = QuantumCircuit(4)
+        ref.x([0, 2])
+        self.assertEqual(state, ref)
+
+    def test_qubits_4_jw_h2_lazy_attribute_setting(self):
+        """qubits 4 jw h2 with lazy attribute setting test"""
+        state = HartreeFock()
+        state.num_spatial_orbitals = 2
+        state.num_particles = (1, 1)
+        state.qubit_converter = QubitConverter(JordanWignerMapper())
         ref = QuantumCircuit(4)
         ref.x([0, 2])
         self.assertEqual(state, ref)
