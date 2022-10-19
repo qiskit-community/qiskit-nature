@@ -192,7 +192,7 @@ class ElectronicEnergy(Hamiltonian):
         return FermionicOp.from_polynomial_tensor(self.electronic_integrals.second_q_coeffs())
 
     def interpret(
-        self, result: "qiskit_nature.second_q.problemsEigenstateResult"  # type: ignore[name-defined]
+        self, result: "qiskit_nature.second_q.problems.EigenstateResult"  # type: ignore[name-defined]
     ) -> None:
         """Interprets an :class:`qiskit_nature.second_q.problems.EigenstateResult`.
 

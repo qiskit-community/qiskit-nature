@@ -518,50 +518,60 @@ class FermionicOp(SparseLabelOp):
     def _simplify_label(self, label: str, coeff: complex) -> tuple[str, complex]:
         bits = _BitsContainer()
 
+        # Since Python 3.7, dictionaries are guaranteed to be insert-order preserving. We use this
+        # to our advantage, to implement an ordered set, which allows us to preserve the label order
+        # and only remove canceling terms.
+        new_label: dict[str, None] = {}
+
         for lbl in label.split():
             char, index = lbl.split("_")
             idx = int(index)
             char_b = char == "+"
 
             if idx not in bits:
-                bits[idx] = int(f"{char_b:b}{not char_b:b}{char_b:b}{char_b:b}", base=2)
                 # we store all relevant information for each register index in 4 bits:
                 #   1. True if a `+` has been applied on this index
                 #   2. True if a `-` has been applied on this index
                 #   3. True if a `+` was applied first, False if a `-` was applied first
                 #   4. True if the last added operation on this index was `+`, False if `-`
+                bits[idx] = int(f"{char_b:b}{not char_b:b}{char_b:b}{char_b:b}", base=2)
+                # and we insert the encountered label into our ordered set
+                new_label[lbl] = None
 
             elif bits.get_last(idx) == char_b:
                 # we bail, if we apply the same operator as the last one
                 return "", 0
 
             elif bits.get_plus(idx) and bits.get_minus(idx):
-                # if both, `+` and `-`, have already been applied, we cancel the opposite to the
-                # current one (i.e. `+` will cancel `-` and vice versa)
+                # If both, `+` and `-`, have already been applied, we cancel the opposite to the
+                # current one (i.e. `+` will cancel `-` and vice versa).
+                # 1. we construct the reversed label which is the key we need to pop
+                pop_lbl = f"{'-' if char_b else '+'}_{idx}"
+                # 2. we find its index in the insertion order of the new label
+                pop_idx = list(new_label).index(pop_lbl)
+                # 3. we use this index plus the current length of the new label to determine the
+                #    number of exchange operations necessary to move the current term next to the
+                #    one being popped
+                num_exchange = len(new_label) - pop_idx - 1
+                # 4. we perform the information update by:
+                #  a) updating the coefficient sign
+                coeff *= -1 if num_exchange % 2 else 1
+                #  b) popping the key we just canceled out
+                new_label.pop(pop_lbl)
+                #  c) updating the bits container
                 bits.set_plus_or_minus(idx, not char_b, False)
-                # we also update the last bit to the current char
+                #  d) and updating the last bit to the current char
                 bits.set_last(idx, char_b)
 
             else:
                 # else, we simply set the bit of the currently applied char
                 bits.set_plus_or_minus(idx, char_b, True)
+                # and track it in our ordered set
+                new_label[lbl] = None
                 # we also update the last bit to the current char
                 bits.set_last(idx, char_b)
 
-            if idx != self.num_spin_orbitals:
-                num_exchange = 0
-                for i in range(idx + 1, self.num_spin_orbitals):
-                    if i in bits:
-                        num_exchange += (bits.get_plus(i) + bits.get_minus(i)) % 2
-                coeff *= -1 if num_exchange % 2 else 1
-
-        new_label = []
-        for idx in sorted(bits):
-            plus = f"+_{idx}" if bits.get_plus(idx) else None
-            minus = f"-_{idx}" if bits.get_minus(idx) else None
-            new_label.extend([plus, minus] if bits.get_order(idx) else [minus, plus])
-
-        return " ".join(lbl for lbl in new_label if lbl is not None), coeff
+        return " ".join(new_label), coeff
 
 
 class _BitsContainer(MutableMapping):
