@@ -12,14 +12,14 @@
 
 """ Test Gaussian Forces Driver """
 
+from __future__ import annotations
+
 import re
 import unittest
 from typing import cast
 
 from test import QiskitNatureTestCase
 from ddt import data, ddt, unpack
-
-import numpy as np
 
 from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
@@ -64,6 +64,33 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
         [2.335859166666667, 3, 3, 3, 3],
     ]
 
+    _C01_REV_PBE_EXPECTED = [
+        [353.5831025, 2, 2],
+        [-353.5831025, -2, -2],
+        [644.7579625, 1, 1],
+        [-644.7579625, -1, -1],
+        [95.344445, 4, 4],
+        [-95.344445, -4, -4],
+        [95.344445, 3, 3],
+        [-95.344445, -3, -3],
+        [-15.110404634225285, 2, 2, 2],
+        [0.409219375, 2, 2, 2, 2],
+        [1.5162932291666669, 1, 1, 1, 1],
+        [3.5002357291666666, 4, 4, 4, 4],
+        [3.5002358333333334, 3, 3, 3, 3],
+        [-85.62267978593646, 1, 1, 2],
+        [53.86795497291527, 4, 4, 2],
+        [53.86795497291527, 3, 3, 2],
+        [4.740964375, 1, 1, 2, 2],
+        [-5.103499375, 4, 4, 2, 2],
+        [-5.103499375, 3, 3, 2, 2],
+        [-12.17633125, 4, 4, 1, 1],
+        [-12.17633125, 3, 3, 1, 1],
+        [3.984481666666667, 4, 4, 4, 3],
+        [10.624813125, 4, 4, 3, 3],
+        [-3.984481666666667, 4, 3, 3, 3],
+    ]
+
     _A03_REV_EXPECTED = [
         [352.3005875, 2, 2],
         [-352.3005875, -2, -2],
@@ -92,7 +119,34 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
         [2.2973803125, 3, 3, 3, 3],
     ]
 
-    def _get_expected_values(self):
+    _A03_REV_PBE_EXPECTED = [
+        [353.5831025, 2, 2],
+        [-353.5831025, -2, -2],
+        [644.7579625, 1, 1],
+        [-644.7579625, -1, -1],
+        [95.344445, 4, 4],
+        [-95.344445, -4, -4],
+        [95.344445, 3, 3],
+        [-95.344445, -3, -3],
+        [-15.110404634225285, 2, 2, 2],
+        [0.409219375, 2, 2, 2, 2],
+        [1.5162932291666669, 1, 1, 1, 1],
+        [3.5002357291666666, 4, 4, 4, 4],
+        [3.5002358333333334, 3, 3, 3, 3],
+        [-85.62267978593646, 1, 1, 2],
+        [53.86795497291527, 4, 4, 2],
+        [53.86795497291527, 3, 3, 2],
+        [4.740964375, 1, 1, 2, 2],
+        [-5.103499375, 4, 4, 2, 2],
+        [-5.103499375, 3, 3, 2, 2],
+        [-12.17633125, 4, 4, 1, 1],
+        [-12.17633125, 3, 3, 1, 1],
+        [3.984481666666667, 4, 4, 4, 3],
+        [10.624813125, 4, 4, 3, 3],
+        [-3.984481666666667, 4, 3, 3, 3],
+    ]
+
+    def _get_expected_values(self, pbe: bool = False):
         """Get expected values based on revision of Gaussian 16 being used."""
         jcf = "\n\n"  # Empty job control file will error out
         log_driver = GaussianLogDriver(jcf=jcf)
@@ -104,11 +158,20 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
             if matched is not None:
                 version = matched[0]
         if version == "G16RevA.03":
-            exp_vals = TestDriverGaussianForces._A03_REV_EXPECTED
+            if pbe:
+                exp_vals = TestDriverGaussianForces._A03_REV_PBE_EXPECTED
+            else:
+                exp_vals = TestDriverGaussianForces._A03_REV_EXPECTED
         elif version == "G16RevB.01":
-            exp_vals = TestDriverGaussianForces._A03_REV_EXPECTED
+            if pbe:
+                exp_vals = TestDriverGaussianForces._A03_REV_PBE_EXPECTED
+            else:
+                exp_vals = TestDriverGaussianForces._A03_REV_EXPECTED
         elif version == "G16RevC.01":
-            exp_vals = TestDriverGaussianForces._C01_REV_EXPECTED
+            if pbe:
+                exp_vals = TestDriverGaussianForces._C01_REV_PBE_EXPECTED
+            else:
+                exp_vals = TestDriverGaussianForces._C01_REV_EXPECTED
         else:
             self.fail(f"Unknown gaussian version '{version}'")
 
@@ -135,48 +198,23 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
         self._check_driver_result(self._get_expected_values(), result)
 
     @unittest.skipIf(not _optionals.HAS_GAUSSIAN, "gaussian not available.")
-    def test_driver_xcf(self):
-        """Test the GaussianForcesDriver.from_molecule accept xcf argument"""
-        molecule = MoleculeInfo(
-            symbols=["C", "O", "O"],
-            coords=np.asarray(
-                [
-                    [-0.848629, 2.067624, 0.160992],
-                    [0.098816, 2.655801, -0.159738],
-                    [-1.796073, 1.479446, 0.481721],
-                ]
-            ),
-            multiplicity=1,
-            charge=0,
-            units=DistanceUnit.ANGSTROM,
-        )
-
-        driver = GaussianForcesDriver.from_molecule(molecule, basis="6-31g", xcf="B3LYP")
-        # test result has the value 'B3LYP'
-        self.assertIn("B3LYP", driver._jcf)
-        driver = GaussianForcesDriver.from_molecule(molecule, basis="6-31g", xcf="Invalid")
-        # test result does not have the value 'B3LYP'
-        self.assertNotIn("B3LYP", driver._jcf)
-
-    @unittest.skipIf(not _optionals.HAS_GAUSSIAN, "gaussian not available.")
-    def test_driver_molecule(self):
+    @data("B3LYP", "PBEPBE")
+    def test_driver_molecule(self, xcf: str):
         """Test the driver works with Molecule"""
         molecule = MoleculeInfo(
             symbols=["C", "O", "O"],
-            coords=np.asarray(
-                [
-                    [-0.848629, 2.067624, 0.160992],
-                    [0.098816, 2.655801, -0.159738],
-                    [-1.796073, 1.479446, 0.481721],
-                ]
-            ),
+            coords=[
+                (-0.848629, 2.067624, 0.160992),
+                (0.098816, 2.655801, -0.159738),
+                (-1.796073, 1.479446, 0.481721),
+            ],
             multiplicity=1,
             charge=0,
             units=DistanceUnit.ANGSTROM,
         )
-        driver = GaussianForcesDriver.from_molecule(molecule, basis="6-31g")
+        driver = GaussianForcesDriver.from_molecule(molecule, basis="6-31g", xcf=xcf)
         result = driver.run()
-        self._check_driver_result(self._get_expected_values(), result)
+        self._check_driver_result(self._get_expected_values(pbe=xcf == "PBEPBE"), result)
 
     @data(
         ("A03", _A03_REV_EXPECTED),
