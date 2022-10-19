@@ -41,7 +41,7 @@ class HartreeFock(BlueprintCircuit):
             qubit_converter: a QubitConverter instance.
 
         Raises:
-            TypeError: If qubit_converter contains BravyiKitaevSuperFastMapper. See
+            NotImplementedError: If qubit_converter contains BravyiKitaevSuperFastMapper. See
                 https://github.com/Qiskit/qiskit-nature/issues/537 for more information.
         """
 
@@ -51,14 +51,7 @@ class HartreeFock(BlueprintCircuit):
         self._num_particles = num_particles
         self._bitstr: list[bool] | None = None
 
-        if qubit_converter is not None:
-            self.qubit_converter = qubit_converter
-
-        if num_spatial_orbitals is not None:
-            self.num_spatial_orbitals = num_spatial_orbitals
-
-        if num_particles is not None:
-            self.num_particles = num_particles
+        self._reset_register()
 
     @property
     def qubit_converter(self) -> QubitConverter:
@@ -103,14 +96,17 @@ class HartreeFock(BlueprintCircuit):
             raise_on_failure: Whether to raise on failure.
         Returns:
             True, if the configuration is valid and the circuit can be constructed. Otherwise
-            an ValueError or TypeError is raised.
+            returns False. Errors are only raised when raise_on_failure is set to True.
+
         Raises:
-            ValueError: If the number of spatial orbitals is not specified or equal or less than zero.
+            ValueError: If the number of spatial orbitals is not specified or less than one.
             ValueError: If the number of particles is not specified or less than zero.
-            ValueError: If the number of spatial orbitals specified is less than or equal to the
-                        total number of particles.
+            ValueError: If the number of particles of any kind is less than zero.
+            ValueError: If the number of spatial orbitals is smaller than the number of particles
+                        of any kind.
             ValueError: If the qubit converter is not specified.
-            TypeError: If the qubit converter is specified is a BravyiKitaevSuperFastMapper instance.
+            NotImplementedError: If the specified qubit converter is a BravyiKitaevSuperFastMapper
+                                 instance.
         """
         if self.num_spatial_orbitals is None:
             if raise_on_failure:
@@ -136,12 +132,12 @@ class HartreeFock(BlueprintCircuit):
                 )
             return False
 
-        if sum(self.num_particles) >= 2 * self.num_spatial_orbitals:
+        if any(n > self.num_spatial_orbitals for n in self.num_particles):
             if raise_on_failure:
                 raise ValueError(
-                    f"The number of spin orbitals {2*self.num_spatial_orbitals} "
-                    f"must be greater than total number of particles "
-                    f"{sum(self.num_particles)}."
+                    f"The number of spatial orbitals {self.num_spatial_orbitals}"
+                    f"must be greater than or equal to the number of particles of "
+                    f"any spin kind {self.num_particles}."
                 )
             return False
 
@@ -152,7 +148,7 @@ class HartreeFock(BlueprintCircuit):
 
         if isinstance(self.qubit_converter.mapper, BravyiKitaevSuperFastMapper):
             if raise_on_failure:
-                raise TypeError(
+                raise NotImplementedError(
                     "Unsupported mapper in qubit_converter: ",
                     type(self.qubit_converter.mapper),
                     ". See https://github.com/Qiskit/qiskit-nature/issues/537",
@@ -168,7 +164,10 @@ class HartreeFock(BlueprintCircuit):
 
         if self._check_configuration(raise_on_failure=False):
             self._bitstr = hartree_fock_bitstring_mapped(
-                self.num_spatial_orbitals, self.num_particles, self.qubit_converter, True
+                self.num_spatial_orbitals,
+                self.num_particles,
+                self.qubit_converter,
+                match_convert=True,
             )
             self.qregs = [QuantumRegister(len(self._bitstr), name="q")]
 
@@ -198,6 +197,7 @@ def hartree_fock_bitstring_mapped(
     num_spatial_orbitals: int,
     num_particles: tuple[int, int],
     qubit_converter: QubitConverter,
+    *,
     match_convert: bool = True,
 ) -> list[bool]:
     """Compute the bitstring representing the mapped Hartree-Fock state for the specified system.
