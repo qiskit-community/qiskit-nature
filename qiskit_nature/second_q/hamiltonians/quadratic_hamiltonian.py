@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import Optional, cast
+from typing import cast
 
 import numpy as np
 import scipy.linalg
@@ -103,14 +103,14 @@ class QuadraticHamiltonian(PolynomialTensor, Hamiltonian):
 
     def __init__(
         self,
-        hermitian_part: Optional[np.ndarray] = None,
-        antisymmetric_part: Optional[np.ndarray] = None,
+        hermitian_part: np.ndarray | None = None,
+        antisymmetric_part: np.ndarray | None = None,
         constant: float = 0.0,
         *,
-        num_modes: Optional[int] = None,
+        num_modes: int | None = None,
         validate: bool = True,
-        rtol: float = 1e-5,
-        atol: float = 1e-8,
+        rtol: float | None = None,
+        atol: float | None = None,
     ) -> None:
         r"""
         Args:
@@ -123,7 +123,9 @@ class QuadraticHamiltonian(PolynomialTensor, Hamiltonian):
                 and antisymmetric_part if they are specified.
             validate: Whether to validate the inputs.
             rtol: Relative numerical tolerance for input validation.
+                The default behavior is to use ``self.rtol``.
             atol: Absolute numerical tolerance for input validation.
+                The default behavior is to use ``self.atol``.
 
         Raises:
             ValueError: Either Hermitian part, antisymmetric part, or number of modes must
@@ -139,6 +141,11 @@ class QuadraticHamiltonian(PolynomialTensor, Hamiltonian):
             are discarded afterwards. They do not affect the class attributes
             ``QuadraticHamiltonian.rtol`` and ``QuadraticHamiltonian.atol``.
         """
+        if rtol is None:
+            rtol = self.rtol
+        if atol is None:
+            atol = self.atol
+
         self._num_modes = _infer_num_modes(hermitian_part, antisymmetric_part, num_modes)
 
         if validate:
