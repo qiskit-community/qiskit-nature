@@ -147,7 +147,7 @@ class BOPESSampler:
             QiskitNatureError: if the driver does not have a molecule specified.
         """
         self._problem = problem
-        self._driver = problem.driver
+        # self._driver = problem.driver
         self._aux_operators = aux_operators
         # We have to force the creation of the solver so that we work on the same solver
         # instance before and after `_state_solver.solve`.
@@ -161,15 +161,15 @@ class BOPESSampler:
             # this will be used when NOT bootstrapping
             self._initial_point = self._state_solver.solver.initial_point
 
-        if not isinstance(
-            self._driver, (ElectronicStructureMoleculeDriver, VibrationalStructureMoleculeDriver)
-        ):
-            raise QiskitNatureError(
-                "Driver must be ElectronicStructureMoleculeDriver or VibrationalStructureMoleculeDriver."
-            )
+        # if not isinstance(
+        #     self._driver, (ElectronicStructureMoleculeDriver, VibrationalStructureMoleculeDriver)
+        # ):
+        #     raise QiskitNatureError(
+        #         "Driver must be ElectronicStructureMoleculeDriver or VibrationalStructureMoleculeDriver."
+        #     )
 
-        if self._driver.molecule is None:
-            raise QiskitNatureError("Driver MUST be configured with a Molecule.")
+        # if self._driver.molecule is None:
+        #     raise QiskitNatureError("Driver MUST be configured with a Molecule.")
 
         # full dictionary of points
         self._raw_results = self._run_points(points)

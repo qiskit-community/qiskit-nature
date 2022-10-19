@@ -13,6 +13,7 @@
 """The calculation of excited states via the qEOM algorithm"""
 
 from __future__ import annotations
+from turtle import right
 
 from typing import Any, Callable, List, Union, Optional, Tuple, Dict
 import itertools
@@ -25,7 +26,7 @@ from qiskit.algorithms.observables_evaluator import estimate_observables
 from qiskit.tools import parallel_map
 from qiskit.tools.events import TextProgressBar
 from qiskit.utils import algorithm_globals
-from qiskit.algorithms import AlgorithmResult
+from qiskit.algorithms import AlgorithmResult, VariationalAlgorithm
 from qiskit.opflow import (
     Z2Symmetries,
     commutator,
@@ -34,13 +35,14 @@ from qiskit.opflow import (
 )
 from qiskit.primitives import BaseEstimator
 
+from qiskit_nature.converters.second_quantization.utils import ListOrDict
 from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.problems import (
     BaseProblem,
     ElectronicStructureProblem,
     VibrationalStructureProblem,
 )
-from qiskit_nature.second_q.problems import EigenstateResult
+from qiskit_nature.second_q.problems import EigenstateResult, ElectronicStructureResult
 
 from .qeom_electronic_ops_builder import build_electronic_ops
 from .qeom_vibrational_ops_builder import build_vibrational_ops
@@ -120,6 +122,10 @@ class QEOM(ExcitedStatesSolver):
                 "Excitation type must be s (singles), d (doubles) or sd (singles and doubles)"
             )
         self._excitations = excitations
+    
+    @property
+    def qubit_converter(self):
+        return self._gsc.qubit_converter
 
     @property
     def solver(self):
@@ -151,89 +157,50 @@ class QEOM(ExcitedStatesSolver):
             :meth:`~.BaseProblem.interpret`.
         """
 
-        if aux_operators is not None:
-            logger.warning(
-                "With qEOM the auxiliary operators can currently only be "
-                "evaluated on the ground state."
-            )
-
-        # 1. Run ground state calculation
-        groundstate_result = self._gsc.solve(problem, aux_operators)
-
-        # 2. Prepare the excitation operators
-        main_second_q_op, _ = problem.second_q_ops()
-
-        self._untapered_qubit_op_main = self._gsc.qubit_converter.convert_only(
-            main_second_q_op, problem.num_particles
-        )
-        matrix_operators_dict, size = self._prepare_matrix_operators(problem)
-
-        # 3. Evaluate eom operators
-        ground_state = groundstate_result.eigenstates[0]
-        measurement_results = estimate_observables(
-            self._estimator,
-            ground_state[0],
-            matrix_operators_dict,
-            ground_state[1],
-        )
-
-        # 4. Post-process ground_state_result to construct eom matrices
+        # 1. Prepare all operators
         (
-            m_mat,
-            v_mat,
-            q_mat,
-            w_mat,
-            m_mat_std,
-            v_mat_std,
-            q_mat_std,
-            w_mat_std,
-        ) = self._build_eom_matrices(measurement_results, size)
+            pre_tap_qubit_op_main, # Hamiltonian
+            pre_tap_second_q_aux_ops, # Default auxiliary observables
+            pre_tap_custom_aux_ops # User-defined auxiliary observables
+        ) = self._prepare_all_operators(problem, aux_operators)
+
+        # 2. Run ground state calculation
+        # The last step of the tapering is always performed right before the `solve()` method.
+        # The second_q_ops are included directly within the `solve()` method.
+        tap_custom_aux_ops = self.qubit_converter._symmetry_reduce_clifford(
+            pre_tap_custom_aux_ops,
+            True
+        )
+
+        groundstate_result = self._gsc.solve(problem, tap_custom_aux_ops)
+        ground_state = groundstate_result.eigenstates[0]
+
+        # 3. Prepare the expansion operators for the excited state calculation
+        pre_tap_hopping_ops, type_of_commutativities, size = self._build_expansion_basis(problem)
+
+        # 4. Obtain the representation of the Hamiltonian in the linear subspace
+        eom_matrices, eom_matrices_std = self._build_operator_representation(
+            pre_tap_qubit_op_main, 
+            pre_tap_hopping_ops, 
+            type_of_commutativities, 
+            size, 
+            ground_state, 
+            commutator=True
+        )
 
         # 5. solve pseudo-eigenvalue problem
-        energy_gaps, expansion_coefs = self._compute_excitation_energies(m_mat, v_mat, q_mat, w_mat)
+        energy_gaps, expansion_coefs = self._compute_excitation_energies(eom_matrices)
 
-        qeom_result = QEOMResult()
-        qeom_result.ground_state_raw_result = groundstate_result.raw_result
-        qeom_result.expansion_coefficients = expansion_coefs
-        qeom_result.excitation_energies = energy_gaps
-        qeom_result.m_matrix = m_mat
-        qeom_result.v_matrix = v_mat
-        qeom_result.q_matrix = q_mat
-        qeom_result.w_matrix = w_mat
-        qeom_result.m_matrix_std = m_mat_std
-        qeom_result.v_matrix_std = v_mat_std
-        qeom_result.q_matrix_std = q_mat_std
-        qeom_result.w_matrix_std = w_mat_std
-
-        eigenstate_result = EigenstateResult.from_result(groundstate_result)
-        eigenstate_result.raw_result = qeom_result
-
-        eigenstate_result.eigenvalues = np.append(
-            groundstate_result.eigenvalues,
-            np.asarray([groundstate_result.eigenvalues[0] + gap for gap in energy_gaps]),
+        result = self._build_qeom_result(
+            problem,
+            groundstate_result,
+            expansion_coefs,
+            energy_gaps,
+            eom_matrices,
+            eom_matrices_std
         )
-
-        result = problem.interpret(eigenstate_result)
 
         return result
-
-    def _prepare_matrix_operators(self, problem: BaseProblem) -> Tuple[dict, int]:
-        """Construct the excitation operators for each matrix element.
-
-        Returns:
-            a dictionary of all matrix elements operators and the number of excitations
-            (or the size of the qEOM pseudo-eigenvalue problem)
-        """
-        data = self._build_hopping_ops(problem)
-        hopping_operators, type_of_commutativities, excitation_indices = data
-
-        size = int(len(list(excitation_indices.keys())) // 2)
-
-        eom_matrix_operators = self._build_all_commutators(
-            hopping_operators, type_of_commutativities, size
-        )
-
-        return eom_matrix_operators, size
 
     def _build_hopping_ops(
         self, problem: BaseProblem
@@ -272,7 +239,7 @@ class QEOM(ExcitedStatesSolver):
             )
 
     def _build_all_commutators(
-        self, hopping_operators: dict, type_of_commutativities: dict, size: int
+        self, pre_tap_operator, hopping_operators: dict, type_of_commutativities: dict, size: int
     ) -> dict:
         """Building all commutators for Q, W, M, V matrices.
 
@@ -289,6 +256,10 @@ class QEOM(ExcitedStatesSolver):
             a dictionary that contains the operators for each matrix element
         """
 
+        if commutator:
+            build_routine = self._build_commutator_routine
+        else:
+            build_routine = self._build_product_routine
         all_matrix_operators = {}
 
         mus, nus = np.triu_indices(size)
@@ -307,7 +278,7 @@ class QEOM(ExcitedStatesSolver):
                 logger.info("Building all commutators:")
                 TextProgressBar(sys.stderr)
             results = parallel_map(
-                self._build_commutator_routine,
+                build_routine,
                 to_be_computed_list,
                 task_args=(untapered_op, z2_symmetries),
                 num_processes=algorithm_globals.num_processes,
@@ -346,12 +317,12 @@ class QEOM(ExcitedStatesSolver):
                         available_hopping_ops[key] = hopping_operators[key]
                 # untapered_qubit_op is a PauliSumOp and should not be exposed.
                 _build_one_sector(
-                    available_hopping_ops, self._untapered_qubit_op_main, z2_symmetries
+                    available_hopping_ops, pre_tap_operator, z2_symmetries
                 )
 
         else:
             # untapered_qubit_op is a PauliSumOp and should not be exposed.
-            _build_one_sector(hopping_operators, self._untapered_qubit_op_main, z2_symmetries)
+            _build_one_sector(hopping_operators, pre_tap_operator, z2_symmetries)
 
         return all_matrix_operators
 
@@ -408,13 +379,76 @@ class QEOM(ExcitedStatesSolver):
 
             if not z2_symmetries.is_empty():
                 if q_mat_op is not None and len(q_mat_op) > 0:
-                    q_mat_op = z2_symmetries.taper(q_mat_op)
+                    q_mat_op = z2_symmetries.taper_clifford(q_mat_op)
                 if w_mat_op is not None and len(w_mat_op) > 0:
-                    w_mat_op = z2_symmetries.taper(w_mat_op)
+                    w_mat_op = z2_symmetries.taper_clifford(w_mat_op)
                 if m_mat_op is not None and len(m_mat_op) > 0:
-                    m_mat_op = z2_symmetries.taper(m_mat_op)
+                    m_mat_op = z2_symmetries.taper_clifford(m_mat_op)
                 if v_mat_op is not None and len(v_mat_op) > 0:
-                    v_mat_op = z2_symmetries.taper(v_mat_op)
+                    v_mat_op = z2_symmetries.taper_clifford(v_mat_op)
+
+        return m_u, n_u, q_mat_op, w_mat_op, m_mat_op, v_mat_op
+
+    @staticmethod
+    def _build_product_routine(
+        params: List, operator: PauliSumOp, z2_symmetries: Z2Symmetries
+    ) -> Tuple[int, int, PauliSumOp, PauliSumOp, PauliSumOp, PauliSumOp]:
+        """Numerically computes the product / double product between operators.
+
+        Args:
+            params: list containing the indices of matrix element and the corresponding
+                excitation operators
+            operator: the hamiltonian
+            z2_symmetries: z2_symmetries in case of tapering
+
+        Returns:
+            The indices of the matrix element and the corresponding qubit
+            operator for each of the EOM matrices
+        """
+        m_u, n_u, left_op, right_op_1, right_op_2 = params
+        if left_op is None or right_op_1 is None and right_op_2 is None:
+            q_mat_op = None
+            w_mat_op = None
+            m_mat_op = None
+            v_mat_op = None
+        else:
+
+            if right_op_1 is not None:
+                # The sign which we use in the case of the double commutator is arbitrary. In
+                # theory, one would choose this according to the nature of the problem (i.e.
+                # whether it is fermionic or bosonic), but in practice, always choosing the
+                # anti-commutator has proven to be more robust.
+                q_mat_op = left_op @ operator @ right_op_1
+                # In the case of the single commutator, we are always interested in the energy
+                # difference of two states. Thus, regardless of the problem's nature, we will
+                # always use the commutator.
+                w_mat_op = left_op @ right_op_1
+                q_mat_op = None if len(q_mat_op) == 0 else q_mat_op
+                w_mat_op = None if len(w_mat_op) == 0 else w_mat_op
+            else:
+                q_mat_op = None
+                w_mat_op = None
+
+            if right_op_2 is not None:
+                # For explanations on the choice of commutation relation, please refer to the
+                # comments above.
+                m_mat_op = left_op @ operator @ right_op_2
+                v_mat_op = left_op @ right_op_2
+                m_mat_op = None if len(m_mat_op) == 0 else m_mat_op
+                v_mat_op = None if len(v_mat_op) == 0 else v_mat_op
+            else:
+                m_mat_op = None
+                v_mat_op = None
+
+            if not z2_symmetries.is_empty():
+                if q_mat_op is not None and len(q_mat_op) > 0:
+                    q_mat_op = z2_symmetries.taper_clifford(q_mat_op)
+                if w_mat_op is not None and len(w_mat_op) > 0:
+                    w_mat_op = z2_symmetries.taper_clifford(w_mat_op)
+                if m_mat_op is not None and len(m_mat_op) > 0:
+                    m_mat_op = z2_symmetries.taper_clifford(m_mat_op)
+                if v_mat_op is not None and len(v_mat_op) > 0:
+                    v_mat_op = z2_symmetries.taper_clifford(v_mat_op)
 
         return m_u, n_u, q_mat_op, w_mat_op, m_mat_op, v_mat_op
 
@@ -506,11 +540,14 @@ class QEOM(ExcitedStatesSolver):
         logger.debug("\nM:=========================\n%s", m_mat)
         logger.debug("\nV:=========================\n%s", v_mat)
 
-        return m_mat, v_mat, q_mat, w_mat, m_mat_std, v_mat_std, q_mat_std, w_mat_std
+        eom_matrices = [m_mat, v_mat, q_mat, w_mat]
+        eom_matrices_std = [m_mat_std, v_mat_std, q_mat_std, w_mat_std]
+
+        return eom_matrices, eom_matrices_std
 
     @staticmethod
     def _compute_excitation_energies(
-        m_mat: np.ndarray, v_mat: np.ndarray, q_mat: np.ndarray, w_mat: np.ndarray
+        eom_matrices: List(np.ndarray),
     ) -> Tuple[np.ndarray, np.ndarray]:
         """Diagonalizing M, V, Q, W matrices for excitation energies.
 
@@ -525,6 +562,7 @@ class QEOM(ExcitedStatesSolver):
             2-D array storing the X and Y expansion coefficients
         """
         logger.debug("Diagonalizing qeom matrices for excited states...")
+        m_mat, v_mat, q_mat, w_mat = eom_matrices
         a_mat = np.matrixlib.bmat([[m_mat, q_mat], [q_mat.T.conj(), m_mat.T.conj()]])
         b_mat = np.matrixlib.bmat([[v_mat, w_mat], [-w_mat.T.conj(), -v_mat.T.conj()]])
         res = linalg.eig(a_mat, b_mat)
@@ -546,6 +584,142 @@ class QEOM(ExcitedStatesSolver):
         excitation_energies_gap = w
 
         return excitation_energies_gap, res[1]
+
+    def _prepare_all_operators(self, problem, aux_operators=None):
+
+        # 1.1 Setup self.solver if it is a Factory object. `get_qubit_operators' must be called before 
+        # checking if the solver is variational or not.
+        self.get_qubit_operators(problem=problem, aux_operators=None)
+        self._is_variational_solver = isinstance(self.solver, VariationalAlgorithm)
+
+        # 1.2 Prepare the Hamiltonian and the auxiliary operators
+        # Pre-taper the operators if z2symmetry were defined for the problem
+
+        main_second_q_op, aux_second_q_ops = problem.second_q_ops()
+
+        # Applies z2symmetries to the Hamiltonian
+        # Sets _num_particle and _z2symmetries for the qubit_converter
+
+        untapered_qubit_op_main = self.qubit_converter.convert_only(
+            main_second_q_op, num_particles=problem.num_particles
+        )
+
+        tapered_qubit_op_main, z2symmetries = self.qubit_converter._find_taper_op(
+            untapered_qubit_op_main, problem.symmetry_sector_locator
+        )
+
+        # Update the num_particles of the qubit converter to prepare the call of convert_match
+        # on the auxiliaries. The z2symmetries are deliberately not set at this stage because we do
+        # not want to taper auxiliaries.
+        self.qubit_converter.force_match(
+            num_particles=problem.num_particles, z2symmetries=Z2Symmetries([], [], [])
+        )
+
+        # Apply the Mapping and Two Qubit Reduction as for the Hamiltonian
+        untapered_aux_second_q_ops = self.qubit_converter.convert_match(aux_second_q_ops)
+
+        if aux_operators is not None:
+            if isinstance(aux_operators, ListOrDict):
+                aux_operators = dict(aux_operators)
+            custom_aux_ops = self.qubit_converter.convert_match(aux_operators)
+        else:
+            custom_aux_ops = None
+
+        # Setup the z2symmetries that will be used to taper the qeom matrix element later
+        self.qubit_converter.force_match(z2symmetries=z2symmetries)
+
+        # Pre-calculation of the tapering, must come after force_match()
+        pre_tap_qubit_op_main = self.qubit_converter._convert_clifford(untapered_qubit_op_main)
+        pre_tap_second_q_aux_ops = self.qubit_converter._convert_clifford(untapered_aux_second_q_ops)
+        pre_tap_custom_aux_ops = self.qubit_converter._convert_clifford(custom_aux_ops)
+
+        return (
+            pre_tap_qubit_op_main, # Hamiltonian
+            pre_tap_second_q_aux_ops, # Default auxiliary observables
+            pre_tap_custom_aux_ops # User-defined auxiliary observables
+        )
+
+    def _build_expansion_basis(self, problem):
+
+        data = self._build_hopping_ops(problem)
+        hopping_operators, type_of_commutativities, excitation_indices = data
+        size = int(len(list(excitation_indices.keys())) // 2)
+
+        reduced_hopping_ops = self.qubit_converter.two_qubit_reduce(hopping_operators)
+        pre_tap_hopping_ops = self.qubit_converter._convert_clifford(reduced_hopping_ops)
+
+        return pre_tap_hopping_ops, type_of_commutativities, size
+
+    
+    def _build_operator_representation(self, 
+        pre_tap_operator,             
+        pre_tap_hopping_ops,       
+        type_of_commutativities, 
+        size, 
+        reference_state, 
+        commutator=True
+    ):
+
+        tap_eom_matrix_ops = self._build_all_commutators(
+            pre_tap_operator,
+            pre_tap_hopping_ops,
+            type_of_commutativities,
+            size,
+        )
+
+        # 3. Evaluate eom operators
+        measurement_results = estimate_observables(
+            self._estimator,
+            reference_state[0],
+            tap_eom_matrix_ops,
+            reference_state[1],
+        )
+
+        # 4. Post-process ground_state_result to construct eom matrices
+        (
+            eom_matrices,
+            eom_matrices_std
+        ) = self._build_eom_matrices(measurement_results, size)
+
+        return eom_matrices, eom_matrices_std
+
+    def _build_qeom_result(
+        self,
+        problem,
+        groundstate_result,
+        expansion_coefs,
+        energy_gaps,
+        eom_matrices,
+        eom_matrices_std
+    ) -> ElectronicStructureResult:
+
+        m_mat, v_mat, q_mat, w_mat = eom_matrices
+        m_mat_std, v_mat_std, q_mat_std, w_mat_std = eom_matrices_std
+
+        qeom_result = QEOMResult()
+        qeom_result.ground_state_raw_result = groundstate_result.raw_result
+        qeom_result.expansion_coefficients = expansion_coefs
+        qeom_result.excitation_energies = energy_gaps
+        qeom_result.m_matrix = m_mat
+        qeom_result.v_matrix = v_mat
+        qeom_result.q_matrix = q_mat
+        qeom_result.w_matrix = w_mat
+        qeom_result.m_matrix_std = m_mat_std
+        qeom_result.v_matrix_std = v_mat_std
+        qeom_result.q_matrix_std = q_mat_std
+        qeom_result.w_matrix_std = w_mat_std
+
+        eigenstate_result = EigenstateResult.from_result(groundstate_result)
+        eigenstate_result.raw_result = qeom_result
+
+        eigenstate_result.eigenvalues = np.append(
+            groundstate_result.eigenvalues,
+            np.asarray([groundstate_result.eigenvalues[0] + gap for gap in energy_gaps]),
+        )
+
+        result = problem.interpret(eigenstate_result)
+
+        return result
 
 
 class QEOMResult(AlgorithmResult):
