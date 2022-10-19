@@ -133,6 +133,11 @@ class QuadraticHamiltonian(PolynomialTensor, Hamiltonian):
             ValueError: Hermitian part must be Hermitian.
             ValueError: Antisymmetric part must have shape num_modes x num_modes.
             ValueError: Antisymmetric part must be antisymmetric.
+
+        Note:
+            The ``rtol`` and ``atol`` arguments are only used for input validation and
+            are discarded afterwards. They do not affect the class attributes
+            ``QuadraticHamiltonian.rtol`` and ``QuadraticHamiltonian.atol``.
         """
         self._num_modes = _infer_num_modes(hermitian_part, antisymmetric_part, num_modes)
 
