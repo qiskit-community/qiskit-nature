@@ -54,7 +54,7 @@ class TestHartreeFock(QiskitNatureTestCase):
 
     def test_raises_on_unsupported_mapper(self):
         """Test if an error is raised for an unsupported mapper."""
-        with self.assertRaises(TypeError):
+        with self.assertRaises(NotImplementedError):
             converter = QubitConverter(BravyiKitaevSuperFastMapper())
             state = HartreeFock(
                 num_spatial_orbitals=2, num_particles=(1, 1), qubit_converter=converter
