@@ -60,9 +60,6 @@ class VSCF(BlueprintCircuit):
 
         self.qubit_converter = qubit_converter
 
-        if num_modals is not None:
-            self.num_modals = num_modals
-
     @property
     def qubit_converter(self) -> QubitConverter:
         """The qubit operator converter."""
@@ -103,7 +100,7 @@ class VSCF(BlueprintCircuit):
             an ValueError or TypeError is raised.
         Raises:
             ValueError: If the number of modals per mode is not specified.
-            ValueError: If the number of modals is specified is less than or equal to zero.
+            ValueError: If any of the number of modals is less than zero.
             ValueError: If the qubit converter is not specified.
         """
         if self.num_modals is None:
