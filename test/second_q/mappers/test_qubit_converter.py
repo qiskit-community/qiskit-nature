@@ -122,7 +122,7 @@ class TestQubitConverter(QiskitNatureTestCase):
             self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY)
 
         with self.subTest("Force match set num particles"):
-            qubit_conv.force_match(self.num_particles)
+            qubit_conv.force_match(num_particles=self.num_particles)
             qubit_op = qubit_conv.convert_match(self.h2_op)
             self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED)
 

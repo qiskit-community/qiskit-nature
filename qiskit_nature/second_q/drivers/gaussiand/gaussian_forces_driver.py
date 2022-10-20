@@ -47,6 +47,7 @@ class GaussianForcesDriver(VibrationalStructureDriver):
         self,
         jcf: Union[str, list[str]] = B3YLP_JCF_DEFAULT,
         logfile: Optional[str] = None,
+        *,
         normalize: bool = True,
     ) -> None:
         r"""
@@ -142,7 +143,7 @@ class GaussianForcesDriver(VibrationalStructureDriver):
             glr = GaussianLogDriver(jcf=self._jcf).run()
 
         driver_result = VibrationalStructureProblem(
-            glr.get_vibrational_energy(self._normalize),
+            glr.get_vibrational_energy(normalize=self._normalize),
             num_modes=len(glr.a_to_h_numbering),
         )
         driver_result.properties.occupied_modals = OccupiedModals()

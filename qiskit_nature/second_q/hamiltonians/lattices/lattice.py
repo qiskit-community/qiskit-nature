@@ -304,6 +304,7 @@ class Lattice:
 
     def draw(
         self,
+        *,
         self_loop: bool = False,
         style: Optional[LatticeDrawStyle] = None,
     ):

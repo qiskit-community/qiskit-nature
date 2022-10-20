@@ -393,24 +393,24 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         indices = self.argsort(weight=weight)
         return self._new_instance({ind: self[ind] for ind in indices})
 
-    def chop(self, tol: float | None = None) -> SparseLabelOp:
+    def chop(self, atol: float | None = None) -> SparseLabelOp:
         """Chops the real and imaginary phases of the operator coefficients.
 
         This function separately chops the real and imaginary phase of all coefficients to the
         provided tolerance.
 
         Args:
-            tol: the tolerance to which to chop. If ``None``, :attr:`atol` will be used.
+            atol: the tolerance to which to chop. If ``None``, :attr:`atol` will be used.
 
         Returns:
             The chopped operator.
         """
-        tol = tol if tol is not None else self.atol
+        atol = atol if atol is not None else self.atol
 
         new_data = {}
         for key, value in self.items():
-            zero_real = cmath.isclose(value.real, 0.0, abs_tol=tol)
-            zero_imag = cmath.isclose(value.imag, 0.0, abs_tol=tol)
+            zero_real = cmath.isclose(value.real, 0.0, abs_tol=atol)
+            zero_imag = cmath.isclose(value.imag, 0.0, abs_tol=atol)
             if zero_real and zero_imag:
                 continue
             if zero_imag:
@@ -423,7 +423,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         return self._new_instance(new_data)
 
     @abstractmethod
-    def simplify(self, *, atol: float | None = None) -> SparseLabelOp:
+    def simplify(self, atol: float | None = None) -> SparseLabelOp:
         """Simplify the operator.
 
         Merges terms with same labels and eliminates terms with coefficients close to 0.
