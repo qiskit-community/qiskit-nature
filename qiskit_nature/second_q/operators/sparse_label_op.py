@@ -470,7 +470,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         """Rounds the operator coefficients to a specified number of decimal places.
 
         Args:
-            decimals: the number of decimal places to round coefficients to. By default  this
+            decimals: the number of decimal places to round coefficients to. By default this
                 will round to the nearest integer value.
 
         Returns:
