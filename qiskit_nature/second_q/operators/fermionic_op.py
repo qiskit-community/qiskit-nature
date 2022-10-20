@@ -426,8 +426,11 @@ class FermionicOp(SparseLabelOp):
 
         return self._new_instance(data)
 
-    def normal_ordered(self) -> FermionicOp:
-        """Convert to the equivalent operator with normal order.
+    def normal_order(self) -> FermionicOp:
+        """Convert to the equivalent operator in normal order.
+
+        The normal order for fermions is defined
+        [here](https://en.wikipedia.org/wiki/Normal_order#Fermions).
 
         Returns a new operator (the original operator is not modified).
 
@@ -447,7 +450,7 @@ class FermionicOp(SparseLabelOp):
         ordered_op = FermionicOp.zero()
 
         for terms, coeff in self.terms():
-            ordered_op += self._normal_ordered(terms, coeff)
+            ordered_op += self._normal_order(terms, coeff)
 
         # after successful normal ordering, we remove all zero coefficients
         return self._new_instance(
@@ -458,7 +461,7 @@ class FermionicOp(SparseLabelOp):
             }
         )
 
-    def _normal_ordered(self, terms: list[tuple[str, int]], coeff: _TCoeff) -> FermionicOp:
+    def _normal_order(self, terms: list[tuple[str, int]], coeff: _TCoeff) -> FermionicOp:
         if not terms:
             return self._new_instance({"": coeff})
 
@@ -481,7 +484,7 @@ class FermionicOp(SparseLabelOp):
                         # a_i a_i^\dagger = 1 - a_i^\dagger a_i
                         new_terms = terms[: (j - 1)] + terms[(j + 1) :]
                         # we can do so by recursion on this method
-                        ordered_op += self._normal_ordered(new_terms, -1.0 * coeff)
+                        ordered_op += self._normal_order(new_terms, -1.0 * coeff)
 
                 elif right[0] == left[0]:
                     # when we have identical neighboring operators, differentiate two cases:
@@ -502,6 +505,55 @@ class FermionicOp(SparseLabelOp):
         ordered_op += self._new_instance({new_label: coeff})
         return ordered_op
 
+    def index_order(self) -> FermionicOp:
+        """Convert to the equivalent operator with the terms of each label ordered by index.
+
+        Returns a new operator (the original operator is not modified).
+
+        .. note::
+
+            You can use this method to achieve the most aggressive simplification of an operator
+            without changing the operation order per index. :meth:`simplify` does *not* reorder the
+            terms and, thus, cannot deduce ``-_0 +_1`` and ``+_1 -_0 +_0 -_0`` to be
+            identical labels. Calling this method will reorder the latter label to
+            ``-_0 +_0 -_0 +_1``, after which :meth:`simplify` will be able to correctly collapse
+            these two labels into one.
+
+        Returns:
+            The index ordered operator.
+        """
+        data = defaultdict(complex)  # type: dict[str, complex]
+        for terms, coeff in self.terms():
+            label, coeff = self._index_order(terms, coeff)
+            data[label] += coeff
+
+        # after successful index ordering, we remove all zero coefficients
+        return self._new_instance(
+            {
+                label: coeff
+                for label, coeff in data.items()
+                if not np.isclose(coeff, 0.0, atol=self.atol)
+            }
+        )
+
+    def _index_order(self, terms: list[tuple[str, int]], coeff: complex) -> tuple[str, complex]:
+        if not terms:
+            return "", coeff
+
+        # perform insertion sorting
+        for i in range(1, len(terms)):
+            for j in range(i, 0, -1):
+                right = terms[j]
+                left = terms[j - 1]
+
+                if left[1] > right[1]:
+                    terms[j - 1] = right
+                    terms[j] = left
+                    coeff *= -1.0
+
+        new_label = " ".join(f"{term[0]}_{term[1]}" for term in terms)
+        return new_label, coeff
+
     def is_hermitian(self, *, atol: float | None = None) -> bool:
         """Checks whether the operator is hermitian.
 
@@ -517,7 +569,7 @@ class FermionicOp(SparseLabelOp):
         if self.is_parameterized():
             raise ValueError("is_hermitian is not supported for operators containing parameters.")
         atol = self.atol if atol is None else atol
-        diff = (self - self.adjoint()).normal_ordered().simplify(atol=atol)
+        diff = (self - self.adjoint()).normal_order().simplify(atol=atol)
         return all(np.isclose(coeff, 0.0, atol=atol) for coeff in diff.values())
 
     def simplify(self, *, atol: float | None = None) -> FermionicOp:

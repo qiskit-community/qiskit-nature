@@ -28,8 +28,8 @@ import qiskit_nature.optionals as _optionals
 from .polynomial_tensor import ARRAY_TYPE, PolynomialTensor
 from .tensor_ordering import (
     IndexType,
-    _chem_to_phys,
     find_index_order,
+    to_physicist_ordering,
 )
 
 if _optionals.HAS_SPARSE:
@@ -526,17 +526,18 @@ class ElectronicIntegrals(LinearMixin):
         if h2_aa is not None:
             if auto_index_order:
                 index_order = find_index_order(h2_aa)
-                if index_order == IndexType.CHEMIST:
-                    h2_aa = _chem_to_phys(h2_aa)
-                    h2_bb = _chem_to_phys(h2_bb) if h2_bb is not None else None
-                    h2_ba = _chem_to_phys(h2_ba) if h2_ba is not None else None
-                elif index_order != IndexType.PHYSICIST:
+                if index_order == IndexType.UNKNOWN:
                     raise QiskitNatureError(
                         f"The index ordering of the `h2_aa` argument, {index_order}, is invalid.\n"
                         "Provide the two-body matrices in either chemists' or physicists' order, "
                         "or disable the automatic transformation to enforce these matrices to be "
                         "used (`auto_index_order=False`)."
                     )
+                h2_aa = to_physicist_ordering(h2_aa, index_order=index_order)
+                if h2_bb is not None:
+                    h2_bb = to_physicist_ordering(h2_bb, index_order=index_order)
+                if h2_ba is not None:
+                    h2_ba = to_physicist_ordering(h2_ba, index_order=index_order)
 
             alpha_dict["++--"] = h2_aa
 
