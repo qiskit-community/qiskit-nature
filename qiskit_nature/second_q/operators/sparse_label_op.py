@@ -61,8 +61,9 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
 
     .. note::
 
-        A SparseLabelOp can contain Parameters. However, a SparseLabelOp containing Parameters
-        does not support the following methods:
+        A SparseLabelOp can contain :class:`qiskit.circuit.ParameterExpression` objects as coefficients.
+        However, a SparseLabelOp containing parameters does not support the following methods:
+
         - ``equiv``
         - ``induced_norm``
     """
@@ -323,7 +324,13 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
 
         Returns:
             True if operators are equivalent, False if not.
+
+        Raises:
+            ValueError: Operator contains parameters.
         """
+        if self.is_parameterized():
+            raise ValueError("Cannot compare an operator that contains parameters.")
+
         if not isinstance(other, self.__class__):
             return False
 
@@ -482,5 +489,14 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
 
         .. _https://en.wikipedia.org/wiki/Norm_(mathematics)#p-norm:
             https://en.wikipedia.org/wiki/Norm_(mathematics)#p-norm
+
+        Raises:
+            ValueError: Operator contains parameters.
         """
+        if self.is_parameterized():
+            raise ValueError("Cannot compute norm of an operator that contains parameters.")
         return sum(abs(coeff) ** order for coeff in self.values()) ** (1 / order)
+
+    def is_parameterized(self) -> bool:
+        """Returns whether the operator contains any parameters."""
+        return any(isinstance(coeff, ParameterExpression) for coeff in self.values())

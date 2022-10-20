@@ -148,10 +148,12 @@ class FermionicOp(SparseLabelOp):
             considered a lower bound, which means that mathematical operations acting on two or more
             operators will result in a new operator with the maximum number of spin orbitals of any
             of the involved operators.
+
     .. note::
 
-        A FermionicOp can contain :class:`qiskit.circuit.Parameter` objects as coefficients.
-        However, a FermionicOp containing Parameters does not support the following methods:
+        A FermionicOp can contain :class:`qiskit.circuit.ParameterExpression` objects as coefficients.
+        However, a FermionicOp containing parameters does not support the following methods:
+
         - ``is_hermitian``
         - ``to_matrix``
     """
@@ -358,7 +360,12 @@ class FermionicOp(SparseLabelOp):
 
         Returns:
             The matrix of the operator in the Fock basis
+
+        Raises:
+            ValueError: Operator contains parameters.
         """
+        if self.is_parameterized():
+            raise ValueError("to_matrix is not supported for operators containing parameters.")
 
         csc_data, csc_col, csc_row = [], [], []
 
@@ -503,7 +510,12 @@ class FermionicOp(SparseLabelOp):
 
         Returns:
             True if the operator is hermitian up to numerical tolerance, False otherwise.
+
+        Raises:
+            ValueError: Operator contains parameters.
         """
+        if self.is_parameterized():
+            raise ValueError("is_hermitian is not supported for operators containing parameters.")
         atol = self.atol if atol is None else atol
         diff = (self - self.adjoint()).normal_ordered().simplify(atol=atol)
         return all(np.isclose(coeff, 0.0, atol=atol) for coeff in diff.values())

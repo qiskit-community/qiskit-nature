@@ -281,6 +281,11 @@ class TestFermionicOp(QiskitNatureTestCase):
             self.assertFalse(fer_op.is_hermitian(atol=1e-8))
             self.assertTrue(fer_op.is_hermitian(atol=1e-6))
 
+        with self.subTest("parameters"):
+            fer_op = FermionicOp({"+_0": self.a})
+            with self.assertRaisesRegex(ValueError, "parameter"):
+                _ = fer_op.is_hermitian()
+
     def test_equiv(self):
         """test equiv"""
         prev_atol = FermionicOp.atol
@@ -354,6 +359,11 @@ class TestFermionicOp(QiskitNatureTestCase):
             for idx in np.where(~np.isclose(groundstate, 0))[0]:
                 binary = f"{idx:0{4}b}"
                 self.assertEqual(binary.count("1"), 2)
+
+        with self.subTest("parameters"):
+            fer_op = FermionicOp({"+_0": self.a})
+            with self.assertRaisesRegex(ValueError, "parameter"):
+                _ = fer_op.to_matrix()
 
     def test_normal_ordered(self):
         """test normal_ordered method"""

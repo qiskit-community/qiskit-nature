@@ -326,6 +326,11 @@ class TestSparseLabelOp(QiskitNatureTestCase):
 
             self.assertTrue(test_op)
 
+        with self.subTest("parameters"):
+            test_op = DummySparseLabelOp(opParameter)
+            with self.assertRaisesRegex(ValueError, "parameter"):
+                _ = test_op.equiv(DummySparseLabelOp(opParameter))
+
     def test_iter(self):
         """test __iter__ method"""
         test_op = iter(DummySparseLabelOp(op1))
@@ -369,6 +374,10 @@ class TestSparseLabelOp(QiskitNatureTestCase):
         self.assertAlmostEqual(op.induced_norm(), 7.0)
         self.assertAlmostEqual(op.induced_norm(2), 5.0)
 
+        test_op = DummySparseLabelOp(opParameter)
+        with self.assertRaisesRegex(ValueError, "parameter"):
+            _ = test_op.induced_norm()
+
     def test_chop(self):
         """Test chop."""
         op = DummySparseLabelOp({"+_0 -_1": 1 + 1e-12j, "+_0 -_2": a})
@@ -378,6 +387,11 @@ class TestSparseLabelOp(QiskitNatureTestCase):
         self.assertEqual(op.chop(), DummySparseLabelOp({"+_0 -_1": 1j, "+_0 -_2": a}))
 
         self.assertEqual((op - op).chop(), DummySparseLabelOp.zero())
+
+    def test_is_parameterized(self):
+        """Test is_parameterized."""
+        self.assertTrue(DummySparseLabelOp(opParameter).is_parameterized())
+        self.assertFalse(DummySparseLabelOp(op1).is_parameterized())
 
 
 if __name__ == "__main__":
