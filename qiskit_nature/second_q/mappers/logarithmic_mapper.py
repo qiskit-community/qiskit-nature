@@ -86,7 +86,7 @@ class LogarithmicMapper(SpinMapper):
         # get logarithmic encoding of the general spin matrices.
         spinx, spiny, spinz, identity = self._logarithmic_encoding(second_q_op.spin)
         ordered_op = second_q_op.index_order()
-        ordered_op = ordered_op.simplify()
+        # ordered_op = ordered_op.simplify()
 
         map = {"X": spinx, "Y": spiny, "Z": spinz, "I": identity, "": identity}
 
