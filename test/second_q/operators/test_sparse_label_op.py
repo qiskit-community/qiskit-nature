@@ -82,7 +82,7 @@ class DummySparseLabelOp(SparseLabelOp):
         return self
 
     # pylint: disable=unused-argument
-    def simplify(self, *, atol: float | None = None) -> SparseLabelOp:
+    def simplify(self, atol: float | None = None) -> SparseLabelOp:
         return self
 
 

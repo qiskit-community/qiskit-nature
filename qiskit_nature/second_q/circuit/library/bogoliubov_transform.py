@@ -134,6 +134,7 @@ class BogoliubovTransform(QuantumCircuit):
         self,
         transformation_matrix: np.ndarray,
         qubit_converter: Optional[QubitConverter] = None,
+        *,
         validate: bool = True,
         rtol: float = 1e-5,
         atol: float = 1e-8,

@@ -305,6 +305,7 @@ class HyperCubicLattice(Lattice):
 
     def draw_without_boundary(
         self,
+        *,
         self_loop: bool = False,
         style: Optional[LatticeDrawStyle] = None,
     ):

@@ -58,6 +58,7 @@ class QuadraticHamiltonian(Hamiltonian, TolerancesMixin):
         hermitian_part: Optional[np.ndarray] = None,
         antisymmetric_part: Optional[np.ndarray] = None,
         constant: float = 0.0,
+        *,
         num_modes: Optional[int] = None,
         validate: bool = True,
         rtol: float = 1e-5,

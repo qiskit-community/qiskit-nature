@@ -98,7 +98,7 @@ class MP2InitialPoint(InitialPoint):
     :attr:`threshold` or that correspond to single, triple, or higher excitations will be zero.
     """
 
-    def __init__(self, threshold: float = 1e-12) -> None:
+    def __init__(self, *, threshold: float = 1e-12) -> None:
         super().__init__()
         self.threshold: float = threshold
         self._ansatz: UCC | None = None
