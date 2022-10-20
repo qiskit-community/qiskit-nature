@@ -85,6 +85,7 @@ class GaussianForcesDriver(VibrationalStructureDriver):
         molecule: MoleculeInfo,
         *,
         basis: str = "sto-3g",
+        xcf: str = "B3LYP",
         driver_kwargs: Optional[dict[str, Any]] = None,
     ) -> "GaussianForcesDriver":
         """
@@ -94,6 +95,7 @@ class GaussianForcesDriver(VibrationalStructureDriver):
                        `logfile` or the `jcf` params.
             basis: The basis set to be used in the resultant job control file when a
                     molecule is provided.
+            xcf: The exchange-correlation functional to be used in the resultant job control file.
             driver_kwargs: kwargs to be passed to driver
         Returns:
             driver
@@ -110,7 +112,7 @@ class GaussianForcesDriver(VibrationalStructureDriver):
             units = "Bohr"
         else:
             raise QiskitNatureError(f"Unknown unit '{molecule.units.value}'")
-        cfg1 = f"#p B3LYP/{basis} UNITS={units} Freq=(Anharm) Int=Ultrafine SCF=VeryTight\n\n"
+        cfg1 = f"#p {xcf}/{basis} UNITS={units} Freq=(Anharm) Int=Ultrafine SCF=VeryTight\n\n"
         name = "".join(molecule.symbols)
         geom = "\n".join(
             [
