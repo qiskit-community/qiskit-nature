@@ -467,20 +467,15 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         return sum(abs(coeff) ** order for coeff in self.values()) ** (1 / order)
 
     def round(self, decimals: int = 0) -> SparseLabelOp:
-        """Rounds the real and imaginary parts of the operator to a specified
-        number of decimal places.
+        """Rounds the operator coefficients to a specified number of decimal places.
 
         Args:
-            decimals: the number of decimal places to round coeefificients to. By default will
-                round to nearest integer value.
+            decimals: the number of decimal places to round coefficients to. By default  this
+                will round to the nearest integer value.
 
         Returns:
             The rounded operator.
         """
-        new_data = {}
-        for key, value in self.items():
-            round_real = np.around(value.real, decimals=decimals)
-            round_imag = np.around(value.imag, decimals=decimals)
-            new_data[key] = complex(round_real, round_imag)
+        new_data = {key: np.around(value, decimals=decimals) for key, value in self.items()}
 
         return self._new_instance(new_data)
