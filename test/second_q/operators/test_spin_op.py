@@ -15,8 +15,9 @@
 from qiskit_nature.second_q.operators import SpinOp
 import unittest
 from test import QiskitNatureTestCase
-from ddt import ddt, data, unpack
 
+import numpy as np
+from ddt import data, ddt, unpack
 
 @ddt
 class TestSpinOp(QiskitNatureTestCase):
@@ -25,6 +26,13 @@ class TestSpinOp(QiskitNatureTestCase):
     op1 = SpinOp({"X_0 Y_0": 1}, num_orbitals=1)
     op2 = SpinOp({"X_0 Z_0": 2}, num_orbitals=1)
     op3 = SpinOp({"X_0 Y_0": 1, "X_0 Z_0": 2}, num_orbitals=1)
+
+    spin_1_matrix = {
+        "I_0": np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]]),
+        "X_0": np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]]) / np.sqrt(2),
+        "Y_0": np.array([[0, -1j, 0], [1j, 0, -1j], [0, 1j, 0]]) / np.sqrt(2),
+        "Z_0": np.array([[1, 0, 0], [0, 0, 0], [0, 0, -1]]),
+    }
 
     def test_neg(self):
         """Test __neg__"""
@@ -172,6 +180,13 @@ class TestSpinOp(QiskitNatureTestCase):
             )
             self.assertEqual(spin_op, targ)
 
+    @data("X_0", "Y_0", "Z_0", "I_0")
+    def test_to_matrix(self, label):
+        """Test to_matrix for single qutrit op"""
+        actual = SpinOp({label: 1}, 1)
+        actual = actual.to_matrix()
+        print("matrix: ", actual)
+        np.testing.assert_array_almost_equal(actual, self.spin_1_matrix[label])
 
 if __name__ == "__main__":
     unittest.main()

@@ -60,6 +60,8 @@ class TestSpinOp(QiskitNatureTestCase):
             (self.heisenberg_spin_array, self.heisenberg_coeffs),
             spin=1,
         )
+        print("heisenberg: ", self.heisenberg)
+        print("to matrix: ", self.heisenberg.to_matrix())
         self.zero_op = SpinOp(
             (np.array([[[0, 0]], [[0, 0]], [[0, 0]]]), np.array([0])),
             spin=1,

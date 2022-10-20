@@ -85,30 +85,19 @@ class LogarithmicMapper(SpinMapper):
 
         # get logarithmic encoding of the general spin matrices.
         spinx, spiny, spinz, identity = self._logarithmic_encoding(second_q_op.spin)
-        for idx, (_, coeff) in enumerate(second_q_op.to_list()):
+        ordered_op = second_q_op.index_order()
+        ordered_op = ordered_op.simplify()
 
-            operatorlist: List[PauliSumOp] = []
+        map = {"X": spinx, "Y": spiny, "Z": spinz, "I": identity, "": identity}
 
-            for n_x, n_y, n_z in zip(second_q_op.x[idx], second_q_op.y[idx], second_q_op.z[idx]):
-
-                operator_on_spin_i: List[PauliSumOp] = []
-
-                if n_x > 0:
-                    operator_on_spin_i.append(reduce(operator.matmul, [spinx] * int(n_x)))
-
-                if n_y > 0:
-                    operator_on_spin_i.append(reduce(operator.matmul, [spiny] * int(n_y)))
-
-                if n_z > 0:
-                    operator_on_spin_i.append(reduce(operator.matmul, [spinz] * int(n_z)))
-
-                if operator_on_spin_i:
-                    single_operator_on_spin_i = reduce(operator.matmul, operator_on_spin_i)
-                    operatorlist.append(single_operator_on_spin_i)
-
+        for labels, coeff in ordered_op.terms():
+            mat = {}
+            for lbl in labels:
+                if lbl[1] in mat:
+                    mat[lbl[1]] = mat[lbl[1]] @ map[lbl[0]]
                 else:
-                    # If n_x=n_y=n_z=0, simply add the embedded Identity operator.
-                    operatorlist.append(identity)
+                    mat[lbl[1]] = map[lbl[0]]
+            operatorlist = [mat[i] if i in mat else identity for i in range(ordered_op.num_orbitals)]
 
             # Now, we can tensor all operators in this list
             qubit_ops_list.append(coeff * reduce(operator.xor, reversed(operatorlist)))
@@ -133,7 +122,7 @@ class LogarithmicMapper(SpinMapper):
         num_qubits = int(np.ceil(np.log2(dspin)))
 
         # Get the spin matrices
-        spin_matrices = [SpinOp(symbol, spin=spin).to_matrix() for symbol in "XYZ"]
+        spin_matrices = [SpinOp({symbol:1}, spin=spin).to_matrix() for symbol in ["X_0", "Y_0", "Z_0"]]
         # Append the identity
         spin_matrices.append(np.eye(dspin))
 

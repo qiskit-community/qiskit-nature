@@ -21,24 +21,20 @@ as it relies on the mathematical representation of spin matrices as (e.g.) expla
 from __future__ import annotations
 
 import re
-from collections.abc import Collection, Mapping, MutableMapping
+from collections.abc import Collection, Mapping
 from collections import defaultdict
 from typing import cast, Iterator
 from fractions import Fraction
 from functools import lru_cache, partial, reduce
-from itertools import product
-from typing import List, Optional, Sequence, Tuple, Union, cast
 
 import numpy as np
-from qiskit.utils.validation import validate_min
 from qiskit_nature import QiskitNatureError
 
-# from .second_quantized_op import SecondQuantizedOp
 from .polynomial_tensor import PolynomialTensor
 from .sparse_label_op import SparseLabelOp
 
 class SpinOp(SparseLabelOp):
-    """XYZ-ordered Spin operators.
+    """XYZ Spin operators.
 
     # TODO: Update docstring
     **Label**
@@ -104,9 +100,9 @@ class SpinOp(SparseLabelOp):
 
         from qiskit_nature.second_q.operators import SpinOp
 
-        x = SpinOp("X", spin=3/2)
-        y = SpinOp("Y", spin=3/2)
-        z = SpinOp("Z", spin=3/2)
+        x = SpinOp("X_0", spin=3/2)
+        y = SpinOp("Y_0", spin=3/2)
+        z = SpinOp("Z_0", spin=3/2)
 
     are :math:`S^x, S^y, S^z` for spin 3/2 system.
     Two qutrit Heisenberg model with transverse magnetic field is
@@ -115,11 +111,11 @@ class SpinOp(SparseLabelOp):
 
         SpinOp(
             [
-                ("XX", -1),
-                ("YY", -1),
-                ("ZZ", -1),
-                ("ZI", -0.3),
-                ("IZ", -0.3),
+                ("X_0 X_1", -1),
+                ("Y_0 Y_1", -1),
+                ("Z_0 Z_1", -1),
+                ("Z_0", -0.3),
+                ("Z_1", -0.3),
             ],
             spin=1
         )
@@ -432,3 +428,106 @@ class SpinOp(SparseLabelOp):
 
         return " ".join(lbl for lbl in new_label if lbl is not None), coeff
 
+    def index_order(self) -> SpinOp:
+        """Convert to the equivalent operator with the terms of each label ordered by index.
+
+        Returns a new operator (the original operator is not modified).
+
+        .. note::
+
+            You can use this method to achieve the most aggressive simplification of an operator
+            without changing the operation order per index. :meth:`simplify` does *not* reorder the
+            terms and, thus, cannot deduce ``-_0 +_1`` and ``+_1 -_0 +_0 -_0`` to be
+            identical labels. Calling this method will reorder the latter label to
+            ``-_0 +_0 -_0 +_1``, after which :meth:`simplify` will be able to correctly collapse
+            these two labels into one.
+
+        Returns:
+            The index ordered operator.
+        """
+        data = defaultdict(complex)  # type: dict[str, complex]
+        for terms, coeff in self.terms():
+            label, coeff = self._index_order(terms, coeff)
+            data[label] += coeff
+
+        # after successful index ordering, we remove all zero coefficients
+        return self._new_instance(
+            {
+                label: coeff
+                for label, coeff in data.items()
+                if not np.isclose(coeff, 0.0, atol=self.atol)
+            }
+        )
+
+    def _index_order(self, terms: list[tuple[str, int]], coeff: complex) -> tuple[str, complex]:
+        if not terms:
+            return "", coeff
+
+        # perform insertion sorting
+        for i in range(1, len(terms)):
+            for j in range(i, 0, -1):
+                right = terms[j]
+                left = terms[j - 1]
+
+                if left[1] > right[1]:
+                    terms[j - 1] = right
+                    terms[j] = left
+                    coeff *= -1.0
+
+        new_label = " ".join(f"{term[0]}_{term[1]}" for term in terms)
+        return new_label, coeff
+
+    # @lru_cache(maxsize=128)
+    def to_matrix(self) -> np.ndarray:
+        """Convert to dense matrix.
+
+        Returns:
+            The matrix (numpy.ndarray with dtype=numpy.complex128)
+        """
+        dim = int(2 * self.spin + 1)
+        # TODO: use scipy.sparse.csr_matrix() and add parameter `sparse: bool`.
+
+        x_mat = np.fromfunction(
+            lambda i, j: np.where(
+                np.abs(i - j) == 1,
+                np.sqrt((dim + 1) * (i + j + 1) / 2 - (i + 1) * (j + 1)) / 2,
+                0,
+            ),
+            (dim, dim),
+            dtype=np.complex128,
+        )
+        y_mat = np.fromfunction(
+            lambda i, j: np.where(
+                np.abs(i - j) == 1,
+                1j * (i - j) * np.sqrt((dim + 1) * (i + j + 1) / 2 - (i + 1) * (j + 1)) / 2,
+                0,
+            ),
+            (dim, dim),
+            dtype=np.complex128,
+        )
+        z_mat = np.fromfunction(
+            lambda i, j: np.where(i == j, (dim - 2 * i - 1) / 2, 0),
+            (dim, dim),
+            dtype=np.complex128,
+        )
+        i_mat = np.eye(dim, dim)
+
+        tensorall = partial(reduce, np.kron)
+        ordered_op = self.index_order()
+        simpl_op = ordered_op.simplify()
+
+        map = {"X": x_mat, "Y": y_mat, "Z": z_mat, "I": i_mat, "": i_mat}
+
+        mats = []
+        for labels, coeff in simpl_op.terms():
+            mat = {}
+            for lbl in labels:
+                if lbl[1] in mat:
+                    mat[lbl[1]] = mat[lbl[1]] @ map[lbl[0]]
+                else:
+                    mat[lbl[1]] = map[lbl[0]]
+            mat_list = np.asarray([mat[i] if i in mat else i_mat for i in range(len(self))])
+            mats.append(coeff * tensorall(mat_list))
+        mat = sum(mats)
+        mat = cast(np.ndarray, mat)
+        return mat.view()
