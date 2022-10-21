@@ -153,6 +153,7 @@ eigenvectors
 einact
 einsum
 electronicintegrals
+electronicstructureproblem
 endian
 endif
 enum
@@ -234,6 +235,7 @@ init
 initializer
 initio
 inplace
+integrations
 intel
 intelvem
 interatomic
@@ -524,6 +526,7 @@ str
 stylesheet
 subcircuits
 subclasses
+submodule
 submodules
 subtest
 subtype
