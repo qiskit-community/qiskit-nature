@@ -421,7 +421,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         """Chops the real and imaginary parts of the operator coefficients.
 
         This function separately chops the real and imaginary parts of all coefficients to the
-        provided tolerance. Parameters are ignored.
+        provided tolerance. Parameters are chopped only if they are exactly zero.
 
         Args:
             atol: the tolerance to which to chop. If ``None``, :attr:`atol` will be used.
