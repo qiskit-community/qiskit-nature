@@ -14,7 +14,7 @@
 
 import unittest
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 import warnings
 import numpy as np
 
@@ -25,7 +25,7 @@ from qiskit_nature.properties.second_quantization.vibrational.integrals import V
 import qiskit_nature.optionals as _optionals
 
 
-class TestDriverGaussianLog(QiskitNatureTestCase):
+class TestDriverGaussianLog(QiskitNatureDeprecatedTestCase):
     """Gaussian Log Driver tests."""
 
     def setUp(self):

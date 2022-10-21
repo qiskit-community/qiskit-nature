@@ -14,7 +14,7 @@
 
 import unittest
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 
 from ddt import ddt, idata, unpack
 import numpy as np
@@ -36,7 +36,7 @@ from qiskit_nature.transformers.second_quantization.electronic import ActiveSpac
 
 
 @ddt
-class TestActiveSpaceTransformer(QiskitNatureTestCase):
+class TestActiveSpaceTransformer(QiskitNatureDeprecatedTestCase):
     """ActiveSpaceTransformer tests."""
 
     def assertDriverResult(self, driver_result, expected, dict_key="ActiveSpaceTransformer"):

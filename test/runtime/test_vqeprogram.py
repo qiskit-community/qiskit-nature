@@ -12,7 +12,8 @@
 
 """Test the VQE program."""
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
+from test.runtime.fake_vqeruntime import FakeRuntimeProvider
 
 import unittest
 from ddt import ddt, data
@@ -28,11 +29,9 @@ from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.runtime import VQEClient, VQERuntimeResult
 
-from .fake_vqeruntime import FakeRuntimeProvider
-
 
 @ddt
-class TestVQEClient(QiskitNatureTestCase):
+class TestVQEClient(QiskitNatureDeprecatedTestCase):
     """Test the VQE program."""
 
     def get_standard_program(self):
