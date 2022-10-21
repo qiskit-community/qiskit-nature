@@ -500,3 +500,23 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
     def is_parameterized(self) -> bool:
         """Returns whether the operator contains any parameters."""
         return any(isinstance(coeff, ParameterExpression) for coeff in self.values())
+
+    def assign_parameters(
+        self, parameters: Mapping[ParameterExpression, _TCoeff], inplace: bool = False
+    ) -> SparseLabelOp | None:
+        """Assign parameters to new parameters or values.
+
+        Args:
+            parameters: The mapping from parameters to new parameters or values.
+            inplace: If True, the operator is modified in-place. Otherwise, a new operator is
+                returned.
+
+        Returns:
+            The operator with the parameters assigned, or None if ``inplace=True``.
+        """
+        data = self._data if inplace else dict(self._data.items())
+        for key, value in data.items():
+            if value in parameters:
+                data[key] = parameters[value]
+        if not inplace:
+            return self._new_instance(data, other=self)

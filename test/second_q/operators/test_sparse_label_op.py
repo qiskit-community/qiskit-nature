@@ -393,6 +393,15 @@ class TestSparseLabelOp(QiskitNatureTestCase):
         self.assertTrue(DummySparseLabelOp(opParameter).is_parameterized())
         self.assertFalse(DummySparseLabelOp(op1).is_parameterized())
 
+    def test_assign_parameters(self):
+        """Test assign_parameters."""
+        op = DummySparseLabelOp({"+_0 -_1": a, "+_0 -_2": b})
+        assigned_op = op.assign_parameters({a: 1.0})
+        self.assertEqual(assigned_op, DummySparseLabelOp({"+_0 -_1": 1.0, "+_0 -_2": b}))
+        self.assertEqual(op, DummySparseLabelOp({"+_0 -_1": a, "+_0 -_2": b}))
+        op.assign_parameters({a: 1.0}, inplace=True)
+        self.assertEqual(op, DummySparseLabelOp({"+_0 -_1": 1.0, "+_0 -_2": b}))
+
 
 if __name__ == "__main__":
     unittest.main()
