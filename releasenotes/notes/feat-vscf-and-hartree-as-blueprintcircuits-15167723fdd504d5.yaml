@@ -9,12 +9,11 @@ features:
 
     .. code-block:: python
 
-      from qiskit_nature.second_q.circuit.library.initial_states.hartree_fock import HartreeFock
-      from qiskit_nature.second_q.circuit.library.initial_states.vscf import VSCF
+      from qiskit_nature.second_q.circuit.library import HartreeFock, VSCF
       from qiskit_nature.second_q.mappers import JordanWignerMapper, QubitConverter
 
       # Initialize Hartree-Fock initial_state without specifying
-      # the number of particles and a qubit convert.
+      # the number of particles and qubit converter.
       hf_state = HartreeFock(num_spatial_orbitals=4)
 
       # ...
