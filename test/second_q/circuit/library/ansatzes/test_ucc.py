@@ -272,7 +272,7 @@ class TestUCC(QiskitNatureTestCase):
         with self.subTest("Change qubit converter"):
             ucc.qubit_converter = QubitConverter(ParityMapper(), two_qubit_reduction=True)
             # Has not been used to convert so we need to force it to do two qubit reduction
-            ucc.qubit_converter.force_match(ucc.num_particles)
+            ucc.qubit_converter.force_match(num_particles=ucc.num_particles)
             self.assertIsNotNone(ucc.operators)
             self.assertEqual(ucc.num_qubits, 4)
 

@@ -35,6 +35,7 @@ class VibrationalEnergy(Hamiltonian):
     def __init__(
         self,
         vibrational_integrals: list[VibrationalIntegrals],
+        *,
         truncation_order: Optional[int] = None,
         basis: Optional[VibrationalBasis] = None,
     ) -> None:

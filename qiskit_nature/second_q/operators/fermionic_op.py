@@ -541,7 +541,7 @@ class FermionicOp(SparseLabelOp):
         new_label = " ".join(f"{term[0]}_{term[1]}" for term in terms)
         return new_label, coeff
 
-    def is_hermitian(self, *, atol: float | None = None) -> bool:
+    def is_hermitian(self, atol: float | None = None) -> bool:
         """Checks whether the operator is hermitian.
 
         Args:
@@ -554,7 +554,7 @@ class FermionicOp(SparseLabelOp):
         diff = (self - self.adjoint()).normal_order().simplify(atol=atol)
         return all(np.isclose(coeff, 0.0, atol=atol) for coeff in diff.values())
 
-    def simplify(self, *, atol: float | None = None) -> FermionicOp:
+    def simplify(self, atol: float | None = None) -> FermionicOp:
         atol = self.atol if atol is None else atol
 
         data = defaultdict(complex)  # type: dict[str, complex]

@@ -221,7 +221,7 @@ class GaussianLogResult:
         num_indices = len(entry) - 3
         return [a2h_vals + 1 - a2h[cast(str, x)] for x in entry[0:num_indices]]
 
-    def get_vibrational_energy(self, normalize: bool = True) -> VibrationalEnergy:
+    def get_vibrational_energy(self, *, normalize: bool = True) -> VibrationalEnergy:
         """
         Get the force constants as a VibrationalEnergy property.
 
