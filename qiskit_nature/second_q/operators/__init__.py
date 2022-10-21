@@ -36,6 +36,7 @@ Modules
    :toctree:
 
    tensor_ordering
+   commutators
 """
 
 from .electronic_integrals import ElectronicIntegrals

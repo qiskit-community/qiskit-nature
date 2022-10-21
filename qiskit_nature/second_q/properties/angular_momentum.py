@@ -22,7 +22,7 @@ import numpy as np
 
 import qiskit_nature  # pylint: disable=unused-import
 from qiskit_nature.second_q.operators import FermionicOp, PolynomialTensor
-from qiskit_nature.second_q.operators.tensor_ordering import _chem_to_phys
+from qiskit_nature.second_q.operators.tensor_ordering import IndexType, to_physicist_ordering
 
 
 class AngularMomentum:
@@ -47,14 +47,16 @@ class AngularMomentum:
         h_1 = x_h1 + y_h1 + z_h1
         h_2 = x_h2 + y_h2 + z_h2
 
-        tensor = PolynomialTensor({"+-": h_1, "++--": _chem_to_phys(h_2)})
+        tensor = PolynomialTensor(
+            {"+-": h_1, "++--": to_physicist_ordering(h_2, index_order=IndexType.CHEMIST)}
+        )
 
         op = FermionicOp.from_polynomial_tensor(tensor).simplify()
 
         return {self.__class__.__name__: op}
 
     def interpret(
-        self, result: "qiskit_nature.second_q.problemsEigenstateResult"  # type: ignore[name-defined]
+        self, result: "qiskit_nature.second_q.problems.EigenstateResult"  # type: ignore[name-defined]
     ) -> None:
         """Interprets an :class:`~qiskit_nature.second_q.problems.EigenstateResult`
         in this property's context.

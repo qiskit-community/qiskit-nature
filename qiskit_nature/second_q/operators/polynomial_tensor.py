@@ -164,7 +164,7 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         print(PolynomialTensor({"+-": sparse_matrix}))
 
     One can convert between dense and sparse representation of the same tensor via the
-    :meth:`todense` and :meth:`tosparse` methods, respectively.
+    :meth:`to_dense` and :meth:`to_sparse` methods, respectively.
     """
 
     def __init__(
@@ -253,11 +253,11 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         return len(self) == 0
 
     @_optionals.HAS_SPARSE.require_in_call
-    def issparse(self) -> bool:
+    def is_sparse(self) -> bool:
         """Returns whether all matrices in this tensor are sparse."""
         return all(isinstance(self[key], SparseArray) for key in self if key != "")
 
-    def isdense(self) -> bool:
+    def is_dense(self) -> bool:
         """Returns whether all matrices in this tensor are dense."""
         return all(isinstance(self[key], np.ndarray) for key in self if key != "")
 
@@ -280,13 +280,13 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         """Returns an iterator of the ``PolynomialTensor``."""
         return self._data.__iter__()
 
-    def todense(self) -> PolynomialTensor:
+    def to_dense(self) -> PolynomialTensor:
         """Returns a new instance where all matrices are now dense numpy arrays.
 
         If the instance on which this method was called already fulfilled this requirement, it is
         returned unchanged.
         """
-        if self.isdense():
+        if self.is_dense():
             return self
 
         _optionals.HAS_SPARSE.require_now("SparseArray")
@@ -300,7 +300,7 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
 
     # TODO: change the following type-hint if/when SparseArray dictates the existence of from_numpy
     @_optionals.HAS_SPARSE.require_in_call
-    def tosparse(
+    def to_sparse(
         self, *, sparse_type: Type[COO] | Type[DOK] | Type[GCXS] = COO
     ) -> PolynomialTensor:
         """Returns a new instance where all matrices are now sparse arrays.
@@ -317,7 +317,7 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
             A new ``PolynomialTensor`` with all its matrices converted to the requested sparse array
             type.
         """
-        if self.issparse():
+        if self.is_sparse():
             return self
 
         sparse_dict: dict[str, ARRAY_TYPE] = {}
@@ -725,8 +725,8 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
 
            :class:`sparse.SparseArray` does not support ``numpy.einsum``. Thus, the resultant
            ``PolynomialTensor`` will contain all dense numpy arrays. If a user would like to work
-           with a sparse array instead, they should convert it explicitly using the :meth:`tosparse`
-           method.
+           with a sparse array instead, they should convert it explicitly using the
+           :meth:`to_sparse` method.
 
         Args:
             einsum_map: a dictionary, mapping from :meth:`numpy.einsum` subscripts to a tuple of
@@ -740,7 +740,7 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         Returns:
             A new ``PolynomialTensor``.
         """
-        dense_operands = [op.todense() for op in operands]
+        dense_operands = [op.to_dense() for op in operands]
         new_data: dict[str, ARRAY_TYPE] = {}
         for einsum, terms in einsum_map.items():
             *inputs, output = terms
