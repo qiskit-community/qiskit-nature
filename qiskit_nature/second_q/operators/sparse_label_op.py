@@ -417,27 +417,27 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         indices = self.argsort(weight=weight)
         return self._new_instance({ind: self[ind] for ind in indices})
 
-    def chop(self, tol: float | None = None) -> SparseLabelOp:
+    def chop(self, atol: float | None = None) -> SparseLabelOp:
         """Chops the real and imaginary parts of the operator coefficients.
 
         This function separately chops the real and imaginary parts of all coefficients to the
         provided tolerance. Parameters are ignored.
 
         Args:
-            tol: the tolerance to which to chop. If ``None``, :attr:`atol` will be used.
+            atol: the tolerance to which to chop. If ``None``, :attr:`atol` will be used.
 
         Returns:
             The chopped operator.
         """
-        tol = tol if tol is not None else self.atol
+        atol = atol if atol is not None else self.atol
 
         new_data = {}
         for key, value in self.items():
             if _to_number(value) == 0:
                 continue
             if not isinstance(value, ParameterExpression):
-                zero_real = cmath.isclose(value.real, 0.0, abs_tol=tol)
-                zero_imag = cmath.isclose(value.imag, 0.0, abs_tol=tol)
+                zero_real = cmath.isclose(value.real, 0.0, abs_tol=atol)
+                zero_imag = cmath.isclose(value.imag, 0.0, abs_tol=atol)
                 if zero_real and zero_imag:
                     continue
                 if zero_imag:
@@ -449,7 +449,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         return self._new_instance(new_data)
 
     @abstractmethod
-    def simplify(self, *, atol: float | None = None) -> SparseLabelOp:
+    def simplify(self, atol: float | None = None) -> SparseLabelOp:
         """Simplify the operator.
 
         Merges terms with same labels and eliminates terms with coefficients close to 0.
@@ -520,3 +520,18 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
                 data[key] = parameters[value]
         if not inplace:
             return self._new_instance(data, other=self)
+
+    def is_zero(self, tol: int | None = None) -> bool:
+        r"""Returns true if operator length is zero or all coefficients have value zero.
+
+        Args:
+            tol: tolerance for checking coefficient values. If this is `None`,
+                :attr:`atol` will be used instead.
+
+        Returns:
+            If operator length is zero or all coefficients are zero.
+        """
+        if len(self) == 0:
+            return True
+        tol = tol if tol is not None else self.atol
+        return all(np.isclose(val, 0, atol=tol) for val in self._data.values())
