@@ -416,7 +416,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
             if zero_imag:
                 new_data[key] = value.real
             elif zero_real:
-                new_data[key] = value.imag
+                new_data[key] = value.imag * 1j
             else:
                 new_data[key] = value
 

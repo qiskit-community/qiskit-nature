@@ -14,12 +14,11 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import cast
 
 import numpy as np
 import scipy.linalg
-from qiskit.quantum_info.operators.mixins import TolerancesMixin
-from qiskit_nature.second_q.operators import FermionicOp
+from qiskit_nature.second_q.operators import FermionicOp, PolynomialTensor
 
 from .hamiltonian import Hamiltonian
 
@@ -32,7 +31,56 @@ def _is_antisymmetric(mat: np.ndarray, rtol: float = 1e-5, atol: float = 1e-8) -
     return np.allclose(mat, -mat.T, rtol=rtol, atol=atol)
 
 
-class QuadraticHamiltonian(Hamiltonian, TolerancesMixin):
+def _infer_num_modes(
+    hermitian_part: np.ndarray | None, antisymmetric_part: np.ndarray | None, num_modes: int | None
+) -> int:
+    if num_modes is not None:
+        return num_modes
+    if hermitian_part is not None:
+        return hermitian_part.shape[0]
+    if antisymmetric_part is not None:
+        return antisymmetric_part.shape[0]
+    else:
+        raise ValueError(
+            "Either Hermitian part, antisymmetric part, or number of modes must be specified."
+        )
+
+
+def _validate(
+    hermitian_part: np.ndarray | None,
+    antisymmetric_part: np.ndarray | None,
+    num_modes: int | None,
+    rtol: float,
+    atol: float,
+) -> None:
+    if (
+        hermitian_part is not None
+        and antisymmetric_part is not None
+        and hermitian_part.shape != antisymmetric_part.shape
+    ):
+        raise ValueError(
+            "Hermitian part and antisymmetric part must have same shape. "
+            f"Got shapes {hermitian_part.shape} and {antisymmetric_part.shape}."
+        )
+    if hermitian_part is not None:
+        if hermitian_part.shape[0] != num_modes:
+            raise ValueError(
+                "Hermitian part must have shape num_modes x num_modes. "
+                f"Got shape {hermitian_part.shape}, while num_modes={num_modes}."
+            )
+        if not _is_hermitian(hermitian_part, rtol=rtol, atol=atol):
+            raise ValueError("Hermitian part must be Hermitian.")
+    if antisymmetric_part is not None:
+        if antisymmetric_part.shape[0] != num_modes:
+            raise ValueError(
+                "Antisymmetric part must have shape num_modes x num_modes. "
+                f"Got shape {antisymmetric_part.shape}, while num_modes={num_modes}."
+            )
+        if not _is_antisymmetric(antisymmetric_part, rtol=rtol, atol=atol):
+            raise ValueError("Antisymmetric part must be antisymmetric.")
+
+
+class QuadraticHamiltonian(PolynomialTensor, Hamiltonian):
     r"""A Hamiltonian that is quadratic in the fermionic ladder operators.
 
     A quadratic Hamiltonian is an operator of the form
@@ -55,14 +103,14 @@ class QuadraticHamiltonian(Hamiltonian, TolerancesMixin):
 
     def __init__(
         self,
-        hermitian_part: Optional[np.ndarray] = None,
-        antisymmetric_part: Optional[np.ndarray] = None,
+        hermitian_part: np.ndarray | None = None,
+        antisymmetric_part: np.ndarray | None = None,
         constant: float = 0.0,
         *,
-        num_modes: Optional[int] = None,
+        num_modes: int | None = None,
         validate: bool = True,
-        rtol: float = 1e-5,
-        atol: float = 1e-8,
+        rtol: float | None = None,
+        atol: float | None = None,
     ) -> None:
         r"""
         Args:
@@ -75,7 +123,9 @@ class QuadraticHamiltonian(Hamiltonian, TolerancesMixin):
                 and antisymmetric_part if they are specified.
             validate: Whether to validate the inputs.
             rtol: Relative numerical tolerance for input validation.
+                The default behavior is to use ``self.rtol``.
             atol: Absolute numerical tolerance for input validation.
+                The default behavior is to use ``self.atol``.
 
         Raises:
             ValueError: Either Hermitian part, antisymmetric part, or number of modes must
@@ -85,68 +135,58 @@ class QuadraticHamiltonian(Hamiltonian, TolerancesMixin):
             ValueError: Hermitian part must be Hermitian.
             ValueError: Antisymmetric part must have shape num_modes x num_modes.
             ValueError: Antisymmetric part must be antisymmetric.
+
+        Note:
+            The ``rtol`` and ``atol`` arguments are only used for input validation and
+            are discarded afterwards. They do not affect the class attributes
+            ``QuadraticHamiltonian.rtol`` and ``QuadraticHamiltonian.atol``.
         """
-        if num_modes is not None:
-            self._num_modes = num_modes
-        elif hermitian_part is not None:
-            self._num_modes, _ = hermitian_part.shape
-        elif antisymmetric_part is not None:
-            self._num_modes, _ = antisymmetric_part.shape
-        else:
-            raise ValueError(
-                "Either Hermitian part, antisymmetric part, or number of modes must be specified."
-            )
+        if rtol is None:
+            rtol = self.rtol
+        if atol is None:
+            atol = self.atol
+
+        self._num_modes = _infer_num_modes(hermitian_part, antisymmetric_part, num_modes)
 
         if validate:
-            if (
-                hermitian_part is not None
-                and antisymmetric_part is not None
-                and hermitian_part.shape != antisymmetric_part.shape
-            ):
-                raise ValueError(
-                    "Hermitian part and antisymmetric part must have same shape. "
-                    f"Got shapes {hermitian_part.shape} and {antisymmetric_part.shape}."
-                )
-            if hermitian_part is not None:
-                if hermitian_part.shape[0] != self._num_modes:
-                    raise ValueError(
-                        "Hermitian part must have shape num_modes x num_modes. "
-                        f"Got shape {hermitian_part.shape}, while num_modes={self._num_modes}."
-                    )
-                if not _is_hermitian(hermitian_part, rtol=rtol, atol=atol):
-                    raise ValueError("Hermitian part must be Hermitian.")
-            if antisymmetric_part is not None:
-                if antisymmetric_part.shape[0] != self._num_modes:
-                    raise ValueError(
-                        "Antisymmetric part must have shape num_modes x num_modes. "
-                        f"Got shape {antisymmetric_part.shape}, while num_modes={self._num_modes}."
-                    )
-                if not _is_antisymmetric(antisymmetric_part, rtol=rtol, atol=atol):
-                    raise ValueError("Antisymmetric part must be antisymmetric.")
+            _validate(hermitian_part, antisymmetric_part, self._num_modes, rtol, atol)
 
-        self._hermitian_part = hermitian_part
-        self._antisymmetric_part = antisymmetric_part
-        self._constant = constant
+        data: dict[str, float | np.ndarray] = {"": constant}
+        if hermitian_part is not None:
+            data["+-"] = hermitian_part
+        if antisymmetric_part is not None:
+            data["++"] = 0.5 * antisymmetric_part
+            data["--"] = -0.5 * antisymmetric_part.conj()
 
-        if self._hermitian_part is None:
-            self._hermitian_part = np.zeros((self._num_modes, self._num_modes))
-        if self._antisymmetric_part is None:
-            self._antisymmetric_part = np.zeros((self._num_modes, self._num_modes))
+        super().__init__(data, validate=validate)
+
+    def __repr__(self) -> str:
+        return (
+            f"QuadraticHamiltonian("
+            f"hermitian_part={repr(self.hermitian_part)}, "
+            f"antisymmetric_part={repr(self.antisymmetric_part)}, "
+            f"constant={self.constant}, "
+            f"num_modes={self._num_modes})"
+        )
 
     @property
     def hermitian_part(self) -> np.ndarray:
         """The matrix of coefficients of terms that conserve particle number."""
-        return self._hermitian_part
+        if "+-" in self:
+            return cast(np.ndarray, self["+-"])
+        return np.zeros((self._num_modes, self._num_modes), dtype=complex)
 
     @property
     def antisymmetric_part(self) -> np.ndarray:
         """The matrix of coefficients of terms that do not conserve particle number."""
-        return self._antisymmetric_part
+        if "++" in self:
+            return 2 * cast(np.ndarray, self["++"])
+        return np.zeros((self._num_modes, self._num_modes), dtype=complex)
 
     @property
     def constant(self) -> float:
         """The constant."""
-        return self._constant
+        return cast(float, self[""])
 
     @property
     def num_modes(self) -> float:
@@ -159,16 +199,7 @@ class QuadraticHamiltonian(Hamiltonian, TolerancesMixin):
 
     def second_q_op(self) -> FermionicOp:
         """Convert to FermionicOp."""
-        terms = {"": self.constant}
-        for i in range(self._num_modes):
-            terms[f"+_{i} -_{i}"] = self.hermitian_part[i, i]
-            for j in range(i + 1, self._num_modes):
-                terms[f"+_{i} -_{j}"] = self.hermitian_part[i, j]
-                terms[f"+_{j} -_{i}"] = self.hermitian_part[j, i]
-                terms[f"+_{i} +_{j}"] = self.antisymmetric_part[i, j]
-                terms[f"-_{j} -_{i}"] = self.antisymmetric_part[i, j].conjugate()
-        # TODO remove display_format="sparse" once it's no longer needed to suppress warning
-        return FermionicOp(terms, num_spin_orbitals=self._num_modes, copy=False)
+        return FermionicOp.from_polynomial_tensor(self)
 
     def conserves_particle_number(self) -> bool:
         """Whether the Hamiltonian conserves particle number."""
