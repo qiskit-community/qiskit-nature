@@ -13,7 +13,7 @@
 """Test the VSCF initial state."""
 
 import unittest
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -21,7 +21,7 @@ from qiskit_nature.circuit.library import VSCF
 from qiskit_nature.circuit.library.initial_states.vscf import vscf_bitstring
 
 
-class TestVSCF(QiskitNatureTestCase):
+class TestVSCF(QiskitNatureDeprecatedTestCase):
     """Initial State vscf tests"""
 
     def test_bitstring(self):

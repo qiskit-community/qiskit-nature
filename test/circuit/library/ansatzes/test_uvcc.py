@@ -12,7 +12,7 @@
 
 """Test the UVCC Ansatz."""
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from test.circuit.library.ansatzes.utils.vibrational_op_label_creator import _create_labels
 
 import unittest
@@ -42,7 +42,7 @@ def assert_ucc_like_ansatz(test_case, ansatz, num_modals, expected_ops):
 
 
 @ddt
-class TestUVCC(QiskitNatureTestCase):
+class TestUVCC(QiskitNatureDeprecatedTestCase):
     """Tests for the UVCC Ansatz."""
 
     @unpack
@@ -75,7 +75,7 @@ class TestUVCC(QiskitNatureTestCase):
         self.assertEqual(ansatz.num_qubits, 2)
 
 
-class TestUVCCVSCF(QiskitNatureTestCase):
+class TestUVCCVSCF(QiskitNatureDeprecatedTestCase):
     """Test for these extensions."""
 
     def setUp(self):

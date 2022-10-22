@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 """Test for VibrationalOp"""
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 
 import numpy as np
 from ddt import data, ddt
@@ -20,7 +20,7 @@ from qiskit_nature.operators.second_quantization import VibrationalOp
 
 
 @ddt
-class TestVibrationalOp(QiskitNatureTestCase):
+class TestVibrationalOp(QiskitNatureDeprecatedTestCase):
     """VibrationalOp tests."""
 
     def setUp(self):

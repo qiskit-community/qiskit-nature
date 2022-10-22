@@ -16,7 +16,7 @@ import unittest
 import warnings
 from functools import lru_cache
 from itertools import product
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 
 import numpy as np
 from ddt import data, ddt, unpack
@@ -45,7 +45,7 @@ def sparse_labels(length, only_plus_minus=False):
 
 
 @ddt
-class TestFermionicOp(QiskitNatureTestCase):
+class TestFermionicOp(QiskitNatureDeprecatedTestCase):
     """FermionicOp tests."""
 
     def assertFermionEqual(self, first: FermionicOp, second: FermionicOp):

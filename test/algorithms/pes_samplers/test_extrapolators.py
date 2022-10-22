@@ -16,7 +16,7 @@ parameter pairs.
 """
 
 import unittest
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from sklearn import linear_model
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.algorithms.pes_samplers import (
@@ -213,7 +213,7 @@ PARAM_DICT = {
 }
 
 
-class TestExtrapolators(QiskitNatureTestCase):
+class TestExtrapolators(QiskitNatureDeprecatedTestCase):
     """Test Extrapolators."""
 
     def test_factory(self):

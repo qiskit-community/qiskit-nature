@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 """ Test NumPyMinimumEigensolver Factory """
 import unittest
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 import numpy as np
 
 from qiskit.algorithms import NumPyEigensolver
@@ -22,7 +22,7 @@ from qiskit_nature.problems.second_quantization import ElectronicStructureProble
 import qiskit_nature.optionals as _optionals
 
 
-class TestNumPyEigensolverFactory(QiskitNatureTestCase):
+class TestNumPyEigensolverFactory(QiskitNatureDeprecatedTestCase):
     """Test NumPyMinimumEigensovler Factory"""
 
     # NOTE: The actual usage of this class is mostly tested in combination with the ground-state

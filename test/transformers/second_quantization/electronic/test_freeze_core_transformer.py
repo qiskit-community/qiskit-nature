@@ -14,7 +14,7 @@
 
 import unittest
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from ddt import ddt, idata
 import numpy as np
 
@@ -24,7 +24,7 @@ from qiskit_nature.properties.second_quantization.electronic.bases import Electr
 
 
 @ddt
-class TestFreezeCoreTransformer(QiskitNatureTestCase):
+class TestFreezeCoreTransformer(QiskitNatureDeprecatedTestCase):
     """FreezeCoreTransformer tests."""
 
     # pylint: disable=import-outside-toplevel

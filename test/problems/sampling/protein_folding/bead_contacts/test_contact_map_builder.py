@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Tests ContactMapBuilder."""
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from test.problems.sampling.protein_folding.resources.file_parser import read_expected_file
 from qiskit_nature.problems.sampling.protein_folding.bead_contacts import contact_map_builder
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
@@ -18,7 +18,7 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Pept
 PATH = "problems/sampling/protein_folding/resources/test_contact_map_builder"
 
 
-class TestContactMapBuilder(QiskitNatureTestCase):
+class TestContactMapBuilder(QiskitNatureDeprecatedTestCase):
     """Tests ContactMapBuilder."""
 
     def test_create_pauli_for_contacts(self):

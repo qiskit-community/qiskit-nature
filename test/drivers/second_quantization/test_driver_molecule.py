@@ -13,7 +13,7 @@
 """ Test Molecule """
 
 import unittest
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 
 from functools import partial
 import numpy as np
@@ -21,7 +21,7 @@ import numpy as np
 from qiskit_nature.drivers import Molecule, UnitsType
 
 
-class TestMolecule(QiskitNatureTestCase):
+class TestMolecule(QiskitNatureDeprecatedTestCase):
     """Test driver-independent molecule definition."""
 
     def test_construct(self):
