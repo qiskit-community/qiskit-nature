@@ -539,6 +539,11 @@ class TestSparseLabelOp(QiskitNatureTestCase):
             )
             self.assertFalse(test_op.is_zero(tol=0.001))
 
+    def test_parameters(self):
+        """Test parameters."""
+        op = DummySparseLabelOp({"+_0 -_1": a, "+_0 -_2": b})
+        self.assertEqual(op.parameters(), [a, b])
+
 
 if __name__ == "__main__":
     unittest.main()

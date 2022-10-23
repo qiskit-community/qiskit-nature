@@ -550,3 +550,11 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
             return True
         tol = tol if tol is not None else self.atol
         return all(np.isclose(val, 0, atol=tol) for val in self._data.values())
+
+    def parameters(self) -> list[ParameterExpression]:
+        """Returns a list of the parameters in the operator.
+
+        Returns:
+            A list of the parameters in the operator.
+        """
+        return [coeff for coeff in self.values() if isinstance(coeff, ParameterExpression)]
