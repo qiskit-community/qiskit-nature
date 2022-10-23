@@ -520,6 +520,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
                 data[key] = parameters[value]
         if not inplace:
             return self._new_instance(data, other=self)
+        return None
 
     def is_zero(self, tol: int | None = None) -> bool:
         r"""Returns true if operator length is zero or all coefficients have value zero.
