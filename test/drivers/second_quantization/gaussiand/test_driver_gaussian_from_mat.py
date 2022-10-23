@@ -14,13 +14,13 @@
 
 import unittest
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from test.drivers.second_quantization.test_driver import TestDriver
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers.second_quantization import GaussianDriver
 
 
-class TestDriverGaussianFromMat(QiskitNatureTestCase, TestDriver):
+class TestDriverGaussianFromMat(QiskitNatureDeprecatedTestCase, TestDriver):
     """Gaussian Driver tests using a saved output matrix file."""
 
     def setUp(self):

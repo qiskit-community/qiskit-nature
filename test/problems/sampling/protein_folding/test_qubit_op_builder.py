@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Tests QubitOpBuilder."""
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from test.problems.sampling.protein_folding.resources.file_parser import read_expected_file
 from qiskit.opflow import PauliSumOp
 from qiskit_nature.problems.sampling.protein_folding.qubit_op_builder import QubitOpBuilder
@@ -23,7 +23,7 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Pept
 PATH = "problems/sampling/protein_folding/resources/test_qubit_op_builder"
 
 
-class TestQubitOpBuilder(QiskitNatureTestCase):
+class TestQubitOpBuilder(QiskitNatureDeprecatedTestCase):
     """Tests QubitOpBuilder."""
 
     def test_check_turns(self):

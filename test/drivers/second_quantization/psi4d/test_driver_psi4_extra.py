@@ -16,14 +16,14 @@ from typing import cast
 
 import unittest
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from qiskit_nature.drivers.second_quantization import PSI4Driver
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.properties.second_quantization.electronic import ElectronicEnergy
 import qiskit_nature.optionals as _optionals
 
 
-class TestDriverPSI4Extra(QiskitNatureTestCase):
+class TestDriverPSI4Extra(QiskitNatureDeprecatedTestCase):
     """PSI4 Driver extra tests for driver specifics, errors etc"""
 
     @unittest.skipIf(not _optionals.HAS_PSI4, "psi4 not available.")

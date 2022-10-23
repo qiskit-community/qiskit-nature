@@ -15,7 +15,7 @@
 import unittest
 from unittest.mock import Mock
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 
 import numpy as np
 
@@ -30,7 +30,7 @@ from qiskit_nature.properties.second_quantization.electronic.electronic_energy i
 )
 
 
-class TestHFInitialPoint(QiskitNatureTestCase):
+class TestHFInitialPoint(QiskitNatureDeprecatedTestCase):
     """Test HFInitialPoint."""
 
     def setUp(self) -> None:

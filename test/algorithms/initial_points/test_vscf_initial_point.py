@@ -15,7 +15,7 @@
 import unittest
 from unittest.mock import Mock
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 
 import numpy as np
 
@@ -27,7 +27,7 @@ from qiskit_nature.properties.second_quantization.second_quantized_property impo
 )
 
 
-class TestVSCFInitialPoint(QiskitNatureTestCase):
+class TestVSCFInitialPoint(QiskitNatureDeprecatedTestCase):
     """Test VSCFInitialPoint."""
 
     def setUp(self) -> None:

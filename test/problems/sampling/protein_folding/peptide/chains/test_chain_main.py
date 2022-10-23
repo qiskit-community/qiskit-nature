@@ -10,14 +10,14 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Tests MainChain."""
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from qiskit_nature.problems.sampling.protein_folding.exceptions.invalid_side_chain_exception import (
     InvalidSideChainException,
 )
 from qiskit_nature.problems.sampling.protein_folding.peptide.chains.main_chain import MainChain
 
 
-class TestMainChain(QiskitNatureTestCase):
+class TestMainChain(QiskitNatureDeprecatedTestCase):
     """Tests MainChain."""
 
     def test_main_chain_constructor(self):

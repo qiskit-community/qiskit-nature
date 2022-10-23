@@ -18,14 +18,14 @@ import shutil
 import unittest
 import warnings
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from test.drivers.second_quantization.test_driver import TestDriver
 from qiskit_nature.drivers.second_quantization import HDF5Driver
 from qiskit_nature.drivers import QMolecule
 from qiskit_nature.properties.second_quantization.electronic import ElectronicStructureDriverResult
 
 
-class TestDriverHDF5(QiskitNatureTestCase, TestDriver):
+class TestDriverHDF5(QiskitNatureDeprecatedTestCase, TestDriver):
     """HDF5 Driver tests."""
 
     def setUp(self):
@@ -73,7 +73,7 @@ class TestDriverHDF5(QiskitNatureTestCase, TestDriver):
                 HDF5Driver(new_file_name).run()
 
 
-class TestDriverHDF5Legacy(QiskitNatureTestCase, TestDriver):
+class TestDriverHDF5Legacy(QiskitNatureDeprecatedTestCase, TestDriver):
     """HDF5 Driver legacy file-support tests."""
 
     def setUp(self):

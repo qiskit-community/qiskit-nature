@@ -13,7 +13,7 @@
 """ Test Bravyi-Kitaev Mapper """
 
 import unittest
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 
 from qiskit.opflow import I, PauliSumOp, X, Z
 
@@ -22,7 +22,7 @@ from qiskit_nature.mappers.second_quantization import BravyiKitaevMapper
 from qiskit_nature.operators.second_quantization import FermionicOp
 
 
-class TestBravyiKitaevMapper(QiskitNatureTestCase):
+class TestBravyiKitaevMapper(QiskitNatureDeprecatedTestCase):
     """Test Bravyi-Kitaev Mapper"""
 
     REF_H2 = (

@@ -15,7 +15,7 @@
 from typing import cast
 
 import unittest
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from test.drivers.second_quantization.test_driver import TestDriver
 from qiskit_nature.drivers import UnitsType
 from qiskit_nature.drivers.second_quantization import (
@@ -28,7 +28,7 @@ from qiskit_nature.properties.second_quantization.electronic import ElectronicEn
 import qiskit_nature.optionals as _optionals
 
 
-class TestDriverPySCF(QiskitNatureTestCase, TestDriver):
+class TestDriverPySCF(QiskitNatureDeprecatedTestCase, TestDriver):
     """PYSCF Driver tests."""
 
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
@@ -81,7 +81,7 @@ class TestDriverPySCF(QiskitNatureTestCase, TestDriver):
         self.assertAlmostEqual(electronic_energy.reference_energy, -1.0661086493179366, places=5)
 
 
-class TestDriverPySCFMolecule(QiskitNatureTestCase, TestDriver):
+class TestDriverPySCFMolecule(QiskitNatureDeprecatedTestCase, TestDriver):
     """PYSCF Driver Molecule tests."""
 
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")

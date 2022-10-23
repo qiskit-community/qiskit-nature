@@ -17,7 +17,7 @@ from __future__ import annotations
 import unittest
 from unittest.mock import Mock
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 
 import numpy as np
 from ddt import ddt, file_data
@@ -46,7 +46,7 @@ from qiskit_nature.algorithms.initial_points import MP2InitialPoint
 
 
 @ddt
-class TestMP2InitialPoint(QiskitNatureTestCase):
+class TestMP2InitialPoint(QiskitNatureDeprecatedTestCase):
     """Test MP2InitialPoint."""
 
     def setUp(self):

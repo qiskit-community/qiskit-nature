@@ -10,13 +10,13 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Tests RandomInteraction."""
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from qiskit_nature.problems.sampling.protein_folding.interactions.random_interaction import (
     RandomInteraction,
 )
 
 
-class TestRandomInteraction(QiskitNatureTestCase):
+class TestRandomInteraction(QiskitNatureDeprecatedTestCase):
     """Tests RandomInteraction."""
 
     def test_calc_energy_matrix(self):

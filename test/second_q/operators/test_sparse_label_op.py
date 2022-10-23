@@ -402,6 +402,92 @@ class TestSparseLabelOp(QiskitNatureTestCase):
         op.assign_parameters({a: 1.0}, inplace=True)
         self.assertEqual(op, DummySparseLabelOp({"+_0 -_1": 1.0, "+_0 -_2": b}))
 
+    def test_round(self):
+        """test round function"""
+        with self.subTest("round just real part"):
+            data = {
+                "+_0 -_1": 0.7 + 3j,
+                "+_0 -_3": 1.1 + 4j,
+            }
+            test_op = DummySparseLabelOp(data).round()
+            self.assertEqual(
+                test_op._data,
+                {
+                    "+_0 -_1": 1.0 + 3j,
+                    "+_0 -_3": 1.0 + 4j,
+                },
+            )
+
+        with self.subTest("round just imag part"):
+            data = {
+                "+_0 -_1": 1.0 + 0.9j,
+                "+_0 -_3": 1.0 + 0.2j,
+            }
+            test_op = DummySparseLabelOp(data).round()
+            self.assertEqual(
+                test_op._data,
+                {
+                    "+_0 -_1": 1.0 + 1j,
+                    "+_0 -_3": 1.0 + 0j,
+                },
+            )
+
+        with self.subTest("round real and imag part"):
+            data = {
+                "+_0 -_1": 0.8 + 0.3j,
+                "+_0 -_3": 1.2 + 0.8j,
+            }
+            test_op = DummySparseLabelOp(data).round()
+            self.assertEqual(
+                test_op._data,
+                {
+                    "+_0 -_1": 1 + 0j,
+                    "+_0 -_3": 1.0 + 1j,
+                },
+            )
+
+        with self.subTest("round real and imag part to 3dp"):
+            data = {
+                "+_0 -_1": 0.8762 + 0.3789j,
+                "+_0 -_3": 1.2458 + 0.8652j,
+            }
+            test_op = DummySparseLabelOp(data).round(3)
+            self.assertEqual(
+                test_op._data,
+                {
+                    "+_0 -_1": 0.876 + 0.379j,
+                    "+_0 -_3": 1.246 + 0.865j,
+                },
+            )
+
+        with self.subTest("round just real part to 3dp"):
+            data = {
+                "+_0 -_1": 0.8762 + 0.370j,
+                "+_0 -_3": 1.2458 + 0.860j,
+            }
+            test_op = DummySparseLabelOp(data).round(3)
+            self.assertEqual(
+                test_op._data,
+                {
+                    "+_0 -_1": 0.876 + 0.370j,
+                    "+_0 -_3": 1.246 + 0.860j,
+                },
+            )
+
+        with self.subTest("round just imag part to 3dp"):
+            data = {
+                "+_0 -_1": 0.8760 + 0.3789j,
+                "+_0 -_3": 1.245 + 0.8652j,
+            }
+            test_op = DummySparseLabelOp(data).round(3)
+            self.assertEqual(
+                test_op._data,
+                {
+                    "+_0 -_1": 0.8760 + 0.379j,
+                    "+_0 -_3": 1.245 + 0.865j,
+                },
+            )
+
     def test_is_zero(self):
         """test if coefficients are all zero"""
         with self.subTest("operator length is zero"):

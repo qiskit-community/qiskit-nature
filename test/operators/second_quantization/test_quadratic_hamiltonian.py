@@ -12,7 +12,7 @@
 
 """Tests for QuadraticHamiltonian"""
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from test.nature_random import random_antisymmetric_matrix
 
 import numpy as np
@@ -26,7 +26,7 @@ from qiskit_nature.operators.second_quantization.fermionic_op import FermionicOp
 
 
 @ddt
-class TestQuadraticHamiltonian(QiskitNatureTestCase):
+class TestQuadraticHamiltonian(QiskitNatureDeprecatedTestCase):
     """QuadraticHamiltonian tests."""
 
     def test_init(self):

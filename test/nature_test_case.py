@@ -62,6 +62,8 @@ class QiskitNatureTestCase(unittest.TestCase, ABC):
             category=DeprecationWarning,
             module=".*second_q.transformers.*",
         )
+        # ignore opflow/gradients/natural_gradient
+        warnings.filterwarnings("ignore", category=RuntimeWarning, module="qiskit")
         self._started_at = time.time()
         self._class_location = __file__
 
@@ -104,3 +106,23 @@ class QiskitNatureTestCase(unittest.TestCase, ABC):
         root = os.path.dirname(self._class_location)
         path = root if path is None else os.path.join(root, path)
         return os.path.normpath(os.path.join(path, filename))
+
+
+class QiskitNatureDeprecatedTestCase(QiskitNatureTestCase):
+    """Nature Deprecated Test Case.
+    Used for tests that need to suppress deprecation messages.
+    """
+
+    def setUp(self) -> None:
+        super().setUp()
+        # disable deprecation warnings
+        warnings.filterwarnings("ignore", category=PendingDeprecationWarning)
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
+        warnings.filterwarnings("ignore", category=NatureDeprecationWarning)
+
+    def tearDown(self) -> None:
+        # enable deprecation warnings
+        warnings.filterwarnings("default", category=PendingDeprecationWarning)
+        warnings.filterwarnings("default", category=DeprecationWarning)
+        warnings.filterwarnings("default", category=NatureDeprecationWarning)
+        super().tearDown()

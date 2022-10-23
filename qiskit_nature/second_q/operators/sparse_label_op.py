@@ -522,6 +522,20 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
             return self._new_instance(data, other=self)
         return None
 
+    def round(self, decimals: int = 0) -> SparseLabelOp:
+        """Rounds the operator coefficients to a specified number of decimal places.
+
+        Args:
+            decimals: the number of decimal places to round coefficients to. By default this
+                will round to the nearest integer value.
+
+        Returns:
+            The rounded operator.
+        """
+        new_data = {key: np.around(value, decimals=decimals) for key, value in self.items()}
+
+        return self._new_instance(new_data)
+
     def is_zero(self, tol: int | None = None) -> bool:
         r"""Returns true if operator length is zero or all coefficients have value zero.
 

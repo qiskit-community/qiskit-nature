@@ -12,7 +12,7 @@
 
 """Test the SUCCD Ansatz."""
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from test.circuit.library.ansatzes.test_ucc import assert_ucc_like_ansatz
 
 from ddt import ddt, data, unpack
@@ -25,7 +25,7 @@ from qiskit_nature.converters.second_quantization import QubitConverter
 
 
 @ddt
-class TestSUCCD(QiskitNatureTestCase):
+class TestSUCCD(QiskitNatureDeprecatedTestCase):
     """Tests for the SUCCD Ansatz."""
 
     @unpack
