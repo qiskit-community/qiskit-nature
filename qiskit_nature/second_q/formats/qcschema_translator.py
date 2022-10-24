@@ -24,6 +24,7 @@ from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.operators import ElectronicIntegrals
 from qiskit_nature.second_q.properties import (
     AngularMomentum,
+    ElectronicDipoleMoment,
     Magnetization,
     ParticleNumber,
 )
@@ -34,7 +35,10 @@ from .qcschema import QCSchema
 
 
 def qcschema_to_problem(
-    qcschema: QCSchema, *, basis: ElectronicBasis = ElectronicBasis.MO
+    qcschema: QCSchema,
+    *,
+    basis: ElectronicBasis = ElectronicBasis.MO,
+    include_dipole: bool = True,
 ) -> ElectronicStructureProblem:
     """Builds out an :class:`.ElectronicStructureProblem` from a :class:`.QCSchema` instance.
 
@@ -44,6 +48,8 @@ def qcschema_to_problem(
     Args:
         qcschema: the :class:`.QCSchema` object from which to build the problem.
         basis: the :class:`.ElectronicBasis` of the generated problem.
+        include_dipole: whether or not to include an :class:`.ElectronicDipoleMoment` property
+            in the generated problem (if the data is available).
 
     Raises:
         QiskitNatureError: if either of the required 1- or 2-body electronic integrals are missing.
@@ -55,10 +61,26 @@ def qcschema_to_problem(
     norb = qcschema.properties.calcinfo_nmo
 
     hamiltonian: ElectronicEnergy = None
+    dipole_x: ElectronicIntegrals | None = None
+    dipole_y: ElectronicIntegrals | None = None
+    dipole_z: ElectronicIntegrals | None = None
+
     if basis == ElectronicBasis.AO:
         hamiltonian = _get_ao_hamiltonian(qcschema)
+
+        if include_dipole:
+            dipole_x = _get_ao_dipole(qcschema, "x")
+            dipole_y = _get_ao_dipole(qcschema, "y")
+            dipole_z = _get_ao_dipole(qcschema, "z")
+
     elif basis == ElectronicBasis.MO:
         hamiltonian = _get_mo_hamiltonian(qcschema)
+
+        if include_dipole:
+            dipole_x = _get_mo_dipole(qcschema, "x")
+            dipole_y = _get_mo_dipole(qcschema, "y")
+            dipole_z = _get_mo_dipole(qcschema, "z")
+
     else:
         raise NotImplementedError(f"The basis {basis} is not supported by the translation method.")
 
@@ -91,6 +113,13 @@ def qcschema_to_problem(
         problem.orbital_energies = np.asarray(qcschema.wavefunction.scf_eigenvalues_a)
     if qcschema.wavefunction.scf_eigenvalues_b is not None:
         problem.orbital_energies_b = np.asarray(qcschema.wavefunction.scf_eigenvalues_b)
+
+    if include_dipole and dipole_x is not None and dipole_y is not None and dipole_z is not None:
+        dipole = ElectronicDipoleMoment(dipole_x, dipole_y, dipole_z)
+        if qcschema.properties.nuclear_dipole_moment is not None:
+            dipole.nuclear_dipole_moment = qcschema.properties.nuclear_dipole_moment
+
+        problem.properties.electronic_dipole_moment = dipole
 
     return problem
 
@@ -143,6 +172,44 @@ def _get_mo_hamiltonian_direct(qcschema) -> ElectronicEnergy:
     hamiltonian = ElectronicEnergy.from_raw_integrals(hij, hijkl, hij_b, hijkl_bb, hijkl_ba)
 
     return hamiltonian
+
+
+def _get_ao_dipole(qcschema, axis) -> ElectronicIntegrals | None:
+    name = f"scf_dipole_{axis}"
+    integrals = getattr(qcschema.wavefunction, name, None)
+    if integrals is None:
+        return None
+    nao = int(np.sqrt(len(integrals)))
+    ints = _reshape_2(integrals, nao)
+    return ElectronicIntegrals.from_raw_integrals(ints)
+
+
+def _get_mo_dipole(qcschema, axis) -> ElectronicIntegrals | None:
+    name_a = f"scf_dipole_mo_{axis}_a"
+    if getattr(qcschema.wavefunction, name_a, None) is not None:
+        return _get_mo_dipole_direct(qcschema, axis)
+
+    dipole = _get_ao_dipole(qcschema, axis)
+    transformer = get_ao_to_mo_from_qcschema(qcschema)
+
+    return transformer.transform_electronic_integrals(dipole)
+
+
+def _get_mo_dipole_direct(qcschema, axis) -> ElectronicIntegrals | None:
+    norb = qcschema.properties.calcinfo_nmo
+    name_a = f"scf_dipole_mo_{axis}_a"
+    integrals_a = getattr(qcschema.wavefunction, name_a, None)
+    if integrals_a is None:
+        return None
+    ints_a = _reshape_2(integrals_a, norb)
+
+    name_b = f"scf_dipole_mo_{axis}_b"
+    integrals_b = getattr(qcschema.wavefunction, name_b, None)
+    ints_b = None
+    if integrals_b is not None:
+        ints_b = _reshape_2(integrals_b, norb)
+
+    return ElectronicIntegrals.from_raw_integrals(ints_a, h1_b=ints_b)
 
 
 def get_ao_to_mo_from_qcschema(qcschema: QCSchema) -> BasisTransformer:

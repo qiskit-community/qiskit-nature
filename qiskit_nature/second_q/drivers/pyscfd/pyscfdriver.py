@@ -12,13 +12,15 @@
 
 """The PySCF Driver."""
 
+from __future__ import annotations
+
 import inspect
 import logging
 import os
 import tempfile
 import warnings
 from enum import Enum
-from typing import List, Optional, Tuple, Union, Any, Dict
+from typing import Any
 
 import numpy as np
 from qiskit.utils.validation import validate_min
@@ -27,13 +29,8 @@ from qiskit_nature.units import DistanceUnit
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
 from qiskit_nature.second_q.formats.qcschema import QCSchema
-from qiskit_nature.second_q.formats.qcschema_translator import (
-    qcschema_to_problem,
-    get_ao_to_mo_from_qcschema,
-)
-from qiskit_nature.second_q.operators import ElectronicIntegrals
+from qiskit_nature.second_q.formats.qcschema_translator import qcschema_to_problem
 from qiskit_nature.second_q.problems import ElectronicBasis, ElectronicStructureProblem
-from qiskit_nature.second_q.properties import ElectronicDipoleMoment
 from qiskit_nature.settings import settings
 import qiskit_nature.optionals as _optionals
 
@@ -63,7 +60,7 @@ class PySCFDriver(ElectronicStructureDriver):
 
     def __init__(
         self,
-        atom: Union[str, List[str]] = "H 0.0 0.0 0.0; H 0.0 0.0 0.735",
+        atom: str | list[str] = "H 0.0 0.0 0.0; H 0.0 0.0 0.735",
         *,
         unit: DistanceUnit = DistanceUnit.ANGSTROM,
         charge: int = 0,
@@ -75,8 +72,8 @@ class PySCFDriver(ElectronicStructureDriver):
         conv_tol: float = 1e-9,
         max_cycle: int = 50,
         init_guess: InitialGuess = InitialGuess.MINAO,
-        max_memory: Optional[int] = None,
-        chkfile: Optional[str] = None,
+        max_memory: int | None = None,
+        chkfile: str | None = None,
     ) -> None:
         """
         Args:
@@ -138,7 +135,7 @@ class PySCFDriver(ElectronicStructureDriver):
             atom = atom.replace("\n", ";")
         else:
             raise QiskitNatureError(
-                f"`atom` must be either a `str` or `List[str]`, but you passed {atom}"
+                f"`atom` must be either a `str` or `list[str]`, but you passed {atom}"
             )
 
         validate_min("max_cycle", max_cycle, 1)
@@ -167,7 +164,7 @@ class PySCFDriver(ElectronicStructureDriver):
         return self._atom
 
     @atom.setter
-    def atom(self, atom: Union[str, List[str]]) -> None:
+    def atom(self, atom: str | list[str]) -> None:
         """Sets the atom."""
         if isinstance(atom, list):
             atom = ";".join(atom)
@@ -304,7 +301,7 @@ class PySCFDriver(ElectronicStructureDriver):
         *,
         basis: str = "sto3g",
         method: MethodType = MethodType.RHF,
-        driver_kwargs: Optional[Dict[str, Any]] = None,
+        driver_kwargs: dict[str, Any] | None = None,
     ) -> "PySCFDriver":
         """
         Args:
@@ -420,7 +417,7 @@ class PySCFDriver(ElectronicStructureDriver):
             raise QiskitNatureError("Failed to build the PySCF Molecule object.") from exc
 
     @staticmethod
-    def _check_molecule_format(val: str) -> Union[str, List[str]]:
+    def _check_molecule_format(val: str) -> str | list[str]:
         """Ensures the molecule coordinates are in XYZ format.
 
         This utility automatically converts a Z-matrix coordinate format into XYZ coordinates.
@@ -502,7 +499,7 @@ class PySCFDriver(ElectronicStructureDriver):
                 self._calc.e_tot,
             )
 
-    def to_qcschema(self) -> QCSchema:
+    def to_qcschema(self, *, include_dipole: bool = True) -> QCSchema:
         # pylint: disable=import-error
         from pyscf import __version__ as pyscf_version
         from pyscf import gto
@@ -578,18 +575,6 @@ class PySCFDriver(ElectronicStructureDriver):
         data.nalpha = self._mol.nelec[0]
         data.nbeta = self._mol.nelec[1]
 
-        return self._to_qcschema(data)
-
-    def to_problem(
-        self,
-        *,
-        basis: ElectronicBasis = ElectronicBasis.MO,
-        include_dipole: bool = True,
-    ) -> ElectronicStructureProblem:
-        qcschema = self.to_qcschema()
-
-        problem = qcschema_to_problem(qcschema, basis=basis)
-
         if include_dipole:
             self._mol.set_common_orig((0, 0, 0))
             ao_dip = self._mol.intor_symmetric("int1e_r", comp=3)
@@ -603,33 +588,45 @@ class PySCFDriver(ElectronicStructureDriver):
             elec_dip = np.round(elec_dip, decimals=8)
             nucl_dip = np.einsum("i,ix->x", self._mol.atom_charges(), self._mol.atom_coords())
             nucl_dip = np.round(nucl_dip, decimals=8)
+            ref_dip = nucl_dip + elec_dip
 
             logger.info("HF Electronic dipole moment: %s", elec_dip)
             logger.info("Nuclear dipole moment: %s", nucl_dip)
-            logger.info("Total dipole moment: %s", nucl_dip + elec_dip)
+            logger.info("Total dipole moment: %s", ref_dip)
+            data.dip_nuc = nucl_dip
+            data.dip_ref = ref_dip
 
-            x_dip = ElectronicIntegrals.from_raw_integrals(ao_dip[0])
-            y_dip = ElectronicIntegrals.from_raw_integrals(ao_dip[1])
-            z_dip = ElectronicIntegrals.from_raw_integrals(ao_dip[2])
+            data.dip_x = ao_dip[0]
+            data.dip_y = ao_dip[1]
+            data.dip_z = ao_dip[2]
+            data.dip_mo_x_a = np.dot(np.dot(data.mo_coeff.T, data.dip_x), data.mo_coeff)
+            data.dip_mo_y_a = np.dot(np.dot(data.mo_coeff.T, data.dip_y), data.mo_coeff)
+            data.dip_mo_z_a = np.dot(np.dot(data.mo_coeff.T, data.dip_z), data.mo_coeff)
+            if data.mo_coeff_b is not None:
+                data.dip_mo_x_b = np.dot(np.dot(data.mo_coeff_b.T, data.dip_x), data.mo_coeff_b)
+                data.dip_mo_y_b = np.dot(np.dot(data.mo_coeff_b.T, data.dip_y), data.mo_coeff_b)
+                data.dip_mo_z_b = np.dot(np.dot(data.mo_coeff_b.T, data.dip_z), data.mo_coeff_b)
 
-            if basis == ElectronicBasis.MO:
-                basis_transform = get_ao_to_mo_from_qcschema(qcschema)
+        return self._to_qcschema(data)
 
-                x_dip = basis_transform.transform_electronic_integrals(x_dip)
-                y_dip = basis_transform.transform_electronic_integrals(y_dip)
-                z_dip = basis_transform.transform_electronic_integrals(z_dip)
+    def to_problem(
+        self,
+        *,
+        basis: ElectronicBasis = ElectronicBasis.MO,
+        include_dipole: bool = True,
+    ) -> ElectronicStructureProblem:
+        qcschema = self.to_qcschema(include_dipole=include_dipole)
 
-            dipole_moment = ElectronicDipoleMoment(x_dip, y_dip, z_dip)
-            dipole_moment.nuclear_dipole_moment = nucl_dip
-            dipole_moment.reverse_dipole_sign = True
+        problem = qcschema_to_problem(qcschema, basis=basis, include_dipole=include_dipole)
 
-            problem.properties.electronic_dipole_moment = dipole_moment
+        if include_dipole and problem.properties.electronic_dipole_moment is not None:
+            problem.properties.electronic_dipole_moment.reverse_dipole_sign = True
 
         return problem
 
     def _extract_mo_data(
         self, name: str, array_dimension: int = 2
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """Extract molecular orbital data from a PySCF calculation object.
 
         Args:
