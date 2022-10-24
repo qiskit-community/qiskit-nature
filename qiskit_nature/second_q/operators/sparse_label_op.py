@@ -502,7 +502,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
 
     def assign_parameters(
         self, parameters: Mapping[ParameterExpression, _TCoeff], inplace: bool = False
-    ) -> SparseLabelOp | None:
+    ) -> SparseLabelOp:
         """Assign parameters to new parameters or values.
 
         Args:
@@ -519,7 +519,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
                 data[key] = parameters[value]
         if not inplace:
             return self._new_instance(data, other=self)
-        return None
+        return self
 
     def round(self, decimals: int = 0) -> SparseLabelOp:
         """Rounds the operator coefficients to a specified number of decimal places.
