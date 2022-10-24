@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
-from collections.abc import Collection, Mapping, MutableMapping
+from collections.abc import Collection, MutableMapping
 from typing import cast, Iterator
 
 import numpy as np
@@ -162,7 +162,7 @@ class FermionicOp(SparseLabelOp):
 
     def __init__(
         self,
-        data: Mapping[str, complex],
+        data: dict[str, complex],
         num_spin_orbitals: int | None = None,
         *,
         copy: bool = True,
@@ -192,7 +192,7 @@ class FermionicOp(SparseLabelOp):
         return self.num_spin_orbitals
 
     def _new_instance(
-        self, data: Mapping[str, complex], *, other: FermionicOp | None = None
+        self, data: dict[str, complex], *, other: FermionicOp | None = None
     ) -> FermionicOp:
         num_so = self.num_spin_orbitals
         if other is not None:

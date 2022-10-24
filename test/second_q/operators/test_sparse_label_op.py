@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import Collection, Iterator, Mapping
+from typing import Collection, Iterator
 
 import unittest
 from test import QiskitNatureTestCase
@@ -61,7 +61,7 @@ class DummySparseLabelOp(SparseLabelOp):
 
     # pylint: disable=unused-argument
     def _new_instance(
-        self, data: Mapping[str, complex], *, other: SparseLabelOp | None = None
+        self, data: dict[str, complex], *, other: SparseLabelOp | None = None
     ) -> SparseLabelOp:
         return self.__class__(data, copy=False)
 

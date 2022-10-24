@@ -70,7 +70,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
 
     def __init__(
         self,
-        data: Mapping[str, _TCoeff],
+        data: dict[str, _TCoeff],
         *,
         copy: bool = True,
         validate: bool = True,
@@ -90,11 +90,10 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         Raises:
             QiskitNatureError: when an invalid key is encountered during validation.
         """
-        self._data: Mapping[str, _TCoeff] = {}
         if copy:
             if validate:
                 self._validate_keys(data.keys())
-            self._data = dict(data.items())
+            self._data = data.copy()
         else:
             self._data = data
 
@@ -106,7 +105,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
     @abstractmethod
     def _new_instance(
         self,
-        data: Mapping[str, complex],
+        data: dict[str, complex],
         *,
         other: SparseLabelOp | None = None,
     ) -> SparseLabelOp:
@@ -514,7 +513,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         Returns:
             The operator with the parameters assigned, or None if ``inplace=True``.
         """
-        data = self._data if inplace else dict(self._data.items())
+        data = self._data if inplace else self._data.copy()
         for key, value in data.items():
             if value in parameters:
                 data[key] = parameters[value]
