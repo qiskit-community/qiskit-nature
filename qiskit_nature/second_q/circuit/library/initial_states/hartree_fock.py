@@ -35,7 +35,7 @@ class HartreeFock(BlueprintCircuit):
     ) -> None:
         """
         Args:
-            num_spatial_orbitals: The number of spatial orbitals, has a min. value of 1.
+            num_spatial_orbitals: The number of spatial orbitals.
             num_particles: The number of particles as a tuple storing the number of alpha- and
                            beta-spin electrons in the first and second number, respectively.
             qubit_converter: a QubitConverter instance.
@@ -55,12 +55,12 @@ class HartreeFock(BlueprintCircuit):
 
     @property
     def qubit_converter(self) -> QubitConverter:
-        """The qubit operator converter."""
+        """The qubit converter."""
         return self._qubit_converter
 
     @qubit_converter.setter
     def qubit_converter(self, conv: QubitConverter) -> None:
-        """Sets the qubit operator converter."""
+        """Sets the qubit converter."""
         self._invalidate()
         self._qubit_converter = conv
         self._reset_register()
@@ -143,13 +143,13 @@ class HartreeFock(BlueprintCircuit):
 
         if self.qubit_converter is None:
             if raise_on_failure:
-                raise ValueError("The qubit_converter cannot be `None`.")
+                raise ValueError("The qubit converter cannot be `None`.")
             return False
 
         if isinstance(self.qubit_converter.mapper, BravyiKitaevSuperFastMapper):
             if raise_on_failure:
                 raise NotImplementedError(
-                    "Unsupported mapper in qubit_converter: ",
+                    "Unsupported mapper in qubit converter: ",
                     type(self.qubit_converter.mapper),
                     ". See https://github.com/Qiskit/qiskit-nature/issues/537",
                 )
