@@ -135,30 +135,32 @@ class TestVibrationalOp(QiskitNatureTestCase):
         targ = VibrationalOp({"-_0_0 +_0_0 +_1_0 -_1_0": 2}, num_modes=2, num_modals=1)
         self.assertEqual(vib_op, targ)
 
-    # def test_pow(self):
-    #     """Test __pow__"""
-    #     with self.subTest("square trivial"):
-    #         fer_op = FermionicOp({"+_0 +_1 -_1": 3, "-_0 +_0 -_1": 1}, num_spin_orbitals=2) ** 2
-    #         fer_op = fer_op.simplify()
-    #         targ = FermionicOp.zero()
-    #         self.assertEqual(fer_op, targ)
+    def test_pow(self):
+        """Test __pow__"""
+        with self.subTest("square trivial"):
+            vib_op = VibrationalOp({"+_0_0 +_1_0 -_1_0": 3, "-_0_0 +_0_0 -_1_0": 1}, num_modes=2) ** 2
+            vib_op = vib_op.simplify()
+            targ = VibrationalOp.zero()
+            self.assertEqual(vib_op, targ)
 
-    #     with self.subTest("square nontrivial"):
-    #         fer_op = FermionicOp({"+_0 +_1 -_1": 3, "+_0 -_0 -_1": 1}, num_spin_orbitals=2) ** 2
-    #         fer_op = fer_op.simplify()
-    #         targ = FermionicOp({"+_0 -_1": -3}, num_spin_orbitals=2)
-    #         self.assertEqual(fer_op, targ)
+        with self.subTest("square nontrivial"):
+            vib_op = VibrationalOp({"+_0_0 +_1_0 -_1_0": 3, "+_0_0 -_0_0 -_1_0": 1}, num_modes=2) ** 2
+            vib_op = vib_op.simplify()
+            targ = VibrationalOp.zero()
+            self.assertEqual(vib_op, targ)
 
-    #     with self.subTest("3rd power"):
-    #         fer_op = (3 * FermionicOp.one()) ** 3
-    #         targ = 27 * FermionicOp.one()
-    #         self.assertEqual(fer_op, targ)
+        # with self.subTest("3rd power"):
+        #     vib_op = (3 * VibrationalOp.one()) ** 3
+        #     print(vib_op)
+        #     targ = 27 * VibrationalOp.one()
+        #     self.assertEqual(vib_op, targ)
 
-    #     with self.subTest("0th power"):
-    #         fer_op = FermionicOp({"+_0 +_1 -_1": 3, "-_0 +_0 -_1": 1}, num_spin_orbitals=2) ** 0
-    #         fer_op = fer_op.simplify()
-    #         targ = FermionicOp.one()
-    #         self.assertEqual(fer_op, targ)
+        # with self.subTest("0th power"):
+        #     vib_op = VibrationalOp({"+_0_0 +_1_0 -_1_0": 3, "-_0_0 +_0_0 -_1_0": 1}, num_modes=2) ** 0
+        #     print(vib_op.num_modals)
+        #     vib_op = vib_op.simplify()
+            # targ = VibrationalOp.one()
+            # self.assertEqual(vib_op, targ)
 
     def test_adjoint(self):
         """Test adjoint method"""
@@ -412,13 +414,13 @@ class TestVibrationalOp(QiskitNatureTestCase):
 #             targ = FermionicOp({"-_0 +_1": 1})
 #             self.assertEqual(fer_op, targ)
 
-#     def test_induced_norm(self):
-#         """Test induced norm."""
-#         op = 3 * FermionicOp({"+_0": 1}, num_spin_orbitals=1) + 4j * FermionicOp(
-#             {"-_0": 1}, num_spin_orbitals=1
-#         )
-#         self.assertAlmostEqual(op.induced_norm(), 7.0)
-#         self.assertAlmostEqual(op.induced_norm(2), 5.0)
+    def test_induced_norm(self):
+        """Test induced norm."""
+        op = 3 * VibrationalOp({"+_0_0": 1}, num_modes=1) + 4j * VibrationalOp(
+            {"-_0_0": 1}, num_modes=1
+        )
+        self.assertAlmostEqual(op.induced_norm(), 7.0)
+        self.assertAlmostEqual(op.induced_norm(2), 5.0)
 
 #     @unpack
 #     @data(

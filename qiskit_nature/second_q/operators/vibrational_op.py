@@ -23,7 +23,7 @@ import operator
 import itertools
 
 import numpy as np
-# from scipy.sparse import csc_matrix
+from scipy.sparse import csc_matrix
 
 from qiskit_nature.exceptions import QiskitNatureError
 
@@ -180,7 +180,7 @@ class VibrationalOp(SparseLabelOp):
             where each integer describes the number of modals in a corresponding mode; in case of
             the same number of modals in each mode it is enough to provide an integer that describes
             the number of them; the total number of modals defines a ``register_length``. This is
-            considered a lower bound. 
+            considered a lower bound.
     """
 
     # a valid pattern consists of a single "+" or "-" operator followed by "_" and a mode index
@@ -272,6 +272,7 @@ class VibrationalOp(SparseLabelOp):
                     num_modals = max(num_modals, other_num_modals)
 
                 if isinstance(num_modals, list) and isinstance(other_num_modals, list):
+
                     def pad_to_length(a, b):
                         if len(a) < len(b):
                             a, b = b, a
@@ -308,9 +309,8 @@ class VibrationalOp(SparseLabelOp):
 
         for labels in vibrational_labels:
             coeff_labels_split = labels.split()
-            # par_num_mode_conserved_check = [0] * num_modes
             for label in coeff_labels_split:
-                op, mode_index_str, modal_index_str = re.split("[_]", label)
+                _, mode_index_str, modal_index_str = re.split("[_]", label)
                 mode_index = int(mode_index_str)
                 modal_index = int(modal_index_str)
 
@@ -325,6 +325,23 @@ class VibrationalOp(SparseLabelOp):
 
                 if modal_index > num_modals[mode_index] - 1:
                     num_modals[mode_index] = mode_index
+
+        # TODO merge this into the loop above
+        # for labels in vibrational_labels:
+        #     par_num_mode_conserved_check = [0] * num_modes
+        #     for label in labels.split():
+        #         op, mode_index_str, modal_index_str = re.split("[_]", label)
+        #         mode_index = int(mode_index_str)
+        #         modal_index = int(modal_index_str)
+        #         par_num_mode_conserved_check[int(mode_index)] += 1 if op == "+" else -1
+        #     for index, item in enumerate(par_num_mode_conserved_check):
+        #         if item != 0:
+        #             logger.warning(
+        #                 "Number of raising and lowering operators do not agree for mode %s in "
+        #                 "label %s.",
+        #                 index,
+        #                 labels,
+        #             )
 
         self.num_modes = num_modes
         self.num_modals = num_modals
@@ -374,7 +391,7 @@ class VibrationalOp(SparseLabelOp):
     def __str__(self) -> str:
         pre = (
             "Vibrational Operator\n"
-            f"number modes={self.num_modes}, number modes={self.num_modals}, "
+            f"number modes={self.num_modes}, number modals={self.num_modals}, "
             f"number terms={len(self)}\n"
         )
         ret = "  " + "\n+ ".join(
@@ -402,11 +419,13 @@ class VibrationalOp(SparseLabelOp):
             # we hard-code the result of lbl.split("_") as follows:
             #   lbl[0] is either + or -
             #   lbl[2:] corresponds to the index
-            terms = [self._build_register_label(lbl, partial_sum_modals) for lbl in label.split(" ")]
+            terms = [
+                self._build_register_label(lbl, partial_sum_modals) for lbl in label.split(" ")
+            ]
             yield (terms, self[label])
 
     def _build_register_label(self, label: str, partial_sum_modals: list[int]) -> tuple[str, int]:
-        op, mode_index, modal_index = re.split("[*_]", label)
+        op, mode_index, modal_index = re.split("[_]", label)
         index = partial_sum_modals[int(mode_index)] + int(modal_index)
         return (op, index)
 
@@ -437,7 +456,9 @@ class VibrationalOp(SparseLabelOp):
                 if labels2 == "":
                     continue
                 terms = [re.split("[*_]", lbl) for lbl in labels2.split(" ")]
-                new_label = f"{labels1} {' '.join(f'{c}_{int(i)+shift}_{j}' for c, i, j in terms)}".strip()
+                new_label = (
+                    f"{labels1} {' '.join(f'{c}_{int(i)+shift}_{j}' for c, i, j in terms)}".strip()
+                )
                 if new_label in new_data:
                     new_data[new_label] += cf1 * cf2
                 else:
@@ -466,11 +487,11 @@ class VibrationalOp(SparseLabelOp):
 
         csc_data, csc_col, csc_row = [], [], []
 
-        dimension = 1 << self.num_spin_orbitals
+        dimension = 1 << self.register_length
 
         # loop over all columns of the matrix
         for col_idx in range(dimension):
-            initial_occupations = [occ == "1" for occ in f"{col_idx:0{self.num_spin_orbitals}b}"]
+            initial_occupations = [occ == "1" for occ in f"{col_idx:0{self.register_length}b}"]
             # loop over the terms in the operator data
             for terms, prefactor in self.simplify().terms():
                 # check if op string is the identity
@@ -480,7 +501,6 @@ class VibrationalOp(SparseLabelOp):
                     csc_col.append(col_idx)
                 else:
                     occupations = initial_occupations.copy()
-                    sign = 1
                     mapped_to_zero = False
 
                     # apply terms sequentially to the current basis state
@@ -492,13 +512,12 @@ class VibrationalOp(SparseLabelOp):
                             # does applying the annihilation operator on an unoccupied state.
                             mapped_to_zero = True
                             break
-                        sign *= (-1) ** sum(occupations[:index])
                         occupations[index] = not occ
 
                     # add data point to matrix in the correct row
                     if not mapped_to_zero:
                         row_idx = sum(int(occ) << idx for idx, occ in enumerate(occupations[::-1]))
-                        csc_data.append(sign * prefactor)
+                        csc_data.append(prefactor)
                         csc_row.append(row_idx)
                         csc_col.append(col_idx)
 
@@ -523,77 +542,6 @@ class VibrationalOp(SparseLabelOp):
 
         return self._new_instance(data)
 
-    # TODO
-    def normal_ordered(self) -> VibrationalOp:
-        """Convert to the equivalent operator with normal order.
-
-        Returns a new operator (the original operator is not modified).
-
-        .. note::
-
-            This method implements the transformation of an operator to the normal ordered operator.
-            The transformation is calculated by considering all commutation relations between the
-            operators.
-            For example, for the case :math:`\\colon c_0 c_0^\\dagger\\colon` where :math:`c_0`
-            is an annihilation operator, this method returns :math:`1 - c_0^\\dagger c_0` due to
-            commutation relations.
-            See the reference: https://en.wikipedia.org/wiki/Normal_order#Multiple_fermions.
-
-        Returns:
-            The normal ordered operator.
-        """
-        ordered_op = VibrationalOp.zero()
-
-        for terms, coeff in self.terms():
-            ordered_op += self._normal_ordered(terms, coeff)
-
-        return ordered_op
-
-    # TODO
-    def _normal_ordered(self, terms: list[tuple[str, int]], coeff: complex) -> VibrationalOp:
-        if not terms:
-            return self._new_instance({"": coeff})
-
-        ordered_op = VibrationalOp.zero()
-
-        # perform insertion sorting
-        for i in range(1, len(terms)):
-            for j in range(i, 0, -1):
-                right = terms[j]
-                left = terms[j - 1]
-
-                if right[0] == "+" and left[0] == "-":
-                    # swap terms where an annihilation operator is left of a creation operator
-                    terms[j - 1] = right
-                    terms[j] = left
-                    coeff *= -1.0
-
-                    if right[1] == left[1]:
-                        # if their indices are identical, we incur an additional term because of:
-                        # a_i a_i^\dagger = 1 - a_i^\dagger a_i
-                        new_terms = terms[: (j - 1)] + terms[(j + 1) :]
-                        # we can do so by recursion on this method
-                        ordered_op += self._normal_ordered(new_terms, -1.0 * coeff)
-
-                elif right[0] == left[0]:
-                    # when we have identical neighboring operators, differentiate two cases:
-
-                    # on identical index, this is an invalid Fermionic operation which evaluates to
-                    # zero: e.g. +_0 +_0 = 0
-                    if right[1] == left[1]:
-                        # thus, we bail on this recursion call
-                        return ordered_op
-
-                    # otherwise, if the left index is higher than the right one, swap the terms
-                    elif left[1] > right[1]:
-                        terms[j - 1] = right
-                        terms[j] = left
-                        coeff *= -1.0
-
-        new_label = " ".join(f"{term[0]}_{term[1]}" for term in terms)
-        ordered_op += self._new_instance({new_label: coeff})
-        return ordered_op
-
     def is_hermitian(self, *, atol: float | None = None) -> bool:
         """Checks whether the operator is hermitian.
 
@@ -604,10 +552,9 @@ class VibrationalOp(SparseLabelOp):
             True if the operator is hermitian up to numerical tolerance, False otherwise.
         """
         atol = self.atol if atol is None else atol
-        diff = (self - self.adjoint()).normal_ordered().simplify(atol=atol)
+        diff = (self - self.adjoint()).simplify(atol=atol)
         return all(np.isclose(coeff, 0.0, atol=atol) for coeff in diff.values())
 
-    # TODO
     def simplify(self, *, atol: float | None = None) -> VibrationalOp:
         atol = self.atol if atol is None else atol
 
@@ -621,12 +568,13 @@ class VibrationalOp(SparseLabelOp):
         }
         return self._new_instance(simplified_data)
 
-    # TODO
     def _simplify_label(self, label: str, coeff: complex) -> tuple[str, complex]:
         bits = _BitsContainer()
 
+        partial_sum_modals = [0] + list(itertools.accumulate(self.num_modals, operator.add))
+
         for lbl in label.split():
-            char, index = lbl.split("_")
+            char, index = self._build_register_label(lbl, partial_sum_modals)
             idx = int(index)
             char_b = char == "+"
 
@@ -654,13 +602,6 @@ class VibrationalOp(SparseLabelOp):
                 bits.set_plus_or_minus(idx, char_b, True)
                 # we also update the last bit to the current char
                 bits.set_last(idx, char_b)
-
-            if idx != self.num_spin_orbitals:
-                num_exchange = 0
-                for i in range(idx + 1, self.num_spin_orbitals):
-                    if i in bits:
-                        num_exchange += (bits.get_plus(i) + bits.get_minus(i)) % 2
-                coeff *= -1 if num_exchange % 2 else 1
 
         new_label = []
         for idx in sorted(bits):
