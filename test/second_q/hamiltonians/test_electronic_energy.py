@@ -55,6 +55,9 @@ class TestElectronicEnergy(PropertyTest):
 
         expected = np.asarray([[-0.34436786423711596, 0.0], [0.0, 0.4515069814257469]])
         self.assertTrue(np.allclose(fock_op.alpha["+-"], expected))
+        self.assertNotIn("++--", fock_op.alpha)
+        self.assertNotIn("++--", fock_op.beta)
+        self.assertNotIn("++--", fock_op.beta_alpha)
 
     def test_from_raw_integrals(self):
         """Test from_raw_integrals utility method."""

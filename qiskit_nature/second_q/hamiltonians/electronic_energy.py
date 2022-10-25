@@ -271,4 +271,4 @@ class ElectronicEnergy(Hamiltonian):
         Returns:
             The Fock operator coefficients.
         """
-        return self.electronic_integrals + self.coulomb(density) - self.exchange(density)
+        return self.electronic_integrals.one_body + self.coulomb(density) - self.exchange(density)
