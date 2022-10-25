@@ -29,7 +29,6 @@ runs:
           release=1.6
           echo "installs psi4 release $release"
           conda install -y psi4=$release python=${{ inputs.python-version }} -c conda-forge -c psi4/label/dev
-          psi4 --test
         elif [[ "${{ inputs.os }}" == "ubuntu-latest" && "${{ inputs.python-version }}" == "3.7" ]]; then
           release=2.6.0
           echo "installs libint2 release $release"
