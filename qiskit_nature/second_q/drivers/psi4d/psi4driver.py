@@ -20,31 +20,24 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.exceptions import UnsupportMethodError
 from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.problems import ElectronicBasis, ElectronicStructureProblem
-from qiskit_nature.second_q.properties import ElectronicDipoleMoment
-from qiskit_nature.second_q.operators import ElectronicIntegrals
 from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
 from qiskit_nature.second_q.formats.qcschema import QCSchema
-from qiskit_nature.second_q.formats.qcschema_translator import (
-    qcschema_to_problem,
-    get_ao_to_mo_from_qcschema,
-)
-
+from qiskit_nature.second_q.formats.qcschema_translator import qcschema_to_problem
 import qiskit_nature.optionals as _optionals
 
-from ._qmolecule import _QMolecule
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType, _QCSchemaData
 
 logger = logging.getLogger(__name__)
 
 
 @_optionals.HAS_PSI4.require_in_instance
-class PSI4Driver(ElectronicStructureDriver):
+class Psi4Driver(ElectronicStructureDriver):
     """
     Qiskit Nature driver using the PSI4 program.
     See http://www.psicode.org/
@@ -52,9 +45,8 @@ class PSI4Driver(ElectronicStructureDriver):
 
     def __init__(
         self,
-        config: Union[
-            str, list[str]
-        ] = "molecule h2 {\n  0 1\n  H  0.0 0.0 0.0\n  H  0.0 0.0 0.735\n}\n\n"
+        config: str
+        | list[str] = "molecule h2 {\n  0 1\n  H  0.0 0.0 0.0\n  H  0.0 0.0 0.735\n}\n\n"
         "set {\n  basis sto-3g\n  scf_type pk\n  reference rhf\n",
     ) -> None:
         """
@@ -71,7 +63,7 @@ class PSI4Driver(ElectronicStructureDriver):
             config = "\n".join(config)
 
         self._config = config
-        self._qmolecule = _QMolecule()
+        self._qcschemadata = _QCSchemaData()
 
     @staticmethod
     @_optionals.HAS_PSI4.require_in_call
@@ -79,8 +71,8 @@ class PSI4Driver(ElectronicStructureDriver):
         molecule: MoleculeInfo,
         basis: str = "sto3g",
         method: MethodType = MethodType.RHF,
-        driver_kwargs: Optional[dict[str, Any]] = None,
-    ) -> "PSI4Driver":
+        driver_kwargs: dict[str, Any] | None = None,
+    ) -> "Psi4Driver":
         """
         Args:
             molecule: molecule
@@ -94,8 +86,8 @@ class PSI4Driver(ElectronicStructureDriver):
         """
         # Ignore kwargs parameter for this driver
         del driver_kwargs
-        PSI4Driver.check_method_supported(method)
-        basis = PSI4Driver.to_driver_basis(basis)
+        Psi4Driver.check_method_supported(method)
+        basis = Psi4Driver.to_driver_basis(basis)
 
         if molecule.units == DistanceUnit.ANGSTROM:
             units = "ang"
@@ -115,7 +107,7 @@ class PSI4Driver(ElectronicStructureDriver):
         cfg2 = f"{molecule.charge} {molecule.multiplicity}\n"
         cfg3 = f"{geom}\nno_com\nno_reorient\n}}\n\n"
         cfg4 = f"set {{\n basis {basis}\n scf_type pk\n reference {method.value}\n}}"
-        return PSI4Driver(cfg1 + cfg2 + cfg3 + cfg4)
+        return Psi4Driver(cfg1 + cfg2 + cfg3 + cfg4)
 
     @staticmethod
     def to_driver_basis(basis: str) -> str:
@@ -161,13 +153,12 @@ class PSI4Driver(ElectronicStructureDriver):
 
         input_text += ["sys.path = " + syspath + " + sys.path"]
 
-        with open(template_file, "r", encoding="utf8") as file:
-            input_text += [line.strip("\n") for line in file.readlines()]
-
         file_fd, hdf5_file = tempfile.mkstemp(suffix=".hdf5")
         os.close(file_fd)
+        input_text += [f'_FILE_PATH = "{Path(hdf5_file).as_posix()}"']
 
-        input_text += [f'_q_molecule.save("{Path(hdf5_file).as_posix()}")']
+        with open(template_file, "r", encoding="utf8") as file:
+            input_text += [line.strip("\n") for line in file.readlines()]
 
         file_fd, input_file = tempfile.mkstemp(suffix=".inp")
         os.close(file_fd)
@@ -177,7 +168,7 @@ class PSI4Driver(ElectronicStructureDriver):
         file_fd, output_file = tempfile.mkstemp(suffix=".out")
         os.close(file_fd)
         try:
-            PSI4Driver._run_psi4(input_file, output_file)
+            Psi4Driver._run_psi4(input_file, output_file)
             if logger.isEnabledFor(logging.DEBUG):
                 with open(output_file, "r", encoding="utf8") as file:
                     logger.debug("PSI4 output file:\n%s", file.read())
@@ -201,9 +192,7 @@ class PSI4Driver(ElectronicStructureDriver):
             except Exception:  # pylint: disable=broad-except
                 pass
 
-        self._qmolecule = _QMolecule(hdf5_file)
-        self._qmolecule.load()
-
+        self._qcschemadata = _QCSchemaData.from_hdf5(hdf5_file)
         try:
             os.remove(hdf5_file)
         except Exception:  # pylint: disable=broad-except
@@ -211,45 +200,17 @@ class PSI4Driver(ElectronicStructureDriver):
 
         return self.to_problem()
 
-    def to_qcschema(self) -> QCSchema:
-        return PSI4Driver._qcschema_from_qmolecule(self._qmolecule)
+    def to_qcschema(self, *, include_dipole: bool = True) -> QCSchema:
+        """Extracts all available information after the driver was run into a :class:`.QCSchema`
+        object.
 
-    @staticmethod
-    def _qcschema_from_qmolecule(qmolecule: _QMolecule) -> QCSchema:
-        data = _QCSchemaData()
-        data.hij = qmolecule.hcore
-        data.hij_b = qmolecule.hcore_b
-        data.eri = qmolecule.eri
-        data.hij_mo = qmolecule.mo_onee_ints
-        data.hij_mo_b = qmolecule.mo_onee_ints_b
-        data.eri_mo = qmolecule.mo_eri_ints
-        data.eri_mo_ba = qmolecule.mo_eri_ints_ba
-        data.eri_mo_bb = qmolecule.mo_eri_ints_bb
-        data.e_nuc = qmolecule.nuclear_repulsion_energy
-        data.e_ref = qmolecule.hf_energy
-        data.mo_coeff = qmolecule.mo_coeff
-        data.mo_coeff_b = qmolecule.mo_coeff_b
-        data.mo_energy = qmolecule.orbital_energies
-        data.mo_energy_b = qmolecule.orbital_energies_b
-        data.mo_occ = None
-        data.mo_occ_b = None
-        data.symbols = qmolecule.atom_symbol
-        data.coords = qmolecule.atom_xyz.flatten()
-        data.multiplicity = qmolecule.multiplicity
-        data.charge = qmolecule.molecular_charge
-        data.masses = qmolecule.masses
-        data.method = None
-        data.basis = None
-        data.creator = "PSI4"
-        data.version = qmolecule.origin_driver_version
-        data.routine = None
-        data.nbasis = None
-        data.nmo = qmolecule.num_molecular_orbitals
-        data.nalpha = qmolecule.num_alpha
-        data.nbeta = qmolecule.num_beta
-        data.keywords = None
+        Args:
+            include_dipole: whether to include the custom dipole integrals in the QCSchema.
 
-        return PSI4Driver._to_qcschema(data)
+        Returns:
+            A :class:`.QCSchema` storing all extracted system data computed by the driver.
+        """
+        return Psi4Driver._to_qcschema(self._qcschemadata, include_dipole=include_dipole)
 
     def to_problem(
         self,
@@ -257,29 +218,11 @@ class PSI4Driver(ElectronicStructureDriver):
         basis: ElectronicBasis = ElectronicBasis.MO,
         include_dipole: bool = True,
     ) -> ElectronicStructureProblem:
-        qcschema = PSI4Driver._qcschema_from_qmolecule(self._qmolecule)
-
-        problem = qcschema_to_problem(qcschema, basis=basis)
-
-        if include_dipole:
-            x_dip = ElectronicIntegrals.from_raw_integrals(self._qmolecule.x_dip_ints)
-            y_dip = ElectronicIntegrals.from_raw_integrals(self._qmolecule.y_dip_ints)
-            z_dip = ElectronicIntegrals.from_raw_integrals(self._qmolecule.z_dip_ints)
-
-            if basis == ElectronicBasis.MO:
-                basis_transform = get_ao_to_mo_from_qcschema(qcschema)
-
-                x_dip = basis_transform.transform_electronic_integrals(x_dip)
-                y_dip = basis_transform.transform_electronic_integrals(y_dip)
-                z_dip = basis_transform.transform_electronic_integrals(z_dip)
-
-            dipole_moment = ElectronicDipoleMoment(x_dip, y_dip, z_dip)
-            dipole_moment.nuclear_dipole_moment = self._qmolecule.nuclear_dipole_moment
-            dipole_moment.reverse_dipole_sign = self._qmolecule.reverse_dipole_sign
-
-            problem.properties.electronic_dipole_moment = dipole_moment
-
-        return problem
+        return qcschema_to_problem(
+            self.to_qcschema(include_dipole=include_dipole),
+            basis=basis,
+            include_dipole=include_dipole,
+        )
 
     @staticmethod
     def _run_psi4(input_file, output_file):

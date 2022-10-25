@@ -15,7 +15,7 @@
 import unittest
 
 from test.second_q.drivers.test_driver_methods_gsc import TestDriverMethods
-from qiskit_nature.second_q.drivers import PSI4Driver
+from qiskit_nature.second_q.drivers import Psi4Driver
 from qiskit_nature.second_q.transformers import FreezeCoreTransformer
 import qiskit_nature.optionals as _optionals
 
@@ -52,35 +52,35 @@ set {{
     @unittest.skipIf(not _optionals.HAS_PSI4, "psi4 not available.")
     def setUp(self):
         super().setUp()
-        PSI4Driver(config=self.psi4_lih_config.format("rhf"))
+        Psi4Driver(config=self.psi4_lih_config.format("rhf"))
 
     def test_lih_rhf(self):
         """lih rhf test"""
-        driver = PSI4Driver(config=self.psi4_lih_config.format("rhf"))
+        driver = Psi4Driver(config=self.psi4_lih_config.format("rhf"))
         result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
         self._assert_energy_and_dipole(result, "lih")
 
     def test_lih_rohf(self):
         """lih rohf test"""
-        driver = PSI4Driver(config=self.psi4_lih_config.format("rohf"))
+        driver = Psi4Driver(config=self.psi4_lih_config.format("rohf"))
         result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
         self._assert_energy_and_dipole(result, "lih")
 
     def test_lih_uhf(self):
         """lih uhf test"""
-        driver = PSI4Driver(config=self.psi4_lih_config.format("uhf"))
+        driver = Psi4Driver(config=self.psi4_lih_config.format("uhf"))
         result = self._run_driver(driver, transformers=[FreezeCoreTransformer()])
         self._assert_energy_and_dipole(result, "lih")
 
     def test_oh_rohf(self):
         """oh rohf test"""
-        driver = PSI4Driver(config=self.psi4_oh_config.format("rohf"))
+        driver = Psi4Driver(config=self.psi4_oh_config.format("rohf"))
         result = self._run_driver(driver)
         self._assert_energy_and_dipole(result, "oh")
 
     def test_oh_uhf(self):
         """oh uhf test"""
-        driver = PSI4Driver(config=self.psi4_oh_config.format("uhf"))
+        driver = Psi4Driver(config=self.psi4_oh_config.format("uhf"))
         result = self._run_driver(driver)
         self._assert_energy_and_dipole(result, "oh")
 

@@ -29,6 +29,6 @@ In order for Qiskit Nature to discover PSI4 at run time, it is then necessary to
 `enable_psi4` command before launching Qiskit.
 """
 
-from .psi4driver import PSI4Driver
+from .psi4driver import Psi4Driver
 
-__all__ = ["PSI4Driver"]
+__all__ = ["Psi4Driver"]

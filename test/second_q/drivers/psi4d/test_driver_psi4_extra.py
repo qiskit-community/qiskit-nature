@@ -16,7 +16,7 @@ import unittest
 
 from test import QiskitNatureTestCase
 import numpy as np
-from qiskit_nature.second_q.drivers import PSI4Driver
+from qiskit_nature.second_q.drivers import Psi4Driver
 from qiskit_nature import QiskitNatureError
 import qiskit_nature.optionals as _optionals
 
@@ -30,7 +30,7 @@ class TestDriverPSI4Extra(QiskitNatureTestCase):
 
     def test_input_format_list(self):
         """input as a list"""
-        driver = PSI4Driver(
+        driver = Psi4Driver(
             [
                 "molecule h2 {",
                 "  0 1",
@@ -69,7 +69,7 @@ basis sto-3g
 scf_type pk
 }
 """
-        driver = PSI4Driver(cfg)
+        driver = Psi4Driver(cfg)
         driver_result = driver.run()
         with self.subTest("energy"):
             self.assertAlmostEqual(driver_result.reference_energy, -1.117, places=3)
@@ -81,7 +81,7 @@ scf_type pk
     def test_input_format_fail(self):
         """input type failure"""
         with self.assertRaises(QiskitNatureError):
-            _ = PSI4Driver(1.000)
+            _ = Psi4Driver(1.000)
 
     def test_psi4_failure(self):
         """check we catch psi4 failures (bad scf type used here)"""
@@ -98,7 +98,7 @@ basis sto-3g
 scf_type unknown
 }
 """
-        driver = PSI4Driver(bad_cfg)
+        driver = Psi4Driver(bad_cfg)
         with self.assertRaises(QiskitNatureError) as ctxmgr:
             _ = driver.run()
         self.assertTrue(str(ctxmgr.exception).startswith("'psi4 process return code"))
