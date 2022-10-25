@@ -62,12 +62,12 @@ class VSCF(BlueprintCircuit):
 
     @property
     def qubit_converter(self) -> QubitConverter:
-        """The qubit operator converter."""
+        """The qubit converter."""
         return self._qubit_converter
 
     @qubit_converter.setter
     def qubit_converter(self, conv: QubitConverter) -> None:
-        """Sets the qubit operator converter."""
+        """Sets the qubit converter."""
         self._invalidate()
         if conv is not None and not isinstance(conv.mapper, DirectMapper):
             logger.warning(
@@ -117,7 +117,7 @@ class VSCF(BlueprintCircuit):
 
         if self.qubit_converter is None:
             if raise_on_failure:
-                raise ValueError("The qubit_converter cannot be `None`.")
+                raise ValueError("The qubit converter cannot be `None`.")
             return False
 
         return True
