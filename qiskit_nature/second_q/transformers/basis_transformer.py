@@ -25,6 +25,7 @@ from qiskit_nature.second_q.operators import ElectronicIntegrals, PolynomialTens
 from qiskit_nature.second_q.problems import BaseProblem, ElectronicBasis, ElectronicStructureProblem
 from qiskit_nature.second_q.properties import (
     AngularMomentum,
+    ElectronicDensity,
     ElectronicDipoleMoment,
     Magnetization,
     ParticleNumber,
@@ -136,11 +137,18 @@ class BasisTransformer(BaseTransformer):
         )
         new_problem.basis = self.final_basis
         new_problem.molecule = problem.molecule
+        new_problem.reference_energy = problem.reference_energy
+        new_problem.num_particles = problem.num_particles
+        new_problem.num_spatial_orbitals = problem.num_spatial_orbitals
 
         for prop in problem.properties:
             if isinstance(prop, ElectronicDipoleMoment):
                 new_problem.properties.electronic_dipole_moment = (
                     self._transform_electronic_dipole_moment(prop)
+                )
+            elif isinstance(prop, ElectronicDensity):
+                new_problem.properties.electronic_density = self.transform_electronic_integrals(
+                    prop
                 )
             elif isinstance(prop, (AngularMomentum, Magnetization, ParticleNumber)):
                 new_problem.properties.add(prop)
