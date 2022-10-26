@@ -316,6 +316,8 @@ class VibrationalOp(SparseLabelOp):
 
                 if num_modes is None:
                     num_modes = mode_index + 1
+                    if isinstance(num_modals, int):
+                        num_modals = num_modes * [num_modals]
 
                 if num_modals is None:
                     num_modals = [0] * num_modes
