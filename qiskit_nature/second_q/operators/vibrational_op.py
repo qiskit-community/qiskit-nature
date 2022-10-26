@@ -321,10 +321,17 @@ class VibrationalOp(SparseLabelOp):
                     num_modals = [0] * num_modes
 
                 if mode_index > num_modes - 1:
-                    num_modals += [0] * (mode_index - num_modes - 1)
+                    num_modals += [0] * (mode_index - num_modes + 1)
+                    num_modes = mode_index + 1
 
                 if modal_index > num_modals[mode_index] - 1:
-                    num_modals[mode_index] = mode_index
+                    num_modals[mode_index] = modal_index + 1
+
+        if num_modes is None:
+            num_modes = 0
+
+        if num_modals is None:
+            num_modals = [0]
 
         # TODO merge this into the loop above
         # for labels in vibrational_labels:

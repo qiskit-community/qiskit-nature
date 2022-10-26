@@ -24,22 +24,31 @@ from qiskit_nature.second_q.operators import VibrationalOp
 class TestVibrationalOp(QiskitNatureTestCase):
     """VibrationalOp tests."""
 
-    # op1 = VibrationalOp({"+_0_0 -_0_0": 1}, num_modes=1, num_modals=1)
+    op1 = VibrationalOp({"+_0_0 -_0_0": 1}, num_modes=1, num_modals=1)
     op1 = VibrationalOp({"+_0_0 -_0_0": 1})
 
     op2 = VibrationalOp({"-_0_0 +_0_0": 2})
     op3 = VibrationalOp({"+_0_0 -_0_0": 1, "-_0_0 +_0_0": 2})
 
-    # def test_no_num_spin_orbitals(self):
-    #     """Test operators with automatic register length"""
-    #     op0 = FermionicOp({"": 1})
-    #     op1 = FermionicOp({"+_0 -_0": 1})
-    #     op2 = FermionicOp({"-_0 +_1": 2})
+    def test_automatic_num_modes_and_num_modals(self):
+        """Test operators with automatic num_modes and num_modals"""
 
-    #     with self.subTest("Inferred register length"):
-    #         self.assertEqual(op0.num_spin_orbitals, 0)
-    #         self.assertEqual(op1.num_spin_orbitals, 1)
-    #         self.assertEqual(op2.num_spin_orbitals, 2)
+        with self.subTest("Empty data"):
+            op = VibrationalOp({"": 1})
+            self.assertEqual(op.num_modes, 0)
+            self.assertEqual(op.num_modals, [0])
+
+        with self.subTest("Single mode and modal"):
+            op = VibrationalOp({"+_0_0": 1})
+            print(op)
+            self.assertEqual(op.num_modes, 1)
+            self.assertEqual(op.num_modals, [1])
+
+        with self.subTest("Single mode and modal"):
+            op = VibrationalOp({"+_0_0 +_1_0": 1})
+            print(op)
+            self.assertEqual(op.num_modes, 2)
+            self.assertEqual(op.num_modals, [1, 1])
 
     #     with self.subTest("Mathematical operations"):
     #         self.assertEqual((op0 + op2).num_spin_orbitals, 2)
