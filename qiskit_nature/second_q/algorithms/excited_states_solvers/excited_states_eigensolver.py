@@ -64,7 +64,9 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
     def get_qubit_operators(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[dict[str, Union[SecondQuantizedOp, FermionicOp, PauliSumOp]]] = None,
+        aux_operators: Optional[
+            dict[str, Union[SecondQuantizedOp, FermionicOp, PauliSumOp]]
+        ] = None,
     ) -> Tuple[PauliSumOp, Optional[dict[str, PauliSumOp]]]:
         """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators"""
         # Note that ``aux_ops`` contains not only the transformed ``aux_operators`` passed by the

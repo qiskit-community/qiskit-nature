@@ -589,7 +589,7 @@ class QubitConverter:
         return tapered_qubit_ops
 
     def _convert_clifford(
-        self, 
+        self,
         qubit_ops: PauliSumOp | ListOrDictType[PauliSumOp],
     ):
         if qubit_ops is None or self._z2symmetries is None or self._z2symmetries.is_empty():
@@ -611,7 +611,6 @@ class QubitConverter:
                     converted_ops = dict(iter(converted_ops))
 
         return converted_ops
-
 
     @staticmethod
     def _check_commutes(cliffords: List[PauliSumOp], qubit_op: PauliSumOp) -> bool:
