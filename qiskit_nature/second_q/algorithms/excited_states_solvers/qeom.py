@@ -13,6 +13,8 @@
 """The calculation of excited states via the qEOM algorithm"""
 
 from __future__ import annotations
+from operator import index
+from tkinter.messagebox import NO
 from turtle import right
 
 from typing import Any, Callable, List, Union, Optional, Tuple, Dict
@@ -27,16 +29,20 @@ from qiskit.tools import parallel_map
 from qiskit.tools.events import TextProgressBar
 from qiskit.utils import algorithm_globals
 from qiskit.algorithms import AlgorithmResult, VariationalAlgorithm
+from qiskit.algorithms.eigensolvers import EigensolverResult
+
 from qiskit.opflow import (
     Z2Symmetries,
     commutator,
     double_commutator,
     PauliSumOp,
 )
+from qiskit.quantum_info import SparsePauliOp
 from qiskit.primitives import BaseEstimator
 
 from qiskit_nature.converters.second_quantization.utils import ListOrDict
 from qiskit_nature.second_q.operators import SecondQuantizedOp
+from qiskit_nature.second_q.operators.sparse_label_op import SparseLabelOp
 from qiskit_nature.second_q.problems import (
     BaseProblem,
     ElectronicStructureProblem,
@@ -142,6 +148,8 @@ class QEOM(ExcitedStatesSolver):
         self,
         problem: BaseProblem,
         aux_operators: Optional[dict[str, SecondQuantizedOp]] = None,
+        eval_second_q_eigenvalues: Optional[list(str)] = True,
+
     ) -> EigenstateResult:
         """Run the excited-states calculation.
 
@@ -164,40 +172,63 @@ class QEOM(ExcitedStatesSolver):
             pre_tap_custom_aux_ops # User-defined auxiliary observables
         ) = self._prepare_all_operators(problem, aux_operators)
 
-        # 2. Run ground state calculation
-        # The last step of the tapering is always performed right before the `solve()` method.
-        # The second_q_ops are included directly within the `solve()` method.
-        tap_custom_aux_ops = self.qubit_converter._symmetry_reduce_clifford(
-            pre_tap_custom_aux_ops,
-            True
-        )
-
+        # 2. Run ground state calculation with fully tapered custom auxiliary operators
+        # Note that the solve() method natively includes the `second_q' auxiliary operators
+        tap_custom_aux_ops = self.qubit_converter._symmetry_reduce_clifford(pre_tap_custom_aux_ops, True)
         groundstate_result = self._gsc.solve(problem, tap_custom_aux_ops)
         ground_state = groundstate_result.eigenstates[0]
 
         # 3. Prepare the expansion operators for the excited state calculation
-        pre_tap_hopping_ops, type_of_commutativities, size = self._build_expansion_basis(problem)
+        expansion_basis_data = self._build_expansion_basis(problem)
 
         # 4. Obtain the representation of the Hamiltonian in the linear subspace
-        eom_matrices, eom_matrices_std = self._build_operator_representation(
+        h_mat, s_mat, h_mat_std, s_mat_std = self._build_qeom_pseudoeigenvalue_problem(
             pre_tap_qubit_op_main, 
-            pre_tap_hopping_ops, 
-            type_of_commutativities, 
-            size, 
-            ground_state, 
-            commutator=True
+            expansion_basis_data,
+            ground_state
         )
 
-        # 5. solve pseudo-eigenvalue problem
-        energy_gaps, expansion_coefs = self._compute_excitation_energies(eom_matrices)
+        # 5. Solve pseudo-eigenvalue problem
+        energy_gaps, expansion_coefs = self._compute_excitation_energies(h_mat, s_mat)
+
+        # print("\n QEOM Hamiltonian")
+        # aux_op_h_vals = expansion_coefs.T.conj() @ h_mat @ expansion_coefs
+        # aux_op_s_vals = expansion_coefs.T.conj() @ s_mat @ expansion_coefs
+        # print(np.real(aux_op_h_vals))
+        # print(np.real(aux_op_s_vals))
+
+    
+        # 6. Evaluate auxiliary operators on the excited states
+        
+        if eval_second_q_eigenvalues and pre_tap_custom_aux_ops is not None:
+            pre_tap_aux_observables = {**pre_tap_second_q_aux_ops, **pre_tap_custom_aux_ops}
+        elif eval_second_q_eigenvalues and pre_tap_custom_aux_ops is None:
+            pre_tap_aux_observables = pre_tap_second_q_aux_ops
+        else:
+            pre_tap_aux_observables = pre_tap_custom_aux_ops
+
+        aux_observables_eigenvalues_raw = self._evaluate_observables_excited_states(
+            pre_tap_aux_observables,
+            expansion_basis_data,
+            ground_state,
+            expansion_coefs,
+            groundstate_result.aux_operators_evaluated
+        )
+
+        aux_observables_eigenvalues = [dict(zip(aux_observables_eigenvalues_raw, col)) for col in zip(*aux_observables_eigenvalues_raw.values())]
+
+        # 7. Evaluate custom auxiliary operators on the excited states
 
         result = self._build_qeom_result(
             problem,
             groundstate_result,
             expansion_coefs,
             energy_gaps,
-            eom_matrices,
-            eom_matrices_std
+            h_mat,
+            s_mat,
+            h_mat_std,
+            s_mat_std,
+            aux_observables_eigenvalues
         )
 
         return result
@@ -238,8 +269,11 @@ class QEOM(ExcitedStatesSolver):
                 f"type {type(problem)}"
             )
 
-    def _build_all_commutators(
-        self, pre_tap_operator, hopping_operators: dict, type_of_commutativities: dict, size: int
+    def _build_all_eom_operators(
+        self, 
+        pre_tap_operator, 
+        expansion_basis_data: tuple(dict, dict, int),
+        commutator: bool
     ) -> dict:
         """Building all commutators for Q, W, M, V matrices.
 
@@ -255,11 +289,10 @@ class QEOM(ExcitedStatesSolver):
         Returns:
             a dictionary that contains the operators for each matrix element
         """
-
-        if commutator:
-            build_routine = self._build_commutator_routine
-        else:
-            build_routine = self._build_product_routine
+        
+        
+        build_routine = self._build_commutator_routine if commutator else self._build_product_routine
+        pre_tap_hopping_ops, type_of_commutativities, size = expansion_basis_data
         all_matrix_operators = {}
 
         mus, nus = np.triu_indices(size)
@@ -269,10 +302,13 @@ class QEOM(ExcitedStatesSolver):
             to_be_computed_list = []
             for idx, m_u in enumerate(mus):
                 n_u = nus[idx]
-                left_op = available_hopping_ops.get(f"E_{m_u}")
+                left_op_1 = available_hopping_ops.get(f"E_{m_u}")
+                left_op_2 = available_hopping_ops.get(f"Edag_{m_u}")
+                # left_op2 is only needed for the product metric because it does not have the symmetries 
+                # of the double commutator.
                 right_op_1 = available_hopping_ops.get(f"E_{n_u}")
                 right_op_2 = available_hopping_ops.get(f"Edag_{n_u}")
-                to_be_computed_list.append((m_u, n_u, left_op, right_op_1, right_op_2))
+                to_be_computed_list.append((m_u, n_u, left_op_1, left_op_2, right_op_1, right_op_2))
 
             if logger.isEnabledFor(logging.INFO):
                 logger.info("Building all commutators:")
@@ -284,16 +320,11 @@ class QEOM(ExcitedStatesSolver):
                 num_processes=algorithm_globals.num_processes,
             )
             for result in results:
-                m_u, n_u, q_mat_op, w_mat_op, m_mat_op, v_mat_op = result
+                m_u, n_u, eom_operators = result
 
-                if q_mat_op is not None:
-                    all_matrix_operators[f"q_{m_u}_{n_u}"] = q_mat_op
-                if w_mat_op is not None:
-                    all_matrix_operators[f"w_{m_u}_{n_u}"] = w_mat_op
-                if m_mat_op is not None:
-                    all_matrix_operators[f"m_{m_u}_{n_u}"] = m_mat_op
-                if v_mat_op is not None:
-                    all_matrix_operators[f"v_{m_u}_{n_u}"] = v_mat_op
+                for index_op, op in eom_operators.items():
+                    if op is not None:
+                        all_matrix_operators[f"{index_op}_{m_u}_{n_u}"] = op
 
         try:
             z2_symmetries = self._gsc.qubit_converter.z2symmetries
@@ -314,7 +345,7 @@ class QEOM(ExcitedStatesSolver):
                 for key, value in type_of_commutativities.items():
                     value = np.asarray(value)
                     if np.all(value == targeted_sector):
-                        available_hopping_ops[key] = hopping_operators[key]
+                        available_hopping_ops[key] = pre_tap_hopping_ops[key]
                 # untapered_qubit_op is a PauliSumOp and should not be exposed.
                 _build_one_sector(
                     available_hopping_ops, pre_tap_operator, z2_symmetries
@@ -322,14 +353,14 @@ class QEOM(ExcitedStatesSolver):
 
         else:
             # untapered_qubit_op is a PauliSumOp and should not be exposed.
-            _build_one_sector(hopping_operators, pre_tap_operator, z2_symmetries)
+            _build_one_sector(pre_tap_hopping_ops, pre_tap_operator, z2_symmetries)
 
         return all_matrix_operators
 
     @staticmethod
     def _build_commutator_routine(
         params: List, operator: PauliSumOp, z2_symmetries: Z2Symmetries
-    ) -> Tuple[int, int, PauliSumOp, PauliSumOp, PauliSumOp, PauliSumOp]:
+    ) -> Tuple[int, int, list(PauliSumOp)]:
         """Numerically computes the commutator / double commutator between operators.
 
         Args:
@@ -342,8 +373,8 @@ class QEOM(ExcitedStatesSolver):
             The indices of the matrix element and the corresponding qubit
             operator for each of the EOM matrices
         """
-        m_u, n_u, left_op, right_op_1, right_op_2 = params
-        if left_op is None or right_op_1 is None and right_op_2 is None:
+        m_u, n_u, left_op1, left_op2, right_op_1, right_op_2 = params
+        if left_op1 is None or right_op_1 is None and right_op_2 is None:
             q_mat_op = None
             w_mat_op = None
             m_mat_op = None
@@ -355,11 +386,11 @@ class QEOM(ExcitedStatesSolver):
                 # theory, one would choose this according to the nature of the problem (i.e.
                 # whether it is fermionic or bosonic), but in practice, always choosing the
                 # anti-commutator has proven to be more robust.
-                q_mat_op = double_commutator(left_op, operator, right_op_1, sign=False)
+                q_mat_op = -double_commutator(left_op1, operator, right_op_1, sign=False)
                 # In the case of the single commutator, we are always interested in the energy
                 # difference of two states. Thus, regardless of the problem's nature, we will
                 # always use the commutator.
-                w_mat_op = commutator(left_op, right_op_1)
+                w_mat_op = -commutator(left_op1, right_op_1)
                 q_mat_op = None if len(q_mat_op) == 0 else q_mat_op
                 w_mat_op = None if len(w_mat_op) == 0 else w_mat_op
             else:
@@ -369,25 +400,28 @@ class QEOM(ExcitedStatesSolver):
             if right_op_2 is not None:
                 # For explanations on the choice of commutation relation, please refer to the
                 # comments above.
-                m_mat_op = double_commutator(left_op, operator, right_op_2, sign=False)
-                v_mat_op = commutator(left_op, right_op_2)
+                m_mat_op = double_commutator(left_op1, operator, right_op_2, sign=False)
+                v_mat_op = commutator(left_op1, right_op_2)
                 m_mat_op = None if len(m_mat_op) == 0 else m_mat_op
                 v_mat_op = None if len(v_mat_op) == 0 else v_mat_op
             else:
                 m_mat_op = None
                 v_mat_op = None
 
-            if not z2_symmetries.is_empty():
-                if q_mat_op is not None and len(q_mat_op) > 0:
-                    q_mat_op = z2_symmetries.taper_clifford(q_mat_op)
-                if w_mat_op is not None and len(w_mat_op) > 0:
-                    w_mat_op = z2_symmetries.taper_clifford(w_mat_op)
-                if m_mat_op is not None and len(m_mat_op) > 0:
-                    m_mat_op = z2_symmetries.taper_clifford(m_mat_op)
-                if v_mat_op is not None and len(v_mat_op) > 0:
-                    v_mat_op = z2_symmetries.taper_clifford(v_mat_op)
+        eom_operators = {
+            "q": q_mat_op, 
+            "w": w_mat_op, 
+            "m": m_mat_op,
+            "v": v_mat_op
+        }
 
-        return m_u, n_u, q_mat_op, w_mat_op, m_mat_op, v_mat_op
+        if not z2_symmetries.is_empty():
+            for index_op, eom_op in eom_operators.items():
+                if eom_op is not None and len(eom_op)>0:
+                    eom_operators[index_op] = z2_symmetries.taper_clifford(eom_op)
+
+
+        return m_u, n_u, eom_operators
 
     @staticmethod
     def _build_product_routine(
@@ -405,52 +439,63 @@ class QEOM(ExcitedStatesSolver):
             The indices of the matrix element and the corresponding qubit
             operator for each of the EOM matrices
         """
-        m_u, n_u, left_op, right_op_1, right_op_2 = params
-        if left_op is None or right_op_1 is None and right_op_2 is None:
-            q_mat_op = None
-            w_mat_op = None
-            m_mat_op = None
-            v_mat_op = None
-        else:
+        m_u, n_u, left_op_1, left_op_2, right_op_1, right_op_2 = params
+        q_mat_op = None
+        # w_mat_op = None
+        m_mat_op = None
+        # v_mat_op = None
+        n_mat_op = None
+        # u_mat_op = None
+        p_mat_op = None
+        # t_mat_op = None
+        
+        if left_op_1 is not None and right_op_1 is not None:
+            p_mat_op = left_op_2 @ operator @ right_op_2
+            # t_mat_op = left_op_2 @ right_op_2
+            p_mat_op = None if len(p_mat_op) == 0 else p_mat_op
+            # t_mat_op = None if len(t_mat_op) == 0 else t_mat_op
 
-            if right_op_1 is not None:
-                # The sign which we use in the case of the double commutator is arbitrary. In
-                # theory, one would choose this according to the nature of the problem (i.e.
-                # whether it is fermionic or bosonic), but in practice, always choosing the
-                # anti-commutator has proven to be more robust.
-                q_mat_op = left_op @ operator @ right_op_1
-                # In the case of the single commutator, we are always interested in the energy
-                # difference of two states. Thus, regardless of the problem's nature, we will
-                # always use the commutator.
-                w_mat_op = left_op @ right_op_1
-                q_mat_op = None if len(q_mat_op) == 0 else q_mat_op
-                w_mat_op = None if len(w_mat_op) == 0 else w_mat_op
-            else:
-                q_mat_op = None
-                w_mat_op = None
+        if left_op_1 is not None and right_op_2 is not None:
+            n_mat_op = left_op_2 @ operator @ right_op_1
+            # u_mat_op = left_op_2 @ right_op_1
+            n_mat_op = None if len(n_mat_op) == 0 else n_mat_op
+            # u_mat_op = None if len(u_mat_op) == 0 else u_mat_op
 
-            if right_op_2 is not None:
-                # For explanations on the choice of commutation relation, please refer to the
-                # comments above.
-                m_mat_op = left_op @ operator @ right_op_2
-                v_mat_op = left_op @ right_op_2
-                m_mat_op = None if len(m_mat_op) == 0 else m_mat_op
-                v_mat_op = None if len(v_mat_op) == 0 else v_mat_op
-            else:
-                m_mat_op = None
-                v_mat_op = None
+        if left_op_2 is not None and right_op_1 is not None:
+            m_mat_op = left_op_1 @ operator @ right_op_2
+            # v_mat_op = left_op_1 @ right_op_2
+            m_mat_op = None if len(m_mat_op) == 0 else m_mat_op
+            # v_mat_op = None if len(v_mat_op) == 0 else v_mat_op
 
-            if not z2_symmetries.is_empty():
-                if q_mat_op is not None and len(q_mat_op) > 0:
-                    q_mat_op = z2_symmetries.taper_clifford(q_mat_op)
-                if w_mat_op is not None and len(w_mat_op) > 0:
-                    w_mat_op = z2_symmetries.taper_clifford(w_mat_op)
-                if m_mat_op is not None and len(m_mat_op) > 0:
-                    m_mat_op = z2_symmetries.taper_clifford(m_mat_op)
-                if v_mat_op is not None and len(v_mat_op) > 0:
-                    v_mat_op = z2_symmetries.taper_clifford(v_mat_op)
+        if left_op_2 is not None and right_op_2 is not None:
+            q_mat_op = - left_op_1 @ operator @ right_op_1
+            # w_mat_op = - left_op_1 @ right_op_1
+            q_mat_op = None if len(q_mat_op) == 0 else q_mat_op
+            # w_mat_op = None if len(w_mat_op) == 0 else w_mat_op
 
-        return m_u, n_u, q_mat_op, w_mat_op, m_mat_op, v_mat_op
+
+        eom_operators = {
+            "q": q_mat_op, 
+            # "w": w_mat_op, 
+            "m": m_mat_op,
+            # "v": v_mat_op,
+            "n": n_mat_op,
+            # "u": u_mat_op,
+            "p": p_mat_op,
+            # "t": t_mat_op
+        }
+
+        if not (
+            (left_op_1 is None and left_op_2 is None) or \
+            (right_op_1 is None and right_op_2 is None) or \
+            z2_symmetries.is_empty()
+            ):
+            for index_op, op in eom_operators.items():
+                if op is not None and len(op)>0:
+                    eom_operators[index_op] = z2_symmetries.taper_clifford(op)
+
+
+        return m_u, n_u, eom_operators
 
     def _build_eom_matrices(
         self, gs_results: dict[str, tuple[complex, dict[str, Any]]], size: int
@@ -520,10 +565,12 @@ class QEOM(ExcitedStatesSolver):
             )
 
         # these matrices are numpy arrays and therefore have the ``shape`` attribute
+        # M.adjoint() = M, V.adjoint() = V
+        # Q.T = Q, W.T = -W
         q_mat = q_mat + q_mat.T - np.identity(q_mat.shape[0]) * q_mat
-        w_mat = w_mat + w_mat.T - np.identity(w_mat.shape[0]) * w_mat
-        m_mat = m_mat + m_mat.T - np.identity(m_mat.shape[0]) * m_mat
-        v_mat = v_mat + v_mat.T - np.identity(v_mat.shape[0]) * v_mat
+        w_mat = w_mat - w_mat.T - np.identity(w_mat.shape[0]) * w_mat
+        m_mat = m_mat + m_mat.T.conj() - np.identity(m_mat.shape[0]) * m_mat
+        v_mat = v_mat + v_mat.T.conj() - np.identity(v_mat.shape[0]) * v_mat
 
         q_mat = np.real(q_mat)
         w_mat = np.real(w_mat)
@@ -540,32 +587,291 @@ class QEOM(ExcitedStatesSolver):
         logger.debug("\nM:=========================\n%s", m_mat)
         logger.debug("\nV:=========================\n%s", v_mat)
 
-        eom_matrices = [m_mat, v_mat, q_mat, w_mat]
-        eom_matrices_std = [m_mat_std, v_mat_std, q_mat_std, w_mat_std]
+        # N = M.conj() = M.T
+        # P = Q.adjoint() = Q.conj()
+        # U = -V.conj() = -V.T
+        # T = W.adjoint()
+        h_mat = np.matrixlib.bmat([[m_mat, q_mat], [q_mat.T.conj(),  m_mat.T]])
+        s_mat = np.matrixlib.bmat([[v_mat, w_mat], [w_mat.T.conj(), -v_mat.T]])
+        
+        h_mat_std = np.array([[m_mat_std, q_mat_std], [q_mat_std, m_mat_std]])
+        s_mat_std = np.array([[v_mat_std, w_mat_std], [w_mat_std, v_mat_std]])
 
-        return eom_matrices, eom_matrices_std
+        return h_mat, s_mat, h_mat_std, s_mat_std
+    
+    def _build_qse_matrices(
+        self, gs_results: dict[str, tuple[complex, dict[str, Any]]], size: int, tap_operator_evaluated
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, float, float, float, float]:
+        """Constructs the M, V, Q and W matrices from the results on the ground state
+
+        Args:
+            gs_results: a ground state result object
+            size: size of eigenvalue problem
+
+        Returns:
+            the matrices and their standard deviation
+        """
+
+        H_01 = np.zeros((1, 2*size), dtype=complex)
+        S_01 = np.zeros((1, 2*size), dtype=complex)
+
+        for m_u in range(2*size):
+            H_01[0, m_u] = (
+                gs_results[f"H_0_{m_u}"][0]
+                if gs_results.get(f"H_0_{m_u}") is not None
+                else H_01[0, m_u]
+            )
+
+            S_01[0, m_u] = (
+                gs_results[f"S_0_{m_u}"][0]
+                if gs_results.get(f"S_0_{m_u}") is not None
+                else S_01[0, m_u]
+            )
+
+        # print(np.real(H_01))
+        # print(np.real(S_01))
+
+
+        mus, nus = np.triu_indices(size)
+
+        m_mat = np.zeros((size, size), dtype=complex)
+        # v_mat = np.zeros((size, size), dtype=complex)
+        q_mat = np.zeros((size, size), dtype=complex)
+        # w_mat = np.zeros((size, size), dtype=complex)
+        m_mat_std, v_mat_std, q_mat_std, w_mat_std = 0.0, 0.0, 0.0, 0.0
+
+        n_mat = np.zeros((size, size), dtype=complex)
+        # u_mat = np.zeros((size, size), dtype=complex)
+        p_mat = np.zeros((size, size), dtype=complex)
+        # t_mat = np.zeros((size, size), dtype=complex)
+        n_mat_std, u_mat_std, p_mat_std, t_mat_std = 0.0, 0.0, 0.0, 0.0
+
+        # evaluate results
+        for idx, m_u in enumerate(mus):
+            n_u = nus[idx]
+
+            q_mat[m_u][n_u] = (
+                gs_results[f"q_{m_u}_{n_u}"][0]
+                if gs_results.get(f"q_{m_u}_{n_u}") is not None
+                else q_mat[m_u][n_u]
+            )
+            # w_mat[m_u][n_u] = (
+            #     gs_results[f"w_{m_u}_{n_u}"][0]
+            #     if gs_results.get(f"w_{m_u}_{n_u}") is not None
+            #     else w_mat[m_u][n_u]
+            # )
+            m_mat[m_u][n_u] = (
+                gs_results[f"m_{m_u}_{n_u}"][0]
+                if gs_results.get(f"m_{m_u}_{n_u}") is not None
+                else m_mat[m_u][n_u]
+            )
+            # v_mat[m_u][n_u] = (
+            #     gs_results[f"v_{m_u}_{n_u}"][0]
+            #     if gs_results.get(f"v_{m_u}_{n_u}") is not None
+            #     else v_mat[m_u][n_u]
+            # )
+            n_mat[m_u][n_u] = (
+                gs_results[f"n_{m_u}_{n_u}"][0]
+                if gs_results.get(f"n_{m_u}_{n_u}") is not None
+                else n_mat[m_u][n_u]
+            )
+            # u_mat[m_u][n_u] = (
+            #     gs_results[f"u_{m_u}_{n_u}"][0]
+            #     if gs_results.get(f"u_{m_u}_{n_u}") is not None
+            #     else u_mat[m_u][n_u]
+            # )
+            p_mat[m_u][n_u] = (
+                gs_results[f"p_{m_u}_{n_u}"][0]
+                if gs_results.get(f"p_{m_u}_{n_u}") is not None
+                else p_mat[m_u][n_u]
+            )
+            # t_mat[m_u][n_u] = (
+            #     gs_results[f"t_{m_u}_{n_u}"][0]
+            #     if gs_results.get(f"t_{m_u}_{n_u}") is not None
+            #     else t_mat[m_u][n_u]
+            # )
+
+            q_mat_std += (
+                gs_results[f"q_{m_u}_{n_u}_std"][0].real
+                if gs_results.get(f"q_{m_u}_{n_u}_std") is not None
+                else 0
+            )
+            w_mat_std += (
+                gs_results[f"w_{m_u}_{n_u}_std"][0].real
+                if gs_results.get(f"w_{m_u}_{n_u}_std") is not None
+                else 0
+            )
+            m_mat_std += (
+                gs_results[f"m_{m_u}_{n_u}_std"][0].real
+                if gs_results.get(f"m_{m_u}_{n_u}_std") is not None
+                else 0
+            )
+            v_mat_std += (
+                gs_results[f"v_{m_u}_{n_u}_std"][0].real
+                if gs_results.get(f"v_{m_u}_{n_u}_std") is not None
+                else 0
+            )
+            n_mat_std += (
+                gs_results[f"n_{m_u}_{n_u}_std"][0].real
+                if gs_results.get(f"n_{m_u}_{n_u}_std") is not None
+                else 0
+            )
+            u_mat_std += (
+                gs_results[f"u_{m_u}_{n_u}_std"][0].real
+                if gs_results.get(f"u_{m_u}_{n_u}_std") is not None
+                else 0
+            )
+            p_mat_std += (
+                gs_results[f"p_{m_u}_{n_u}_std"][0].real
+                if gs_results.get(f"p_{m_u}_{n_u}_std") is not None
+                else 0
+            )
+            t_mat_std += (
+                gs_results[f"t_{m_u}_{n_u}_std"][0].real
+                if gs_results.get(f"t_{m_u}_{n_u}_std") is not None
+                else 0
+            )
+
+
+        # these matrices are numpy arrays and therefore have the ``shape`` attribute
+        # M.adjoint() = M, V.adjoint() = V
+        # N.adjoint() = N, U.adjoint() = U
+        m_mat_tot = m_mat + m_mat.T.conj() - np.identity(m_mat.shape[0]) * m_mat
+        # v_mat_tot = v_mat + v_mat.T.conj() - np.identity(v_mat.shape[0]) * v_mat
+        n_mat_tot = n_mat + n_mat.T.conj() - np.identity(n_mat.shape[0]) * n_mat
+        # u_mat_tot = u_mat + u_mat.T.conj() - np.identity(u_mat.shape[0]) * u_mat
+
+        # Q.adjoint() = P, W.adjoint() = T
+        q_mat_tot = q_mat + p_mat.T.conj() - np.identity(q_mat.shape[0]) * q_mat
+        # w_mat_tot = w_mat + t_mat.T.conj() - np.identity(w_mat.shape[0]) * w_mat
+        p_mat_tot = p_mat + q_mat.T.conj() - np.identity(p_mat.shape[0]) * p_mat
+        # t_mat_tot = t_mat + w_mat.T.conj() - np.identity(t_mat.shape[0]) * t_mat
+
+        # q_mat = np.real(q_mat)
+        # w_mat = np.real(w_mat)
+        # m_mat = np.real(m_mat)
+        # v_mat = np.real(v_mat)
+
+        q_mat_std = q_mat_std / float(size**2)
+        w_mat_std = w_mat_std / float(size**2)
+        m_mat_std = m_mat_std / float(size**2)
+        v_mat_std = v_mat_std / float(size**2)
+        p_mat_std = q_mat_std / float(size**2)
+        t_mat_std = w_mat_std / float(size**2)
+        n_mat_std = m_mat_std / float(size**2)
+        u_mat_std = v_mat_std / float(size**2)
+
+        logger.debug("\nQ:=========================\n%s", q_mat)
+        # logger.debug("\nW:=========================\n%s", w_mat)
+        logger.debug("\nM:=========================\n%s", m_mat)
+        # logger.debug("\nV:=========================\n%s", v_mat)
+
+        h_mat = np.matrixlib.bmat([[m_mat_tot, q_mat_tot], [p_mat_tot, n_mat_tot]])
+        # s_mat = np.matrixlib.bmat([[v_mat_tot, w_mat_tot], [t_mat_tot, u_mat_tot]])
+
+        h_mat_extended = np.block([[tap_operator_evaluated * np.ones((1,1)), H_01],[H_01.T.conj(), h_mat]])
+        # s_mat_extended = np.block([[1.0 * np.ones((1,1)), S_01],[S_01.T.conj(), s_mat]])
+
+        # print("Extended")
+        # print(np.real(h_mat_extended))
+        # print(np.real(s_mat_extended))
+        
+        h_mat_std = np.array([[m_mat_std, q_mat_std], [p_mat_std, n_mat_std]])
+        # s_mat_std = np.array([[v_mat_std, w_mat_std], [t_mat_std, u_mat_std]])
+
+        return h_mat_extended, h_mat_std
+
+    def _build_expansion_basis(self, problem):
+        logger.debug("Building expansion basis data...")
+
+
+        data = self._build_hopping_ops(problem)
+        hopping_operators, type_of_commutativities, excitation_indices = data
+        size = int(len(list(excitation_indices.keys())) // 2)
+
+        reduced_hopping_ops = self.qubit_converter.two_qubit_reduce(hopping_operators)
+        pre_tap_hopping_ops = self.qubit_converter._convert_clifford(reduced_hopping_ops)
+
+        return pre_tap_hopping_ops, type_of_commutativities, size
+
+    def _build_qeom_pseudoeigenvalue_problem(
+        self,
+        pre_tap_operator, 
+        expansion_basis_data, 
+        reference_state
+        ):
+        logger.debug("Build QEOM pseudoeigenvalue problem...")
+
+        
+        # 1. Build all operators to evaluate on the groundstate to construct the EOM matrices
+        tap_eom_matrix_ops = self._build_all_eom_operators(
+            pre_tap_operator,
+            expansion_basis_data,
+            commutator=True,
+        )
+
+        # 2. Evaluate all eom operators on the groundstate
+        measurement_results = estimate_observables(
+            self._estimator,
+            reference_state[0],
+            tap_eom_matrix_ops,
+            reference_state[1],
+        )
+
+        # 4. Post-process the measurement results to construct eom matrices
+        _, _, size = expansion_basis_data
+
+        h_mat, s_mat, h_mat_std, s_mat_std = self._build_eom_matrices(measurement_results, size)
+
+        return h_mat, s_mat, h_mat_std, s_mat_std
+
+    def _extract_aux_eigenvalues(self, op_h_mat,op_s_mat,expansion_coefs):
+        alphas = op_s_mat[0,1+expansion_coefs.shape[1]:]
+        # print("alphas", alphas)
+        extended_expansion_coefs = np.block([[-alphas], [expansion_coefs]])
+        
+        temp_s_vals = extended_expansion_coefs.T.conj() @ op_s_mat @ extended_expansion_coefs
+        temp_h_vals = extended_expansion_coefs.T.conj() @ op_h_mat @ extended_expansion_coefs
+
+        # print("COMM_S_MAT")
+        # print(np.real(s_mat))
+        # print("PROD_S_MAT")
+        # print(np.real(op_s_mat))
+        # print(" X S X product")
+        # print(np.real(temp_s_vals))
+        # print(" X S X commutator")
+        # print(np.real(aux_op_s_vals))
+
+        # print("COMM_H_MAT")
+        # print(np.real(h_mat))
+        # print("PROD_H_MAT")
+        # print(np.real(op_h_mat))
+        # print(" X H X")
+        # print(np.real(temp_h_vals))
+
+        # print("RATIO")
+        ratio = np.divide(np.real(temp_h_vals), np.real(temp_s_vals)) 
+        ratio_formatted = [(ratio_elem, {}) for ratio_elem in np.diag(ratio)] 
+
+        return ratio_formatted
 
     @staticmethod
     def _compute_excitation_energies(
-        eom_matrices: List(np.ndarray),
+        h_mat: np.ndarray, s_mat: np.ndarray
     ) -> Tuple[np.ndarray, np.ndarray]:
-        """Diagonalizing M, V, Q, W matrices for excitation energies.
+        """Diagonalizing H, S matrices for excitation energies.
 
         Args:
-            m_mat : M matrices
-            v_mat : V matrices
-            q_mat : Q matrices
-            w_mat : W matrices
+            h_mat : H matrices
+            s_mat : S matrices
 
         Returns:
             1-D vector stores all energy gap to reference state
             2-D array storing the X and Y expansion coefficients
         """
         logger.debug("Diagonalizing qeom matrices for excited states...")
-        m_mat, v_mat, q_mat, w_mat = eom_matrices
-        a_mat = np.matrixlib.bmat([[m_mat, q_mat], [q_mat.T.conj(), m_mat.T.conj()]])
-        b_mat = np.matrixlib.bmat([[v_mat, w_mat], [-w_mat.T.conj(), -v_mat.T.conj()]])
-        res = linalg.eig(a_mat, b_mat)
+
+        res = linalg.eig(h_mat, s_mat)
         # convert nan value into 0
         res[0][np.where(np.isnan(res[0]))] = 0.0
         # Only the positive eigenvalues are physical. We need to take care
@@ -577,24 +883,25 @@ class QEOM(ExcitedStatesSolver):
         # Since we may now have
         # small values (positive or negative) take the absolute and then threshold zero.
         logger.debug("... %s", res[0])
-        w = np.sort(np.real(res[0]))
+        order = np.argsort(np.real(res[0]))[ len(res[0]) // 2 ::]#[::-1]
+        w = np.real(res[0])[order]
         logger.debug("Sorted real parts %s", w)
-        w = np.abs(w[len(w) // 2 :])
+        w = np.abs(w)
         w[w < 1e-06] = 0
         excitation_energies_gap = w
+        expansion_coefs = res[1][:, order]
 
-        return excitation_energies_gap, res[1]
+        return excitation_energies_gap, expansion_coefs
 
     def _prepare_all_operators(self, problem, aux_operators=None):
+
+        logger.debug("Preparing QEOM operators...")
 
         # 1.1 Setup self.solver if it is a Factory object. `get_qubit_operators' must be called before 
         # checking if the solver is variational or not.
         self.get_qubit_operators(problem=problem, aux_operators=None)
-        self._is_variational_solver = isinstance(self.solver, VariationalAlgorithm)
 
         # 1.2 Prepare the Hamiltonian and the auxiliary operators
-        # Pre-taper the operators if z2symmetry were defined for the problem
-
         main_second_q_op, aux_second_q_ops = problem.second_q_ops()
 
         # Applies z2symmetries to the Hamiltonian
@@ -622,6 +929,7 @@ class QEOM(ExcitedStatesSolver):
             if isinstance(aux_operators, ListOrDict):
                 aux_operators = dict(aux_operators)
             custom_aux_ops = self.qubit_converter.convert_match(aux_operators)
+            custom_aux_ops = ListOrDict(custom_aux_ops)
         else:
             custom_aux_ops = None
 
@@ -639,49 +947,112 @@ class QEOM(ExcitedStatesSolver):
             pre_tap_custom_aux_ops # User-defined auxiliary observables
         )
 
-    def _build_expansion_basis(self, problem):
+    def _evaluate_observables_excited_states(
+        self,
+        pre_tap_aux_observables,
+        expansion_basis_data,
+        ground_state,
+        expansion_coefs,
+        aux_operators_evaluated
+        ):
 
-        data = self._build_hopping_ops(problem)
-        hopping_operators, type_of_commutativities, excitation_indices = data
-        size = int(len(list(excitation_indices.keys())) // 2)
+        aux_observables_eigenvalues_raw = {}
 
-        reduced_hopping_ops = self.qubit_converter.two_qubit_reduce(hopping_operators)
-        pre_tap_hopping_ops = self.qubit_converter._convert_clifford(reduced_hopping_ops)
+        if pre_tap_aux_observables is not None:
+            num_qubits = list(pre_tap_aux_observables.values())[0].num_qubits
+            identity_operator = PauliSumOp(SparsePauliOp(['I'*num_qubits], [1.0]))
 
-        return pre_tap_hopping_ops, type_of_commutativities, size
+            logger.debug("Prepare subspace representation of the observable: Identity...")
 
-    
-    def _build_operator_representation(self, 
+            op_s_mat, op_s_mat_std = self._build_qse_pseudoeigenvalue_problem(
+                    identity_operator, 
+                    expansion_basis_data,
+                    ground_state, 
+                    1.0,
+                )
+
+            for name, pre_tap_second_q_aux_op in pre_tap_aux_observables.items():
+                logger.debug("Prepare subspace representation of the observable: %s...", name)
+
+                aux_operator_evaluated_gs = aux_operators_evaluated[0].get(name, 0.0)
+                op_h_mat, op_h_mat_std = self._build_qse_pseudoeigenvalue_problem(
+                    pre_tap_second_q_aux_op, 
+                    expansion_basis_data,
+                    ground_state, 
+                    aux_operator_evaluated_gs,
+                )
+
+                logger.debug("Extract eigenvalues for the observable: %s...", name)
+
+                aux_observable_eigenvalues = self._extract_aux_eigenvalues(
+                    op_h_mat,
+                    op_s_mat,
+                    expansion_coefs
+                )
+
+                aux_observables_eigenvalues_raw[name] = aux_observable_eigenvalues
+
+        return aux_observables_eigenvalues_raw
+
+
+    def _build_qse_pseudoeigenvalue_problem(self, 
         pre_tap_operator,             
-        pre_tap_hopping_ops,       
-        type_of_commutativities, 
-        size, 
+        expansion_basis_data,
         reference_state, 
-        commutator=True
+        tap_operator_evaluated,
     ):
+        pre_tap_hopping_ops, type_of_commutativities, size = expansion_basis_data
 
-        tap_eom_matrix_ops = self._build_all_commutators(
+        # 1. Build all qse operator products
+        tap_qse_matrix_ops = self._build_all_eom_operators(
             pre_tap_operator,
-            pre_tap_hopping_ops,
-            type_of_commutativities,
-            size,
+            expansion_basis_data,
+            commutator = False
         )
 
-        # 3. Evaluate eom operators
+        overlap_operators = self._build_groundstate_overlaps(
+                pre_tap_operator,
+                pre_tap_hopping_ops,
+                size
+                )
+
+        tap_qse_operators = {**tap_qse_matrix_ops, **overlap_operators}
+        
+        # 3. Evaluate qse operators on the ground state
         measurement_results = estimate_observables(
             self._estimator,
             reference_state[0],
-            tap_eom_matrix_ops,
+            tap_qse_operators,
             reference_state[1],
         )
 
-        # 4. Post-process ground_state_result to construct eom matrices
-        (
-            eom_matrices,
-            eom_matrices_std
-        ) = self._build_eom_matrices(measurement_results, size)
+        # 4. Post-process ground_state_result to construct qse matrices
+        h_mat, h_mat_std = self._build_qse_matrices(
+            measurement_results, 
+            size,
+            tap_operator_evaluated)
 
-        return eom_matrices, eom_matrices_std
+        return h_mat, h_mat_std
+
+
+    def _build_groundstate_overlaps(self, pre_tap_operator, pre_tap_hopping_ops, size):
+            overlap_operators = {}
+            for mu in range(size):
+                overlap_operators[f'H_0_{mu}'] = pre_tap_operator @ pre_tap_hopping_ops[f'E_{mu}']
+                overlap_operators[f'H_0_{mu+size}'] = pre_tap_operator @ pre_tap_hopping_ops[f'Edag_{mu}']
+                # overlap_operators[f'S_0_{mu}'] = pre_tap_hopping_ops[f'E_{mu}']
+                # overlap_operators[f'S_0_{mu+size}'] = pre_tap_hopping_ops[f'Edag_{mu}']
+            try:
+                z2_symmetries = self._gsc.qubit_converter.z2symmetries
+            except AttributeError:
+                z2_symmetries = Z2Symmetries([], [], [])
+
+            if not z2_symmetries.is_empty():
+                for index_op, op in overlap_operators.items():
+                    if op is not None and len(op)>0:
+                        overlap_operators[index_op] = z2_symmetries.taper_clifford(op)
+            return overlap_operators
+
 
     def _build_qeom_result(
         self,
@@ -689,40 +1060,38 @@ class QEOM(ExcitedStatesSolver):
         groundstate_result,
         expansion_coefs,
         energy_gaps,
-        eom_matrices,
-        eom_matrices_std
+        h_mat,
+        s_mat,
+        h_mat_std,
+        s_mat_std,
+        aux_operator_eigenvalues_excited_states
     ) -> ElectronicStructureResult:
-
-        m_mat, v_mat, q_mat, w_mat = eom_matrices
-        m_mat_std, v_mat_std, q_mat_std, w_mat_std = eom_matrices_std
 
         qeom_result = QEOMResult()
         qeom_result.ground_state_raw_result = groundstate_result.raw_result
         qeom_result.expansion_coefficients = expansion_coefs
         qeom_result.excitation_energies = energy_gaps
-        qeom_result.m_matrix = m_mat
-        qeom_result.v_matrix = v_mat
-        qeom_result.q_matrix = q_mat
-        qeom_result.w_matrix = w_mat
-        qeom_result.m_matrix_std = m_mat_std
-        qeom_result.v_matrix_std = v_mat_std
-        qeom_result.q_matrix_std = q_mat_std
-        qeom_result.w_matrix_std = w_mat_std
+        qeom_result.h_matrix = h_mat
+        qeom_result.s_matrix = s_mat
+        qeom_result.h_matrix_std = h_mat_std
+        qeom_result.s_matrix_std = s_mat_std
 
-        eigenstate_result = EigenstateResult.from_result(groundstate_result)
-        eigenstate_result.raw_result = qeom_result
+        qeom_result.aux_operators_evaluated = [groundstate_result.raw_result.aux_operators_evaluated] + \
+             aux_operator_eigenvalues_excited_states
 
-        eigenstate_result.eigenvalues = np.append(
-            groundstate_result.eigenvalues,
-            np.asarray([groundstate_result.eigenvalues[0] + gap for gap in energy_gaps]),
-        )
+        groundstate_energy_reference = groundstate_result.eigenvalues[0]
+        excited_eigenenergies = energy_gaps + groundstate_energy_reference
+        qeom_result.eigenvalues = np.append(groundstate_result.eigenvalues[0], excited_eigenenergies)
 
+        qeom_result.eigenstates = []
+
+        eigenstate_result = EigenstateResult.from_result(qeom_result)
         result = problem.interpret(eigenstate_result)
 
         return result
 
 
-class QEOMResult(AlgorithmResult):
+class QEOMResult(EigensolverResult):
     """The results class for the QEOM algorithm."""
 
     def __init__(self) -> None:
@@ -730,13 +1099,14 @@ class QEOMResult(AlgorithmResult):
         self._ground_state_raw_result = None
         self._excitation_energies: Optional[np.ndarray] = None
         self._expansion_coefficients: Optional[np.ndarray] = None
-        self._m_matrix: Optional[np.ndarray] = None
-        self._v_matrix: Optional[np.ndarray] = None
-        self._q_matrix: Optional[np.ndarray] = None
-        self._w_matrix: Optional[np.ndarray] = None
-        self._v_matrix_std: float = 0.0
-        self._q_matrix_std: float = 0.0
-        self._w_matrix_std: float = 0.0
+        self._eigenvalues = None
+        self._eigenstates = None
+        self._h_matrix: Optional[np.ndarray] = None
+        self._s_matrix: Optional[np.ndarray] = None
+        self._h_matrix_std: np.ndarray = [[0.0, 0.0], [0.0, 0.0]]
+        self._s_matrix_std: np.ndarray = [[0.0, 0.0], [0.0, 0.0]]
+        self._aux_operators_evaluated = None
+
 
     @property
     def ground_state_raw_result(self):
@@ -769,81 +1139,76 @@ class QEOMResult(AlgorithmResult):
         self._expansion_coefficients = value
 
     @property
-    def m_matrix(self) -> Optional[np.ndarray]:
-        """returns the M matrix"""
+    def h_matrix(self) -> Optional[np.ndarray]:
+        """returns the H matrix"""
         return self._m_matrix
 
-    @m_matrix.setter
-    def m_matrix(self, value: np.ndarray) -> None:
-        """sets the M matrix"""
-        self._m_matrix = value
+    @h_matrix.setter
+    def h_matrix(self, value: np.ndarray) -> None:
+        """sets the H matrix"""
+        self._h_matrix = value
 
     @property
-    def v_matrix(self) -> Optional[np.ndarray]:
-        """returns the V matrix"""
-        return self._v_matrix
+    def s_matrix(self) -> Optional[np.ndarray]:
+        """returns the S matrix"""
+        return self._s_matrix
 
-    @v_matrix.setter
-    def v_matrix(self, value: np.ndarray) -> None:
-        """sets the V matrix"""
-        self._v_matrix = value
-
-    @property
-    def q_matrix(self) -> Optional[np.ndarray]:
-        """returns the Q matrix"""
-        return self._q_matrix
-
-    @q_matrix.setter
-    def q_matrix(self, value: np.ndarray) -> None:
-        """sets the Q matrix"""
-        self._q_matrix = value
+    @s_matrix.setter
+    def s_matrix(self, value: np.ndarray) -> None:
+        """sets the S matrix"""
+        self._s_matrix = value
 
     @property
-    def w_matrix(self) -> Optional[np.ndarray]:
-        """returns the W matrix"""
-        return self._w_matrix
+    def h_matrix_std(self) -> float:
+        """returns the H matrix standard deviation"""
+        return self._h_matrix_std
 
-    @w_matrix.setter
-    def w_matrix(self, value: np.ndarray) -> None:
-        """sets the W matrix"""
-        self._w_matrix = value
-
-    @property
-    def m_matrix_std(self) -> float:
-        """returns the M matrix standard deviation"""
-        return self._m_matrix_std
-
-    @m_matrix_std.setter
-    def m_matrix_std(self, value: float) -> None:
-        """sets the M matrix standard deviation"""
-        self._m_matrix_std = value
+    @h_matrix_std.setter
+    def h_matrix_std(self, value: float) -> None:
+        """sets the H matrix standard deviation"""
+        self._h_matrix_std = value
 
     @property
-    def v_matrix_std(self) -> float:
-        """returns the V matrix standard deviation"""
-        return self._v_matrix_std
+    def s_matrix_std(self) -> float:
+        """returns the S matrix standard deviation"""
+        return self._s_matrix_std
 
-    @v_matrix_std.setter
-    def v_matrix_std(self, value: float) -> None:
-        """sets the V matrix standard deviation"""
-        self._v_matrix_std = value
-
-    @property
-    def q_matrix_std(self) -> float:
-        """returns the Q matrix standard deviation"""
-        return self._q_matrix_std
-
-    @q_matrix_std.setter
-    def q_matrix_std(self, value: float) -> None:
-        """sets the Q matrix standard deviation"""
-        self._q_matrix_std = value
+    @s_matrix_std.setter
+    def s_matrix_std(self, value: float) -> None:
+        """sets the S matrix standard deviation"""
+        self._s_matrix_std = value
 
     @property
-    def w_matrix_std(self) -> float:
-        """returns the W matrix standard deviation"""
-        return self._w_matrix_std
+    def eigenvalues(self) -> Optional[np.ndarray]:
+        """returns eigen values"""
+        return self._eigenvalues
 
-    @w_matrix_std.setter
-    def w_matrix_std(self, value: float) -> None:
-        """sets the W matrix standard deviation"""
-        self._w_matrix_std = value
+    @eigenvalues.setter
+    def eigenvalues(self, value: np.ndarray) -> None:
+        """set eigen values"""
+        self._eigenvalues = value
+
+    @property
+    def eigenstates(self) -> Optional[np.ndarray]:
+        """return eigen states"""
+        return self._eigenstates
+
+    @eigenstates.setter
+    def eigenstates(self, value: np.ndarray) -> None:
+        """set eigen states"""
+        self._eigenstates = value
+
+    @property
+    def aux_operators_evaluated(self) -> Optional[List[ListOrDict[Tuple[complex, complex]]]]:
+        """Return aux operator expectation values.
+
+        These values are in fact tuples formatted as (mean, standard deviation).
+        """
+        return self._aux_operators_evaluated
+
+    @aux_operators_evaluated.setter
+    def aux_operators_evaluated(self, value: List[ListOrDict[Tuple[complex, complex]]]) -> None:
+        """set aux operator eigen values"""
+        self._aux_operators_evaluated = value
+
+
