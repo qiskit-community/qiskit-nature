@@ -40,10 +40,7 @@ class VibrationalOp(SparseLabelOp):
     expressions. Each expression must look like :code:`[+-]_<mode_index>_<modal_index>`, where the
     :code:`<mode_index>` and :code:`<modal_index> are non-negative integers representing the index
     of the vibrational mode and modal, respectively, where the `+` (creation) or `-` (annihilation)
-    operation is to be performed. The value of :code:`mode_index` is bound by the number of modes
-    (`num_modes`) of the operator (Note: since Python indices are 0-based, the maximum value an
-    index can take is given by :code:`num_modes-1`). Similarly, the value of :code:`modal_index` has
-    an upper bound given by :code:`num_modals-1` for that particular mode.
+    operation is to be performed.
 
     **Initialization**
 
@@ -61,8 +58,7 @@ class VibrationalOp(SparseLabelOp):
                 "+_1_0 -_1_0": -1.0,
                 "+_1_1 -_1_1": -1.0,
             },
-            num_modes=2,
-            num_modals=2,
+            num_modals=[2, 2]
         )
 
     By default, this way of initializing will create a full copy of the dictionary of coefficients.
@@ -79,8 +75,7 @@ class VibrationalOp(SparseLabelOp):
 
         op = VibrationalOp(
             some_big_data,
-            num_modes=2,
-            num_modals=2,
+            num_modals=[2, 2],
             copy=False,
         )
 
@@ -90,8 +85,7 @@ class VibrationalOp(SparseLabelOp):
         changed after initialization of the `VibrationalOp`, since the operator contents are not
         guaranteed to remain unaffected by such changes.
 
-    If :code:`num_modes` is not specified then it will set by the maximum :code:`mode_index` in
-    :code:`data`. If :code:`num_modals` is not provided then the maximum :code:`modal_index` per
+    If :code:`num_modals` is not provided then the maximum :code:`modal_index` per
     mode will determine the :code:`num_modals` for that mode.
 
     .. jupyter-execute::
@@ -118,41 +112,41 @@ class VibrationalOp(SparseLabelOp):
 
     .. jupyter-execute::
 
-      VibrationalOp({"+_1_0": 1}, num_modes=2, num_modals=2) +
-      VibrationalOp({"+_0_0": 1}, num_modes=2, num_modals=2)
+      VibrationalOp({"+_1_0": 1}, num_modals=[2, 2]) +
+      VibrationalOp({"+_0_0": 1}, num_modals=[2, 2])
 
     Sum
 
     .. jupyter-execute::
 
-      sum(VibrationalOp({label: 1}, num_modes=3) for label in ["+_0_0", "-_1_0", "+_2_0 -_2_)"])
+      sum(VibrationalOp({label: 1}, num_modals=[1, 1, 1]) for label in ["+_0_0", "-_1_0", "+_2_0 -_2_0"])
 
     Scalar multiplication
 
     .. jupyter-execute::
 
-      0.5 * VibrationalOp({"+_1_0": 1}, num_modes=2)
+      0.5 * VibrationalOp({"+_1_0": 1}, num_modals=[1, 1])
 
     Operator multiplication
 
     .. jupyter-execute::
 
-      op1 = VibrationalOp({"+_0_0 -_1_0": 1}, num_modes=2)
-      op2 = VibrationalOp({"-_0_0 +_0_0 +_1_0": 1}, num_modes=2)
+      op1 = VibrationalOp({"+_0_0 -_1_0": 1}, num_modals=[1, 1])
+      op2 = VibrationalOp({"-_0_0 +_0_0 +_1_0": 1}, num_modals=[1, 1])
       print(op1 @ op2)
 
     Tensor multiplication
 
     .. jupyter-execute::
 
-      op = VibrationalOp({"+_0_0 -_1_0": 1}, num_modes=2)
+      op = VibrationalOp({"+_0_0 -_1_0": 1}, num_modals=[1, 1])
       print(op ^ op)
 
     Adjoint
 
     .. jupyter-execute::
 
-      VibrationalOp({"+_0_0 -_1_0": 1j}, num_modes=2).adjoint()
+      VibrationalOp({"+_0_0 -_1_0": 1j}, num_modals=[1, 1]).adjoint()
 
     In principle, you can also add :class:`VibrationalOp` and integers, but the only valid case is the
     addition of `0 + VibrationalOp`. This makes the `sum` operation from the example above possible
@@ -171,28 +165,19 @@ class VibrationalOp(SparseLabelOp):
     pairs describing the terms contained in the operator.
 
     Attributes:
-        num_modes (int | None): the number of vibrational modes on which this operator acts. This is
-            considered a lower bound, which means that mathematical operations acting on two or more
-            operators will result in a new operator with the maximum number of modes of any
-            of the involved operators.
-        num_modals (int | Sequence[int] | None): the number of modals - described by a list of integers
-            where each integer describes the number of modals in a corresponding mode; in case of
-            the same number of modals in each mode it is enough to provide an integer that describes
-            the number of them; the total number of modals defines a ``register_length``. This is
-            considered a lower bound.
+        num_modals (Sequence[int] | None): the number of modals - described by a list of integers
+            where each integer describes the number of modals in a corresponding mode; the total
+            number of modals defines a ``register_length``. This is considered a lower bound.
     """
 
     # a valid pattern consists of a single "+" or "-" operator followed by "_" and a mode index
     # followed by "_" and a modal index, possibly appearing multiple times and separated by a space
     _OPERATION_REGEX = re.compile(r"^([\+\-]_\d+_\d+\s)*[\+\-]_\d+_\d+(?!\s)$|^[\+\-]+$")
 
-    _SIMPLIFIED_REGEX = re.compile(r"([\+\-]_\d+\s)*[\+\-]_\d+")
-
     def __init__(
         self,
         data: Mapping[str, complex],
-        num_modes: int | None = None,
-        num_modals: int | Sequence[int] | None = None,
+        num_modals: Sequence[int] | None = None,
         *,
         copy: bool = True,
         validate: bool = True,
@@ -200,11 +185,9 @@ class VibrationalOp(SparseLabelOp):
         """
         Args:
             data: the operator data, mapping string-based keys to numerical values.
-            num_modes: number of modes on which this operator acts.
             num_modals: number of modals - described by a list of integers where each integer
-                describes the number of modals in a corresponding mode; in case of the same number
-                of modals in each mode it is enough to provide an integer that describes the number
-                of them; the total number of modals defines a ``register_length``.
+                describes the number of modals in the corresponding mode; the total number of modals
+                defines a ``register_length``.
             copy: when set to False the `data` will not be copied and the dictionary will be
                 stored by reference rather than by value (which is the default; `copy=True`). Note,
                 that this requires you to not change the contents of the dictionary after
@@ -216,98 +199,44 @@ class VibrationalOp(SparseLabelOp):
 
         Raises:
             QiskitNatureError: when an invalid key is encountered during validation.
-            QiskitNatureError: when the number of modes and sequence of modals do not match.
         """
-        self.num_modes = num_modes
-
-        # if num_modes is None and num_modals is a sequence, get num_modes from sequence length.
-        # if num_modes is None and num_modals is an int leave num_modes unbounded.
-        # if num_modes is int and num_modals is None create list of zeros of length num_modals.
-        # if both are none, leave both unbounded.
-
-        if num_modes is not None and isinstance(num_modals, int):
-            num_modals = [num_modals] * num_modes
-
-        if num_modes is not None and num_modals is None:
-            num_modals = [0] * num_modes
-
-        if num_modes is None and isinstance(num_modals, Sequence):
-            num_modes = len(num_modals)
-
-        # if (
-        #     isinstance(num_modals, Sequence)
-        #     and isinstance(num_modes, int)
-        #     and len(num_modals) != num_modes
-        # ):
-        #     raise QiskitNatureError(
-        #         f"Length of num_modals ({len(num_modals)}) not equal to num_modes ({num_modes})"
-        #     )
-
         self.num_modals = num_modals
-
         super().__init__(data, copy=copy, validate=validate)
 
-    # @property
-    # def num_modes(self) -> int:
-    #     return self._num_modes
+    @property
+    def num_modals(self) -> list[int]:
+        return self._num_modals
 
-    # @num_modes.setter
-    # def num_modes(self, num_modes: int | None):
-    #     self._num_modes = num_modes
-
-    # @property
-    # def num_modals(self) -> Sequence[int]:
-    #     return self._num_modals
-
-    # @num_modals.setter
-    # def num_modes(self, num_modals: Sequence[int] | int | None):
-    #     self._num_modes = num_modals
+    @num_modals.setter
+    def num_modals(self, num_modals: Sequence[int] | None):
+        self._num_modals = list(num_modals) if num_modals is not None else []
 
     @property
     def register_length(self) -> int | None:
-        return sum(self.num_modals)
+        return sum(self.num_modals) if self.num_modals is not None else Noneq
 
     def _new_instance(
         self, data: Mapping[str, complex], *, other: VibrationalOp | None = None
     ) -> VibrationalOp:
-        # Not sure how to deal with int num_modals and list other_num_modals and vice versa.
-        # Assume list is preferable?
-        num_modes = self.num_modes
         num_modals = self.num_modals
         if other is not None:
-            other_num_modes = other.num_modes
-            if num_modes is None:
-                num_modes = other_num_modes
-            elif other_num_modes is not None:
-                num_modes = max(num_modes, other_num_modes)
-
             other_num_modals = other.num_modals
-            if num_modals is None:
-                num_modals = other_num_modals
-            elif other_num_modals is not None:
-                if isinstance(num_modals, int) and isinstance(other_num_modals, int):
-                    num_modals = max(num_modals, other_num_modals)
 
-                if isinstance(num_modals, list) and isinstance(other_num_modals, list):
+            def pad_to_length(a, b):
+                if len(a) < len(b):
+                    a, b = b, a
+                return a, b + [0] * (len(a) - len(b))
 
-                    def pad_to_length(a, b):
-                        if len(a) < len(b):
-                            a, b = b, a
-                        return a, b + [0] * (len(a) - len(b))
+            def elementwise_max(a, b):
+                return [max(i, j) for i, j in zip(*pad_to_length(a, b))]
 
-                    def elementwise_max(a, b):
-                        return [max(i, j) for i, j in zip(*pad_to_length(a, b))]
+            num_modals = elementwise_max(num_modals, other_num_modals)
 
-                    num_modals = elementwise_max(num_modals, other_num_modals)
-                    num_modes = len(num_modals)
-
-        return self.__class__(data, copy=False, num_modes=num_modes, num_modals=num_modals)
+        return self.__class__(data, copy=False, num_modals=num_modals)
 
     def _validate_keys(self, keys: Collection[str]) -> None:
-
-        # After validating the keys, num_modals should *always* be a sequence of ints.
-
         super()._validate_keys(keys)
+        num_modals = self.num_modals
 
         for key in keys:
             # 0. explicitly allow the empty key
@@ -318,58 +247,18 @@ class VibrationalOp(SparseLabelOp):
             if not re.fullmatch(VibrationalOp._OPERATION_REGEX, key):
                 raise QiskitNatureError(f"{key} is not a valid VibrationalOp label.")
 
-        self._validate_vibrational_indices(keys)
-
-    def _validate_vibrational_indices(self, vibrational_labels: Collection[str]):
-        num_modes = self.num_modes
-        num_modals = self.num_modals
-
-        for labels in vibrational_labels:
-            coeff_labels_split = labels.split()
+            coeff_labels_split = key.split()
             for label in coeff_labels_split:
                 _, mode_index_str, modal_index_str = re.split("[_]", label)
                 mode_index = int(mode_index_str)
                 modal_index = int(modal_index_str)
 
-                if num_modes is None:
-                    num_modes = mode_index + 1
-                    if isinstance(num_modals, int):
-                        num_modals = num_modes * [num_modals]
-
-                if num_modals is None:
-                    num_modals = [0] * num_modes
-
-                if mode_index > num_modes - 1:
-                    num_modals += [0] * (mode_index - num_modes + 1)
-                    num_modes = mode_index + 1
+                if mode_index + 1 > len(num_modals):
+                    num_modals += [0] * (mode_index + 1 - len(num_modals))
 
                 if modal_index > num_modals[mode_index] - 1:
                     num_modals[mode_index] = modal_index + 1
 
-        if num_modes is None:
-            num_modes = 0
-
-        if num_modals is None:
-            num_modals = [0]
-
-        # TODO merge this into the loop above
-        # for labels in vibrational_labels:
-        #     par_num_mode_conserved_check = [0] * num_modes
-        #     for label in labels.split():
-        #         op, mode_index_str, modal_index_str = re.split("[_]", label)
-        #         mode_index = int(mode_index_str)
-        #         modal_index = int(modal_index_str)
-        #         par_num_mode_conserved_check[int(mode_index)] += 1 if op == "+" else -1
-        #     for index, item in enumerate(par_num_mode_conserved_check):
-        #         if item != 0:
-        #             logger.warning(
-        #                 "Number of raising and lowering operators do not agree for mode %s in "
-        #                 "label %s.",
-        #                 index,
-        #                 labels,
-        #             )
-
-        self.num_modes = num_modes
         self.num_modals = num_modals
 
     @classmethod
@@ -412,12 +301,12 @@ class VibrationalOp(SparseLabelOp):
     def __repr__(self) -> str:
         data_str = f"{dict(self.items())}"
 
-        return "VibrationalOp(" f"{data_str}, " f"num_spin_orbitals={self.num_spin_orbitals}, " ")"
+        return "VibrationalOp(" f"{data_str}, " f"num_modals={self.num_modals}, " ")"
 
     def __str__(self) -> str:
         pre = (
             "Vibrational Operator\n"
-            f"number modes={self.num_modes}, number modals={self.num_modals}, "
+            f"number modes={len(self.num_modals)}, number modals={self.num_modals}, "
             f"number terms={len(self)}\n"
         )
         ret = "  " + "\n+ ".join(
@@ -474,7 +363,7 @@ class VibrationalOp(SparseLabelOp):
 
     @classmethod
     def _tensor(cls, a: VibrationalOp, b: VibrationalOp, *, offset: bool = True) -> VibrationalOp:
-        shift = a.num_modes if offset else 0
+        shift = len(a.num_modals) if offset else 0
 
         new_data: dict[str, complex] = {}
         for labels1, cf1 in a.items():
@@ -491,8 +380,6 @@ class VibrationalOp(SparseLabelOp):
 
         new_op = a._new_instance(new_data, other=b)
         if offset:
-            # num_modals should always be a list after instantiation
-            new_op.num_modes = a.num_modes + b.num_modes
             new_op.num_modals = a.num_modals.extend(b.num_modals)
         return new_op
 
