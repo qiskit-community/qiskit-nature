@@ -187,6 +187,8 @@ class VibrationalOp(SparseLabelOp):
     # followed by "_" and a modal index, possibly appearing multiple times and separated by a space
     _OPERATION_REGEX = re.compile(r"^([\+\-]_\d+_\d+\s)*[\+\-]_\d+_\d+(?!\s)$|^[\+\-]+$")
 
+    _SIMPLIFIED_REGEX = re.compile(r"([\+\-]_\d+\s)*[\+\-]_\d+")
+
     def __init__(
         self,
         data: Mapping[str, complex],
@@ -233,18 +235,34 @@ class VibrationalOp(SparseLabelOp):
         if num_modes is None and isinstance(num_modals, Sequence):
             num_modes = len(num_modals)
 
-        if (
-            isinstance(num_modals, Sequence)
-            and isinstance(num_modals, int)
-            and len(num_modals) != num_modes
-        ):
-            raise QiskitNatureError(
-                f"Length of num_modals ({len(num_modals)}) not equal to num_modes ({num_modes})"
-            )
+        # if (
+        #     isinstance(num_modals, Sequence)
+        #     and isinstance(num_modes, int)
+        #     and len(num_modals) != num_modes
+        # ):
+        #     raise QiskitNatureError(
+        #         f"Length of num_modals ({len(num_modals)}) not equal to num_modes ({num_modes})"
+        #     )
 
         self.num_modals = num_modals
 
         super().__init__(data, copy=copy, validate=validate)
+
+    # @property
+    # def num_modes(self) -> int:
+    #     return self._num_modes
+
+    # @num_modes.setter
+    # def num_modes(self, num_modes: int | None):
+    #     self._num_modes = num_modes
+
+    # @property
+    # def num_modals(self) -> Sequence[int]:
+    #     return self._num_modals
+
+    # @num_modals.setter
+    # def num_modes(self, num_modals: Sequence[int] | int | None):
+    #     self._num_modes = num_modals
 
     @property
     def register_length(self) -> int | None:
@@ -580,45 +598,52 @@ class VibrationalOp(SparseLabelOp):
     def _simplify_label(self, label: str, coeff: complex) -> tuple[str, complex]:
         bits = _BitsContainer()
 
-        partial_sum_modals = [0] + list(itertools.accumulate(self.num_modals, operator.add))
+        # Since Python 3.7, dictionaries are guaranteed to be insert-order preserving. We use this
+        # to our advantage, to implement an ordered set, which allows us to preserve the label order
+        # and only remove canceling terms.
+        new_label: dict[str, None] = {}
 
         for lbl in label.split():
-            char, index = self._build_register_label(lbl, partial_sum_modals)
-            idx = int(index)
+            char, mode_index, modal_index = lbl.split("_")
+            idx = (int(mode_index), int(modal_index))
             char_b = char == "+"
 
             if idx not in bits:
-                bits[idx] = int(f"{char_b:b}{not char_b:b}{char_b:b}{char_b:b}", base=2)
                 # we store all relevant information for each register index in 4 bits:
                 #   1. True if a `+` has been applied on this index
                 #   2. True if a `-` has been applied on this index
                 #   3. True if a `+` was applied first, False if a `-` was applied first
                 #   4. True if the last added operation on this index was `+`, False if `-`
+                bits[idx] = int(f"{char_b:b}{not char_b:b}{char_b:b}{char_b:b}", base=2)
+                # and we insert the encountered label into our ordered set
+                new_label[lbl] = None
 
             elif bits.get_last(idx) == char_b:
                 # we bail, if we apply the same operator as the last one
                 return "", 0
 
             elif bits.get_plus(idx) and bits.get_minus(idx):
-                # if both, `+` and `-`, have already been applied, we cancel the opposite to the
-                # current one (i.e. `+` will cancel `-` and vice versa)
+                # If both, `+` and `-`, have already been applied, we cancel the opposite to the
+                # current one (i.e. `+` will cancel `-` and vice versa).
+                # 1. we construct the reversed label which is the key we need to pop
+                pop_lbl = f"{'-' if char_b else '+'}_{idx[0]}_{idx[1]}"
+                # 2. we perform the information update by:
+                #  a) updating the coefficient sign
+                new_label.pop(pop_lbl)
+                #  b) updating the bits container
                 bits.set_plus_or_minus(idx, not char_b, False)
-                # we also update the last bit to the current char
+                #  c) and updating the last bit to the current char
                 bits.set_last(idx, char_b)
 
             else:
                 # else, we simply set the bit of the currently applied char
                 bits.set_plus_or_minus(idx, char_b, True)
+                # and track it in our ordered set
+                new_label[lbl] = None
                 # we also update the last bit to the current char
                 bits.set_last(idx, char_b)
 
-        new_label = []
-        for idx in sorted(bits):
-            plus = f"+_{idx}" if bits.get_plus(idx) else None
-            minus = f"-_{idx}" if bits.get_minus(idx) else None
-            new_label.extend([plus, minus] if bits.get_order(idx) else [minus, plus])
-
-        return " ".join(lbl for lbl in new_label if lbl is not None), coeff
+        return " ".join(new_label), coeff
 
 
 class _BitsContainer(MutableMapping):
@@ -636,9 +661,9 @@ class _BitsContainer(MutableMapping):
     """
 
     def __init__(self):
-        self.data: dict[int, int] = {}
+        self.data: dict[tuple[int, int], int] = {}
 
-    def get_plus(self, index: int) -> int:
+    def get_plus(self, index: tuple[int, int]) -> int:
         """Returns the value of the `+`-register.
 
         Args:
@@ -649,7 +674,7 @@ class _BitsContainer(MutableMapping):
         """
         return self.get_bit(index, 3)
 
-    def get_minus(self, index: int) -> int:
+    def get_minus(self, index: tuple[int, int]) -> int:
         """Returns the value of the `-`-register.
 
         Args:
@@ -660,7 +685,7 @@ class _BitsContainer(MutableMapping):
         """
         return self.get_bit(index, 2)
 
-    def set_plus_or_minus(self, index: int, plus_or_minus: bool, value: bool) -> None:
+    def set_plus_or_minus(self, index: tuple[int, int], plus_or_minus: bool, value: bool) -> None:
         """Sets the `+`- or `-`-register of the provided index to the provided value.
 
         Args:
@@ -674,7 +699,7 @@ class _BitsContainer(MutableMapping):
         else:
             self.clear_bit(index, 3 - int(not plus_or_minus))
 
-    def get_order(self, index: int) -> int:
+    def get_order(self, index: tuple[int, int]) -> int:
         """Returns the value of the order-register.
 
         Note: the order-register is read-only and can only be set during initialization.
@@ -687,7 +712,7 @@ class _BitsContainer(MutableMapping):
         """
         return self.get_bit(index, 1)
 
-    def get_last(self, index: int) -> int:
+    def get_last(self, index: tuple[int, int]) -> int:
         """Returns the value of the last-register.
 
         Args:
@@ -698,7 +723,7 @@ class _BitsContainer(MutableMapping):
         """
         return self.get_bit(index, 0)
 
-    def set_last(self, index: int, value: bool) -> None:
+    def set_last(self, index: tuple[int, int], value: bool) -> None:
         """Sets the value of the last-register.
 
         Args:
@@ -710,7 +735,7 @@ class _BitsContainer(MutableMapping):
         else:
             self.clear_bit(index, 0)
 
-    def get_bit(self, index: int, offset: int) -> int:
+    def get_bit(self, index: tuple[int, int], offset: int) -> int:
         """Returns the value of a requested register.
 
         Args:
@@ -722,7 +747,7 @@ class _BitsContainer(MutableMapping):
         """
         return (self.data[index] >> offset) & 1
 
-    def set_bit(self, index: int, offset: int) -> None:
+    def set_bit(self, index: tuple[int, int], offset: int) -> None:
         """Sets the provided register to 1.
 
         Args:
@@ -731,7 +756,7 @@ class _BitsContainer(MutableMapping):
         """
         self.data[index] = self.data[index] | (1 << offset)
 
-    def clear_bit(self, index: int, offset: int) -> None:
+    def clear_bit(self, index: tuple[int, int], offset: int) -> None:
         """Clears the provided register (to 0).
 
         Args:

@@ -24,8 +24,7 @@ from qiskit_nature.second_q.operators import VibrationalOp
 class TestVibrationalOp(QiskitNatureTestCase):
     """VibrationalOp tests."""
 
-    op1 = VibrationalOp({"+_0_0 -_0_0": 1}, num_modes=1, num_modals=1)
-    op1 = VibrationalOp({"+_0_0 -_0_0": 1})
+    op1 = VibrationalOp({"+_0_0 -_0_0": 1}, num_modes=1, num_modals=[1])
 
     op2 = VibrationalOp({"-_0_0 +_0_0": 2})
     op3 = VibrationalOp({"+_0_0 -_0_0": 1, "-_0_0 +_0_0": 2})
@@ -114,7 +113,7 @@ class TestVibrationalOp(QiskitNatureTestCase):
     def test_sub(self):
         """Test __sub__"""
         vib_op = self.op3 - self.op2
-        targ = VibrationalOp({"+_0_0 -_0_0": 1, "-_0_0 +_0_0": 0}, num_modes=1, num_modals=1)
+        targ = VibrationalOp({"+_0_0 -_0_0": 1, "-_0_0 +_0_0": 0}, num_modes=1, num_modals=[1])
         self.assertEqual(vib_op, targ)
 
     def test_compose(self):
@@ -191,44 +190,34 @@ class TestVibrationalOp(QiskitNatureTestCase):
         )
         self.assertEqual(vib_op, targ)
 
-    #     def test_simplify(self):
-    #         """Test simplify"""
-    #         with self.subTest("simplify integer"):
-    #             fer_op = FermionicOp({"+_0 -_0": 1, "+_0 -_0 +_0 -_0": 1}, num_spin_orbitals=1)
-    #             simplified_op = fer_op.simplify()
-    #             targ = FermionicOp({"+_0 -_0": 2}, num_spin_orbitals=1)
-    #             self.assertEqual(simplified_op, targ)
+    def test_simplify(self):
+        """Test simplify"""
+        with self.subTest("simplify integer"):
+            vib_op = VibrationalOp({"+_0_0 -_0_0": 1, "+_0_0 -_0_0 +_0_0 -_0_0": 1}, num_modes=1, num_modals=[1])
+            simplified_op = vib_op.simplify()
+            targ = VibrationalOp({"+_0_0 -_0_0": 2}, num_modes=1, num_modals=[1])
+            self.assertEqual(simplified_op, targ)
 
-    #         with self.subTest("simplify complex"):
-    #             fer_op = FermionicOp({"+_0 -_0": 1, "+_0 -_0 +_0 -_0": 1j}, num_spin_orbitals=1)
-    #             simplified_op = fer_op.simplify()
-    #             targ = FermionicOp({"+_0 -_0": 1 + 1j}, num_spin_orbitals=1)
-    #             self.assertEqual(simplified_op, targ)
+        with self.subTest("simplify complex"):
+            vib_op = VibrationalOp({"+_0_0 -_0_0": 1, "+_0_0 -_0_0 +_0_0 -_0_0": 1j}, num_modes=1, num_modals=[1])
+            simplified_op = vib_op.simplify()
+            targ = VibrationalOp({"+_0_0 -_0_0": 1 + 1j}, num_modes=1, num_modals=[1])
+            self.assertEqual(simplified_op, targ)
 
-    #         with self.subTest("simplify doesn't reorder"):
-    #             fer_op = FermionicOp({"-_0 +_1": 1 + 0j}, num_spin_orbitals=2)
-    #             simplified_op = fer_op.simplify()
-    #             self.assertEqual(simplified_op, fer_op)
+        with self.subTest("simplify doesn't reorder"):
+            vib_op = VibrationalOp({"-_0_0 +_1_0": 1 + 0j}, num_modes=2, num_modals=[1, 1])
+            simplified_op = vib_op.simplify()
+            self.assertEqual(simplified_op, vib_op)
 
-    #             fer_op = FermionicOp({"-_1 +_0": 1 + 0j}, num_spin_orbitals=2)
-    #             simplified_op = fer_op.simplify()
-    #             self.assertEqual(simplified_op, fer_op)
+            vib_op = VibrationalOp({"-_1_0 +_0_0": 1 + 0j}, num_modes=2, num_modals=[1, 1])
+            simplified_op = vib_op.simplify()
+            self.assertEqual(simplified_op, vib_op)
 
-    #         with self.subTest("simplify zero"):
-    #             fer_op = self.op1 - self.op1
-    #             simplified_op = fer_op.simplify()
-    #             targ = FermionicOp.zero()
-    #             self.assertEqual(simplified_op, targ)
-
-    #         with self.subTest("simplify commutes with normal_order"):
-    #             fer_op = FermionicOp({"-_0 +_1": 1}, num_spin_orbitals=2)
-    #             self.assertEqual(fer_op.simplify().normal_order(), fer_op.normal_order().simplify())
-
-    #         with self.subTest("simplify + index order"):
-    #             orig = FermionicOp({"+_1 -_0 +_0 -_0": 1, "-_0 +_1": 2})
-    #             fer_op = orig.simplify().index_order()
-    #             targ = FermionicOp({"-_0 +_1": 1})
-    #             self.assertEqual(fer_op, targ)
+        with self.subTest("simplify zero"):
+            vib_op = self.op1 - self.op1
+            simplified_op = vib_op.simplify()
+            targ = VibrationalOp.zero()
+            self.assertEqual(simplified_op, targ)
 
     #     def test_hermiticity(self):
     #         """test is_hermitian"""
