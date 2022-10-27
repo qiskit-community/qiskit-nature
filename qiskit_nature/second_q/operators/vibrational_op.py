@@ -23,7 +23,6 @@ import operator
 import itertools
 
 import numpy as np
-from scipy.sparse import csc_matrix
 
 from qiskit_nature.exceptions import QiskitNatureError
 
@@ -484,9 +483,7 @@ class VibrationalOp(SparseLabelOp):
                     new_label = labels1
                 else:
                     terms = [re.split("[*_]", lbl) for lbl in labels2.split(" ")]
-                    new_label = (
-                        f"{labels1} {' '.join(f'{c}_{int(i)+shift}_{j}' for c, i, j in terms)}".strip()
-                    )
+                    new_label = f"{labels1} {' '.join(f'{c}_{int(i)+shift}_{j}' for c, i, j in terms)}".strip()
                 if new_label in new_data:
                     new_data[new_label] += cf1 * cf2
                 else:
@@ -499,67 +496,6 @@ class VibrationalOp(SparseLabelOp):
             new_op.num_modals = a.num_modals.extend(b.num_modals)
         return new_op
 
-    def to_matrix(self, sparse: bool | None = True) -> csc_matrix | np.ndarray:
-        """Convert to a matrix representation over the full vibrational Fock space in the occupation
-        number basis.
-
-        The basis states are ordered in increasing bitstring order as 0000, 0001, ..., 1111.
-
-        Args:
-            sparse: If true, the matrix is returned as a sparse matrix, otherwise it is returned as
-                a dense numpy array.
-
-        Returns:
-            The matrix of the operator in the Fock basis
-        """
-
-        csc_data, csc_col, csc_row = [], [], []
-
-        dimension = 1 << self.register_length
-
-        # loop over all columns of the matrix
-        for col_idx in range(dimension):
-            initial_occupations = [occ == "1" for occ in f"{col_idx:0{self.register_length}b}"]
-            # loop over the terms in the operator data
-            for terms, prefactor in self.simplify().terms():
-                # check if op string is the identity
-                if not terms:
-                    csc_data.append(prefactor)
-                    csc_row.append(col_idx)
-                    csc_col.append(col_idx)
-                else:
-                    occupations = initial_occupations.copy()
-                    mapped_to_zero = False
-
-                    # apply terms sequentially to the current basis state
-                    for char, index in reversed(terms):
-                        index = int(index)
-                        occ = occupations[index]
-                        if (char == "+") == occ:
-                            # Applying the creation operator on an occupied state maps to zero. So
-                            # does applying the annihilation operator on an unoccupied state.
-                            mapped_to_zero = True
-                            break
-                        occupations[index] = not occ
-
-                    # add data point to matrix in the correct row
-                    if not mapped_to_zero:
-                        row_idx = sum(int(occ) << idx for idx, occ in enumerate(occupations[::-1]))
-                        csc_data.append(prefactor)
-                        csc_row.append(row_idx)
-                        csc_col.append(col_idx)
-
-        sparse_mat = csc_matrix(
-            (csc_data, (csc_row, csc_col)),
-            shape=(dimension, dimension),
-            dtype=complex,
-        )
-
-        if sparse:
-            return sparse_mat
-        else:
-            return sparse_mat.toarray()
-
     def transpose(self) -> VibrationalOp:
         data = {}
 
@@ -569,19 +505,6 @@ class VibrationalOp(SparseLabelOp):
             data[" ".join(lbl.translate(trans) for lbl in reversed(label.split(" ")))] = coeff
 
         return self._new_instance(data)
-
-    def is_hermitian(self, *, atol: float | None = None) -> bool:
-        """Checks whether the operator is hermitian.
-
-        Args:
-            atol: Absolute numerical tolerance. The default behavior is to use ``self.atol``.
-
-        Returns:
-            True if the operator is hermitian up to numerical tolerance, False otherwise.
-        """
-        atol = self.atol if atol is None else atol
-        diff = (self - self.adjoint()).simplify(atol=atol)
-        return all(np.isclose(coeff, 0.0, atol=atol) for coeff in diff.values())
 
     def simplify(self, *, atol: float | None = None) -> VibrationalOp:
         atol = self.atol if atol is None else atol
