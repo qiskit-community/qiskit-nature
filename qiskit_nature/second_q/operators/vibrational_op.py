@@ -17,7 +17,7 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 from collections.abc import Collection, Mapping, MutableMapping
-from typing import cast, Iterator, Sequence
+from typing import Iterator, Sequence
 import logging
 import operator
 import itertools
@@ -172,7 +172,7 @@ class VibrationalOp(SparseLabelOp):
 
     # a valid pattern consists of a single "+" or "-" operator followed by "_" and a mode index
     # followed by "_" and a modal index, possibly appearing multiple times and separated by a space
-    _OPERATION_REGEX = re.compile(r"^([\+\-]_\d+_\d+\s)*[\+\-]_\d+_\d+(?!\s)$|^[\+\-]+$")
+    _OPERATION_REGEX = re.compile(r"([\+\-]_\d+_\d+\s)*[\+\-]_\d+_\d+(?!\s)")
 
     def __init__(
         self,
@@ -204,7 +204,7 @@ class VibrationalOp(SparseLabelOp):
         super().__init__(data, copy=copy, validate=validate)
 
     @property
-    def num_modals(self) -> list[int]:
+    def num_modals(self) -> Sequence[int]:
         return self._num_modals
 
     @num_modals.setter
@@ -249,7 +249,7 @@ class VibrationalOp(SparseLabelOp):
 
             coeff_labels_split = key.split()
             for label in coeff_labels_split:
-                _, mode_index_str, modal_index_str = re.split("[_]", label)
+                _, mode_index_str, modal_index_str = label.split("_")
                 mode_index = int(mode_index_str)
                 modal_index = int(modal_index_str)
 
@@ -263,40 +263,11 @@ class VibrationalOp(SparseLabelOp):
 
     @classmethod
     def _validate_polynomial_tensor_key(cls, keys: Collection[str]) -> None:
-        allowed_chars = {"+", "-"}
-
-        for key in keys:
-            if set(key) - allowed_chars:
-                raise QiskitNatureError(
-                    f"The key {key} is invalid. PolynomialTensor keys may only consists of `+` and "
-                    "`-` characters, for them to be expandable into a VibrationalOp."
-                )
+        ...
 
     @classmethod
     def from_polynomial_tensor(cls, tensor: PolynomialTensor) -> VibrationalOp:
-        cls._validate_polynomial_tensor_key(tensor.keys())
-
-        data: dict[str, complex] = {}
-
-        for key in tensor:
-            if key == "":
-                # TODO: deal with complexity
-                data[""] = cast(float, tensor[key])
-                continue
-
-            label_template = " ".join(f"{op}_{{}}" for op in key)
-
-            # PERF: this matrix unpacking is a performance bottleneck
-            # we could consider using Rust in the future to improve upon this
-
-            ndarray = cast(np.ndarray, tensor[key])
-            for index in np.ndindex(*ndarray.shape):
-                data[label_template.format(*index)] = ndarray[index]
-
-            # NOTE: once the PolynomialTensor supports sparse matrices, these will need to be
-            # handled separately
-
-        return cls(data, copy=False, num_spin_orbitals=tensor.register_length).chop()
+        ...
 
     def __repr__(self) -> str:
         data_str = f"{dict(self.items())}"
@@ -331,16 +302,13 @@ class VibrationalOp(SparseLabelOp):
             if not label:
                 yield ([], self[label])
                 continue
-            # we hard-code the result of lbl.split("_") as follows:
-            #   lbl[0] is either + or -
-            #   lbl[2:] corresponds to the index
             terms = [
                 self._build_register_label(lbl, partial_sum_modals) for lbl in label.split(" ")
             ]
             yield (terms, self[label])
 
     def _build_register_label(self, label: str, partial_sum_modals: list[int]) -> tuple[str, int]:
-        op, mode_index, modal_index = re.split("[_]", label)
+        op, mode_index, modal_index = label.split("_")
         index = partial_sum_modals[int(mode_index)] + int(modal_index)
         return (op, index)
 
@@ -371,7 +339,7 @@ class VibrationalOp(SparseLabelOp):
                 if labels2 == "":
                     new_label = labels1
                 else:
-                    terms = [re.split("[*_]", lbl) for lbl in labels2.split(" ")]
+                    terms = [lbl.split("_") for lbl in labels2.split(" ")]
                     new_label = f"{labels1} {' '.join(f'{c}_{int(i)+shift}_{j}' for c, i, j in terms)}".strip()
                 if new_label in new_data:
                     new_data[new_label] += cf1 * cf2
