@@ -213,7 +213,7 @@ class VibrationalOp(SparseLabelOp):
 
     @property
     def register_length(self) -> int | None:
-        return sum(self.num_modals) if self.num_modals is not None else Noneq
+        return sum(self.num_modals) if self.num_modals is not None else None
 
     def _new_instance(
         self, data: Mapping[str, complex], *, other: VibrationalOp | None = None
