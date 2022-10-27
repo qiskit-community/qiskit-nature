@@ -149,7 +149,8 @@ class SpinOp(SparseLabelOp):
 
     """
 
-    _OPERATION_REGEX = re.compile(r"([XYZI]_\d+\s)*[XYZI]_\d+")
+    # _OPERATION_REGEX = re.compile(r"([XYZI]_\d+\s)*[XYZI]_\d+")
+    _OPERATION_REGEX = re.compile(r"([XYZI]_\d+(\^\d+)?\s)*[XYZI]_\d+(\^\d+)?")
 
     def __init__(
         self,
@@ -228,7 +229,9 @@ class SpinOp(SparseLabelOp):
 
             # 2. validate all indices against register length
             for term in key.split(" "):
-                index = int(term[2:])
+                sub_terms = term.split("^")
+                # sub_terms[0] is the base, sub_terms[1] is the (optional) exponent
+                index = int(sub_terms[0][2:])
                 if num_o is None:
                     if index > max_index:
                         max_index = index
@@ -313,10 +316,12 @@ class SpinOp(SparseLabelOp):
             if not label:
                 yield ([], self[label])
                 continue
-            # we hard-code the result of lbl.split("_") as follows:
-            #   lbl[0] is X, Y, Z or I
-            #   lbl[2:] corresponds to the index
-            terms = [(lbl[0], int(lbl[2:])) for lbl in label.split(" ")]
+
+            terms = []
+            for lbl in label.split(" "):
+                parts = lbl.split("^")
+                sub_terms = [(parts[0][0], int(parts[0][2:]))] * (int(parts[1]) if len(parts) > 1 else 1)
+                terms += sub_terms
             yield (terms, self[label])
 
     def conjugate(self) -> SpinOp:
@@ -327,11 +332,13 @@ class SpinOp(SparseLabelOp):
         """
         new_data = {}
         for label, coeff in self.items():
-            num_ys = label.count("Y")
             # calculate conjugate of coefficients
             coeff = np.conjugate(coeff)
-            # add sign from Y-terms (Y.conj() = -Y)
-            coeff *= -1 if num_ys % 2 != 0 else 1
+            for lbl in label.split():
+                char, index = lbl.split("_")
+                exponent = int(index.split("^")[1]) if len(index.split("^")) > 1 else 1
+                # add sign from Y-terms (Y.conj() = -Y)
+                coeff *= (-1)**exponent if char == "Y" else 1
             new_data[label] = coeff
 
         return self._new_instance(new_data)
@@ -346,9 +353,12 @@ class SpinOp(SparseLabelOp):
         # note: (XY)^T = Y^T X^T
         data = {}
         for label, coeff in self.items():
-            num_ys = label.count("Y")
-            # add sign from Y-terms (Y^T=-Y)
-            coeff *= -1 if num_ys % 2 != 0 else 1
+            for lbl in label.split():
+                char, index = lbl.split("_")
+                exponent = int(index.split("^")[1]) if len(index.split("^")) > 1 else 1
+                # add sign from Y-terms (Y^T=-Y)
+                coeff *= (-1)**exponent if char == "Y" else 1
+
             data[" ".join(lbl for lbl in reversed(label.split(" ")))] = coeff
 
         return self._new_instance(data)
@@ -375,7 +385,8 @@ class SpinOp(SparseLabelOp):
         shift = a.num_orbitals if offset else 0
 
         new_data: dict[str, complex] = {}
-        for label1, cf1 in a.items():
+        a_simple = a.simplify()
+        for label1, cf1 in a_simple.items():
             for terms2, cf2 in b.terms():
                 new_label = f"{label1} {' '.join(f'{c}_{i + shift}' for c, i in terms2)}".strip()
                 if new_label in new_data:
@@ -405,21 +416,21 @@ class SpinOp(SparseLabelOp):
         bits = {}
         new_label = []
         for i, lbl in enumerate(label.split()):
-            char = lbl[0]
-            idx = int(lbl[2:])
+            # char = lbl[0]
+            # idx = int(lbl[2:])
+            char, index = lbl.split("_")
+            base = index.split("^")[0]
+            exponent = int(index.split("^")[1]) if len(index.split("^")) > 1 else 1
+            idx = int(base)
 
-            if idx in bits and bits[idx][-1] == char:
-                bits[idx][-1] = ""
-                # remove last instance of lbl
-                new_label.reverse()
-                new_label.remove(lbl)
-                new_label.reverse()
-            else:
-                if idx not in bits:
-                    bits[idx] = [char]
-                else:
-                    bits[idx].append(char)
-                new_label.append(lbl)
+            if idx not in bits:
+                bits[idx] = [char]
+                exponent -= 1
+                new_label.append(f"{char}_{idx}")
+
+            for i in range(exponent):
+                bits[idx].append(char)
+                new_label.append(f"{char}_{idx}")
 
         if reorder:
             new_label = []

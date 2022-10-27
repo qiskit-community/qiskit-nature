@@ -24,8 +24,8 @@ class TestSpinOp(QiskitNatureTestCase):
     """SpinOp tests."""
 
     op1 = SpinOp({"X_0 Y_0": 1}, num_orbitals=1)
-    op2 = SpinOp({"X_0 Z_0": 2}, num_orbitals=1)
-    op3 = SpinOp({"X_0 Y_0": 1, "X_0 Z_0": 2}, num_orbitals=1)
+    op2 = SpinOp({"X_0^2 Z_0": 2}, num_orbitals=1)
+    op3 = SpinOp({"X_0 Y_0": 1, "X_0^2 Z_0": 2}, num_orbitals=1)
 
     spin_1_matrix = {
         "I_0": np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]]),
@@ -49,7 +49,7 @@ class TestSpinOp(QiskitNatureTestCase):
 
         with self.subTest("left mul"):
             spin_op = (2 + 1j) * self.op3
-            targ = SpinOp({"X_0 Y_0": (2 + 1j), "X_0 Z_0": (4 + 2j)}, num_orbitals=1)
+            targ = SpinOp({"X_0 Y_0": (2 + 1j), "X_0^2 Z_0": (4 + 2j)}, num_orbitals=1)
             self.assertEqual(spin_op, targ)
 
     def test_div(self):
@@ -67,49 +67,33 @@ class TestSpinOp(QiskitNatureTestCase):
     def test_sub(self):
         """Test __sub__"""
         spin_op = self.op3 - self.op2
-        targ = SpinOp({"X_0 Y_0": 1, "X_0 Z_0": 0}, num_orbitals=1)
+        targ = SpinOp({"X_0 Y_0": 1, "X_0^2 Z_0": 0}, num_orbitals=1)
         self.assertEqual(spin_op, targ)
 
     def test_simplify(self):
         """Test simplify"""
-        with self.subTest("simplify"):
+        with self.subTest("do not simplify"):
             spin_op = SpinOp({"X_0 Y_0": 1, "X_0 X_0 X_0 Y_0": 1}, num_orbitals=1)
             simplified_op = spin_op.simplify()
-            targ = SpinOp({"X_0 Y_0": 2}, num_orbitals=1)
+            targ = SpinOp({"X_0 Y_0": 1, "X_0 X_0 X_0 Y_0": 1}, num_orbitals=1)
             self.assertEqual(simplified_op, targ)
 
-        with self.subTest("simplify to identity"):
+        with self.subTest("do not simplify to identity"):
             spin_op = SpinOp({"X_0 X_0": 1}, num_orbitals=1)
             simplified_op = spin_op.simplify()
-            targ = SpinOp({"": 1}, num_orbitals=1)
+            targ = SpinOp({"X_0 X_0": 1}, num_orbitals=1)
             self.assertEqual(simplified_op, targ)
 
-        with self.subTest("do not simplify if not adjacent within same index"):
-            spin_op = SpinOp({"X_0 Y_0 X_0": 1}, num_orbitals=2)
+        with self.subTest("expand label"):
+            spin_op = SpinOp({"X_0^3": 1}, num_orbitals=1)
             simplified_op = spin_op.simplify()
-            targ = spin_op
+            targ = SpinOp({"X_0 X_0 X_0": 1}, num_orbitals=1)
             self.assertEqual(simplified_op, targ)
-
-        with self.subTest("simplify if adjacent within same index"):
-            spin_op = SpinOp({"X_0 Y_1 X_0": 1}, num_orbitals=2)
-            simplified_op = spin_op.simplify()
-            targ = SpinOp({"Y_1": 1}, num_orbitals=2)
-            self.assertEqual(simplified_op, targ)
-
-        with self.subTest("simplify without reorder"):
-            spin_op = SpinOp({"Y_0 X_0": 1 + 0j}, num_orbitals=2)
-            simplified_op = spin_op.simplify()
-            self.assertEqual(simplified_op, spin_op)
-
-        with self.subTest("another simplify without reorder"):
-            spin_op = SpinOp({"Y_1 X_0": 1 + 0j}, num_orbitals=2)
-            simplified_op = spin_op.simplify()
-            self.assertEqual(simplified_op, spin_op)
 
         with self.subTest("simplify with reorder"):
-            spin_op = SpinOp({"Y_2 X_0 X_1 X_0 Z_0": 1, "X_1 Z_0 Y_2": 2}, num_orbitals=3)
+            spin_op = SpinOp({"Y_2 X_0 X_1 X_0 Z_0": 1, "Y_2 X_0 X_0 Z_0 X_1": 2}, num_orbitals=3)
             simplified_op = spin_op.simplify(reorder=True)
-            targ = SpinOp({"Z_0 X_1 Y_2": 3}, num_orbitals=3)
+            targ = SpinOp({"X_0 X_0 Z_0 X_1 Y_2": 3}, num_orbitals=3)
             self.assertEqual(simplified_op, targ)
 
         with self.subTest("simplify zero"):
@@ -151,13 +135,13 @@ class TestSpinOp(QiskitNatureTestCase):
     def test_tensor(self):
         """Test tensor multiplication"""
         spin_op = self.op1.tensor(self.op2)
-        targ = SpinOp({"X_0 Y_0 X_1 Z_1": 2}, num_orbitals=2)
+        targ = SpinOp({"X_0 Y_0 X_1 X_1 Z_1": 2}, num_orbitals=2)
         self.assertEqual(spin_op, targ)
 
     def test_expand(self):
         """Test reversed tensor multiplication"""
         spin_op = self.op1.expand(self.op2)
-        targ = SpinOp({"X_0 Z_0 X_1 Y_1": 2}, num_orbitals=2)
+        targ = SpinOp({"X_0 X_0 Z_0 X_1 Y_1": 2}, num_orbitals=2)
         self.assertEqual(spin_op, targ)
 
     def test_compose(self):
@@ -173,9 +157,11 @@ class TestSpinOp(QiskitNatureTestCase):
             spin_op = SpinOp(
                 {"X_0 X_1 Y_1": 1, "X_0 Y_0 Y_1": -1}, num_orbitals=2
             ) @ SpinOp({"Y_0": 1, "X_0 Y_1": -1}, num_orbitals=2)
-            spin_op = spin_op.simplify(reorder=True)
             targ = SpinOp(
-                {"X_0 Y_0 X_1 Y_1": 1, "X_1": -1, "X_0 Y_1": -1, "X_0 Y_0 X_0": 1},
+                {"X_0 X_1 Y_1 Y_0": 1,
+                 "X_0 X_1 Y_1 X_0 Y_1": -1,
+                 "X_0 Y_0 Y_1 Y_0": -1,
+                 "X_0 Y_0 Y_1 X_0 Y_1": 1},
                 num_orbitals=2,
             )
             self.assertEqual(spin_op, targ)
@@ -185,7 +171,6 @@ class TestSpinOp(QiskitNatureTestCase):
         """Test to_matrix for single qutrit op"""
         actual = SpinOp({label: 1}, 1)
         actual = actual.to_matrix()
-        print("matrix: ", actual)
         np.testing.assert_array_almost_equal(actual, self.spin_1_matrix[label])
 
 if __name__ == "__main__":

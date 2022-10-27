@@ -40,11 +40,10 @@ class TestLogarithmicMapper(QiskitNatureTestCase):
     ref_qubit_op4 = (-0.4375 - 0.0375j) * (I ^ Z ^ I ^ I) + (-0.875 - 0.075j) * (Z ^ I ^ I ^ I)
 
     spin_op5 = SpinOp({"X_0 I_1 I_2 I_3 I_4 I_5 I_6 I_7": 4 + 0j}, 0.5, 8) + SpinOp(
-        {"I_0 I_0 I_2 I_3 I_4 I_5 I_6 I_7 I_8": 8 + 0j}, 0.5, 9)
+                        {"I_0^2 I_2 I_3 I_4 I_5 I_6 I_7": 8 + 0j}, 0.5, 8)
 
-    ref_qubit_op5 = (8.0 + 0j) * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + (2.0 + 0j) * (
-        I ^ I ^ I ^ I ^ I ^ I ^ I ^ X
-    )
+    ref_qubit_op5 = (2.0 + 0j) * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ X) + \
+                    (8.0 + 0j) * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I)
 
     spin_op6 = SpinOp({"Z_0": -0.875 - 0.075j}, 1, 1)
     ref_qubit_op6 = (
