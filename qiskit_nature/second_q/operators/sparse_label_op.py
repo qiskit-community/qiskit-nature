@@ -35,11 +35,11 @@ from .polynomial_tensor import PolynomialTensor
 _TCoeff = Union[complex, ParameterExpression]
 
 
-def _to_number(a: SupportsComplex | ParameterExpression) -> complex | float:
+def _to_number(a: _TCoeff) -> complex:
     if isinstance(a, ParameterExpression):
         sympified = a.sympify()
         return complex(sympified) if sympified.is_Number else np.nan
-    return complex(a)
+    return a
 
 
 class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC, Mapping):
@@ -508,12 +508,12 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
             parameters: The mapping from parameters to new parameters or values.
 
         Returns:
-            The operator with the parameters assigned, or None if ``inplace=True``.
+            A new operator with the parameters assigned.
         """
-        data = dict(self._data.items())
-        for key, value in data.items():
-            if value in parameters:
-                data[key] = parameters[value]
+        data = {
+            key: parameters[value] if value in parameters else value
+            for key, value in self._data.items()
+        }
         return self._new_instance(data, other=self)
 
     def round(self, decimals: int = 0) -> SparseLabelOp:
