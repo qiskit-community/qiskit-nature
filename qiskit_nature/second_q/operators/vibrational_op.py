@@ -481,11 +481,12 @@ class VibrationalOp(SparseLabelOp):
         for labels1, cf1 in a.items():
             for labels2, cf2 in b.items():
                 if labels2 == "":
-                    continue
-                terms = [re.split("[*_]", lbl) for lbl in labels2.split(" ")]
-                new_label = (
-                    f"{labels1} {' '.join(f'{c}_{int(i)+shift}_{j}' for c, i, j in terms)}".strip()
-                )
+                    new_label = labels1
+                else:
+                    terms = [re.split("[*_]", lbl) for lbl in labels2.split(" ")]
+                    new_label = (
+                        f"{labels1} {' '.join(f'{c}_{int(i)+shift}_{j}' for c, i, j in terms)}".strip()
+                    )
                 if new_label in new_data:
                     new_data[new_label] += cf1 * cf2
                 else:

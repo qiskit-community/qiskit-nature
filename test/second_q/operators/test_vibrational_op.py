@@ -15,7 +15,7 @@ import unittest
 from test import QiskitNatureTestCase
 
 # import numpy as np
-from ddt import ddt#, data
+from ddt import ddt  # , data
 
 from qiskit_nature.second_q.operators import VibrationalOp
 
@@ -129,10 +129,13 @@ class TestVibrationalOp(QiskitNatureTestCase):
             vib_op = VibrationalOp(
                 {"+_0_0 +_1_0 -_1_0": 1, "-_0_0 +_0_0 -_1_0": 1}, num_modes=2, num_modals=[1, 1]
             ) @ VibrationalOp({"": 1, "-_0_0 +_1_0": 1}, num_modes=2, num_modals=[1, 1])
+            vib_op = vib_op.simplify()
             targ = VibrationalOp(
                 {
-                    "+_0_0 +_1_0 -_1_0 -_0_0 +_1_0": 1,
-                    "-_0_0 +_0_0 -_1_0 -_0_0 +_1_0": 1,
+                    "+_0_0 +_1_0 -_1_0": 1,
+                    "-_0_0 +_0_0 -_1_0": 1,
+                    "+_0_0 +_1_0 -_0_0": 1,
+                    "-_0_0 -_1_0 +_1_0": 1,
                 },
                 num_modes=2,
                 num_modals=[1, 1],
@@ -154,25 +157,36 @@ class TestVibrationalOp(QiskitNatureTestCase):
     def test_pow(self):
         """Test __pow__"""
         with self.subTest("square trivial"):
-            vib_op = VibrationalOp({"+_0_0 +_1_0 -_1_0": 3, "-_0_0 +_0_0 -_1_0": 1}, num_modes=2) ** 2
+            vib_op = (
+                VibrationalOp({"+_0_0 +_1_0 -_1_0": 3, "-_0_0 +_0_0 -_1_0": 1}, num_modes=2) ** 2
+            )
             vib_op = vib_op.simplify()
             targ = VibrationalOp.zero()
             self.assertEqual(vib_op, targ)
 
         with self.subTest("square nontrivial"):
-            vib_op = VibrationalOp({"+_0_0 +_1_0 -_1_0": 3, "+_0_0 -_0_0 -_1_0": 1}, num_modes=2, num_modals=[1, 1]) ** 2
+            vib_op = (
+                VibrationalOp(
+                    {"+_0_0 +_1_0 -_1_0": 3, "+_0_0 -_0_0 -_1_0": 1}, num_modes=2, num_modals=[1, 1]
+                )
+                ** 2
+            )
             vib_op = vib_op.simplify()
             targ = VibrationalOp({"+_0_0 -_1_0": 3}, num_modes=1, num_modals=[1])
             self.assertEqual(vib_op, targ)
 
         with self.subTest("3rd power"):
             vib_op = (3 * VibrationalOp.one()) ** 3
-            # FIXME taking the power removes the unity operator term
             targ = 27 * VibrationalOp.one()
             self.assertEqual(vib_op, targ)
 
         with self.subTest("0th power"):
-            vib_op = VibrationalOp({"+_0_0 +_1_0 -_1_0": 3, "-_0_0 +_0_0 -_1_0": 1}, num_modes=2, num_modals = [1, 1]) ** 0
+            vib_op = (
+                VibrationalOp(
+                    {"+_0_0 +_1_0 -_1_0": 3, "-_0_0 +_0_0 -_1_0": 1}, num_modes=2, num_modals=[1, 1]
+                )
+                ** 0
+            )
             vib_op = vib_op.simplify()
             targ = VibrationalOp.one()
             self.assertEqual(vib_op, targ)
@@ -192,13 +206,17 @@ class TestVibrationalOp(QiskitNatureTestCase):
     def test_simplify(self):
         """Test simplify"""
         with self.subTest("simplify integer"):
-            vib_op = VibrationalOp({"+_0_0 -_0_0": 1, "+_0_0 -_0_0 +_0_0 -_0_0": 1}, num_modes=1, num_modals=[1])
+            vib_op = VibrationalOp(
+                {"+_0_0 -_0_0": 1, "+_0_0 -_0_0 +_0_0 -_0_0": 1}, num_modes=1, num_modals=[1]
+            )
             simplified_op = vib_op.simplify()
             targ = VibrationalOp({"+_0_0 -_0_0": 2}, num_modes=1, num_modals=[1])
             self.assertEqual(simplified_op, targ)
 
         with self.subTest("simplify complex"):
-            vib_op = VibrationalOp({"+_0_0 -_0_0": 1, "+_0_0 -_0_0 +_0_0 -_0_0": 1j}, num_modes=1, num_modals=[1])
+            vib_op = VibrationalOp(
+                {"+_0_0 -_0_0": 1, "+_0_0 -_0_0 +_0_0 -_0_0": 1j}, num_modes=1, num_modals=[1]
+            )
             simplified_op = vib_op.simplify()
             targ = VibrationalOp({"+_0_0 -_0_0": 1 + 1j}, num_modes=1, num_modals=[1])
             self.assertEqual(simplified_op, targ)
@@ -442,13 +460,13 @@ class TestVibrationalOp(QiskitNatureTestCase):
 #         ("something", 1, False),  # incorrect term pattern
 #         ("+_1", 1, False),  # register length is too short
 #     )
-    # def test_validate(self, key: str, length: int, valid: bool):
-    #     """Test key validation."""
-    #     if valid:
-    #         _ = FermionicOp({key: 1.0}, num_spin_orbitals=length)
-    #     else:
-    #         with self.assertRaises(QiskitNatureError):
-    #             _ = FermionicOp({key: 1.0}, num_spin_orbitals=length)
+# def test_validate(self, key: str, length: int, valid: bool):
+#     """Test key validation."""
+#     if valid:
+#         _ = FermionicOp({key: 1.0}, num_spin_orbitals=length)
+#     else:
+#         with self.assertRaises(QiskitNatureError):
+#             _ = FermionicOp({key: 1.0}, num_spin_orbitals=length)
 
 #     def test_from_polynomial_tensor(self):
 #         """Test from PolynomialTensor construction"""
