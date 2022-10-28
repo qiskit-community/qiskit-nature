@@ -28,6 +28,8 @@ molecule mol {{
    0 1
    Li  0.0 0.0 0.0
    H   0.0 0.0 1.6
+   no_com
+   no_reorient
 }}
 set {{
       basis sto-3g
