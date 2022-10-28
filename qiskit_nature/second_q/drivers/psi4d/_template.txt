@@ -92,4 +92,3 @@ data.dip_ref = _q_hf_wavefn.variable("CURRENT DIPOLE")
 
 # _FILE_PATH variable gets injected by the driver that calls this template
 data.to_hdf5(_FILE_PATH)
-
