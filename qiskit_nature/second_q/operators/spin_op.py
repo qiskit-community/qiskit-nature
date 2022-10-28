@@ -37,50 +37,24 @@ from .sparse_label_op import SparseLabelOp
 
 
 class SpinOp(SparseLabelOp):
-    """XYZ Spin operators.
+    """XYZ Spin operator.
 
-    # TODO: Finish updating docstring
-    **Label**
+    A `SpinOp` represents a weighted sum of spin operator terms (?). [TODO: Finish]
+    These terms are encoded as sparse labels, strings consisting of a space-separated
+    list of expressions. Each expression must look like :code:`[XYZ]_<index>^<power>`,
+    where the :code:`<index>` is a non-negative integer representing the index of
+    the spin mode  where the `X`, `Y` or `Z` component of the spin operator is to be applied.
 
-    Allowed characters for primitives of labels are X, Y, Z.
-
-    .. list-table::
-        :header-rows: 1
-
-        * - Label
-          - Mathematical Representation
-          - Meaning
-        * - `X`
-          - :math:`S^x`
-          - :math:`x`-component of the spin operator
-        * - `Y`
-          - :math:`S^y`
-          - :math:`y`-component of the spin operator
-        * - `Z`
-          - :math:`S^z`
-          - :math:`z`-component of the spin operator
-
-
-    A sparse label is a string consisting of a space-separated list of words.
-    Each word must look like :code:`[XYZ]_<index>^<power>`,
-    where the :code:`<index>` is a non-negative integer representing the index of the spin mode
-    and the :code:`<power>` is a positive integer indicating the number of times the given operator
-    is applied to the mode at :code:`<index>`.
-    You can omit :code:`<power>`, implying a single application of the operator (:code:`power = 1`).
-    For example,
-
-    .. code-block:: python
-
-        "X_0"
-        "Y_0^2"
-        "Y_0^2 Z_0^3 X_1^1 Y_1^2 Z_1^2"
-
-    are possible labels.
+    The value of :code:`index` is bound by the number of spins(`num_spins`) of the operator
+    (Note: since Python indices are 0-based, the maximum value an index can take is given by
+    :code:`num_spins-1`). The the :code:`<power>` is a positive integer indicating the number
+    of times the given operator is applied to the mode at :code:`<index>`. You can omit
+    :code:`<power>`, implying a single application of the operator (:code:`power = 1`).
 
     **Initialization**
 
-    The :class:`SpinOp` can be initialized by a dictionary {label: coeff}.
-    For example,
+    A `SpinOp` is initialized with a dictionary, mapping terms to their respective
+    coefficients. For example,
 
     .. jupyter-execute::
 
@@ -91,7 +65,7 @@ class SpinOp(SparseLabelOp):
         z = SpinOp({"Z_0": 1}, spin=3/2)
 
     are :math:`S^x, S^y, S^z` for spin 3/2 system.
-    Two qutrit Heisenberg model with transverse magnetic field is
+    The two qutrit Heisenberg model with transverse magnetic field is
 
     .. jupyter-execute::
 
@@ -107,25 +81,98 @@ class SpinOp(SparseLabelOp):
 
     This means :math:`- S^x_0 S^x_1 - S^y_0 S^y_1 - S^z_0 S^z_1 - 0.3 S^z_0 - 0.3 S^z_1`.
 
-    **Algebra**
-
-    :class:`SpinOp` supports the following basic arithmetic operations: addition, subtraction,
-    scalar multiplication, adjoint, tensor.
-
-    For example,
-
-    Raising Operator (addition and scalar multiplication)
+    An example using labels with powers would be:
 
     .. jupyter-execute::
 
-        x + 1j * y
+        from qiskit_nature.second_q.operators import SpinOp
+
+        op = SpinOp({"X_0^2 Y_1^3 Z_0": 1})
+
+
+    By default, this way of initializing will create a full copy of the dictionary of coefficients.
+    If you have very restricted memory resources available, or would like to avoid the additional
+    copy, the dictionary will be stored by reference if you disable ``copy`` like so:
+
+    .. jupyter-execute::
+
+    some_big_data = {
+        "X_0 Y_0": 1.0,
+        "X_1 Y_1": -1.0,
+        # ...
+    }
+
+    op = SpinOp(
+        some_big_data,
+        num_spins,
+        copy=False,
+    )
+
+
+    .. note::
+
+    It is the users' responsibility, that in the above scenario, :code:`some_big_data` is not
+    changed after initialization of the `SpinOp`, since the operator contents are not
+    guaranteed to remain unaffected by such changes.
+
+    **Algebra**
+
+    :class:`SpinOp` supports the following basic arithmetic operations: addition, subtraction,
+    scalar multiplication, adjoint, composition and tensoring.
+
+    For example,
+
+    Addition
+
+    .. jupyter-execute::
+
+      SpinOp({"X_1": 1}, num_spins=2) + SpinOp({"X_0": 1}, num_spins=2)
+
+    Sum
+
+    .. jupyter-execute::
+
+      sum(SpinOp({label: 1}, num_spins=3) for label in ["X_0", "Z_1", "X_2 Z_2"])
+
+    Scalar multiplication
+
+    .. jupyter-execute::
+
+      0.5 * SpinOp({"X_1": 1}, num_spins=2)
+
+    Operator multiplication
+
+    .. jupyter-execute::
+
+      op1 = SpinOp({"X_0 Z_1": 1}, num_spins=2)
+      op2 = SpinOp({"Z_0 X_0 X_1": 1}, num_spins=2)
+      print(op1 @ op2)
+
+    Tensor multiplication
+
+    .. jupyter-execute::
+
+      op = SpinOp({"X_0 Z_1": 1}, num_spins=2)
+      print(op ^ op)
 
     Adjoint
 
     .. jupyter-execute::
 
-        ~(1j * z)
+      SpinOp({"X_0 Z_1": 1j}, num_spins=2).adjoint()
 
+
+    **Iteration**
+
+    Instances of `SpinOp` are iterable. Iterating a SpinOp yields (term, coefficient)
+    pairs describing the terms contained in the operator. Labels containing powers/exponents
+    will be expanded into multiple (term, coefficient) pairs.
+
+    Attributes:
+        num_spins: the number of spins on which this operator acts. This is
+            considered a lower bound, which means that mathematical operations acting on two or more
+            operators will result in a new operator with the maximum number of spins of any
+            of the involved operators.
     """
 
     _OPERATION_REGEX = re.compile(r"([XYZ]_\d+(\^\d+)?\s)*[XYZ]_\d+(\^\d+)?")
