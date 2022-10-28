@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """
-PSI4 Installation
+Psi4 Installation
 =================
 `PSI4 <http://www.psicode.org/>`__ is an open-source program for computational chemistry.
 In order for Qiskit Nature to interface with PSI4, i.e. execute PSI4 to extract
