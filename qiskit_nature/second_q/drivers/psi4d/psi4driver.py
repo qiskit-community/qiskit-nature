@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2018, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -17,7 +17,6 @@ from __future__ import annotations
 import logging
 import os
 import subprocess
-import sys
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -141,19 +140,8 @@ class Psi4Driver(ElectronicStructureDriver):
 
         psi4d_directory = Path(__file__).resolve().parent
         template_file = psi4d_directory.joinpath("_template.txt")
-        qiskit_nature_directory = psi4d_directory.parent.parent
 
         input_text = [cfg]
-        input_text += ["import sys"]
-        syspath = (
-            "['"
-            + qiskit_nature_directory.as_posix()
-            + "','"
-            + "','".join(Path(p).as_posix() for p in sys.path)
-            + "']"
-        )
-
-        input_text += ["sys.path = " + syspath + " + sys.path"]
 
         file_fd, hdf5_file = tempfile.mkstemp(suffix=".hdf5")
         os.close(file_fd)
@@ -173,7 +161,7 @@ class Psi4Driver(ElectronicStructureDriver):
             Psi4Driver._run_psi4(input_file, output_file)
             if logger.isEnabledFor(logging.DEBUG):
                 with open(output_file, "r", encoding="utf8") as file:
-                    logger.debug("PSI4 output file:\n%s", file.read())
+                    logger.debug("Psi4 output file:\n%s", file.read())
         finally:
             run_directory = os.getcwd()
             for local_file in os.listdir(run_directory):

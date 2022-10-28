@@ -90,5 +90,6 @@ _q_nd = _q_mol.nuclear_dipole()
 data.dip_nuc = np.array([_q_nd[0], _q_nd[1], _q_nd[2]])
 data.dip_ref = _q_hf_wavefn.variable("CURRENT DIPOLE")
 
+# _FILE_PATH variable gets injected by the driver that calls this template
 data.to_hdf5(_FILE_PATH)
 
