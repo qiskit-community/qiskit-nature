@@ -56,6 +56,17 @@ class _QCSchemaData:
     mo_energy_b: np.ndarray | None = None
     mo_occ: np.ndarray | None = None
     mo_occ_b: np.ndarray | None = None
+    dip_x: np.ndarray | None = None
+    dip_y: np.ndarray | None = None
+    dip_z: np.ndarray | None = None
+    dip_mo_x_a: np.ndarray | None = None
+    dip_mo_y_a: np.ndarray | None = None
+    dip_mo_z_a: np.ndarray | None = None
+    dip_mo_x_b: np.ndarray | None = None
+    dip_mo_y_b: np.ndarray | None = None
+    dip_mo_z_b: np.ndarray | None = None
+    dip_nuc: tuple[float, float, float] | None = None
+    dip_ref: tuple[float, float, float] | None = None
     symbols: Sequence[str] | None = None
     coords: Sequence[float] | None = None
     multiplicity: int | None = None
@@ -100,9 +111,12 @@ class ElectronicStructureDriver(BaseDriver):
         pass
 
     @abstractmethod
-    def to_qcschema(self) -> QCSchema:
+    def to_qcschema(self, *, include_dipole: bool = True) -> QCSchema:
         """Extracts all available information after the driver was run into a :class:`.QCSchema`
         object.
+
+        Args:
+            include_dipole: whether or not to include the custom dipole integrals in the QCSchema.
 
         Returns:
             A :class:`.QCSchema` storing all extracted system data computed by the driver.
@@ -147,6 +161,8 @@ class ElectronicStructureDriver(BaseDriver):
         properties.calcinfo_nbeta = data.nbeta
         properties.return_energy = data.e_ref
         properties.nuclear_repulsion_energy = data.e_nuc
+        properties.nuclear_dipole_moment = data.dip_nuc
+        properties.scf_dipole_moment = data.dip_ref
 
         def format_np_array(arr):
             return arr.ravel().tolist()
@@ -194,6 +210,33 @@ class ElectronicStructureDriver(BaseDriver):
         if data.eri_mo_bb is not None:
             wavefunction.eri_mo_bb = "scf_eri_mo_bb"
             wavefunction.scf_eri_mo_bb = format_np_array(data.eri_mo_bb)
+        if data.dip_x is not None:
+            wavefunction.dipole_x = "scf_dipole_x"
+            wavefunction.scf_dipole_x = format_np_array(data.dip_x)
+        if data.dip_y is not None:
+            wavefunction.dipole_y = "scf_dipole_y"
+            wavefunction.scf_dipole_y = format_np_array(data.dip_y)
+        if data.dip_z is not None:
+            wavefunction.dipole_z = "scf_dipole_z"
+            wavefunction.scf_dipole_z = format_np_array(data.dip_z)
+        if data.dip_mo_x_a is not None:
+            wavefunction.dipole_mo_x_a = "scf_dipole_mo_x_a"
+            wavefunction.scf_dipole_mo_x_a = format_np_array(data.dip_mo_x_a)
+        if data.dip_mo_y_a is not None:
+            wavefunction.dipole_mo_y_a = "scf_dipole_mo_y_a"
+            wavefunction.scf_dipole_mo_y_a = format_np_array(data.dip_mo_y_a)
+        if data.dip_mo_z_a is not None:
+            wavefunction.dipole_mo_z_a = "scf_dipole_mo_z_a"
+            wavefunction.scf_dipole_mo_z_a = format_np_array(data.dip_mo_z_a)
+        if data.dip_mo_x_b is not None:
+            wavefunction.dipole_mo_x_b = "scf_dipole_mo_x_b"
+            wavefunction.scf_dipole_mo_x_b = format_np_array(data.dip_mo_x_b)
+        if data.dip_mo_y_b is not None:
+            wavefunction.dipole_mo_y_b = "scf_dipole_mo_y_b"
+            wavefunction.scf_dipole_mo_y_b = format_np_array(data.dip_mo_y_b)
+        if data.dip_mo_z_b is not None:
+            wavefunction.dipole_mo_z_b = "scf_dipole_mo_z_b"
+            wavefunction.scf_dipole_mo_z_b = format_np_array(data.dip_mo_z_b)
 
         qcschema = QCSchema(
             schema_name="qcschema",

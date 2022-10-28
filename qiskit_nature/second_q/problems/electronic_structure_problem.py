@@ -171,6 +171,9 @@ class ElectronicStructureProblem(BaseProblem):
         if self._orbital_occupations is not None:
             return self._orbital_occupations
 
+        if self.basis != ElectronicBasis.MO:
+            return None
+
         num_orbs = self.num_spatial_orbitals
         if num_orbs is None:
             return None
@@ -189,6 +192,9 @@ class ElectronicStructureProblem(BaseProblem):
         """The occupations of the beta-spin orbitals."""
         if self._orbital_occupations_b is not None:
             return self._orbital_occupations_b
+
+        if self.basis != ElectronicBasis.MO:
+            return None
 
         num_orbs = self.num_spatial_orbitals
         if num_orbs is None:

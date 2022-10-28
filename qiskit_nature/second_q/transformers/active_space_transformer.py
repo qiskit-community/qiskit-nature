@@ -244,6 +244,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         new_problem = ElectronicStructureProblem(electronic_energy)
         new_problem.basis = ElectronicBasis.MO
         new_problem.molecule = problem.molecule
+        new_problem.reference_energy = problem.reference_energy
         new_problem.num_spatial_orbitals = len(self._active_orbs_indices)
 
         active_occ_alpha = occupation_alpha[self._active_orbs_indices]
@@ -252,19 +253,23 @@ class ActiveSpaceTransformer(BaseTransformer):
         new_problem.orbital_occupations = active_occ_alpha
         new_problem.orbital_occupations_b = active_occ_beta
 
+        if problem.orbital_energies is not None:
+            new_problem.orbital_energies = problem.orbital_energies[self._active_orbs_indices]
+        if problem.orbital_energies_b is not None:
+            new_problem.orbital_energies_b = problem.orbital_energies_b[self._active_orbs_indices]
+
         for prop in problem.properties:
             if isinstance(prop, ElectronicDipoleMoment):
                 new_problem.properties.electronic_dipole_moment = (
                     self._transform_electronic_dipole_moment(prop)
                 )
-            elif isinstance(prop, (AngularMomentum, Magnetization, ParticleNumber)):
-                new_problem.properties.add(prop.__class__(len(self._active_orbs_indices)))
             elif isinstance(prop, ElectronicDensity):
                 transformed = self._transform_active.transform_electronic_integrals(prop)
                 new_problem.properties.electronic_density = ElectronicDensity(
                     transformed.alpha, transformed.beta, transformed.beta_alpha
                 )
-
+            elif isinstance(prop, (AngularMomentum, Magnetization, ParticleNumber)):
+                new_problem.properties.add(prop.__class__(len(self._active_orbs_indices)))
             else:
                 LOGGER.warning("Encountered an unsupported property of type '%s'.", type(prop))
 
