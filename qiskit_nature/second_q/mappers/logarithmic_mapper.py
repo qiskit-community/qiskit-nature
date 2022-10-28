@@ -86,18 +86,17 @@ class LogarithmicMapper(SpinMapper):
         # get logarithmic encoding of the general spin matrices.
         spinx, spiny, spinz, identity = self._logarithmic_encoding(second_q_op.spin)
         ordered_op = second_q_op.index_order()
-        # ordered_op = ordered_op.simplify()
 
-        map = {"X": spinx, "Y": spiny, "Z": spinz, "I": identity, "": identity}
+        char_map = {"X": spinx, "Y": spiny, "Z": spinz}
 
         for labels, coeff in ordered_op.terms():
             mat = {}
             for lbl in labels:
                 if lbl[1] in mat:
-                    mat[lbl[1]] = mat[lbl[1]] @ map[lbl[0]]
+                    mat[lbl[1]] = mat[lbl[1]] @ char_map[lbl[0]]
                 else:
-                    mat[lbl[1]] = map[lbl[0]]
-            operatorlist = [mat[i] if i in mat else identity for i in range(ordered_op.num_orbitals)]
+                    mat[lbl[1]] = char_map[lbl[0]]
+            operatorlist = [mat[i] if i in mat else identity for i in range(ordered_op.num_spins)]
 
             # Now, we can tensor all operators in this list
             qubit_ops_list.append(coeff * reduce(operator.xor, reversed(operatorlist)))
@@ -122,7 +121,9 @@ class LogarithmicMapper(SpinMapper):
         num_qubits = int(np.ceil(np.log2(dspin)))
 
         # Get the spin matrices
-        spin_matrices = [SpinOp({symbol:1}, spin=spin).to_matrix() for symbol in ["X_0", "Y_0", "Z_0"]]
+        spin_matrices = [
+            SpinOp({symbol: 1}, spin=spin).to_matrix() for symbol in ["X_0", "Y_0", "Z_0"]
+        ]
         # Append the identity
         spin_matrices.append(np.eye(dspin))
 

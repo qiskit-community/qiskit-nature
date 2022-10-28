@@ -25,21 +25,24 @@ from collections.abc import Collection, Mapping
 from collections import defaultdict
 from typing import cast, Iterator
 from fractions import Fraction
-from functools import lru_cache, partial, reduce
+from functools import partial, reduce
 
 import numpy as np
+
 from qiskit_nature import QiskitNatureError
+import qiskit_nature.optionals as _optionals
 
 from .polynomial_tensor import PolynomialTensor
 from .sparse_label_op import SparseLabelOp
 
+
 class SpinOp(SparseLabelOp):
     """XYZ Spin operators.
 
-    # TODO: Update docstring
+    # TODO: Finish updating docstring
     **Label**
 
-    Allowed characters for primitives of labels are I, X, Y, Z, (+, and -).
+    Allowed characters for primitives of labels are X, Y, Z.
 
     .. list-table::
         :header-rows: 1
@@ -47,9 +50,6 @@ class SpinOp(SparseLabelOp):
         * - Label
           - Mathematical Representation
           - Meaning
-        * - `I`
-          - :math:`I`
-          - Identity operator
         * - `X`
           - :math:`S^x`
           - :math:`x`-component of the spin operator
@@ -59,16 +59,10 @@ class SpinOp(SparseLabelOp):
         * - `Z`
           - :math:`S^z`
           - :math:`z`-component of the spin operator
-        * - `+`
-          - :math:`S^+`
-          - Raising operator
-        * - `-`
-          - :math:`S^-`
-          - Lowering operator
 
 
     A sparse label is a string consisting of a space-separated list of words.
-    Each word must look like :code:`[XYZI+-]_<index>^<power>`,
+    Each word must look like :code:`[XYZ]_<index>^<power>`,
     where the :code:`<index>` is a non-negative integer representing the index of the spin mode
     and the :code:`<power>` is a positive integer indicating the number of times the given operator
     is applied to the mode at :code:`<index>`.
@@ -82,57 +76,42 @@ class SpinOp(SparseLabelOp):
         "Y_0^2 Z_0^3 X_1^1 Y_1^2 Z_1^2"
 
     are possible labels.
-    For each :code:`index` the operations `X`, `Y` and `Z` can only be specified exclusively in
-    this order. `+` and `-` cannot be used with `X` and `Y`
-    because ladder operators will be parsed into `X` and `Y`.
-    Thus, :code:`"Z_0 X_0"`, :code:`"Z_0 +_0"`, and :code:`"+_0 X_0"` are invalid labels.
-    The indices must be ascending order.
-
-    :code:`"+_i -_i"` is supported.
-    This pattern is parsed to :code:`+_i -_i = X_i^2 + Y_i^2 + Z_i`.
 
     **Initialization**
 
-    The :class:`SpinOp` can be initialized by the list of tuples.
+    The :class:`SpinOp` can be initialized by a dictionary {label: coeff}.
     For example,
 
     .. jupyter-execute::
 
         from qiskit_nature.second_q.operators import SpinOp
 
-        x = SpinOp("X_0", spin=3/2)
-        y = SpinOp("Y_0", spin=3/2)
-        z = SpinOp("Z_0", spin=3/2)
+        x = SpinOp({"X_0": 1}, spin=3/2)
+        y = SpinOp({"Y_0": 1}, spin=3/2)
+        z = SpinOp({"Z_0": 1}, spin=3/2)
 
     are :math:`S^x, S^y, S^z` for spin 3/2 system.
     Two qutrit Heisenberg model with transverse magnetic field is
 
     .. jupyter-execute::
 
-        SpinOp(
-            [
-                ("X_0 X_1", -1),
-                ("Y_0 Y_1", -1),
-                ("Z_0 Z_1", -1),
-                ("Z_0", -0.3),
-                ("Z_1", -0.3),
+        SpinOp({
+                "X_0 X_1": -1,
+                "Y_0 Y_1": -1,
+                "Z_0 Z_1": -1,
+                "Z_0": -0.3,
+                "Z_1": -0.3,
             ],
             spin=1
         )
 
     This means :math:`- S^x_0 S^x_1 - S^y_0 S^y_1 - S^z_0 S^z_1 - 0.3 S^z_0 - 0.3 S^z_1`.
 
-    :class:`SpinOp` can be initialized with internal data structure (`numpy.ndarray`) directly.
-    In this case, `data` is a tuple of two elements: `spin_array` and `coeffs`.
-    `spin_array` is 3-dimensional `ndarray`. 1st axis has three elements 0, 1, and 2 corresponding
-    to x, y, and z.  2nd axis represents the index of terms.
-    3rd axis represents the index of register.
-    `coeffs` is one-dimensional `ndarray` with the length of the number of terms.
-
     **Algebra**
 
     :class:`SpinOp` supports the following basic arithmetic operations: addition, subtraction,
-    scalar multiplication, and adjoint.
+    scalar multiplication, adjoint, tensor.
+
     For example,
 
     Raising Operator (addition and scalar multiplication)
@@ -149,14 +128,13 @@ class SpinOp(SparseLabelOp):
 
     """
 
-    # _OPERATION_REGEX = re.compile(r"([XYZI]_\d+\s)*[XYZI]_\d+")
-    _OPERATION_REGEX = re.compile(r"([XYZI]_\d+(\^\d+)?\s)*[XYZI]_\d+(\^\d+)?")
+    _OPERATION_REGEX = re.compile(r"([XYZ]_\d+(\^\d+)?\s)*[XYZ]_\d+(\^\d+)?")
 
     def __init__(
         self,
         data: Mapping[str, complex],
-        spin: float | Fraction = Fraction(1, 2), # TODO: extend to list
-        num_orbitals: int | None = None,
+        spin: float | Fraction = Fraction(1, 2),  # TODO: extend to list
+        num_spins: int | None = None,
         *,
         copy: bool = True,
         validate: bool = True,
@@ -166,7 +144,7 @@ class SpinOp(SparseLabelOp):
             data: label string, list of labels and coefficients. See the label section in
                   the documentation of :class:`SpinOp` for more details.
             spin: positive half-integer (integer or half-odd-integer) that represents spin.
-            num_orbitals: the number orbitals on which this operator acts.
+            num_spins: the number spins on which this operator acts.
             copy: when set to False the `data` will not be copied and the dictionary will be
                 stored by reference rather than by value (which is the default; `copy=True`). Note,
                 that this requires you to not change the contents of the dictionary after
@@ -180,7 +158,7 @@ class SpinOp(SparseLabelOp):
             QiskitNatureError: when an invalid key is encountered during validation.
             QiskitNatureError: when spin is not a positive half-integer.
         """
-        self.num_orbitals = num_orbitals
+        self.num_spins = num_spins
         spin = Fraction(spin)
         if spin.denominator not in (1, 2):
             raise QiskitNatureError(
@@ -191,30 +169,30 @@ class SpinOp(SparseLabelOp):
 
     @property
     def register_length(self) -> int | None:
-        return self.num_orbitals
+        return self.num_spins
 
-    def _new_instance(
-        self, data: Mapping[str, complex], *, other: SpinOp | None = None
-    ) -> SpinOp:
-        num_o = self.num_orbitals
+    def _new_instance(self, data: Mapping[str, complex], *, other: SpinOp | None = None) -> SpinOp:
+        num_s = self.num_spins
         spin = self.spin
         if other is not None:
-            other_num_o = other.num_orbitals
+            other_num_s = other.num_spins
             other_spin = other.spin
             if spin != other_spin:
-                raise TypeError(f"Invalid operation between operators with different spin"
-                                f"values. Found spin_1={spin} and spin_2={other_spin}.")
-            if num_o is None:
-                num_o = other_num_o
-            elif other_num_o is not None:
-                num_o = max(num_o, other_num_o)
+                raise TypeError(
+                    f"Invalid operation between operators with different spin"
+                    f"values. Found spin_1={spin} and spin_2={other_spin}."
+                )
+            if num_s is None:
+                num_s = other_num_s
+            elif other_num_s is not None:
+                num_s = max(num_s, other_num_s)
 
-        return self.__class__(data, copy=False, num_orbitals=num_o)
+        return self.__class__(data, copy=False, num_spins=num_s)
 
     def _validate_keys(self, keys: Collection[str]) -> None:
         super()._validate_keys(keys)
 
-        num_o = self.num_orbitals
+        num_s = self.num_spins
 
         max_index = -1
 
@@ -232,25 +210,25 @@ class SpinOp(SparseLabelOp):
                 sub_terms = term.split("^")
                 # sub_terms[0] is the base, sub_terms[1] is the (optional) exponent
                 index = int(sub_terms[0][2:])
-                if num_o is None:
+                if num_s is None:
                     if index > max_index:
                         max_index = index
-                elif index >= num_o:
+                elif index >= num_s:
                     raise QiskitNatureError(
                         f"The index, {index}, from the label, {key}, exceeds the number of "
-                        f"orbitals, {num_o}."
+                        f"spins, {num_s}."
                     )
             # TODO: do we need to validate the exponent?
 
-        self.num_orbitals = max_index + 1 if num_o is None else num_o
+        self.num_spins = max_index + 1 if num_s is None else num_s
 
     @classmethod
     def _validate_polynomial_tensor_key(cls, keys: Collection[str]) -> None:
-        allowed_chars = {"I", "X", "Y", "Z"}
+        allowed_chars = {"X", "Y", "Z"}
         for key in keys:
             if set(key) - allowed_chars:
                 raise QiskitNatureError(
-                    f"The key {key} is invalid. PolynomialTensor keys may only consists of `I`, `X`, "
+                    f"The key {key} is invalid. PolynomialTensor keys may only consists of `X`, "
                     "`Y` and `Z` characters, for them to be expandable into a SpinOp."
                 )
 
@@ -284,17 +262,34 @@ class SpinOp(SparseLabelOp):
                     for value, *index in zip(coo.data, *coo.coords):
                         data[label_template.format(*index)] = value
 
-        return cls(data, copy=False, num_spin_orbitals=tensor.register_length).chop()
+        return cls(data, copy=False, num_spins=tensor.register_length).chop()
+
+    @staticmethod
+    def _split_label(label) -> Iterator[tuple[str, int, int]]:
+        """Helper method to iterate over label splits.
+
+        Yields:
+            A tuple containing the character, index and exponent in each label split.
+        """
+        for lbl in label.split(" "):
+            if lbl == "":
+                yield "", None, 1
+                continue
+
+            char, index = lbl.split("_")
+            idx = index.split("^")[0]
+            exp = int(index.split("^")[1]) if len(index.split("^")) > 1 else 1
+            yield char, int(idx), exp
 
     def __repr__(self) -> str:
         data_str = f"{dict(self.items())}"
 
-        return "SpinOp(" f"{data_str}, " f"spin={self.spin}, "f"num_orbitals={self.num_orbitals}, " ")"
+        return "SpinOp(" f"{data_str}, " f"spin={self.spin}, " f"num_spins={self.num_spins}, " ")"
 
     def __str__(self) -> str:
         pre = (
             "Spin Operator\n"
-            f"spin={self.spin}, number orbitals={self.num_orbitals}, number terms={len(self)}\n"
+            f"spin={self.spin}, number orbitals={self.num_spins}, number terms={len(self)}\n"
         )
         ret = "  " + "\n+ ".join(
             [f"{coeff} * ( {label} )" if label else f"{coeff}" for label, coeff in self.items()]
@@ -303,12 +298,13 @@ class SpinOp(SparseLabelOp):
 
     def terms(self) -> Iterator[tuple[list[tuple[str, int]], complex]]:
         """Provides an iterator analogous to :meth:`items` but with the labels already split into
-        pairs of operation characters and indices.
+        pairs of operation characters and indices. If the labels contain an exponent, they will be
+        expanded into as many elements as indicated by the exponent. For example, label `"X_0^3"`
+        will yield 3 tuples `("X_0", coeff)`.
 
         Yields:
-            # TODO: update docstring to spin
             A tuple with two items; the first one being a list of pairs of the form (char, int)
-            where char is either `+` or `-` and the integer corresponds to the fermionic mode index
+            where char is either `X`, `Y`, `Z` or `` and the integer corresponds to the index
             on which the operator gets applied; the second item of the returned tuple is the
             coefficient of this term.
         """
@@ -318,10 +314,8 @@ class SpinOp(SparseLabelOp):
                 continue
 
             terms = []
-            for lbl in label.split(" "):
-                parts = lbl.split("^")
-                sub_terms = [(parts[0][0], int(parts[0][2:]))] * (int(parts[1]) if len(parts) > 1 else 1)
-                terms += sub_terms
+            for char, index, exp in self._split_label(label):
+                terms += [(char, index)] * exp
             yield (terms, self[label])
 
     def conjugate(self) -> SpinOp:
@@ -334,11 +328,9 @@ class SpinOp(SparseLabelOp):
         for label, coeff in self.items():
             # calculate conjugate of coefficients
             coeff = np.conjugate(coeff)
-            for lbl in label.split():
-                char, index = lbl.split("_")
-                exponent = int(index.split("^")[1]) if len(index.split("^")) > 1 else 1
+            for char, _, exp in self._split_label(label):
                 # add sign from Y-terms (Y.conj() = -Y)
-                coeff *= (-1)**exponent if char == "Y" else 1
+                coeff *= -1 if char == "Y" and exp % 2 != 0 else 1
             new_data[label] = coeff
 
         return self._new_instance(new_data)
@@ -349,16 +341,12 @@ class SpinOp(SparseLabelOp):
         Returns:
             The transpose of the ``SpinOp``.
         """
-        # note: X^T=X, Y^T=-Y, Z^T=Z
-        # note: (XY)^T = Y^T X^T
+        # note: X^T=X, Y^T=-Y, Z^T=Z, (XY)^T = Y^T X^T
         data = {}
         for label, coeff in self.items():
-            for lbl in label.split():
-                char, index = lbl.split("_")
-                exponent = int(index.split("^")[1]) if len(index.split("^")) > 1 else 1
+            for char, _, exp in self._split_label(label):
                 # add sign from Y-terms (Y^T=-Y)
-                coeff *= (-1)**exponent if char == "Y" else 1
-
+                coeff *= -1 if char == "Y" and exp % 2 != 0 else 1
             data[" ".join(lbl for lbl in reversed(label.split(" ")))] = coeff
 
         return self._new_instance(data)
@@ -382,11 +370,13 @@ class SpinOp(SparseLabelOp):
 
     @classmethod
     def _tensor(cls, a: SpinOp, b: SpinOp, *, offset: bool = True) -> SpinOp:
-        shift = a.num_orbitals if offset else 0
+        shift = a.num_spins if offset else 0
 
         new_data: dict[str, complex] = {}
-        a_simple = a.simplify()
-        for label1, cf1 in a_simple.items():
+        # expand labels in `a`
+        # to make `a.items()` match the format of `b.terms()`
+        a_expanded = a.simplify()
+        for label1, cf1 in a_expanded.items():
             for terms2, cf2 in b.terms():
                 new_label = f"{label1} {' '.join(f'{c}_{i + shift}' for c, i in terms2)}".strip()
                 if new_label in new_data:
@@ -396,46 +386,29 @@ class SpinOp(SparseLabelOp):
 
         new_op = a._new_instance(new_data, other=b)
         if offset:
-            new_op.num_orbitals = a.num_orbitals + b.num_orbitals
+            new_op.num_spins = a.num_spins + b.num_spins
         return new_op
 
-    def simplify(self, *, atol: float | None = None, reorder: bool = False) -> SpinOp:
+    def simplify(self, *, atol: float | None = None) -> SpinOp:
         atol = self.atol if atol is None else atol
 
         data = defaultdict(complex)  # type: dict[str, complex]
         for label, coeff in self.items():
-            label, coeff = self._simplify_label(label, coeff, reorder)
+            label, coeff = self._simplify_label(label, coeff)
             data[label] += coeff
         simplified_data = {
             label: coeff for label, coeff in data.items() if not np.isclose(coeff, 0.0, atol=atol)
         }
         return self._new_instance(simplified_data)
 
-    def _simplify_label(self, label: str, coeff: complex, reorder: bool = False) -> tuple[str, complex]:
+    def _simplify_label(self, label: str, coeff: complex) -> tuple[str, complex]:
 
-        bits = {}
         new_label = []
-        for i, lbl in enumerate(label.split()):
-            # char = lbl[0]
-            # idx = int(lbl[2:])
-            char, index = lbl.split("_")
-            base = index.split("^")[0]
-            exponent = int(index.split("^")[1]) if len(index.split("^")) > 1 else 1
-            idx = int(base)
-
-            if idx not in bits:
-                bits[idx] = [char]
-                exponent -= 1
-                new_label.append(f"{char}_{idx}")
-
-            for i in range(exponent):
-                bits[idx].append(char)
-                new_label.append(f"{char}_{idx}")
-
-        if reorder:
-            new_label = []
-            for idx in sorted(bits):
-                new_label.extend([f"{char}_{idx}" for char in bits[idx] if char != ""])
+        for lbl in label.split(" "):
+            # the generator will only yield 1 item
+            char, idx, exp = next(self._split_label(lbl))
+            if char != "":
+                new_label += [f"{char}_{idx}"] * exp
 
         return " ".join(lbl for lbl in new_label if lbl is not None), coeff
 
@@ -443,15 +416,6 @@ class SpinOp(SparseLabelOp):
         """Convert to the equivalent operator with the terms of each label ordered by index.
 
         Returns a new operator (the original operator is not modified).
-
-        .. note::
-
-            You can use this method to achieve the most aggressive simplification of an operator
-            without changing the operation order per index. :meth:`simplify` does *not* reorder the
-            terms and, thus, cannot deduce ``-_0 +_1`` and ``+_1 -_0 +_0 -_0`` to be
-            identical labels. Calling this method will reorder the latter label to
-            ``-_0 +_0 -_0 +_1``, after which :meth:`simplify` will be able to correctly collapse
-            these two labels into one.
 
         Returns:
             The index ordered operator.
@@ -488,7 +452,6 @@ class SpinOp(SparseLabelOp):
         new_label = " ".join(f"{term[0]}_{term[1]}" for term in terms)
         return new_label, coeff
 
-    # @lru_cache(maxsize=128)
     def to_matrix(self) -> np.ndarray:
         """Convert to dense matrix.
 
@@ -524,21 +487,23 @@ class SpinOp(SparseLabelOp):
         i_mat = np.eye(dim, dim)
 
         tensorall = partial(reduce, np.kron)
-        ordered_op = self.index_order()
-        simpl_op = ordered_op.simplify()
+        char_map = {"X": x_mat, "Y": y_mat, "Z": z_mat}
 
-        map = {"X": x_mat, "Y": y_mat, "Z": z_mat, "I": i_mat, "": i_mat}
+        # reorder and expand
+        simplified_op = self.index_order().simplify()
 
-        mats = []
-        for labels, coeff in simpl_op.terms():
-            mat = {}
-            for lbl in labels:
-                if lbl[1] in mat:
-                    mat[lbl[1]] = mat[lbl[1]] @ map[lbl[0]]
-                else:
-                    mat[lbl[1]] = map[lbl[0]]
-            mat_list = np.asarray([mat[i] if i in mat else i_mat for i in range(len(self))])
-            mats.append(coeff * tensorall(mat_list))
-        mat = sum(mats)
-        mat = cast(np.ndarray, mat)
-        return mat.view()
+        final_matrix = np.zeros((dim, dim), dtype=np.complex128)
+        for label, coeff in simplified_op.items():
+            matrix_per_idx = {}
+            # compose all matrices in same index
+            for char, idx, _ in self._split_label(label):
+                if idx not in matrix_per_idx:
+                    matrix_per_idx[idx] = i_mat
+                matrix_per_idx[idx] = matrix_per_idx[idx] @ char_map.get(char, i_mat)
+
+            # fill out empty indices with identity
+            dense_matrix_per_idx = [matrix_per_idx.get(i, i_mat) for i in range(len(self))]
+            # add weighted kroneker product to final matrix
+            final_matrix += coeff * tensorall(np.asarray(dense_matrix_per_idx))
+
+        return final_matrix.view()

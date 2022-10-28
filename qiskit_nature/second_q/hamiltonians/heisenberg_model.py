@@ -53,7 +53,7 @@ class HeisenbergModel(LatticeModel):
         Returns:
             SpinOp: The Hamiltonian of the Heisenberg model.
         """
-        hamiltonian = []
+        hamiltonian = {}
         weighted_edge_list = self.lattice.weighted_edge_list
         register_length = self.lattice.num_nodes
 
@@ -63,12 +63,12 @@ class HeisenbergModel(LatticeModel):
                 index = node_a
                 for axis, coeff in zip("XYZ", self.ext_magnetic_field):
                     if not np.isclose(coeff, 0.0):
-                        hamiltonian.append((f"{axis}_{index}", coeff))
+                        hamiltonian[f"{axis}_{index}"] = coeff
             else:
                 index_left = node_a
                 index_right = node_b
                 for axis, coeff in zip("XYZ", self.coupling_constants):
                     if not np.isclose(coeff, 0.0):
-                        hamiltonian.append((f"{axis}_{index_left} {axis}_{index_right}", coeff))
+                        hamiltonian[f"{axis}_{index_left} {axis}_{index_right}"] = coeff
 
-        return SpinOp(hamiltonian, spin=Fraction(1, 2), register_length=register_length)
+        return SpinOp(hamiltonian, spin=Fraction(1, 2), num_spins=register_length)
