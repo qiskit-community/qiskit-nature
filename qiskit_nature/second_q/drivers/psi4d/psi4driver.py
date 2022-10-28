@@ -54,11 +54,13 @@ class Psi4Driver(ElectronicStructureDriver):
         Args:
             config: A molecular configuration conforming to PSI4 format.
         Raises:
-            QiskitNatureError: Invalid Input
+            QiskitNatureError: Psi4 Driver configuration should be a string or list of strings
         """
         super().__init__()
         if not isinstance(config, str) and not isinstance(config, list):
-            raise QiskitNatureError(f"Invalid config for PSI4 Driver '{config}'")
+            raise QiskitNatureError(
+                f"Psi4 Driver configuration should be a string or list of strings:'{config}'"
+            )
 
         if isinstance(config, list):
             config = "\n".join(config)
