@@ -330,6 +330,9 @@ class TestSparseLabelOp(QiskitNatureTestCase):
             test_op = DummySparseLabelOp(opParameter)
             with self.assertRaisesRegex(ValueError, "parameter"):
                 _ = test_op.equiv(DummySparseLabelOp(opParameter))
+            test_op = DummySparseLabelOp(opComplex)
+            with self.assertRaisesRegex(ValueError, "parameter"):
+                _ = test_op.equiv(DummySparseLabelOp(opParameter))
 
     def test_iter(self):
         """test __iter__ method"""

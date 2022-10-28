@@ -314,9 +314,6 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
     ) -> bool:
         """Check equivalence of two ``SparseLabelOp`` instances up to an accepted tolerance.
 
-        The default absolute and relative tolerances can be changed via the `atol` and `rtol`
-        attributes, respectively.
-
         Args:
             other: the second ``SparseLabelOp`` to compare with this instance.
             atol: Absolute numerical tolerance. The default behavior is to use ``self.atol``.
@@ -326,13 +323,13 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
             True if operators are equivalent, False if not.
 
         Raises:
-            ValueError: Operator contains parameters.
+            ValueError: Raised if either operator contains parameters
         """
-        if self.is_parameterized():
-            raise ValueError("Cannot compare an operator that contains parameters.")
-
         if not isinstance(other, self.__class__):
             return False
+
+        if self.is_parameterized() or other.is_parameterized():
+            raise ValueError("Cannot compare an operator that contains parameters.")
 
         if self._data.keys() != other._data.keys():
             return False
