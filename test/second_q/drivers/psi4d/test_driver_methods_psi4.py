@@ -43,6 +43,8 @@ molecule mol {{
    0 2
    O  0.0 0.0 0.0
    H  0.0 0.0 0.9697
+   no_com
+   no_reorient
 }}
 set {{
       basis sto-3g
