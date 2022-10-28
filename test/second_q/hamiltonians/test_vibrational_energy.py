@@ -77,9 +77,10 @@ class TestVibrationalEnergy(PropertyTest):
             encoding="utf8",
         ) as file:
             expected = json.load(file)
-        for op, expected_op in zip(op.to_list(), expected):
-            self.assertEqual(op[0], expected_op[0])
-            self.assertTrue(np.isclose(op[1], expected_op[1]))
+
+        for (key1, val1), (key2, val2) in zip(sorted(op.items()), sorted(expected.items())):
+            self.assertEqual(key1, key2)
+            self.assertTrue(np.isclose(val1, val2))
 
 
 if __name__ == "__main__":

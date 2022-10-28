@@ -15,6 +15,8 @@
 from __future__ import annotations
 
 import logging
+import itertools
+import operator
 
 import numpy as np
 
@@ -23,7 +25,7 @@ from qiskit.circuit.library import BlueprintCircuit
 from qiskit.opflow import PauliSumOp
 from qiskit_nature.second_q.mappers import DirectMapper
 from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.operators import VibrationalOp
+from qiskit_nature.second_q.operators import VibrationalOp, build_dual_index
 
 logger = logging.getLogger(__name__)
 
@@ -49,9 +51,9 @@ class VSCF(BlueprintCircuit):
             num_modals: Is a list defining the number of modals per mode. E.g. for a 3 modes system
                 with 4 modals per mode num_modals = [4,4,4]
             qubit_converter: a QubitConverter instance. This argument is currently being ignored
-                             because only a single use-case is supported at the time of release:
-                             that of the :class:`DirectMapper`. However, for future-compatibility of
-                             this functions signature, the argument has already been inserted.
+                because only a single use-case is supported at the time of release: that of the
+                :class:`DirectMapper`. However, for future-compatibility of this functions
+                signature, the argument has already been inserted.
         """
         super().__init__()
         self._num_modals = num_modals

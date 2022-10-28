@@ -12,38 +12,38 @@
 
 """Some utility methods which were removed but are still required for some unit-tests."""
 
-from typing import List, Tuple
+from typing import Mapping
 
 
 def _create_labels(
-    boson_hamilt_harm_basis: List[List[Tuple[List[List[int]], complex]]]
-) -> List[Tuple[str, complex]]:
-    all_labels = []
+    boson_hamilt_harm_basis: list[list[tuple[list[list[int]], complex]]]
+) -> Mapping[str, complex]:
+    all_labels = {}
     for num_body_data in boson_hamilt_harm_basis:
         num_body_labels = _create_num_body_labels(num_body_data)
-        all_labels.extend(num_body_labels)
+        all_labels = {**all_labels, **num_body_labels}
     return all_labels
 
 
 def _create_num_body_labels(
-    num_body_data: List[Tuple[List[List[int]], complex]]
-) -> List[Tuple[str, complex]]:
-    num_body_labels = []
+    num_body_data: list[tuple[list[list[int]], complex]]
+) -> Mapping[str, complex]:
+    num_body_labels = {}
     for indices, coeff in num_body_data:
         indices.sort()
         coeff_label = _create_label_for_coeff(indices)
-        num_body_labels.append((coeff_label, coeff))
+        num_body_labels[coeff_label] = coeff
     return num_body_labels
 
 
-def _create_label_for_coeff(indices: List[List[int]]) -> str:
+def _create_label_for_coeff(indices: list[list[int]]) -> str:
     complete_labels_list = []
     for mode, modal_raise, modal_lower in indices:
         if modal_raise <= modal_lower:
-            complete_labels_list.append(f"+_{mode}*{modal_raise}")
-            complete_labels_list.append(f"-_{mode}*{modal_lower}")
+            complete_labels_list.append(f"+_{mode}_{modal_raise}")
+            complete_labels_list.append(f"-_{mode}_{modal_lower}")
         else:
-            complete_labels_list.append(f"-_{mode}*{modal_lower}")
-            complete_labels_list.append(f"+_{mode}*{modal_raise}")
+            complete_labels_list.append(f"-_{mode}_{modal_lower}")
+            complete_labels_list.append(f"+_{mode}_{modal_raise}")
     complete_label = " ".join(complete_labels_list)
     return complete_label

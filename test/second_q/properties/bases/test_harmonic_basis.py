@@ -115,7 +115,7 @@ class TestHarmonicBasis(QiskitNatureTestCase):
             ) as file:
                 operator = json.load(file)
 
-            for (real_label, real_coeff), (exp_label, exp_coeff) in zip(op.to_list(), operator):
+            for (real_label, real_coeff), (exp_label, exp_coeff) in zip(op.items(), operator):
                 self.assertEqual(real_label, exp_label)
                 self.assertTrue(np.isclose(real_coeff, exp_coeff))
 
