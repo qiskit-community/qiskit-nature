@@ -19,7 +19,7 @@ import numpy as np
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import UCC
 from qiskit_nature.second_q.operators import ElectronicIntegrals
-from qiskit_nature.second_q.operators.tensor_ordering import _phys_to_chem
+from qiskit_nature.second_q.operators.tensor_ordering import IndexType, to_chemist_ordering
 from qiskit_nature.second_q.problems import BaseProblem, ElectronicStructureProblem
 
 
@@ -98,7 +98,7 @@ class MP2InitialPoint(InitialPoint):
     :attr:`threshold` or that correspond to single, triple, or higher excitations will be zero.
     """
 
-    def __init__(self, threshold: float = 1e-12) -> None:
+    def __init__(self, *, threshold: float = 1e-12) -> None:
         super().__init__()
         self.threshold: float = threshold
         self._ansatz: UCC | None = None
@@ -178,7 +178,9 @@ class MP2InitialPoint(InitialPoint):
                 "the MP2InitialPoint."
             )
 
-        integral_matrix = _phys_to_chem(two_body_mo_integral.alpha.get("++--"))
+        integral_matrix = to_chemist_ordering(
+            two_body_mo_integral.alpha.get("++--"), index_order=IndexType.PHYSICIST
+        )
 
         reference_energy = problem.reference_energy if not None else 0.0
 

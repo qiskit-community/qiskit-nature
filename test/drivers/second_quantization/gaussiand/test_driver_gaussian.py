@@ -14,7 +14,7 @@
 
 import unittest
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from test.drivers.second_quantization.test_driver import TestDriver
 from qiskit_nature.drivers.second_quantization import (
     GaussianDriver,
@@ -24,7 +24,7 @@ from qiskit_nature.drivers.second_quantization import (
 import qiskit_nature.optionals as _optionals
 
 
-class TestDriverGaussian(QiskitNatureTestCase, TestDriver):
+class TestDriverGaussian(QiskitNatureDeprecatedTestCase, TestDriver):
     """Gaussian Driver tests."""
 
     @unittest.skipIf(not _optionals.HAS_GAUSSIAN, "gaussian not available.")
@@ -45,7 +45,7 @@ class TestDriverGaussian(QiskitNatureTestCase, TestDriver):
         self.driver_result = driver.run()
 
 
-class TestDriverGaussianMolecule(QiskitNatureTestCase, TestDriver):
+class TestDriverGaussianMolecule(QiskitNatureDeprecatedTestCase, TestDriver):
     """Gaussian Driver tests."""
 
     @unittest.skipIf(not _optionals.HAS_GAUSSIAN, "gaussian not available.")

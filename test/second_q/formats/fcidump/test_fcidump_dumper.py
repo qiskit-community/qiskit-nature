@@ -156,19 +156,35 @@ class TestFCIDumpDumpH2(QiskitNatureTestCase, BaseTestFCIDumpDumper):
         hijkl_ba = electronic_integrals.beta_alpha.get("++--", None)
         hijkl_bb = electronic_integrals.beta.get("++--", None)
         fcidump = FCIDump(
+            num_electrons=problem.num_alpha + problem.num_beta,
             hij=electronic_integrals.alpha.get("+-", None),
             hij_b=electronic_integrals.beta.get("+-", None),
             hijkl=_phys_to_chem(hijkl) if hijkl is not None else None,
             hijkl_ba=_phys_to_chem(hijkl_ba) if hijkl_ba is not None else None,
             hijkl_bb=_phys_to_chem(hijkl_bb) if hijkl_bb is not None else None,
             multiplicity=problem.molecule.multiplicity,
-            num_electrons=problem.num_alpha + problem.num_beta,
-            num_orbitals=problem.num_spatial_orbitals,
             constant_energy=electronic_energy.nuclear_repulsion_energy,
-            orbsym=None,
-            isym=1,
         )
         fcidump.to_file(outpath)
+
+
+class TestFCIDumpDumpOH(QiskitNatureTestCase):
+    """RHF FCIDump tests."""
+
+    def test_dump_unrestricted_spin(self):
+        """Tests dumping unrestricted spin data.
+        PySCF cannot handle this themselves, so we need to rely on a custom FCIDUMP file, load it,
+        dump it again, and make sure it did not change."""
+        path = self.get_resource_path("test_fcidump_oh.fcidump", "second_q/formats/fcidump")
+        fcidump = FCIDump.from_file(path)
+        with tempfile.TemporaryDirectory() as dump_dir:
+            dump_file = Path(dump_dir) / "fcidump"
+            fcidump.to_file(dump_file)
+
+            with open(path, "r", encoding="utf-8") as reference:
+                with open(dump_file, "r", encoding="utf-8") as result:
+                    for ref, res in zip(reference.readlines(), result.readlines()):
+                        self.assertEqual(ref.strip(), res.strip())
 
 
 if __name__ == "__main__":

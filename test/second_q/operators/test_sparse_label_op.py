@@ -82,7 +82,7 @@ class DummySparseLabelOp(SparseLabelOp):
         return self
 
     # pylint: disable=unused-argument
-    def simplify(self, *, atol: float | None = None) -> SparseLabelOp:
+    def simplify(self, atol: float | None = None) -> SparseLabelOp:
         return self
 
 
@@ -311,6 +311,143 @@ class TestSparseLabelOp(QiskitNatureTestCase):
         """test one class initializer"""
         test_op = DummySparseLabelOp.one()
         self.assertEqual(test_op._data, {"": 1.0})
+
+    def test_round(self):
+        """test round function"""
+        with self.subTest("round just real part"):
+            data = {
+                "+_0 -_1": 0.7 + 3j,
+                "+_0 -_3": 1.1 + 4j,
+            }
+            test_op = DummySparseLabelOp(data).round()
+            self.assertEqual(
+                test_op._data,
+                {
+                    "+_0 -_1": 1.0 + 3j,
+                    "+_0 -_3": 1.0 + 4j,
+                },
+            )
+
+        with self.subTest("round just imag part"):
+            data = {
+                "+_0 -_1": 1.0 + 0.9j,
+                "+_0 -_3": 1.0 + 0.2j,
+            }
+            test_op = DummySparseLabelOp(data).round()
+            self.assertEqual(
+                test_op._data,
+                {
+                    "+_0 -_1": 1.0 + 1j,
+                    "+_0 -_3": 1.0 + 0j,
+                },
+            )
+
+        with self.subTest("round real and imag part"):
+            data = {
+                "+_0 -_1": 0.8 + 0.3j,
+                "+_0 -_3": 1.2 + 0.8j,
+            }
+            test_op = DummySparseLabelOp(data).round()
+            self.assertEqual(
+                test_op._data,
+                {
+                    "+_0 -_1": 1 + 0j,
+                    "+_0 -_3": 1.0 + 1j,
+                },
+            )
+
+        with self.subTest("round real and imag part to 3dp"):
+            data = {
+                "+_0 -_1": 0.8762 + 0.3789j,
+                "+_0 -_3": 1.2458 + 0.8652j,
+            }
+            test_op = DummySparseLabelOp(data).round(3)
+            self.assertEqual(
+                test_op._data,
+                {
+                    "+_0 -_1": 0.876 + 0.379j,
+                    "+_0 -_3": 1.246 + 0.865j,
+                },
+            )
+
+        with self.subTest("round just real part to 3dp"):
+            data = {
+                "+_0 -_1": 0.8762 + 0.370j,
+                "+_0 -_3": 1.2458 + 0.860j,
+            }
+            test_op = DummySparseLabelOp(data).round(3)
+            self.assertEqual(
+                test_op._data,
+                {
+                    "+_0 -_1": 0.876 + 0.370j,
+                    "+_0 -_3": 1.246 + 0.860j,
+                },
+            )
+
+        with self.subTest("round just imag part to 3dp"):
+            data = {
+                "+_0 -_1": 0.8760 + 0.3789j,
+                "+_0 -_3": 1.245 + 0.8652j,
+            }
+            test_op = DummySparseLabelOp(data).round(3)
+            self.assertEqual(
+                test_op._data,
+                {
+                    "+_0 -_1": 0.8760 + 0.379j,
+                    "+_0 -_3": 1.245 + 0.865j,
+                },
+            )
+
+    def test_is_zero(self):
+        """test if coefficients are all zero"""
+        with self.subTest("operator length is zero"):
+            test_op = DummySparseLabelOp({})
+            self.assertTrue(test_op.is_zero())
+
+        with self.subTest("coefficients are all zero"):
+            test_op = DummySparseLabelOp(
+                {
+                    "+_0 -_1": 0.0,
+                    "+_0 -_3": 0.0,
+                }
+            )
+            self.assertTrue(test_op.is_zero())
+
+        with self.subTest("coefficients are all zero with tol"):
+            test_op = DummySparseLabelOp(
+                {
+                    "+_0 -_1": 0.05,
+                    "+_0 -_3": 0.0,
+                }
+            )
+            self.assertTrue(test_op.is_zero(tol=0.1))
+
+        with self.subTest("coefficients are all zero with smaller val"):
+            test_op = DummySparseLabelOp(
+                {
+                    "+_0 -_1": 0.0,
+                    "+_0 -_3": 1e-18,
+                }
+            )
+            self.assertTrue(test_op.is_zero())
+
+        with self.subTest("coefficients not all zero"):
+            test_op = DummySparseLabelOp(
+                {
+                    "+_0 -_1": 0.0,
+                    "+_0 -_3": 0.1,
+                }
+            )
+            self.assertFalse(test_op.is_zero())
+
+        with self.subTest("coefficients not all zero with tol"):
+            test_op = DummySparseLabelOp(
+                {
+                    "+_0 -_1": 0.05,
+                    "+_0 -_3": 0.0,
+                }
+            )
+            self.assertFalse(test_op.is_zero(tol=0.001))
 
 
 if __name__ == "__main__":

@@ -14,7 +14,7 @@
 
 import unittest
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from test.drivers.second_quantization.test_driver import TestDriver
 from qiskit_nature.drivers.second_quantization import (
     PSI4Driver,
@@ -24,7 +24,7 @@ from qiskit_nature.drivers.second_quantization import (
 import qiskit_nature.optionals as _optionals
 
 
-class TestDriverPSI4(QiskitNatureTestCase, TestDriver):
+class TestDriverPSI4(QiskitNatureDeprecatedTestCase, TestDriver):
     """PSI4 Driver tests."""
 
     @unittest.skipIf(not _optionals.HAS_PSI4, "psi4 not available.")
@@ -49,7 +49,7 @@ class TestDriverPSI4(QiskitNatureTestCase, TestDriver):
         self.driver_result = driver.run()
 
 
-class TestDriverPSI4Molecule(QiskitNatureTestCase, TestDriver):
+class TestDriverPSI4Molecule(QiskitNatureDeprecatedTestCase, TestDriver):
     """PSI4 Driver molecule tests."""
 
     @unittest.skipIf(not _optionals.HAS_PSI4, "psi4 not available.")

@@ -206,3 +206,55 @@ class TestQuadraticHamiltonian(QiskitNatureTestCase):
             _ = QuadraticHamiltonian(hermitian_part, num_modes=5)
         with self.assertRaisesRegex(ValueError, "num_modes"):
             _ = QuadraticHamiltonian(antisymmetric_part=antisymmetric_part, num_modes=5)
+
+    def test_addition(self):
+        """Test addition."""
+        quad_ham_1 = QuadraticHamiltonian(
+            np.array([[1, 2j], [-2j, 3]]), np.array([[0, 4], [-4, 0]]), 5.0
+        )
+        quad_ham_2 = QuadraticHamiltonian(
+            np.array([[6, 7j], [-7j, 8]]), np.array([[0, 9j], [-9j, 0]]), 10.0
+        )
+
+        quad_ham_sum = quad_ham_1 + quad_ham_2
+        expected = QuadraticHamiltonian(
+            np.array([[7, 9j], [-9j, 11]]), np.array([[0, 4 + 9j], [-4 - 9j, 0]]), 15.0
+        )
+        self.assertEqual(quad_ham_sum, expected)
+
+        quad_ham_difference = quad_ham_1 - quad_ham_2
+        expected = QuadraticHamiltonian(
+            np.array([[-5, -5j], [5j, -5]]), np.array([[0, 4 - 9j], [-4 + 9j, 0]]), -5.0
+        )
+        self.assertEqual(quad_ham_difference, expected)
+
+    def test_multiplication(self):
+        """Test multiplication by a scalar."""
+        quad_ham = QuadraticHamiltonian(
+            np.array([[1, 2j], [-2j, 3]]), np.array([[0, 4], [-4, 0]]), 5.0
+        )
+
+        quad_ham_scaled = 2 * quad_ham
+        expected = QuadraticHamiltonian(
+            np.array([[2, 4j], [-4j, 6]]), np.array([[0, 8], [-8, 0]]), 10.0
+        )
+        self.assertEqual(quad_ham_scaled, expected)
+
+        quad_ham_scaled = quad_ham * 2
+        expected = QuadraticHamiltonian(
+            np.array([[2, 4j], [-4j, 6]]), np.array([[0, 8], [-8, 0]]), 10.0
+        )
+        self.assertEqual(quad_ham_scaled, expected)
+
+    def test_repr(self):
+        """Test repr"""
+        quad_ham = QuadraticHamiltonian(
+            np.array([[1, 2j], [-2j, 3]]), np.array([[0, 4.0], [-4.0, 0]]), 5.0
+        )
+        self.assertEqual(
+            repr(quad_ham),
+            "QuadraticHamiltonian("
+            "hermitian_part=array([[ 1.+0.j,  0.+2.j],\n       [-0.-2.j,  3.+0.j]]), "
+            "antisymmetric_part=array([[ 0.,  4.],\n       [-4.,  0.]]), "
+            "constant=5.0, num_modes=2)",
+        )

@@ -15,7 +15,7 @@
 import tempfile
 import unittest
 from abc import ABC, abstractmethod
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 import numpy as np
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.drivers import UnitsType
@@ -105,7 +105,7 @@ class BaseTestDriverFCIDumpDumper(ABC):
 
 
 @unittest.skip("Until the FCIDumpDriver can handle non-beta spin cases")
-class TestDriverFCIDumpDumpH2(QiskitNatureTestCase, BaseTestDriverFCIDumpDumper):
+class TestDriverFCIDumpDumpH2(QiskitNatureDeprecatedTestCase, BaseTestDriverFCIDumpDumper):
     """RHF FCIDump Driver tests."""
 
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")

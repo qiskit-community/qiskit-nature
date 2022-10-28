@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Tests ProteinFoldingProblem."""
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from test.problems.sampling.protein_folding.resources.file_parser import read_expected_file
 from qiskit_nature.problems.sampling.protein_folding.interactions.miyazawa_jernigan_interaction import (
     MiyazawaJerniganInteraction,
@@ -24,7 +24,7 @@ from qiskit_nature.problems.sampling.protein_folding.penalty_parameters import P
 PATH = "problems/sampling/protein_folding/resources/test_protein_folding_problem"
 
 
-class TestProteinFoldingProblem(QiskitNatureTestCase):
+class TestProteinFoldingProblem(QiskitNatureDeprecatedTestCase):
     """Tests ProteinFoldingProblem."""
 
     def test_protein_folding_problem(self):
