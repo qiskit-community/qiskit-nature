@@ -55,10 +55,12 @@ class VSCF(BlueprintCircuit):
         """
         super().__init__()
         self._num_modals = num_modals
-        self._qubit_converter = None
+        self._qubit_converter = qubit_converter
         self._bitstr: list[bool] | None = None
 
-        self.qubit_converter = qubit_converter
+        self.qubit_converter = (
+            QubitConverter(DirectMapper()) if qubit_converter is None else qubit_converter
+        )
 
     @property
     def qubit_converter(self) -> QubitConverter:
@@ -69,14 +71,15 @@ class VSCF(BlueprintCircuit):
     def qubit_converter(self, conv: QubitConverter) -> None:
         """Sets the qubit converter."""
         self._invalidate()
-        if conv is not None and not isinstance(conv.mapper, DirectMapper):
+        if not isinstance(conv.mapper, DirectMapper):
             logger.warning(
                 "The only supported `QubitConverter` is one with a `DirectMapper` as the mapper "
                 "instance. However you specified %s as an input, which will be ignored until more "
                 "variants will be supported.",
                 type(conv.mapper),
             )
-        self._qubit_converter = QubitConverter(DirectMapper())
+            conv = QubitConverter(DirectMapper())
+        self._qubit_converter = conv
         self._reset_register()
 
     @property
