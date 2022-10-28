@@ -79,7 +79,7 @@ class Psi4Driver(ElectronicStructureDriver):
         Args:
             molecule: molecule
             basis: basis set
-            method: Hartree-Fock Method type
+            method: the classical method to run in Psi4
             driver_kwargs: kwargs to be passed to driver
         Returns:
             driver
