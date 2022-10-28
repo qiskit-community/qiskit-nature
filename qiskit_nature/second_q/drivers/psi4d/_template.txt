@@ -2,9 +2,7 @@
 import numpy as np
 from qiskit_nature.second_q.drivers.electronic_structure_driver import _QCSchemaData
 
-# Fix geometry location & orientation and force c1 symmetry on molecule
-core.get_active_molecule().fix_com(True)
-core.get_active_molecule().fix_orientation(True)
+# force c1 symmetry on molecule
 core.get_active_molecule().reset_point_group('c1')
 
 _q_hf_energy, _q_hf_wavefn = energy('scf', return_wfn=True)
