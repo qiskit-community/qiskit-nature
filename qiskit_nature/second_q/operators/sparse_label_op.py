@@ -17,7 +17,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections.abc import Collection, Mapping
 from numbers import Complex
-from typing import Iterator, Sequence, SupportsComplex, Union
+from typing import Iterator, Sequence, Union
 
 import cmath
 import numpy as np
