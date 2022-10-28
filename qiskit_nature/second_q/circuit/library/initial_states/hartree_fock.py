@@ -15,7 +15,8 @@
 from __future__ import annotations
 
 import numpy as np
-from qiskit import QuantumCircuit, QuantumRegister
+from qiskit import QuantumRegister
+from qiskit.circuit.library import BlueprintCircuit
 from qiskit.opflow import PauliSumOp
 from qiskit.utils.validation import validate_min
 
@@ -23,47 +24,173 @@ from qiskit_nature.second_q.mappers import BravyiKitaevSuperFastMapper, QubitCon
 from qiskit_nature.second_q.operators import FermionicOp
 
 
-class HartreeFock(QuantumCircuit):
+class HartreeFock(BlueprintCircuit):
     """A Hartree-Fock initial state."""
 
     def __init__(
         self,
-        num_spatial_orbitals: int,
-        num_particles: tuple[int, int],
-        qubit_converter: QubitConverter,
+        num_spatial_orbitals: int | None = None,
+        num_particles: tuple[int, int] | None = None,
+        qubit_converter: QubitConverter | None = None,
     ) -> None:
         """
         Args:
-            num_spatial_orbitals: The number of spatial orbitals, has a min. value of 1.
+            num_spatial_orbitals: The number of spatial orbitals.
             num_particles: The number of particles as a tuple storing the number of alpha- and
                            beta-spin electrons in the first and second number, respectively.
-            qubit_converter: the QubitConverter instance which takes care of mapping to a qubit
-                operator.
+            qubit_converter: a QubitConverter instance.
 
         Raises:
-            TypeError: If qubit_converter contains BravyiKitaevSuperFastMapper. See
+            NotImplementedError: If qubit_converter contains BravyiKitaevSuperFastMapper. See
                 https://github.com/Qiskit/qiskit-nature/issues/537 for more information.
         """
-        if isinstance(qubit_converter.mapper, BravyiKitaevSuperFastMapper):
-            raise TypeError(
-                "Unsupported mapper in qubit_converter: ",
-                type(qubit_converter.mapper),
-                ". See https://github.com/Qiskit/qiskit-nature/issues/537",
+
+        super().__init__()
+        self._qubit_converter = qubit_converter
+        self._num_spatial_orbitals = num_spatial_orbitals
+        self._num_particles = num_particles
+        self._bitstr: list[bool] | None = None
+
+        self._reset_register()
+
+    @property
+    def qubit_converter(self) -> QubitConverter:
+        """The qubit converter."""
+        return self._qubit_converter
+
+    @qubit_converter.setter
+    def qubit_converter(self, conv: QubitConverter) -> None:
+        """Sets the qubit converter."""
+        self._invalidate()
+        self._qubit_converter = conv
+        self._reset_register()
+
+    @property
+    def num_spatial_orbitals(self) -> int:
+        """The number of spatial orbitals."""
+        return self._num_spatial_orbitals
+
+    @num_spatial_orbitals.setter
+    def num_spatial_orbitals(self, n: int) -> None:
+        """Sets the number of spatial orbitals."""
+        self._invalidate()
+        self._num_spatial_orbitals = n
+        self._reset_register()
+
+    @property
+    def num_particles(self) -> tuple[int, int]:
+        """The number of particles."""
+        return self._num_particles
+
+    @num_particles.setter
+    def num_particles(self, n: tuple[int, int]) -> None:
+        """Sets the number of particles."""
+        self._invalidate()
+        self._num_particles = n
+        self._reset_register()
+
+    # pylint: disable=too-many-return-statements
+    def _check_configuration(self, raise_on_failure: bool = True) -> bool:
+        """Check if the configuration of the HartreeFock class is valid.
+        Args:
+            raise_on_failure: Whether to raise on failure.
+        Returns:
+            True, if the configuration is valid and the circuit can be constructed. Otherwise
+            returns False. Errors are only raised when raise_on_failure is set to True.
+
+        Raises:
+            ValueError: If the number of spatial orbitals is not specified or less than one.
+            ValueError: If the number of particles is not specified or less than zero.
+            ValueError: If the number of particles of any kind is less than zero.
+            ValueError: If the number of spatial orbitals is smaller than the number of particles
+                        of any kind.
+            ValueError: If the qubit converter is not specified.
+            NotImplementedError: If the specified qubit converter is a BravyiKitaevSuperFastMapper
+                                 instance.
+        """
+        if self.num_spatial_orbitals is None:
+            if raise_on_failure:
+                raise ValueError("The number of spatial orbitals cannot be 'None'.")
+            return False
+
+        if self.num_spatial_orbitals <= 0:
+            if raise_on_failure:
+                raise ValueError(
+                    f"The number of spatial orbitals must be > 0 was {self.num_spatial_orbitals}."
+                )
+            return False
+
+        if self.num_particles is None:
+            if raise_on_failure:
+                raise ValueError("The number of particles cannot be 'None'.")
+            return False
+
+        if any(n < 0 for n in self.num_particles):
+            if raise_on_failure:
+                raise ValueError(
+                    f"The number of particles cannot be smaller than 0 was {self.num_particles}."
+                )
+            return False
+
+        if any(n > self.num_spatial_orbitals for n in self.num_particles):
+            if raise_on_failure:
+                raise ValueError(
+                    f"The number of spatial orbitals {self.num_spatial_orbitals}"
+                    f"must be greater than or equal to the number of particles of "
+                    f"any spin kind {self.num_particles}."
+                )
+            return False
+
+        if self.qubit_converter is None:
+            if raise_on_failure:
+                raise ValueError("The qubit converter cannot be `None`.")
+            return False
+
+        if isinstance(self.qubit_converter.mapper, BravyiKitaevSuperFastMapper):
+            if raise_on_failure:
+                raise NotImplementedError(
+                    "Unsupported mapper in qubit converter: ",
+                    type(self.qubit_converter.mapper),
+                    ". See https://github.com/Qiskit/qiskit-nature/issues/537",
+                )
+            return False
+
+        return True
+
+    def _reset_register(self):
+        """Reset the register and recompute the mapped Hartree-Fock bitstring."""
+        self.qregs = []
+        self._bitstr = None
+
+        if self._check_configuration(raise_on_failure=False):
+            self._bitstr = hartree_fock_bitstring_mapped(
+                self.num_spatial_orbitals,
+                self.num_particles,
+                self.qubit_converter,
+                match_convert=True,
             )
-        # Get the mapped/tapered hartree fock bitstring as we need it to match to whatever
-        # conversion was done by the given qubit converter
-        bitstr = hartree_fock_bitstring_mapped(
-            num_spatial_orbitals, num_particles, qubit_converter, match_convert=True
-        )
-        # Construct the circuit for this bitstring. Since this is defined as an initial state
+            self.qregs = [QuantumRegister(len(self._bitstr), name="q")]
+
+    def _build(self) -> None:
+        """
+        Construct the Hartree-Fock initial state given its parameters.
+        Returns:
+            QuantumCircuit: a quantum circuit preparing the Hartree-Fock
+            initial state given a number of spatial orbitals, number of particles and
+            a qubit converter.
+        """
+        if self._is_built:
+            return
+
+        super()._build()
+
+        # Construct the circuit for bitstring. Since this is defined as an initial state
         # circuit its assumed that this is applied first to the qubits that are initialized to
         # the zero state. Hence we just need to account for all True entries and set those.
-        qr = QuantumRegister(len(bitstr), "q")
-        super().__init__(qr, name="HF")
-
-        for i, bit in enumerate(bitstr):
-            if bit:
-                self.x(i)
+        if self._bitstr is not None:
+            for i, bit in enumerate(self._bitstr):
+                if bit:
+                    self.x(i)
 
 
 def hartree_fock_bitstring_mapped(
