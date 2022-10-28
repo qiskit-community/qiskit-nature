@@ -206,6 +206,13 @@ class VibrationalOp(SparseLabelOp):
 
     @property
     def num_modals(self) -> Sequence[int]:
+        """The number of modals.
+        
+        Described by a list of integers where each integer describes the number of modals in the
+        corresponding mode; the total number of modals defines a ``register_length``.
+        """
+        # to ensure future flexibility, the type here is Sequence. However, the current
+        # implementation ensures it will always be a list.
         return self._num_modals
 
     @num_modals.setter
