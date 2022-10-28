@@ -1,8 +1,8 @@
 ---
 features:
   - |
-    Implements both :class:`~qiskit_nature.second_q.circuit.library.initial_states.HartreeFock` and
-    :class:`~qiskit_nature.second_q.circuit.library.initial_states.VSCF` as subclasses of
+    Implements both :class:`~qiskit_nature.second_q.circuit.library.HartreeFock` and
+    :class:`~qiskit_nature.second_q.circuit.library.VSCF` as subclasses of
     :class:`~qiskit.circuit.library.BlueprintCircuit`. This allows the respective classes to be
     instantiated without explicitly setting all of their instance attributes. Missing
     attributes can be set at a later point to complete the respective circuit definitions.
