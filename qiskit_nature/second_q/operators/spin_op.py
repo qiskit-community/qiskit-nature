@@ -54,7 +54,7 @@ class SpinOp(SparseLabelOp):
     **Initialization**
 
     A `SpinOp` is initialized with a dictionary, mapping terms to their respective
-    coefficients. For example,
+    coefficients. For example:
 
     .. jupyter-execute::
 
@@ -96,24 +96,24 @@ class SpinOp(SparseLabelOp):
 
     .. jupyter-execute::
 
-    some_big_data = {
-        "X_0 Y_0": 1.0,
-        "X_1 Y_1": -1.0,
-        # ...
-    }
+        some_big_data = {
+            "X_0 Y_0": 1.0,
+            "X_1 Y_1": -1.0,
+            # ...
+        }
 
-    op = SpinOp(
-        some_big_data,
-        num_spins,
-        copy=False,
-    )
+        op = SpinOp(
+            some_big_data,
+            num_spins,
+            copy=False,
+        )
 
 
     .. note::
 
-    It is the users' responsibility, that in the above scenario, :code:`some_big_data` is not
-    changed after initialization of the `SpinOp`, since the operator contents are not
-    guaranteed to remain unaffected by such changes.
+        It is the users' responsibility, that in the above scenario, :code:`some_big_data` is not
+        changed after initialization of the `SpinOp`, since the operator contents are not
+        guaranteed to remain unaffected by such changes.
 
     **Algebra**
 
@@ -126,40 +126,40 @@ class SpinOp(SparseLabelOp):
 
     .. jupyter-execute::
 
-      SpinOp({"X_1": 1}, num_spins=2) + SpinOp({"X_0": 1}, num_spins=2)
+        SpinOp({"X_1": 1}, num_spins=2) + SpinOp({"X_0": 1}, num_spins=2)
 
     Sum
 
     .. jupyter-execute::
 
-      sum(SpinOp({label: 1}, num_spins=3) for label in ["X_0", "Z_1", "X_2 Z_2"])
+        sum(SpinOp({label: 1}, num_spins=3) for label in ["X_0", "Z_1", "X_2 Z_2"])
 
     Scalar multiplication
 
     .. jupyter-execute::
 
-      0.5 * SpinOp({"X_1": 1}, num_spins=2)
+        0.5 * SpinOp({"X_1": 1}, num_spins=2)
 
     Operator multiplication
 
     .. jupyter-execute::
 
-      op1 = SpinOp({"X_0 Z_1": 1}, num_spins=2)
-      op2 = SpinOp({"Z_0 X_0 X_1": 1}, num_spins=2)
-      print(op1 @ op2)
+        op1 = SpinOp({"X_0 Z_1": 1}, num_spins=2)
+        op2 = SpinOp({"Z_0 X_0 X_1": 1}, num_spins=2)
+        print(op1 @ op2)
 
     Tensor multiplication
 
     .. jupyter-execute::
 
-      op = SpinOp({"X_0 Z_1": 1}, num_spins=2)
-      print(op ^ op)
+        op = SpinOp({"X_0 Z_1": 1}, num_spins=2)
+        print(op ^ op)
 
     Adjoint
 
     .. jupyter-execute::
 
-      SpinOp({"X_0 Z_1": 1j}, num_spins=2).adjoint()
+        SpinOp({"X_0 Z_1": 1j}, num_spins=2).adjoint()
 
 
     **Iteration**
@@ -550,7 +550,7 @@ class SpinOp(SparseLabelOp):
 
             # fill out empty indices with identity
             dense_matrix_per_idx = [matrix_per_idx.get(i, i_mat) for i in range(len(self))]
-            # add weighted kroneker product to final matrix
+            # add weighted kronecker product to final matrix
             final_matrix += coeff * tensorall(np.asarray(dense_matrix_per_idx))
 
         return final_matrix.view()
