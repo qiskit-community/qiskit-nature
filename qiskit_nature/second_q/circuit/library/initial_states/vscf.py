@@ -178,9 +178,7 @@ def vscf_bitstring_mapped(
     bitstr_op = VibrationalOp(
         {
             " ".join(
-                f"+_{build_dual_index(num_modals, idx)}"
-                for idx, bit in enumerate(bitstr)
-                if bit
+                f"+_{build_dual_index(num_modals, idx)}" for idx, bit in enumerate(bitstr) if bit
             ): 1.0
         },
         num_modals=num_modals,
