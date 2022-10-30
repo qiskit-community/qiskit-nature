@@ -18,7 +18,7 @@ from typing import Mapping
 def _create_labels(
     boson_hamilt_harm_basis: list[list[tuple[list[list[int]], complex]]]
 ) -> Mapping[str, complex]:
-    all_labels = {}
+    all_labels: dict[str, complex] = {}
     for num_body_data in boson_hamilt_harm_basis:
         num_body_labels = _create_num_body_labels(num_body_data)
         all_labels = {**all_labels, **num_body_labels}

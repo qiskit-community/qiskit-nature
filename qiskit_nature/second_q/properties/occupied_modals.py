@@ -70,7 +70,7 @@ class OccupiedModals:
         """
         num_modals_per_mode = self.basis._num_modals_per_mode
 
-        labels: Mapping[str, complex] = {}
+        labels: dict[str, complex] = {}
 
         for modal in range(num_modals_per_mode[mode]):
             labels[f"+_{mode}_{modal} -_{mode}_{modal}"] = 1.0

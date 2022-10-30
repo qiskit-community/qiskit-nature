@@ -15,8 +15,6 @@
 from __future__ import annotations
 
 import logging
-import itertools
-import operator
 
 import numpy as np
 
@@ -177,9 +175,16 @@ def vscf_bitstring_mapped(
     bitstr = vscf_bitstring(num_modals)
 
     # encode the bitstring in a `VibrationalOp`
-    label = ["+" if bit else "I" for bit in bitstr]
-    bitstr_op = VibrationalOp("".join(label), num_modes=len(num_modals), num_modals=num_modals)
-
+    bitstr_op = VibrationalOp(
+        {
+            " ".join(
+                f"+_{build_dual_index(num_modals, idx)}"
+                for idx, bit in enumerate(bitstr)
+                if bit
+            ): 1.0
+        },
+        num_modals=num_modals,
+    )
     # map the `VibrationalOp` to a qubit operator
     qubit_op: PauliSumOp = qubit_converter.convert_match(bitstr_op, check_commutes=False)
 

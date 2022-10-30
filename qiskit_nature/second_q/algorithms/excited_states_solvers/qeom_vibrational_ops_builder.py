@@ -98,7 +98,7 @@ def _build_single_hopping_operator(
         label.append(f"+_{build_dual_index(num_modals, occ)}")
     for unocc in excitation[1]:
         label.append(f"-_{build_dual_index(num_modals, unocc)}")
-    
+
     vibrational_op = VibrationalOp({" ".join(label): 1}, num_modals)
     qubit_op: PauliSumOp = qubit_converter.convert_match(vibrational_op)
 

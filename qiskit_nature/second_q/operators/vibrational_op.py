@@ -32,6 +32,7 @@ from .sparse_label_op import SparseLabelOp
 
 logger = logging.getLogger(__name__)
 
+
 def build_dual_index(num_modals: Sequence[int], index: int) -> str:
     r"""Convert a single expanded index into a dual index.
 
@@ -230,7 +231,7 @@ class VibrationalOp(SparseLabelOp):
     @property
     def num_modals(self) -> Sequence[int]:
         """The number of modals.
-        
+
         Described by a list of integers where each integer describes the number of modals in the
         corresponding mode; the total number of modals defines a ``register_length``.
         """
@@ -267,7 +268,7 @@ class VibrationalOp(SparseLabelOp):
 
     def _validate_keys(self, keys: Collection[str]) -> None:
         super()._validate_keys(keys)
-        num_modals = self.num_modals
+        num_modals = list(self.num_modals)
 
         for key in keys:
             # 0. explicitly allow the empty key
@@ -365,21 +366,23 @@ class VibrationalOp(SparseLabelOp):
         shift = len(a.num_modals) if offset else 0
 
         new_data: dict[str, complex] = {}
-        for labels1, cf1 in a.items():
-            for labels2, cf2 in b.items():
-                if labels2 == "":
-                    new_label = labels1
+        for a_labels, a_coeff in a.items():
+            for b_labels, b_coeff in b.items():
+                if b_labels == "":
+                    new_label = a_labels
                 else:
-                    terms = [lbl.split("_") for lbl in labels2.split(" ")]
-                    new_label = f"{labels1} {' '.join(f'{c}_{int(i)+shift}_{j}' for c, i, j in terms)}".strip()
+                    b_terms = [lbl.split("_") for lbl in b_labels.split(" ")]
+                    new_b_label = " ".join(f"{op}_{int(i)+shift}_{j}" for op, i, j in b_terms)
+                    new_label = f"{a_labels} {new_b_label}".strip()
+
                 if new_label in new_data:
-                    new_data[new_label] += cf1 * cf2
+                    new_data[new_label] += a_coeff * b_coeff
                 else:
-                    new_data[new_label] = cf1 * cf2
+                    new_data[new_label] = a_coeff * b_coeff
 
         new_op = a._new_instance(new_data, other=b)
         if offset:
-            new_op.num_modals = a.num_modals.extend(b.num_modals)
+            new_op.num_modals = [*a.num_modals, *b.num_modals]
         return new_op
 
     def transpose(self) -> VibrationalOp:
@@ -392,7 +395,7 @@ class VibrationalOp(SparseLabelOp):
 
         return self._new_instance(data)
 
-    def simplify(self, *, atol: float | None = None) -> VibrationalOp:
+    def simplify(self, atol: float | None = None) -> VibrationalOp:
         atol = self.atol if atol is None else atol
 
         data = defaultdict(complex)  # type: dict[str, complex]
