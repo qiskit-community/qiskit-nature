@@ -113,11 +113,11 @@ class TestHarmonicBasis(QiskitNatureTestCase):
                 "r",
                 encoding="utf8",
             ) as file:
-                operator = json.load(file)
+                expected = json.load(file)
 
-            for (real_label, real_coeff), (exp_label, exp_coeff) in zip(op.items(), operator):
-                self.assertEqual(real_label, exp_label)
-                self.assertTrue(np.isclose(real_coeff, exp_coeff))
+            for (key1, val1), (key2, val2) in zip(sorted(op.items()), sorted(expected.items())):
+                self.assertEqual(key1, key2)
+                self.assertTrue(np.isclose(val1, val2))
 
     def test_to_hdf5(self):
         """Test to_hdf5."""
