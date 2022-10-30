@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 
 def build_dual_index(num_modals: Sequence[int], index: int) -> str:
-    r"""Convert a single expanded index into a dual index.
+    r"""Convert a single expanded index into a dual mode and modal index string.
 
     Args:
         num_modals: The number of modals - described by a list of integers where each integer
