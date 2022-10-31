@@ -24,7 +24,7 @@ from qiskit.opflow import PauliTrotterEvolution
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.operators import SecondQuantizedOp, VibrationalOp, build_dual_index
+from qiskit_nature.second_q.operators import SecondQuantizedOp, VibrationalOp
 
 from .utils.vibration_excitation_generator import generate_vibration_excitations
 
@@ -322,9 +322,9 @@ class UVCC(EvolvedOperatorAnsatz):
         for exc in excitations:
             label = []
             for occ in exc[0]:
-                label.append(f"+_{build_dual_index(self.num_modals, occ)}")
+                label.append(f"+_{VibrationalOp.build_dual_index(self.num_modals, occ)}")
             for unocc in exc[1]:
-                label.append(f"-_{build_dual_index(self.num_modals, unocc)}")
+                label.append(f"-_{VibrationalOp.build_dual_index(self.num_modals, unocc)}")
             op = VibrationalOp({" ".join(label): 1}, self.num_modals)
             op -= op.adjoint()
             # we need to account for an additional imaginary phase in the exponent (see also

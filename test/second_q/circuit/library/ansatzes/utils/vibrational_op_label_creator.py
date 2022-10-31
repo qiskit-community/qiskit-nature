@@ -12,6 +12,8 @@
 
 """Some utility methods which were removed but are still required for some unit-tests."""
 
+from __future__ import annotations
+
 from typing import Mapping
 
 

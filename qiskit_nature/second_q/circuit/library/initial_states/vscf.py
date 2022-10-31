@@ -23,7 +23,7 @@ from qiskit.circuit.library import BlueprintCircuit
 from qiskit.opflow import PauliSumOp
 from qiskit_nature.second_q.mappers import DirectMapper
 from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.operators import VibrationalOp, build_dual_index
+from qiskit_nature.second_q.operators import VibrationalOp
 
 logger = logging.getLogger(__name__)
 
@@ -178,7 +178,9 @@ def vscf_bitstring_mapped(
     bitstr_op = VibrationalOp(
         {
             " ".join(
-                f"+_{build_dual_index(num_modals, idx)}" for idx, bit in enumerate(bitstr) if bit
+                f"+_{VibrationalOp.build_dual_index(num_modals, idx)}"
+                for idx, bit in enumerate(bitstr)
+                if bit
             ): 1.0
         },
         num_modals=num_modals,

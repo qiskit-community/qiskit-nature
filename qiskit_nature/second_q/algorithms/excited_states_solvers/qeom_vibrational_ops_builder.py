@@ -21,7 +21,7 @@ from qiskit.tools import parallel_map
 from qiskit.utils import algorithm_globals
 
 from qiskit_nature.second_q.circuit.library import UVCC
-from qiskit_nature.second_q.operators import VibrationalOp, build_dual_index
+from qiskit_nature.second_q.operators import VibrationalOp
 from qiskit_nature.second_q.mappers import QubitConverter
 
 
@@ -95,9 +95,9 @@ def _build_single_hopping_operator(
 ) -> PauliSumOp:
     label = []
     for occ in excitation[0]:
-        label.append(f"+_{build_dual_index(num_modals, occ)}")
+        label.append(f"+_{VibrationalOp.build_dual_index(num_modals, occ)}")
     for unocc in excitation[1]:
-        label.append(f"-_{build_dual_index(num_modals, unocc)}")
+        label.append(f"-_{VibrationalOp.build_dual_index(num_modals, unocc)}")
 
     vibrational_op = VibrationalOp({" ".join(label): 1}, num_modals)
     qubit_op: PauliSumOp = qubit_converter.convert_match(vibrational_op)

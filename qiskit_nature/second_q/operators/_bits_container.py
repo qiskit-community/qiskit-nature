@@ -12,6 +12,8 @@
 
 """A bit-storage container."""
 
+from __future__ import annotations
+
 from collections.abc import MutableMapping
 from typing import Generic, TypeVar
 
@@ -25,12 +27,12 @@ class _BitsContainer(MutableMapping, Generic[T]):
     This is a utility object used during the simplification process of a operators.
     It manages access to an internal data container, which maps from integers to bytes.
     Each integer key corresponds to a vibrational mode of an operator term.
-    Each value consists of four bits which encoding for the corresponding index:
+    Each value consists of four bits encoding for the corresponding key:
 
         1. if a `+` has been applied
         2. if a `-` has been applied
         3. whether a `+` or `-` was applied first
-        4. whether the last applied operator was a `+` or `-`
+        4. whether the last applied operator was a `+` or `-`.
     """
 
     def __init__(self):

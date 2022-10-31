@@ -33,30 +33,6 @@ from .sparse_label_op import SparseLabelOp
 logger = logging.getLogger(__name__)
 
 
-def build_dual_index(num_modals: Sequence[int], index: int) -> str:
-    r"""Convert a single expanded index into a dual mode and modal index string.
-
-    Args:
-        num_modals: The number of modals - described by a list of integers where each integer
-            describes the number of modals in the corresponding mode; the total number of modals
-            defines a ``register_length``.
-        index: The expanded (register) index.
-
-    Returns
-
-    Raises:
-        ValueError: If the index is greater than the sum of num_modals.
-    """
-
-    for mode_index, num_modals_per_mode in enumerate(num_modals):
-        if index < num_modals_per_mode:
-            return f"{mode_index}_{index}"
-        else:
-            index -= num_modals_per_mode
-
-    raise ValueError("Invalid index: index > sum(num_modals) - 1.")
-
-
 class VibrationalOp(SparseLabelOp):
     r"""N-mode vibrational operator.
 
@@ -451,3 +427,28 @@ class VibrationalOp(SparseLabelOp):
                 bits.set_last(idx, char_b)
 
         return " ".join(new_label), coeff
+
+    @staticmethod
+    def build_dual_index(num_modals: Sequence[int], index: int) -> str:
+        r"""Convert a single expanded index into a dual mode and modal index string.
+
+        Args:
+            num_modals: The number of modals - described by a list of integers where each integer
+                describes the number of modals in the corresponding mode; the total number of modals
+                defines the ``register_length``.
+            index: The expanded (register) index.
+
+        Returns:
+            The dual index label.
+
+        Raises:
+            ValueError: If the index is greater than the sum of num_modals.
+        """
+
+        for mode_index, num_modals_per_mode in enumerate(num_modals):
+            if index < num_modals_per_mode:
+                return f"{mode_index}_{index}"
+            else:
+                index -= num_modals_per_mode
+
+        raise ValueError("Invalid index: index > sum(num_modals) - 1.")

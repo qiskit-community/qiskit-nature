@@ -48,18 +48,6 @@ class TestVibrationalOp(QiskitNatureTestCase):
             op = VibrationalOp({"+_0_0 +_1_1": 1}, num_modals=[0, 0])
             self.assertEqual(op.num_modals, [1, 2])
 
-    #     with self.subTest("Mathematical operations"):
-    #         self.assertEqual((op0 + op2).num_spin_orbitals, 2)
-    #         self.assertEqual((op1 + op2).num_spin_orbitals, 2)
-    #         self.assertEqual((op0 @ op2).num_spin_orbitals, 2)
-    #         self.assertEqual((op1 @ op2).num_spin_orbitals, 2)
-    #         self.assertEqual((op1 ^ op2).num_spin_orbitals, 3)
-
-    #     with self.subTest("Equality"):
-    #         op3 = FermionicOp({"+_0 -_0": 1}, num_spin_orbitals=3)
-    #         self.assertEqual(op1, op3)
-    #         self.assertTrue(op1.equiv(1.000001 * op3))
-
     def test_neg(self):
         """Test __neg__"""
         vib_op = -self.op1
@@ -210,17 +198,17 @@ class TestVibrationalOp(QiskitNatureTestCase):
             targ = VibrationalOp.zero()
             self.assertEqual(simplified_op, targ)
 
-    #     def test_equiv(self):
-    #         """test equiv"""
-    #         prev_atol = FermionicOp.atol
-    #         prev_rtol = FermionicOp.rtol
-    #         op3 = self.op1 + (1 + 0.00005) * self.op2
-    #         self.assertFalse(op3.equiv(self.op3))
-    #         FermionicOp.atol = 1e-4
-    #         FermionicOp.rtol = 1e-4
-    #         self.assertTrue(op3.equiv(self.op3))
-    #         FermionicOp.atol = prev_atol
-    #         FermionicOp.rtol = prev_rtol
+    def test_equiv(self):
+        """test equiv"""
+        prev_atol = VibrationalOp.atol
+        prev_rtol = VibrationalOp.rtol
+        op3 = self.op1 + (1 + 0.00005) * self.op2
+        self.assertFalse(op3.equiv(self.op3))
+        VibrationalOp.atol = 1e-4
+        VibrationalOp.rtol = 1e-4
+        self.assertTrue(op3.equiv(self.op3))
+        VibrationalOp.atol = prev_atol
+        VibrationalOp.rtol = prev_rtol
 
     def test_induced_norm(self):
         """Test induced norm."""
