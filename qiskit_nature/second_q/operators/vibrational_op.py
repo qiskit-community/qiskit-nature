@@ -187,11 +187,6 @@ class VibrationalOp(SparseLabelOp):
 
     Instances of `VibrationalOp` are iterable. Iterating a VibrationalOp yields (term, coefficient)
     pairs describing the terms contained in the operator.
-
-    Attributes:
-        num_modals (Sequence[int] | None): the number of modals - described by a list of integers
-            where each integer describes the number of modals in a corresponding mode; the total
-            number of modals defines a ``register_length``. This is considered a lower bound.
     """
 
     # a valid pattern consists of a single "+" or "-" operator followed by "_" and a mode index
