@@ -17,7 +17,7 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 from collections.abc import Collection, Mapping
-from typing import Iterator, Sequence
+from typing import Iterator, Sequence, Tuple
 import logging
 import operator
 import itertools
@@ -379,7 +379,7 @@ class VibrationalOp(SparseLabelOp):
         return self._new_instance(simplified_data)
 
     def _simplify_label(self, label: str, coeff: complex) -> tuple[str, complex]:
-        bits = _BitsContainer[tuple[int, int]]()
+        bits = _BitsContainer[Tuple[int, int]]()
 
         # Since Python 3.7, dictionaries are guaranteed to be insert-order preserving. We use this
         # to our advantage, to implement an ordered set, which allows us to preserve the label order
