@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" Test Driver Methods PSI4 """
+""" Test Driver Methods Psi4 """
 
 import unittest
 
@@ -20,8 +20,8 @@ from qiskit_nature.second_q.transformers import FreezeCoreTransformer
 import qiskit_nature.optionals as _optionals
 
 
-class TestDriverMethodsPSI4(TestDriverMethods):
-    """Driver Methods PSI4 tests"""
+class TestDriverMethodsPsi4(TestDriverMethods):
+    """Driver Methods Psi4 tests"""
 
     psi4_lih_config = """
 molecule mol {{

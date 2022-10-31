@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 @_optionals.HAS_PSI4.require_in_instance
 class Psi4Driver(ElectronicStructureDriver):
     """
-    Qiskit Nature driver using the PSI4 program.
+    Qiskit Nature driver using the Psi4 program.
     See http://www.psicode.org/
     """
 
@@ -52,7 +52,7 @@ class Psi4Driver(ElectronicStructureDriver):
     ) -> None:
         """
         Args:
-            config: A molecular configuration conforming to PSI4 format.
+            config: A molecular configuration conforming to Psi4 format.
         Raises:
             QiskitNatureError: Psi4 Driver configuration should be a string or list of strings.
         """
@@ -128,14 +128,14 @@ class Psi4Driver(ElectronicStructureDriver):
     @staticmethod
     def check_method_supported(method: MethodType) -> None:
         """
-        Checks that PSI4 supports this method.
+        Checks that Psi4 supports this method.
         Args:
             method: Method type
         Raises:
             UnsupportMethodError: If method not supported.
         """
         if method not in [MethodType.RHF, MethodType.ROHF, MethodType.UHF]:
-            raise UnsupportMethodError(f"Invalid PSI4 method {method.value}.")
+            raise UnsupportMethodError(f"Invalid Psi4 method {method.value}.")
 
     def run(self) -> ElectronicStructureProblem:
         cfg = self._config
@@ -218,8 +218,6 @@ class Psi4Driver(ElectronicStructureDriver):
 
     @staticmethod
     def _run_psi4(input_file, output_file):
-
-        # Run psi4.
         process = None
         try:
             with subprocess.Popen(

@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" Test Driver PSI4 Extra """
+""" Test Driver Psi4 Extra """
 
 import unittest
 
@@ -21,8 +21,8 @@ from qiskit_nature import QiskitNatureError
 import qiskit_nature.optionals as _optionals
 
 
-class TestDriverPSI4Extra(QiskitNatureTestCase):
-    """PSI4 Driver extra tests for driver specifics, errors etc"""
+class TestDriverPsi4Extra(QiskitNatureTestCase):
+    """Psi4 Driver extra tests for driver specifics, errors etc"""
 
     @unittest.skipIf(not _optionals.HAS_PSI4, "psi4 not available.")
     def setUp(self):
