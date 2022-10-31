@@ -1,4 +1,3 @@
-﻿formats
-==============================
+﻿.. _qiskit_nature-second_q-formats:
 
 .. automodule:: qiskit_nature.second_q.formats

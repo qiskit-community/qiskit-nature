@@ -1,6 +1,4 @@
-﻿
-
-settings
+﻿settings
 ======================
 
 .. automodule:: qiskit_nature.settings

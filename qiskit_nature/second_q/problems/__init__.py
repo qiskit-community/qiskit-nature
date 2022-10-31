@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """
-Second-Quantization Problems (:mod:`qiskit_nature.second_q.problems`)
+Problems (:mod:`qiskit_nature.second_q.problems`)
 =====================================================================
 
 .. currentmodule:: qiskit_nature.second_q.problems

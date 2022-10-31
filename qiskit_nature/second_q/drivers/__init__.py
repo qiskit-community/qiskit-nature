@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """
-Qiskit Nature Drivers (:mod:`qiskit_nature.second_q.drivers`)
+Drivers (:mod:`qiskit_nature.second_q.drivers`)
 =============================================================
 
 .. currentmodule:: qiskit_nature.second_q.drivers

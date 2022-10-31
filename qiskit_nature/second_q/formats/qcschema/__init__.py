@@ -12,7 +12,7 @@
 
 """
 =============================================================
-The QCSchema (:mod:`qiskit_nature.second_q.formats.qcschema`)
+QCSchema (:mod:`qiskit_nature.second_q.formats.qcschema`)
 =============================================================
 
 The documentation of this schema can be found

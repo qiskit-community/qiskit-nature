@@ -12,7 +12,7 @@
 
 """
 ===================================================
-I/O Formats (:mod:`qiskit_nature.second_q.formats`)
+Formats (:mod:`qiskit_nature.second_q.formats`)
 ===================================================
 
 .. currentmodule:: qiskit_nature.second_q.formats

@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """
-Second-Quantization Lattices (:mod:`qiskit_nature.second_q.hamiltonians.lattices`)
+Lattices (:mod:`qiskit_nature.second_q.hamiltonians.lattices`)
 ==================================================================================
 
 .. autosummary::
