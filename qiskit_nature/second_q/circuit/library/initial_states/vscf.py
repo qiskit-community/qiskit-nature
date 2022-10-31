@@ -49,9 +49,9 @@ class VSCF(BlueprintCircuit):
             num_modals: Is a list defining the number of modals per mode. E.g. for a 3 modes system
                 with 4 modals per mode num_modals = [4,4,4]
             qubit_converter: a QubitConverter instance. This argument is currently being ignored
-                             because only a single use-case is supported at the time of release:
-                             that of the :class:`DirectMapper`. However, for future-compatibility of
-                             this functions signature, the argument has already been inserted.
+                because only a single use-case is supported at the time of release: that of the
+                :class:`DirectMapper`. However, for future-compatibility of this functions
+                signature, the argument has already been inserted.
         """
         super().__init__()
         self._num_modals = num_modals
@@ -175,9 +175,16 @@ def vscf_bitstring_mapped(
     bitstr = vscf_bitstring(num_modals)
 
     # encode the bitstring in a `VibrationalOp`
-    label = ["+" if bit else "I" for bit in bitstr]
-    bitstr_op = VibrationalOp("".join(label), num_modes=len(num_modals), num_modals=num_modals)
-
+    bitstr_op = VibrationalOp(
+        {
+            " ".join(
+                f"+_{VibrationalOp.build_dual_index(num_modals, idx)}"
+                for idx, bit in enumerate(bitstr)
+                if bit
+            ): 1.0
+        },
+        num_modals=num_modals,
+    )
     # map the `VibrationalOp` to a qubit operator
     qubit_op: PauliSumOp = qubit_converter.convert_match(bitstr_op, check_commutes=False)
 
