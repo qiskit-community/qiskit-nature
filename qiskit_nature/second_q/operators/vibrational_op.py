@@ -137,8 +137,7 @@ class VibrationalOp(SparseLabelOp):
 
     .. jupyter-execute::
 
-      VibrationalOp({"+_1_0": 1}, num_modals=[2, 2]) +
-      VibrationalOp({"+_0_0": 1}, num_modals=[2, 2])
+      VibrationalOp({"+_1_0": 1}, num_modals=[2, 2]) + VibrationalOp({"+_0_0": 1}, num_modals=[2, 2])
 
     Sum
 
