@@ -21,7 +21,9 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Sequence
 
+from pathlib import Path
 import numpy as np
+import h5py
 
 from qiskit_nature.second_q.formats.qcschema import (
     QCModel,
@@ -83,6 +85,73 @@ class _QCSchemaData:
     nbeta: int | None = None
     keywords: dict[str, Any] | None = None
 
+    def to_hdf5(self, h5py_data: str | Path | h5py.Group) -> None:
+        """Converts the schema data object to HDF5.
+
+        Args:
+            h5py_data: the h5py group into which to store the object.
+        """
+        if isinstance(h5py_data, h5py.Group):
+            self._to_hdf5(h5py_data)
+            return
+
+        with h5py.File(h5py_data, "w") as file:
+            self._to_hdf5(file)
+
+    def _to_hdf5(self, group: h5py.Group) -> None:
+        """This internal method deals with actually converting the schema data object to HDF5.
+
+        Args:
+            group: the h5py group into which to store the object.
+        """
+        # we use __dict__ here because we do not want the recursive behavior of asdict()
+        for key, value in self.__dict__.items():
+            if value is None:
+                continue
+
+            if isinstance(value, np.ndarray):
+                group.create_dataset(key, data=value)
+            else:
+                group.attrs[key] = value
+
+    @classmethod
+    def from_hdf5(cls, h5py_data: str | Path | h5py.Group) -> _QCSchemaData:
+        """Constructs a schema object from an HDF5 object.
+
+        Args:
+            h5py_data: can be either the path to a file or an `h5py.Group`.
+
+        Returns:
+            An instance of the schema data object.
+        """
+        if isinstance(h5py_data, h5py.Group):
+            return cls._from_hdf5_group(h5py_data)
+
+        with h5py.File(h5py_data, "r") as file:
+            return cls._from_hdf5_group(file)
+
+    @classmethod
+    def _from_hdf5_group(cls, h5py_group: h5py.Group) -> _QCSchemaData:
+        """This internal method deals with actually constructing a schema
+        data object from an `h5py.Group`.
+
+        Args:
+            h5py_group: the actual `h5py.Group`.
+
+        Returns:
+            An instance of the schema data object.
+        """
+        data = dict(h5py_group.attrs.items())
+        for key, value in h5py_group.items():
+            data[key] = value[...]
+        for key, value in data.items():
+            if key in {"symbols", "coords", "masses"}:
+                data[key] = value.tolist()
+            elif key in {"dip_nuc", "dip_ref"}:
+                data[key] = (value[0], value[1], value[2])
+
+        return cls(**data)
+
 
 class MethodType(Enum):
     """MethodType Enum
@@ -142,7 +211,7 @@ class ElectronicStructureDriver(BaseDriver):
         """
 
     @staticmethod
-    def _to_qcschema(data: _QCSchemaData) -> QCSchema:
+    def _to_qcschema(data: _QCSchemaData, *, include_dipole: bool = True) -> QCSchema:
         molecule = QCTopology(
             schema_name="qcschema_molecule",
             schema_version=2,
@@ -210,33 +279,34 @@ class ElectronicStructureDriver(BaseDriver):
         if data.eri_mo_bb is not None:
             wavefunction.eri_mo_bb = "scf_eri_mo_bb"
             wavefunction.scf_eri_mo_bb = format_np_array(data.eri_mo_bb)
-        if data.dip_x is not None:
-            wavefunction.dipole_x = "scf_dipole_x"
-            wavefunction.scf_dipole_x = format_np_array(data.dip_x)
-        if data.dip_y is not None:
-            wavefunction.dipole_y = "scf_dipole_y"
-            wavefunction.scf_dipole_y = format_np_array(data.dip_y)
-        if data.dip_z is not None:
-            wavefunction.dipole_z = "scf_dipole_z"
-            wavefunction.scf_dipole_z = format_np_array(data.dip_z)
-        if data.dip_mo_x_a is not None:
-            wavefunction.dipole_mo_x_a = "scf_dipole_mo_x_a"
-            wavefunction.scf_dipole_mo_x_a = format_np_array(data.dip_mo_x_a)
-        if data.dip_mo_y_a is not None:
-            wavefunction.dipole_mo_y_a = "scf_dipole_mo_y_a"
-            wavefunction.scf_dipole_mo_y_a = format_np_array(data.dip_mo_y_a)
-        if data.dip_mo_z_a is not None:
-            wavefunction.dipole_mo_z_a = "scf_dipole_mo_z_a"
-            wavefunction.scf_dipole_mo_z_a = format_np_array(data.dip_mo_z_a)
-        if data.dip_mo_x_b is not None:
-            wavefunction.dipole_mo_x_b = "scf_dipole_mo_x_b"
-            wavefunction.scf_dipole_mo_x_b = format_np_array(data.dip_mo_x_b)
-        if data.dip_mo_y_b is not None:
-            wavefunction.dipole_mo_y_b = "scf_dipole_mo_y_b"
-            wavefunction.scf_dipole_mo_y_b = format_np_array(data.dip_mo_y_b)
-        if data.dip_mo_z_b is not None:
-            wavefunction.dipole_mo_z_b = "scf_dipole_mo_z_b"
-            wavefunction.scf_dipole_mo_z_b = format_np_array(data.dip_mo_z_b)
+        if include_dipole:
+            if data.dip_x is not None:
+                wavefunction.dipole_x = "scf_dipole_x"
+                wavefunction.scf_dipole_x = format_np_array(data.dip_x)
+            if data.dip_y is not None:
+                wavefunction.dipole_y = "scf_dipole_y"
+                wavefunction.scf_dipole_y = format_np_array(data.dip_y)
+            if data.dip_z is not None:
+                wavefunction.dipole_z = "scf_dipole_z"
+                wavefunction.scf_dipole_z = format_np_array(data.dip_z)
+            if data.dip_mo_x_a is not None:
+                wavefunction.dipole_mo_x_a = "scf_dipole_mo_x_a"
+                wavefunction.scf_dipole_mo_x_a = format_np_array(data.dip_mo_x_a)
+            if data.dip_mo_y_a is not None:
+                wavefunction.dipole_mo_y_a = "scf_dipole_mo_y_a"
+                wavefunction.scf_dipole_mo_y_a = format_np_array(data.dip_mo_y_a)
+            if data.dip_mo_z_a is not None:
+                wavefunction.dipole_mo_z_a = "scf_dipole_mo_z_a"
+                wavefunction.scf_dipole_mo_z_a = format_np_array(data.dip_mo_z_a)
+            if data.dip_mo_x_b is not None:
+                wavefunction.dipole_mo_x_b = "scf_dipole_mo_x_b"
+                wavefunction.scf_dipole_mo_x_b = format_np_array(data.dip_mo_x_b)
+            if data.dip_mo_y_b is not None:
+                wavefunction.dipole_mo_y_b = "scf_dipole_mo_y_b"
+                wavefunction.scf_dipole_mo_y_b = format_np_array(data.dip_mo_y_b)
+            if data.dip_mo_z_b is not None:
+                wavefunction.dipole_mo_z_b = "scf_dipole_mo_z_b"
+                wavefunction.scf_dipole_mo_z_b = format_np_array(data.dip_mo_z_b)
 
         qcschema = QCSchema(
             schema_name="qcschema",

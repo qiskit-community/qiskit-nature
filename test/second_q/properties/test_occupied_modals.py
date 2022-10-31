@@ -14,6 +14,7 @@
 
 from test.second_q.properties.property_test import PropertyTest
 
+from qiskit_nature.second_q.operators import VibrationalOp
 from qiskit_nature.second_q.properties import OccupiedModals
 from qiskit_nature.second_q.properties.bases import HarmonicBasis
 
@@ -24,22 +25,25 @@ class TestOccupiedModals(PropertyTest):
     def setUp(self):
         """Setup basis."""
         super().setUp()
-        basis = HarmonicBasis([2, 3, 4])
+        self.num_modals = [2, 3, 4]
+        basis = HarmonicBasis(self.num_modals)
         self.prop = OccupiedModals()
         self.prop.basis = basis
 
     def test_second_q_ops(self):
         """Test second_q_ops."""
-        ops = [self.prop.second_q_ops()["0"]]
+        ops = self.prop.second_q_ops()
         expected = [
-            [("NIIIIIIII", (1 + 0j)), ("INIIIIIII", (1 + 0j))],
-            [("IINIIIIII", (1 + 0j)), ("IIINIIIII", (1 + 0j)), ("IIIINIIII", (1 + 0j))],
-            [
-                ("IIIIINIII", (1 + 0j)),
-                ("IIIIIINII", (1 + 0j)),
-                ("IIIIIIINI", (1 + 0j)),
-                ("IIIIIIIIN", (1 + 0j)),
-            ],
+            VibrationalOp({"+_0_0 -_0_0": 1.0, "+_0_1 -_0_1": 1.0}, num_modals=self.num_modals),
+            VibrationalOp(
+                {"+_1_0 -_1_0": 1.0, "+_1_1 -_1_1": 1.0, "+_1_2 -_1_2": 1.0},
+                num_modals=self.num_modals,
+            ),
+            VibrationalOp(
+                {"+_2_0 -_2_0": 1.0, "+_2_1 -_2_1": 1.0, "+_2_2 -_2_2": 1.0, "+_2_3 -_2_3": 1.0},
+                num_modals=self.num_modals,
+            ),
         ]
-        for op, expected_op_list in zip(ops, expected):
-            self.assertEqual(op.to_list(), expected_op_list)
+
+        for op, expected_op_list in zip(ops.values(), expected):
+            self.assertEqual(op, expected_op_list)

@@ -83,7 +83,7 @@ HAS_GAUSSIAN = NatureLazySubprocessTester(
 )
 
 PSI4 = "psi4"
-PSI4_DESC = "PSI4"
+PSI4_DESC = "Psi4"
 HAS_PSI4 = NatureLazySubprocessTester(
     (PSI4, "--version"),
     name=PSI4_DESC,

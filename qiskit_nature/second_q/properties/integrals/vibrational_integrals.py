@@ -271,14 +271,13 @@ class VibrationalIntegrals(ABC):
             raise QiskitNatureError() from exc
 
         num_modals_per_mode = self.basis._num_modals_per_mode
-        num_modes = len(num_modals_per_mode)
 
         nonzero = np.nonzero(matrix)
 
         if not np.any(np.asarray(nonzero)):
-            return VibrationalOp.zero(num_modes, num_modals_per_mode)
+            return VibrationalOp.zero()
 
-        labels = []
+        labels = {}
 
         for coeff, indices in zip(matrix[nonzero], zip(*nonzero)):
             # the indices need to be grouped into triplets of the form: (mode, modal_1, modal_2)
@@ -287,9 +286,9 @@ class VibrationalIntegrals(ABC):
             ]
             # the index groups need to processed in sorted order to produce a valid label
             coeff_label = self._create_label_for_coeff(sorted(grouped_indices))
-            labels.append((coeff_label, coeff))
+            labels[coeff_label] = coeff
 
-        return VibrationalOp(labels, num_modes, num_modals_per_mode)
+        return VibrationalOp(labels, num_modals_per_mode)
 
     @staticmethod
     def _create_label_for_coeff(indices: list[tuple[int, ...]]) -> str:
@@ -305,10 +304,10 @@ class VibrationalIntegrals(ABC):
         complete_labels_list = []
         for mode, modal_raise, modal_lower in indices:
             if modal_raise <= modal_lower:
-                complete_labels_list.append(f"+_{mode}*{modal_raise}")
-                complete_labels_list.append(f"-_{mode}*{modal_lower}")
+                complete_labels_list.append(f"+_{mode}_{modal_raise}")
+                complete_labels_list.append(f"-_{mode}_{modal_lower}")
             else:
-                complete_labels_list.append(f"-_{mode}*{modal_lower}")
-                complete_labels_list.append(f"+_{mode}*{modal_raise}")
+                complete_labels_list.append(f"-_{mode}_{modal_lower}")
+                complete_labels_list.append(f"+_{mode}_{modal_raise}")
         complete_label = " ".join(complete_labels_list)
         return complete_label
