@@ -134,3 +134,7 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
 
         with self.subTest("excitation indices"):
             self.assertEqual(indices, expected_indices)
+
+
+if __name__ == "__main__":
+    unittest.main()

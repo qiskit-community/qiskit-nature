@@ -198,6 +198,15 @@ class TestVibrationalOp(QiskitNatureTestCase):
             targ = VibrationalOp.zero()
             self.assertEqual(simplified_op, targ)
 
+        with self.subTest("simplify commutes with normal_order"):
+            self.assertEqual(self.op2.simplify().normal_order(), self.op2.normal_order().simplify())
+
+        with self.subTest("simplify + index order"):
+            orig = VibrationalOp({"+_1_0 -_0_0 +_0_0 -_0_0": 1, "-_0_0 +_1_0": 2})
+            vib_op = orig.simplify().index_order()
+            targ = VibrationalOp({"-_0_0 +_1_0": 3})
+            self.assertEqual(vib_op, targ)
+
     def test_equiv(self):
         """test equiv"""
         prev_atol = VibrationalOp.atol
@@ -217,6 +226,127 @@ class TestVibrationalOp(QiskitNatureTestCase):
         )
         self.assertAlmostEqual(op.induced_norm(), 7.0)
         self.assertAlmostEqual(op.induced_norm(2), 5.0)
+
+    def test_normal_order(self):
+        """test normal_order method"""
+        with self.subTest("Test for creation operator"):
+            orig = VibrationalOp({"+_0_0": 1})
+            vib_op = orig.normal_order()
+            self.assertEqual(vib_op, orig)
+
+        with self.subTest("Test for annihilation operator"):
+            orig = VibrationalOp({"-_0_0": 1})
+            vib_op = orig.normal_order()
+            self.assertEqual(vib_op, orig)
+
+        with self.subTest("Test for number operator"):
+            orig = VibrationalOp({"+_0_0 -_0_0": 1})
+            vib_op = orig.normal_order()
+            self.assertEqual(vib_op, orig)
+
+        with self.subTest("Test for empty operator"):
+            orig = VibrationalOp({"-_0_0 +_0_0": 1})
+            vib_op = orig.normal_order()
+            targ = VibrationalOp({"+_0_0 -_0_0": 1})
+            self.assertEqual(vib_op, targ)
+
+        with self.subTest("Test for multiple operators 1"):
+            orig = VibrationalOp({"-_0_0 +_1_0": 1})
+            vib_op = orig.normal_order()
+            targ = VibrationalOp({"+_1_0 -_0_0": 1})
+            self.assertEqual(vib_op, targ)
+
+        with self.subTest("Test for multiple operators 2"):
+            orig = VibrationalOp({"-_0_0 +_0_0 +_1_0 -_2_0": 1})
+            vib_op = orig.normal_order()
+            targ = VibrationalOp({"+_0_0 +_1_0 -_0_0 -_2_0": 1})
+            self.assertEqual(vib_op, targ)
+
+        with self.subTest("Test normal ordering simplifies"):
+            orig = VibrationalOp({"-_0_0 +_1_0": 1, "+_1_0 -_0_0": 1, "+_0_0": 0.0})
+            vib_op = orig.normal_order()
+            targ = VibrationalOp({"+_1_0 -_0_0": 2})
+            self.assertEqual(vib_op, targ)
+
+        with self.subTest("Test with multiple modals 1"):
+            orig = VibrationalOp({"-_0_0 +_0_1": 1})
+            vib_op = orig.normal_order()
+            targ = VibrationalOp({"+_0_1 -_0_0": 1})
+            self.assertEqual(vib_op, targ)
+
+        with self.subTest("Test with multiple modals 2"):
+            orig = VibrationalOp({"+_0_1 -_1_0": 1})
+            vib_op = orig.normal_order()
+            self.assertEqual(vib_op, orig)
+
+        with self.subTest("Test with multiple modals 3"):
+            orig = VibrationalOp({"-_1_1 +_1_0 +_0_1 -_0_0": 1})
+            vib_op = orig.normal_order()
+            targ = VibrationalOp({"+_0_1 +_1_0 -_0_0 -_1_1": 1})
+            self.assertEqual(vib_op, targ)
+
+    def test_index_order(self):
+        """test index_order method"""
+        with self.subTest("Test for creation operator"):
+            orig = VibrationalOp({"+_0_0": 1})
+            vib_op = orig.index_order()
+            self.assertEqual(vib_op, orig)
+
+        with self.subTest("Test for annihilation operator"):
+            orig = VibrationalOp({"-_0_0": 1})
+            vib_op = orig.index_order()
+            self.assertEqual(vib_op, orig)
+
+        with self.subTest("Test for number operator"):
+            orig = VibrationalOp({"+_0_0 -_0_0": 1})
+            vib_op = orig.index_order()
+            self.assertEqual(vib_op, orig)
+
+        with self.subTest("Test for empty operator"):
+            orig = VibrationalOp({"-_0_0 +_0_0": 1})
+            vib_op = orig.index_order()
+            self.assertEqual(vib_op, orig)
+
+        with self.subTest("Test for multiple operators 1"):
+            orig = VibrationalOp({"+_1_0 -_0_0": 1})
+            vib_op = orig.index_order()
+            targ = VibrationalOp({"-_0_0 +_1_0": 1})
+            self.assertEqual(vib_op, targ)
+
+        with self.subTest("Test for multiple operators 2"):
+            orig = VibrationalOp({"+_2_0 -_0_0 +_1_0 -_0_0": 1, "-_0_0 +_1_0": 2})
+            vib_op = orig.index_order()
+            targ = VibrationalOp({"-_0_0 -_0_0 +_1_0 +_2_0": 1, "-_0_0 +_1_0": 2})
+            self.assertEqual(vib_op, targ)
+
+        with self.subTest("Test index ordering simplifies"):
+            orig = VibrationalOp({"-_0_0 +_1_0": 1, "+_1_0 -_0_0": 1, "+_0_0": 0.0})
+            vib_op = orig.index_order()
+            targ = VibrationalOp({"-_0_0 +_1_0": 2})
+            self.assertEqual(vib_op, targ)
+
+        with self.subTest("index order + simplify"):
+            orig = VibrationalOp({"+_1_0 -_0_0 +_0_0 -_0_0": 1, "-_0_0 +_1_0": 2})
+            vib_op = orig.index_order().simplify()
+            targ = VibrationalOp({"-_0_0 +_1_0": 3})
+            self.assertEqual(vib_op, targ)
+
+        with self.subTest("Test with multiple modals 1"):
+            orig = VibrationalOp({"+_0_1 -_0_0": 1})
+            vib_op = orig.index_order()
+            targ = VibrationalOp({"-_0_0 +_0_1": 1})
+            self.assertEqual(vib_op, targ)
+
+        with self.subTest("Test with multiple modals 2"):
+            orig = VibrationalOp({"+_0_1 -_1_0": 1})
+            vib_op = orig.index_order()
+            self.assertEqual(vib_op, orig)
+
+        with self.subTest("Test with multiple modals 3"):
+            orig = VibrationalOp({"-_1_1 +_1_0 +_0_1 -_0_0": 1})
+            vib_op = orig.index_order()
+            targ = VibrationalOp({"-_0_0 +_0_1 +_1_0 -_1_1": 1})
+            self.assertEqual(vib_op, targ)
 
 
 if __name__ == "__main__":

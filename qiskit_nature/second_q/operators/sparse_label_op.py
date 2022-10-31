@@ -106,7 +106,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
     @abstractmethod
     def _new_instance(
         self,
-        data: Mapping[str, complex],
+        data: Mapping[str, _TCoeff],
         *,
         other: SparseLabelOp | None = None,
     ) -> SparseLabelOp:

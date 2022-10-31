@@ -15,7 +15,9 @@ must be called for each type of excitation (singles, doubles, etc.) that is to b
 Ansatz.
 """
 
-from typing import Any, List, Tuple
+from __future__ import annotations
+
+from typing import Any
 
 import itertools
 import logging
@@ -26,8 +28,8 @@ logger = logging.getLogger(__name__)
 
 def generate_vibration_excitations(
     num_excitations: int,
-    num_modals: List[int],
-) -> List[Tuple[Tuple[Any, ...], ...]]:
+    num_modals: list[int],
+) -> list[tuple[tuple[Any, ...], ...]]:
     """Generates all possible excitations with the given number of excitations for the specified
     number of particles distributed among the given number of spin orbitals.
 
