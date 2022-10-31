@@ -431,7 +431,7 @@ class GaussianDriver(ElectronicStructureDriver):
             data.dip_nuc = nucl_dip
             data.dip_ref = ref_dip  # type: ignore[assignment]
 
-        return GaussianDriver._to_qcschema(data)
+        return GaussianDriver._to_qcschema(data, include_dipole=include_dipole)
 
     def to_problem(
         self,
