@@ -21,6 +21,7 @@ from .base_driver import BaseDriver
 from .vibrational_structure_driver import VibrationalStructureDriver
 from .electronic_structure_driver import ElectronicStructureDriver, MethodType
 from .gaussiand import GaussianDriver, GaussianLogDriver, GaussianLogResult, GaussianForcesDriver
+from .psi4d import Psi4Driver
 from .pyscfd import PySCFDriver, InitialGuess
 
 __all__ = [
@@ -32,6 +33,7 @@ __all__ = [
     "GaussianForcesDriver",
     "GaussianLogDriver",
     "GaussianLogResult",
+    "Psi4Driver",
     "PySCFDriver",
     "InitialGuess",
 ]

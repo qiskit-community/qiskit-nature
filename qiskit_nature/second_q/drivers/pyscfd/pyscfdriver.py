@@ -607,7 +607,7 @@ class PySCFDriver(ElectronicStructureDriver):
                 data.dip_mo_y_b = np.dot(np.dot(data.mo_coeff_b.T, data.dip_y), data.mo_coeff_b)
                 data.dip_mo_z_b = np.dot(np.dot(data.mo_coeff_b.T, data.dip_z), data.mo_coeff_b)
 
-        return self._to_qcschema(data)
+        return self._to_qcschema(data, include_dipole=include_dipole)
 
     def to_problem(
         self,
