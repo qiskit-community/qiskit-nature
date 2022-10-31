@@ -15,6 +15,7 @@
 from collections.abc import MutableMapping
 from typing import Generic, TypeVar
 
+# pylint: disable=invalid-name
 T = TypeVar("T")
 
 
