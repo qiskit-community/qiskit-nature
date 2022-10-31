@@ -211,7 +211,7 @@ class ElectronicStructureDriver(BaseDriver):
         """
 
     @staticmethod
-    def _to_qcschema(data: _QCSchemaData, include_dipole: bool = True) -> QCSchema:
+    def _to_qcschema(data: _QCSchemaData, *, include_dipole: bool = True) -> QCSchema:
         molecule = QCTopology(
             schema_name="qcschema_molecule",
             schema_version=2,
