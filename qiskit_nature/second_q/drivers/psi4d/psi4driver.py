@@ -54,12 +54,12 @@ class Psi4Driver(ElectronicStructureDriver):
         Args:
             config: A molecular configuration conforming to PSI4 format.
         Raises:
-            QiskitNatureError: Psi4 Driver configuration should be a string or list of strings
+            QiskitNatureError: Psi4 Driver configuration should be a string or list of strings.
         """
         super().__init__()
         if not isinstance(config, str) and not isinstance(config, list):
             raise QiskitNatureError(
-                f"Psi4 Driver configuration should be a string or list of strings:'{config}'"
+                f"Psi4 Driver configuration should be a string or list of strings:'{config}'."
             )
 
         if isinstance(config, list):
@@ -103,7 +103,7 @@ class Psi4Driver(ElectronicStructureDriver):
         geom = "\n".join(
             [
                 name + " " + " ".join(map(str, coord))
-                for (name, coord) in zip(molecule.symbols, molecule.coords)
+                for name, coord in zip(molecule.symbols, molecule.coords)
             ]
         )
         cfg1 = f"molecule {name} {{\nunits {units}\n"

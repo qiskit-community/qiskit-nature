@@ -145,9 +145,9 @@ class _QCSchemaData:
         for key, value in h5py_group.items():
             data[key] = value[...]
         for key, value in data.items():
-            if key in ["symbols", "coords", "masses"]:
+            if key in ("symbols", "coords", "masses"):
                 data[key] = value.tolist()
-            elif key in ["dip_nuc", "dip_ref"]:
+            elif key in ("dip_nuc", "dip_ref"):
                 data[key] = (value[0], value[1], value[2])
 
         return cls(**data)
