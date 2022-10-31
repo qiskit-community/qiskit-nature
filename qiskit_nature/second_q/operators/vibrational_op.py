@@ -441,7 +441,7 @@ class VibrationalOp(SparseLabelOp):
                 # 1. we construct the reversed label which is the key we need to pop
                 pop_lbl = f"{'-' if char_b else '+'}_{idx[0]}_{idx[1]}"
                 # 2. we perform the information update by:
-                #  a) popping the key we just canceled outn
+                #  a) popping the key we just canceled out
                 new_label.pop(pop_lbl)
                 #  b) updating the bits container
                 bits.set_plus_or_minus(idx, not char_b, False)
