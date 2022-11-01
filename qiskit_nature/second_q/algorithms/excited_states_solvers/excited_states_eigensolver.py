@@ -15,7 +15,6 @@
 from __future__ import annotations
 
 from typing import Union, Optional, Tuple
-from unicodedata import name
 
 from qiskit.algorithms.eigensolvers import Eigensolver
 from qiskit.opflow import PauliSumOp
@@ -82,7 +81,7 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
 
         if aux_operators is not None:
             for name_aux, aux_op in aux_operators.items():
-                if isinstance(aux_op, SecondQuantizedOp) or isinstance(aux_op, FermionicOp):
+                if isinstance(aux_op, (FermionicOp, SecondQuantizedOp)):
                     converted_aux_op = self._qubit_converter.convert_match(aux_op, True)
                 else:
                     converted_aux_op = aux_op

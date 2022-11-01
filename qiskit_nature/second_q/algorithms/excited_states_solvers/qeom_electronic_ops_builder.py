@@ -107,8 +107,11 @@ def _build_single_hopping_operator(
         label.append(f"+_{occ}")
     for unocc in excitation[1]:
         label.append(f"-_{unocc}")
+    # fer_op = FermionicOp(
+    #     {" ".join(label): 4.0 ** len(excitation[0])}, num_spin_orbitals=num_spin_orbitals
+    # )    
     fer_op = FermionicOp(
-        {" ".join(label): 4.0 ** len(excitation[0])}, num_spin_orbitals=num_spin_orbitals
+        {" ".join(label): 1.0}, num_spin_orbitals=num_spin_orbitals
     )
 
     qubit_op = qubit_converter.convert_only(fer_op, qubit_converter.num_particles)
