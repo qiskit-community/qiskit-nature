@@ -33,11 +33,11 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         configured active space.
 
         The orbitals to be removed are specified in two ways:
-            1. When `freeze_core` is enabled (the default), the "core" orbitals will be determined
-               automatically according to `count_core_orbitals`. These will then be made inactive
+            1. When ``freeze_core`` is enabled (the default), the "core" orbitals will be determined
+               automatically according to ``count_core_orbitals``. These will then be made inactive
                and removed in the same fashion as in the :class:`ActiveSpaceTransformer`.
             2. Additionally, unoccupied spatial orbitals can be removed via a list of indices
-               passed to `remove_orbitals`. It is the user's responsibility to ensure that these are
+               passed to ``remove_orbitals``. It is the user's responsibility to ensure that these are
                indeed unoccupied orbitals, as no checks are performed.
 
         If you want to remove additional occupied orbitals, please use the
