@@ -48,14 +48,14 @@ class CHC(BlueprintCircuit):
         """
 
         Args:
-            num_qubits: number of qubits
+            num_qubits: The number of qubits.
             excitations: The list of excitations encoded as tuples of tuples. Each tuple in the list
-                         is a pair of tuples. The first tuple contains the occupied spin orbital
-                         indices whereas the second one contains the indices of the unoccupied spin
-                         orbitals.
-            reps: number of repetitions of basic module
-            ladder: use ladder of CNOTs between to indices in the entangling block
-            initial_state: an initial state to prepend to the ansatz
+                is a pair of tuples. The first tuple contains the occupied spin orbital indices
+                whereas the second one contains the indices of the unoccupied spin orbitals.
+            reps: The number of repetitions of basic module.
+            ladder: Boolean flag whether or not to use ladder of CNOTs between to indices in the 
+                entangling block.
+            initial_state: An initial state to prepend to the ansatz.
         """
 
         super().__init__()

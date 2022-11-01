@@ -146,11 +146,11 @@ class BogoliubovTransform(QuantumCircuit):
                 new creation operators in terms of the original creation operators.
                 Should be either :math:`N \times N` or :math:`N \times 2N`.
             qubit_converter: The qubit converter. The default behavior is to create
-                one using the call `QubitConverter(JordanWignerMapper())`.
+                one using the call ``QubitConverter(JordanWignerMapper())``.
             validate: Whether to validate the inputs.
             rtol: Relative numerical tolerance for input validation.
             atol: Absolute numerical tolerance for input validation.
-            circuit_kwargs: Keyword arguments to pass to the QuantumCircuit initializer.
+            circuit_kwargs: Keyword arguments to pass to the ``QuantumCircuit`` initializer.
 
         Raises:
             ValueError: transformation_matrix must be a 2-dimensional array.
