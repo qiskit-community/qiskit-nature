@@ -1,7 +1,4 @@
-
-
-library
-======================================
+.. _qiskit_nature-second_q-circuit-library:
 
 .. automodule:: qiskit_nature.second_q.circuit.library
    :no-members:

@@ -11,7 +11,6 @@
 # that they have been altered from the originals.
 
 """
-=====================================================
 Algorithms (:mod:`qiskit_nature.second_q.algorithms`)
 =====================================================
 

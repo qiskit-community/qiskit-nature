@@ -1,7 +1,4 @@
-
-
-problems
-===============================
+.. _qiskit_nature-second_q-problems:
 
 .. automodule:: qiskit_nature.second_q.problems
    :no-members:
