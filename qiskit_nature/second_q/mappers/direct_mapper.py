@@ -30,7 +30,7 @@ class DirectMapper(VibrationalMapper):  # pylint: disable=missing-class-docstrin
         """The Direct mapper.
 
         This mapper maps a :class:`~.VibrationalOp` to a :class:`PauliSumOp`.
-        In doing so, each modal of the the `VibrationalOp` gets mapped to a single qubit.
+        In doing so, each modal of the the ``VibrationalOp`` gets mapped to a single qubit.
         """
         super().__init__(allows_two_qubit_reduction=False)
 

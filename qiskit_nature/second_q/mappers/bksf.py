@@ -30,11 +30,10 @@ class BravyiKitaevSuperFastMapper(FermionicMapper):
 
     This implementation follows closely Reference [1].
 
-       References:
-           [1]: Bravyi-Kitaev Superfast simulation of electronic structure on a quantum computer
-                Kanav Setia and James D Whitfield
-                JCP Volume 148, Issue 16 - Published April 2018
-                arXiv:1712.00446
+    References:
+        [1] Bravyi-Kitaev Superfast simulation of electronic structure on a quantum computer
+        Kanav Setia and James D Whitfield JCP Volume 148, Issue 16 - Published April 2018
+        arXiv:1712.00446
     """
 
     def __init__(self):
