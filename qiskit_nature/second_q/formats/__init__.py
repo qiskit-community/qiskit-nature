@@ -11,7 +11,6 @@
 # that they have been altered from the originals.
 
 """
-===================================================
 Formats (:mod:`qiskit_nature.second_q.formats`)
 ===================================================
 

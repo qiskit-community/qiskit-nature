@@ -11,7 +11,6 @@
 # that they have been altered from the originals.
 
 """
-=============================================================
 QCSchema (:mod:`qiskit_nature.second_q.formats.qcschema`)
 =============================================================
 
