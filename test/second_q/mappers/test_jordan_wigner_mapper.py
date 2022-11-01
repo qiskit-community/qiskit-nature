@@ -15,6 +15,8 @@
 import unittest
 from test import QiskitNatureTestCase
 
+from qiskit.circuit import Parameter
+from qiskit.quantum_info import SparsePauliOp
 from qiskit.opflow import I, PauliSumOp, X, Y, Z
 
 import qiskit_nature.optionals as _optionals
@@ -91,6 +93,12 @@ class TestJordanWignerMapper(QiskitNatureTestCase):
             op = FermionicOp({"": 1}, num_spin_orbitals=1)
             expected = PauliSumOp.from_list([("I", 1)])
             self.assertEqual(JordanWignerMapper().map(op), expected)
+
+        with self.subTest("test parameters"):
+            a = Parameter("a")
+            op = FermionicOp({"+_0": a})
+            expected = SparsePauliOp.from_list([("X", 0.5 * a), ("Y", -0.5j * a)], dtype=object)
+            self.assertEqual(JordanWignerMapper().map(op).primitive, expected)
 
 
 if __name__ == "__main__":
