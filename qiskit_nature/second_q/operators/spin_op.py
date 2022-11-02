@@ -378,7 +378,8 @@ class SpinOp(SparseLabelOp):
             coeff = np.conjugate(coeff)
             for char, _, exp in self._split_label(label):
                 # add sign from Y-terms (Y.conj() = -Y)
-                coeff *= -1 if char == "Y" and exp % 2 != 0 else 1
+                if char == "Y" and exp % 2:
+                    coeff *= -1
             new_data[label] = coeff
 
         return self._new_instance(new_data)
