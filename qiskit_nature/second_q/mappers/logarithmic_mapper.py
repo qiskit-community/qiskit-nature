@@ -91,18 +91,17 @@ class LogarithmicMapper(SpinMapper):
         char_map = {"X": spinx, "Y": spiny, "Z": spinz}
 
         for terms, coeff in ordered_op.terms():
-            mat = defaultdict(int)  # type: dict[int, int]
+
+            mat = defaultdict(int)  # type: dict[int, tuple]
+
             for op, idx in terms:
-                if idx not in mat:
-                    mat[idx] = identity
-                mat[idx] = mat[idx] @ char_map[op]
+                mat[idx] = mat[idx] @ char_map[op] if idx in mat else char_map[op]
 
             operatorlist = [mat[i] if i in mat else identity for i in range(ordered_op.num_spins)]
-
             # Now, we can tensor all operators in this list
             qubit_ops_list.append(coeff * reduce(operator.xor, reversed(operatorlist)))
 
-        qubit_op = reduce(operator.add, qubit_ops_list)
+        qubit_op = coeff * reduce(operator.add, qubit_ops_list)
 
         return qubit_op
 
