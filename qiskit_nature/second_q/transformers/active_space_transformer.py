@@ -54,38 +54,29 @@ class ActiveSpaceTransformer(BaseTransformer):
     For more details on the computation of the inactive Fock operator refer to
     https://arxiv.org/abs/2009.01872.
 
-    .. raw:: html
+    The active space can be configured in one of the following ways through the initializer:
 
-        <p>The active space can be configured in one of the following ways through the initializer:</p>
-        <dd>
-        <ul>
-          <li>when only <span class="pre">num_electrons</span> and <span class="pre">num_spatial_orbitals
-          </span>are specified, these integers indicate the number of active electrons and orbitals,
-          respectively. The active space will then be chosen around the Fermi level resulting in a unique
-          choice for any pair of numbers.  Nonetheless, the following criteria must be met:</li>
-            <ol>
-            <li>the remaining number of inactive electrons must be a positive, even number</li>
-            <li>the number of active orbitals must not exceed the total number of orbitals minus the
-            number of orbitals occupied by the inactive electrons</li>
-            </ol>
-          <li>when, <span class="pre">num_electrons</span> is a tuple, this must indicate the number of
-            alpha- and beta-spin electrons, respectively. The same requirements as listed before must be
-            met.</li>
-          <li>finally, it is possible to select a custom set of active orbitals via their indices using
-            <span class="pre">active_orbitals</span>. This allows selecting an active space which is not
-            placed around the Fermi level as described in the first case, above. When using this keyword
-            argument, the following criteria must be met <i>in addition</i> to the ones listed above:
-            </li>
-            <ol>
-            <li>the length of <span class="pre">active_orbitals</span> must be equal to
-            <span class="pre">num_spatial_orbitals</span>. Note, that we do <b>not</b> infer the number
-            of active orbitals from this list of indices!</li>
-            <li>the sum of electrons present in <span class="pre">active_orbitals</span> must be equal to
-            <span class="pre">num_electrons</span>.</li>
-            </ol>
-        </ul>
-        </dd>
-        <br></br>
+    - when only ``num_electrons`` and `num_spatial_orbitals` are specified, these integers
+      indicate the number of active electrons and orbitals, respectively. The active space will
+      then be chosen around the Fermi level resulting in a unique choice for any pair of
+      numbers.  Nonetheless, the following criteria must be met:
+
+        #. the remaining number of inactive electrons must be a positive, even number
+
+        #. the number of active orbitals must not exceed the total number of orbitals minus the
+           number of orbitals occupied by the inactive electrons
+
+    - when, ``num_electrons`` is a tuple, this must indicate the number of alpha- and beta-spin
+      electrons, respectively. The same requirements as listed before must be met.
+    - finally, it is possible to select a custom set of active orbitals via their indices using
+      `active_orbitals`. This allows selecting an active space which is not placed around the
+      Fermi level as described in the first case, above. When using this keyword argument, the
+      following criteria must be met *in addition* to the ones listed above:
+
+        #. the length of `active_orbitals` must be equal to ``num_spatial_orbitals``. Note, that
+           we do **not** infer the number of active orbitals from this list of indices!
+
+        #. the sum of electrons present in ``active_orbitals`` must be equal to ``num_electrons``.
 
     References:
         - *M. Rossmannek, P. Barkoutsos, P. Ollitrault, and I. Tavernelli, arXiv:2009.01872

@@ -32,17 +32,14 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         """Initializes a transformer which can reduce an `ElectronicStructureProblem` to a
         configured active space.
 
-        .. raw:: html
+        The orbitals to be removed are specified in two ways:
 
-            <p>The orbitals to be removed are specified in two ways:</p>
-            <ol>
-            <li>When <span class="pre">freeze_core</span> is enabled (the default), the
-            "core" orbitals will be determined automatically according to <span class="pre">
-            count_core_orbitals</span>. These will then be made inactive </li>
-            <li>Additionally, unoccupied spatial orbitals can be removed via a list of indices
-            passed to <span class="pre">remove_orbitals</span>. It is the user's responsibility
-            to ensure that these are indeed unoccupied orbitals, as no checks are performed.</li>
-            </ol>
+            #. When ``freeze_core`` is enabled (the default), the "core" orbitals will be determined
+               automatically according to ``count_core_orbitals``. These will then be made inactive
+               and removed in the same fashion as in the :class:`ActiveSpaceTransformer`.
+            #. Additionally, unoccupied spatial orbitals can be removed via a list of indices
+               passed to ``remove_orbitals``. It is the user's responsibility to ensure that these are
+               indeed unoccupied orbitals, as no checks are performed.
 
         If you want to remove additional occupied orbitals, please use the
         :class:`ActiveSpaceTransformer` instead.
