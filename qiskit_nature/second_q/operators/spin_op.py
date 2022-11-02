@@ -348,7 +348,7 @@ class SpinOp(SparseLabelOp):
         """Provides an iterator analogous to :meth:`items` but with the labels already split into
         pairs of operation characters and indices. If the labels contain an exponent, they will be
         expanded into as many elements as indicated by the exponent. For example, label `"X_0^3"`
-        will yield 3 tuples `("X_0", coeff)`.
+        will yield ``([("X", 0), ("X", 0), ("X", 0)], coeff)``.
 
         Yields:
             A tuple with two items; the first one being a list of pairs of the form (char, int)
