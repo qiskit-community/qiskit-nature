@@ -110,6 +110,12 @@ class TestSpinOp(QiskitNatureTestCase):
             targ = SpinOp.zero()
             self.assertEqual(simplified_op, targ)
 
+        with self.subTest("simplify 0 exponent"):
+            spin_op = SpinOp({"X_0^0": 1}, num_spins=1)
+            simplified_op = spin_op.simplify()
+            targ = SpinOp.one()
+            self.assertEqual(simplified_op, targ)
+
     def test_conjugate(self):
         """Test conjugate method"""
         spin_op = SpinOp(

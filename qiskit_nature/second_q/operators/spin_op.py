@@ -33,17 +33,21 @@ from qiskit_nature import QiskitNatureError
 import qiskit_nature.optionals as _optionals
 
 from .polynomial_tensor import PolynomialTensor
-from .sparse_label_op import SparseLabelOp
+from .sparse_label_op import _TCoeff, SparseLabelOp, _to_number
 
 
 class SpinOp(SparseLabelOp):
     """XYZ Spin operator.
 
-    A `SpinOp` represents a weighted sum of spin operator terms (?). [TODO: Finish]
-    These terms are encoded as sparse labels, strings consisting of a space-separated
-    list of expressions. Each expression must look like :code:`[XYZ]_<index>^<power>`,
-    where the :code:`<index>` is a non-negative integer representing the index of
-    the spin mode  where the `X`, `Y` or `Z` component of the spin operator is to be applied.
+    A `SpinOp` represents a weighted sum of spin operator terms with a certain spin
+    value associated to them. This value can be an integer for bosonic particles or
+    a half-integer (fraction) for fermions.
+
+    These operator terms are encoded as sparse labels, strings consisting of a
+    space-separated list of expressions. Each expression must look like
+    :code:`[XYZ]_<index>^<power>`, where the :code:`<index>` is a non-negative
+    integer representing the index of the spin mode  where the `X`, `Y` or `Z`
+    component of the spin operator is to be applied.
 
     The value of :code:`index` is bound by the number of spins(`num_spins`) of the operator
     (Note: since Python indices are 0-based, the maximum value an index can take is given by
@@ -120,6 +124,12 @@ class SpinOp(SparseLabelOp):
     :class:`SpinOp` supports the following basic arithmetic operations: addition, subtraction,
     scalar multiplication, adjoint, composition and tensoring.
 
+    As of now, operations that involve two different instances of `SpinOp` (i.e. addition,
+    subtraction, composition, and tensoring) are only supported for identical spins
+    (`op_1.num_spins == op_2.num_spins`). In the future, multiple spin lengths within one
+    `SpinOp` will be supported, which might enable certain operations to also support
+    different `num_spins`.
+
     For example,
 
     Addition
@@ -179,7 +189,7 @@ class SpinOp(SparseLabelOp):
 
     def __init__(
         self,
-        data: Mapping[str, complex],
+        data: Mapping[str, _TCoeff],
         spin: float | Fraction = Fraction(1, 2),  # TODO: extend to list
         num_spins: int | None = None,
         *,
@@ -207,7 +217,7 @@ class SpinOp(SparseLabelOp):
         """
         self.num_spins = num_spins
         spin = Fraction(spin)
-        if spin.denominator not in (1, 2):
+        if spin.denominator not in (1, 2) or spin < 0:
             raise QiskitNatureError(
                 f"spin must be a positive half-integer (integer or half-odd-integer), not {spin}."
             )
@@ -218,7 +228,7 @@ class SpinOp(SparseLabelOp):
     def register_length(self) -> int | None:
         return self.num_spins
 
-    def _new_instance(self, data: Mapping[str, complex], *, other: SpinOp | None = None) -> SpinOp:
+    def _new_instance(self, data: Mapping[str, _TCoeff], *, other: SpinOp | None = None) -> SpinOp:
         num_s = self.num_spins
         spin = self.spin
         if other is not None:
@@ -265,7 +275,6 @@ class SpinOp(SparseLabelOp):
                         f"The index, {index}, from the label, {key}, exceeds the number of "
                         f"spins, {num_s}."
                     )
-            # TODO: do we need to validate the exponent?
 
         self.num_spins = max_index + 1 if num_s is None else num_s
 
@@ -283,7 +292,7 @@ class SpinOp(SparseLabelOp):
     def from_polynomial_tensor(cls, tensor: PolynomialTensor) -> SpinOp:
         cls._validate_polynomial_tensor_key(tensor.keys())
 
-        data: dict[str, complex] = {}
+        data: dict[str, _TCoeff] = {}
 
         for key in tensor:
             if key == "":
@@ -312,16 +321,16 @@ class SpinOp(SparseLabelOp):
         return cls(data, copy=False, num_spins=tensor.register_length).chop()
 
     @staticmethod
-    def _split_label(label) -> Iterator[tuple[str, int, int]]:
+    def _split_label(label) -> Iterator[tuple[str, int | None, int]]:
         """Helper method to iterate over label splits.
 
         Yields:
             A tuple containing the character, index and exponent in each label split.
         """
         for lbl in label.split():
-            if lbl == "":
-                yield "", None, 1
-                continue
+            # if lbl == "":
+            #     yield "", None, 1
+            #     continue
 
             char, index = lbl.split("_")
             index_split = index.split("^")
@@ -371,7 +380,7 @@ class SpinOp(SparseLabelOp):
         )
         return pre + ret
 
-    def terms(self) -> Iterator[tuple[list[tuple[str, int]], complex]]:
+    def terms(self) -> Iterator[tuple[list[tuple[str, int]], _TCoeff]]:
         """Provides an iterator analogous to :meth:`items` but with the labels already split into
         pairs of operation characters and indices. If the labels contain an exponent, they will be
         expanded into as many elements as indicated by the exponent. For example, label `"X_0^3"`
@@ -424,7 +433,7 @@ class SpinOp(SparseLabelOp):
                 # add sign from Y-terms (Y^T=-Y)
                 if char == "Y" and exp % 2:
                     coeff *= -1
-            data[" ".join(lbl for lbl in reversed(label.split(" ")))] = coeff
+            data[" ".join(lbl for lbl in reversed(label.split()))] = coeff
 
         return self._new_instance(data)
 
@@ -449,11 +458,9 @@ class SpinOp(SparseLabelOp):
     def _tensor(cls, a: SpinOp, b: SpinOp, *, offset: bool = True) -> SpinOp:
         shift = a.num_spins if offset else 0
 
-        new_data: dict[str, complex] = {}
-        # expand labels in `a`
-        # to make `a.items()` match the format of `b.terms()`
-        a_expanded = a.simplify()
-        for label1, cf1 in a_expanded.items():
+        new_data: dict[str, _TCoeff] = {}
+        for terms1, cf1 in a.terms():
+            label1 = f"{''.join(f' {c}_{i}' for c, i in terms1)}"
             for terms2, cf2 in b.terms():
                 new_label = f"{label1} {' '.join(f'{c}_{i + shift}' for c, i in terms2)}".strip()
                 if new_label in new_data:
@@ -469,23 +476,25 @@ class SpinOp(SparseLabelOp):
     def simplify(self, *, atol: float | None = None) -> SpinOp:
         atol = self.atol if atol is None else atol
 
-        data = defaultdict(complex)  # type: dict[str, complex]
+        data = defaultdict(complex)  # type: dict[str, _TCoeff]
         for label, coeff in self.items():
             label, coeff = self._simplify_label(label, coeff)
             data[label] += coeff
         simplified_data = {
-            label: coeff for label, coeff in data.items() if not np.isclose(coeff, 0.0, atol=atol)
+            label: coeff
+            for label, coeff in data.items()
+            if not np.isclose(_to_number(coeff), 0.0, atol=atol)
         }
         return self._new_instance(simplified_data)
 
-    def _simplify_label(self, label: str, coeff: complex) -> tuple[str, complex]:
+    def _simplify_label(self, label: str, coeff: _TCoeff) -> tuple[str, _TCoeff]:
 
         new_label = []
-        for lbl in label.split(" "):
+        for lbl in label.split():
             # the generator will only yield 1 item
             char, idx, exp = next(self._split_label(lbl))
-            if char != "":
-                new_label += [f"{char}_{idx}"] * exp
+            # if char != "":
+            new_label += [f"{char}_{idx}"] * exp
 
         return " ".join(lbl for lbl in new_label if lbl is not None), coeff
 
@@ -497,7 +506,7 @@ class SpinOp(SparseLabelOp):
         Returns:
             The index ordered operator.
         """
-        data = defaultdict(complex)  # type: dict[str, complex]
+        data = defaultdict(complex)  # type: dict[str, _TCoeff]
         for terms, coeff in self.terms():
             label, coeff = self._index_order(terms, coeff)
             data[label] += coeff
@@ -507,11 +516,11 @@ class SpinOp(SparseLabelOp):
             {
                 label: coeff
                 for label, coeff in data.items()
-                if not np.isclose(coeff, 0.0, atol=self.atol)
+                if not np.isclose(_to_number(coeff), 0.0, atol=self.atol)
             }
         )
 
-    def _index_order(self, terms: list[tuple[str, int]], coeff: complex) -> tuple[str, complex]:
+    def _index_order(self, terms: list[tuple[str, int]], coeff: _TCoeff) -> tuple[str, _TCoeff]:
         if not terms:
             return "", coeff
 
@@ -530,13 +539,14 @@ class SpinOp(SparseLabelOp):
         return new_label, coeff
 
     def to_matrix(self) -> np.ndarray:
+        # TODO: use scipy.sparse.csr_matrix() and add parameter `sparse: bool`.
+
         """Convert to dense matrix.
 
         Returns:
             The matrix (numpy.ndarray with dtype=numpy.complex128)
         """
         dim = int(2 * self.spin + 1)
-        # TODO: use scipy.sparse.csr_matrix() and add parameter `sparse: bool`.
 
         x_mat = np.fromfunction(
             lambda i, j: np.where(
@@ -572,8 +582,11 @@ class SpinOp(SparseLabelOp):
         final_matrix = np.zeros((dim, dim), dtype=np.complex128)
         for label, coeff in simplified_op.items():
             matrix_per_idx = {}
-            # compose all matrices in same index
+            # after .simplify() all exponents will be 1,
+            # so the exp return value from self._split_label()
+            # can be safely ignored (dropped into _)
             for char, idx, _ in self._split_label(label):
+                # compose all matrices in same index
                 if idx not in matrix_per_idx:
                     matrix_per_idx[idx] = i_mat
                 matrix_per_idx[idx] = matrix_per_idx[idx] @ char_map.get(char, i_mat)
@@ -584,4 +597,3 @@ class SpinOp(SparseLabelOp):
             final_matrix += coeff * tensorall(np.asarray(dense_matrix_per_idx))
 
         return final_matrix.view()
-
