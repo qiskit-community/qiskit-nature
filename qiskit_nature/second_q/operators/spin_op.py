@@ -324,9 +324,10 @@ class SpinOp(SparseLabelOp):
                 continue
 
             char, index = lbl.split("_")
-            idx = index.split("^")[0]
-            exp = int(index.split("^")[1]) if len(index.split("^")) > 1 else 1
-            yield char, int(idx), exp
+            index_split = index.split("^")
+            idx = int(index_split[0])
+            exp = int(index_split[1]) if len(index_split) > 1 else 1
+            yield char, idx, exp
 
     def __repr__(self) -> str:
         data_str = f"{dict(self.items())}"
