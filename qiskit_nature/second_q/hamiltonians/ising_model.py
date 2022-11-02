@@ -33,6 +33,20 @@ class IsingModel(LatticeModel):
     :math:`X_i` and :math:`Z_i` represent the respective Pauli matrices. :math:`J` is a constant
     with dimensions of energy and :math:`g` is a coupling parameter that determines the relative
     strength between the external transverse field and the nearest neighbor interaction.
+
+    This model is instantiation using a
+    :class:`~qiskit_nature.second_q.hamiltonians.lattices.Lattice`. For example, using a
+    :class:`~qiskit_nature.second_q.hamiltonians.lattices.LineLattice`:
+
+    .. code-block::
+        line_lattice = LineLattice(num_nodes=10, boundary_condition=BoundaryCondition.OPEN)
+
+        ising_model = IsingModel(
+            line_lattice.uniform_parameters(
+                uniform_interaction=-1.0,
+                uniform_onsite_potential=0.0,
+            )
+        )
     """
 
     def coupling_matrix(self) -> np.ndarray:

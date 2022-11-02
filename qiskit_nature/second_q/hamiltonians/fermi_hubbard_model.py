@@ -33,7 +33,22 @@ class FermiHubbardModel(LatticeModel):
     operators of fermion at the site :math:`i` with spin :math:`\sigma`. The operator :math:`n_{i,
     \sigma}` is the number operator, which is defined by :math:`n_{i, \sigma} = c_{i,
     \sigma}^\dagger c_{i, \sigma}`. The matrix :math:`t_{i, j}` is a Hermitian matrix called the
-    interaction matrix. The parameter :math:`U` represents the strength of the interaction.
+    interaction matrix. The parameter :math:`U` represents the strength of the on-site interaction.
+
+    This model is instantiated using a
+    :class:`~qiskit_nature.second_q.hamiltonians.lattices.Lattice`. For example, using a
+    :class:`~qiskit_nature.second_q.hamiltonians.lattices.LineLattice`:
+
+    .. code-block::
+        line_lattice = LineLattice(num_nodes=10, boundary_condition=BoundaryCondition.OPEN)
+
+        fhm = FermiHubbardModel(
+            line_lattice.uniform_parameters(
+                uniform_interaction=-1.0,
+                uniform_onsite_potential=0.0,
+            ),
+            onsite_interaction=5.0,
+        )
     """
 
     def __init__(self, lattice: Lattice, onsite_interaction: complex) -> None:
