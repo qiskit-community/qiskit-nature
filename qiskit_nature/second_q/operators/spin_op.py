@@ -352,7 +352,7 @@ class SpinOp(SparseLabelOp):
 
         Yields:
             A tuple with two items; the first one being a list of pairs of the form (char, int)
-            where char is either `X`, `Y`, `Z` or `` and the integer corresponds to the index
+            where char is either `X`, `Y` or `Z` and the integer corresponds to the index
             on which the operator gets applied; the second item of the returned tuple is the
             coefficient of this term.
         """
