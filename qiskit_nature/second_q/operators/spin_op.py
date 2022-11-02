@@ -394,7 +394,8 @@ class SpinOp(SparseLabelOp):
         for label, coeff in self.items():
             for char, _, exp in self._split_label(label):
                 # add sign from Y-terms (Y^T=-Y)
-                coeff *= -1 if char == "Y" and exp % 2 != 0 else 1
+                if char == "Y" and exp % 2:
+                    coeff *= -1
             data[" ".join(lbl for lbl in reversed(label.split(" ")))] = coeff
 
         return self._new_instance(data)
