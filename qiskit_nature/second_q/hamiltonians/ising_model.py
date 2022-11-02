@@ -34,7 +34,7 @@ class IsingModel(LatticeModel):
     with dimensions of energy and :math:`g` is a coupling parameter that determines the relative
     strength between the external transverse field and the nearest neighbor interaction.
 
-    This model is instantiation using a
+    This model is instantiated using a
     :class:`~qiskit_nature.second_q.hamiltonians.lattices.Lattice`. For example, using a
     :class:`~qiskit_nature.second_q.hamiltonians.lattices.LineLattice`:
 
