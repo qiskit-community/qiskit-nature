@@ -104,10 +104,10 @@ class HartreeFock(BlueprintCircuit):
             ValueError: If the number of particles is not specified or less than zero.
             ValueError: If the number of particles of any kind is less than zero.
             ValueError: If the number of spatial orbitals is smaller than the number of particles
-                        of any kind.
+                of any kind.
             ValueError: If the qubit converter is not specified.
-            NotImplementedError: If the specified qubit converter is a BravyiKitaevSuperFastMapper
-                                 instance.
+            NotImplementedError: If the specified qubit converter is a
+                :class:`~qiskit_nature.second_q.mappers.BravyiKitaevSuperFastMapper` instance.
         """
         if self.num_spatial_orbitals is None:
             if raise_on_failure:

@@ -68,7 +68,7 @@ class UVCC(EvolvedOperatorAnsatz):
                 with 4 modals per mode ``num_modals = [4, 4, 4]``.
             excitations: This can be any of the following types:
 
-                :`str`: Contains the types of excitations. Allowed characters are: ``'s'`` for 
+                :`str`: Contains the types of excitations. Allowed characters are: ``'s'`` for
                     singles, ``'d'`` for doubles, ``'t'`` for triples, and ``'q'`` for quadruples.
                 :`int`: A single, positive integer which denotes the number of excitations
                     (``1 == 's'``, ``2 == 'd'``, etc.).
@@ -80,7 +80,7 @@ class UVCC(EvolvedOperatorAnsatz):
                     ``list[tuple[tuple[int, ...], tuple[int, ...]]]``. For more information on
                     how to write such a callable refer to the default method :meth:`~qiskit_nature.\
                     second_q.circuit.library.ansatzes.utils.generate_vibration_excitations`.
-            qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` instance 
+            qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` instance
                 which takes care of mapping to a qubit operator.
             reps: The number of repetitions of basic module.
             initial_state: A ``QuantumCircuit`` object to prepend to the circuit.
