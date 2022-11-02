@@ -149,7 +149,7 @@ class UCC(EvolvedOperatorAnsatz):
                     The callable must take the *keyword* arguments ``num_spatial_orbitals`` and
                     ``num_particles`` (with identical types to those explained above) and must return
                     a ``list[tuple[tuple[int, ...], tuple[int, ...]]]``. For more information on how
-                    to write such a callable refer to the default method 
+                    to write such a callable refer to the default method
                     :meth:`~qiskit_nature.second_q.circuit.library.ansatzes.utils.generate_fermionic_excitations`.
             qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` instance
                 which takes care of mapping to a qubit operator.

@@ -90,7 +90,9 @@ class SUCCD(UCC):
         self._validate_num_particles(num_particles)
         self._include_singles = include_singles
         self._mirror = mirror
-        self._excitations_dict: dict[str, list[tuple[tuple[int, ...], tuple[int, ...]]]] | None = None
+        self._excitations_dict: dict[
+            str, list[tuple[tuple[int, ...], tuple[int, ...]]]
+        ] | None = None
         super().__init__(
             num_spatial_orbitals=num_spatial_orbitals,
             num_particles=num_particles,

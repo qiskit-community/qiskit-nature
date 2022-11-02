@@ -38,7 +38,7 @@ class UVCCSD(UVCC):
         Args:
             num_modals: A list defining the number of modals per mode. E.g. for a 3-mode system
                 with 4 modals per mode ``num_modals = [4, 4, 4]``.
-            qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` instance 
+            qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` instance
                 which takes care of mapping to a qubit operator.
             reps: The number of times to repeat the evolved operators.
             initial_state: A ``QuantumCircuit`` object to prepend to the circuit.

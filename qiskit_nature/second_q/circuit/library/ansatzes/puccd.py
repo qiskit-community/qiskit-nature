@@ -64,7 +64,7 @@ class PUCCD(UCC):
         Args:
             num_spatial_orbitals: The number of spatial orbitals.
             num_particles: The tuple of the number of alpha- and beta-spin particles.
-            qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` instance 
+            qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` instance
                 which takes care of mapping to a qubit operator.
             reps: The number of times to repeat the evolved operators.
             initial_state: A ``QuantumCircuit`` object to prepend to the circuit.

@@ -41,7 +41,7 @@ class HartreeFock(BlueprintCircuit):
             qubit_converter: a :class:`~qiskit_nature.second_q.mappers.QubitConverter` instance.
 
         Raises:
-            NotImplementedError: If ``qubit_converter`` contains 
+            NotImplementedError: If ``qubit_converter`` contains
                 :class:`~qiskit_nature.second_q.mappers.BravyiKitaevSuperFastMapper`. See
                 https://github.com/Qiskit/qiskit-nature/issues/537 for more information.
         """
