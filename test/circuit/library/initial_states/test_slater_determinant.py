@@ -12,7 +12,7 @@
 
 """Test Slater determinant state preparation circuits."""
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from test.nature_random import random_legacy_quadratic_hamiltonian as random_quadratic_hamiltonian
 
 import numpy as np
@@ -23,7 +23,7 @@ from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import BravyiKitaevMapper, JordanWignerMapper
 
 
-class TestSlaterDeterminant(QiskitNatureTestCase):
+class TestSlaterDeterminant(QiskitNatureDeprecatedTestCase):
     """Tests for preparing Slater determinants."""
 
     def test_slater_determinant(self):

@@ -253,7 +253,7 @@ class SpinOp(SparseLabelOp):
                 raise QiskitNatureError(f"{key} is not a valid SpinOp label.")
 
             # 2. validate all indices against register length
-            for term in key.split(" "):
+            for term in key.split():
                 sub_terms = term.split("^")
                 # sub_terms[0] is the base, sub_terms[1] is the (optional) exponent
                 index = int(sub_terms[0][2:])
@@ -318,15 +318,16 @@ class SpinOp(SparseLabelOp):
         Yields:
             A tuple containing the character, index and exponent in each label split.
         """
-        for lbl in label.split(" "):
+        for lbl in label.split():
             if lbl == "":
                 yield "", None, 1
                 continue
 
             char, index = lbl.split("_")
-            idx = index.split("^")[0]
-            exp = int(index.split("^")[1]) if len(index.split("^")) > 1 else 1
-            yield char, int(idx), exp
+            index_split = index.split("^")
+            idx = int(index_split[0])
+            exp = int(index_split[1]) if len(index_split) > 1 else 1
+            yield char, idx, exp
 
     @classmethod
     def x(cls, spin: float | Fraction = Fraction(1, 2)) -> SpinOp:
@@ -363,7 +364,7 @@ class SpinOp(SparseLabelOp):
     def __str__(self) -> str:
         pre = (
             "Spin Operator\n"
-            f"spin={self.spin}, number orbitals={self.num_spins}, number terms={len(self)}\n"
+            f"spin={self.spin}, number spins={self.num_spins}, number terms={len(self)}\n"
         )
         ret = "  " + "\n+ ".join(
             [f"{coeff} * ( {label} )" if label else f"{coeff}" for label, coeff in self.items()]
@@ -374,11 +375,11 @@ class SpinOp(SparseLabelOp):
         """Provides an iterator analogous to :meth:`items` but with the labels already split into
         pairs of operation characters and indices. If the labels contain an exponent, they will be
         expanded into as many elements as indicated by the exponent. For example, label `"X_0^3"`
-        will yield 3 tuples `("X_0", coeff)`.
+        will yield ``([("X", 0), ("X", 0), ("X", 0)], coeff)``.
 
         Yields:
             A tuple with two items; the first one being a list of pairs of the form (char, int)
-            where char is either `X`, `Y`, `Z` or `` and the integer corresponds to the index
+            where char is either `X`, `Y` or `Z` and the integer corresponds to the index
             on which the operator gets applied; the second item of the returned tuple is the
             coefficient of this term.
         """
@@ -404,7 +405,8 @@ class SpinOp(SparseLabelOp):
             coeff = np.conjugate(coeff)
             for char, _, exp in self._split_label(label):
                 # add sign from Y-terms (Y.conj() = -Y)
-                coeff *= -1 if char == "Y" and exp % 2 != 0 else 1
+                if char == "Y" and exp % 2:
+                    coeff *= -1
             new_data[label] = coeff
 
         return self._new_instance(new_data)
@@ -420,7 +422,8 @@ class SpinOp(SparseLabelOp):
         for label, coeff in self.items():
             for char, _, exp in self._split_label(label):
                 # add sign from Y-terms (Y^T=-Y)
-                coeff *= -1 if char == "Y" and exp % 2 != 0 else 1
+                if char == "Y" and exp % 2:
+                    coeff *= -1
             data[" ".join(lbl for lbl in reversed(label.split(" ")))] = coeff
 
         return self._new_instance(data)

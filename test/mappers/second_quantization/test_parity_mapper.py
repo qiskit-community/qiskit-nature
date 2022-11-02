@@ -13,7 +13,7 @@
 """ Test Parity Mapper """
 
 import unittest
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 
 from qiskit.opflow import I, PauliSumOp, X, Z
 
@@ -22,7 +22,7 @@ from qiskit_nature.mappers.second_quantization import ParityMapper
 from qiskit_nature.operators.second_quantization import FermionicOp
 
 
-class TestParityMapper(QiskitNatureTestCase):
+class TestParityMapper(QiskitNatureDeprecatedTestCase):
     """Test Parity Mapper"""
 
     REF_H2 = (

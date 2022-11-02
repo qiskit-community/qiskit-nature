@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """
-The FCIDump (:mod:`qiskit_nature.second_q.formats.fcidump`)
+FCIDump (:mod:`qiskit_nature.second_q.formats.fcidump`)
 =============================================================
 
 Contains tools to parse and dump FCIDump files.

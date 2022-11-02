@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Tests QubitNumberReducer."""
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from qiskit.opflow import I, Z
 from qiskit_nature.problems.sampling.protein_folding.qubit_utils.qubit_number_reducer import (
     _find_unused_qubits,
@@ -18,7 +18,7 @@ from qiskit_nature.problems.sampling.protein_folding.qubit_utils.qubit_number_re
 )
 
 
-class TestQubitNumberReducer(QiskitNatureTestCase):
+class TestQubitNumberReducer(QiskitNatureDeprecatedTestCase):
     """Tests ContactQubitsBuilder."""
 
     def test_find_unused_qubits(self):

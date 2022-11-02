@@ -1,0 +1,35 @@
+---
+features:
+  - |
+    Implements both :class:`~qiskit_nature.second_q.circuit.library.HartreeFock` and
+    :class:`~qiskit_nature.second_q.circuit.library.VSCF` as subclasses of
+    :class:`~qiskit.circuit.library.BlueprintCircuit`. This allows the respective classes to be
+    instantiated without explicitly setting all of their instance attributes. Missing
+    attributes can be set at a later point to complete the respective circuit definitions.
+
+    .. code-block:: python
+
+      from qiskit_nature.second_q.circuit.library import HartreeFock, VSCF
+      from qiskit_nature.second_q.mappers import JordanWignerMapper, QubitConverter
+
+      # Initialize Hartree-Fock initial_state without specifying
+      # the number of particles and qubit converter.
+      hf_state = HartreeFock(num_spatial_orbitals=4)
+
+      # ...
+
+      # complete circuit definition by specifying the rest of the instance attributes
+      hf_state.qubit_converter = QubitConverter(JordanWignerMapper())
+      hf_state.num_particles = (1,1)
+
+      # ...
+
+      # Similarly for VSCF
+      vscf_state = VSCF()
+
+      # ...
+
+      # complete circuit definition by specifying the rest of the instance attributes
+      vscf_state.num_modals = [2, 2]
+
+      # ...

@@ -14,11 +14,11 @@
 
 import unittest
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from qiskit_nature.drivers.second_quantization import GaussianDriver
 
 
-class TestDriverGaussianExtra(QiskitNatureTestCase):
+class TestDriverGaussianExtra(QiskitNatureDeprecatedTestCase):
     """Gaussian Driver extra tests for driver specifics, errors etc"""
 
     def test_cfg_augment(self):

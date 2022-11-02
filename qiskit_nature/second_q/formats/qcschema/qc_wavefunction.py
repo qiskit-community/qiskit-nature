@@ -82,6 +82,24 @@ class QCWavefunction(_QCBase):
     """The name of the beta-alpha electron-repulsion integrals in the MO basis."""
     eri_mo_bb: str | None = None
     """The name of the beta-beta electron-repulsion integrals in the MO basis."""
+    dipole_x: str | None = None
+    """The name of x-axis dipole moment integrals in the AO basis."""
+    dipole_y: str | None = None
+    """The name of y-axis dipole moment integrals in the AO basis."""
+    dipole_z: str | None = None
+    """The name of z-axis dipole moment integrals in the AO basis."""
+    dipole_mo_x_a: str | None = None
+    """The name of alpha-spin x-axis dipole moment integrals in the MO basis."""
+    dipole_mo_y_a: str | None = None
+    """The name of alpha-spin y-axis dipole moment integrals in the MO basis."""
+    dipole_mo_z_a: str | None = None
+    """The name of alpha-spin z-axis dipole moment integrals in the MO basis."""
+    dipole_mo_x_b: str | None = None
+    """The name of beta-spin x-axis dipole moment integrals in the MO basis."""
+    dipole_mo_y_b: str | None = None
+    """The name of beta-spin y-axis dipole moment integrals in the MO basis."""
+    dipole_mo_z_b: str | None = None
+    """The name of beta-spin z-axis dipole moment integrals in the MO basis."""
 
     scf_orbitals_a: Sequence[float] | None = None
     """The SCF alpha-spin orbitals in the AO basis."""
@@ -119,16 +137,34 @@ class QCWavefunction(_QCBase):
     """The SCF alpha-spin orbital occupations."""
     scf_occupations_b: Sequence[float] | None = None
     """The SCF beta-spin orbital occupations."""
-    scf_eri: str | None = None
+    scf_eri: Sequence[float] | None = None
     """The SCF electron-repulsion integrals in the AO basis."""
-    scf_eri_mo_aa: str | None = None
+    scf_eri_mo_aa: Sequence[float] | None = None
     """The SCF alpha-alpha electron-repulsion integrals in the MO basis."""
-    scf_eri_mo_ab: str | None = None
+    scf_eri_mo_ab: Sequence[float] | None = None
     """The SCF alpha-beta electron-repulsion integrals in the MO basis."""
-    scf_eri_mo_ba: str | None = None
+    scf_eri_mo_ba: Sequence[float] | None = None
     """The SCF beta-alpha electron-repulsion integrals in the MO basis."""
-    scf_eri_mo_bb: str | None = None
+    scf_eri_mo_bb: Sequence[float] | None = None
     """The SCF beta-beta electron-repulsion integrals in the MO basis."""
+    scf_dipole_x: Sequence[float] | None = None
+    """The SCF x-axis dipole moment integrals in the AO basis."""
+    scf_dipole_y: Sequence[float] | None = None
+    """The SCF y-axis dipole moment integrals in the AO basis."""
+    scf_dipole_z: Sequence[float] | None = None
+    """The SCF z-axis dipole moment integrals in the AO basis."""
+    scf_dipole_mo_x_a: Sequence[float] | None = None
+    """The SCF alpha-spin x-axis dipole moment integrals in the MO basis."""
+    scf_dipole_mo_y_a: Sequence[float] | None = None
+    """The SCF alpha-spin y-axis dipole moment integrals in the MO basis."""
+    scf_dipole_mo_z_a: Sequence[float] | None = None
+    """The SCF alpha-spin z-axis dipole moment integrals in the MO basis."""
+    scf_dipole_mo_x_b: Sequence[float] | None = None
+    """The SCF beta-spin x-axis dipole moment integrals in the MO basis."""
+    scf_dipole_mo_y_b: Sequence[float] | None = None
+    """The SCF beta-spin y-axis dipole moment integrals in the MO basis."""
+    scf_dipole_mo_z_b: Sequence[float] | None = None
+    """The SCF beta-spin z-axis dipole moment integrals in the MO basis."""
 
     localized_orbitals_a: Sequence[float] | None = None
     """The localized alpha-spin orbitals. All `nmo` orbitals are included, even if only a subset

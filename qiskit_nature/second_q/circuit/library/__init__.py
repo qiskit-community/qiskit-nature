@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """
-Circuit Library (:mod:`qiskit_nature.second_q.circuit.library`)
+Library (:mod:`qiskit_nature.second_q.circuit.library`)
 ===============================================================
 
 A collection of circuits used as building blocks or inputs for algorithms.

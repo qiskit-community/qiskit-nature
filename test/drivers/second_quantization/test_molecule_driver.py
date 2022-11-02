@@ -18,7 +18,7 @@ import re
 import unittest
 import warnings
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from ddt import ddt, data
 
 from qiskit.exceptions import MissingOptionalLibraryError
@@ -40,7 +40,7 @@ import qiskit_nature.optionals as _optionals
 
 
 @ddt
-class TestElectronicStructureMoleculeDriver(QiskitNatureTestCase):
+class TestElectronicStructureMoleculeDriver(QiskitNatureDeprecatedTestCase):
     """Electronic structure Molecule Driver tests."""
 
     def setUp(self):
@@ -102,7 +102,7 @@ class TestElectronicStructureMoleculeDriver(QiskitNatureTestCase):
 
 
 @ddt
-class TestVibrationalStructureMoleculeDriver(QiskitNatureTestCase):
+class TestVibrationalStructureMoleculeDriver(QiskitNatureDeprecatedTestCase):
     """Vibrational structure Molecule Driver tests."""
 
     _C01_REV_EXPECTED = [

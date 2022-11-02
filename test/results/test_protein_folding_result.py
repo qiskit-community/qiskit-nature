@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 """Tests ProteinFoldingResult."""
 from typing import List
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from ddt import ddt, data, unpack
 
 from qiskit.utils import algorithm_globals
@@ -61,7 +61,7 @@ def create_protein_folding_result(
 
 
 @ddt
-class TestProteinFoldingResult(QiskitNatureTestCase):
+class TestProteinFoldingResult(QiskitNatureDeprecatedTestCase):
     """Tests ProteinFoldingResult."""
 
     @unpack

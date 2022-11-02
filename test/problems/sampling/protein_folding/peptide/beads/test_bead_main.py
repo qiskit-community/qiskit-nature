@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Tests Main Bead."""
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from test.problems.sampling.protein_folding.resources.file_parser import read_expected_file
 from qiskit.opflow import I, Z
 
@@ -23,7 +23,7 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.chains.side_chain i
 PATH = "problems/sampling/protein_folding/resources/test_bead_main"
 
 
-class TestMainBead(QiskitNatureTestCase):
+class TestMainBead(QiskitNatureDeprecatedTestCase):
     """Tests Main Bead."""
 
     def test_main_bead_constructor(self):

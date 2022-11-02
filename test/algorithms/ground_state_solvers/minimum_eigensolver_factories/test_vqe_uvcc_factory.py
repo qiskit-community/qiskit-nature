@@ -14,7 +14,7 @@
 import unittest
 import warnings
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from qiskit import BasicAer
 from qiskit.utils import QuantumInstance
 from qiskit.opflow import AerPauliExpectation
@@ -26,7 +26,7 @@ from qiskit_nature.algorithms import VQEUVCCFactory
 from qiskit_nature.algorithms.initial_points import VSCFInitialPoint
 
 
-class TestVQEUVCCFactory(QiskitNatureTestCase):
+class TestVQEUVCCFactory(QiskitNatureDeprecatedTestCase):
     """Test VQE UVCC MinimumEigensolver Factory"""
 
     # NOTE: The actual usage of this class is mostly tested in combination with the ground-state

@@ -12,7 +12,7 @@
 
 """PropertyTest class"""
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 
 import numpy as np
 
@@ -38,7 +38,7 @@ from qiskit_nature.properties.second_quantization.vibrational import (
 from qiskit_nature.properties.second_quantization.vibrational.integrals import VibrationalIntegrals
 
 
-class PropertyTest(QiskitNatureTestCase):
+class PropertyTest(QiskitNatureDeprecatedTestCase):
     """Property instance tester"""
 
     def compare_angular_momentum(

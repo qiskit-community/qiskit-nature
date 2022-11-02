@@ -12,7 +12,7 @@
 
 """Test the excitation generator."""
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 
 from ddt import data, ddt, unpack
 
@@ -22,7 +22,7 @@ from qiskit_nature.circuit.library.ansatzes.utils.vibration_excitation_generator
 
 
 @ddt
-class TestVibrationExcitationGenerator(QiskitNatureTestCase):
+class TestVibrationExcitationGenerator(QiskitNatureDeprecatedTestCase):
     """Tests for the default vibration excitation generator method."""
 
     @unpack

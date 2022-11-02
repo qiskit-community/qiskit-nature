@@ -48,6 +48,8 @@ class QCProperties(_QCBase):
     """The two-electron energy contribution to the total SCF energy."""
     nuclear_repulsion_energy: float | None = None
     """The nuclear repulsion energy contribution to the total SCF energy."""
+    nuclear_dipole_moment: tuple[float, float, float] | None = None
+    """The nuclear X, Y, and Z dipole components."""
     scf_vv10_energy: float | None = None
     """The VV10 functional energy contribution to the total SCF energy."""
     scf_xc_energy: float | None = None

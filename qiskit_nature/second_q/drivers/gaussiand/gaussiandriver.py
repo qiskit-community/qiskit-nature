@@ -19,7 +19,7 @@ import logging
 import os
 import sys
 import tempfile
-from typing import Any, Optional, Union, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
 import numpy as np
 
@@ -31,13 +31,8 @@ import qiskit_nature.optionals as _optionals
 from qiskit_nature.settings import settings
 from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
 from qiskit_nature.second_q.formats.qcschema import QCSchema
-from qiskit_nature.second_q.formats.qcschema_translator import (
-    qcschema_to_problem,
-    get_ao_to_mo_from_qcschema,
-)
-from qiskit_nature.second_q.operators import ElectronicIntegrals
+from qiskit_nature.second_q.formats.qcschema_translator import qcschema_to_problem
 from qiskit_nature.second_q.problems import ElectronicBasis, ElectronicStructureProblem
-from qiskit_nature.second_q.properties import ElectronicDipoleMoment
 
 from .gaussian_utils import run_g16
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType, _QCSchemaData
@@ -64,7 +59,7 @@ class GaussianDriver(ElectronicStructureDriver):
 
     def __init__(
         self,
-        config: Union[str, list[str]] = "# rhf/sto-3g scf(conventional)\n\n"
+        config: str | list[str] = "# rhf/sto-3g scf(conventional)\n\n"
         "h2 molecule\n\n0 1\nH   0.0  0.0    0.0\nH   0.0  0.0    0.735\n\n",
     ) -> None:
         """
@@ -92,7 +87,7 @@ class GaussianDriver(ElectronicStructureDriver):
         *,
         basis: str = "sto-3g",
         method: MethodType = MethodType.RHF,
-        driver_kwargs: Optional[dict[str, Any]] = None,
+        driver_kwargs: dict[str, Any] | None = None,
     ) -> "GaussianDriver":
         """
         Args:
@@ -289,11 +284,11 @@ class GaussianDriver(ElectronicStructureDriver):
 
         return _mel
 
-    def to_qcschema(self) -> QCSchema:
-        return GaussianDriver._qcschema_from_matrix_file(self._mel)
+    def to_qcschema(self, *, include_dipole: bool = True) -> QCSchema:
+        return GaussianDriver._qcschema_from_matrix_file(self._mel, include_dipole=include_dipole)
 
     @staticmethod
-    def _qcschema_from_matrix_file(mel: MatEl) -> QCSchema:
+    def _qcschema_from_matrix_file(mel: MatEl, *, include_dipole: bool = True) -> QCSchema:
         data = _QCSchemaData()
 
         data.mo_coeff = GaussianDriver._get_matrix(mel, "ALPHA MO COEFFICIENTS")
@@ -406,7 +401,37 @@ class GaussianDriver(ElectronicStructureDriver):
         data.nalpha = (mel.ne + mel.multip - 1) // 2
         data.nbeta = (mel.ne - mel.multip + 1) // 2
 
-        return GaussianDriver._to_qcschema(data)
+        if include_dipole:
+            # dipole moment
+            dipints = GaussianDriver._get_matrix(mel, "DIPOLE INTEGRALS")
+            dipints = np.einsum("ijk->kji", dipints)
+
+            data.dip_x = dipints[0]
+            data.dip_y = dipints[1]
+            data.dip_z = dipints[2]
+            data.dip_mo_x_a = np.dot(np.dot(data.mo_coeff.T, data.dip_x), data.mo_coeff)
+            data.dip_mo_y_a = np.dot(np.dot(data.mo_coeff.T, data.dip_y), data.mo_coeff)
+            data.dip_mo_z_a = np.dot(np.dot(data.mo_coeff.T, data.dip_z), data.mo_coeff)
+            if data.mo_coeff_b is not None:
+                data.dip_mo_x_b = np.dot(np.dot(data.mo_coeff_b.T, data.dip_x), data.mo_coeff_b)
+                data.dip_mo_y_b = np.dot(np.dot(data.mo_coeff_b.T, data.dip_y), data.mo_coeff_b)
+                data.dip_mo_z_b = np.dot(np.dot(data.mo_coeff_b.T, data.dip_z), data.mo_coeff_b)
+
+            coords = np.reshape(mel.c, (len(mel.ian), 3))
+            nucl_dip = np.einsum("i,ix->x", mel.ian, coords)
+            nucl_dip = np.round(nucl_dip, decimals=8)
+            ref_dip = GaussianDriver._get_matrix(mel, "ELECTRIC DIPOLE MOMENT")
+            ref_dip = np.round(ref_dip, decimals=8)
+            elec_dip = ref_dip - nucl_dip
+
+            logger.info("HF Electronic dipole moment: %s", elec_dip)
+            logger.info("Nuclear dipole moment: %s", nucl_dip)
+            logger.info("Total dipole moment: %s", ref_dip)
+
+            data.dip_nuc = nucl_dip
+            data.dip_ref = ref_dip  # type: ignore[assignment]
+
+        return GaussianDriver._to_qcschema(data, include_dipole=include_dipole)
 
     def to_problem(
         self,
@@ -425,35 +450,12 @@ class GaussianDriver(ElectronicStructureDriver):
         basis: ElectronicBasis = ElectronicBasis.MO,
         include_dipole: bool = True,
     ) -> ElectronicStructureProblem:
-        qcschema = GaussianDriver._qcschema_from_matrix_file(mel)
+        qcschema = GaussianDriver._qcschema_from_matrix_file(mel, include_dipole=include_dipole)
 
-        problem = qcschema_to_problem(qcschema, basis=basis)
+        problem = qcschema_to_problem(qcschema, basis=basis, include_dipole=include_dipole)
 
-        if include_dipole:
-            # dipole moment
-            dipints = GaussianDriver._get_matrix(mel, "DIPOLE INTEGRALS")
-            dipints = np.einsum("ijk->kji", dipints)
-
-            x_dip = ElectronicIntegrals.from_raw_integrals(dipints[0])
-            y_dip = ElectronicIntegrals.from_raw_integrals(dipints[1])
-            z_dip = ElectronicIntegrals.from_raw_integrals(dipints[2])
-
-            if basis == ElectronicBasis.MO:
-                basis_transform = get_ao_to_mo_from_qcschema(qcschema)
-
-                x_dip = basis_transform.transform_electronic_integrals(x_dip)
-                y_dip = basis_transform.transform_electronic_integrals(y_dip)
-                z_dip = basis_transform.transform_electronic_integrals(z_dip)
-
-            coords = np.reshape(mel.c, (len(mel.ian), 3))
-            nucl_dip = np.einsum("i,ix->x", mel.ian, coords)
-            nucl_dip = np.round(nucl_dip, decimals=8)
-
-            dipole_moment = ElectronicDipoleMoment(x_dip, y_dip, z_dip)
-            dipole_moment.nuclear_dipole_moment = nucl_dip
-            dipole_moment.reverse_dipole_sign = True
-
-            problem.properties.electronic_dipole_moment = dipole_moment
+        if include_dipole and problem.properties.electronic_dipole_moment is not None:
+            problem.properties.electronic_dipole_moment.reverse_dipole_sign = True
 
         return problem
 

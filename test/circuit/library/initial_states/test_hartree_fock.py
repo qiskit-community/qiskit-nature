@@ -13,7 +13,7 @@
 """Test Hartree Fock initial state circuit."""
 
 import unittest
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 import numpy as np
 
 from qiskit import QuantumCircuit
@@ -32,7 +32,7 @@ from qiskit_nature.mappers.second_quantization import (
 from qiskit_nature.converters.second_quantization import QubitConverter
 
 
-class TestHartreeFock(QiskitNatureTestCase):
+class TestHartreeFock(QiskitNatureDeprecatedTestCase):
     """Initial State HartreeFock tests"""
 
     def test_bitstring(self):

@@ -17,6 +17,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from functools import lru_cache
 
+import numpy as np
 from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators import Pauli, SparsePauliOp
 
@@ -182,7 +183,7 @@ class QubitMapper(ABC):
         else:
             for terms, coeff in second_q_op.terms():
                 # 1. Initialize an operator list with the identity scaled by the `coeff`
-                ret_op = SparsePauliOp("I" * nmodes, coeffs=[coeff])
+                ret_op = SparsePauliOp("I" * nmodes, coeffs=np.array([coeff]))
 
                 # Go through the label and replace the fermion operators by their qubit-equivalent, then
                 # save the respective Pauli string in the pauli_str list.
@@ -202,4 +203,4 @@ class QubitMapper(ABC):
                         )
                 ret_op_list.append(ret_op)
 
-        return PauliSumOp(SparsePauliOp.sum(ret_op_list).simplify().chop())
+        return PauliSumOp(SparsePauliOp.sum(ret_op_list).simplify())

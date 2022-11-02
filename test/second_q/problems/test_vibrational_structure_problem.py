@@ -14,33 +14,21 @@
 
 import unittest
 from test import QiskitNatureTestCase
-
-import numpy as np
+from test.second_q.problems.resources.expected_ops import (
+    _truncation_order_1_op,
+    _truncation_order_2_op,
+)
 
 from qiskit_nature.second_q.drivers import GaussianForcesDriver
 from qiskit_nature.second_q.operators import VibrationalOp
-
-from .resources.expected_ops import _truncation_order_1_op, _truncation_order_2_op
 
 
 class TestVibrationalStructureProblem(QiskitNatureTestCase):
     """Tests Vibrational Problem."""
 
-    def compare_vibrational_op(
-        self, first: VibrationalOp, second: VibrationalOp, msg: str = None
-    ) -> None:
-        """Compares two ElectronicIntegrals instances."""
-        for f_lbl, s_lbl in zip(first._labels, second._labels):
-            if f_lbl != s_lbl:
-                raise self.failureException(msg)
-        for f_coeff, s_coeff in zip(first._coeffs, second._coeffs):
-            if not np.isclose(f_coeff, s_coeff):
-                raise self.failureException(msg)
-
     def setUp(self) -> None:
         """Setup."""
         super().setUp()
-        self.addTypeEqualityFunc(VibrationalOp, self.compare_vibrational_op)
 
         logfile = self.get_resource_path(
             "test_driver_gaussian_log_C01.txt",
@@ -53,7 +41,7 @@ class TestVibrationalStructureProblem(QiskitNatureTestCase):
         """Tests that the list of second quantized operators is created if no transformers
         provided."""
         expected_num_of_sec_quant_ops = 4
-        expected_len_of_vibrational_op = 47
+        expected_len_of_vibrational_op = 46
         num_modals = 2
         truncation_order = 3
         num_modes = self.props.num_modes
@@ -63,12 +51,13 @@ class TestVibrationalStructureProblem(QiskitNatureTestCase):
         vibrational_problem.truncation_order = truncation_order
         vibrational_op, second_quantized_ops = vibrational_problem.second_q_ops()
 
+        with self.subTest("Check is an instance of VibrationalOp."):
+            self.assertIsInstance(vibrational_op, VibrationalOp)
         with self.subTest("Check expected length of the list of second quantized operators."):
-            assert len(second_quantized_ops) == expected_num_of_sec_quant_ops
+            self.assertEqual(len(second_quantized_ops), expected_num_of_sec_quant_ops)
         with self.subTest("Check expected length of the vibrational op."):
-            assert len(vibrational_op) == expected_len_of_vibrational_op
+            self.assertEqual(len(vibrational_op), expected_len_of_vibrational_op)
         with self.subTest("Check types in the list of second quantized operators."):
-            assert isinstance(vibrational_op, VibrationalOp)
             self.assertEqual(vibrational_op, _truncation_order_2_op)
 
     def test_truncation_order(self):
@@ -84,12 +73,13 @@ class TestVibrationalStructureProblem(QiskitNatureTestCase):
         vibrational_problem.truncation_order = truncation_order
         vibrational_op, second_quantized_ops = vibrational_problem.second_q_ops()
 
+        with self.subTest("Check is an instance of VibrationalOp."):
+            self.assertIsInstance(vibrational_op, VibrationalOp)
         with self.subTest("Check expected length of the list of second quantized operators."):
-            assert len(second_quantized_ops) == expected_num_of_sec_quant_ops
+            self.assertEqual(len(second_quantized_ops), expected_num_of_sec_quant_ops)
         with self.subTest("Check expected length of the vibrational op."):
-            assert len(vibrational_op) == expected_len_of_vibrational_op
+            self.assertEqual(len(vibrational_op), expected_len_of_vibrational_op)
         with self.subTest("Check types in the list of second quantized operators."):
-            assert isinstance(vibrational_op, VibrationalOp)
             self.assertEqual(vibrational_op, _truncation_order_1_op)
 
 

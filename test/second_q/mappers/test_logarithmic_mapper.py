@@ -66,7 +66,7 @@ class TestLogarithmicMapper(QiskitNatureTestCase):
     @unpack
     def test_mapping(self, spin_op, ref_qubit_op, padding=1, embed_upper=True):
         """Test mapping to qubit operator"""
-        mapper = LogarithmicMapper(padding, embed_upper)
+        mapper = LogarithmicMapper(padding=padding, embed_upper=embed_upper)
         qubit_op = mapper.map(spin_op)
         self.assertEqual(qubit_op, ref_qubit_op)
 

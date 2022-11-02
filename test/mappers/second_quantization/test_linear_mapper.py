@@ -14,7 +14,7 @@
 
 import unittest
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 
 from ddt import ddt, data, unpack
 
@@ -24,7 +24,7 @@ from qiskit_nature.mappers.second_quantization import LinearMapper
 
 
 @ddt
-class TestLinearMapper(QiskitNatureTestCase):
+class TestLinearMapper(QiskitNatureDeprecatedTestCase):
     """Test Linear Mapper"""
 
     spin_op1 = SpinOp([("Y_0^2", -0.432 + 1.32j)], 0.5, 1)

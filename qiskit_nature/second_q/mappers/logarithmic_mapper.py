@@ -41,7 +41,7 @@ class LogarithmicMapper(SpinMapper):
             https://doi.org/10.1103/PhysRevD.102.094501
     """
 
-    def __init__(self, padding: float = 1, embed_upper: bool = True) -> None:
+    def __init__(self, *, padding: float = 1, embed_upper: bool = True) -> None:
         r"""
         Args:
             padding:

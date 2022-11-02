@@ -279,6 +279,7 @@ class QubitConverter:
 
     def force_match(
         self,
+        *,
         num_particles: Optional[Tuple[int, int]] = None,
         z2symmetries: Optional[Z2Symmetries] = None,
     ) -> None:
@@ -316,6 +317,7 @@ class QubitConverter:
     def convert_match(
         self,
         second_q_ops: OPERATOR | ListOrDictType[OPERATOR],
+        *,
         suppress_none: bool = False,
         check_commutes: bool = True,
     ) -> Union[PauliSumOp, ListOrDictType[PauliSumOp]]:

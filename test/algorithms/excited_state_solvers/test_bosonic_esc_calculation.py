@@ -17,7 +17,7 @@ import io
 import unittest
 import warnings
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 
 import numpy as np
 
@@ -70,7 +70,7 @@ class _DummyBosonicDriver(VibrationalStructureDriver):
         return self._driver_result
 
 
-class TestBosonicESCCalculation(QiskitNatureTestCase):
+class TestBosonicESCCalculation(QiskitNatureDeprecatedTestCase):
     """Test Numerical QEOM excited states calculation"""
 
     def setUp(self):
