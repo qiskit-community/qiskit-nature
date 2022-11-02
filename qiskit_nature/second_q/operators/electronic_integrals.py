@@ -305,16 +305,6 @@ class ElectronicIntegrals(LinearMixin):
         alpha_length = self.alpha.register_length
         return alpha_length
 
-    def __getitem__(self, __k: str) -> PolynomialTensor:
-        try:
-            return self.__getattribute__(__k)
-        except AttributeError as exc:
-            raise KeyError from exc
-
-    def __iter__(self) -> Iterator[str]:
-        for key in "alpha", "beta", "beta_alpha":
-            yield key
-
     def __eq__(self, other: object) -> bool:
         """Check equality of first ElectronicIntegrals with other
 
