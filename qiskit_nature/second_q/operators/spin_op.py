@@ -36,7 +36,7 @@ class SpinOp(SecondQuantizedOp):
 
     **Label**
 
-    Allowed characters for primitives of labels are I, X, Y, Z, +, and -.
+    Allowed characters for primitives of labels are ``I``, ``X``, ``Y``, ``Z``, ``+``, and ``-``.
 
     .. list-table::
         :header-rows: 1
@@ -44,29 +44,29 @@ class SpinOp(SecondQuantizedOp):
         * - Label
           - Mathematical Representation
           - Meaning
-        * - `I`
+        * - ``I``
           - :math:`I`
           - Identity operator
-        * - `X`
+        * - ``X``
           - :math:`S^x`
           - :math:`x`-component of the spin operator
-        * - `Y`
+        * - ``Y``
           - :math:`S^y`
           - :math:`y`-component of the spin operator
-        * - `Z`
+        * - ``Z``
           - :math:`S^z`
           - :math:`z`-component of the spin operator
-        * - `+`
+        * - ``+``
           - :math:`S^+`
           - Raising operator
-        * - `-`
+        * - ``-``
           - :math:`S^-`
           - Lowering operator
 
     There are two types of label modes for :class:`SpinOp`.
     The label mode is automatically detected.
 
-    1. Dense Label (default, `register_length = None`)
+    1. Dense Label (default, ``register_length = None``)
 
     Dense labels are strings in which each character maps to a unique spin mode.
     This is similar to Qiskit's string-based representation of qubit operators.
@@ -82,7 +82,7 @@ class SpinOp(SecondQuantizedOp):
     all possible :class:`SpinOp`. You will, for example, not be able to apply multiple operators
     on the same index within a single label.
 
-    2. Sparse Label (`register_length` is passed)
+    2. Sparse Label (``register_length`` is passed)
 
     A sparse label is a string consisting of a space-separated list of words.
     Each word must look like :code:`[XYZI+-]_<index>^<power>`,
@@ -99,9 +99,9 @@ class SpinOp(SecondQuantizedOp):
         "Y_0^2 Z_0^3 X_1^1 Y_1^2 Z_1^2"
 
     are possible labels.
-    For each :code:`index` the operations `X`, `Y` and `Z` can only be specified exclusively in
-    this order. `+` and `-` cannot be used with `X` and `Y`
-    because ladder operators will be parsed into `X` and `Y`.
+    For each :code:`index` the operations ``X``, ``Y`` and ``Z`` can only be specified exclusively in
+    this order. `+` and `-` cannot be used with ``X`` and ``Y``
+    because ladder operators will be parsed into ``X`` and ``Y``.
     Thus, :code:`"Z_0 X_0"`, :code:`"Z_0 +_0"`, and :code:`"+_0 X_0"` are invalid labels.
     The indices must be ascending order.
 
@@ -139,12 +139,12 @@ class SpinOp(SecondQuantizedOp):
 
     This means :math:`- S^x_0 S^x_1 - S^y_0 S^y_1 - S^z_0 S^z_1 - 0.3 S^z_0 - 0.3 S^z_1`.
 
-    :class:`SpinOp` can be initialized with internal data structure (`numpy.ndarray`) directly.
-    In this case, `data` is a tuple of two elements: `spin_array` and `coeffs`.
-    `spin_array` is 3-dimensional `ndarray`. 1st axis has three elements 0, 1, and 2 corresponding
-    to x, y, and z.  2nd axis represents the index of terms.
-    3rd axis represents the index of register.
-    `coeffs` is one-dimensional `ndarray` with the length of the number of terms.
+    :class:`SpinOp` can be initialized with its internal data structure (Numpy array) directly.
+    In this case, ``data`` is a tuple of two elements: ``spin_array`` and ``coeffs``.
+    ``spin_array`` is a 3-dimensional Numpy array, where the 1st axis has three indices
+    corresponding to x, y, and z, the 2nd axis represents the term index, and the
+    3rd axis represents the register index.
+    `coeffs` is a one-dimensional Numpy array with length equal to the number of terms.
 
     **Algebra**
 
@@ -310,25 +310,28 @@ class SpinOp(SecondQuantizedOp):
 
     @property
     def x(self) -> np.ndarray:
-        """A np.ndarray storing the power i of (spin) X operators on the spin system.
-        I.e. [0, 4, 2] corresponds to X_0^0 \\otimes X_1^4 \\otimes X_2^2, where X_i acts on the
-        i-th spin system in the register.
+        """A Numpy array storing the powers of X operators on the spin system.
+
+        For example, [0, 4, 2] corresponds to :math:`X_0^0 \\otimes X_1^4 \\otimes X_2^2`,
+        where :math:`X_i` acts on the :math:`i`-th spin system in the register.
         """
         return self._spin_array[0]
 
     @property
     def y(self) -> np.ndarray:
-        """A np.ndarray storing the power i of (spin) Y operators on the spin system.
-        I.e. [0, 4, 2] corresponds to Y_0^0 \\otimes Y_1^4 \\otimes Y_2^2, where Y_i acts on the
-        i-th spin system in the register.
+        """A Numpy array storing the powers of Y operators on the spin system.
+
+        For example, [0, 4, 2] corresponds to :math:`Y_0^0 \\otimes Y_1^4 \\otimes Y_2^2`,
+        where :math:`Y_i` acts on the :math:`i`-th spin system in the register.
         """
         return self._spin_array[1]
 
     @property
     def z(self) -> np.ndarray:
-        """A np.ndarray storing the power i of (spin) Z operators on the spin system.
-        I.e. [0, 4, 2] corresponds to Z_0^0 \\otimes Z_1^4 \\otimes Z_2^2, where Z_i acts on the
-        i-th spin system in the register.
+        """A Numpy array storing the powers of Z operators on the spin system.
+
+        For example, [0, 4, 2] corresponds to :math:`Z_0^0 \\otimes Z_1^4 \\otimes Z_2^2`,
+        where :math:`Z_i` acts on the :math:`i`-th spin system in the register.
         """
         return self._spin_array[2]
 
