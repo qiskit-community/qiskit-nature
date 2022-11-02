@@ -337,7 +337,7 @@ class SpinOp(SparseLabelOp):
     def __str__(self) -> str:
         pre = (
             "Spin Operator\n"
-            f"spin={self.spin}, number orbitals={self.num_spins}, number terms={len(self)}\n"
+            f"spin={self.spin}, number spins={self.num_spins}, number terms={len(self)}\n"
         )
         ret = "  " + "\n+ ".join(
             [f"{coeff} * ( {label} )" if label else f"{coeff}" for label, coeff in self.items()]
