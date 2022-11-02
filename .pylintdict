@@ -133,6 +133,7 @@ docstring
 dof
 doi
 dok
+downarrow
 dt
 dtype
 dumitrescu
@@ -579,6 +580,7 @@ undirected
 unitaries
 unitstype
 untransforms
+uparrow
 username
 utils
 uvcc

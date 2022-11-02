@@ -39,6 +39,7 @@ class IsingModel(LatticeModel):
     :class:`~qiskit_nature.second_q.hamiltonians.lattices.LineLattice`:
 
     .. code-block::
+    
         line_lattice = LineLattice(num_nodes=10, boundary_condition=BoundaryCondition.OPEN)
 
         ising_model = IsingModel(

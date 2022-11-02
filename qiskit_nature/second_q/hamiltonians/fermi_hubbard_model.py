@@ -40,9 +40,10 @@ class FermiHubbardModel(LatticeModel):
     :class:`~qiskit_nature.second_q.hamiltonians.lattices.LineLattice`:
 
     .. code-block::
+
         line_lattice = LineLattice(num_nodes=10, boundary_condition=BoundaryCondition.OPEN)
 
-        fhm = FermiHubbardModel(
+        fermi_hubbard_model = FermiHubbardModel(
             line_lattice.uniform_parameters(
                 uniform_interaction=-1.0,
                 uniform_onsite_potential=0.0,
