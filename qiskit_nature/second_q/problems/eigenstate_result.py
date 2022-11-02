@@ -33,7 +33,18 @@ def _statevector_to_circuit(state: Statevector) -> QuantumCircuit:
 
 
 class EigenstateResult(AlgorithmResult):
-    """The eigenstate result interface."""
+    """The eigenstate result interface.
+
+    The following attributes can be read and updated once the ``EigenstateResult`` object has
+    been constructed.
+
+    Attributes:
+        eigenvalues (np.ndarray | None): the computed eigenvalues.
+        eigenstates (list[tuple[QuantumCircuit, Sequence[float] | None]] | None): the eigenstates
+            belonging to each of the computed eigenvalues.
+        aux_operators_evaluated (list[ListOrDict[complex]] | None): the evaluated aux operators.
+        raw_result (AlgorithmResult | None): the raw result, wrapped by this ``EigenstateResult``.
+    """
 
     def __init__(self) -> None:
         super().__init__()

@@ -21,7 +21,14 @@ from qiskit_nature.second_q.operators import FermionicOp
 
 
 class Magnetization:
-    """The Magnetization property."""
+    """The Magnetization property.
+
+    The following attributes can be set via the initializer but can also be read and updated once
+    the ``Magnetization`` object has been constructed.
+
+    Attributes:
+        num_spatial_orbitals (int): the number of spatial orbitals.
+    """
 
     def __init__(self, num_spatial_orbitals: int) -> None:
         """
