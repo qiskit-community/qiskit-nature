@@ -25,3 +25,23 @@
 .toggle{
   background: #FBFBFB;
 }
+
+article.pytorch-article .method dt {
+    border-left: none;
+    border-top: 3px solid var(--purple);
+    padding-left: 4em;
+    padding-right: 100px;
+}
+
+article .method dt {
+    background: #f3f4f7;
+    word-wrap: break-word;
+}
+
+article .method dd {
+    padding-left: 3em;
+}
+
+.wy-table-responsive {
+    max-height: unset;
+}
