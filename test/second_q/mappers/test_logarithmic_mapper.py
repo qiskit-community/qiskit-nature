@@ -55,20 +55,19 @@ class TestLogarithmicMapper(QiskitNatureTestCase):
     )
 
     @data(
-        # (spin_op1, ref_qubit_op1),
-        # (spin_op2, ref_qubit_op2),
-        # (spin_op3, ref_qubit_op3),
-        # (spin_op4, ref_qubit_op4),
-        # (spin_op5, ref_qubit_op5),
+        (spin_op1, ref_qubit_op1),
+        (spin_op2, ref_qubit_op2),
+        (spin_op3, ref_qubit_op3),
+        (spin_op4, ref_qubit_op4),
+        (spin_op5, ref_qubit_op5),
         (spin_op6, ref_qubit_op6, 2),
-        # (spin_op6, ref_qubit_op7, 2, False),
+        (spin_op6, ref_qubit_op7, 2, False),
     )
     @unpack
     def test_mapping(self, spin_op, ref_qubit_op, padding=1, embed_upper=True):
         """Test mapping to qubit operator"""
         mapper = LogarithmicMapper(padding=padding, embed_upper=embed_upper)
         qubit_op = mapper.map(spin_op).reduce()
-        print(qubit_op)
         self.assertEqual(qubit_op, ref_qubit_op)
 
 
