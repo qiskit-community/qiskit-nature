@@ -62,14 +62,14 @@ class PUCCD(UCC):
         """
 
         Args:
-            num_spatial_orbitals: the number of spatial orbitals.
-            num_particles: the tuple of the number of alpha- and beta-spin particles.
-            qubit_converter: the :class:`~qiskit_nature.second_q.mappers.QubitConverter` instance 
+            num_spatial_orbitals: The number of spatial orbitals.
+            num_particles: The tuple of the number of alpha- and beta-spin particles.
+            qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` instance 
                 which takes care of mapping to a qubit operator.
             reps: The number of times to repeat the evolved operators.
             initial_state: A ``QuantumCircuit`` object to prepend to the circuit.
             include_singles: enables the inclusion of single excitations per spin species.
-            generalized: boolean flag whether or not to use generalized excitations, which ignore
+            generalized: Boolean flag whether or not to use generalized excitations, which ignore
                 the occupation of the spin orbitals. As such, the set of generalized excitations is
                 only determined from the number of spin orbitals and independent from the number of
                 particles.

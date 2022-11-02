@@ -64,7 +64,7 @@ class UVCC(EvolvedOperatorAnsatz):
         """
 
         Args:
-            num_modals: Is a list defining the number of modals per mode. E.g. for a 3 modes system
+            num_modals: A list defining the number of modals per mode. E.g. for a 3 modes system
                 with 4 modals per mode ``num_modals = [4, 4, 4]``.
             excitations: This can be any of the following types:
 

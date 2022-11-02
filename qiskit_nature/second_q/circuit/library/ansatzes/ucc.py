@@ -136,7 +136,7 @@ class UCC(EvolvedOperatorAnsatz):
 
         Args:
             num_spatial_orbitals: The number of spatial orbitals.
-            num_particles: The tuple of the number of alpha and beta-spin particles.
+            num_particles: The tuple of the number of alpha- and beta-spin particles.
             excitations: This can be any of the following types:
 
                 :`str`: Contains the types of excitations. Allowed characters are: ``'s'`` for

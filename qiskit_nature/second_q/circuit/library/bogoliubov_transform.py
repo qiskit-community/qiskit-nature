@@ -153,9 +153,9 @@ class BogoliubovTransform(QuantumCircuit):
             circuit_kwargs: Keyword arguments to pass to the ``QuantumCircuit`` initializer.
 
         Raises:
-            ValueError: transformation_matrix must be a 2-dimensional array.
-            ValueError: transformation_matrix must have orthonormal rows.
-            ValueError: transformation_matrix does not describe a valid transformation
+            ValueError: ``transformation_matrix`` must be a 2-dimensional array.
+            ValueError: ``transformation_matrix`` must have orthonormal rows.
+            ValueError: ``transformation_matrix`` does not describe a valid transformation
                 of fermionic ladder operators. If the transformation matrix is
                 :math:`N \times N`, then it should be unitary.
                 If the transformation matrix is :math:`N \times 2N`, then it should have the block form

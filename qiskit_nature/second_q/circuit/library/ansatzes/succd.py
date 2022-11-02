@@ -69,8 +69,8 @@ class SUCCD(UCC):
         """
         Args:
             num_spatial_orbitals: The number of spatial orbitals.
-            num_particles: The tuple of the number of alpha and beta-spin particles.
-            qubit_converter: the QubitConverter instance which takes care of mapping to a qubit
+            num_particles: The tuple of the number of alpha- and beta-spin particles.
+            qubit_converter: The QubitConverter instance which takes care of mapping to a qubit
                 operator.
             reps: The number of times to repeat the evolved operators.
             initial_state: A ``QuantumCircuit`` object to prepend to the circuit.
