@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """
-Second-Quantization Operators (:mod:`qiskit_nature.second_q.operators`)
+Operators (:mod:`qiskit_nature.second_q.operators`)
 =======================================================================
 
 .. currentmodule:: qiskit_nature.second_q.operators
@@ -36,6 +36,7 @@ Modules
    :toctree:
 
    tensor_ordering
+   commutators
 """
 
 from .electronic_integrals import ElectronicIntegrals

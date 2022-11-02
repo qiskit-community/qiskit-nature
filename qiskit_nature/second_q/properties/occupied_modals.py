@@ -70,12 +70,12 @@ class OccupiedModals:
         """
         num_modals_per_mode = self.basis._num_modals_per_mode
 
-        labels: list[tuple[str, complex]] = []
+        labels: dict[str, complex] = {}
 
         for modal in range(num_modals_per_mode[mode]):
-            labels.append((f"+_{mode}*{modal} -_{mode}*{modal}", 1.0))
+            labels[f"+_{mode}_{modal} -_{mode}_{modal}"] = 1.0
 
-        return VibrationalOp(labels, len(num_modals_per_mode), num_modals_per_mode)
+        return VibrationalOp(labels, num_modals_per_mode)
 
     def interpret(
         self, result: "qiskit_nature.second_q.problems.EigenstateResult"  # type: ignore[name-defined]

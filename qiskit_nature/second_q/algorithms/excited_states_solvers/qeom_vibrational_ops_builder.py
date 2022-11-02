@@ -93,14 +93,13 @@ def _build_single_hopping_operator(
     num_modals: List[int],
     qubit_converter: QubitConverter,
 ) -> PauliSumOp:
-    sum_modes = sum(num_modals)
-
-    label = ["I"] * sum_modes
+    label = []
     for occ in excitation[0]:
-        label[occ] = "+"
+        label.append(f"+_{VibrationalOp.build_dual_index(num_modals, occ)}")
     for unocc in excitation[1]:
-        label[unocc] = "-"
-    vibrational_op = VibrationalOp("".join(label), len(num_modals), num_modals)
+        label.append(f"-_{VibrationalOp.build_dual_index(num_modals, unocc)}")
+
+    vibrational_op = VibrationalOp({" ".join(label): 1}, num_modals)
     qubit_op: PauliSumOp = qubit_converter.convert_match(vibrational_op)
 
     return qubit_op

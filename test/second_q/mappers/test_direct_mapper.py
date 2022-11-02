@@ -15,15 +15,14 @@
 import unittest
 
 from test import QiskitNatureTestCase
+from test.second_q.mappers.resources.reference_direct_mapper import (
+    _num_modals_2_q_op,
+    _num_modals_3_q_op,
+)
 
 from qiskit_nature.second_q.drivers import GaussianForcesDriver
 from qiskit_nature.second_q.mappers import DirectMapper
 from qiskit_nature.second_q.properties.bases import HarmonicBasis
-
-from .resources.reference_direct_mapper import (
-    _num_modals_2_q_op,
-    _num_modals_3_q_op,
-)
 
 
 class TestDirectMapper(QiskitNatureTestCase):

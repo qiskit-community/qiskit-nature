@@ -17,7 +17,7 @@ import unittest
 import warnings
 from typing import cast
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from ddt import data, ddt, unpack
 
 from qiskit_nature.drivers import Molecule, WatsonHamiltonian
@@ -33,7 +33,7 @@ import qiskit_nature.optionals as _optionals
 
 
 @ddt
-class TestDriverGaussianForces(QiskitNatureTestCase):
+class TestDriverGaussianForces(QiskitNatureDeprecatedTestCase):
     """Gaussian Forces Driver tests."""
 
     _C01_REV_EXPECTED = [

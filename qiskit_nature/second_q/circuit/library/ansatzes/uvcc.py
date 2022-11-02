@@ -319,15 +319,13 @@ class UVCC(EvolvedOperatorAnsatz):
         """
         operators = []
 
-        sum_modes = sum(self.num_modals)
-
         for exc in excitations:
-            label = ["I"] * sum_modes
+            label = []
             for occ in exc[0]:
-                label[occ] = "+"
+                label.append(f"+_{VibrationalOp.build_dual_index(self.num_modals, occ)}")
             for unocc in exc[1]:
-                label[unocc] = "-"
-            op = VibrationalOp("".join(label), len(self.num_modals), self.num_modals)
+                label.append(f"-_{VibrationalOp.build_dual_index(self.num_modals, unocc)}")
+            op = VibrationalOp({" ".join(label): 1}, self.num_modals)
             op -= op.adjoint()
             # we need to account for an additional imaginary phase in the exponent (see also
             # `PauliTrotterEvolution.convert`)

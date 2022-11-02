@@ -71,7 +71,8 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
         expected = qcschema_to_problem(
             QCSchema.from_json(
                 self.get_resource_path("LiH_sto3g_reduced.json", "second_q/transformers/resources")
-            )
+            ),
+            include_dipole=False,
         )
         # add energy shift, which currently cannot be stored in the QCSchema
         expected.hamiltonian.constants["FreezeCoreTransformer"] = -7.796219568771229
@@ -90,7 +91,8 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
         expected = qcschema_to_problem(
             QCSchema.from_json(
                 self.get_resource_path("BeH_sto3g_reduced.json", "second_q/transformers/resources")
-            )
+            ),
+            include_dipole=False,
         )
         # add energy shift, which currently cannot be stored in the QCSchema
         expected.hamiltonian.constants["FreezeCoreTransformer"] = -14.253802923103054

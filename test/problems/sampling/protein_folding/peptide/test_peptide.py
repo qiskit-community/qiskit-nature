@@ -10,11 +10,11 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Tests Peptide."""
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Peptide
 
 
-class TestPeptide(QiskitNatureTestCase):
+class TestPeptide(QiskitNatureDeprecatedTestCase):
     """Tests Peptide."""
 
     def test_peptide_constructor(self):

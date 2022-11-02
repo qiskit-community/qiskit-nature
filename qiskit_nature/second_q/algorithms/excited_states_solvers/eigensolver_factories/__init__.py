@@ -11,10 +11,9 @@
 # that they have been altered from the originals.
 
 """
-====================================================================================
 Eigensolver Factories
 (:mod:`qiskit_nature.second_q.algorithms.excited_states_solvers.eigensolver_factories`)
-====================================================================================
+=======================================================================================
 
 Factories that create an eigensolver based on a qubit transformation.
 

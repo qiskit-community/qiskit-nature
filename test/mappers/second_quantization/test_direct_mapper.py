@@ -15,7 +15,7 @@
 import unittest
 import warnings
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 
 from qiskit_nature.drivers.second_quantization import GaussianForcesDriver
 from qiskit_nature.mappers.second_quantization import DirectMapper
@@ -24,7 +24,7 @@ from qiskit_nature.properties.second_quantization.vibrational.bases import Harmo
 from .resources.reference_direct_mapper import _num_modals_2_q_op, _num_modals_3_q_op
 
 
-class TestDirectMapper(QiskitNatureTestCase):
+class TestDirectMapper(QiskitNatureDeprecatedTestCase):
     """Test Direct Mapper"""
 
     def setUp(self) -> None:

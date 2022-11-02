@@ -42,6 +42,7 @@ class VibrationalStructureProblem(BaseProblem):
         hamiltonian: VibrationalEnergy,
         num_modes: int,
         num_modals: Union[int, List[int]] = None,
+        *,
         truncation_order: int = None,
     ):
         """

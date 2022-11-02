@@ -12,7 +12,7 @@
 
 """Test Bogoliubov transform circuits."""
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from test.nature_random import random_legacy_quadratic_hamiltonian as random_quadratic_hamiltonian
 
 import numpy as np
@@ -34,7 +34,7 @@ def _expand_transformation_matrix(mat: np.ndarray) -> np.ndarray:
 
 
 @ddt
-class TestBogoliubovTransform(QiskitNatureTestCase):
+class TestBogoliubovTransform(QiskitNatureDeprecatedTestCase):
     """Tests for BogoliubovTransform."""
 
     @unpack

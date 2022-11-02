@@ -52,12 +52,17 @@ else:
 
 def to_chemist_ordering(
     two_body_tensor: np.ndarray | SparseArray,
+    *,
+    index_order: IndexType | None = None,
 ) -> np.ndarray | SparseArray:
     """Convert the rank-four tensor `two_body_tensor` representing two-body integrals from
     physicists', or intermediate, index order to chemists' index order: i,j,k,l -> i,l,j,k
 
     Args:
         two_body_tensor: the rank-four tensor to be converted.
+        index_order: when supplied this will hard-code the ``IndexType`` value. If ``None`` (the
+        default), the ``index_order`` will be determined automatically based on the symmetries of
+        the ``two_body_tensor``.
 
     Returns:
         The same rank-four tensor, now in chemists' index order.
@@ -65,7 +70,8 @@ def to_chemist_ordering(
     Raises:
         QiskitNatureError: when an unknown index type is encountered.
     """
-    index_order = find_index_order(two_body_tensor)
+    if index_order is None:
+        index_order = find_index_order(two_body_tensor)
     if index_order == IndexType.CHEMIST:
         return two_body_tensor
     if index_order == IndexType.PHYSICIST:
@@ -85,12 +91,17 @@ def to_chemist_ordering(
 
 def to_physicist_ordering(
     two_body_tensor: np.ndarray | SparseArray,
+    *,
+    index_order: IndexType | None = None,
 ) -> np.ndarray | SparseArray:
     """Convert the rank-four tensor `two_body_tensor` representing two-body integrals from
     chemists', or intermediate, index order to physicists' index order: i,j,k,l -> i,l,j,k
 
     Args:
         two_body_tensor: the rank-four tensor to be converted.
+        index_order: when supplied this will hard-code the ``IndexType`` value. If ``None`` (the
+        default), the ``index_order`` will be determined automatically based on the symmetries of
+        the ``two_body_tensor``.
 
     Returns:
         The same rank-four tensor, now in physicists' index order.
@@ -98,7 +109,8 @@ def to_physicist_ordering(
     Raises:
         QiskitNatureError: when an unknown index type is encountered.
     """
-    index_order = find_index_order(two_body_tensor)
+    if index_order is None:
+        index_order = find_index_order(two_body_tensor)
     if index_order == IndexType.PHYSICIST:
         return two_body_tensor
     if index_order == IndexType.CHEMIST:
@@ -159,12 +171,17 @@ def _chem_to_phys(two_body_tensor: np.ndarray | SparseArray) -> np.ndarray | Spa
 def _check_two_body_symmetry(
     two_body_tensor: np.ndarray | SparseArray,
     permutation: tuple[tuple[int, ...], tuple[int, ...]],
+    *,
+    rtol: float = 1e-5,
+    atol: float = 1e-8,
 ) -> bool:
     """Return whether the provided tensor remains identical under the provided permutation.
 
     Args:
         two_body_tensor: the tensor to test.
         permutation: the source and destination indices of the axis permutations.
+        rtol: the relative tolerance used during the comparison.
+        atol: the absolute tolerance used during the comparison.
 
     Returns:
         Whether the tensor remains unchanged under the applied permutation.
@@ -172,21 +189,25 @@ def _check_two_body_symmetry(
     permuted_tensor = np.moveaxis(two_body_tensor, permutation[0], permutation[1])
 
     if isinstance(two_body_tensor, SparseArray):
-        return np.allclose(two_body_tensor.data, permuted_tensor.data) and np.array_equal(
+        return np.allclose(
+            two_body_tensor.data, permuted_tensor.data, rtol=rtol, atol=atol
+        ) and np.array_equal(
             two_body_tensor.coords, permuted_tensor.coords  # type: ignore[attr-defined]
         )
 
-    return np.allclose(two_body_tensor, permuted_tensor)
+    return np.allclose(two_body_tensor, permuted_tensor, rtol=rtol, atol=atol)
 
 
 def _check_two_body_symmetries(
-    two_body_tensor: np.ndarray | SparseArray, chemist: bool = True
+    two_body_tensor: np.ndarray | SparseArray,
+    *,
+    rtol: float = 1e-5,
+    atol: float = 1e-8,
 ) -> bool:
     """Return whether a tensor has the required symmetries to represent two-electron terms.
 
     Return `True` if the rank-4 tensor `two_body_tensor` has the required symmetries for
-    coefficients of the two-electron terms.  If `chemist` is `True`, assume the input is in
-    chemists' order, otherwise in physicists' order.
+    coefficients of the two-electron terms.
 
     If `two_body_tensor` is a correct tensor of indices, with the correct index order, it must pass
     the tests. If `two_body_tensor` is a correct tensor of indices, but the flag `chemist` is
@@ -199,20 +220,24 @@ def _check_two_body_symmetries(
 
     Args:
         two_body_tensor: the tensor to test.
-        chemist: whether to assume that the tensor is in chemists' order.
+        rtol: the relative tolerance used during the comparison.
+        atol: the absolute tolerance used during the comparison.
 
     Returns:
         Whether the tensor has the required symmetries to represent two-electron terms.
     """
-    if not chemist:
-        two_body_tensor = _phys_to_chem(two_body_tensor)
     for permutation in _ChemIndexPermutations:
-        if not _check_two_body_symmetry(two_body_tensor, permutation.value):
+        if not _check_two_body_symmetry(two_body_tensor, permutation.value, rtol=rtol, atol=atol):
             return False
     return True
 
 
-def find_index_order(two_body_tensor: np.ndarray | SparseArray) -> IndexType:
+def find_index_order(
+    two_body_tensor: np.ndarray | SparseArray,
+    *,
+    rtol: float = 1e-5,
+    atol: float = 1e-8,
+) -> IndexType:
     """Return the index-order convention of the provided rank-four tensor.
 
     The index convention is determined by checking symmetries of the tensor.
@@ -233,17 +258,19 @@ def find_index_order(two_body_tensor: np.ndarray | SparseArray) -> IndexType:
 
     Args:
         two_body_tensor: the rank-four tensor whose index order to determine.
+        rtol: the relative tolerance used during the comparison.
+        atol: the absolute tolerance used during the comparison.
 
     Returns:
         The index order of the provided rank-four tensor.
     """
-    if _check_two_body_symmetries(two_body_tensor):
+    if _check_two_body_symmetries(two_body_tensor, rtol=rtol, atol=atol):
         return IndexType.CHEMIST
     permuted_tensor = _phys_to_chem(two_body_tensor)
-    if _check_two_body_symmetries(permuted_tensor):
+    if _check_two_body_symmetries(permuted_tensor, rtol=rtol, atol=atol):
         return IndexType.PHYSICIST
     permuted_tensor = _phys_to_chem(permuted_tensor)
-    if _check_two_body_symmetries(permuted_tensor):
+    if _check_two_body_symmetries(permuted_tensor, rtol=rtol, atol=atol):
         return IndexType.INTERMEDIATE
     else:
         return IndexType.UNKNOWN

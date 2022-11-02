@@ -14,7 +14,7 @@
 
 import unittest
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 
 from qiskit import BasicAer
 from qiskit.algorithms import VQE
@@ -27,7 +27,7 @@ from qiskit_nature.second_q.mappers import ParityMapper, QubitConverter
 
 
 @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
-class TestEnd2End(QiskitNatureTestCase):
+class TestEnd2End(QiskitNatureDeprecatedTestCase):
     """End2End VQE tests."""
 
     def setUp(self):

@@ -14,7 +14,7 @@
 
 import unittest
 from functools import partial
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 
 import numpy as np
 
@@ -46,7 +46,7 @@ from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.problems.second_quantization import ElectronicStructureProblem, BaseProblem
 
 
-class TestBOPES(QiskitNatureTestCase):
+class TestBOPES(QiskitNatureDeprecatedTestCase):
     """Tests of BOPES Sampler."""
 
     def setUp(self) -> None:

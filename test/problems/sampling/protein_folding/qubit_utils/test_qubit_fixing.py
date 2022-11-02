@@ -10,12 +10,12 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Tests QubitFixing."""
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from qiskit.opflow import I, Z, PauliSumOp
 from qiskit_nature.problems.sampling.protein_folding.qubit_utils.qubit_fixing import _fix_qubits
 
 
-class TestQubitFixing(QiskitNatureTestCase):
+class TestQubitFixing(QiskitNatureDeprecatedTestCase):
     """Tests QubitFixing."""
 
     def test_fix_qubits_small(self):

@@ -12,7 +12,7 @@
 
 """Test the UCC Ansatz."""
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 
 from ddt import data, ddt, unpack
 
@@ -37,7 +37,7 @@ def assert_ucc_like_ansatz(test_case, ansatz, num_spin_orbitals, expected_ops):
 
 
 @ddt
-class TestUCC(QiskitNatureTestCase):
+class TestUCC(QiskitNatureDeprecatedTestCase):
     """Tests for the UCC Ansatz."""
 
     # Note: many variations of this class are tested by its sub-classes UCCSD, PUCCD and SUCCD.

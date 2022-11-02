@@ -80,6 +80,15 @@ class TestBasisTransformer(QiskitNatureTestCase):
         with self.subTest("beta-alpha-spin is empty"):
             self.assertTrue(transformed_integrals.beta_alpha.is_empty())
 
+        with self.subTest("attributes"):
+            self.assertEqual(problem_ao.molecule, problem_mo.molecule)
+            self.assertEqual(problem_ao.reference_energy, problem_mo.reference_energy)
+            self.assertEqual(problem_ao.num_particles, problem_mo.num_particles)
+            self.assertEqual(problem_ao.num_spatial_orbitals, problem_mo.num_spatial_orbitals)
+            self.assertIsNone(problem_mo.orbital_energies)
+            self.assertIsNone(problem_mo.orbital_energies_b)
+            # orbital_occupations are not tested since in the MO basis they are auto-filled
+
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_unrestricted_spin(self):
         """A simple unrestricted-spin test case."""
@@ -153,6 +162,15 @@ class TestBasisTransformer(QiskitNatureTestCase):
                     optimize=True,
                 ),
             )
+
+        with self.subTest("attributes"):
+            self.assertEqual(problem_ao.molecule, problem_mo.molecule)
+            self.assertEqual(problem_ao.reference_energy, problem_mo.reference_energy)
+            self.assertEqual(problem_ao.num_particles, problem_mo.num_particles)
+            self.assertEqual(problem_ao.num_spatial_orbitals, problem_mo.num_spatial_orbitals)
+            self.assertIsNone(problem_mo.orbital_energies)
+            self.assertIsNone(problem_mo.orbital_energies_b)
+            # orbital_occupations are not tested since in the MO basis they are auto-filled
 
 
 if __name__ == "__main__":

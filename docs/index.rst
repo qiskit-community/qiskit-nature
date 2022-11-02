@@ -29,12 +29,15 @@ Next Steps
 
 `Tutorials <tutorials/index.html>`_
 
+`How-Tos <howtos/index.html>`_
+
 .. toctree::
     :hidden:
 
     Overview <self>
     Getting Started <getting_started>
     Tutorials <tutorials/index>
+    How-Tos <howtos/index>
     API Reference <apidocs/qiskit_nature>
     Release Notes <release_notes>
     GitHub <https://github.com/Qiskit/qiskit-nature>

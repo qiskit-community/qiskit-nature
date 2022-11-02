@@ -80,7 +80,9 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         if aux_operators is not None:
             for name_aux, aux_op in aux_operators.items():
                 if isinstance(aux_op, SecondQuantizedOp):
-                    converted_aux_op = self._qubit_converter.convert_match(aux_op, True)
+                    converted_aux_op = self._qubit_converter.convert_match(
+                        aux_op, suppress_none=True
+                    )
                 else:
                     converted_aux_op = aux_op
                 if name_aux in aux_ops.keys():

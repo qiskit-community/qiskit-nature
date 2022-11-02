@@ -14,7 +14,7 @@
 
 import unittest
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from test.circuit.library.ansatzes.utils.vibrational_op_label_creator import _create_labels
 
 from qiskit import BasicAer
@@ -30,7 +30,7 @@ from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.operators.second_quantization import VibrationalOp
 
 
-class TestCHCVSCF(QiskitNatureTestCase):
+class TestCHCVSCF(QiskitNatureDeprecatedTestCase):
     """Test for CHC and VSCF library circuits."""
 
     def setUp(self):

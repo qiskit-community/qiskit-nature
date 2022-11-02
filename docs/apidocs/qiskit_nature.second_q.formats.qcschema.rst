@@ -1,5 +1,4 @@
-﻿QCSchema
-=======================================
+﻿.. _qiskit_nature-second_q-formats-qcschema:
 
 .. automodule:: qiskit_nature.second_q.formats.qcschema
 

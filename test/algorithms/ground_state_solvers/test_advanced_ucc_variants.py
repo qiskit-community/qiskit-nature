@@ -14,7 +14,7 @@
 
 import unittest
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 
 from qiskit import BasicAer
 from qiskit.utils import QuantumInstance
@@ -34,7 +34,7 @@ import qiskit_nature.optionals as _optionals
 # pylint: disable=invalid-name
 
 
-class TestUCCSDHartreeFock(QiskitNatureTestCase):
+class TestUCCSDHartreeFock(QiskitNatureDeprecatedTestCase):
     """Test for these extensions."""
 
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")

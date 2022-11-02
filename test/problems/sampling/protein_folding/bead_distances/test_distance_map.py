@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Tests DistanceMap."""
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from test.problems.sampling.protein_folding.resources.file_parser import read_expected_file
 from qiskit_nature.problems.sampling.protein_folding.interactions.miyazawa_jernigan_interaction import (
     MiyazawaJerniganInteraction,
@@ -22,7 +22,7 @@ from qiskit_nature.problems.sampling.protein_folding.peptide.peptide import Pept
 PATH = "problems/sampling/protein_folding/resources/test_distance_map"
 
 
-class TestDistanceMap(QiskitNatureTestCase):
+class TestDistanceMap(QiskitNatureDeprecatedTestCase):
     """Tests DistanceMap."""
 
     def test_first_neighbor(self):
