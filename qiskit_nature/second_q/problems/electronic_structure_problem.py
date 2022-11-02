@@ -46,12 +46,12 @@ class ElectronicStructureProblem(BaseProblem):
     This class represents the problem of the electronic Schrödinger equation:
 
     .. math::
-        \hat{H}|\Psi\rangle = E|\Psi\rangle,
+        \hat{H_{el}}|\Psi\rangle = E_{el}|\Psi\rangle,
 
-    where :math:`\hat{H}` is the :class:`qiskit_nature.second_q.hamiltonians.ElectronicEnergy`
-    hamiltonian, :math:`\Psi` is the wave function of the system and :math:`E` is the eigenvalue.
-    When passed to a :class:`qiskit_nature.second_q.algorithms.GroundStateSolver`, you will be
-    solving for the ground-state energy, :math:`E_0`.
+    where :math:`\hat{H_{el}}` is the :class:`qiskit_nature.second_q.hamiltonians.ElectronicEnergy`
+    hamiltonian, :math:`\Psi` is the wave function of the system and :math:`E_{el}` is the
+    eigenvalue. When passed to a :class:`qiskit_nature.second_q.algorithms.GroundStateSolver`, you
+    will be solving for the ground-state energy, :math:`E_0`.
 
     This class has various attributes (see below) which allow you to add additional information
     about the problem which you are trying to solve, which can be used by various modules in the
@@ -89,14 +89,19 @@ class ElectronicStructureProblem(BaseProblem):
 
         solver = NumPyEigensolverFactory(filter_criterion=filter_criterion_spin)
 
+    The following attributes can be read and updated once the ``ElectronicStructureProblem`` object
+    has been constructed.
+
     Attributes:
-        properties: a container for additional observable operator factories.
-        molecule: a container for molecular system data.
-        basis: the electronic basis of all contained orbital coefficients.
-        num_spatial_orbitals: the number of spatial orbitals in the system.
-        reference_energy: a reference energy for the ground state of the problem.
-        orbital_energies: the energy values of the alpha-spin orbitals.
-        orbital_energies_b: the energy values of the beta-spin orbitals.
+        properties (ElectronicStructureProblem): a container for additional observable operator
+            factories.
+        molecule (MoleculeInfo | None): a container for molecular system data.
+        basis (ElectronicBasis | None): the electronic basis of all contained orbital coefficients.
+        num_spatial_orbitals (int | tuple[int, int] | None): the number of spatial orbitals in the
+            system.
+        reference_energy (float | None): a reference energy for the ground state of the problem.
+        orbital_energies (np.ndarray | None): the energy values of the alpha-spin orbitals.
+        orbital_energies_b (np.ndarray | None): the energy values of the beta-spin orbitals.
     """
 
     def __init__(self, hamiltonian: ElectronicEnergy) -> None:
