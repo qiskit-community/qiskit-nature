@@ -51,12 +51,12 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     ) -> None:
         """
         Args:
-            estimator: the :class:`~qiskit.primitives.BaseEstimator` class to use for the internal
+            estimator: The :class:`~qiskit.primitives.BaseEstimator` class to use for the internal
                 :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`.
-            ansatz: the :class:`~.UCC` ansatz. Its attributes `qubit_converter`, `num_particles`,
+            ansatz: The :class:`~.UCC` ansatz. Its attributes `qubit_converter`, `num_particles`,
                 `num_spatial_orbitals`, and `initial_point` will be completed at runtime based on
                 the problem being solved.
-            optimizer: the :class:`~qiskit.algorithms.optimizers.Optimizer` or
+            optimizer: The :class:`~qiskit.algorithms.optimizers.Optimizer` or
                 :class:`~qiskit.algorithms.optimizers.Minimizer` to use for the internal
                 :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`.
             initial_point: An optional initial point (i.e., initial parameter values for the VQE
@@ -123,9 +123,9 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         """Returns a VQE with a UCC wavefunction ansatz, based on ``qubit_converter``.
 
         Args:
-            problem: a class encoding a problem to be solved.
-            qubit_converter: a class that converts second quantized operator to qubit operator
-                             according to a mapper it is initialized with.
+            problem: A class encoding a problem to be solved.
+            qubit_converter: A class that converts second quantized operator to qubit operator
+                according to a mapper it is initialized with.
 
         Returns:
             A VQE suitable to compute the ground state of the molecule.

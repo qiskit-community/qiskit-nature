@@ -40,7 +40,7 @@ the solvers themselves
    ExcitedStatesEigensolver
    QEOM
 
-and factories to provision Quantum and/or Classical algorithms upon which the above solvers may
+and factories to provision quantum and/or classical algorithms upon which the above solvers may
 depend
 
 .. autosummary::
@@ -70,7 +70,7 @@ the solvers themselves
 
    GroundStateEigensolver
 
-and factories to provision Quantum and/or Classical algorithms upon which the above solvers may
+and factories to provision quantum and/or classical algorithms upon which the above solvers may
 depend
 
 .. autosummary::
@@ -85,7 +85,7 @@ depend
 Initial Points
 ++++++++++++++
 The factories linked above make use of utility classes to compute initial points to use with
-specific ansatzes. More detail may be found in the sub-module linked below.
+specific ansatzes. More details may be found in the sub-module linked below.
 
 .. autosummary::
    :toctree:

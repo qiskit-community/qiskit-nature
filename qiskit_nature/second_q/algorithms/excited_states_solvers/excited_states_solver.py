@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" The excited states calculation interface """
+""" The excited states calculation interface. """
 
 from __future__ import annotations
 
@@ -36,7 +36,7 @@ class ExcitedStatesSolver(ABC):
         r"""Compute the excited states energies of the molecule that was supplied via the driver.
 
         Args:
-            problem: a class encoding a problem to be solved.
+            problem: A class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
 
         Returns:
@@ -58,7 +58,7 @@ class ExcitedStatesSolver(ABC):
     ) -> Tuple[PauliSumOp, Optional[dict[str, PauliSumOp]]]:
         """Construct qubit operators by getting the second quantized operators from the problem
         (potentially running a driver in doing so [can be computationally expensive])
-        and using a QubitConverter to map + reduce the operators to qubit ops
+        and using a QubitConverter to map + reduce the operators to qubit operators
         Args:
             problem: a class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.

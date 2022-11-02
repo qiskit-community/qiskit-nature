@@ -82,7 +82,7 @@ class MP2InitialPoint(InitialPoint):
 
     The :attr:`problem` is required to be an
     :class:`~qiskit_nature.second_q.problems.ElectronicStructureProblem` which contains an
-    :class:`~qiskit_nature.second_q.hamiltonians.ElectronicEnergy` hamiltonian.
+    :class:`~qiskit_nature.second_q.hamiltonians.ElectronicEnergy` Hamiltonian.
     It also must have its ``num_particles`` and ``orbital_energies`` attributes specified. If its
     ``reference_energy`` attribute is provided, this will be used to compute the
     :attr:`total_energy`.

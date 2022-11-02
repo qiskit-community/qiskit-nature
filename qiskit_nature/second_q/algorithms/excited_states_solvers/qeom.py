@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The calculation of excited states via the qEOM algorithm"""
+"""The calculation of excited states via the qEOM algorithm."""
 
 from __future__ import annotations
 
@@ -51,7 +51,7 @@ logger = logging.getLogger(__name__)
 
 
 class QEOM(ExcitedStatesSolver):
-    """The calculation of excited states via the qEOM algorithm"""
+    """The calculation of excited states via the qEOM algorithm."""
 
     def __init__(
         self,
@@ -67,9 +67,9 @@ class QEOM(ExcitedStatesSolver):
     ) -> None:
         """
         Args:
-            ground_state_solver: a GroundStateSolver object. The qEOM algorithm
-                will use this ground state to compute the EOM matrix elements
-            estimator: the :class:`~qiskit.primitives.BaseEstimator` to use for the evaluation of
+            ground_state_solver: A GroundStateSolver object. The qEOM algorithm
+                will use this ground state to compute the EOM matrix elements.
+            estimator: The :class:`~qiskit.primitives.BaseEstimator` to use for the evaluation of
                 the qubit operators at the ground state ansatz. If the internal solver provided to
                 the `GroundStateSolver` also uses a `BaseEstimator` primitive, you can provide the
                 same estimator instance here.
@@ -113,7 +113,7 @@ class QEOM(ExcitedStatesSolver):
         | Callable[[int, tuple[int, int]], list[tuple[tuple[int, ...], tuple[int, ...]]]],
     ) -> None:
         """The excitations to be included in the eom pseudo-eigenvalue problem. If a string then
-        all excitations of given type will be used. Otherwise a list of custom excitations can
+        all excitations of given type will be used. Otherwise, a list of custom excitations can
         directly be provided."""
         if isinstance(excitations, str) and excitations not in ["s", "d", "sd"]:
             raise ValueError(
@@ -143,7 +143,7 @@ class QEOM(ExcitedStatesSolver):
         and the excitation operators expansion coefficients.
 
         Args:
-            problem: a class encoding a problem to be solved.
+            problem: A class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
 
         Returns:

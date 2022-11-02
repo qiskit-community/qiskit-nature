@@ -42,19 +42,19 @@ def build_vibrational_ops(
 ]:
     """
     Args:
-        num_modals: the number of modals per mode.
-        excitations: the types of excitations to consider. The simple cases for this input are:
+        num_modals: The number of modals per mode.
+        excitations: The types of excitations to consider. The simple cases for this input are:
             - a `str` containing any of the following characters: `s`, `d`, `t` or `q`.
             - a single, positive `int` denoting the excitation type (1 == `s`, etc.).
             - a list of positive integers.
             - and finally a callable which can be used to specify a custom list of excitations.
               For more details on how to write such a function refer to the default method,
               :meth:`generate_vibrational_excitations`.
-        qubit_converter: the `QubitConverter` to use for mapping and symmetry reduction. The Z2
+        qubit_converter: The `QubitConverter` to use for mapping and symmetry reduction. The Z2
                          symmetries stored in this instance are the basis for the commutativity
                          information returned by this method.
     Returns:
-        Dict of hopping operators, dict of commutativity types and dict of excitation indices
+        Dict of hopping operators, dict of commutativity types and dict of excitation indices.
     """
 
     ansatz = UVCC(num_modals, excitations, qubit_converter)

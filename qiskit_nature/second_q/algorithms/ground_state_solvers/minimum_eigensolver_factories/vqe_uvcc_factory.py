@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 
 
 class VQEUVCCFactory(MinimumEigensolverFactory):
-    """Factory to construct a :class:`VQE` minimum eigensolver with :class:`UVCC` ansatz
+    """Factory to construct a :class:`~qiskit.algorithms.VQE` minimum eigensolver with :class:`~.UVCC` ansatz
     wavefunction.
     """
 
@@ -51,11 +51,11 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
     ) -> None:
         """
         Args:
-            estimator: the :class:`~qiskit.primitives.BaseEstimator` class to use for the internal
+            estimator: The :class:`~qiskit.primitives.BaseEstimator` class to use for the internal
                 :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`.
-            ansatz: the :class:`~.UVCC` ansatz. Its attributes `qubit_converter`, `num_modals`, and
+            ansatz: The :class:`~.UVCC` ansatz. Its attributes `qubit_converter`, `num_modals`, and
                 `initial_point` will be completed at runtime based on the problem being solved.
-            optimizer: the :class:`~qiskit.algorithms.optimizers.Optimizer` or
+            optimizer: The :class:`~qiskit.algorithms.optimizers.Optimizer` or
                 :class:`~qiskit.algorithms.optimizers.Minimizer` to use for the internal
                 :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`.
             initial_point: An optional initial point (i.e., initial parameter values for the VQE
@@ -64,7 +64,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
                 :class:`~qiskit_nature.second_q.algorithms.initial_points.\
                 vscf_initial_point.VSCFInitialPoint`.
                 This then defaults to the VSCF state when the VSCF circuit is prepended
-                to the the ansatz circuit. If another
+                to the ansatz circuit. If another
                 :class:`~qiskit_nature.second_q.algorithms.initial_points.initial_point.InitialPoint`
                 instance, this is used to compute an initial point for the VQE ansatz parameters.
                 If a user-provided NumPy array, this is used directly.
@@ -121,8 +121,8 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         """Returns a VQE with a :class:`~.UVCC` wavefunction ansatz, based on ``qubit_converter``.
 
         Args:
-            problem: a class encoding a problem to be solved.
-            qubit_converter: a class that converts second quantized operator to qubit operator
+            problem: A class encoding a problem to be solved.
+            qubit_converter: A class that converts second quantized operator to qubit operator
                              according to a mapper it is initialized with.
 
         Returns:
