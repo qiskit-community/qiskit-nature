@@ -20,7 +20,20 @@ from .lattice_model import LatticeModel
 
 
 class IsingModel(LatticeModel):
-    """The Ising model."""
+    r"""The transverse-field Ising model.
+
+    This class implements the following Hamiltonian:
+
+    .. math::
+
+        H = -J\left(g \sum_{i} X_{i} + \sum_{\langle i, j \rangle} Z_{i} Z_{j} \right),
+
+    where :math:`i,j` refer to lattice nodes. The :math:`\sum_{\langle i, j \rangle}` is performed
+    over adjacent lattice nodes. This model assumes spin-:math:`\frac{1}{2}` particles. Thus,
+    :math:`X_i` and :math:`Z_i` represent the respective Pauli matrices. :math:`J` is a constant
+    with dimensions of energy and :math:`g` is a coupling parameter that determines the relative
+    strength between the external transverse field and the nearest neighbor interaction.
+    """
 
     def coupling_matrix(self) -> np.ndarray:
         """Return the coupling matrix."""
