@@ -253,7 +253,7 @@ class SpinOp(SparseLabelOp):
                 raise QiskitNatureError(f"{key} is not a valid SpinOp label.")
 
             # 2. validate all indices against register length
-            for term in key.split(" "):
+            for term in key.split():
                 sub_terms = term.split("^")
                 # sub_terms[0] is the base, sub_terms[1] is the (optional) exponent
                 index = int(sub_terms[0][2:])
