@@ -43,12 +43,12 @@ class LinearMapper(SpinMapper):  # pylint: disable=missing-class-docstring
 
         char_map = {"X": spinx, "Y": spiny, "Z": spinz}
 
-        for labels, coeff in ordered_op.terms():
+        for terms, coeff in ordered_op.terms():
             mat = defaultdict(int)  # type: dict[int, int]
-            for lbl in labels:
-                if lbl[1] not in mat:
-                    mat[lbl[1]] = identity
-                mat[lbl[1]] = mat[lbl[1]] @ char_map[lbl[0]]
+            for op, idx in terms:
+                if idx not in mat:
+                    mat[idx] = identity
+                mat[idx] = mat[idx] @ char_map[op]
 
             operatorlist = [mat[i] if i in mat else identity for i in range(ordered_op.num_spins)]
 
