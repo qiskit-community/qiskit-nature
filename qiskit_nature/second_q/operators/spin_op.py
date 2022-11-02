@@ -328,6 +328,33 @@ class SpinOp(SparseLabelOp):
             exp = int(index.split("^")[1]) if len(index.split("^")) > 1 else 1
             yield char, int(idx), exp
 
+    @classmethod
+    def x(cls, spin: float | Fraction = Fraction(1, 2)) -> SpinOp:
+        """Constructs the X spin operator for a given spin.
+
+        Returns:
+            The X spin operator for `spin`.
+        """
+        return cls({"X_0": 1.0}, spin=spin, copy=False)
+
+    @classmethod
+    def y(cls, spin: float | Fraction = Fraction(1, 2)) -> SpinOp:
+        """Constructs the Y spin operator for a given spin.
+
+        Returns:
+            The Y spin operator for `spin`.
+        """
+        return cls({"Y_0": 1.0}, spin=spin, copy=False)
+
+    @classmethod
+    def z(cls, spin: float | Fraction = Fraction(1, 2)) -> SpinOp:
+        """Constructs the Z spin operator for a given spin.
+
+        Returns:
+            The Z spin operator for `spin`.
+        """
+        return cls({"Z_0": 1.0}, spin=spin, copy=False)
+
     def __repr__(self) -> str:
         data_str = f"{dict(self.items())}"
 
@@ -554,3 +581,4 @@ class SpinOp(SparseLabelOp):
             final_matrix += coeff * tensorall(np.asarray(dense_matrix_per_idx))
 
         return final_matrix.view()
+

@@ -13,7 +13,6 @@
 """The Heisenberg model."""
 
 from __future__ import annotations
-from typing import Tuple
 from fractions import Fraction
 import numpy as np
 from qiskit_nature.second_q.operators import SpinOp
@@ -28,8 +27,8 @@ class HeisenbergModel(LatticeModel):
     def __init__(
         self,
         lattice: Lattice,
-        coupling_constants: Tuple = (1.0, 1.0, 1.0),
-        ext_magnetic_field: Tuple = (0.0, 0.0, 0.0),
+        coupling_constants: tuple = (1.0, 1.0, 1.0),
+        ext_magnetic_field: tuple = (0.0, 0.0, 0.0),
     ) -> None:
         """
         Args:
@@ -55,7 +54,6 @@ class HeisenbergModel(LatticeModel):
         """
         hamiltonian = {}
         weighted_edge_list = self.lattice.weighted_edge_list
-        register_length = self.lattice.num_nodes
 
         for node_a, node_b, _ in weighted_edge_list:
 
@@ -71,4 +69,4 @@ class HeisenbergModel(LatticeModel):
                     if not np.isclose(coeff, 0.0):
                         hamiltonian[f"{axis}_{index_left} {axis}_{index_right}"] = coeff
 
-        return SpinOp(hamiltonian, spin=Fraction(1, 2), num_spins=register_length)
+        return SpinOp(hamiltonian, spin=Fraction(1, 2), num_spins=self.lattice.num_nodes)

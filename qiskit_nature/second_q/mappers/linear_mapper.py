@@ -12,12 +12,12 @@
 
 """The Linear Mapper."""
 
+from __future__ import annotations
 import operator
 
 from collections import defaultdict
 from fractions import Fraction
 from functools import reduce
-from typing import List, Union
 
 import numpy as np
 
@@ -35,7 +35,7 @@ class LinearMapper(SpinMapper):  # pylint: disable=missing-class-docstring
 
     def map(self, second_q_op: SpinOp) -> PauliSumOp:
 
-        qubit_ops_list: List[PauliSumOp] = []
+        qubit_ops_list: list[PauliSumOp] = []
 
         # get linear encoding of the general spin matrices
         spinx, spiny, spinz, identity = self._linear_encoding(second_q_op.spin)
@@ -59,7 +59,7 @@ class LinearMapper(SpinMapper):  # pylint: disable=missing-class-docstring
 
         return qubit_op
 
-    def _linear_encoding(self, spin: Union[Fraction, float]) -> List[PauliSumOp]:
+    def _linear_encoding(self, spin: Fraction | float) -> list[PauliSumOp]:
         """
         Generates a 'linear_encoding' of the spin S operators 'X', 'Y', 'Z' and 'identity'
         to qubit operators (linear combinations of pauli strings).
@@ -73,7 +73,7 @@ class LinearMapper(SpinMapper):  # pylint: disable=missing-class-docstring
             to represent the embedded 'X' operator
         """
 
-        spin_op_encoding: List[PauliSumOp] = []
+        spin_op_encoding: list[PauliSumOp] = []
         dspin = int(2 * spin + 1)
         nqubits = dspin
 
@@ -91,7 +91,7 @@ class LinearMapper(SpinMapper):  # pylint: disable=missing-class-docstring
 
         # 1. build the non-diagonal X operator
         x_summands = []
-        for i, coeff in enumerate(np.diag(SpinOp({"X_0": 1}, spin=spin).to_matrix(), 1)):
+        for i, coeff in enumerate(np.diag(SpinOp.x(spin).to_matrix(), 1)):
             x_summands.append(
                 PauliSumOp(
                     coeff / 2.0 * SparsePauliOp(pauli_x(i).dot(pauli_x(i + 1)))
@@ -102,7 +102,7 @@ class LinearMapper(SpinMapper):  # pylint: disable=missing-class-docstring
 
         # 2. build the non-diagonal Y operator
         y_summands = []
-        for i, coeff in enumerate(np.diag(SpinOp({"Y_0": 1}, spin=spin).to_matrix(), 1)):
+        for i, coeff in enumerate(np.diag(SpinOp.y(spin).to_matrix(), 1)):
             y_summands.append(
                 PauliSumOp(
                     -1j * coeff / 2.0 * SparsePauliOp(pauli_x(i).dot(pauli_y(i + 1)))
@@ -113,7 +113,7 @@ class LinearMapper(SpinMapper):  # pylint: disable=missing-class-docstring
 
         # 3. build the diagonal Z
         z_summands = []
-        for i, coeff in enumerate(np.diag(SpinOp({"Z_0": 1}, spin=spin).to_matrix())):
+        for i, coeff in enumerate(np.diag(SpinOp.z(spin).to_matrix())):
             # get the first upper diagonal of coeff.
             z_summands.append(
                 PauliSumOp(

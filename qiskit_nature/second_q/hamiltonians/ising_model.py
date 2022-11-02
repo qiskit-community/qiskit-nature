@@ -11,10 +11,9 @@
 # that they have been altered from the originals.
 
 """The Ising model"""
+
 from fractions import Fraction
-
 import numpy as np
-
 from qiskit_nature.second_q.operators import SpinOp
 
 from .lattice_model import LatticeModel
@@ -39,7 +38,6 @@ class IsingModel(LatticeModel):
         """
         ham = {}
         weighted_edge_list = self._lattice.weighted_edge_list
-        register_length = self._lattice.num_nodes
         # kinetic terms
         for node_a, node_b, weight in weighted_edge_list:
             if node_a == node_b:
@@ -52,4 +50,4 @@ class IsingModel(LatticeModel):
                 coupling_parameter = weight
                 ham[f"Z_{index_left} Z_{index_right}"] = coupling_parameter
 
-        return SpinOp(ham, spin=Fraction(1, 2), num_spins=register_length)
+        return SpinOp(ham, spin=Fraction(1, 2), num_spins=self._lattice.num_nodes)
