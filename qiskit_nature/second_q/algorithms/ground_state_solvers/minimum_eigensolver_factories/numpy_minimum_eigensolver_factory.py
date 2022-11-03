@@ -31,7 +31,7 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
             use_default_filter_criterion: Whether to use the transformation's default filter
                 criterion.
             kwargs: Keyword arguments passed to NumpyMinimumEigensolver to construct
-                the internal `MinimumEigensolver`.
+                the internal ``MinimumEigensolver``.
         """
         self._use_default_filter_criterion = use_default_filter_criterion
         self._minimum_eigensolver = NumPyMinimumEigensolver(**kwargs)
