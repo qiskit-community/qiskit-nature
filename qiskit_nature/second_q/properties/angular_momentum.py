@@ -26,7 +26,14 @@ from qiskit_nature.second_q.operators.tensor_ordering import IndexType, to_physi
 
 
 class AngularMomentum:
-    """The AngularMomentum property."""
+    """The AngularMomentum property.
+
+    The following attributes can be set via the initializer but can also be read and updated once
+    the ``AngularMomentum`` object has been constructed.
+
+    Attributes:
+        num_spatial_orbitals (int): the number of spatial orbitals.
+    """
 
     def __init__(self, num_spatial_orbitals: int) -> None:
         """
