@@ -2,7 +2,7 @@
 features:
   - |
     The new :class:`qiskit_nature.second_q.operators.FermionicOp` replaces
-    the old :class:`qiskit_nature.opearators.second_quantization.operators.FermionicOp`.
+    the old :class:`qiskit_nature.operators.second_quantization.operators.FermionicOp`.
     This new operator is a subclass of the :class:`qiskit_nature.second_q.operators.SparseLabelOp`
     and, as such, only support sparse labels. It is initialized with a dictionary,
     mapping sparse label keys to coefficients.

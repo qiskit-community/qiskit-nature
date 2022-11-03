@@ -1,16 +1,16 @@
 ---
 features:
   - |
-    Add: :class:`qiskit_nature.second_q.properties.HeisenbergModel`
-    implementing the Hamiltonian of the Heisenberg model.
-    This model is used in the study of critical points and phase transitions of magnetic systems. 
-    Through the choice of the model constants and the external magnetic field, 
+    Added the :class:`qiskit_nature.second_q.properties.HeisenbergModel`
+    which implements the Hamiltonian of the Heisenberg model.
+    This model is used in the study of critical points and phase transitions of magnetic systems.
+    Through the choice of the model constants and the external magnetic field,
     we can produce many models like: XYZ, XXX, Ising model and others.
-    
+
     .. code-block:: python
 
-      from qiskit_nature.second_q.properties import HeisenbergModel
-      from qiskit_nature.second_q.properties.lattices import LineLattice, BoundaryCondition
+      from qiskit_nature.second_q.hamiltonians import HeisenbergModel
+      from qiskit_nature.second_q.hamiltonians.lattices import LineLattice, BoundaryCondition
 
       line_lattice = LineLattice(num_nodes=2, boundary_condition=BoundaryCondition.OPEN)
       heisenberg_model = HeisenbergModel(lattice=line_lattice)
