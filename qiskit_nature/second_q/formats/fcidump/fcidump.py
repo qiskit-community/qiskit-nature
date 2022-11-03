@@ -101,7 +101,14 @@ class FCIDump:
 
     @classmethod
     def from_file(cls, fcidump: str | Path) -> FCIDump:
-        """Constructs an FCIDump object from a file."""
+        """Constructs an FCIDump object from a file.
+
+        Args:
+            fcidump: Path to the input file.
+
+        Returns:
+            A :class:`.FCIDump` instance.
+        """
         # pylint: disable=cyclic-import
         from .parser import _parse
 

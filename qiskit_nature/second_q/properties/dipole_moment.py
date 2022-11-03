@@ -62,15 +62,16 @@ class ElectronicDipoleMoment:
         dipole.y_dipole.alpha += PolynomialTensor({"": nuclear_dip[1]})
         dipole.z_dipole.alpha += PolynomialTensor({"": nuclear_dip[2]})
 
+    The following attributes can be set via the initializer but can also be read and updated once
+    the ``ElectronicDipoleMoment`` object has been constructed.
+
     Attributes:
-        x_dipole: the :class:`qiskit_nature.second_q.operators.ElectronicIntegrals` for the
-            :math:`x`-axis component.
-        y_dipole: the :class:`qiskit_nature.second_q.operators.ElectronicIntegrals` for the
-            :math:`y`-axis component.
-        z_dipole: the :class:`qiskit_nature.second_q.operators.ElectronicIntegrals` for the
-            :math:`z`-axis component.
-        constants: a mapping of constant dipole offsets, not mapped to the qubit operator. Each
-            entry must be a tuple of length three (for the three Cartesian axes).
+        x_dipole (ElectronicIntegrals): the ``ElectronicIntegrals`` for the :math:`x`-axis component.
+        y_dipole (ElectronicIntegrals): the ``ElectronicIntegrals`` for the :math:`y`-axis component.
+        z_dipole (ElectronicIntegrals): the ``ElectronicIntegrals`` for the :math:`z`-axis component.
+        constants (MutableMapping[str, DipoleTuple]): a mapping of constant dipole offsets, not
+            mapped to the qubit operator. Each entry must be a tuple of length three (for the three
+            Cartesian axes).
         reverse_dipole_sign: whether or not to reverse the sign of the computed electronic dipole
             moment when adding it to the :attr:`nuclear_dipole_moment` to obtain the total.
     """
@@ -82,6 +83,7 @@ class ElectronicDipoleMoment:
         z_dipole: ElectronicIntegrals,
         *,
         constants: MutableMapping[str, DipoleTuple] = None,
+        reverse_dipole_sign: bool = False,
     ) -> None:
         """
         Args:
@@ -93,13 +95,13 @@ class ElectronicDipoleMoment:
                 :math:`z`-axis component.
             constants: a mapping of constant dipole offsets, not mapped to the qubit operator.
                 Each entry must be a tuple of length three (for the three Cartesian axes).
+            reverse_dipole_sign: whether or not to reverse the dipole sign.
         """
         self.x_dipole = x_dipole
         self.y_dipole = y_dipole
         self.z_dipole = z_dipole
         self.constants = constants if constants is not None else {}
-        # we do not expose this as an init argument on purpose
-        self.reverse_dipole_sign = False
+        self.reverse_dipole_sign = reverse_dipole_sign
 
     @property
     def nuclear_dipole_moment(self) -> DipoleTuple | None:
