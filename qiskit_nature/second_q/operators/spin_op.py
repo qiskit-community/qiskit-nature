@@ -473,7 +473,7 @@ class SpinOp(SparseLabelOp):
             new_op.num_spins = a.num_spins + b.num_spins
         return new_op
 
-    def simplify(self, *, atol: float | None = None) -> SpinOp:
+    def simplify(self, atol: float | None = None) -> SpinOp:
         atol = self.atol if atol is None else atol
 
         data = defaultdict(complex)  # type: dict[str, _TCoeff]
@@ -596,4 +596,4 @@ class SpinOp(SparseLabelOp):
             # add weighted kronecker product to final matrix
             final_matrix += coeff * tensorall(np.asarray(dense_matrix_per_idx))
 
-        return final_matrix.view()
+        return final_matrix
