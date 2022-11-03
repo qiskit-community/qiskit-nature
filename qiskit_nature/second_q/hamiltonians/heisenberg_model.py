@@ -43,7 +43,7 @@ class HeisenbergModel(LatticeModel):
     .. code-block:: python
 
         line_lattice = LineLattice(num_nodes=10, boundary_condition=BoundaryCondition.OPEN)
-        heisenburg_model = HeisenbergModel(line_lattice, (1.0, 1.0, 1.0), (0.0, 0.0, 1.0))
+        heisenberg_model = HeisenbergModel(line_lattice, (1.0, 1.0, 1.0), (0.0, 0.0, 1.0))
     """
 
     def __init__(
