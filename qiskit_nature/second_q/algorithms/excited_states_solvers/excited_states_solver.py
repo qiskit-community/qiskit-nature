@@ -25,7 +25,7 @@ from qiskit_nature.second_q.problems import EigenstateResult
 
 
 class ExcitedStatesSolver(ABC):
-    """The excited states calculation interface"""
+    """The excited states calculation interface."""
 
     @abstractmethod
     def solve(
@@ -58,7 +58,8 @@ class ExcitedStatesSolver(ABC):
     ) -> Tuple[PauliSumOp, Optional[dict[str, PauliSumOp]]]:
         """Construct qubit operators by getting the second quantized operators from the problem
         (potentially running a driver in doing so [can be computationally expensive])
-        and using a QubitConverter to map + reduce the operators to qubit operators
+        and using a QubitConverter to map + reduce the operators to qubit operators.
+
         Args:
             problem: a class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.

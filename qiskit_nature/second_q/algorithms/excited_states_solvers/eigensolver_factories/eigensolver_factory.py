@@ -20,7 +20,7 @@ from qiskit_nature.second_q.problems.base_problem import BaseProblem
 
 
 class EigensolverFactory(ABC):
-    """A factory to construct a eigensolver based on a qubit operator transformation."""
+    """A factory to construct an eigensolver based on a qubit operator transformation."""
 
     @abstractmethod
     def get_solver(self, problem: BaseProblem) -> Eigensolver:

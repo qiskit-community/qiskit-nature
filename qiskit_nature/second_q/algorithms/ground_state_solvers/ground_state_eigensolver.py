@@ -35,7 +35,6 @@ class GroundStateEigensolver(GroundStateSolver):
         solver: MinimumEigensolver | MinimumEigensolverFactory,
     ) -> None:
         """
-
         Args:
             qubit_converter: A class that converts second quantized operator to qubit operator
                              according to a mapper it is initialized with.

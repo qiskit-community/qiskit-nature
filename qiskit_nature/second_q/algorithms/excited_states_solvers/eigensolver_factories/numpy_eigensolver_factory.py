@@ -87,13 +87,13 @@ class NumPyEigensolverFactory(EigensolverFactory):
         self._use_default_filter_criterion = value
 
     def get_solver(self, problem: BaseProblem) -> Eigensolver:
-        """Returns a NumPyEigensolver with the desired filter.
+        """Returns a ``NumPyEigensolver`` with the desired filter.
 
         Args:
             problem: A class encoding a problem to be solved.
 
         Returns:
-            A NumPyEigensolver suitable to compute the ground state of the molecule
+            A ``NumPyEigensolver`` suitable to compute the ground state of the molecule
             transformed by ``transformation``.
         """
         filter_criterion = self._filter_criterion

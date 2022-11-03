@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The calculation of excited states via an Eigensolver algorithm"""
+"""The calculation of excited states via an Eigensolver algorithm."""
 
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ from .eigensolver_factories import EigensolverFactory
 
 
 class ExcitedStatesEigensolver(ExcitedStatesSolver):
-    """The calculation of excited states via an Eigensolver algorithm"""
+    """The calculation of excited states via an Eigensolver algorithm."""
 
     def __init__(
         self,
