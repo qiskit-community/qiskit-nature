@@ -37,16 +37,16 @@ logger = logging.getLogger(__name__)
 class VibrationalOp(SparseLabelOp):
     r"""N-mode vibrational operator.
 
-    A `VibrationalOp` represents a weighted sum of vibrational creation/annihilation operator terms.
+    A ``VibrationalOp`` represents a weighted sum of vibrational creation/annihilation operator terms.
     These terms are encoded as sparse labels, strings consisting of a space-separated list of
     expressions. Each expression must look like :code:`[+-]_<mode_index>_<modal_index>`, where the
-    :code:`<mode_index>` and :code:`<modal_index> are non-negative integers representing the index
-    of the vibrational mode and modal, respectively, where the `+` (creation) or `-` (annihilation)
+    :code:`<mode_index>` and :code:`<modal_index>` are non-negative integers representing the index
+    of the vibrational mode and modal, respectively, where the ``+`` (creation) or ``-`` (annihilation)
     operation is to be performed.
 
     **Initialization**
 
-    A `VibrationalOp` is initialized with a dictionary, mapping terms to their respective
+    A ``VibrationalOp`` is initialized with a dictionary, mapping terms to their respective
     coefficients:
 
     .. jupyter-execute::
@@ -84,7 +84,7 @@ class VibrationalOp(SparseLabelOp):
     .. note::
 
         It is the users' responsibility, that in the above scenario, :code:`some_big_data` is not
-        changed after initialization of the `VibrationalOp`, since the operator contents are not
+        changed after initialization of the ``VibrationalOp``, since the operator contents are not
         guaranteed to remain unaffected by such changes.
 
     If :code:`num_modals` is not provided then the maximum :code:`modal_index` per
@@ -162,7 +162,7 @@ class VibrationalOp(SparseLabelOp):
 
     **Iteration**
 
-    Instances of `VibrationalOp` are iterable. Iterating a VibrationalOp yields (term, coefficient)
+    Instances of ``VibrationalOp`` are iterable. Iterating a ``VibrationalOp`` yields (term, coefficient)
     pairs describing the terms contained in the operator.
 
     .. note::
@@ -190,10 +190,10 @@ class VibrationalOp(SparseLabelOp):
                 describes the number of modals in the corresponding mode; the total number of modals
                 defines a ``register_length``.
             copy: when set to False the `data` will not be copied and the dictionary will be
-                stored by reference rather than by value (which is the default; `copy=True`). Note,
+                stored by reference rather than by value (which is the default; ``copy=True``). Note,
                 that this requires you to not change the contents of the dictionary after
-                constructing the operator. This also implies `validate=False`. Use with care!
-            validate: when set to False the `data` keys will not be validated. Note, that the
+                constructing the operator. This also implies ``validate=False``. Use with care!
+            validate: when set to False the ``data`` keys will not be validated. Note, that the
                 SparseLabelOp base class, makes no assumption about the data keys, so will not
                 perform any validation by itself. Only concrete subclasses are encouraged to
                 implement a key validation method. Disable this setting with care!
@@ -338,7 +338,7 @@ class VibrationalOp(SparseLabelOp):
 
         Yields:
             A tuple with two items; the first one being a list of pairs of the form (char, int)
-            where char is either `+` or `-` and the integer corresponds to the vibrational mode and
+            where char is either ``+`` or ``-`` and the integer corresponds to the vibrational mode and
             modal index on which the operator gets applied; the second item of the returned tuple is
             the coefficient of this term.
         """

@@ -55,14 +55,17 @@ def to_chemist_ordering(
     *,
     index_order: IndexType | None = None,
 ) -> np.ndarray | SparseArray:
-    """Convert the rank-four tensor `two_body_tensor` representing two-body integrals from
-    physicists', or intermediate, index order to chemists' index order: i,j,k,l -> i,l,j,k
+    """Convert a two-body tensor to chemists' index order.
+
+    Coverts the rank-four tensor two-body tensor representing two-body integrals from
+    physicists', or intermediate, index order to chemists' index order:
+    ``i,j,k,l -> i,l,j,k``
 
     Args:
         two_body_tensor: the rank-four tensor to be converted.
         index_order: when supplied this will hard-code the ``IndexType`` value. If ``None`` (the
-        default), the ``index_order`` will be determined automatically based on the symmetries of
-        the ``two_body_tensor``.
+            default), the ``index_order`` will be determined automatically based on the symmetries of
+            the ``two_body_tensor``.
 
     Returns:
         The same rank-four tensor, now in chemists' index order.
@@ -94,14 +97,16 @@ def to_physicist_ordering(
     *,
     index_order: IndexType | None = None,
 ) -> np.ndarray | SparseArray:
-    """Convert the rank-four tensor `two_body_tensor` representing two-body integrals from
-    chemists', or intermediate, index order to physicists' index order: i,j,k,l -> i,l,j,k
+    """Convert a two-body tensor to physicists' index order.
+
+    Converts the rank-four tensor two-body tensor representing two-body integrals from
+    chemists', or intermediate, index order to physicists' index order: ``i,j,k,l -> i,l,j,k``
 
     Args:
         two_body_tensor: the rank-four tensor to be converted.
         index_order: when supplied this will hard-code the ``IndexType`` value. If ``None`` (the
-        default), the ``index_order`` will be determined automatically based on the symmetries of
-        the ``two_body_tensor``.
+            default), the ``index_order`` will be determined automatically based on the symmetries of
+            the ``two_body_tensor``.
 
     Returns:
         The same rank-four tensor, now in physicists' index order.
@@ -247,12 +252,10 @@ def find_index_order(
     the physicists' convention or :meth:`_phys_to_chem` to the chemists' convention. If the tests
     for each of these conventions fail, then :class:`IndexType.UNKNOWN` is returned.
 
-    See also `_chem_to_phys`, `_phys_to_chem`.
-
     .. note::
       The first of :class:`IndexType.CHEMIST`, :class:`IndexType.PHYSICIST`, and
       :class:`IndexType.INTERMEDIATE`, in that order, to pass the tests is returned. If
-      `two_body_tensor` has accidental symmetries, it may in fact satisfy more than one set of
+      ``two_body_tensor`` has accidental symmetries, it may in fact satisfy more than one set of
       symmetry tests. For example, if all elements have the same value, then the symmetries for all
       three index orders are satisfied.
 
