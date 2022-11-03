@@ -27,7 +27,6 @@ class HeisenbergModel(LatticeModel):
     This class implements the following Hamiltonian:
 
     .. math::
-
         H = - \vec{J} \sum_{\langle i, j \rangle} \vec{\sigma}_{i} \otimes \vec{\sigma}_{j}
         - \vec{h} \sum_{i} \vec{\sigma}_{i}
 
@@ -41,7 +40,7 @@ class HeisenbergModel(LatticeModel):
     :class:`~qiskit_nature.second_q.hamiltonians.lattices.Lattice`. For example, using a
     :class:`~qiskit_nature.second_q.hamiltonians.lattices.LineLattice`:
 
-    .. code-block::
+    .. code-block:: python
 
         line_lattice = LineLattice(num_nodes=10, boundary_condition=BoundaryCondition.OPEN)
         heisenburg_model = HeisenbergModel(line_lattice, (1.0, 1.0, 1.0), (0.0, 0.0, 1.0))

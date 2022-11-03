@@ -48,7 +48,7 @@ class UCC(EvolvedOperatorAnsatz):
     :class:`~qiskit_nature.second_q.algorithms.VQEUCCFactory` this is set by default. When directly
     using ``VQE`` you can set it manually. For example:
 
-    .. code-block::
+    .. code-block:: python
 
         qubit_converter = QubitConverter(JordanWignerMapper())
         ucc = UCC(4, (2, 2), 'sd', qubit_converter)

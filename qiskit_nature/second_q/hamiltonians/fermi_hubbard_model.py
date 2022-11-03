@@ -25,7 +25,6 @@ class FermiHubbardModel(LatticeModel):
     This class implements the following Hamiltonian:
 
     .. math::
-
         H = \sum_{i, j}\sum_{\sigma = \uparrow, \downarrow} t_{i, j} c_{i, \sigma}^\dagger
         c_{j, \sigma} + U \sum_{i} n_{i, \uparrow} n_{i, \downarrow},
 
@@ -39,7 +38,7 @@ class FermiHubbardModel(LatticeModel):
     :class:`~qiskit_nature.second_q.hamiltonians.lattices.Lattice`. For example, using a
     :class:`~qiskit_nature.second_q.hamiltonians.lattices.LineLattice`:
 
-    .. code-block::
+    .. code-block:: python
 
         line_lattice = LineLattice(num_nodes=10, boundary_condition=BoundaryCondition.OPEN)
 

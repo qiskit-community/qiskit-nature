@@ -25,7 +25,6 @@ class IsingModel(LatticeModel):
     This class implements the following Hamiltonian:
 
     .. math::
-
         H = -\sum_{\langle i, j \rangle} J_{ij} Z_{i} Z_{j} -  \sum_{i} g_{i} X_{i},
 
     where :math:`i,j` refer to lattice nodes. The :math:`\sum_{\langle i, j \rangle}` is performed
@@ -38,7 +37,7 @@ class IsingModel(LatticeModel):
     :class:`~qiskit_nature.second_q.hamiltonians.lattices.Lattice`. For example, using a
     :class:`~qiskit_nature.second_q.hamiltonians.lattices.LineLattice`:
 
-    .. code-block::
+    .. code-block:: python
 
         line_lattice = LineLattice(num_nodes=10, boundary_condition=BoundaryCondition.OPEN)
 
