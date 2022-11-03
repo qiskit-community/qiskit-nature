@@ -79,7 +79,7 @@ class SpinOp(SparseLabelOp):
                 "Z_0 Z_1": -1,
                 "Z_0": -0.3,
                 "Z_1": -0.3,
-            ],
+            },
             spin=1
         )
 
