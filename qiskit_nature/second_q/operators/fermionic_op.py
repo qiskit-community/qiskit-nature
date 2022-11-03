@@ -33,17 +33,17 @@ from .sparse_label_op import _TCoeff, SparseLabelOp, _to_number
 class FermionicOp(SparseLabelOp):
     r"""N-mode Fermionic operator.
 
-    A `FermionicOp` represents a weighted sum of fermionic creation/annihilation operator terms.
-    These terms are encoded as sparse labels, strings consisting of a space-separated list of
+    A ``FermionicOp`` represents a weighted sum of fermionic creation/annihilation operator terms.
+    These terms are encoded as sparse labels, which are strings consisting of a space-separated list of
     expressions. Each expression must look like :code:`[+-]_<index>`, where the :code:`<index>` is a
-    non-negative integer representing the index of the fermionic mode where the `+` (creation) or
-    `-` (annihilation) operation is to be performed. The value of :code:`index` is bound by the
-    number of spin orbitals (`num_spin_orbitals`) of the operator (Note: since Python indices are
+    non-negative integer representing the index of the fermionic mode where the ``+`` (creation) or
+    ``-`` (annihilation) operation is to be performed. The value of :code:`index` is bound by the
+    number of spin orbitals (``num_spin_orbitals``) of the operator (Note: since Python indices are
     0-based, the maximum value an index can take is given by :code:`num_spin_orbitals-1`).
 
     **Initialization**
 
-    A `FermionicOp` is initialized with a dictionary, mapping terms to their respective
+    A ``FermionicOp`` is initialized with a dictionary, mapping terms to their respective
     coefficients:
 
     .. jupyter-execute::
@@ -128,7 +128,7 @@ class FermionicOp(SparseLabelOp):
 
       FermionicOp({"+_0 -_1": 1j}, num_spin_orbitals=2).adjoint()
 
-    In principle, you can also add :class:`FermionicOp` and integers, but the only valid case is the
+    In principle, you can also add `FermionicOp` and integers, but the only valid case is the
     addition of `0 + FermionicOp`. This makes the `sum` operation from the example above possible
     and it is useful in the following scenario:
 
@@ -141,7 +141,7 @@ class FermionicOp(SparseLabelOp):
 
     **Iteration**
 
-    Instances of `FermionicOp` are iterable. Iterating a FermionicOp yields (term, coefficient)
+    Instances of ``FermionicOp`` are iterable. Iterating a ``FermionicOp`` yields (term, coefficient)
     pairs describing the terms contained in the operator.
 
     Attributes:
@@ -163,7 +163,7 @@ class FermionicOp(SparseLabelOp):
 
     def __init__(
         self,
-        data: Mapping[str, complex],
+        data: Mapping[str, _TCoeff],
         num_spin_orbitals: int | None = None,
         *,
         copy: bool = True,
@@ -173,11 +173,11 @@ class FermionicOp(SparseLabelOp):
         Args:
             data: the operator data, mapping string-based keys to numerical values.
             num_spin_orbitals: the number of spin orbitals on which this operator acts.
-            copy: when set to False the `data` will not be copied and the dictionary will be
-                stored by reference rather than by value (which is the default; `copy=True`). Note,
+            copy: when set to False the ``data`` will not be copied and the dictionary will be
+                stored by reference rather than by value (which is the default; ``copy=True``). Note,
                 that this requires you to not change the contents of the dictionary after
-                constructing the operator. This also implies `validate=False`. Use with care!
-            validate: when set to False the `data` keys will not be validated. Note, that the
+                constructing the operator. This also implies ``validate=False``. Use with care!
+            validate: when set to False the ``data`` keys will not be validated. Note, that the
                 SparseLabelOp base class, makes no assumption about the data keys, so will not
                 perform any validation by itself. Only concrete subclasses are encouraged to
                 implement a key validation method. Disable this setting with care!
@@ -193,7 +193,7 @@ class FermionicOp(SparseLabelOp):
         return self.num_spin_orbitals
 
     def _new_instance(
-        self, data: Mapping[str, complex], *, other: FermionicOp | None = None
+        self, data: Mapping[str, _TCoeff], *, other: FermionicOp | None = None
     ) -> FermionicOp:
         num_so = self.num_spin_orbitals
         if other is not None:
@@ -222,7 +222,7 @@ class FermionicOp(SparseLabelOp):
                 raise QiskitNatureError(f"{key} is not a valid FermionicOp label.")
 
             # 2. validate all indices against register length
-            for term in key.split(" "):
+            for term in key.split():
                 index = int(term[2:])
                 if num_so is None:
                     if index > max_index:
@@ -250,7 +250,7 @@ class FermionicOp(SparseLabelOp):
     def from_polynomial_tensor(cls, tensor: PolynomialTensor) -> FermionicOp:
         cls._validate_polynomial_tensor_key(tensor.keys())
 
-        data: dict[str, complex] = {}
+        data: dict[str, _TCoeff] = {}
 
         for key in tensor:
             if key == "":
@@ -310,7 +310,7 @@ class FermionicOp(SparseLabelOp):
             # we hard-code the result of lbl.split("_") as follows:
             #   lbl[0] is either + or -
             #   lbl[2:] corresponds to the index
-            terms = [(lbl[0], int(lbl[2:])) for lbl in label.split(" ")]
+            terms = [(lbl[0], int(lbl[2:])) for lbl in label.split()]
             yield (terms, self[label])
 
     def compose(self, other: FermionicOp, qargs=None, front: bool = False) -> FermionicOp:
@@ -334,7 +334,7 @@ class FermionicOp(SparseLabelOp):
     def _tensor(cls, a: FermionicOp, b: FermionicOp, *, offset: bool = True) -> FermionicOp:
         shift = a.num_spin_orbitals if offset else 0
 
-        new_data: dict[str, complex] = {}
+        new_data: dict[str, _TCoeff] = {}
         for label1, cf1 in a.items():
             for terms2, cf2 in b.terms():
                 new_label = f"{label1} {' '.join(f'{c}_{i+shift}' for c, i in terms2)}".strip()
@@ -423,7 +423,7 @@ class FermionicOp(SparseLabelOp):
         trans = "".maketrans("+-", "-+")
 
         for label, coeff in self.items():
-            data[" ".join(lbl.translate(trans) for lbl in reversed(label.split(" ")))] = coeff
+            data[" ".join(lbl.translate(trans) for lbl in reversed(label.split()))] = coeff
 
         return self._new_instance(data)
 
@@ -523,7 +523,7 @@ class FermionicOp(SparseLabelOp):
         Returns:
             The index ordered operator.
         """
-        data = defaultdict(complex)  # type: dict[str, complex]
+        data = defaultdict(complex)  # type: dict[str, _TCoeff]
         for terms, coeff in self.terms():
             label, coeff = self._index_order(terms, coeff)
             data[label] += coeff
@@ -533,11 +533,11 @@ class FermionicOp(SparseLabelOp):
             {
                 label: coeff
                 for label, coeff in data.items()
-                if not np.isclose(coeff, 0.0, atol=self.atol)
+                if not np.isclose(_to_number(coeff), 0.0, atol=self.atol)
             }
         )
 
-    def _index_order(self, terms: list[tuple[str, int]], coeff: complex) -> tuple[str, complex]:
+    def _index_order(self, terms: list[tuple[str, int]], coeff: _TCoeff) -> tuple[str, _TCoeff]:
         if not terms:
             return "", coeff
 

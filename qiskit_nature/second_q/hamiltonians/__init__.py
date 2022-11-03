@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """
-Second-Quantization Hamiltonians (:mod:`qiskit_nature.second_q.hamiltonians`)
+Hamiltonians (:mod:`qiskit_nature.second_q.hamiltonians`)
 =============================================================================
 
 .. autosummary::

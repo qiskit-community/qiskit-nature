@@ -12,7 +12,7 @@
 
 """
 Ground State Solving Algorithms (:mod:`qiskit_nature.second_q.algorithms.ground_state_solvers`)
-======================================================================================
+===============================================================================================
 
 .. currentmodule:: qiskit_nature.second_q.algorithms.ground_state_solvers
 

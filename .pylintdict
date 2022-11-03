@@ -277,6 +277,7 @@ kwarg
 kwargs
 kwds
 labelled
+langle
 lbrace
 lda
 ldots
@@ -292,6 +293,7 @@ lih
 lijh
 linewidths
 linux
+listordict
 ljik
 lk
 logfile
@@ -442,6 +444,7 @@ qregs
 qs
 quantization
 quantized
+quantumcircuit
 quartic
 qubit
 qubits

@@ -1,5 +1,5 @@
-﻿tensor_ordering
-===============================================
+﻿.. _qiskit_nature-second_q-operators-tensor_ordering:
+
 
 .. automodule:: qiskit_nature.second_q.operators.tensor_ordering
    :no-members:

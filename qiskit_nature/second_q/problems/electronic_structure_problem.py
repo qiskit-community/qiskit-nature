@@ -15,7 +15,7 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import cast, Callable, List, Optional, Union
+from typing import cast, Callable, List, Optional, Union, TYPE_CHECKING
 
 import numpy as np
 
@@ -27,7 +27,6 @@ from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library.initial_states.hartree_fock import (
     hartree_fock_bitstring_mapped,
 )
-from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.properties import Interpretable
@@ -39,6 +38,9 @@ from .eigenstate_result import EigenstateResult
 from .base_problem import BaseProblem
 from .electronic_basis import ElectronicBasis
 
+if TYPE_CHECKING:
+    from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
+
 
 class ElectronicStructureProblem(BaseProblem):
     r"""The Electronic Structure Problem.
@@ -46,12 +48,12 @@ class ElectronicStructureProblem(BaseProblem):
     This class represents the problem of the electronic Schrödinger equation:
 
     .. math::
-        \hat{H}|\Psi\rangle = E|\Psi\rangle,
+        \hat{H_{el}}|\Psi\rangle = E_{el}|\Psi\rangle,
 
-    where :math:`\hat{H}` is the :class:`qiskit_nature.second_q.hamiltonians.ElectronicEnergy`
-    hamiltonian, :math:`\Psi` is the wave function of the system and :math:`E` is the eigenvalue.
-    When passed to a :class:`qiskit_nature.second_q.algorithms.GroundStateSolver`, you will be
-    solving for the ground-state energy, :math:`E_0`.
+    where :math:`\hat{H_{el}}` is the :class:`qiskit_nature.second_q.hamiltonians.ElectronicEnergy`
+    hamiltonian, :math:`\Psi` is the wave function of the system and :math:`E_{el}` is the
+    eigenvalue. When passed to a :class:`qiskit_nature.second_q.algorithms.GroundStateSolver`, you
+    will be solving for the ground-state energy, :math:`E_0`.
 
     This class has various attributes (see below) which allow you to add additional information
     about the problem which you are trying to solve, which can be used by various modules in the
@@ -89,14 +91,19 @@ class ElectronicStructureProblem(BaseProblem):
 
         solver = NumPyEigensolverFactory(filter_criterion=filter_criterion_spin)
 
+    The following attributes can be read and updated once the ``ElectronicStructureProblem`` object
+    has been constructed.
+
     Attributes:
-        properties: a container for additional observable operator factories.
-        molecule: a container for molecular system data.
-        basis: the electronic basis of all contained orbital coefficients.
-        num_spatial_orbitals: the number of spatial orbitals in the system.
-        reference_energy: a reference energy for the ground state of the problem.
-        orbital_energies: the energy values of the alpha-spin orbitals.
-        orbital_energies_b: the energy values of the beta-spin orbitals.
+        properties (ElectronicStructureProblem): a container for additional observable operator
+            factories.
+        molecule (MoleculeInfo | None): a container for molecular system data.
+        basis (ElectronicBasis | None): the electronic basis of all contained orbital coefficients.
+        num_spatial_orbitals (int | tuple[int, int] | None): the number of spatial orbitals in the
+            system.
+        reference_energy (float | None): a reference energy for the ground state of the problem.
+        orbital_energies (np.ndarray | None): the energy values of the alpha-spin orbitals.
+        orbital_energies_b (np.ndarray | None): the energy values of the beta-spin orbitals.
     """
 
     def __init__(self, hamiltonian: ElectronicEnergy) -> None:
@@ -106,7 +113,7 @@ class ElectronicStructureProblem(BaseProblem):
         """
         super().__init__(hamiltonian)
         self.properties: ElectronicPropertiesContainer = ElectronicPropertiesContainer()
-        self.molecule: MoleculeInfo | None = None
+        self.molecule: "MoleculeInfo" | None = None
         self.basis: ElectronicBasis | None = None
         self._num_particles: int | tuple[int, int] | None = None
         self.num_spatial_orbitals: int | None = hamiltonian.register_length

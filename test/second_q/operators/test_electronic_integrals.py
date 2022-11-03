@@ -171,11 +171,6 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
         )
         self.assertTrue(ints.two_body.equiv(two_body))
 
-    def test_iter(self):
-        """Test for the iterator of ElectronicIntegrals"""
-        ints = ElectronicIntegrals()
-        self.assertEqual(["alpha", "beta", "beta_alpha"], list(iter(ints)))
-
     @idata(np.linspace(0, 3, 5))
     def test_mul(self, other):
         """Test for scalar multiplication"""

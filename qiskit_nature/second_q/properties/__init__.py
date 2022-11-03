@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """
-Second-Quantization Properties (:mod:`qiskit_nature.second_q.properties`)
+Properties (:mod:`qiskit_nature.second_q.properties`)
 ================================================================================================
 
 .. currentmodule:: qiskit_nature.second_q.properties

@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """
-Second-Quantization Operators (:mod:`qiskit_nature.second_q.operators`)
+Operators (:mod:`qiskit_nature.second_q.operators`)
 =======================================================================
 
 .. currentmodule:: qiskit_nature.second_q.operators
@@ -27,6 +27,7 @@ Operators and mappers for different systems such as fermionic, vibrational and s
    SpinOp
    SecondQuantizedOp
    VibrationalOp
+   VibrationalIntegrals
    PolynomialTensor
 
 Modules
@@ -44,6 +45,7 @@ from .fermionic_op import FermionicOp
 from .second_quantized_op import SecondQuantizedOp
 from .spin_op import SpinOp
 from .vibrational_op import VibrationalOp
+from .vibrational_integrals import VibrationalIntegrals
 from .polynomial_tensor import PolynomialTensor
 from .sparse_label_op import SparseLabelOp
 
@@ -53,6 +55,7 @@ __all__ = [
     "SecondQuantizedOp",
     "SpinOp",
     "VibrationalOp",
+    "VibrationalIntegrals",
     "PolynomialTensor",
     "SparseLabelOp",
 ]

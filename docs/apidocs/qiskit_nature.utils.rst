@@ -1,7 +1,4 @@
-﻿
-
-qiskit_nature.utils
-===================
+﻿.. _qiskit_nature-utils:
 
 .. automodule:: qiskit_nature.utils
    :no-members:
