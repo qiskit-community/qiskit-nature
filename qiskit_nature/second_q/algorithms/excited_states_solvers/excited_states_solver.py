@@ -61,7 +61,7 @@ class ExcitedStatesSolver(ABC):
         and using a QubitConverter to map + reduce the operators to qubit operators.
 
         Args:
-            problem: a class encoding a problem to be solved.
+            problem: A class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
 
         Returns:
