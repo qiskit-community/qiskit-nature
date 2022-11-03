@@ -57,7 +57,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
                 ``num_spatial_orbitals``, and ``initial_point`` will be completed at runtime based on
                 the problem being solved.
             optimizer: The ``Optimizer`` or
-                :class:`~qiskit.algorithms.optimizers.Minimizer` to use for the internal
+                ``Minimizer`` to use for the internal
                 :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`.
             initial_point: An optional initial point (i.e., initial parameter values for the VQE
                 optimizer). If ``None`` then VQE will use an all-zero initial point of the
