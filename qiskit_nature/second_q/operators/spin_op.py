@@ -182,10 +182,12 @@ class SpinOp(SparseLabelOp):
     the ``SpinOp`` object has been constructed.
 
     Attributes:
-        num_spins: the number of spins on which this operator acts. This is
+        num_spins (int | None): the number of spins on which this operator acts. This is
             considered a lower bound, which means that mathematical operations acting on two or more
             operators will result in a new operator with the maximum number of spins of any
             of the involved operators.
+        spin (float | Fraction): positive half-integer (integer or half-odd-integer)
+            that represents spin.
     """
 
     _OPERATION_REGEX = re.compile(r"([XYZ]_\d+(\^\d+)?\s)*[XYZ]_\d+(\^\d+)?")
@@ -363,6 +365,24 @@ class SpinOp(SparseLabelOp):
             The Z spin operator for `spin`.
         """
         return cls({"Z_0": 1.0}, spin=spin, copy=False)
+
+    @classmethod
+    def one(cls, spin: float | Fraction = Fraction(1, 2)) -> SpinOp:
+        """Constructs the "one" spin operator for a given spin.
+
+        Returns:
+            The "one" spin operator for `spin`.
+        """
+        return cls({"": 1.0}, spin=spin, copy=False)
+
+    @classmethod
+    def zero(cls, spin: float | Fraction = Fraction(1, 2)) -> SpinOp:
+        """Constructs the "zero" spin operator for a given spin.
+
+        Returns:
+            The "one" spin operator for `spin`.
+        """
+        return cls({}, spin=spin, copy=False)
 
     def __repr__(self) -> str:
         data_str = f"{dict(self.items())}"

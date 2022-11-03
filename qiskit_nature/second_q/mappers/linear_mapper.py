@@ -51,7 +51,6 @@ class LinearMapper(SpinMapper):  # pylint: disable=missing-class-docstring
                 mat[idx] = mat[idx] @ char_map[op]
 
             operatorlist = [mat[i] if i in mat else identity for i in range(ordered_op.num_spins)]
-
             # Now, we can tensor all operators in this list
             qubit_ops_list.append(coeff * reduce(operator.xor, reversed(operatorlist)))
 
