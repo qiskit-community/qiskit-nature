@@ -174,7 +174,7 @@ class SpinOp(SparseLabelOp):
 
     **Iteration**
 
-    Instances of `SpinOp` are iterable. Iterating a SpinOp yields (term, coefficient)
+    Instances of ``SpinOp`` are iterable. Iterating a SpinOp yields (term, coefficient)
     pairs describing the terms contained in the operator. Labels containing powers/exponents
     will be expanded into multiple (term, coefficient) pairs.
 
