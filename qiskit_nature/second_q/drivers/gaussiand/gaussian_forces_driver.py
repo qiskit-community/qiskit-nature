@@ -88,19 +88,22 @@ class GaussianForcesDriver(VibrationalStructureDriver):
         xcf: str = "B3LYP",
         driver_kwargs: Optional[dict[str, Any]] = None,
     ) -> "GaussianForcesDriver":
-        """
+        """Creates a driver from a molecule.
+
         Args:
-            molecule: If a molecule is supplied then an appropriate job control file will be
-                       built from this, and the `basis`, and will be used in precedence of either the
-                       `logfile` or the `jcf` params.
-            basis: The basis set to be used in the resultant job control file when a
-                    molecule is provided.
+            molecule: If a molecule is supplied then an appropriate job control file will be built
+                from this, and the `basis`, and will be used in precedence of either the `logfile`
+                or the `jcf` params.
+            basis: The basis set to be used in the resultant job control file when a molecule is
+                provided.
             xcf: The exchange-correlation functional to be used in the resultant job control file.
-            driver_kwargs: kwargs to be passed to driver
+            driver_kwargs: keyword arguments to be passed to driver.
+
         Returns:
-            driver
+            The constructed driver instance.
+
         Raises:
-            QiskitNatureError: Unknown unit
+            QiskitNatureError: when an unknown unit is encountered.
         """
         # Ignore kwargs parameter for this driver
         del driver_kwargs
@@ -127,12 +130,13 @@ class GaussianForcesDriver(VibrationalStructureDriver):
 
     @staticmethod
     def to_driver_basis(basis: str) -> str:
-        """
-        Converts basis to a driver acceptable basis
+        """Converts basis to a driver acceptable basis.
+
         Args:
-            basis: The basis set to be used
+            basis: The basis set to be used.
+
         Returns:
-            driver acceptable basis
+            A driver acceptable basis.
         """
         if basis == "sto3g":
             return "sto-3g"
