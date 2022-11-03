@@ -26,7 +26,7 @@ class TestLatticePropertiesContainer(QiskitNatureTestCase):
     def test_custom_property(self) -> None:
         """Tests support for custom property objects."""
         container = LatticePropertiesContainer()
-        container.add(OccupiedModals())
+        container.add(OccupiedModals([]))
         self.assertIn(OccupiedModals, container)
 
 

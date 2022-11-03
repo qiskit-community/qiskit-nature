@@ -24,14 +24,6 @@ from qiskit.algorithms.optimizers import COBYLA
 from qiskit.primitives import Estimator
 from qiskit.utils import algorithm_globals
 
-from qiskit_nature.second_q.circuit.library import UVCCSD
-from qiskit_nature.second_q.drivers import VibrationalStructureDriver
-from qiskit_nature.second_q.mappers import DirectMapper
-from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.problems import (
-    VibrationalStructureProblem,
-)
-
 from qiskit_nature.second_q.algorithms import (
     GroundStateEigensolver,
     NumPyMinimumEigensolverFactory,
@@ -40,50 +32,18 @@ from qiskit_nature.second_q.algorithms import (
     ExcitedStatesEigensolver,
     NumPyEigensolverFactory,
 )
-from qiskit_nature.second_q.hamiltonians import VibrationalEnergy
-from qiskit_nature.second_q.properties import OccupiedModals
-from qiskit_nature.second_q.properties.integrals import VibrationalIntegrals
-
-
-class _DummyBosonicDriver(VibrationalStructureDriver):
-    def __init__(self):
-        super().__init__()
-        modes = [
-            [605.3643675, 1, 1],
-            [-605.3643675, -1, -1],
-            [340.5950575, 2, 2],
-            [-340.5950575, -2, -2],
-            [-89.09086530649508, 2, 1, 1],
-            [-15.590557244410897, 2, 2, 2],
-            [1.6512647916666667, 1, 1, 1, 1],
-            [5.03965375, 2, 2, 1, 1],
-            [0.43840625000000005, 2, 2, 2, 2],
-        ]
-        sorted_integrals: dict[int, list[tuple[float, tuple[int, ...]]]] = {1: [], 2: [], 3: []}
-        for coeff, *indices in modes:
-            ints = [int(i) for i in indices]
-            num_body = len(set(ints))
-            sorted_integrals[num_body].append((coeff, tuple(ints)))
-
-        prop = VibrationalEnergy(
-            [VibrationalIntegrals(num_body, ints) for num_body, ints in sorted_integrals.items()]
-        )
-        self._driver_result = VibrationalStructureProblem(
-            prop,
-            num_modes=2,
-            num_modals=2,
-        )
-        prop = OccupiedModals()
-        self._driver_result.properties.occupied_modals = prop
-
-    def run(self):
-        """Run dummy driver to return test watson hamiltonian"""
-        return self._driver_result
+from qiskit_nature.second_q.circuit.library import UVCCSD
+from qiskit_nature.second_q.formats.watson import WatsonHamiltonian
+from qiskit_nature.second_q.formats.watson_translator import watson_to_problem
+from qiskit_nature.second_q.mappers import DirectMapper, QubitConverter
+from qiskit_nature.second_q.problems import HarmonicBasis
+import qiskit_nature.optionals as _optionals
 
 
 class TestBosonicESCCalculation(QiskitNatureTestCase):
     """Test Numerical QEOM excited states calculation"""
 
+    @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     def setUp(self):
         super().setUp()
         algorithm_globals.random_seed = 8
@@ -94,14 +54,44 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
             5819.76975784,
         ]
 
-        self.driver = _DummyBosonicDriver()
         self.qubit_converter = QubitConverter(DirectMapper())
-        self.basis_size = 2
-        self.truncation_order = 2
 
-        self.vibrational_problem = self.driver.run()
-        self.vibrational_problem._num_modals = 2
-        self.vibrational_problem.truncation_order = self.truncation_order
+        import sparse as sp  # pylint: disable=import-error
+
+        watson = WatsonHamiltonian(
+            quadratic_force_constants=sp.as_coo(
+                {
+                    (0, 0): 605.3643675,
+                    (1, 1): 340.5950575,
+                },
+                shape=(2, 2),
+            ),
+            cubic_force_constants=sp.as_coo(
+                {
+                    (1, 0, 0): -89.09086530649508,
+                    (1, 1, 1): -15.590557244410897,
+                },
+                shape=(2, 2, 2),
+            ),
+            quartic_force_constants=sp.as_coo(
+                {
+                    (0, 0, 0, 0): 1.6512647916666667,
+                    (1, 1, 0, 0): 5.03965375,
+                    (1, 1, 1, 1): 0.43840625000000005,
+                },
+                shape=(2, 2, 2, 2),
+            ),
+            kinetic_coefficients=sp.as_coo(
+                {
+                    (0, 0): -605.3643675,
+                    (1, 1): -340.5950575,
+                },
+                shape=(2, 2),
+            ),
+        )
+
+        basis = HarmonicBasis([2, 2])
+        self.vibrational_problem = watson_to_problem(watson, basis)
 
     def _assert_energies(self, computed, references, *, places=4):
         with self.subTest("same number of energies"):
@@ -139,7 +129,7 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
         esc = QEOM(gsc, estimator, "sd")
         results = esc.solve(self.vibrational_problem)
         self._assert_energies(
-            results.computed_vibrational_energies, self.reference_energies, places=1
+            results.computed_vibrational_energies, self.reference_energies, places=0
         )
 
     def test_vqe_uvcc_factory_with_user_initial_point(self):
@@ -170,7 +160,7 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
         with contextlib.redirect_stdout(io.StringIO()) as out:
             results = esc.solve(self.vibrational_problem)
         self._assert_energies(
-            results.computed_vibrational_energies, self.reference_energies, places=1
+            results.computed_vibrational_energies, self.reference_energies, places=0
         )
         for idx, line in enumerate(out.getvalue().split("\n")):
             if line.strip():
