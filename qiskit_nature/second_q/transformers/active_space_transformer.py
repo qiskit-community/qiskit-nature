@@ -412,7 +412,11 @@ class ActiveSpaceTransformer(BaseTransformer):
                 {"ij,ji": ("+-", "+-", "")}, active_fock_operator, self._density_active
             ),
         )
-        e_inactive_sum = sum(e_inactive[key].get("", 0.0) for key in e_inactive)
+        e_inactive_sum = (
+            e_inactive.alpha.get("", 0.0)
+            + e_inactive.beta.get("", 0.0)
+            + e_inactive.beta_alpha.get("", 0.0)
+        )
 
         new_hamil = ElectronicEnergy(
             self._transform_active.transform_electronic_integrals(
@@ -441,7 +445,11 @@ class ActiveSpaceTransformer(BaseTransformer):
                 {"ij,ji": ("+-", "+-", "")}, one_body, self._density_active
             )
             dipoles.append(self._transform_active.transform_electronic_integrals(one_body))
-            dip_inactive.append(sum(e_inactive[key].get("", 0.0) for key in e_inactive))
+            dip_inactive.append(
+                e_inactive.alpha.get("", 0.0)
+                + e_inactive.beta.get("", 0.0)
+                + e_inactive.beta_alpha.get("", 0.0)
+            )
 
         new_dipole_moment = ElectronicDipoleMoment(
             x_dipole=dipoles[0],
