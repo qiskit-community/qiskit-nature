@@ -382,7 +382,7 @@ class SpinOp(SparseLabelOp):
         """Constructs the "zero" spin operator for a given spin.
 
         Returns:
-            The "one" spin operator for `spin`.
+            The "zero" spin operator for `spin`.
         """
         return cls({}, spin=spin, copy=False)
 
