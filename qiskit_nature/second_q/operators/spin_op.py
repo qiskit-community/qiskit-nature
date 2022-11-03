@@ -52,7 +52,7 @@ class SpinOp(SparseLabelOp):
 
     The value of :code:`index` is bound by the number of spins(``num_spins``) of the operator
     (Note: since Python indices are 0-based, the maximum value an index can take is given by
-    :code:`num_spins-1`). The the :code:`<power>` is a positive integer indicating the number
+    :code:`num_spins-1`). The :code:`<power>` is a positive integer indicating the number
     of times the given operator is applied to the mode at :code:`<index>`. You can omit
     :code:`<power>`, implying a single application of the operator (:code:`power = 1`).
 
@@ -367,6 +367,7 @@ class SpinOp(SparseLabelOp):
 
     @classmethod
     def one(cls, spin: float | Fraction = Fraction(1, 2)) -> SpinOp:
+        # pylint: disable=arguments-differ
         """Constructs the "one" spin operator for a given spin.
 
         Returns:
@@ -376,10 +377,11 @@ class SpinOp(SparseLabelOp):
 
     @classmethod
     def zero(cls, spin: float | Fraction = Fraction(1, 2)) -> SpinOp:
+        # pylint: disable=arguments-differ
         """Constructs the "zero" spin operator for a given spin.
 
         Returns:
-            The "one" spin operator for ``spin``.
+            The "zero" spin operator for ``spin``.
         """
         return cls({}, spin=spin, copy=False)
 
@@ -424,7 +426,7 @@ class SpinOp(SparseLabelOp):
         """Returns the conjugate of the ``SpinOp``.
 
         Returns:
-            The complex conjugate of the starting ``SpinOp``.
+            The complex conjugate of this ``SpinOp``.
         """
         new_data = {}
         for label, coeff in self.items():

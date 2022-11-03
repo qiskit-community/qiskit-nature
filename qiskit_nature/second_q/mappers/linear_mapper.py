@@ -72,7 +72,6 @@ class LinearMapper(SpinMapper):  # pylint: disable=missing-class-docstring
             to represent the embedded 'X' operator
         """
 
-        spin_op_encoding: list[PauliSumOp] = []
         dspin = int(2 * spin + 1)
         nqubits = dspin
 
@@ -97,7 +96,6 @@ class LinearMapper(SpinMapper):  # pylint: disable=missing-class-docstring
                     + coeff / 2.0 * SparsePauliOp(pauli_y(i).dot(pauli_y(i + 1)))
                 )
             )
-        spin_op_encoding.append(reduce(operator.add, x_summands))
 
         # 2. build the non-diagonal Y operator
         y_summands = []
@@ -108,7 +106,6 @@ class LinearMapper(SpinMapper):  # pylint: disable=missing-class-docstring
                     + 1j * coeff / 2.0 * SparsePauliOp(pauli_y(i).dot(pauli_x(i + 1)))
                 )
             )
-        spin_op_encoding.append(reduce(operator.add, y_summands))
 
         # 3. build the diagonal Z
         z_summands = []
@@ -120,11 +117,11 @@ class LinearMapper(SpinMapper):  # pylint: disable=missing-class-docstring
                 )
             )
 
-        z_operator = reduce(operator.add, z_summands)
-        spin_op_encoding.append(z_operator)
-
-        # 4. add the identity operator
-        spin_op_encoding.append(PauliSumOp(1.0 * SparsePauliOp(pauli_id)))
-
         # return the lookup table for the transformed XYZI operators
+        spin_op_encoding = [
+            reduce(operator.add, x_summands),
+            reduce(operator.add, y_summands),
+            reduce(operator.add, z_summands),
+            PauliSumOp(1.0 * SparsePauliOp(pauli_id)),
+        ]
         return spin_op_encoding
