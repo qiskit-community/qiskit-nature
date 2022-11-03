@@ -539,7 +539,6 @@ class SpinOp(SparseLabelOp):
 
     def to_matrix(self) -> np.ndarray:
         # TODO: use scipy.sparse.csr_matrix() and add parameter `sparse: bool`.
-
         """Convert to dense matrix.
 
         Returns:
