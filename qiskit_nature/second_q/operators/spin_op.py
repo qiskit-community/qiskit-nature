@@ -427,7 +427,7 @@ class SpinOp(SparseLabelOp):
         """Returns the conjugate of the ``SpinOp``.
 
         Returns:
-            The complex conjugate of the starting ``SpinOp``.
+            The complex conjugate of this ``SpinOp``.
         """
         new_data = {}
         for label, coeff in self.items():
