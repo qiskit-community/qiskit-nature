@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" The excited states calculation interface. """
+"""The excited states calculation interface."""
 
 from __future__ import annotations
 
