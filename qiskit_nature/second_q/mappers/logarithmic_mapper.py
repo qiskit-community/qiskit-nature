@@ -125,9 +125,8 @@ class LogarithmicMapper(SpinMapper):
             SpinOp.x(spin).to_matrix(),
             SpinOp.y(spin).to_matrix(),
             SpinOp.z(spin).to_matrix(),
+            np.eye(dspin),
         ]
-        # Append the identity
-        spin_matrices.append(np.eye(dspin))
 
         # Embed the spin matrices in a larger matrix of size 2**num_qubits x 2**num_qubits
         embedded_spin_matrices = [
