@@ -93,8 +93,7 @@ class NumPyEigensolverFactory(EigensolverFactory):
             problem: A class encoding a problem to be solved.
 
         Returns:
-            A ``NumPyEigensolver`` suitable to compute the ground state of the molecule
-            transformed by ``transformation``.
+            A ``NumPyEigensolver`` suitable to compute the ground state of the provided ``problem``.
         """
         filter_criterion = self._filter_criterion
         if not filter_criterion and self._use_default_filter_criterion:
