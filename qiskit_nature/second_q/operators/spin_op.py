@@ -367,9 +367,8 @@ class SpinOp(SparseLabelOp):
         return cls({"Z_0": 1.0}, spin=spin, copy=False)
 
     @classmethod
-    def one(
-        cls, spin: float | Fraction = Fraction(1, 2)
-    ) -> SpinOp:  # pylint: disable=arguments-differ
+    def one(cls, spin: float | Fraction = Fraction(1, 2)) -> SpinOp:
+        # pylint: disable=arguments-differ
         """Constructs the "one" spin operator for a given spin.
 
         Returns:
@@ -378,9 +377,8 @@ class SpinOp(SparseLabelOp):
         return cls({"": 1.0}, spin=spin, copy=False)
 
     @classmethod
-    def zero(
-        cls, spin: float | Fraction = Fraction(1, 2)
-    ) -> SpinOp:  # pylint: disable=arguments-differ
+    def zero(cls, spin: float | Fraction = Fraction(1, 2)) -> SpinOp:
+        # pylint: disable=arguments-differ
         """Constructs the "zero" spin operator for a given spin.
 
         Returns:
