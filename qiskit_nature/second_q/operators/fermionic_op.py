@@ -33,17 +33,17 @@ from .sparse_label_op import _TCoeff, SparseLabelOp, _to_number
 class FermionicOp(SparseLabelOp):
     r"""N-mode Fermionic operator.
 
-    A `FermionicOp` represents a weighted sum of fermionic creation/annihilation operator terms.
-    These terms are encoded as sparse labels, strings consisting of a space-separated list of
+    A ``FermionicOp`` represents a weighted sum of fermionic creation/annihilation operator terms.
+    These terms are encoded as sparse labels, which are strings consisting of a space-separated list of
     expressions. Each expression must look like :code:`[+-]_<index>`, where the :code:`<index>` is a
-    non-negative integer representing the index of the fermionic mode where the `+` (creation) or
-    `-` (annihilation) operation is to be performed. The value of :code:`index` is bound by the
-    number of spin orbitals (`num_spin_orbitals`) of the operator (Note: since Python indices are
+    non-negative integer representing the index of the fermionic mode where the ``+`` (creation) or
+    ``-`` (annihilation) operation is to be performed. The value of :code:`index` is bound by the
+    number of spin orbitals (``num_spin_orbitals``) of the operator (Note: since Python indices are
     0-based, the maximum value an index can take is given by :code:`num_spin_orbitals-1`).
 
     **Initialization**
 
-    A `FermionicOp` is initialized with a dictionary, mapping terms to their respective
+    A ``FermionicOp`` is initialized with a dictionary, mapping terms to their respective
     coefficients:
 
     .. jupyter-execute::
@@ -128,7 +128,7 @@ class FermionicOp(SparseLabelOp):
 
       FermionicOp({"+_0 -_1": 1j}, num_spin_orbitals=2).adjoint()
 
-    In principle, you can also add :class:`FermionicOp` and integers, but the only valid case is the
+    In principle, you can also add `FermionicOp` and integers, but the only valid case is the
     addition of `0 + FermionicOp`. This makes the `sum` operation from the example above possible
     and it is useful in the following scenario:
 
@@ -141,7 +141,7 @@ class FermionicOp(SparseLabelOp):
 
     **Iteration**
 
-    Instances of `FermionicOp` are iterable. Iterating a FermionicOp yields (term, coefficient)
+    Instances of ``FermionicOp`` are iterable. Iterating a ``FermionicOp`` yields (term, coefficient)
     pairs describing the terms contained in the operator.
 
     Attributes:
@@ -173,11 +173,11 @@ class FermionicOp(SparseLabelOp):
         Args:
             data: the operator data, mapping string-based keys to numerical values.
             num_spin_orbitals: the number of spin orbitals on which this operator acts.
-            copy: when set to False the `data` will not be copied and the dictionary will be
-                stored by reference rather than by value (which is the default; `copy=True`). Note,
+            copy: when set to False the ``data`` will not be copied and the dictionary will be
+                stored by reference rather than by value (which is the default; ``copy=True``). Note,
                 that this requires you to not change the contents of the dictionary after
-                constructing the operator. This also implies `validate=False`. Use with care!
-            validate: when set to False the `data` keys will not be validated. Note, that the
+                constructing the operator. This also implies ``validate=False``. Use with care!
+            validate: when set to False the ``data`` keys will not be validated. Note, that the
                 SparseLabelOp base class, makes no assumption about the data keys, so will not
                 perform any validation by itself. Only concrete subclasses are encouraged to
                 implement a key validation method. Disable this setting with care!

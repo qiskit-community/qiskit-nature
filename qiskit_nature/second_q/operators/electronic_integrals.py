@@ -53,22 +53,23 @@ class ElectronicIntegrals(LinearMixin):
     down-spin electronic interactions need to be handled separately. These two spins are also
     commonly referred to by :math:`\alpha` and :math:`\beta`, respectively.
 
-    Specifically, this class stores three ``PolynomialTensor`` instances:
+    Specifically, this class stores three :class:`~.PolynomialTensor` instances:
 
     - :attr:`alpha`: which stores the up-spin integrals
     - :attr:`beta`: which stores the down-spin integrals
     - :attr:`beta_alpha`: which stores beta-alpha-spin two-body integrals
 
     These tensors are subject to some expectations, namely:
-    - for `alpha` and `beta` only the following keys are allowed: `""`, `"+-"`, `"++--"`
-    - for `beta_alpha` the only allowed key is `"++--"`
-    - the reported `register_length` attributes of all non-empty tensors must match
+
+    - for ``alpha`` and ``beta`` only the following keys are allowed: ``""``, ``"+-"``, ``"++--"``
+    - for ``beta_alpha`` the only allowed key is ``"++--"``
+    - the reported ``register_length`` attributes of all non-empty tensors must match
 
     There are two ways of constructing the ``ElectronicIntegrals``:
 
     .. code-block:: python
 
-        # assuming, you have your one- and two-body integrals from somewhere
+        # assuming you already have your one- and two-body integrals from somewhere
         h1_a, h2_aa, h1_b, h2_bb, h2_ba = ...
 
         from qiskit_nature.second_q.operators import ElectronicIntegrals, PolynomialTensor
@@ -79,7 +80,7 @@ class ElectronicIntegrals(LinearMixin):
 
         integrals = ElectronicIntegrals(alpha, beta, beta_alpha)
 
-        # or you can achieve exactly the same via:
+        # alternatively, the following achieves the same effect:
         integrals = ElectronicIntegrals.from_raw_integrals(h1_a, h2_aa, h1_b, h2_bb, h2_ba)
 
     This class then exposes common mathematical operations performed on these tensors allowing
@@ -93,7 +94,7 @@ class ElectronicIntegrals(LinearMixin):
         # scalar multiplication
         2.0 * integrals
 
-    This class will substitute empty `beta` and `beta_alpha` tensors with the `alpha` tensor
+    This class will substitute empty ``beta`` and ``beta_alpha`` tensors with the ``alpha`` tensor
     when necessary. For example, this means the following will happen:
 
     .. code-block:: python
@@ -107,7 +108,7 @@ class ElectronicIntegrals(LinearMixin):
         print(sum.beta.equiv(alpha + beta))  # True
         print(sum.beta_alpha.equiv(alpha + beta_alpha))  # True
 
-    The same logic holds for other mathematical operations involving multiple `ElectronicIntegrals`.
+    The same logic holds for other mathematical operations involving multiple ``ElectronicIntegrals``.
 
     You can add a custom offset to be included in the operator generated from these coefficients
     like so:
@@ -133,20 +134,20 @@ class ElectronicIntegrals(LinearMixin):
         validate: bool = True,
     ) -> None:
         """
-        Any ``None``-valued argument will internally be replaced by an empty ``PolynomialTensor``
+        Any ``None``-valued argument will internally be replaced by an empty :class:`~.PolynomialTensor`
         (see also :meth:`qiskit_nature.second_q.operators.PolynomialTensor.empty`).
 
         Args:
             alpha: the up-spin electronic integrals
             beta: the down-spin electronic integrals
             beta_alpha: the beta-alpha-spin two-body electronic integrals. This may *only* contain
-                the `++--` key.
+                the ``++--`` key.
             validate: when set to False, no validation will be performed.
 
         Raises:
-            KeyError: if the `alpha` tensor contains keys other than `""`, `"+-"`, and `"++--"`.
-            KeyError: if the `beta` tensor contains keys other than `""`, `"+-"`, and `"++--"`.
-            KeyError: if the `beta_alpha` tensor contains keys other than `"++--"`.
+            KeyError: if the ``alpha`` tensor contains keys other than ``""``, ``"+-"``, and ``"++--"``.
+            KeyError: if the ``beta`` tensor contains keys other than ``""``, ``"+-"``, and ``"++--"``.
+            KeyError: if the ``beta_alpha`` tensor contains keys other than ``"++--"``.
             ValueError: if the reported :attr:`~.PolynomialTensor.register_length` attributes of the
                 alpha-, beta-, and beta-alpha-spin tensors do not all match.
         """
