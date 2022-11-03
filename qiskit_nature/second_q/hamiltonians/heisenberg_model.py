@@ -57,9 +57,9 @@ class HeisenbergModel(LatticeModel):
         Args:
             lattice: Lattice on which the model is defined.
             coupling_constants: The coupling constants in each Cartesian axes.
-                Defaults to (1.0, 1.0, 1.0).
+                Defaults to ``(1.0, 1.0, 1.0)``.
             ext_magnetic_field: Represents a magnetic field in Cartesian coordinates.
-                                Defaults to (0.0, 0.0, 0.0).
+                Defaults to ``(0.0, 0.0, 0.0)``.
         """
         super().__init__(lattice)
         self.coupling_constants = coupling_constants
@@ -70,7 +70,7 @@ class HeisenbergModel(LatticeModel):
         return self._lattice.num_nodes
 
     def second_q_op(self) -> SpinOp:
-        """Return the Hamiltonian of the Heisenberg model in terms of `SpinOp`.
+        """Return the Hamiltonian of the Heisenberg model in terms of ``SpinOp``.
 
         Returns:
             SpinOp: The Hamiltonian of the Heisenberg model.
