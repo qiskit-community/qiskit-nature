@@ -85,8 +85,8 @@ class QEOM(ExcitedStatesSolver):
                 :`Callable`: a function which can be used to specify a custom list of excitations.
                     For more details on how to write such a function refer to one of the default
                     methods, :meth:`generate_fermionic_excitations` or
-                    :meth:`generate_vibrational_excitations`, when solving a
-                    :class:`.ElectronicStructureProblem` or :class:`.VibrationalStructureProblem`,
+                    :meth:`generate_vibrational_excitations`, when solving an
+                    :class:`.ElectronicStructureProblem` or a :class:`.VibrationalStructureProblem`,
                     respectively.
         """
         self._gsc = ground_state_solver

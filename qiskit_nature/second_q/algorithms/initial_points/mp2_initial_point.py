@@ -74,7 +74,7 @@ class MP2InitialPoint(InitialPoint):
 
     The computed MP2 correction coefficients are intended for use as an initial point for the VQE
     parameters in combination with a
-    :class:`~qiskit_nature.second_q.circuit.library.ansatzes.UCC` ansatz.
+    :class:`~qiskit_nature.second_q.circuit.library.ansatzes.ucc.UCC` ansatz.
 
     The initial point parameters are computed using the :meth:`compute` method, which requires the
     :attr:`problem` and :attr:`ansatz` to be passed as arguments or the
@@ -112,8 +112,8 @@ class MP2InitialPoint(InitialPoint):
         """The UCC ansatz.
 
         The ``excitation_list`` and ``reps`` used by the
-        :class:`~qiskit.circuit.library.ansatzes.ucc.UCC` ansatz is obtained to ensure that the
-        shape of the initial point is appropriate.
+        :class:`~qiskit_nature.circuit.library.ansatzes.ucc.UCC` ansatz is obtained to ensure that
+        the shape of the initial point is appropriate.
         """
         return self._ansatz
 

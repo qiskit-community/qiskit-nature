@@ -61,8 +61,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
             initial_point: An optional initial point (i.e., initial parameter values for the VQE
                 optimizer). If ``None`` then VQE will use an all-zero initial point of the
                 appropriate length computed using
-                :class:`~qiskit_nature.second_q.algorithms.initial_points.\
-                vscf_initial_point.VSCFInitialPoint`.
+                :class:`~qiskit_nature.second_q.algorithms.initial_points.vscf_initial_point.VSCFInitialPoint`.
                 This then defaults to the VSCF state when the VSCF circuit is prepended
                 to the ansatz circuit. If another
                 :class:`~qiskit_nature.second_q.algorithms.initial_points.initial_point.InitialPoint`
@@ -71,7 +70,8 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
             initial_state: Allows specification of a custom `QuantumCircuit` to be used as the
                 initial state of the ansatz. If this is never set by the user, the factory will
                 default to the :class:`~.VSCF` state.
-            kwargs: Remaining keyword arguments are passed to the :class:`VQE`.
+            kwargs: Remaining keyword arguments are passed to the
+                :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`.
         """
         self._initial_state = initial_state
         self._initial_point = initial_point if initial_point is not None else VSCFInitialPoint()

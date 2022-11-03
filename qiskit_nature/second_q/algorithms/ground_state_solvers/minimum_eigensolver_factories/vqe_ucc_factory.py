@@ -72,7 +72,8 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             initial_state: Allows specification of a custom `QuantumCircuit` to be used as the
                 initial state of the ansatz. If this is never set by the user, the factory will
                 default to the :class:`~.HartreeFock` state.
-            kwargs: Remaining keyword arguments are passed to the :class:`~.VQE`.
+            kwargs: Remaining keyword arguments are passed to the
+                :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`.
         """
         self._initial_state = initial_state
         self._initial_point = initial_point if initial_point is not None else HFInitialPoint()

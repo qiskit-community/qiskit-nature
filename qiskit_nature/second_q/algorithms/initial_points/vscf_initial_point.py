@@ -28,9 +28,11 @@ class VSCFInitialPoint(InitialPoint):
 
     A class that provides an all-zero initial point for the ``VQE`` parameter values.
 
-    If used in concert with the :class:`~qiskit.circuit.library.initial_states.vscf.VSCF` initial
-    state (which will be prepended to the :class:`~qiskit.circuit.library.ansatzes.uvcc.UVCC`
-    circuit) the all-zero initial point will correspond to the VSCF initial point.
+    If used in concert with the
+    :class:`~qiskit_nature.second_q.circuit.library.initial_states.vscf.VSCF`
+    initial state (which will be prepended to the
+    :class:`~qiskit_nature.second_q.circuit.library.ansatzes.uvcc.UVCC` circuit) the all-zero
+    initial point will correspond to the VSCF initial point.
     """
 
     def __init__(self) -> None:
@@ -43,8 +45,8 @@ class VSCFInitialPoint(InitialPoint):
         """The UVCC ansatz.
 
         The ``excitation_list`` and ``reps`` used by the
-        :class:`~qiskit.circuit.library.ansatzes.uvcc.UVCC` ansatz is obtained to ensure that the
-        shape of the initial point is appropriate.
+        :class:`~qiskit_nature.second_q.circuit.library.ansatzes.uvcc.UVCC` ansatz is obtained to
+        ensure that the shape of the initial point is appropriate.
         """
         return self._ansatz
 
