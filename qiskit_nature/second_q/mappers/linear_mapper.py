@@ -44,7 +44,7 @@ class LinearMapper(SpinMapper):  # pylint: disable=missing-class-docstring
         char_map = {"X": spinx, "Y": spiny, "Z": spinz}
 
         for terms, coeff in ordered_op.terms():
-            mat = defaultdict(int)  # type: dict[int, int]
+            mat = defaultdict(list)  # type: dict[int, list]
             for op, idx in terms:
                 if idx not in mat:
                     mat[idx] = identity
