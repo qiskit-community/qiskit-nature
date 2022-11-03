@@ -331,10 +331,6 @@ class SpinOp(SparseLabelOp):
             A tuple containing the character, index and exponent in each label split.
         """
         for lbl in label.split():
-            # if lbl == "":
-            #     yield "", None, 1
-            #     continue
-
             char, index = lbl.split("_")
             index_split = index.split("^")
             idx = int(index_split[0])
