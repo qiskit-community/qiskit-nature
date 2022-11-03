@@ -43,9 +43,8 @@ class PUCCD(UCC):
     This is a convenience subclass of the UCC ansatz. For more information refer to :class:`UCC`.
 
     References:
-        [1] `arXiv:1911.10864`_
+        [1] `arXiv:1911.10864 <https://arxiv.org/abs/1911.10864>`_
 
-    .. _arXiv:1911.10864: https://arxiv.org/abs/1911.10864
     """
 
     def __init__(

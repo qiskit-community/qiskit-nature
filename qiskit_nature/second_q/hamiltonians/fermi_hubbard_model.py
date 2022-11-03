@@ -30,7 +30,7 @@ class FermiHubbardModel(LatticeModel):
         c_{j, \sigma} + U \sum_{i} n_{i, \uparrow} n_{i, \downarrow},
 
     where :math:`c_{i, \sigma}^\dagger` and :math:`c_{i, \sigma}` are creation and annihilation
-    operators of fermion at the site :math:`i` with spin :math:`\sigma`. The operator :math:`n_{i,
+    operators of a fermion at the site :math:`i` with spin :math:`\sigma`. The operator :math:`n_{i,
     \sigma}` is the number operator, which is defined by :math:`n_{i, \sigma} = c_{i,
     \sigma}^\dagger c_{i, \sigma}`. The matrix :math:`t_{i, j}` is a Hermitian matrix called the
     interaction matrix. The parameter :math:`U` represents the strength of the on-site interaction.

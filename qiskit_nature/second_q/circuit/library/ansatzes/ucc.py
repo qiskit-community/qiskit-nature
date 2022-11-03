@@ -99,9 +99,8 @@ class UCC(EvolvedOperatorAnsatz):
 
 
     References:
-        [1] `arXiv:1805.04340`_
+        [1] `arXiv:1805.04340 <https://arxiv.org/abs/1805.04340>`_
 
-    .. _arXiv:1805.04340: https://arxiv.org/abs/1805.04340
     """
 
     _EXCITATION_TYPE = {
