@@ -56,7 +56,7 @@ class ActiveSpaceTransformer(BaseTransformer):
 
     The active space can be configured in one of the following ways through the initializer:
 
-    - when only ``num_electrons`` and `num_spatial_orbitals` are specified, these integers
+    - when only ``num_electrons`` and ``num_spatial_orbitals`` are specified, these integers
       indicate the number of active electrons and orbitals, respectively. The active space will
       then be chosen around the Fermi level resulting in a unique choice for any pair of
       numbers.  Nonetheless, the following criteria must be met:
@@ -69,7 +69,7 @@ class ActiveSpaceTransformer(BaseTransformer):
     - when, ``num_electrons`` is a tuple, this must indicate the number of alpha- and beta-spin
       electrons, respectively. The same requirements as listed before must be met.
     - finally, it is possible to select a custom set of active orbitals via their indices using
-      `active_orbitals`. This allows selecting an active space which is not placed around the
+      ``active_orbitals``. This allows selecting an active space which is not placed around the
       Fermi level as described in the first case, above. When using this keyword argument, the
       following criteria must be met *in addition* to the ones listed above:
 
