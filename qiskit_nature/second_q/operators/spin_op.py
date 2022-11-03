@@ -220,7 +220,7 @@ class SpinOp(SparseLabelOp):
         """
         self.num_spins = num_spins
         spin = Fraction(spin)
-        if spin.denominator not in (1, 2) or spin < 0:
+        if spin.denominator not in (1, 2) or spin <= 0:
             raise QiskitNatureError(
                 f"spin must be a positive half-integer (integer or half-odd-integer), not {spin}."
             )
