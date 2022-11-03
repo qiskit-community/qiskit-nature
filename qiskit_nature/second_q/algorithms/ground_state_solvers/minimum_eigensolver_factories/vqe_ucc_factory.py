@@ -51,7 +51,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     ) -> None:
         """
         Args:
-            estimator: The :class:`~qiskit.primitives.BaseEstimator` class to use for the internal
+            estimator: The ``BaseEstimator`` class to use for the internal
                 :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`.
             ansatz: The :class:`~.UCC` ansatz. Its attributes `qubit_converter`, `num_particles`,
                 `num_spatial_orbitals`, and `initial_point` will be completed at runtime based on
