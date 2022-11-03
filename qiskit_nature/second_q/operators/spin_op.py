@@ -178,6 +178,9 @@ class SpinOp(SparseLabelOp):
     pairs describing the terms contained in the operator. Labels containing powers/exponents
     will be expanded into multiple (term, coefficient) pairs.
 
+    The following attributes can be set via the initializer but can also be read and updated once
+    the ``SpinOp`` object has been constructed.
+
     Attributes:
         num_spins: the number of spins on which this operator acts. This is
             considered a lower bound, which means that mathematical operations acting on two or more
