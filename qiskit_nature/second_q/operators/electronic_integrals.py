@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from numbers import Number
-from typing import Iterator, cast
+from typing import cast
 
 import numpy as np
 
