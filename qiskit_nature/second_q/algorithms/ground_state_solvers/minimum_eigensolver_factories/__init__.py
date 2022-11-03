@@ -11,10 +11,9 @@
 # that they have been altered from the originals.
 
 """
-====================================================================================
 Minimum Eigensolver Factories
 (:mod:`qiskit_nature.second_q.algorithms.ground_state_solvers.minimum_eigensolver_factories`)
-====================================================================================
+=============================================================================================
 
 Factories that create a minimum eigensolver based on a qubit transformation.
 

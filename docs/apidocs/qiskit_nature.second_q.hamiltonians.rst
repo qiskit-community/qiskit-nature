@@ -1,7 +1,4 @@
-
-
-hamiltonians
-=================================
+.. _qiskit_nature-second_q-hamiltonians:
 
 .. automodule:: qiskit_nature.second_q.hamiltonians
    :no-members:

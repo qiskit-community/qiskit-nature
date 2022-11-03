@@ -76,16 +76,19 @@ class Psi4Driver(ElectronicStructureDriver):
         method: MethodType = MethodType.RHF,
         driver_kwargs: dict[str, Any] | None = None,
     ) -> "Psi4Driver":
-        """
+        """Creates a driver from a molecule.
+
         Args:
-            molecule: molecule
-            basis: basis set
-            method: the classical method to run in Psi4
-            driver_kwargs: kwargs to be passed to driver
+            molecule: the molecular information.
+            basis: the basis set.
+            method: the SCF method type.
+            driver_kwargs: keyword arguments to be passed to driver.
+
         Returns:
-            driver
+            The constructed driver instance.
+
         Raises:
-            QiskitNatureError: Unknown unit
+            QiskitNatureError: when an unknown unit is encountered.
         """
         # Ignore kwargs parameter for this driver
         del driver_kwargs
@@ -114,12 +117,13 @@ class Psi4Driver(ElectronicStructureDriver):
 
     @staticmethod
     def to_driver_basis(basis: str) -> str:
-        """
-        Converts basis to a driver acceptable basis
+        """Converts basis to a driver acceptable basis.
+
         Args:
-            basis: The basis set to be used
+            basis: The basis set to be used.
+
         Returns:
-            driver acceptable basis
+            A driver acceptable basis.
         """
         if basis == "sto3g":
             return "sto-3g"
@@ -127,12 +131,13 @@ class Psi4Driver(ElectronicStructureDriver):
 
     @staticmethod
     def check_method_supported(method: MethodType) -> None:
-        """
-        Checks that Psi4 supports this method.
+        """Checks that Psi4 supports this method.
+
         Args:
-            method: Method type
+            method: the SCF method type.
+
         Raises:
-            UnsupportMethodError: If method not supported.
+            UnsupportMethodError: If the method is not supported.
         """
         if method not in [MethodType.RHF, MethodType.ROHF, MethodType.UHF]:
             raise UnsupportMethodError(f"Invalid Psi4 method {method.value}.")

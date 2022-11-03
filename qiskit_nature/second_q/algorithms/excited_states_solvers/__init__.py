@@ -12,7 +12,7 @@
 
 """
 Excited State Solving Algorithms (:mod:`qiskit_nature.second_q.algorithms.excited_states_solvers`)
-=========================================================================================
+==================================================================================================
 
 .. currentmodule:: qiskit_nature.second_q.algorithms.excited_states_solvers
 
