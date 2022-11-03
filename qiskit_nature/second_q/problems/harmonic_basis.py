@@ -12,7 +12,9 @@
 
 """The Harmonic basis."""
 
-from typing import Optional
+from __future__ import annotations
+
+from functools import lru_cache
 
 import numpy as np
 
@@ -27,9 +29,12 @@ class HarmonicBasis(VibrationalBasis):
 
     References:
 
-        [1] Ollitrault Pauline J., Chemical science 11 (2020): 6842-6855.
+        [1] Pauline J. Ollitrault et al. "Hardware efficient quantum algorithms for vibrational
+            structure calculations" Chem. Sci., 2020, 11, 6842-6855.
+            https://doi.org/10.1039/D0SC01908A
     """
 
+    @lru_cache(maxsize=128)
     def eval_integral(
         self,
         mode: int,
@@ -37,7 +42,7 @@ class HarmonicBasis(VibrationalBasis):
         modal_2: int,
         power: int,
         kinetic_term: bool = False,
-    ) -> Optional[float]:
+    ) -> complex | None:
         """The integral evaluation method of this basis.
 
         Args:
@@ -87,4 +92,4 @@ class HarmonicBasis(VibrationalBasis):
 
         coeff *= np.sqrt(2) ** power
 
-        return None if abs(coeff) < self._threshold else coeff
+        return None if abs(coeff) < self.threshold else coeff

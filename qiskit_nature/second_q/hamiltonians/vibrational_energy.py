@@ -14,123 +14,76 @@
 
 from __future__ import annotations
 
-from typing import cast, Generator, Optional
-
 import qiskit_nature  # pylint: disable=unused-import
-from qiskit_nature.second_q.operators import VibrationalOp
-
-from qiskit_nature.second_q.properties.bases import VibrationalBasis
-from qiskit_nature.second_q.properties.integrals import VibrationalIntegrals
+from qiskit_nature.second_q.operators import VibrationalIntegrals, VibrationalOp
 
 from .hamiltonian import Hamiltonian
 
 
 class VibrationalEnergy(Hamiltonian):
-    """The VibrationalEnergy property.
+    r"""The vibrational energy Hamiltonian.
 
-    This is the main property of any vibrational structure problem. It constructs the Hamiltonian
-    whose eigenvalue is the target of a later used Quantum algorithm.
+    This class implements the following Hamiltonian:
+
+    .. math::
+        \sum_{l=1}^L \sum_{k_l,h_l}^{N_l}
+            \langle \phi_{k_l} | T(Q_l) + V^{[l]}(Q_l) | \phi_{h_l} \rangle a^\dagger_{k_l} a_{h_l}
+        + \sum_{l<m}^L \sum_{k_l,h_l}^{N_l} \sum_{k_m,h_m}^{N_m}
+            \langle \phi_{k_l} \phi_{k_m} | V^{[l,m]}(Q_l, Q_m) | \phi_{h_l} \phi_{h_m} \rangle
+            a^\dagger_{k_l} a^\dagger_{k_m} a_{h_l} a_{h_m}
+        + \ldots
+
+    where :math:`Q` denotes a vibrational mode, :math:`T` denotes the kinetic term, and :math:`V`
+    denotes the potential terms acting on multiple modes. The subscripts :math:`k` and :math:`h` are
+    indexing the modals which each mode :math:`l` gets expanded into.
+
+    For a detailed explanation please refer to reference [1].
+
+    The following attributes can be set via the initializer but can also be read and updated once
+    the ``VibrationalEnergy`` object has been constructed.
+
+    Attributes:
+        vibrational_integrals (VibrationalIntegrals): the integral coefficients.
+        truncation_order (int | None): the maximum order of multi-body terms to include in the
+            operator.
+
+    References:
+        [1]: P. Ollitrault et al. `arXiv:2003.12578 <https://arxiv.org/abs/2003.12578>`_.
     """
 
     def __init__(
         self,
-        vibrational_integrals: list[VibrationalIntegrals],
+        vibrational_integrals: VibrationalIntegrals,
         *,
-        truncation_order: Optional[int] = None,
-        basis: Optional[VibrationalBasis] = None,
+        truncation_order: int | None = None,
     ) -> None:
-        # pylint: disable=line-too-long
         """
         Args:
-            vibrational_integrals: a list of
-                :class:`~qiskit_nature.second_q.properties.integrals.VibrationalIntegrals`.
-            truncation_order: an optional truncation order for the highest number of body terms to
-                include in the constructed Hamiltonian.
-            basis: the
-                :class:`~qiskit_nature.second_q.properties.bases.VibrationalBasis`
-                through which to map the integrals into second quantization. This attribute **MUST**
-                be set before the second-quantized operator can be constructed.
+            vibrational_integrals: the container with the integral coefficients.
+            truncation_order: the maximum order of multi-body terms to include in the operator.
         """
-        self._vibrational_integrals: dict[int, VibrationalIntegrals] = {}
-        for integral in vibrational_integrals:
-            self.add_vibrational_integral(integral)
-        self._truncation_order = truncation_order
-        self._basis: VibrationalBasis = basis
+        self.vibrational_integrals = vibrational_integrals
+        self.truncation_order = truncation_order
 
     @property
-    def basis(self) -> VibrationalBasis:
-        """Returns the basis."""
-        return self._basis
+    def register_length(self) -> int | None:
+        return None
 
-    @basis.setter
-    def basis(self, basis: VibrationalBasis) -> None:
-        """Sets the basis."""
-        self._basis = basis
+    @classmethod
+    def from_raw_integrals(cls, integrals: dict[tuple[int, ...], complex]) -> VibrationalEnergy:
+        """Constructs a hamiltonian instance from raw integrals.
 
-    @property
-    def truncation_order(self) -> int:
-        """Returns the truncation order."""
-        return self._truncation_order
-
-    @truncation_order.setter
-    def truncation_order(self, truncation_order: int) -> None:
-        """Sets the truncation order."""
-        self._truncation_order = truncation_order
-
-    def __str__(self) -> str:
-        string = ["VibrationalEnergy:"]
-        string += [f"\t{line}" for line in str(self.basis).split("\n")]
-        for ints in self._vibrational_integrals.values():
-            string += [f"\t{ints}"]
-        return "\n".join(string)
-
-    def __iter__(self) -> Generator[VibrationalIntegrals, None, None]:
-        """Returns the generator-iterator method."""
-        return self._generator()
-
-    def _generator(self) -> Generator[VibrationalIntegrals, None, None]:
-        """A generator-iterator method [1] iterating over all internal ``VibrationalIntegrals``.
-
-        [1]: https://docs.python.org/3/reference/expressions.html#generator-iterator-methods
-        """
-        for ints in self._vibrational_integrals.values():
-            yield ints
-
-    def add_vibrational_integral(self, integral: VibrationalIntegrals) -> None:
-        # pylint: disable=line-too-long
-        """Adds a
-        :class:`~qiskit_nature.second_q.properties.integrals.VibrationalIntegrals`
-        instance to the internal storage.
-
-        Internally, the
-        :class:`~qiskit_nature.second_q.properties.integrals.VibrationalIntegrals`
-        are stored in a dictionary sorted by their number of body terms. This simplifies access
-        based on these properties (see ``get_vibrational_integral``) and avoids duplicate,
-        inconsistent entries.
+        This function simply calls
+        :meth:`qiskit_nature.second_q.operators.VibrationalIntegrals.from_raw_integrals`.
+        See its documentation for more details.
 
         Args:
-            integral: the
-                :class:`~qiskit_nature.second_q.properties.integrals.VibrationalIntegrals`
-                to add.
-        """
-        self._vibrational_integrals[integral._num_body_terms] = integral
-
-    def get_vibrational_integral(self, num_body_terms: int) -> Optional[VibrationalIntegrals]:
-        """Gets an
-        :class:`~qiskit_nature.second_q.properties.integrals.VibrationalIntegrals`
-        given the number of body terms.
-
-        Args:
-            num_body_terms: the number of body terms of the queried integrals.
+            integrals: a mapping of matrix index tuples to coefficients.
 
         Returns:
-            The queried integrals object (or None if unavailable).
+            The resulting ``VibrationalEnergy`` instance.
         """
-        return self._vibrational_integrals.get(num_body_terms, None)
-
-    @property
-    def register_length(self) -> int:
-        return sum(self.basis._num_modals_per_mode)
+        return cls(VibrationalIntegrals.from_raw_integrals(integrals))
 
     def second_q_op(self) -> VibrationalOp:
         """Returns the second quantized vibrational energy operator.
@@ -138,20 +91,22 @@ class VibrationalEnergy(Hamiltonian):
         Returns:
             A `dict` of `VibrationalOp` objects.
         """
-        ops = []
-        for num_body, ints in self._vibrational_integrals.items():
-            if self._truncation_order is not None and num_body > self._truncation_order:
-                break
-            ints.basis = self.basis
-            ops.append(ints.to_second_q_op())
-
-        return cast(VibrationalOp, sum(ops))
+        truncated_integrals = self.vibrational_integrals
+        if self.truncation_order is not None:
+            truncated_integrals = VibrationalIntegrals(
+                {
+                    key: value
+                    for key, value in self.vibrational_integrals.items()
+                    if len(key) <= 3 * self.truncation_order
+                },
+                validate=False,
+            )
+        return VibrationalOp.from_polynomial_tensor(truncated_integrals)
 
     def interpret(
         self, result: "qiskit_nature.second_q.problems.EigenstateResult"  # type: ignore[name-defined]
     ) -> None:
-        """Interprets an :class:`~qiskit_nature.second_q.problems.EigenstateResult`
-        in this property's context.
+        """Interprets an :class:`~qiskit_nature.second_q.problems.EigenstateResult`.
 
         Args:
             result: the result to add meaning to.

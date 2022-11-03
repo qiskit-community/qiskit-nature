@@ -16,7 +16,6 @@ from test.second_q.properties.property_test import PropertyTest
 
 from qiskit_nature.second_q.operators import VibrationalOp
 from qiskit_nature.second_q.properties import OccupiedModals
-from qiskit_nature.second_q.properties.bases import HarmonicBasis
 
 
 class TestOccupiedModals(PropertyTest):
@@ -26,9 +25,7 @@ class TestOccupiedModals(PropertyTest):
         """Setup basis."""
         super().setUp()
         self.num_modals = [2, 3, 4]
-        basis = HarmonicBasis(self.num_modals)
-        self.prop = OccupiedModals()
-        self.prop.basis = basis
+        self.prop = OccupiedModals(self.num_modals)
 
     def test_second_q_ops(self):
         """Test second_q_ops."""

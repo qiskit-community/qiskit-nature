@@ -15,7 +15,7 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import cast, Callable, List, Optional, Union
+from typing import cast, Callable, List, Optional, Union, TYPE_CHECKING
 
 import numpy as np
 
@@ -27,7 +27,6 @@ from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library.initial_states.hartree_fock import (
     hartree_fock_bitstring_mapped,
 )
-from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.properties import Interpretable
@@ -38,6 +37,9 @@ from .eigenstate_result import EigenstateResult
 
 from .base_problem import BaseProblem
 from .electronic_basis import ElectronicBasis
+
+if TYPE_CHECKING:
+    from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
 
 
 class ElectronicStructureProblem(BaseProblem):
@@ -111,7 +113,7 @@ class ElectronicStructureProblem(BaseProblem):
         """
         super().__init__(hamiltonian)
         self.properties: ElectronicPropertiesContainer = ElectronicPropertiesContainer()
-        self.molecule: MoleculeInfo | None = None
+        self.molecule: "MoleculeInfo" | None = None
         self.basis: ElectronicBasis | None = None
         self._num_particles: int | tuple[int, int] | None = None
         self.num_spatial_orbitals: int | None = hamiltonian.register_length
