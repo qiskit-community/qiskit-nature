@@ -324,7 +324,7 @@ class SpinOp(SparseLabelOp):
         return cls(data, copy=False, num_spins=tensor.register_length).chop()
 
     @staticmethod
-    def _split_label(label) -> Iterator[tuple[str, int | None, int]]:
+    def _split_label(label) -> Iterator[tuple[str, int, int]]:
         """Helper method to iterate over label splits.
 
         Yields:
