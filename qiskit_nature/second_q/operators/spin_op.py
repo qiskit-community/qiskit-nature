@@ -12,7 +12,7 @@
 
 """A generic Spin operator.
 
-Note: this implementation differs fundamentally from the `FermionicOp`
+Note: this implementation differs fundamentally from the ``FermionicOp``
 as it relies on the mathematical representation of spin matrices as (e.g.) explained in [1].
 
 [1]: https://en.wikipedia.org/wiki/Spin_(physics)#Higher_spins
@@ -39,17 +39,18 @@ from .sparse_label_op import _TCoeff, SparseLabelOp, _to_number
 class SpinOp(SparseLabelOp):
     """XYZ Spin operator.
 
-    A `SpinOp` represents a weighted sum of spin operator terms with a certain spin
+    A ``SpinOp`` represents a weighted sum of spin operator terms with a certain spin
     value associated to them. This value can be an integer for bosonic particles or
     a half-integer (fraction) for fermions.
 
     These operator terms are encoded as sparse labels, strings consisting of a
     space-separated list of expressions. Each expression must look like
-    :code:`[XYZ]_<index>^<power>`, where the :code:`<index>` is a non-negative
-    integer representing the index of the spin mode  where the `X`, `Y` or `Z`
+    :code:`[XYZ]_<index>` or :code:`[XYZ]_<index>^<power>`,
+    where the :code:`<index>` is a non-negative integer representing the
+    index of the spin mode  where the ``X``, ``Y`` or ``Z``
     component of the spin operator is to be applied.
 
-    The value of :code:`index` is bound by the number of spins(`num_spins`) of the operator
+    The value of :code:`index` is bound by the number of spins(``num_spins``) of the operator
     (Note: since Python indices are 0-based, the maximum value an index can take is given by
     :code:`num_spins-1`). The the :code:`<power>` is a positive integer indicating the number
     of times the given operator is applied to the mode at :code:`<index>`. You can omit
@@ -57,7 +58,7 @@ class SpinOp(SparseLabelOp):
 
     **Initialization**
 
-    A `SpinOp` is initialized with a dictionary, mapping terms to their respective
+    A ``SpinOp`` is initialized with a dictionary, mapping terms to their respective
     coefficients. For example:
 
     .. jupyter-execute::
@@ -116,7 +117,7 @@ class SpinOp(SparseLabelOp):
     .. note::
 
         It is the users' responsibility, that in the above scenario, :code:`some_big_data` is not
-        changed after initialization of the `SpinOp`, since the operator contents are not
+        changed after initialization of the ``SpinOp``, since the operator contents are not
         guaranteed to remain unaffected by such changes.
 
     **Algebra**
@@ -124,11 +125,9 @@ class SpinOp(SparseLabelOp):
     :class:`SpinOp` supports the following basic arithmetic operations: addition, subtraction,
     scalar multiplication, adjoint, composition and tensoring.
 
-    As of now, operations that involve two different instances of `SpinOp` (i.e. addition,
+    As of now, operations that involve two different instances of ``SpinOp`` (i.e. addition,
     subtraction, composition, and tensoring) are only supported for identical spins
-    (`op_1.num_spins == op_2.num_spins`). In the future, multiple spin lengths within one
-    `SpinOp` will be supported, which might enable certain operations to also support
-    different `num_spins`.
+    (``op_1.num_spins == op_2.num_spins``).
 
     For example,
 
@@ -174,7 +173,7 @@ class SpinOp(SparseLabelOp):
 
     **Iteration**
 
-    Instances of `SpinOp` are iterable. Iterating a SpinOp yields (term, coefficient)
+    Instances of ``SpinOp`` are iterable. Iterating a SpinOp yields (term, coefficient)
     pairs describing the terms contained in the operator. Labels containing powers/exponents
     will be expanded into multiple (term, coefficient) pairs.
 
@@ -207,11 +206,11 @@ class SpinOp(SparseLabelOp):
                   the documentation of :class:`SpinOp` for more details.
             spin: positive half-integer (integer or half-odd-integer) that represents spin.
             num_spins: the number spins on which this operator acts.
-            copy: when set to False the `data` will not be copied and the dictionary will be
-                stored by reference rather than by value (which is the default; `copy=True`). Note,
+            copy: when set to False the ``data`` will not be copied and the dictionary will be
+                stored by reference rather than by value (which is the default; ``copy=True``). Note,
                 that this requires you to not change the contents of the dictionary after
-                constructing the operator. This also implies `validate=False`. Use with care!
-            validate: when set to False the `data` keys will not be validated. Note, that the
+                constructing the operator. This also implies ``validate=False``. Use with care!
+            validate: when set to False the ``data`` keys will not be validated. Note, that the
                 SparseLabelOp base class, makes no assumption about the data keys, so will not
                 perform any validation by itself. Only concrete subclasses are encouraged to
                 implement a key validation method. Disable this setting with care!
@@ -344,7 +343,7 @@ class SpinOp(SparseLabelOp):
         """Constructs the X spin operator for a given spin.
 
         Returns:
-            The X spin operator for `spin`.
+            The X spin operator for ``spin``.
         """
         return cls({"X_0": 1.0}, spin=spin, copy=False)
 
@@ -353,7 +352,7 @@ class SpinOp(SparseLabelOp):
         """Constructs the Y spin operator for a given spin.
 
         Returns:
-            The Y spin operator for `spin`.
+            The Y spin operator for ``spin``.
         """
         return cls({"Y_0": 1.0}, spin=spin, copy=False)
 
@@ -362,29 +361,25 @@ class SpinOp(SparseLabelOp):
         """Constructs the Z spin operator for a given spin.
 
         Returns:
-            The Z spin operator for `spin`.
+            The Z spin operator for ``spin``.
         """
         return cls({"Z_0": 1.0}, spin=spin, copy=False)
 
     @classmethod
-    def one(
-        cls, spin: float | Fraction = Fraction(1, 2)
-    ) -> SpinOp:  # pylint: disable=arguments-differ
+    def one(cls, spin: float | Fraction = Fraction(1, 2)) -> SpinOp:
         """Constructs the "one" spin operator for a given spin.
 
         Returns:
-            The "one" spin operator for `spin`.
+            The "one" spin operator for ``spin``.
         """
         return cls({"": 1.0}, spin=spin, copy=False)
 
     @classmethod
-    def zero(
-        cls, spin: float | Fraction = Fraction(1, 2)
-    ) -> SpinOp:  # pylint: disable=arguments-differ
+    def zero(cls, spin: float | Fraction = Fraction(1, 2)) -> SpinOp:
         """Constructs the "zero" spin operator for a given spin.
 
         Returns:
-            The "one" spin operator for `spin`.
+            The "one" spin operator for ``spin``.
         """
         return cls({}, spin=spin, copy=False)
 
@@ -406,12 +401,12 @@ class SpinOp(SparseLabelOp):
     def terms(self) -> Iterator[tuple[list[tuple[str, int]], _TCoeff]]:
         """Provides an iterator analogous to :meth:`items` but with the labels already split into
         pairs of operation characters and indices. If the labels contain an exponent, they will be
-        expanded into as many elements as indicated by the exponent. For example, label `"X_0^3"`
+        expanded into as many elements as indicated by the exponent. For example, label ``"X_0^3"``
         will yield ``([("X", 0), ("X", 0), ("X", 0)], coeff)``.
 
         Yields:
             A tuple with two items; the first one being a list of pairs of the form (char, int)
-            where char is either `X`, `Y` or `Z` and the integer corresponds to the index
+            where char is either ``X``, ``Y`` or ``Z`` and the integer corresponds to the index
             on which the operator gets applied; the second item of the returned tuple is the
             coefficient of this term.
         """
@@ -516,7 +511,6 @@ class SpinOp(SparseLabelOp):
         for lbl in label.split():
             # the generator will only yield 1 item
             char, idx, exp = next(self._split_label(lbl))
-            # if char != "":
             new_label += [f"{char}_{idx}"] * exp
 
         return " ".join(lbl for lbl in new_label if lbl is not None), coeff
