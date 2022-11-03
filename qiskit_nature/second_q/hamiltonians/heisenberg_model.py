@@ -22,7 +22,30 @@ from .lattices import Lattice
 
 
 class HeisenbergModel(LatticeModel):
-    """The Heisenberg model."""
+    r"""The Heisenberg model.
+
+    This class implements the following Hamiltonian:
+
+    .. math::
+
+        H = - \vec{J} \sum_{\langle i, j \rangle} \vec{\sigma}_{i} \otimes \vec{\sigma}_{j}
+        - \vec{h} \sum_{i} \vec{\sigma}_{i}
+
+    where :math:`i,j` refer to lattice nodes. The :math:`\sum_{\langle i, j \rangle}` is performed
+    over adjacent lattice nodes. This model assumes spin-:math:`\frac{1}{2}` particles. Thus,
+    :math:`\vec{\sigma}_{i} = (X_i, Y_i, Z_i)` is a vector containing the Pauli matrices.
+    :math:`\vec{J}` is the coupling constant and :math:`\vec{h}` is the external magnetic field,
+    both with dimensions of energy.
+
+    This model is instantiated using a
+    :class:`~qiskit_nature.second_q.hamiltonians.lattices.Lattice`. For example, using a
+    :class:`~qiskit_nature.second_q.hamiltonians.lattices.LineLattice`:
+
+    .. code-block::
+
+        line_lattice = LineLattice(num_nodes=10, boundary_condition=BoundaryCondition.OPEN)
+        heisenburg_model = HeisenbergModel(line_lattice, (1.0, 1.0, 1.0), (0.0, 0.0, 1.0))
+    """
 
     def __init__(
         self,
@@ -34,7 +57,7 @@ class HeisenbergModel(LatticeModel):
         Args:
             lattice: Lattice on which the model is defined.
             coupling_constants: The coupling constants in each Cartesian axes.
-                                Defaults to (1.0, 1.0, 1.0).
+                Defaults to (1.0, 1.0, 1.0).
             ext_magnetic_field: Represents a magnetic field in Cartesian coordinates.
                                 Defaults to (0.0, 0.0, 0.0).
         """
