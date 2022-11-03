@@ -44,6 +44,14 @@ class HeisenbergModel(LatticeModel):
 
         line_lattice = LineLattice(num_nodes=10, boundary_condition=BoundaryCondition.OPEN)
         heisenberg_model = HeisenbergModel(line_lattice, (1.0, 1.0, 1.0), (0.0, 0.0, 1.0))
+
+    The transverse-field Ising model can be recovered as a special case of the Heisenberg model
+    by limiting the model to spins that are parallel/antiparallel with respect to a transverse
+    magnetic field:
+
+    .. code-block:: python
+
+        heisenberg_model = HeisenbergModel(line_lattice, (0.0, 0.0, 1.0), (1.0, 0.0, 0.0))
     """
 
     def __init__(

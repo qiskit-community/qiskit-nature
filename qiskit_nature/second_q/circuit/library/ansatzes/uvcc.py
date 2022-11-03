@@ -35,6 +35,23 @@ class UVCC(EvolvedOperatorAnsatz):
     """
     This trial wavefunction is a Unitary Vibrational Coupled-Cluster ansatz.
 
+    This method constructs the requested excitations based on a
+    :class:`~qiskit_nature.second_q.circuit.library.VSCF` reference state by default. When setting
+    up a ``VQE`` algorithm using this ansatz and initial state, it is likely you will also want to
+    use a :class:`~qiskit_nature.second_q.algorithms.initial_points.VSCFInitialPoint` that has been
+    configured using the corresponding ansatz parameters. When using a
+    :class:`~qiskit_nature.second_q.algorithms.VQEUVCCFactory` this is set by default. When directly
+    using ``VQE``, you can set it manually. For example:
+
+    .. code-block:: python
+
+        qubit_converter = QubitConverter(JordanWignerMapper())
+        uvcc = UVCC([2, 2], 'sd', qubit_converter)
+        vscf_initial_point = VSCFInitialPoint()
+        vscf_initial_point.ansatz = uvcc
+        initial_point = vscf_initial_point.to_numpy_array()
+        vqe = VQE(Estimator(), uvcc, SLSQP(), initial_point=initial_point)
+
     For more information, see Ollitrault Pauline J., Chemical science 11 (2020): 6842-6855.
     """
 
@@ -83,7 +100,15 @@ class UVCC(EvolvedOperatorAnsatz):
             qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` instance
                 which takes care of mapping to a qubit operator.
             reps: The number of repetitions of basic module.
-            initial_state: A ``QuantumCircuit`` object to prepend to the circuit.
+            initial_state: A ``QuantumCircuit`` object to prepend to the circuit. Note that this
+                setting does *not* influence the ``excitations``. When relying on the default
+                generation method (i.e. not providing a ``Callable`` to ``excitations``), these will
+                always be constructed with respect to a
+                :class:`~qiskit_nature.second_q.circuit.library.VSCF` reference state. When setting
+                up a ``VQE`` algorithm using this ansatz and initial state, it is likely you will
+                also want to use a
+                :class:`~qiskit_nature.second_q.algorithms.initial_points.VSCFInitialPoint` that has
+                been configured using the corresponding ansatz parameters.
         """
         self._qubit_converter = qubit_converter
         self._num_modals = num_modals
