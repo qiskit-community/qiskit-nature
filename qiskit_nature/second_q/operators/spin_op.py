@@ -51,7 +51,7 @@ class SpinOp(SparseLabelOp):
 
     The value of :code:`index` is bound by the number of spins (``num_spins``) of the operator
     (Note: since Python indices are 0-based, the maximum value an index can take is given by
-    :code:`num_spins-1`). The the :code:`<power>` is a positive integer indicating the number
+    :code:`num_spins-1`). The :code:`<power>` is a positive integer indicating the number
     of times the given operator is applied to the mode at :code:`<index>`. You can omit
     :code:`<power>`, implying a single application of the operator (:code:`power = 1`).
 
