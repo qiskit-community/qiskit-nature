@@ -26,12 +26,12 @@ class IsingModel(LatticeModel):
 
     .. math::
 
-        H = -J\left(g \sum_{i} X_{i} + \sum_{\langle i, j \rangle} Z_{i} Z_{j} \right),
+        H = -J_{ij}\left(g_{i} \sum_{i} X_{i} + \sum_{\langle i, j \rangle} Z_{i} Z_{j} \right),
 
     where :math:`i,j` refer to lattice nodes. The :math:`\sum_{\langle i, j \rangle}` is performed
     over adjacent lattice nodes. This model assumes spin-:math:`\frac{1}{2}` particles. Thus,
-    :math:`X_i` and :math:`Z_i` represent the respective Pauli matrices. :math:`J` is a constant
-    with dimensions of energy and :math:`g` is a coupling parameter that determines the relative
+    :math:`X_i` and :math:`Z_i` represent the respective Pauli matrices. :math:`J_{ij}` are constants
+    with dimensions of energy and :math:`g_{i}` are coupling parameters that determines the relative
     strength between the external transverse field and the nearest neighbor interaction.
 
     This model is instantiated using a
@@ -59,7 +59,7 @@ class IsingModel(LatticeModel):
         return self._lattice.num_nodes
 
     def second_q_op(self) -> SpinOp:
-        """Return the Hamiltonian of the Ising model in terms of `SpinOp`.
+        """Return the Hamiltonian of the Ising model in terms of ``SpinOp``.
 
         Returns:
             SpinOp: The Hamiltonian of the Ising model.
