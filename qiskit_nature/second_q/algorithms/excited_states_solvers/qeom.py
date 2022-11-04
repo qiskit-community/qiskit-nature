@@ -223,8 +223,8 @@ class QEOM(ExcitedStatesSolver):
         """Construct the excitation operators for each matrix element.
 
         Returns:
-            a dictionary of all matrix elements operators and the number of excitations
-            (or the size of the qEOM pseudo-eigenvalue problem)
+            A dictionary of all matrix elements operators and the number of excitations
+            (or the size of the qEOM pseudo-eigenvalue problem).
         """
         data = self._build_hopping_ops(problem)
         hopping_operators, type_of_commutativities, excitation_indices = data
@@ -247,13 +247,13 @@ class QEOM(ExcitedStatesSolver):
         """Builds the product of raising and lowering operators for a given problem.
 
         Args:
-            problem: the problem for which to build out the operators.
+            problem: The problem for which to build out the operators.
 
         Raises:
-            NotImplementedError: for an unsupported problem type.
+            NotImplementedError: For an unsupported problem type.
 
         Returns:
-            Dict of hopping operators, dict of commutativity types and dict of excitation indices
+            Dict of hopping operators, dict of commutativity types and dict of excitation indices.
         """
         if isinstance(problem, ElectronicStructureProblem):
             return build_electronic_ops(
@@ -280,16 +280,16 @@ class QEOM(ExcitedStatesSolver):
         """Building all commutators for Q, W, M, V matrices.
 
         Args:
-            hopping_operators: all hopping operators based on excitations_list,
+            hopping_operators: All hopping operators based on excitations_list,
                 key is the string of single/double excitation;
                 value is corresponding operator.
-            type_of_commutativities: if tapering is used, it records the commutativities of
+            type_of_commutativities: If tapering is used, it records the commutativities of
                 hopping operators with the
                 Z2 symmetries found in the original operator.
-            size: the number of excitations (size of the qEOM pseudo-eigenvalue problem)
+            size: The number of excitations (size of the qEOM pseudo-eigenvalue problem).
 
         Returns:
-            a dictionary that contains the operators for each matrix element
+            A dictionary that contains the operators for each matrix element.
         """
 
         all_matrix_operators = {}
@@ -365,14 +365,14 @@ class QEOM(ExcitedStatesSolver):
         """Numerically computes the commutator / double commutator between operators.
 
         Args:
-            params: list containing the indices of matrix element and the corresponding
-                excitation operators
-            operator: the hamiltonian
-            z2_symmetries: z2_symmetries in case of tapering
+            params: List containing the indices of matrix element and the corresponding
+                excitation operators.
+            operator: The hamiltonian.
+            z2_symmetries: z2_symmetries in case of tapering.
 
         Returns:
             The indices of the matrix element and the corresponding qubit
-            operator for each of the EOM matrices
+            operator for each of the EOM matrices.
         """
         m_u, n_u, left_op, right_op_1, right_op_2 = params
         if left_op is None or right_op_1 is None and right_op_2 is None:
@@ -427,11 +427,11 @@ class QEOM(ExcitedStatesSolver):
         """Constructs the M, V, Q and W matrices from the results on the ground state
 
         Args:
-            gs_results: a ground state result object
-            size: size of eigenvalue problem
+            gs_results: A ground state result object.
+            size: Size of eigenvalue problem.
 
         Returns:
-            the matrices and their standard deviation
+            The matrices and their standard deviation.
         """
 
         mus, nus = np.triu_indices(size)
@@ -524,8 +524,8 @@ class QEOM(ExcitedStatesSolver):
             w_mat : W matrices
 
         Returns:
-            1-D vector stores all energy gap to reference state
-            2-D array storing the X and Y expansion coefficients
+            1-D vector stores all energy gap to reference state.
+            2-D array storing the X and Y expansion coefficients.
         """
         logger.debug("Diagonalizing qeom matrices for excited states...")
         a_mat = np.matrixlib.bmat([[m_mat, q_mat], [q_mat.T.conj(), m_mat.T.conj()]])
