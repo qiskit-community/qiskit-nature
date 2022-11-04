@@ -24,7 +24,7 @@ from qiskit.opflow import PauliTrotterEvolution
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.operators import SecondQuantizedOp, VibrationalOp
+from qiskit_nature.second_q.operators import SparseLabelOp, VibrationalOp
 
 from .utils.vibration_excitation_generator import generate_vibration_excitations
 
@@ -101,7 +101,7 @@ class UVCC(EvolvedOperatorAnsatz):
         # We cache these, because the generation may be quite expensive (depending on the generator)
         # and the user may want quick access to inspect these. Also, it speeds up testing for the
         # same reason!
-        self._excitation_ops: list[SecondQuantizedOp] | None = None
+        self._excitation_ops: list[SparseLabelOp] | None = None
 
         # Our parent, EvolvedOperatorAnsatz, sets qregs when it knows the
         # number of qubits, which it gets from the operators. Getting the
@@ -172,12 +172,12 @@ class UVCC(EvolvedOperatorAnsatz):
             # they will be left as None to be built at some later time.
             if self._check_uvcc_configuration(raise_on_failure=False):
                 # The qubit operators are cached by `EvolvedOperatorAnsatz` class. We only generate
-                # them from the `SecondQuantizedOp`s produced by the generators, if they're not
+                # them from the `SparseLabelOp`s produced by the generators, if they're not
                 # already present. This behavior also enables the adaptive usage of the `UVCC` class
                 # by algorithms such as `AdaptVQE`.
                 excitation_ops = self.excitation_ops()
 
-                logger.debug("Converting SecondQuantizedOps into PauliSumOps...")
+                logger.debug("Converting SparseLabelOps into PauliSumOps...")
                 # Convert operators according to saved state in converter from the conversion of the
                 # main operator since these need to be compatible. If Z2 Symmetry tapering was done
                 # it may be that one or more excitation operators do not commute with the symmetry.
@@ -238,7 +238,7 @@ class UVCC(EvolvedOperatorAnsatz):
 
         return True
 
-    def excitation_ops(self) -> list[SecondQuantizedOp]:
+    def excitation_ops(self) -> list[SparseLabelOp]:
         """Parses the excitations and generates the list of operators.
 
         Raises:
@@ -252,7 +252,7 @@ class UVCC(EvolvedOperatorAnsatz):
 
         excitation_list = self._get_excitation_list()
 
-        logger.debug("Converting excitations into SecondQuantizedOps...")
+        logger.debug("Converting excitations into SparseLabelOps...")
         excitation_ops = self._build_vibration_excitation_ops(excitation_list)
 
         self._excitation_list = excitation_list

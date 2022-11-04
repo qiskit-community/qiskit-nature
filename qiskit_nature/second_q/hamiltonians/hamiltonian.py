@@ -17,22 +17,22 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 
 import qiskit_nature  # pylint: disable=unused-import
-from qiskit_nature.second_q.operators import SecondQuantizedOp
+from qiskit_nature.second_q.operators import SparseLabelOp
 
 
 class Hamiltonian(ABC):
     """The Hamiltonian base class is the main component of the :class:`.BaseProblem`.
 
-    This class is a factory for a :class:`.SecondQuantizedOp`, accessible via its ``second_q_op()``
+    This class is a factory for a :class:`.SparseLabelOp`, accessible via its ``second_q_op()``
     method.
     """
 
     @abstractmethod
-    def second_q_op(self) -> SecondQuantizedOp:
+    def second_q_op(self) -> SparseLabelOp:
         """Generates the actual operator represented by this Hamiltonian.
 
         Returns:
-            The :class:`.SecondQuantizedOp` form of this Hamiltonian.
+            The :class:`.SparseLabelOp` form of this Hamiltonian.
         """
         raise NotImplementedError()
 

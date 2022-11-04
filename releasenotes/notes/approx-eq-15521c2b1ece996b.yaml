@@ -1,5 +1,5 @@
 ---
 features:
   - |
-    Adds `.SecondQuantizedOp.equiv` for checking approximate equality
-    between two SecondQuantizedOps.
+    Adds `.SparseLabelOp.equiv` for checking approximate equality
+    between two SparseLabelOps.

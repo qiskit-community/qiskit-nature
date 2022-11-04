@@ -21,7 +21,7 @@ from qiskit.opflow import PauliSumOp
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.operators import SecondQuantizedOp
+from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.second_q.problems import EigenstateResult
 
@@ -61,7 +61,7 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
     def get_qubit_operators(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[dict[str, Union[SecondQuantizedOp, PauliSumOp]]] = None,
+        aux_operators: Optional[dict[str, Union[SparseLabelOp, PauliSumOp]]] = None,
     ) -> Tuple[PauliSumOp, Optional[dict[str, PauliSumOp]]]:
         """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators"""
         # Note that ``aux_ops`` contains not only the transformed ``aux_operators`` passed by the
@@ -79,7 +79,7 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
 
         if aux_operators is not None:
             for name_aux, aux_op in aux_operators.items():
-                if isinstance(aux_op, SecondQuantizedOp):
+                if isinstance(aux_op, SparseLabelOp):
                     converted_aux_op = self._qubit_converter.convert_match(
                         aux_op, suppress_none=True
                     )
@@ -105,7 +105,7 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[dict[str, Union[SecondQuantizedOp, PauliSumOp]]] = None,
+        aux_operators: Optional[dict[str, Union[SparseLabelOp, PauliSumOp]]] = None,
     ) -> EigenstateResult:
         """Compute Ground and Excited States properties.
 
