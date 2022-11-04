@@ -260,7 +260,9 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
         calc = GroundStateEigensolver(self.tapered_mapper, solver)
         res = calc.solve(self.electronic_structure_problem)
 
-        np.testing.assert_array_equal(solver.initial_point.to_numpy_array(), [0.0, 0.0, 0.0])
+        np.testing.assert_array_equal(
+            solver.initial_point.to_numpy_array(), [0.0, 0.0, 0.0]  # pylint: disable=no-member
+        )
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
     def test_vqe_ucc_factory_with_user_initial_point(self):
@@ -282,7 +284,8 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
         res = calc.solve(self.electronic_structure_problem)
 
         np.testing.assert_array_almost_equal(
-            solver.initial_point.to_numpy_array(), self.mp2_initial_point
+            solver.initial_point.to_numpy_array(),  # pylint: disable=no-member
+            self.mp2_initial_point,
         )
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
@@ -300,7 +303,8 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
         res = calc.solve(self.electronic_structure_problem)
 
         np.testing.assert_array_almost_equal(
-            solver.initial_point.to_numpy_array(), np.zeros(6, dtype=float)
+            solver.initial_point.to_numpy_array(),  # pylint: disable=no-member
+            np.zeros(6, dtype=float),
         )
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
@@ -323,7 +327,8 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
         res = calc.solve(self.electronic_structure_problem)
 
         np.testing.assert_array_almost_equal(
-            solver.initial_point.to_numpy_array(), np.tile(self.mp2_initial_point, 2)
+            solver.initial_point.to_numpy_array(),  # pylint: disable=no-member
+            np.tile(self.mp2_initial_point, 2),
         )
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 

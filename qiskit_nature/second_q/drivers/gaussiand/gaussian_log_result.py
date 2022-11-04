@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -33,6 +33,7 @@ else:
         Replacement if sparse.as_coo is not present.
         """
         del args
+        return 0
 
 
 logger = logging.getLogger(__name__)

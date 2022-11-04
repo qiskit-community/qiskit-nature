@@ -427,7 +427,7 @@ class UCC(EvolvedOperatorAnsatz):
         excitations = []
         for gen in generators:
             excitations.extend(
-                gen(
+                gen(  # pylint: disable=not-callable
                     num_spatial_orbitals=self.num_spatial_orbitals,
                     num_particles=self.num_particles,
                 )

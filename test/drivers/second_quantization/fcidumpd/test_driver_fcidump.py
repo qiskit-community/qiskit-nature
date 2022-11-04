@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -13,7 +13,7 @@
 """ Test Driver FCIDump """
 
 from typing import cast
-
+import builtins
 import unittest
 from abc import ABC, abstractmethod
 from test import QiskitNatureDeprecatedTestCase
@@ -47,22 +47,22 @@ class BaseTestDriverFCIDump(ABC):
     def subTest(self, msg, **kwargs):
         # pylint: disable=invalid-name
         """subtest"""
-        raise Exception("Abstract method")
+        raise builtins.Exception("Abstract method")
 
     @abstractmethod
     def assertAlmostEqual(self, first, second, places=None, msg=None, delta=None):
         """assert Almost Equal"""
-        raise Exception("Abstract method")
+        raise builtins.Exception("Abstract method")
 
     @abstractmethod
     def assertEqual(self, first, second, msg=None):
         """assert equal"""
-        raise Exception("Abstract method")
+        raise builtins.Exception("Abstract method")
 
     @abstractmethod
     def assertSequenceEqual(self, seq1, seq2, msg=None, seq_type=None):
         """assert Sequence Equal"""
-        raise Exception("Abstract method")
+        raise builtins.Exception("Abstract method")
 
     def test_driver_result_electronic_energy(self):
         """Test the ElectronicEnergy property."""
