@@ -41,10 +41,8 @@ from qiskit.opflow.primitive_ops import Z2Symmetries
 
 from qiskit_nature import QiskitNatureError
 
-from qiskit_nature.second_q.operators import SecondQuantizedOp, SparseLabelOp
+from qiskit_nature.second_q.operators import SparseLabelOp
 from .qubit_mapper import QubitMapper
-
-OPERATOR = Union[SecondQuantizedOp, SparseLabelOp]
 
 # pylint: disable=invalid-name
 T = TypeVar("T")
@@ -220,7 +218,7 @@ class QubitConverter:
 
     def convert(
         self,
-        second_q_op: OPERATOR,
+        second_q_op: SparseLabelOp,
         num_particles: Optional[Tuple[int, int]] = None,
         sector_locator: Optional[
             Callable[[Z2Symmetries, "QubitConverter"], Optional[List[int]]]
@@ -255,7 +253,7 @@ class QubitConverter:
 
     def convert_only(
         self,
-        second_q_op: OPERATOR,
+        second_q_op: SparseLabelOp,
         num_particles: Optional[Tuple[int, int]] = None,
     ) -> PauliSumOp:
         """
@@ -316,7 +314,7 @@ class QubitConverter:
 
     def convert_match(
         self,
-        second_q_ops: OPERATOR | ListOrDictType[OPERATOR],
+        second_q_ops: SparseLabelOp | ListOrDictType[SparseLabelOp],
         *,
         suppress_none: bool = False,
         check_commutes: bool = True,
@@ -346,11 +344,11 @@ class QubitConverter:
         # actual conversions, we make a single entry list of it here and unwrap to return.
         wrapped_type = type(second_q_ops)
 
-        if isinstance(second_q_ops, (SecondQuantizedOp, SparseLabelOp)):
+        if isinstance(second_q_ops, SparseLabelOp):
             second_q_ops = [second_q_ops]
             suppress_none = False  # When only a single op we will return None back
 
-        wrapped_second_q_ops: _ListOrDict[OPERATOR] = _ListOrDict(second_q_ops)
+        wrapped_second_q_ops: _ListOrDict[SparseLabelOp] = _ListOrDict(second_q_ops)
 
         qubit_ops: _ListOrDict[PauliSumOp] = _ListOrDict()
         for name, second_q_op in iter(wrapped_second_q_ops):
@@ -364,7 +362,7 @@ class QubitConverter:
 
         returned_ops: Union[PauliSumOp, ListOrDictType[PauliSumOp]]
 
-        if issubclass(wrapped_type, (SecondQuantizedOp, SparseLabelOp)):
+        if issubclass(wrapped_type, SparseLabelOp):
             returned_ops = list(iter(tapered_ops))[0][1]
         elif wrapped_type == list:
             if suppress_none:
@@ -378,7 +376,7 @@ class QubitConverter:
 
     def map(
         self,
-        second_q_ops: OPERATOR | ListOrDictType[OPERATOR],
+        second_q_ops: SparseLabelOp | ListOrDictType[SparseLabelOp],
     ) -> Union[PauliSumOp, ListOrDictType[PauliSumOp]]:
         """A convenience method to map second quantized operators based on current mapper.
 
@@ -389,12 +387,12 @@ class QubitConverter:
             A qubit operator in the form of a PauliSumOp, or list thereof if a list of
             second quantized operators was supplied
         """
-        if isinstance(second_q_ops, (SecondQuantizedOp, SparseLabelOp)):
+        if isinstance(second_q_ops, SparseLabelOp):
             qubit_ops = self._map(second_q_ops)
         else:
             wrapped_type = type(second_q_ops)
 
-            wrapped_second_q_ops: _ListOrDict[OPERATOR] = _ListOrDict(second_q_ops)
+            wrapped_second_q_ops: _ListOrDict[SparseLabelOp] = _ListOrDict(second_q_ops)
 
             qubit_ops = _ListOrDict()
             for name, second_q_op in iter(wrapped_second_q_ops):
@@ -407,7 +405,7 @@ class QubitConverter:
 
         return qubit_ops
 
-    def _map(self, second_q_op: OPERATOR) -> PauliSumOp:
+    def _map(self, second_q_op: SparseLabelOp) -> PauliSumOp:
         if self._sort_operators and isinstance(second_q_op, SparseLabelOp):
             second_q_op = second_q_op.sort()
         return self._mapper.map(second_q_op)

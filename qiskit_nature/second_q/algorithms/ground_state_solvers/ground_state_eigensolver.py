@@ -17,7 +17,7 @@ from __future__ import annotations
 from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolver
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_q.operators import SecondQuantizedOp
+from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.second_q.problems import EigenstateResult
@@ -53,7 +53,7 @@ class GroundStateEigensolver(GroundStateSolver):
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: dict[str, SecondQuantizedOp | QubitOperator] | None = None,
+        aux_operators: dict[str, SparseLabelOp | QubitOperator] | None = None,
     ) -> EigenstateResult:
         """Compute Ground State properties.
 
@@ -85,7 +85,7 @@ class GroundStateEigensolver(GroundStateSolver):
     def get_qubit_operators(
         self,
         problem: BaseProblem,
-        aux_operators: dict[str, SecondQuantizedOp | QubitOperator] | None = None,
+        aux_operators: dict[str, SparseLabelOp | QubitOperator] | None = None,
     ) -> tuple[QubitOperator, dict[str, QubitOperator] | None]:
         """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators."""
         # Note that ``aux_ops`` contains not only the transformed ``aux_operators`` passed by the
@@ -104,7 +104,7 @@ class GroundStateEigensolver(GroundStateSolver):
         aux_ops = self._qubit_converter.convert_match(aux_second_q_ops)
         if aux_operators is not None:
             for name_aux, aux_op in aux_operators.items():
-                if isinstance(aux_op, SecondQuantizedOp):
+                if isinstance(aux_op, SparseLabelOp):
                     converted_aux_op = self._qubit_converter.convert_match(
                         aux_op, suppress_none=True
                     )

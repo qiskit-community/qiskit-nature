@@ -34,7 +34,7 @@ from qiskit.opflow import (
 )
 from qiskit.primitives import BaseEstimator
 
-from qiskit_nature.second_q.operators import SecondQuantizedOp
+from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.problems import (
     BaseProblem,
     ElectronicStructureProblem,
@@ -128,14 +128,14 @@ class QEOM(ExcitedStatesSolver):
     def get_qubit_operators(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[dict[str, Union[SecondQuantizedOp, PauliSumOp]]] = None,
+        aux_operators: Optional[dict[str, Union[SparseLabelOp, PauliSumOp]]] = None,
     ) -> Tuple[PauliSumOp, Optional[dict[str, PauliSumOp]]]:
         return self._gsc.get_qubit_operators(problem, aux_operators)
 
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[dict[str, SecondQuantizedOp]] = None,
+        aux_operators: Optional[dict[str, SparseLabelOp]] = None,
     ) -> EigenstateResult:
         """Run the excited-states calculation.
 
