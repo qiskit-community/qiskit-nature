@@ -97,12 +97,12 @@ class QubitConverter:
     when 2nd quantized operators are requested to be converted (mapped) to qubit operators.
 
     For a Fermionic system, when its a electronic problem, there are certain mappers, such as
-    the :class:`~qiskit_nature.mappers.second_q.ParityMapper` that introduces known
+    the :class:`~qiskit_nature.second_q.mappers.ParityMapper` that introduces known
     symmetries, by virtue of the mapping, that can be exploited to reduce the size of the
     problem, i.e the qubit operator, by two qubits. The two qubit reduction setting indicates
     to do this where possible - i.e. mapper supports it and the number of particles in the
     Fermionic system is provided for the conversion. (The number of particles is used to
-    determine the symmetry)
+    determine the symmetry.)
 
     Also this converter supports Z2 Symmetry reduction to reduce a problem (operator) size
     based on mathematical symmetries that can be detected in the operator. A knowledgeable user

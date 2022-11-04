@@ -21,6 +21,7 @@ ansatz
 ansatze
 ansatzes
 anticommutation
+antiparallel
 antisymmetric
 antisymmetrized
 ao
@@ -133,6 +134,7 @@ docstring
 dof
 doi
 dok
+downarrow
 dt
 dtype
 dumitrescu
@@ -579,6 +581,7 @@ undirected
 unitaries
 unitstype
 untransforms
+uparrow
 username
 utils
 uvcc
@@ -588,6 +591,7 @@ vals
 varepsilon
 variational
 vdots
+vec
 verbatim
 versa
 vibrational

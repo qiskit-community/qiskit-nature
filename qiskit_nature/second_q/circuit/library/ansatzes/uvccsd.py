@@ -23,7 +23,7 @@ from .uvcc import UVCC
 class UVCCSD(UVCC):
     """The UVCCSD Ansatz.
 
-    This is a convenience subclass of the UVCC Ansatz. For more information refer to :class:`UVCC`.
+    This is a convenience subclass of the UVCC ansatz. For more information refer to :class:`UVCC`.
     """
 
     def __init__(
@@ -36,12 +36,12 @@ class UVCCSD(UVCC):
     ):
         """
         Args:
-            num_modals: Is a list defining the number of modals per mode. E.g. for a 3 modes system
-                with 4 modals per mode num_modals = [4,4,4]
-            qubit_converter: the QubitConverter instance which takes care of mapping to a qubit
-                operator.
+            num_modals: A list defining the number of modals per mode. E.g. for a 3-mode system
+                with 4 modals per mode ``num_modals = [4, 4, 4]``.
+            qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` instance
+                which takes care of mapping to a qubit operator.
             reps: The number of times to repeat the evolved operators.
-            initial_state: A `QuantumCircuit` object to prepend to the circuit.
+            initial_state: A ``QuantumCircuit`` object to prepend to the circuit.
         """
         super().__init__(
             num_modals=num_modals,
