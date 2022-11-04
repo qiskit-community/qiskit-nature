@@ -59,7 +59,7 @@ class FermionicGaussianState(QuantumCircuit):
     A fermionic Gaussian state is a state of the form
 
     .. math::
-        b^\dagger_1 \cdots b^\dagger_{N_p} \lvert \overline{\text{vac}} \rangle
+        b^\dagger_1 \cdots b^\dagger_{N_p} \lvert \overline{\text{vac}} \rangle,
 
     where
 
@@ -77,27 +77,27 @@ class FermionicGaussianState(QuantumCircuit):
             a_1 \\
             \vdots \\
             a_N
-        \end{pmatrix},
+        \end{pmatrix}.
 
-    - :math:`a^\dagger_1, \ldots, a^\dagger_{N}` are the fermionic creation operators
+    - :math:`a^\dagger_1, \ldots, a^\dagger_{N}` are the fermionic creation operators.
     - :math:`W` is an :math:`N \times 2N` matrix such that
       :math:`b^\dagger_1, \ldots, b^\dagger_{N}` also satisfy the
-      fermionic anticommutation relations
+      fermionic anticommutation relations.
     - :math:`\lvert \overline{\text{vac}} \rangle` is the mutual 0-eigenvector of
-      the operators :math:`\{b_j^\dagger b_j\}`
+      the operators :math:`\{b_j^\dagger b_j\}`.
 
     The matrix :math:`W` has the block form
 
     .. math::
         \begin{pmatrix}
             W_1 & W_2
-        \end{pmatrix}
+        \end{pmatrix},
 
     where :math:`W_1` and :math:`W_2` must satisfy
 
     .. math::
         W_1 W_1^\dagger + W_2 W_2^\dagger = I \\
-        W_1 W_2^T + W_2 W_1^T = 0
+        W_1 W_2^T + W_2 W_1^T = 0.
 
     The matrix :math:`W` is commonly obtained by calling the
     :meth:`~.QuadraticHamiltonian.diagonalizing_bogoliubov_transform`
@@ -105,7 +105,7 @@ class FermionicGaussianState(QuantumCircuit):
     This matrix is used to create circuits that prepare eigenstates of the
     quadratic Hamiltonian.
 
-    Currently, only the Jordan-Wigner Transformation is supported.
+    Currently, only the Jordan-Wigner transformation is supported.
 
     Reference: `arXiv:1711.05395`_
 
@@ -133,15 +133,15 @@ class FermionicGaussianState(QuantumCircuit):
                 of this function. The default behavior is to use the empty set of orbitals,
                 which corresponds to a state with zero pseudo-particles.
             qubit_converter: The qubit converter. The default behavior is to create
-                one using the call `QubitConverter(JordanWignerMapper())`.
+                one using the call ``QubitConverter(JordanWignerMapper())``.
             validate: Whether to validate the inputs.
             rtol: Relative numerical tolerance for input validation.
             atol: Absolute numerical tolerance for input validation.
-            circuit_kwargs: Keyword arguments to pass to the QuantumCircuit initializer.
+            circuit_kwargs: Keyword arguments to pass to the ``QuantumCircuit`` initializer.
 
         Raises:
             ValueError: transformation_matrix must be a 2-dimensional array.
-            ValueError: transformation_matrix must have shape (n_orbitals, 2 * n_orbitals).
+            ValueError: transformation_matrix must have shape ``(n_orbitals, 2 * n_orbitals)``.
             ValueError: transformation_matrix does not describe a valid transformation
                 of fermionic ladder operators. A valid matrix has the block form
                 :math:`(W_1 \quad W_2)` where :math:`W_1 W_1^\dagger + W_2 W_2^\dagger = I` and
@@ -150,7 +150,7 @@ class FermionicGaussianState(QuantumCircuit):
             NotImplementedError: Currently, only the Jordan-Wigner Transform is supported.
                 Please use
                 :class:`qiskit_nature.second_q.mappers.JordanWignerMapper`
-                to construct the qubit mapper used to construct `qubit_converter`.
+                to construct the qubit mapper used to construct ``qubit_converter``.
         """
         if validate:
             _validate_transformation_matrix(transformation_matrix, rtol=rtol, atol=atol)

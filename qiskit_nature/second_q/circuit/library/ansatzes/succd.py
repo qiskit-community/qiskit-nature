@@ -39,17 +39,18 @@ logger = logging.getLogger(__name__)
 class SUCCD(UCC):
     """The SUCCD Ansatz.
 
-    The SUCCD Ansatz (by default) only contains double excitations. Furthermore, it only considers
+    The SUCCD ansatz (by default) only contains double excitations. Furthermore, it only considers
     the set of excitations which is symmetrically invariant with respect to spin-flips of both
     particles. For more information see also [1].
 
-    Note, that this Ansatz can only work for singlet-spin systems. Therefore, the number of alpha
+    Note, that this ansatz can only work for singlet-spin systems. Therefore, the number of alpha
     and beta electrons must be equal.
 
-    This is a convenience subclass of the UCC Ansatz. For more information refer to :class:`UCC`.
+    This is a convenience subclass of the UCC ansatz. For more information refer to :class:`UCC`.
 
     References:
-        [1] https://arxiv.org/abs/1911.10864
+        [1] `arXiv:1911.10864 <https://arxiv.org/abs/1911.10864>`_
+
     """
 
     def __init__(
@@ -66,29 +67,31 @@ class SUCCD(UCC):
     ):
         """
         Args:
-            num_spatial_orbitals: the number of spatial orbitals.
-            num_particles: the tuple of the number of alpha- and beta-spin particles.
-            qubit_converter: the QubitConverter instance which takes care of mapping to a qubit
+            num_spatial_orbitals: The number of spatial orbitals.
+            num_particles: The tuple of the number of alpha- and beta-spin particles.
+            qubit_converter: The QubitConverter instance which takes care of mapping to a qubit
                 operator.
             reps: The number of times to repeat the evolved operators.
-            initial_state: A `QuantumCircuit` object to prepend to the circuit.
+            initial_state: A ``QuantumCircuit`` object to prepend to the circuit.
             include_singles: enables the inclusion of single excitations per spin species.
-            generalized: boolean flag whether or not to use generalized excitations, which ignore
+            generalized: Boolean flag whether or not to use generalized excitations, which ignore
                 the occupation of the spin orbitals. As such, the set of generalized excitations is
                 only determined from the number of spin orbitals and independent from the number of
                 particles.
-            mirror: boolean flag whether or not to include the symmetrically mirrored double
-                  excitations, while keeping the original number of circuit
-                  parameters. This results in mirrored excitations having identical parameter values.
-                  Enabling this parameter will result in the SUCCD ansatz referred to as
-                  "q-UCCSD0-full" in reference [1].
+            mirror: Boolean flag whether or not to include the symmetrically mirrored double
+                excitations, while keeping the original number of circuit
+                parameters. This results in mirrored excitations having identical parameter values.
+                Enabling this parameter will result in the SUCCD ansatz referred to as
+                "q-UCCSD0-full" in reference [1].
         Raises:
             QiskitNatureError: if the number of alpha and beta electrons is not equal.
         """
         self._validate_num_particles(num_particles)
         self._include_singles = include_singles
         self._mirror = mirror
-        self._excitations_dict: dict[str, list[tuple[tuple[int, ...], tuple[int, ...]]]] = None
+        self._excitations_dict: dict[
+            str, list[tuple[tuple[int, ...], tuple[int, ...]]]
+        ] | None = None
         super().__init__(
             num_spatial_orbitals=num_spatial_orbitals,
             num_particles=num_particles,

@@ -20,7 +20,36 @@ from .lattices import Lattice
 
 
 class FermiHubbardModel(LatticeModel):
-    """The Fermi-Hubbard model."""
+    r"""The Fermi-Hubbard model.
+
+    This class implements the following Hamiltonian:
+
+    .. math::
+        H = \sum_{i, j}\sum_{\sigma = \uparrow, \downarrow} t_{i, j} c_{i, \sigma}^\dagger
+        c_{j, \sigma} + U \sum_{i} n_{i, \uparrow} n_{i, \downarrow},
+
+    where :math:`c_{i, \sigma}^\dagger` and :math:`c_{i, \sigma}` are creation and annihilation
+    operators of a fermion at the site :math:`i` with spin :math:`\sigma`. The operator :math:`n_{i,
+    \sigma}` is the number operator, which is defined by :math:`n_{i, \sigma} = c_{i,
+    \sigma}^\dagger c_{i, \sigma}`. The matrix :math:`t_{i, j}` is a Hermitian matrix called the
+    interaction matrix. The parameter :math:`U` represents the strength of the on-site interaction.
+
+    This model is instantiated using a
+    :class:`~qiskit_nature.second_q.hamiltonians.lattices.Lattice`. For example, using a
+    :class:`~qiskit_nature.second_q.hamiltonians.lattices.LineLattice`:
+
+    .. code-block:: python
+
+        line_lattice = LineLattice(num_nodes=10, boundary_condition=BoundaryCondition.OPEN)
+
+        fermi_hubbard_model = FermiHubbardModel(
+            line_lattice.uniform_parameters(
+                uniform_interaction=-1.0,
+                uniform_onsite_potential=0.0,
+            ),
+            onsite_interaction=5.0,
+        )
+    """
 
     def __init__(self, lattice: Lattice, onsite_interaction: complex) -> None:
         """
@@ -40,7 +69,7 @@ class FermiHubbardModel(LatticeModel):
         return 2 * self._lattice.num_nodes
 
     def second_q_op(self) -> FermionicOp:
-        """Return the Hamiltonian of the Fermi-Hubbard model in terms of `FermionicOp`.
+        """Return the Hamiltonian of the Fermi-Hubbard model in terms of ``FermionicOp``.
 
         Returns:
             FermionicOp: The Hamiltonian of the Fermi-Hubbard model.

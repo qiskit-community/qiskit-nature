@@ -36,12 +36,13 @@ class HartreeFock(BlueprintCircuit):
         """
         Args:
             num_spatial_orbitals: The number of spatial orbitals.
-            num_particles: The number of particles as a tuple storing the number of alpha- and
-                           beta-spin electrons in the first and second number, respectively.
-            qubit_converter: a QubitConverter instance.
+            num_particles: The number of particles as a tuple storing the number of alpha and
+                beta-spin electrons in the first and second number, respectively.
+            qubit_converter: a :class:`~qiskit_nature.second_q.mappers.QubitConverter` instance.
 
         Raises:
-            NotImplementedError: If qubit_converter contains BravyiKitaevSuperFastMapper. See
+            NotImplementedError: If ``qubit_converter`` contains
+                :class:`~qiskit_nature.second_q.mappers.BravyiKitaevSuperFastMapper`. See
                 https://github.com/Qiskit/qiskit-nature/issues/537 for more information.
         """
 
@@ -103,10 +104,10 @@ class HartreeFock(BlueprintCircuit):
             ValueError: If the number of particles is not specified or less than zero.
             ValueError: If the number of particles of any kind is less than zero.
             ValueError: If the number of spatial orbitals is smaller than the number of particles
-                        of any kind.
+                of any kind.
             ValueError: If the qubit converter is not specified.
-            NotImplementedError: If the specified qubit converter is a BravyiKitaevSuperFastMapper
-                                 instance.
+            NotImplementedError: If the specified qubit converter is a
+                :class:`~qiskit_nature.second_q.mappers.BravyiKitaevSuperFastMapper` instance.
         """
         if self.num_spatial_orbitals is None:
             if raise_on_failure:

@@ -35,10 +35,27 @@ class UVCC(EvolvedOperatorAnsatz):
     """
     This trial wavefunction is a Unitary Vibrational Coupled-Cluster ansatz.
 
+    This method constructs the requested excitations based on a
+    :class:`~qiskit_nature.second_q.circuit.library.VSCF` reference state by default. When setting
+    up a ``VQE`` algorithm using this ansatz and initial state, it is likely you will also want to
+    use a :class:`~qiskit_nature.second_q.algorithms.initial_points.VSCFInitialPoint` that has been
+    configured using the corresponding ansatz parameters. When using a
+    :class:`~qiskit_nature.second_q.algorithms.VQEUVCCFactory` this is set by default. When directly
+    using ``VQE``, you can set it manually. For example:
+
+    .. code-block:: python
+
+        qubit_converter = QubitConverter(JordanWignerMapper())
+        uvcc = UVCC([2, 2], 'sd', qubit_converter)
+        vscf_initial_point = VSCFInitialPoint()
+        vscf_initial_point.ansatz = uvcc
+        initial_point = vscf_initial_point.to_numpy_array()
+        vqe = VQE(Estimator(), uvcc, SLSQP(), initial_point=initial_point)
+
     For more information, see Ollitrault Pauline J., Chemical science 11 (2020): 6842-6855.
     """
 
-    EXCITATION_TYPE = {
+    _EXCITATION_TYPE = {
         "s": 1,
         "d": 2,
         "t": 3,
@@ -64,30 +81,34 @@ class UVCC(EvolvedOperatorAnsatz):
         """
 
         Args:
-            num_modals: Is a list defining the number of modals per mode. E.g. for a 3 modes system
-                with 4 modals per mode num_modals = [4,4,4]
-            excitations: this can be any of the following types:
+            num_modals: A list defining the number of modals per mode. E.g. for a 3 modes system
+                with 4 modals per mode ``num_modals = [4, 4, 4]``.
+            excitations: This can be any of the following types:
 
-                :`str`: which contains the types of excitations. Allowed characters are
-                    + `s` for singles
-                    + `d` for doubles
-                    + `t` for triples
-                    + `q` for quadruples
-                :`int`: a single, positive integer which denotes the number of excitations
-                    (1 == `s`, 2 == `d`, etc.)
-                :`list[int]`: a list of positive integers generalizing the above to multiple numbers
-                    of excitations ([1, 2] == `sd`, etc.)
-                :`Callable`: a function which is used to generate the excitations.
-                    The callable must take the __keyword__ argument `num_modals` `num_particles`
-                    (with identical types to those explained above) and must return a
-                    `list[tuple[tuple[int, ...], tuple[int, ...]]]`. For more information on how to
-                    write such a callable refer to the default method
-                    :meth:`~qiskit_nature.second_q.circuit.library.ansatzes.utils.\
-                    generate_vibration_excitations`.
-            qubit_converter: the QubitConverter instance which takes care of mapping to a qubit
-                operator.
-            reps: number of repetitions of basic module
-            initial_state: A `QuantumCircuit` object to prepend to the circuit.
+                :`str`: Contains the types of excitations. Allowed characters are: ``'s'`` for
+                    singles, ``'d'`` for doubles, ``'t'`` for triples, and ``'q'`` for quadruples.
+                :`int`: A single, positive integer which denotes the number of excitations
+                    (``1 == 's'``, ``2 == 'd'``, etc.).
+                :`list[int]`: A list of positive integers generalizing the above to multiple numbers
+                    of excitations (``[1, 2] == 'sd'``, etc.).
+                :`Callable`: A function which is used to generate the excitations.
+                    The callable must take the *keyword* argument ``num_modals``
+                    (with identical type to that explained above) and must return a
+                    ``list[tuple[tuple[int, ...], tuple[int, ...]]]``. For more information on
+                    how to write such a callable refer to the default method :meth:`~qiskit_nature.\
+                    second_q.circuit.library.ansatzes.utils.generate_vibration_excitations`.
+            qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` instance
+                which takes care of mapping to a qubit operator.
+            reps: The number of repetitions of basic module.
+            initial_state: A ``QuantumCircuit`` object to prepend to the circuit. Note that this
+                setting does *not* influence the ``excitations``. When relying on the default
+                generation method (i.e. not providing a ``Callable`` to ``excitations``), these will
+                always be constructed with respect to a
+                :class:`~qiskit_nature.second_q.circuit.library.VSCF` reference state. When setting
+                up a ``VQE`` algorithm using this ansatz and initial state, it is likely you will
+                also want to use a
+                :class:`~qiskit_nature.second_q.algorithms.initial_points.VSCFInitialPoint` that has
+                been configured using the corresponding ansatz parameters.
         """
         self._qubit_converter = qubit_converter
         self._num_modals = num_modals
@@ -282,7 +303,7 @@ class UVCC(EvolvedOperatorAnsatz):
                 generators.append(
                     partial(
                         generate_vibration_excitations,
-                        num_excitations=self.EXCITATION_TYPE[exc],
+                        num_excitations=self._EXCITATION_TYPE[exc],
                     )
                 )
         elif isinstance(self.excitations, int):
