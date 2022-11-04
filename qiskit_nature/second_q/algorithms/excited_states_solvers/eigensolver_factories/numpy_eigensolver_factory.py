@@ -35,15 +35,15 @@ class NumPyEigensolverFactory(EigensolverFactory):
     ) -> None:
         """
         Args:
-            filter_criterion: callable that allows to filter eigenvalues/eigenstates. The minimum
+            filter_criterion: Callable that allows to filter eigenvalues/eigenstates. The minimum
                 eigensolver is only searching over feasible states and returns an eigenstate that
                 has the smallest eigenvalue among feasible states. The callable has the signature
-                `filter(eigenstate, eigenvalue, aux_values)` and must return a boolean to indicate
+                ``filter(eigenstate, eigenvalue, aux_values)`` and must return a boolean to indicate
                 whether to consider this value or not. If there is no
                 feasible element, the result can even be empty.
-            use_default_filter_criterion: Whether to use default filter criteria or not
+            use_default_filter_criterion: Whether to use default filter criteria or not.
             k: How many eigenvalues are to be computed, has a min. value of 1.
-            use_default_filter_criterion: whether to use the transformation's default filter
+            use_default_filter_criterion: Whether to use the transformation's default filter
                 criterion if ``filter_criterion`` is ``None``.
         """
         self._filter_criterion = filter_criterion
@@ -54,7 +54,7 @@ class NumPyEigensolverFactory(EigensolverFactory):
     def filter_criterion(
         self,
     ) -> Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]:
-        """returns filter criterion"""
+        """Returns filter criterion."""
         return self._filter_criterion
 
     @filter_criterion.setter
@@ -62,39 +62,38 @@ class NumPyEigensolverFactory(EigensolverFactory):
         self,
         value: Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool],
     ) -> None:
-        """sets filter criterion"""
+        """Sets filter criterion."""
         self._filter_criterion = value
 
     @property
     def k(self) -> int:
-        """returns k (number of eigenvalues requested)"""
+        """Returns k (number of eigenvalues requested)."""
         return self._k
 
     @k.setter
     def k(self, k: int) -> None:
-        """set k (number of eigenvalues requested)"""
+        """Sets k (number of eigenvalues requested)."""
         validate_min("k", k, 1)
         self._k = k
 
     @property
     def use_default_filter_criterion(self) -> bool:
-        """returns whether to use the default filter criterion"""
+        """Returns whether to use the default filter criterion."""
         return self._use_default_filter_criterion
 
     @use_default_filter_criterion.setter
     def use_default_filter_criterion(self, value: bool) -> None:
-        """sets whether to use the default filter criterion"""
+        """Sets whether to use the default filter criterion."""
         self._use_default_filter_criterion = value
 
     def get_solver(self, problem: BaseProblem) -> Eigensolver:
-        """Returns a NumPyEigensolver with the desired filter
+        """Returns a ``NumPyEigensolver`` with the desired filter.
 
         Args:
-            problem: a class encoding a problem to be solved.
+            problem: A class encoding a problem to be solved.
 
         Returns:
-            A NumPyEigensolver suitable to compute the ground state of the molecule
-            transformed by ``transformation``.
+            A ``NumPyEigensolver`` suitable to compute the ground state of the provided ``problem``.
         """
         filter_criterion = self._filter_criterion
         if not filter_criterion and self._use_default_filter_criterion:

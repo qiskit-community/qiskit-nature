@@ -35,9 +35,8 @@ class GroundStateEigensolver(GroundStateSolver):
         solver: MinimumEigensolver | MinimumEigensolverFactory,
     ) -> None:
         """
-
         Args:
-            qubit_converter: a class that converts second quantized operator to qubit operator
+            qubit_converter: A class that converts second quantized operator to qubit operator
                              according to a mapper it is initialized with.
             solver: Minimum Eigensolver or MESFactory object, e.g. the VQEUCCSDFactory.
         """
@@ -59,13 +58,13 @@ class GroundStateEigensolver(GroundStateSolver):
         """Compute Ground State properties.
 
         Args:
-            problem: a class encoding a problem to be solved.
+            problem: A class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
 
         Raises:
-            ValueError: if the grouped property object returned by the driver does not contain a
-                main property as requested by the problem being solved (`problem.main_property_name`)
-            QiskitNatureError: if the user-provided `aux_operators` contain a name which clashes
+            ValueError: If the grouped property object returned by the driver does not contain a
+                main property as requested by the problem being solved (`problem.main_property_name`).
+            QiskitNatureError: If the user-provided ``aux_operators`` contain a name which clashes
                 with an internally constructed auxiliary operator. Note: the names used for the
                 internal auxiliary operators correspond to the `Property.name` attributes which
                 generated the respective operators.
@@ -88,7 +87,7 @@ class GroundStateEigensolver(GroundStateSolver):
         problem: BaseProblem,
         aux_operators: dict[str, SecondQuantizedOp | QubitOperator] | None = None,
     ) -> tuple[QubitOperator, dict[str, QubitOperator] | None]:
-        """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators"""
+        """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators."""
         # Note that ``aux_ops`` contains not only the transformed ``aux_operators`` passed by the
         # user but also additional ones from the transformation
         main_second_q_op, aux_second_q_ops = problem.second_q_ops()

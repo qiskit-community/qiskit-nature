@@ -45,16 +45,16 @@ def build_electronic_ops(
     """Builds the product of raising and lowering operators (basic excitation operators)
 
     Args:
-        num_spatial_orbitals: the number of spatial orbitals.
-        num_particles: the number of alpha- and beta-spin particles as a tuple.
-        excitations: the types of excitations to consider. The simple cases for this input are:
+        num_spatial_orbitals: The number of spatial orbitals.
+        num_particles: The number of alpha- and beta-spin particles as a tuple.
+        excitations: The types of excitations to consider. The simple cases for this input are:
             - a `str` containing any of the following characters: `s`, `d`, `t` or `q`.
             - a single, positive `int` denoting the excitation type (1 == `s`, etc.).
             - a list of positive integers.
             - and finally a callable which can be used to specify a custom list of excitations.
               For more details on how to write such a function refer to the default method,
               :meth:`generate_fermionic_excitations`.
-        qubit_converter: the `QubitConverter` to use for mapping and symmetry reduction. The Z2
+        qubit_converter: The ``QubitConverter`` to use for mapping and symmetry reduction. The Z2
                          symmetries stored in this instance are the basis for the commutativity
                          information returned by this method.
 

@@ -35,8 +35,8 @@ logger = logging.getLogger(__name__)
 
 
 class VQEUVCCFactory(MinimumEigensolverFactory):
-    """Factory to construct a :class:`VQE` minimum eigensolver with :class:`UVCC` ansatz
-    wavefunction.
+    """Factory to construct a :class:`~qiskit.algorithms.minimum_eigensolvers.VQE` minimum
+    eigensolver with :class:`~.UVCC` ansatz wavefunction.
     """
 
     def __init__(
@@ -51,27 +51,25 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
     ) -> None:
         """
         Args:
-            estimator: the :class:`~qiskit.primitives.BaseEstimator` class to use for the internal
+            estimator: The ``BaseEstimator`` class to use for the internal
                 :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`.
-            ansatz: the :class:`~.UVCC` ansatz. Its attributes `qubit_converter`, `num_modals`, and
-                `initial_point` will be completed at runtime based on the problem being solved.
-            optimizer: the :class:`~qiskit.algorithms.optimizers.Optimizer` or
-                :class:`~qiskit.algorithms.optimizers.Minimizer` to use for the internal
+            ansatz: The ``UVCC`` ansatz. Its attributes ``qubit_converter``, ``num_modals``, and
+                ``initial_point`` will be completed at runtime based on the problem being solved.
+            optimizer: The ``Optimizer`` or ``Minimizer`` to use for the internal
                 :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`.
             initial_point: An optional initial point (i.e., initial parameter values for the VQE
                 optimizer). If ``None`` then VQE will use an all-zero initial point of the
                 appropriate length computed using
-                :class:`~qiskit_nature.second_q.algorithms.initial_points.\
-                vscf_initial_point.VSCFInitialPoint`.
+                :class:`~initial_points.vscf_initial_point.VSCFInitialPoint`.
                 This then defaults to the VSCF state when the VSCF circuit is prepended
-                to the the ansatz circuit. If another
-                :class:`~qiskit_nature.second_q.algorithms.initial_points.initial_point.InitialPoint`
-                instance, this is used to compute an initial point for the VQE ansatz parameters.
-                If a user-provided NumPy array, this is used directly.
-            initial_state: Allows specification of a custom `QuantumCircuit` to be used as the
+                to the ansatz circuit. If another ``InitialPoint`` instance, this is used to
+                compute an initial point for the VQE ansatz parameters. If a user-provided NumPy
+                array, this is used directly.
+            initial_state: Allows specification of a custom ``QuantumCircuit`` to be used as the
                 initial state of the ansatz. If this is never set by the user, the factory will
                 default to the :class:`~.VSCF` state.
-            kwargs: Remaining keyword arguments are passed to the :class:`VQE`.
+            kwargs: Remaining keyword arguments are passed to the
+                :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`.
         """
         self._initial_state = initial_state
         self._initial_point = initial_point if initial_point is not None else VSCFInitialPoint()
@@ -121,8 +119,8 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         """Returns a VQE with a :class:`~.UVCC` wavefunction ansatz, based on ``qubit_converter``.
 
         Args:
-            problem: a class encoding a problem to be solved.
-            qubit_converter: a class that converts second quantized operator to qubit operator
+            problem: A class encoding a problem to be solved.
+            qubit_converter: A class that converts second quantized operator to qubit operator
                              according to a mapper it is initialized with.
 
         Returns:

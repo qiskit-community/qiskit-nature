@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The numpy minimum eigensolver factory for ground state calculation algorithms."""
+"""The NumPy minimum eigensolver factory for ground state calculation algorithms."""
 
 from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolver, NumPyMinimumEigensolver
 from qiskit_nature.second_q.mappers import QubitConverter
@@ -28,10 +28,10 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
     ) -> None:
         """
         Args:
-            use_default_filter_criterion: whether to use the transformation's default filter
-            criterion.
-            kwargs: keyword arguments passed to NumpyMinimumEigensolver to construct
-            the internal `MinimumEigensolver`.
+            use_default_filter_criterion: Whether to use the transformation's default filter
+                criterion.
+            kwargs: Keyword arguments passed to NumpyMinimumEigensolver to construct
+                the internal ``MinimumEigensolver``.
         """
         self._use_default_filter_criterion = use_default_filter_criterion
         self._minimum_eigensolver = NumPyMinimumEigensolver(**kwargs)
@@ -43,8 +43,8 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
         provided by the ``problem``.
 
         Args:
-            problem: a class encoding a problem to be solved.
-            qubit_converter: a class that converts second quantized operator to qubit operator
+            problem: A class encoding a problem to be solved.
+            qubit_converter: A class that converts second quantized operator to qubit operator
                              according to a mapper it is initialized with.
         Returns:
             A NumPyMinimumEigensolver suitable to compute the ground state of the molecule.
