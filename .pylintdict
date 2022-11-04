@@ -114,6 +114,7 @@ dcx
 de
 debye
 deepcopy
+delocalized
 deuterium
 deuteron
 dft
@@ -243,6 +244,7 @@ internuclear
 interpretable
 ints
 io
+ipynb
 isclose
 ising
 iso
@@ -617,6 +619,7 @@ whitfield
 wigner
 wikipedia
 woerner
+workflow
 xcf
 xcfun
 xdata
