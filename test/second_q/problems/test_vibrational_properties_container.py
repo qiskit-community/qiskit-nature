@@ -35,7 +35,7 @@ class TestVibrationalPropertiesContainer(QiskitNatureTestCase):
                 container.occupied_modals = Magnetization(2)  # type: ignore[assignment]
 
         with self.subTest("successful setting"):
-            container.occupied_modals = OccupiedModals()
+            container.occupied_modals = OccupiedModals([])
             self.assertIn(OccupiedModals, container)
 
         with self.subTest("removal via None setting"):

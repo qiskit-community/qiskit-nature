@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -9,21 +9,24 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-r"""
-Electronic Integrals (:mod:`qiskit_nature.second_q.properties.integrals`)
-===============================================================================================
 
-.. currentmodule:: qiskit_nature.second_q.properties.integrals
+"""
+The Watson Hamiltonian (:mod:`qiskit_nature.second_q.formats.watson`)
+=====================================================================
+
+.. currentmodule:: qiskit_nature.second_q.formats.watson
 
 .. autosummary::
    :toctree: ../stubs/
    :nosignatures:
 
-   VibrationalIntegrals
+
+   WatsonHamiltonian
+
 """
 
-from .vibrational_integrals import VibrationalIntegrals
+from .watson_hamiltonian import WatsonHamiltonian
 
 __all__ = [
-    "VibrationalIntegrals",
+    "WatsonHamiltonian",
 ]

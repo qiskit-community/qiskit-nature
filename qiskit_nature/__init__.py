@@ -44,7 +44,6 @@ Submodules
 .. autosummary::
    :toctree:
 
-   hdf5
    second_q
    utils
 

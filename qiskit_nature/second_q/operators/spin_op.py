@@ -12,538 +12,606 @@
 
 """A generic Spin operator.
 
-Note: this implementation differs fundamentally from the `FermionicOp`
+Note: this implementation differs fundamentally from the ``FermionicOp``
 as it relies on the mathematical representation of spin matrices as (e.g.) explained in [1].
 
 [1]: https://en.wikipedia.org/wiki/Spin_(physics)#Higher_spins
 """
 
+from __future__ import annotations
+
 import re
+from collections.abc import Collection, Mapping
+from collections import defaultdict
+from typing import cast, Iterator
 from fractions import Fraction
-from functools import lru_cache, partial, reduce
-from itertools import product
-from typing import List, Optional, Sequence, Tuple, Union, cast
+from functools import partial, reduce
 
 import numpy as np
-from qiskit.utils.validation import validate_min
+
 from qiskit_nature import QiskitNatureError
+import qiskit_nature.optionals as _optionals
 
-from .second_quantized_op import SecondQuantizedOp
+from .polynomial_tensor import PolynomialTensor
+from .sparse_label_op import _TCoeff, SparseLabelOp, _to_number
 
 
-class SpinOp(SecondQuantizedOp):
-    """XYZ-ordered Spin operators.
+class SpinOp(SparseLabelOp):
+    """XYZ Spin operator.
 
-    **Label**
+    A ``SpinOp`` represents a weighted sum of spin operator terms with a certain spin
+    value associated to them. This value can be an integer for bosonic particles or
+    a half-integer (fraction) for fermions.
 
-    Allowed characters for primitives of labels are I, X, Y, Z, +, and -.
+    These operator terms are encoded as sparse labels, strings consisting of a
+    space-separated list of expressions. Each expression must look like
+    :code:`[XYZ]_<index>` or :code:`[XYZ]_<index>^<power>`,
+    where the :code:`<index>` is a non-negative integer representing the
+    index of the spin mode  where the ``X``, ``Y`` or ``Z``
+    component of the spin operator is to be applied.
 
-    .. list-table::
-        :header-rows: 1
-
-        * - Label
-          - Mathematical Representation
-          - Meaning
-        * - `I`
-          - :math:`I`
-          - Identity operator
-        * - `X`
-          - :math:`S^x`
-          - :math:`x`-component of the spin operator
-        * - `Y`
-          - :math:`S^y`
-          - :math:`y`-component of the spin operator
-        * - `Z`
-          - :math:`S^z`
-          - :math:`z`-component of the spin operator
-        * - `+`
-          - :math:`S^+`
-          - Raising operator
-        * - `-`
-          - :math:`S^-`
-          - Lowering operator
-
-    There are two types of label modes for :class:`SpinOp`.
-    The label mode is automatically detected.
-
-    1. Dense Label (default, `register_length = None`)
-
-    Dense labels are strings in which each character maps to a unique spin mode.
-    This is similar to Qiskit's string-based representation of qubit operators.
-    For example,
-
-    .. code-block:: python
-
-        "X"
-        "IIYYZ-IX++"
-
-    are possible labels.
-    Note, that dense labels are less powerful than sparse ones because they cannot represent
-    all possible :class:`SpinOp`. You will, for example, not be able to apply multiple operators
-    on the same index within a single label.
-
-    2. Sparse Label (`register_length` is passed)
-
-    A sparse label is a string consisting of a space-separated list of words.
-    Each word must look like :code:`[XYZI+-]_<index>^<power>`,
-    where the :code:`<index>` is a non-negative integer representing the index of the spin mode
-    and the :code:`<power>` is a positive integer indicating the number of times the given operator
-    is applied to the mode at :code:`<index>`.
-    You can omit :code:`<power>`, implying a single application of the operator (:code:`power = 1`).
-    For example,
-
-    .. code-block:: python
-
-        "X_0"
-        "Y_0^2"
-        "Y_0^2 Z_0^3 X_1^1 Y_1^2 Z_1^2"
-
-    are possible labels.
-    For each :code:`index` the operations `X`, `Y` and `Z` can only be specified exclusively in
-    this order. `+` and `-` cannot be used with `X` and `Y`
-    because ladder operators will be parsed into `X` and `Y`.
-    Thus, :code:`"Z_0 X_0"`, :code:`"Z_0 +_0"`, and :code:`"+_0 X_0"` are invalid labels.
-    The indices must be ascending order.
-
-    :code:`"+_i -_i"` is supported.
-    This pattern is parsed to :code:`+_i -_i = X_i^2 + Y_i^2 + Z_i`.
+    The value of :code:`index` is bound by the number of spins(``num_spins``) of the operator
+    (Note: since Python indices are 0-based, the maximum value an index can take is given by
+    :code:`num_spins-1`). The :code:`<power>` is a positive integer indicating the number
+    of times the given operator is applied to the mode at :code:`<index>`. You can omit
+    :code:`<power>`, implying a single application of the operator (:code:`power = 1`).
 
     **Initialization**
 
-    The :class:`SpinOp` can be initialized by the list of tuples.
-    For example,
+    A ``SpinOp`` is initialized with a dictionary, mapping terms to their respective
+    coefficients. For example:
 
     .. jupyter-execute::
 
         from qiskit_nature.second_q.operators import SpinOp
 
-        x = SpinOp("X", spin=3/2)
-        y = SpinOp("Y", spin=3/2)
-        z = SpinOp("Z", spin=3/2)
+        x = SpinOp({"X_0": 1}, spin=3/2)
+        y = SpinOp({"Y_0": 1}, spin=3/2)
+        z = SpinOp({"Z_0": 1}, spin=3/2)
 
     are :math:`S^x, S^y, S^z` for spin 3/2 system.
-    Two qutrit Heisenberg model with transverse magnetic field is
+    The two qutrit Heisenberg model with transverse magnetic field is
 
     .. jupyter-execute::
 
-        SpinOp(
-            [
-                ("XX", -1),
-                ("YY", -1),
-                ("ZZ", -1),
-                ("ZI", -0.3),
-                ("IZ", -0.3),
-            ],
+        SpinOp({
+                "X_0 X_1": -1,
+                "Y_0 Y_1": -1,
+                "Z_0 Z_1": -1,
+                "Z_0": -0.3,
+                "Z_1": -0.3,
+            },
             spin=1
         )
 
     This means :math:`- S^x_0 S^x_1 - S^y_0 S^y_1 - S^z_0 S^z_1 - 0.3 S^z_0 - 0.3 S^z_1`.
 
-    :class:`SpinOp` can be initialized with internal data structure (`numpy.ndarray`) directly.
-    In this case, `data` is a tuple of two elements: `spin_array` and `coeffs`.
-    `spin_array` is 3-dimensional `ndarray`. 1st axis has three elements 0, 1, and 2 corresponding
-    to x, y, and z.  2nd axis represents the index of terms.
-    3rd axis represents the index of register.
-    `coeffs` is one-dimensional `ndarray` with the length of the number of terms.
+    An example using labels with powers would be:
+
+    .. jupyter-execute::
+
+        from qiskit_nature.second_q.operators import SpinOp
+
+        op = SpinOp({"X_0^2 Y_1^3 Z_0": 1})
+
+
+    By default, this way of initializing will create a full copy of the dictionary of coefficients.
+    If you have very restricted memory resources available, or would like to avoid the additional
+    copy, the dictionary will be stored by reference if you disable ``copy`` like so:
+
+    .. jupyter-execute::
+
+        some_big_data = {
+            "X_0 Y_0": 1.0,
+            "X_1 Y_1": -1.0,
+            # ...
+        }
+
+        op = SpinOp(
+            some_big_data,
+            num_spins=2,
+            copy=False,
+        )
+
+
+    .. note::
+
+        It is the users' responsibility, that in the above scenario, :code:`some_big_data` is not
+        changed after initialization of the ``SpinOp``, since the operator contents are not
+        guaranteed to remain unaffected by such changes.
 
     **Algebra**
 
     :class:`SpinOp` supports the following basic arithmetic operations: addition, subtraction,
-    scalar multiplication, and adjoint.
+    scalar multiplication, adjoint, composition and tensoring.
+
+    As of now, operations that involve two different instances of ``SpinOp`` (i.e. addition,
+    subtraction, composition, and tensoring) are only supported for identical spins
+    (``op_1.num_spins == op_2.num_spins``).
+
     For example,
 
-    Raising Operator (addition and scalar multiplication)
+    Addition
 
     .. jupyter-execute::
 
-        x + 1j * y
+        SpinOp({"X_1": 1}, num_spins=2) + SpinOp({"X_0": 1}, num_spins=2)
+
+    Sum
+
+    .. jupyter-execute::
+
+        sum(SpinOp({label: 1}, num_spins=3) for label in ["X_0", "Z_1", "X_2 Z_2"])
+
+    Scalar multiplication
+
+    .. jupyter-execute::
+
+        0.5 * SpinOp({"X_1": 1}, num_spins=2)
+
+    Operator multiplication
+
+    .. jupyter-execute::
+
+        op1 = SpinOp({"X_0 Z_1": 1}, num_spins=2)
+        op2 = SpinOp({"Z_0 X_0 X_1": 1}, num_spins=2)
+        print(op1 @ op2)
+
+    Tensor multiplication
+
+    .. jupyter-execute::
+
+        op = SpinOp({"X_0 Z_1": 1}, num_spins=2)
+        print(op ^ op)
 
     Adjoint
 
     .. jupyter-execute::
 
-        ~(1j * z)
+        SpinOp({"X_0 Z_1": 1j}, num_spins=2).adjoint()
 
+
+    **Iteration**
+
+    Instances of ``SpinOp`` are iterable. Iterating a SpinOp yields (term, coefficient)
+    pairs describing the terms contained in the operator. Labels containing powers/exponents
+    will be expanded into multiple (term, coefficient) pairs.
+
+    The following attributes can be set via the initializer but can also be read and updated once
+    the ``SpinOp`` object has been constructed.
+
+    Attributes:
+        num_spins (int | None): the number of spins on which this operator acts. This is
+            considered a lower bound, which means that mathematical operations acting on two or more
+            operators will result in a new operator with the maximum number of spins of any
+            of the involved operators.
+        spin (float | Fraction): positive half-integer (integer or half-odd-integer)
+            that represents spin.
     """
+
+    _OPERATION_REGEX = re.compile(r"([XYZ]_\d+(\^\d+)?\s)*[XYZ]_\d+(\^\d+)?")
 
     def __init__(
         self,
-        data: Union[
-            str,
-            List[Tuple[str, complex]],
-            Tuple[np.ndarray, np.ndarray],
-        ],
-        spin: Union[float, Fraction] = Fraction(1, 2),
-        register_length: Optional[int] = None,
+        data: Mapping[str, _TCoeff],
+        spin: float | Fraction = Fraction(1, 2),  # TODO: extend to list
+        num_spins: int | None = None,
+        *,
+        copy: bool = True,
+        validate: bool = True,
     ):
         r"""
         Args:
             data: label string, list of labels and coefficients. See the label section in
                   the documentation of :class:`SpinOp` for more details.
             spin: positive half-integer (integer or half-odd-integer) that represents spin.
-            register_length: length of the particle register.
+            num_spins: the number spins on which this operator acts.
+            copy: when set to False the ``data`` will not be copied and the dictionary will be
+                stored by reference rather than by value (which is the default; ``copy=True``). Note,
+                that this requires you to not change the contents of the dictionary after
+                constructing the operator. This also implies ``validate=False``. Use with care!
+            validate: when set to False the ``data`` keys will not be validated. Note, that the
+                SparseLabelOp base class, makes no assumption about the data keys, so will not
+                perform any validation by itself. Only concrete subclasses are encouraged to
+                implement a key validation method. Disable this setting with care!
 
         Raises:
-            ValueError: invalid data is given.
-            QiskitNatureError: invalid spin value
+            QiskitNatureError: when an invalid key is encountered during validation.
+            QiskitNatureError: when spin is not a positive half-integer.
         """
-        self._coeffs: np.ndarray
-        self._spin_array: np.ndarray
-        dtype = np.complex128  # TODO: configurable data type. mixin?
-
+        self.num_spins = num_spins
         spin = Fraction(spin)
-        if spin.denominator not in (1, 2):
+        if spin.denominator not in (1, 2) or spin <= 0:
             raise QiskitNatureError(
                 f"spin must be a positive half-integer (integer or half-odd-integer), not {spin}."
             )
-        self._dim = int(2 * spin + 1)
+        self.spin = spin
+        super().__init__(data, copy=copy, validate=validate)
 
-        if isinstance(data, tuple) and all(isinstance(datum, np.ndarray) for datum in data):
-            self._spin_array = np.array(data[0], dtype=np.uint8)
-            self._register_length = self._spin_array.shape[2]
-            self._coeffs = np.array(data[1], dtype=dtype)
+    @property
+    def register_length(self) -> int | None:
+        return self.num_spins
 
-        if (
-            isinstance(data, tuple)
-            and isinstance(data[0], str)
-            and isinstance(data[1], (int, float, complex))
-        ):
-            data = [data]
-
-        if isinstance(data, str):
-            data = [(data, 1)]
-
-        if isinstance(data, list):
-            if register_length is not None:  # Sparse label
-                # [IXYZ]_index^power (power is optional) or [+-]_index
-                sparse = r"([IXYZ]_\d+(\^\d+)?|[\+\-]_\d+?)"
-                # space (\s) separated sparse label or empty string
-                label_pattern = re.compile(rf"^({sparse}\s)*{sparse}(?!\s)$|^$")
-                invalid_labels = [label for label, _ in data if not label_pattern.match(label)]
-                if invalid_labels:
-                    raise ValueError(f"Invalid labels for sparse labels: {invalid_labels}.")
-            else:  # dense_label
-                # dense label (repeat of [IXYZ+-])
-                label_pattern = re.compile(r"^[IXYZ\+\-]+$")
-                invalid_labels = [label for label, _ in data if not label_pattern.match(label)]
-                if invalid_labels:
-                    raise ValueError(
-                        f"Invalid labels for dense labels: {invalid_labels} (if you want to use "
-                        "sparse label, you forgot a parameter `register_length`.)"
-                    )
-
-            # Parse ladder operators for special patterns.
-            if register_length is not None:
-                data = self._flatten_raising_lowering_ops(data, register_length)
-            data = self._flatten_ladder_ops(data)
-
-            # set coeffs
-            labels, coeffs = zip(*data)
-            self._coeffs = np.array(coeffs, dtype=dtype)
-
-            # set labels
-            if register_length is None:  # Dense label
-                self._register_length = len(labels[0])
-                label_pattern = re.compile(r"^[IXYZ]+$")
-                invalid_labels = [label for label in labels if not label_pattern.match(label)]
-                if invalid_labels:
-                    raise ValueError(f"Invalid labels for dense labels are given: {invalid_labels}")
-                self._spin_array = np.array(
-                    [
-                        [[char == "X", char == "Y", char == "Z"] for char in label]
-                        for label in labels
-                    ],
-                    dtype=np.uint8,
-                ).transpose((2, 0, 1))
-            else:  # Sparse label
-                validate_min("register_length", register_length, 1)
-                label_pattern = re.compile(r"^[IXYZ]_\d+(\^\d+)?$")
-                invalid_labels = [
-                    label
-                    for label in labels
-                    if not all(label_pattern.match(lb) for lb in label.split())
-                ]
-                if invalid_labels:
-                    raise ValueError(
-                        f"Invalid labels for sparse labels are given: {invalid_labels}"
-                    )
-                self._register_length = register_length
-                self._from_sparse_label(labels)
-
-        # Make immutable
-        self._spin_array.flags.writeable = False
-        self._coeffs.flags.writeable = False
-
-    def __repr__(self) -> str:
+    def _new_instance(self, data: Mapping[str, _TCoeff], *, other: SpinOp | None = None) -> SpinOp:
+        num_s = self.num_spins
         spin = self.spin
-        reg_len = self.register_length
-        if len(self) == 1:
-            if self._coeffs[0] == 1:  # str
-                data_str = f"'{self.to_list()[0][0]}'"
-            else:  # tuple
-                data_str = repr(self.to_list()[0])
-        else:  # list
-            data_str = repr(self.to_list())
-        return f"SpinOp({data_str}, spin={spin}, register_length={reg_len})"  # TODO truncate
+        if other is not None:
+            other_num_s = other.num_spins
+            other_spin = other.spin
+            if spin != other_spin:
+                raise TypeError(
+                    f"Invalid operation between operators with different spin"
+                    f"values. Found spin_1={spin} and spin_2={other_spin}."
+                )
+            if num_s is None:
+                num_s = other_num_s
+            elif other_num_s is not None:
+                num_s = max(num_s, other_num_s)
 
-    def __str__(self) -> str:
-        if len(self) == 1:
-            label, coeff = self.to_list()[0]
-            return f"{label} * {coeff}"
-        return "  " + "\n+ ".join([f"{label} * {coeff}" for label, coeff in self.to_list()])
+        return self.__class__(data, copy=False, num_spins=num_s)
 
-    def __len__(self) -> int:
-        return len(self._coeffs)
+    def _validate_keys(self, keys: Collection[str]) -> None:
+        super()._validate_keys(keys)
 
-    @property
-    def register_length(self):
-        return self._register_length
+        num_s = self.num_spins
 
-    @property
-    def spin(self) -> Fraction:
-        """The spin number.
+        max_index = -1
+
+        for key in keys:
+            # 0. explicitly allow the empty key
+            if key == "":
+                continue
+
+            # 1. validate overall key structure
+            if not re.fullmatch(SpinOp._OPERATION_REGEX, key):
+                raise QiskitNatureError(f"{key} is not a valid SpinOp label.")
+
+            # 2. validate all indices against register length
+            for term in key.split():
+                sub_terms = term.split("^")
+                # sub_terms[0] is the base, sub_terms[1] is the (optional) exponent
+                index = int(sub_terms[0][2:])
+                if num_s is None:
+                    if index > max_index:
+                        max_index = index
+                elif index >= num_s:
+                    raise QiskitNatureError(
+                        f"The index, {index}, from the label, {key}, exceeds the number of "
+                        f"spins, {num_s}."
+                    )
+
+        self.num_spins = max_index + 1 if num_s is None else num_s
+
+    @classmethod
+    def _validate_polynomial_tensor_key(cls, keys: Collection[str]) -> None:
+        allowed_chars = {"X", "Y", "Z"}
+        for key in keys:
+            if set(key) - allowed_chars:
+                raise QiskitNatureError(
+                    f"The key {key} is invalid. PolynomialTensor keys may only consists of `X`, "
+                    "`Y` and `Z` characters, for them to be expandable into a SpinOp."
+                )
+
+    @classmethod
+    def from_polynomial_tensor(cls, tensor: PolynomialTensor) -> SpinOp:
+        cls._validate_polynomial_tensor_key(tensor.keys())
+
+        data: dict[str, _TCoeff] = {}
+
+        for key in tensor:
+            if key == "":
+                # TODO: deal with complexity
+                data[""] = cast(float, tensor[key])
+                continue
+
+            label_template = " ".join(f"{op}_{{}}" for op in key)
+
+            # PERF: the following matrix unpacking is a performance bottleneck!
+            # We could consider using Rust in the future to improve upon this.
+
+            mat = tensor[key]
+            if isinstance(mat, np.ndarray):
+                for index in np.ndindex(*mat.shape):
+                    data[label_template.format(*index)] = mat[index]
+            else:
+                _optionals.HAS_SPARSE.require_now("SparseArray")
+                import sparse as sp  # pylint: disable=import-error
+
+                if isinstance(mat, sp.SparseArray):
+                    coo = sp.as_coo(mat)
+                    for value, *index in zip(coo.data, *coo.coords):
+                        data[label_template.format(*index)] = value
+
+        return cls(data, copy=False, num_spins=tensor.register_length).chop()
+
+    @staticmethod
+    def _split_label(label) -> Iterator[tuple[str, int, int]]:
+        """Helper method to iterate over label splits.
+
+        Yields:
+            A tuple containing the character, index and exponent in each label split.
+        """
+        for lbl in label.split():
+            char, index = lbl.split("_")
+            index_split = index.split("^")
+            idx = int(index_split[0])
+            exp = int(index_split[1]) if len(index_split) > 1 else 1
+            yield char, idx, exp
+
+    @classmethod
+    def x(cls, spin: float | Fraction = Fraction(1, 2)) -> SpinOp:
+        """Constructs the X spin operator for a given spin.
 
         Returns:
-            Spin number
+            The X spin operator for ``spin``.
         """
-        return Fraction(self._dim - 1, 2)
+        return cls({"X_0": 1.0}, spin=spin, copy=False)
 
-    @property
-    def x(self) -> np.ndarray:
-        """A np.ndarray storing the power i of (spin) X operators on the spin system.
-        I.e. [0, 4, 2] corresponds to X_0^0 \\otimes X_1^4 \\otimes X_2^2, where X_i acts on the
-        i-th spin system in the register.
+    @classmethod
+    def y(cls, spin: float | Fraction = Fraction(1, 2)) -> SpinOp:
+        """Constructs the Y spin operator for a given spin.
+
+        Returns:
+            The Y spin operator for ``spin``.
         """
-        return self._spin_array[0]
+        return cls({"Y_0": 1.0}, spin=spin, copy=False)
 
-    @property
-    def y(self) -> np.ndarray:
-        """A np.ndarray storing the power i of (spin) Y operators on the spin system.
-        I.e. [0, 4, 2] corresponds to Y_0^0 \\otimes Y_1^4 \\otimes Y_2^2, where Y_i acts on the
-        i-th spin system in the register.
+    @classmethod
+    def z(cls, spin: float | Fraction = Fraction(1, 2)) -> SpinOp:
+        """Constructs the Z spin operator for a given spin.
+
+        Returns:
+            The Z spin operator for ``spin``.
         """
-        return self._spin_array[1]
+        return cls({"Z_0": 1.0}, spin=spin, copy=False)
 
-    @property
-    def z(self) -> np.ndarray:
-        """A np.ndarray storing the power i of (spin) Z operators on the spin system.
-        I.e. [0, 4, 2] corresponds to Z_0^0 \\otimes Z_1^4 \\otimes Z_2^2, where Z_i acts on the
-        i-th spin system in the register.
+    @classmethod
+    def one(cls, spin: float | Fraction = Fraction(1, 2)) -> SpinOp:
+        # pylint: disable=arguments-differ
+        """Constructs the "one" spin operator for a given spin.
+
+        Returns:
+            The "one" spin operator for ``spin``.
         """
-        return self._spin_array[2]
+        return cls({"": 1.0}, spin=spin, copy=False)
 
-    def add(self, other: "SpinOp") -> "SpinOp":
-        if not isinstance(other, SpinOp):
-            raise TypeError(
-                "Unsupported operand type(s) for +: 'SpinOp' and " f"'{type(other).__name__}'"
-            )
+    @classmethod
+    def zero(cls, spin: float | Fraction = Fraction(1, 2)) -> SpinOp:
+        # pylint: disable=arguments-differ
+        """Constructs the "zero" spin operator for a given spin.
 
-        if self.register_length != other.register_length:
-            raise TypeError("Incompatible register lengths for '+'.")
+        Returns:
+            The "zero" spin operator for ``spin``.
+        """
+        return cls({}, spin=spin, copy=False)
 
-        if self.spin != other.spin:
-            raise TypeError(f"Addition between spin {self.spin} and spin {other.spin} is invalid.")
+    def __repr__(self) -> str:
+        data_str = f"{dict(self.items())}"
 
-        return SpinOp(
-            (
-                np.hstack((self._spin_array, other._spin_array)),
-                np.hstack((self._coeffs, other._coeffs)),
-            ),
-            spin=self.spin,
+        return "SpinOp(" f"{data_str}, " f"spin={self.spin}, " f"num_spins={self.num_spins}, " ")"
+
+    def __str__(self) -> str:
+        pre = (
+            "Spin Operator\n"
+            f"spin={self.spin}, number spins={self.num_spins}, number terms={len(self)}\n"
         )
+        ret = "  " + "\n+ ".join(
+            [f"{coeff} * ( {label} )" if label else f"{coeff}" for label, coeff in self.items()]
+        )
+        return pre + ret
 
-    def compose(self, other):
-        # TODO: implement
-        raise NotImplementedError
+    def terms(self) -> Iterator[tuple[list[tuple[str, int]], _TCoeff]]:
+        """Provides an iterator analogous to :meth:`items` but with the labels already split into
+        pairs of operation characters and indices. If the labels contain an exponent, they will be
+        expanded into as many elements as indicated by the exponent. For example, label ``"X_0^3"``
+        will yield ``([("X", 0), ("X", 0), ("X", 0)], coeff)``.
 
-    def mul(self, other: complex) -> "SpinOp":
-        if not isinstance(other, (int, float, complex)):
+        Yields:
+            A tuple with two items; the first one being a list of pairs of the form (char, int)
+            where char is either ``X``, ``Y`` or ``Z`` and the integer corresponds to the index
+            on which the operator gets applied; the second item of the returned tuple is the
+            coefficient of this term.
+        """
+        for label in iter(self):
+            if not label:
+                yield ([], self[label])
+                continue
+
+            terms = []
+            for char, index, exp in self._split_label(label):
+                terms += [(char, index)] * exp
+            yield (terms, self[label])
+
+    def conjugate(self) -> SpinOp:
+        """Returns the conjugate of the ``SpinOp``.
+
+        Returns:
+            The complex conjugate of this ``SpinOp``.
+        """
+        new_data = {}
+        for label, coeff in self.items():
+            # calculate conjugate of coefficients
+            coeff = np.conjugate(coeff)
+            for char, _, exp in self._split_label(label):
+                # add sign from Y-terms (Y.conj() = -Y)
+                if char == "Y" and exp % 2:
+                    coeff *= -1
+            new_data[label] = coeff
+
+        return self._new_instance(new_data)
+
+    def transpose(self) -> SpinOp:
+        """Returns the transpose of the ``SpinOp``.
+
+        Returns:
+            The transpose of the ``SpinOp``.
+        """
+        # note: X^T=X, Y^T=-Y, Z^T=Z, (XY)^T = Y^T X^T
+        data = {}
+        for label, coeff in self.items():
+            for char, _, exp in self._split_label(label):
+                # add sign from Y-terms (Y^T=-Y)
+                if char == "Y" and exp % 2:
+                    coeff *= -1
+            data[" ".join(lbl for lbl in reversed(label.split()))] = coeff
+
+        return self._new_instance(data)
+
+    def compose(self, other: SpinOp, qargs=None, front: bool = False) -> SpinOp:
+        if not isinstance(other, SpinOp):
             raise TypeError(
                 f"Unsupported operand type(s) for *: 'SpinOp' and '{type(other).__name__}'"
             )
 
-        return SpinOp((self._spin_array, self._coeffs * other), spin=self.spin)
+        if front:
+            return self._tensor(self, other, offset=False)
+        else:
+            return self._tensor(other, self, offset=False)
 
-    def adjoint(self) -> "SpinOp":
-        if (self._spin_array.sum(axis=0) > 1).any():
-            # TODO: implement this when compose() will be implemented.
-            raise NotImplementedError(
-                "Adjoint for an operator which have multiple operators for the same register."
-            )
-        # Note: X, Y, Z are hermitian, therefore the dagger operation on a SpinOperator amounts
-        # to simply complex conjugating the coefficient.
-        return SpinOp((self._spin_array, self._coeffs.conjugate()), spin=self.spin)
+    def tensor(self, other: SpinOp) -> SpinOp:
+        return self._tensor(self, other)
 
-    def simplify(self, atol: Optional[float] = None) -> "SpinOp":
-        if atol is None:
-            atol = self.atol
+    def expand(self, other: SpinOp) -> SpinOp:
+        return self._tensor(other, self)
 
-        flatten_array, indices = np.unique(
-            np.column_stack(cast(Sequence, self._spin_array)),
-            return_inverse=True,
-            axis=0,
-        )
-        coeff_list = np.zeros(flatten_array.shape[0], dtype=np.complex128)
-        np.add.at(coeff_list, indices, self._coeffs)
-        is_zero = np.isclose(coeff_list, 0, atol=atol)
-        if np.all(is_zero):
-            return SpinOp(
-                (
-                    np.zeros((3, 1, self.register_length), dtype=np.int8),
-                    np.array([0], dtype=np.complex128),
-                ),
-                spin=self.spin,
-            )
-        non_zero = np.logical_not(is_zero)
-        new_array = (
-            flatten_array[non_zero]
-            .reshape((np.count_nonzero(non_zero), 3, self.register_length))
-            .transpose(1, 0, 2)
-        )
-        new_coeff = coeff_list[non_zero]
-        return SpinOp((new_array, new_coeff), spin=self.spin)
+    @classmethod
+    def _tensor(cls, a: SpinOp, b: SpinOp, *, offset: bool = True) -> SpinOp:
+        shift = a.num_spins if offset else 0
 
-    def to_list(self) -> List[Tuple[str, complex]]:
-        """Getter for the list which represents `self`
+        new_data: dict[str, _TCoeff] = {}
+        for terms1, cf1 in a.terms():
+            label1 = f"{''.join(f' {c}_{i}' for c, i in terms1)}"
+            for terms2, cf2 in b.terms():
+                new_label = f"{label1} {' '.join(f'{c}_{i + shift}' for c, i in terms2)}".strip()
+                if new_label in new_data:
+                    new_data[new_label] += cf1 * cf2
+                else:
+                    new_data[new_label] = cf1 * cf2
+
+        new_op = a._new_instance(new_data, other=b)
+        if offset:
+            new_op.num_spins = a.num_spins + b.num_spins
+        return new_op
+
+    def simplify(self, atol: float | None = None) -> SpinOp:
+        atol = self.atol if atol is None else atol
+
+        data = defaultdict(complex)  # type: dict[str, _TCoeff]
+        for label, coeff in self.items():
+            label, coeff = self._simplify_label(label, coeff)
+            data[label] += coeff
+        simplified_data = {
+            label: coeff
+            for label, coeff in data.items()
+            if not np.isclose(_to_number(coeff), 0.0, atol=atol)
+        }
+        return self._new_instance(simplified_data)
+
+    def _simplify_label(self, label: str, coeff: _TCoeff) -> tuple[str, _TCoeff]:
+
+        new_label = []
+        for lbl in label.split():
+            # the generator will only yield 1 item
+            char, idx, exp = next(self._split_label(lbl))
+            new_label += [f"{char}_{idx}"] * exp
+
+        return " ".join(lbl for lbl in new_label if lbl is not None), coeff
+
+    def index_order(self) -> SpinOp:
+        """Convert to the equivalent operator with the terms of each label ordered by index.
+
+        Returns a new operator (the original operator is not modified).
 
         Returns:
-            The list [(label, coeff)]
+            The index ordered operator.
         """
-        coeff_list = self._coeffs.tolist()
-        return [(self._generate_label(i), coeff_list[i]) for i in range(len(self))]
+        data = defaultdict(complex)  # type: dict[str, _TCoeff]
+        for terms, coeff in self.terms():
+            label, coeff = self._index_order(terms, coeff)
+            data[label] += coeff
 
-    def _generate_label(self, i):
-        """Generates the string description of `self`."""
-        labels_list = []
-        for pos, (n_x, n_y, n_z) in enumerate(self._spin_array[:, i].T):
-            if n_x >= 1:
-                labels_list.append(f"X_{pos}" + (f"^{n_x}" if n_x > 1 else ""))
-            if n_y >= 1:
-                labels_list.append(f"Y_{pos}" + (f"^{n_y}" if n_y > 1 else ""))
-            if n_z >= 1:
-                labels_list.append(f"Z_{pos}" + (f"^{n_z}" if n_z > 1 else ""))
-        if not labels_list:
-            return f"I_{self.register_length - 1}"
-        return " ".join(labels_list)
+        # after successful index ordering, we remove all zero coefficients
+        return self._new_instance(
+            {
+                label: coeff
+                for label, coeff in data.items()
+                if not np.isclose(_to_number(coeff), 0.0, atol=self.atol)
+            }
+        )
 
-    @lru_cache(maxsize=128)
+    def _index_order(self, terms: list[tuple[str, int]], coeff: _TCoeff) -> tuple[str, _TCoeff]:
+        if not terms:
+            return "", coeff
+
+        # perform insertion sorting
+        for i in range(1, len(terms)):
+            for j in range(i, 0, -1):
+                right = terms[j]
+                left = terms[j - 1]
+
+                if left[1] > right[1]:
+                    terms[j - 1] = right
+                    terms[j] = left
+                    coeff *= -1.0
+
+        new_label = " ".join(f"{term[0]}_{term[1]}" for term in terms)
+        return new_label, coeff
+
     def to_matrix(self) -> np.ndarray:
+        # TODO: use scipy.sparse.csr_matrix() and add parameter `sparse: bool`.
         """Convert to dense matrix.
 
         Returns:
             The matrix (numpy.ndarray with dtype=numpy.complex128)
         """
-        # TODO: use scipy.sparse.csr_matrix() and add parameter `sparse: bool`.
+        dim = int(2 * self.spin + 1)
+
         x_mat = np.fromfunction(
             lambda i, j: np.where(
                 np.abs(i - j) == 1,
-                np.sqrt((self._dim + 1) * (i + j + 1) / 2 - (i + 1) * (j + 1)) / 2,
+                np.sqrt((dim + 1) * (i + j + 1) / 2 - (i + 1) * (j + 1)) / 2,
                 0,
             ),
-            (self._dim, self._dim),
+            (dim, dim),
             dtype=np.complex128,
         )
         y_mat = np.fromfunction(
             lambda i, j: np.where(
                 np.abs(i - j) == 1,
-                1j * (i - j) * np.sqrt((self._dim + 1) * (i + j + 1) / 2 - (i + 1) * (j + 1)) / 2,
+                1j * (i - j) * np.sqrt((dim + 1) * (i + j + 1) / 2 - (i + 1) * (j + 1)) / 2,
                 0,
             ),
-            (self._dim, self._dim),
+            (dim, dim),
             dtype=np.complex128,
         )
         z_mat = np.fromfunction(
-            lambda i, j: np.where(i == j, (self._dim - 2 * i - 1) / 2, 0),
-            (self._dim, self._dim),
+            lambda i, j: np.where(i == j, (dim - 2 * i - 1) / 2, 0),
+            (dim, dim),
             dtype=np.complex128,
         )
+        i_mat = np.eye(dim, dim)
 
         tensorall = partial(reduce, np.kron)
+        char_map = {"X": x_mat, "Y": y_mat, "Z": z_mat}
 
-        mat = sum(
-            self._coeffs[i]
-            * tensorall(
-                np.linalg.matrix_power(x_mat, x)
-                @ np.linalg.matrix_power(y_mat, y)
-                @ np.linalg.matrix_power(z_mat, z)
-                for x, y, z in self._spin_array[:, i].T
-            )
-            for i in range(len(self))
-        )
-        mat = cast(np.ndarray, mat)
-        mat.flags.writeable = False
-        return mat.view()
+        # reorder and expand
+        simplified_op = self.index_order().simplify()
 
-    def _from_sparse_label(self, labels):
-        xyz_dict = {"X": 0, "Y": 1, "Z": 2}
+        final_matrix = np.zeros((dim, dim), dtype=np.complex128)
+        for label, coeff in simplified_op.items():
+            matrix_per_idx = {}
+            # after .simplify() all exponents will be 1,
+            # so the exp return value from self._split_label()
+            # can be safely ignored (dropped into _)
+            for char, idx, _ in self._split_label(label):
+                # compose all matrices in same index
+                if idx not in matrix_per_idx:
+                    matrix_per_idx[idx] = i_mat
+                matrix_per_idx[idx] = matrix_per_idx[idx] @ char_map.get(char, i_mat)
 
-        # 3-dimensional ndarray (XYZ, terms, register)
-        self._spin_array = np.zeros((3, len(labels), self.register_length), dtype=np.uint8)
-        for term, label in enumerate(labels):
-            for split_label in label.split():
-                xyz, nums = split_label.split("_", 1)
+            # fill out empty indices with identity
+            dense_matrix_per_idx = [matrix_per_idx.get(i, i_mat) for i in range(len(self))]
+            # add weighted kronecker product to final matrix
+            final_matrix += coeff * tensorall(np.asarray(dense_matrix_per_idx))
 
-                if xyz not in xyz_dict:
-                    continue
-
-                xyz_num = xyz_dict[xyz]
-                index, power = map(int, nums.split("^", 1)) if "^" in nums else (int(nums), 1)
-                if index >= self.register_length:
-                    raise ValueError(
-                        f"Index {index} must be smaller than register_length {self.register_length}"
-                    )
-                # Check the order of X, Y, and Z whether it has been already assigned.
-                if self._spin_array[range(xyz_num + 1, 3), term, index].any():
-                    raise ValueError(f"Label must be in XYZ order, but {label}.")
-                # same index is not assigned.
-                if self._spin_array[xyz_num, term, index]:
-                    raise ValueError(f"Duplicate index label {index} is given.")
-
-                self._spin_array[xyz_num, term, index] = power
-
-    @staticmethod
-    def _flatten_ladder_ops(data):
-        """Convert `+` to `X + 1j Y` and `-` to `X - 1j Y` with the distributive law"""
-        new_data = []
-        for label, coeff in data:
-            plus_indices = [i for i, char in enumerate(label) if char == "+"]
-            minus_indices = [i for i, char in enumerate(label) if char == "-"]
-            len_plus = len(plus_indices)
-            len_minus = len(minus_indices)
-            pm_indices = plus_indices + minus_indices
-            label_list = list(label)
-            for indices in product(["X", "Y"], repeat=len_plus + len_minus):
-                for i, index in enumerate(indices):
-                    label_list[pm_indices[i]] = index
-                # The phase is determined by the number of Y in + and - respectively. For example,
-                # S_+ otimes S_- = (X + i Y) otimes (X - i Y)
-                # = i^{0-0} XX + i^{1-0} YX + i^{0-1} XY + i^{1-1} YY
-                # = XX + i YX - i XY + YY
-                phase = indices[:len_plus].count("Y") - indices[len_plus:].count("Y")
-                new_data.append(("".join(label_list), coeff * 1j**phase))
-
-        return new_data
-
-    @staticmethod
-    def _flatten_raising_lowering_ops(data, register_length):
-        """Convert +_i -_i to X_i^2 + Y_i^2 + Z_i"""
-        new_data = []
-        for label, coeff in data:
-            positions = []
-            indices = []
-            label_list = label.split()
-            for i in range(register_length):
-                if f"+_{i}" in label_list and f"-_{i}" in label_list:
-                    plus_pos = label_list.index(f"+_{i}")
-                    minus_pos = label_list.index(f"-_{i}")
-                    if minus_pos - plus_pos == 1:
-                        positions.append(plus_pos)
-                        indices.append(i)
-            for ops in product(*([f"X_{i}^2", f"Y_{i}^2", f"Z_{i}"] for i in indices)):
-                label_list = label.split()
-                for pos, op in zip(positions, ops):
-                    label_list[pos] = op
-                for pos in sorted(positions, reverse=True):
-                    label_list.pop(pos + 1)
-                new_data.append((" ".join(label_list), coeff))
-        return new_data
+        return final_matrix

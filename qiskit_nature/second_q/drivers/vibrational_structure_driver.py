@@ -16,7 +16,8 @@ This module implements the abstract base class for vibrational structure driver 
 
 from abc import abstractmethod
 
-from qiskit_nature.second_q.problems import VibrationalStructureProblem
+from qiskit_nature.second_q.problems import VibrationalBasis, VibrationalStructureProblem
+
 from .base_driver import BaseDriver
 
 
@@ -26,6 +27,11 @@ class VibrationalStructureDriver(BaseDriver):
     """
 
     @abstractmethod
-    def run(self) -> VibrationalStructureProblem:
-        """Returns a VibrationalStructureProblem output as produced by the driver."""
+    def run(self, basis: VibrationalBasis) -> VibrationalStructureProblem:  # type: ignore[override]
+        # pylint: disable=arguments-differ
+        """Returns a VibrationalStructureProblem output as produced by the driver.
+
+        Args:
+            basis: the basis in which to return the problem.
+        """
         pass

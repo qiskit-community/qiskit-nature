@@ -17,18 +17,15 @@ import unittest
 from test import QiskitNatureTestCase
 import numpy as np
 
-from qiskit_nature.hdf5 import load_from_hdf5
 from qiskit_nature.second_q.drivers import GaussianLogDriver, GaussianLogResult
-from qiskit_nature.second_q.hamiltonians import VibrationalEnergy
-from qiskit_nature.second_q.properties.integrals import (
-    VibrationalIntegrals,
-)
+from qiskit_nature.second_q.formats.watson import WatsonHamiltonian
 import qiskit_nature.optionals as _optionals
 
 
 class TestDriverGaussianLog(QiskitNatureTestCase):
     """Gaussian Log Driver tests."""
 
+    @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     def setUp(self):
         super().setUp()
         self.logfile = self.get_resource_path(
@@ -102,8 +99,8 @@ class TestDriverGaussianLog(QiskitNatureTestCase):
             "test_driver_gaussian_log_polyyne_2.txt", "second_q/drivers/gaussiand"
         )
         result = GaussianLogResult(polyyne_log)
-        vib_energy = result.get_vibrational_energy()
-        self.assertTrue(isinstance(vib_energy, VibrationalEnergy))
+        watson = result.get_watson_hamiltonian()
+        self.assertTrue(isinstance(watson, WatsonHamiltonian))
 
     def test_quadratic_force_constants(self):
         """Test quadratic force constants"""
@@ -150,48 +147,77 @@ class TestDriverGaussianLog(QiskitNatureTestCase):
         ]
         self.assertListEqual(qfc, expected)
 
-    @unittest.skip("HDF5 migration")
-    def test_vibrational_energy(self):
-        """Test the VibrationalEnergy."""
+    def test_watson_hamiltonian(self):
+        """Test the WatsonHamiltonian."""
+        import sparse as sp  # pylint: disable=import-error
+
         result = GaussianLogResult(self.logfile)
-        vib_energy = result.get_vibrational_energy()
-        expected = load_from_hdf5(
-            self.get_resource_path(
-                "test_driver_gaussian_log_vibrational_energy.hdf5",
-                "second_q/drivers/gaussiand",
+        watson = result.get_watson_hamiltonian()
+
+        with self.subTest("quadratic"):
+            expected = sp.as_coo(
+                {
+                    (0, 0): 631.6153975,
+                    (1, 1): 352.3005875,
+                    (2, 2): 115.653915,
+                    (3, 3): 115.653915,
+                },
+                shape=(4, 4),
             )
-        )
+            self.assertEqual(watson.quadratic_force_constants.shape, expected.shape)
+            np.testing.assert_array_equal(watson.quadratic_force_constants.coords, expected.coords)
+            self.assertTrue(np.allclose(watson.quadratic_force_constants.data, expected.data))
 
-        self.addTypeEqualityFunc(VibrationalIntegrals, self.compare_vibrational_integral)
-        self.addTypeEqualityFunc(VibrationalEnergy, self.compare_vibrational_energy)
-        self.assertEqual(vib_energy, expected)
+        with self.subTest("cubic"):
+            expected = sp.as_coo(
+                {
+                    (0, 0, 1): -88.20174217,
+                    (1, 1, 1): -15.34190197,
+                    (2, 2, 1): 2.28746392,
+                    (3, 2, 1): 26.25167513,
+                    (3, 3, 1): 42.40478531,
+                },
+                shape=(4, 4, 4),
+            )
+            self.assertEqual(watson.cubic_force_constants.shape, expected.shape)
+            np.testing.assert_array_equal(watson.cubic_force_constants.coords, expected.coords)
+            self.assertTrue(np.allclose(watson.cubic_force_constants.data, expected.data))
 
-    def compare_vibrational_integral(
-        self, first: VibrationalIntegrals, second: VibrationalIntegrals, msg: str = None
-    ) -> None:
-        """Compares two VibrationalIntegral instances."""
-        if first.name != second.name:
-            raise self.failureException(msg)
+        with self.subTest("quartic"):
+            expected = sp.as_coo(
+                {
+                    (0, 0, 0, 0): 1.61229323,
+                    (0, 0, 1, 1): 4.9425425,
+                    (1, 1, 1, 1): 0.42073573,
+                    (2, 2, 0, 0): -10.20589125,
+                    (2, 2, 1, 1): -4.19429937,
+                    (2, 2, 2, 2): 2.29738031,
+                    (3, 2, 2, 2): -2.78212,
+                    (3, 3, 0, 0): -10.20589125,
+                    (3, 3, 1, 1): -4.19429937,
+                    (3, 3, 2, 2): 7.32922437,
+                    (3, 3, 3, 2): 2.78212042,
+                    (3, 3, 3, 3): 2.29738031,
+                },
+                shape=(4, 4, 4, 4),
+            )
+            self.assertEqual(watson.quartic_force_constants.shape, expected.shape)
+            np.testing.assert_array_equal(watson.quartic_force_constants.coords, expected.coords)
+            self.assertTrue(np.allclose(watson.quartic_force_constants.data, expected.data))
 
-        if first._num_body_terms != second._num_body_terms:
-            raise self.failureException(msg)
-
-        for f_int, s_int in zip(first._integrals, second._integrals):
-            if not np.isclose(f_int[0], s_int[0]):
-                raise self.failureException(msg)
-
-            if not all(f == s for f, s in zip(f_int[1:], s_int[1:])):
-                raise self.failureException(msg)
-
-    def compare_vibrational_energy(
-        self, first: VibrationalEnergy, second: VibrationalEnergy, msg: str = None
-    ) -> None:
-        # pylint: disable=unused-argument
-        """Compares two VibrationalEnergy instances."""
-        for f_ints, s_ints in zip(
-            first._vibrational_integrals.values(), second._vibrational_integrals.values()
-        ):
-            self.compare_vibrational_integral(f_ints, s_ints)
+        with self.subTest("kinetic"):
+            expected = sp.as_coo(
+                {
+                    (0, 0): -631.6153975,
+                    (1, 1): -352.3005875,
+                    (2, 2): -115.653915,
+                    (3, 3): -115.653915,
+                },
+                shape=(4, 4),
+            )
+            self.assertEqual(watson.kinetic_coefficients.shape, expected.shape)
+            np.testing.assert_array_equal(watson.kinetic_coefficients.coords, expected.coords)
+            self.assertTrue(np.allclose(watson.kinetic_coefficients.data, expected.data))
 
 
 if __name__ == "__main__":

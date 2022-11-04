@@ -18,7 +18,8 @@ from test import QiskitNatureTestCase
 
 from ddt import ddt, data, unpack
 
-from qiskit.opflow import X, Y, Z, I
+from qiskit.opflow import PauliSumOp
+from qiskit.quantum_info.operators import SparsePauliOp
 from qiskit_nature.second_q.operators import SpinOp
 from qiskit_nature.second_q.mappers import LogarithmicMapper
 
@@ -27,33 +28,27 @@ from qiskit_nature.second_q.mappers import LogarithmicMapper
 class TestLogarithmicMapper(QiskitNatureTestCase):
     """Test Logarithmic Mapper"""
 
-    spin_op1 = SpinOp([("Y_0", -0.432 + 1.32j)], 0.5, 1)
-    ref_qubit_op1 = (-0.216 + 0.66j) * (Y)
+    spin_op1 = SpinOp({"Y_0": -0.432 + 1.32j}, 0.5, 1)
+    ref_qubit_op1 = SparsePauliOp(["Y"], coeffs=[(-0.216 + 0.66j)])
 
-    spin_op2 = SpinOp([("X_0 Z_0 I_1", -1.139 + 0.083j)], 0.5, 2)
-    ref_qubit_op2 = (0.02075 + 0.28475j) * (I ^ Y)
+    spin_op2 = SpinOp({"X_0 Z_0": -1.139 + 0.083j}, 0.5, 2)
+    ref_qubit_op2 = SparsePauliOp(["IY"], coeffs=[(0.02075 + 0.28475j)])
 
-    spin_op3 = SpinOp([("X_0 Y_0^2 Z_0 X_1 Y_1 Y_2 Z_2", -0.18 + 1.204j)], 0.5, 3)
-    ref_qubit_op3 = (-0.004703125 - 0.000703125j) * (X ^ Z ^ Y)
+    spin_op3 = SpinOp({"X_0 Y_0 Y_0 Z_0 X_1 Y_1 Y_2 Z_2": -0.18 + 1.204j}, 0.5, 3)
+    ref_qubit_op3 = SparsePauliOp(["XZY"], coeffs=[(-0.004703125 - 0.000703125j)])
 
-    spin_op4 = SpinOp([("I_0 Z_1", -0.875 - 0.075j)], 1.5, 2)
-    ref_qubit_op4 = (-0.4375 - 0.0375j) * (I ^ Z ^ I ^ I) + (-0.875 - 0.075j) * (Z ^ I ^ I ^ I)
+    spin_op4 = SpinOp({"Z_1": -0.875 - 0.075j}, 1.5, 2)
+    ref_qubit_op4 = SparsePauliOp(["IZII", "ZIII"], coeffs=[(-0.4375 - 0.0375j), (-0.875 - 0.075j)])
 
-    spin_op5 = SpinOp([("X_0 I_1 I_2 I_3 I_4 I_5 I_6 I_7", 4 + 0j)], 0.5, 8) + SpinOp(
-        [("I_0^2 I_2 I_3 I_4 I_5 I_6 I_7 I_8", 8 + 0j)], 0.5, 8
+    spin_op5 = SpinOp({"X_0": 4 + 0j}, 0.5, 8) + SpinOp({"": 8 + 0j}, 0.5, 8)
+    ref_qubit_op5 = SparsePauliOp(["IIIIIIIX", "IIIIIIII"], coeffs=[(2.0 + 0j), (8.0 + 0j)])
+
+    spin_op6 = SpinOp({"Z_0": -0.875 - 0.075j}, 1, 1)
+    ref_qubit_op6 = SparsePauliOp(
+        ["II", "IZ", "ZZ"], coeffs=[(-0.4375 - 0.0375j), (0.4375 + 0.0375j), (-0.875 - 0.075j)]
     )
-
-    ref_qubit_op5 = (8.0 + 0j) * (I ^ I ^ I ^ I ^ I ^ I ^ I ^ I) + (2.0 + 0j) * (
-        I ^ I ^ I ^ I ^ I ^ I ^ I ^ X
-    )
-
-    spin_op6 = SpinOp([("Z_0", -0.875 - 0.075j)], 1, 1)
-    ref_qubit_op6 = (
-        (-0.4375 - 0.0375j) * (I ^ I) + (0.4375 + 0.0375j) * (I ^ Z) + (-0.875 - 0.075j) * (Z ^ Z)
-    )
-
-    ref_qubit_op7 = (
-        (-0.4375 - 0.0375j) * (I ^ I) + (-0.4375 - 0.0375j) * (I ^ Z) + (-0.875 - 0.075j) * (Z ^ I)
+    ref_qubit_op7 = SparsePauliOp(
+        ["II", "IZ", "ZI"], coeffs=[(-0.4375 - 0.0375j), (-0.4375 - 0.0375j), (-0.875 - 0.075j)]
     )
 
     @data(
@@ -70,7 +65,7 @@ class TestLogarithmicMapper(QiskitNatureTestCase):
         """Test mapping to qubit operator"""
         mapper = LogarithmicMapper(padding=padding, embed_upper=embed_upper)
         qubit_op = mapper.map(spin_op)
-        self.assertEqual(qubit_op, ref_qubit_op)
+        self.assertEqual(qubit_op, PauliSumOp(ref_qubit_op))
 
 
 if __name__ == "__main__":
