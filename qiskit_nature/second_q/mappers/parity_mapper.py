@@ -30,9 +30,9 @@ class ParityMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
     def __init__(self):
         """The Parity fermion-to-qubit mapping.
 
-        When using this mapper `two_qubit_reduction` can optionally be used for the qubit
+        When using this mapper ``two_qubit_reduction`` can optionally be used for the qubit
         operator that is created, see converter class
-        :class:`~qiskit_nature.second_q.operators.QubitConverter`.
+        :class:`~qiskit_nature.second_q.mappers.QubitConverter`.
         """
         super().__init__(allows_two_qubit_reduction=True)
 

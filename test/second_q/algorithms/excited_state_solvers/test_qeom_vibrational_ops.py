@@ -11,40 +11,69 @@
 # that they have been altered from the originals.
 
 """Tests Hopping Operators builder."""
+
 from test import QiskitNatureTestCase
-from test.second_q.algorithms.excited_state_solvers.test_bosonic_esc_calculation import (
-    _DummyBosonicDriver,
-)
+
+import unittest
 
 from qiskit.opflow import PauliSumOp
 from qiskit.utils import algorithm_globals
 
-from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.mappers import DirectMapper
 from qiskit_nature.second_q.algorithms.excited_states_solvers.qeom_vibrational_ops_builder import (
     build_vibrational_ops,
 )
+from qiskit_nature.second_q.formats.watson import WatsonHamiltonian
+from qiskit_nature.second_q.formats.watson_translator import watson_to_problem
+from qiskit_nature.second_q.mappers import DirectMapper, QubitConverter
+from qiskit_nature.second_q.problems import HarmonicBasis
+import qiskit_nature.optionals as _optionals
 
 
 class TestHoppingOpsBuilder(QiskitNatureTestCase):
     """Tests Hopping Operators builder."""
 
+    @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     def setUp(self):
         super().setUp()
         algorithm_globals.random_seed = 8
-        self.driver = _DummyBosonicDriver()
         self.qubit_converter = QubitConverter(DirectMapper())
-        self.basis_size = 2
-        self.truncation_order = 2
 
-        self.vibrational_problem = self.driver.run()
-        self.vibrational_problem._num_modals = self.basis_size
-        self.vibrational_problem.truncation_order = self.truncation_order
+        import sparse as sp  # pylint: disable=import-error
 
-        self.qubit_converter = QubitConverter(DirectMapper())
-        self.vibrational_problem.second_q_ops()
-        self.grouped_property_transformed = self.vibrational_problem
-        self.num_modals = [self.basis_size] * self.vibrational_problem.num_modes
+        watson = WatsonHamiltonian(
+            quadratic_force_constants=sp.as_coo(
+                {
+                    (0, 0): 605.3643675,
+                    (1, 1): 340.5950575,
+                },
+                shape=(2, 2),
+            ),
+            cubic_force_constants=sp.as_coo(
+                {
+                    (1, 0, 0): -89.09086530649508,
+                    (1, 1, 1): -15.590557244410897,
+                },
+                shape=(2, 2, 2),
+            ),
+            quartic_force_constants=sp.as_coo(
+                {
+                    (0, 0, 0, 0): 1.6512647916666667,
+                    (1, 1, 0, 0): 5.03965375,
+                    (1, 1, 1, 1): 0.43840625000000005,
+                },
+                shape=(2, 2, 2, 2),
+            ),
+            kinetic_coefficients=sp.as_coo(
+                {
+                    (0, 0): -605.3643675,
+                    (1, 1): -340.5950575,
+                },
+                shape=(2, 2),
+            ),
+        )
+
+        self.basis = HarmonicBasis([2, 2])
+        self.vibrational_problem = watson_to_problem(watson, self.basis)
 
     def test_build_hopping_operators(self):
         """Tests that the correct hopping operator is built."""
@@ -115,5 +144,9 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
             },
         )
 
-        hopping_operators = build_vibrational_ops(self.num_modals, "sd", self.qubit_converter)
+        hopping_operators = build_vibrational_ops(self.basis.num_modals, "sd", self.qubit_converter)
         self.assertEqual(hopping_operators, expected_hopping_operators)
+
+
+if __name__ == "__main__":
+    unittest.main()

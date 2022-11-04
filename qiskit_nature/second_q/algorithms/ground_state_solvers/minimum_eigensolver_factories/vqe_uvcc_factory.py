@@ -126,20 +126,12 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         Returns:
             A VQE suitable to compute the ground state of the molecule.
         """
-
-        basis = problem.basis
-        num_modals = basis.num_modals_per_mode
-        num_modes = len(num_modals)
-
-        if isinstance(num_modals, int):
-            num_modals = [num_modals] * num_modes
-
         initial_state = self.initial_state
         if initial_state is None:
-            initial_state = VSCF(num_modals)
+            initial_state = VSCF(problem.num_modals)
 
         self.ansatz.qubit_converter = qubit_converter
-        self.ansatz.num_modals = num_modals
+        self.ansatz.num_modals = problem.num_modals
         self.ansatz.initial_state = initial_state
 
         if isinstance(self.initial_point, InitialPoint):

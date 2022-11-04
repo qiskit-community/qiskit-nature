@@ -59,7 +59,7 @@ class TestIsingModel(QiskitNatureTestCase):
 
             ham = coupling
 
-            self.assertSetEqual(set(ham), set(ism.second_q_op().to_list()))
+            self.assertSetEqual(set(ham), set(ism.second_q_op().items()))
 
     def test_uniform_parameters(self):
         """Test uniform_parameters."""
@@ -112,7 +112,7 @@ class TestIsingModel(QiskitNatureTestCase):
 
             ham = coupling
 
-            self.assertSetEqual(set(ham), set(uniform_ism.second_q_op().to_list()))
+            self.assertSetEqual(set(ham), set(uniform_ism.second_q_op().items()))
 
     def test_from_parameters(self):
         """Test from_parameters."""
@@ -143,4 +143,4 @@ class TestIsingModel(QiskitNatureTestCase):
 
             ham = coupling
 
-            self.assertSetEqual(set(ham), set(ism.second_q_op().to_list()))
+            self.assertSetEqual(set(ham), set(ism.second_q_op().items()))

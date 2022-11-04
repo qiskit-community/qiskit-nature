@@ -12,11 +12,12 @@
 
 """The Linear Mapper."""
 
+from __future__ import annotations
 import operator
 
+from collections import defaultdict
 from fractions import Fraction
 from functools import reduce
-from typing import List, Union
 
 import numpy as np
 
@@ -34,45 +35,30 @@ class LinearMapper(SpinMapper):  # pylint: disable=missing-class-docstring
 
     def map(self, second_q_op: SpinOp) -> PauliSumOp:
 
-        qubit_ops_list: List[PauliSumOp] = []
+        qubit_ops_list: list[PauliSumOp] = []
 
         # get linear encoding of the general spin matrices
         spinx, spiny, spinz, identity = self._linear_encoding(second_q_op.spin)
+        ordered_op = second_q_op.index_order()
 
-        for idx, (_, coeff) in enumerate(second_q_op.to_list()):
+        char_map = {"X": spinx, "Y": spiny, "Z": spinz}
 
-            operatorlist: List[PauliSumOp] = []
+        for terms, coeff in ordered_op.terms():
+            mat = defaultdict(list)  # type: dict[int, list]
+            for op, idx in terms:
+                if idx not in mat:
+                    mat[idx] = identity
+                mat[idx] = mat[idx] @ char_map[op]
 
-            for n_x, n_y, n_z in zip(second_q_op.x[idx], second_q_op.y[idx], second_q_op.z[idx]):
-
-                operator_on_spin_i: List[PauliSumOp] = []
-
-                if n_x > 0:
-                    operator_on_spin_i.append(reduce(operator.matmul, [spinx] * int(n_x)))
-
-                if n_y > 0:
-                    operator_on_spin_i.append(reduce(operator.matmul, [spiny] * int(n_y)))
-
-                if n_z > 0:
-                    operator_on_spin_i.append(reduce(operator.matmul, [spinz] * int(n_z)))
-
-                if np.any([n_x, n_y, n_z]) > 0:
-                    single_operator_on_spin_i = reduce(operator.matmul, operator_on_spin_i)
-                    operatorlist.append(single_operator_on_spin_i.reduce())
-
-                else:
-                    # If n_x=n_y=n_z=0, simply add the embedded Identity operator.
-                    operatorlist.append(identity)
-
+            operatorlist = [mat[i] if i in mat else identity for i in range(ordered_op.num_spins)]
             # Now, we can tensor all operators in this list
-            # NOTE: in Qiskit's opflow the `XOR` (i.e. `^`) operator does the tensor product
             qubit_ops_list.append(coeff * reduce(operator.xor, reversed(operatorlist)))
 
         qubit_op = reduce(operator.add, qubit_ops_list)
 
         return qubit_op
 
-    def _linear_encoding(self, spin: Union[Fraction, float]) -> List[PauliSumOp]:
+    def _linear_encoding(self, spin: Fraction | float) -> list[PauliSumOp]:
         """
         Generates a 'linear_encoding' of the spin S operators 'X', 'Y', 'Z' and 'identity'
         to qubit operators (linear combinations of pauli strings).
@@ -86,7 +72,6 @@ class LinearMapper(SpinMapper):  # pylint: disable=missing-class-docstring
             to represent the embedded 'X' operator
         """
 
-        spin_op_encoding: List[PauliSumOp] = []
         dspin = int(2 * spin + 1)
         nqubits = dspin
 
@@ -104,29 +89,27 @@ class LinearMapper(SpinMapper):  # pylint: disable=missing-class-docstring
 
         # 1. build the non-diagonal X operator
         x_summands = []
-        for i, coeff in enumerate(np.diag(SpinOp("X", spin=spin).to_matrix(), 1)):
+        for i, coeff in enumerate(np.diag(SpinOp.x(spin).to_matrix(), 1)):
             x_summands.append(
                 PauliSumOp(
                     coeff / 2.0 * SparsePauliOp(pauli_x(i).dot(pauli_x(i + 1)))
                     + coeff / 2.0 * SparsePauliOp(pauli_y(i).dot(pauli_y(i + 1)))
                 )
             )
-        spin_op_encoding.append(reduce(operator.add, x_summands))
 
         # 2. build the non-diagonal Y operator
         y_summands = []
-        for i, coeff in enumerate(np.diag(SpinOp("Y", spin=spin).to_matrix(), 1)):
+        for i, coeff in enumerate(np.diag(SpinOp.y(spin).to_matrix(), 1)):
             y_summands.append(
                 PauliSumOp(
                     -1j * coeff / 2.0 * SparsePauliOp(pauli_x(i).dot(pauli_y(i + 1)))
                     + 1j * coeff / 2.0 * SparsePauliOp(pauli_y(i).dot(pauli_x(i + 1)))
                 )
             )
-        spin_op_encoding.append(reduce(operator.add, y_summands))
 
         # 3. build the diagonal Z
         z_summands = []
-        for i, coeff in enumerate(np.diag(SpinOp("Z", spin=spin).to_matrix())):
+        for i, coeff in enumerate(np.diag(SpinOp.z(spin).to_matrix())):
             # get the first upper diagonal of coeff.
             z_summands.append(
                 PauliSumOp(
@@ -134,11 +117,11 @@ class LinearMapper(SpinMapper):  # pylint: disable=missing-class-docstring
                 )
             )
 
-        z_operator = reduce(operator.add, z_summands)
-        spin_op_encoding.append(z_operator)
-
-        # 4. add the identity operator
-        spin_op_encoding.append(PauliSumOp(1.0 * SparsePauliOp(pauli_id)))
-
         # return the lookup table for the transformed XYZI operators
+        spin_op_encoding = [
+            reduce(operator.add, x_summands),
+            reduce(operator.add, y_summands),
+            reduce(operator.add, z_summands),
+            PauliSumOp(1.0 * SparsePauliOp(pauli_id)),
+        ]
         return spin_op_encoding

@@ -17,7 +17,7 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 from collections.abc import Collection, Mapping
-from typing import Iterator, Sequence, Tuple
+from typing import Iterator, Sequence, Tuple, cast
 import logging
 import operator
 import itertools
@@ -25,10 +25,11 @@ import itertools
 import numpy as np
 
 from qiskit_nature.exceptions import QiskitNatureError
+import qiskit_nature.optionals as _optionals
 
 from ._bits_container import _BitsContainer
 from .polynomial_tensor import PolynomialTensor
-from .sparse_label_op import SparseLabelOp
+from .sparse_label_op import _TCoeff, SparseLabelOp, _to_number
 
 logger = logging.getLogger(__name__)
 
@@ -163,6 +164,11 @@ class VibrationalOp(SparseLabelOp):
 
     Instances of ``VibrationalOp`` are iterable. Iterating a ``VibrationalOp`` yields (term, coefficient)
     pairs describing the terms contained in the operator.
+
+    .. note::
+
+        A VibrationalOp can contain :class:`qiskit.circuit.ParameterExpression` objects as
+        coefficients.
     """
 
     # a valid pattern consists of a single "+" or "-" operator followed by "_" and a mode index
@@ -171,7 +177,7 @@ class VibrationalOp(SparseLabelOp):
 
     def __init__(
         self,
-        data: Mapping[str, complex],
+        data: Mapping[str, _TCoeff],
         num_modals: Sequence[int] | None = None,
         *,
         copy: bool = True,
@@ -180,7 +186,7 @@ class VibrationalOp(SparseLabelOp):
         """
         Args:
             data: the operator data, mapping string-based keys to numerical values.
-            num_modals: number of modals - described by a list of integers where each integer
+            num_modals: number of modals - described by a sequence of integers where each integer
                 describes the number of modals in the corresponding mode; the total number of modals
                 defines a ``register_length``.
             copy: when set to False the `data` will not be copied and the dictionary will be
@@ -200,10 +206,11 @@ class VibrationalOp(SparseLabelOp):
 
     @property
     def num_modals(self) -> Sequence[int]:
-        """The number of modals.
+        """The number of modals for each mode on which this operator acts.
 
-        Described by a list of integers where each integer describes the number of modals in the
-        corresponding mode; the total number of modals defines a ``register_length``.
+        This is an optional sequence of integers which are considered lower bounds. That means that
+        mathematical operations acting on two or more operators will result in a new operator with
+        the maximum number of modals for each mode involved in any of the operators.
         """
         # to ensure future flexibility, the type here is Sequence. However, the current
         # implementation ensures it will always be a list.
@@ -218,7 +225,7 @@ class VibrationalOp(SparseLabelOp):
         return sum(self.num_modals) if self.num_modals is not None else None
 
     def _new_instance(
-        self, data: Mapping[str, complex], *, other: VibrationalOp | None = None
+        self, data: Mapping[str, _TCoeff], *, other: VibrationalOp | None = None
     ) -> VibrationalOp:
         num_modals = self.num_modals
         if other is not None:
@@ -265,11 +272,49 @@ class VibrationalOp(SparseLabelOp):
 
     @classmethod
     def _validate_polynomial_tensor_key(cls, keys: Collection[str]) -> None:
-        ...
+        allowed = re.compile(r"(_\+\-)*")
+
+        for key in keys:
+            if not re.fullmatch(allowed, key):
+                raise QiskitNatureError(
+                    f"The key '{key}' is invalid. PolynomialTensor keys must be multiples of the "
+                    "'_+-' character sequence, for them to be expandable into a VibrationalOp."
+                )
 
     @classmethod
     def from_polynomial_tensor(cls, tensor: PolynomialTensor) -> VibrationalOp:
-        ...
+        cls._validate_polynomial_tensor_key(tensor.keys())
+
+        data: dict[str, _TCoeff] = {}
+
+        def _reshape_index(index):
+            new_index = []
+            for idx in range(0, len(index), 3):
+                new_index.extend([index[idx], index[idx + 1], index[idx], index[idx + 2]])
+            return new_index
+
+        for key in tensor:
+            if key == "":
+                # TODO: deal with complexity
+                data[""] = cast(float, tensor[key])
+                continue
+
+            label_template = " ".join(f"{op}_{{}}_{{}}" for op in key.replace("_", ""))
+
+            mat = tensor[key]
+            if isinstance(mat, np.ndarray):
+                for index in np.ndindex(*mat.shape):
+                    data[label_template.format(*_reshape_index(index))] = mat[index]
+            else:
+                _optionals.HAS_SPARSE.require_now("SparseArray")
+                import sparse as sp  # pylint: disable=import-error
+
+                if isinstance(mat, sp.SparseArray):
+                    coo = sp.as_coo(mat)
+                    for value, *index in zip(coo.data, *coo.coords):
+                        data[label_template.format(*_reshape_index(index))] = value
+
+        return cls(data)
 
     def __repr__(self) -> str:
         data_str = f"{dict(self.items())}"
@@ -287,7 +332,7 @@ class VibrationalOp(SparseLabelOp):
         )
         return pre + ret
 
-    def terms(self) -> Iterator[tuple[list[tuple[str, int]], complex]]:
+    def terms(self) -> Iterator[tuple[list[tuple[str, int]], _TCoeff]]:
         """Provides an iterator analogous to :meth:`items` but with the labels already split into
         pairs of operation characters and indices.
 
@@ -304,9 +349,7 @@ class VibrationalOp(SparseLabelOp):
             if not label:
                 yield ([], self[label])
                 continue
-            terms = [
-                self._build_register_label(lbl, partial_sum_modals) for lbl in label.split(" ")
-            ]
+            terms = [self._build_register_label(lbl, partial_sum_modals) for lbl in label.split()]
             yield (terms, self[label])
 
     def _build_register_label(self, label: str, partial_sum_modals: list[int]) -> tuple[str, int]:
@@ -335,13 +378,13 @@ class VibrationalOp(SparseLabelOp):
     def _tensor(cls, a: VibrationalOp, b: VibrationalOp, *, offset: bool = True) -> VibrationalOp:
         shift = len(a.num_modals) if offset else 0
 
-        new_data: dict[str, complex] = {}
+        new_data: dict[str, _TCoeff] = {}
         for a_labels, a_coeff in a.items():
             for b_labels, b_coeff in b.items():
                 if b_labels == "":
                     new_label = a_labels
                 else:
-                    b_terms = [lbl.split("_") for lbl in b_labels.split(" ")]
+                    b_terms = [lbl.split("_") for lbl in b_labels.split()]
                     new_b_label = " ".join(f"{op}_{int(i)+shift}_{j}" for op, i, j in b_terms)
                     new_label = f"{a_labels} {new_b_label}".strip()
 
@@ -361,24 +404,150 @@ class VibrationalOp(SparseLabelOp):
         trans = "".maketrans("+-", "-+")
 
         for label, coeff in self.items():
-            data[" ".join(lbl.translate(trans) for lbl in reversed(label.split(" ")))] = coeff
+            data[" ".join(lbl.translate(trans) for lbl in reversed(label.split()))] = coeff
 
         return self._new_instance(data)
+
+    def normal_order(self) -> VibrationalOp:
+        """Convert to the equivalent operator in normal order.
+
+        The normal order for this operator is defined as follows:
+        - creation (``+``) operations are applied before annihilation (``-``) ones
+        - operators are ordered by index within each of the operator type groups
+
+        Returns a new operator (the original operator is not modified).
+
+        .. note::
+
+            The operations encoded by a ``VibrationalOp`` are fully commutative, which means that
+            re-ordering of individual terms does **not** result in a phase shift.
+
+        Returns:
+            The normal ordered operator.
+        """
+        ordered_op = VibrationalOp.zero()
+
+        for label, coeff in self.items():
+            terms = []
+            for lbl in label.split():
+                char, mode, modal = lbl.split("_")
+                terms.append((char, int(mode), int(modal)))
+            ordered_op += self._normal_order(terms, coeff)
+
+        # after successful normal ordering, we remove all zero coefficients
+        return self._new_instance(
+            {
+                label: coeff
+                for label, coeff in ordered_op.items()
+                if not np.isclose(_to_number(coeff), 0.0, atol=self.atol)
+            }
+        )
+
+    def _normal_order(self, terms: list[tuple[str, int, int]], coeff: _TCoeff) -> VibrationalOp:
+        if not terms:
+            return self._new_instance({"": coeff})
+
+        ordered_op = VibrationalOp.zero()
+
+        # perform insertion sorting
+        for i in range(1, len(terms)):
+            for j in range(i, 0, -1):
+                right = terms[j]
+                left = terms[j - 1]
+
+                if right[0] == "+" and left[0] == "-":
+                    # swap terms where an annihilation operator is left of a creation operator
+                    terms[j - 1] = right
+                    terms[j] = left
+
+                elif right[0] == left[0]:
+                    # when we have identical neighboring operators, differentiate two cases:
+
+                    # on identical index, this is an invalid operation which evaluates to
+                    # zero: e.g. +_0_0 +_0_0 = 0
+                    if right[1] == left[1] and right[2] == left[2]:
+                        # thus, we bail on this recursion call
+                        return ordered_op
+
+                    # otherwise, if the left index is higher than the right one, swap the terms
+                    elif left[1] > right[1] or (left[1] == right[1] and left[2] > right[2]):
+                        terms[j - 1] = right
+                        terms[j] = left
+
+        new_label = " ".join(f"{term[0]}_{term[1]}_{term[2]}" for term in terms)
+        ordered_op += self._new_instance({new_label: coeff})
+        return ordered_op
+
+    def index_order(self) -> VibrationalOp:
+        """Convert to the equivalent operator with the terms of each label ordered by index.
+
+        Returns a new operator (the original operator is not modified).
+
+        .. note::
+
+            You can use this method to achieve the most aggressive simplification of an operator
+            without changing the operation order per index. :meth:`simplify` does *not* reorder the
+            terms and, thus, cannot deduce ``-_0_0 +_1_0`` and ``+_1_0 -_0_0 +_0_0 -_0_0`` to be
+            identical labels. Calling this method will reorder the latter label to
+            ``-_0_0 +_0_0 -_0_0 +_1_0``, after which :meth:`simplify` will be able to correctly
+            collapse these two labels into one.
+
+        Returns:
+            The index ordered operator.
+        """
+        data = defaultdict(complex)  # type: dict[str, _TCoeff]
+        for label, coeff in self.items():
+            terms = []
+            for lbl in label.split():
+                char, mode, modal = lbl.split("_")
+                terms.append((char, int(mode), int(modal)))
+            label, coeff = self._index_order(terms, coeff)
+            data[label] += coeff
+
+        # after successful index ordering, we remove all zero coefficients
+        return self._new_instance(
+            {
+                label: coeff
+                for label, coeff in data.items()
+                if not np.isclose(_to_number(coeff), 0.0, atol=self.atol)
+            }
+        )
+
+    def _index_order(
+        self, terms: list[tuple[str, int, int]], coeff: _TCoeff
+    ) -> tuple[str, _TCoeff]:
+        if not terms:
+            return "", coeff
+
+        # perform insertion sorting
+        for i in range(1, len(terms)):
+            for j in range(i, 0, -1):
+                right = terms[j]
+                left = terms[j - 1]
+
+                if left[1] > right[1] or (left[1] == right[1] and left[2] > right[2]):
+                    terms[j - 1] = right
+                    terms[j] = left
+
+        new_label = " ".join(f"{term[0]}_{term[1]}_{term[2]}" for term in terms)
+        return new_label, coeff
 
     def simplify(self, atol: float | None = None) -> VibrationalOp:
         atol = self.atol if atol is None else atol
 
-        data = defaultdict(complex)  # type: dict[str, complex]
+        data = defaultdict(complex)  # type: dict[str, _TCoeff]
         # TODO: use parallel_map to make this more efficient (?)
         for label, coeff in self.items():
             label, coeff = self._simplify_label(label, coeff)
             data[label] += coeff
         simplified_data = {
-            label: coeff for label, coeff in data.items() if not np.isclose(coeff, 0.0, atol=atol)
+            label: coeff
+            for label, coeff in data.items()
+            if not np.isclose(_to_number(coeff), 0.0, atol=self.atol)
         }
         return self._new_instance(simplified_data)
 
-    def _simplify_label(self, label: str, coeff: complex) -> tuple[str, complex]:
+    def _simplify_label(self, label: str, coeff: _TCoeff) -> tuple[str, _TCoeff]:
         bits = _BitsContainer[Tuple[int, int]]()
 
         # Since Python 3.7, dictionaries are guaranteed to be insert-order preserving. We use this
