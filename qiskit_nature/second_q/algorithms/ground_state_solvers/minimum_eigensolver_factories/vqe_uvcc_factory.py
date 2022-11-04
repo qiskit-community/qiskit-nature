@@ -35,8 +35,8 @@ logger = logging.getLogger(__name__)
 
 
 class VQEUVCCFactory(MinimumEigensolverFactory):
-    """Factory to construct a :class:`~qiskit.algorithms.VQE` minimum eigensolver with
-    :class:`~.UVCC` ansatz wavefunction.
+    """Factory to construct a :class:`~qiskit.algorithms.minimum_eigensolvers.VQE` minimum
+    eigensolver with :class:`~.UVCC` ansatz wavefunction.
     """
 
     def __init__(
