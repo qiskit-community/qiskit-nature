@@ -53,8 +53,8 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         Args:
             estimator: The :class:`~qiskit.primitives.BaseEstimator` class to use for the internal
                 :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`.
-            ansatz: The :class:`~.UVCC` ansatz. Its attributes `qubit_converter`, `num_modals`, and
-                `initial_point` will be completed at runtime based on the problem being solved.
+            ansatz: The :class:`~.UVCC` ansatz. Its attributes ``qubit_converter``, ``num_modals``, and
+                ``initial_point`` will be completed at runtime based on the problem being solved.
             optimizer: The :class:`~qiskit.algorithms.optimizers.Optimizer` or
                 :class:`~qiskit.algorithms.optimizers.Minimizer` to use for the internal
                 :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`.
@@ -67,7 +67,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
                 :class:`~initial_points.initial_point.InitialPoint` instance, this is used to
                 compute an initial point for the VQE ansatz parameters. If a user-provided NumPy
                 array, this is used directly.
-            initial_state: Allows specification of a custom `QuantumCircuit` to be used as the
+            initial_state: Allows specification of a custom ``QuantumCircuit`` to be used as the
                 initial state of the ansatz. If this is never set by the user, the factory will
                 default to the :class:`~.VSCF` state.
             kwargs: Remaining keyword arguments are passed to the

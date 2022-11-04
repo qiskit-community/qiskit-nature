@@ -40,7 +40,7 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         """
 
         Args:
-            qubit_converter: The `QubitConverter` to use for mapping and symmetry reduction. The
+            qubit_converter: The ``QubitConverter`` to use for mapping and symmetry reduction. The
                              Z2 symmetries stored in this instance are the basis for the
                              commutativity information returned by this method.
             solver: Minimum Eigensolver or MESFactory object.
@@ -116,7 +116,7 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         Raises:
             ValueError: If the grouped property object returned by the driver does not contain a
                 main property as requested by the problem being solved (`problem.main_property_name`).
-            QiskitNatureError: If the user-provided `aux_operators` contain a name which clashes
+            QiskitNatureError: If the user-provided ``aux_operators`` contain a name which clashes
                 with an internally constructed auxiliary operator. Note: the names used for the
                 internal auxiliary operators correspond to the `Property.name` attributes which
                 generated the respective operators.

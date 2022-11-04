@@ -69,7 +69,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
                 :class:`~qiskit_nature.second_q.algorithms.initial_points.initial_point.InitialPoint`
                 instance, this is used to compute an initial point for the VQE ansatz parameters.
                 If a user-provided NumPy array, this is used directly.
-            initial_state: Allows specification of a custom `QuantumCircuit` to be used as the
+            initial_state: Allows specification of a custom ``QuantumCircuit`` to be used as the
                 initial state of the ansatz. If this is never set by the user, the factory will
                 default to the :class:`~.HartreeFock` state.
             kwargs: Remaining keyword arguments are passed to the

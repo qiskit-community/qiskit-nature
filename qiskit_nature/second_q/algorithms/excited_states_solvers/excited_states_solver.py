@@ -58,7 +58,7 @@ class ExcitedStatesSolver(ABC):
     ) -> Tuple[PauliSumOp, Optional[dict[str, PauliSumOp]]]:
         """Construct qubit operators by getting the second quantized operators from the problem
         (potentially running a driver in doing so [can be computationally expensive])
-        and using a QubitConverter to map + reduce the operators to qubit operators.
+        and using a QubitConverter to map and reduce the operators to qubit operators.
 
         Args:
             problem: A class encoding a problem to be solved.

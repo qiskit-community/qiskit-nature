@@ -54,7 +54,7 @@ def build_electronic_ops(
             - and finally a callable which can be used to specify a custom list of excitations.
               For more details on how to write such a function refer to the default method,
               :meth:`generate_fermionic_excitations`.
-        qubit_converter: The `QubitConverter` to use for mapping and symmetry reduction. The Z2
+        qubit_converter: The ``QubitConverter`` to use for mapping and symmetry reduction. The Z2
                          symmetries stored in this instance are the basis for the commutativity
                          information returned by this method.
 
