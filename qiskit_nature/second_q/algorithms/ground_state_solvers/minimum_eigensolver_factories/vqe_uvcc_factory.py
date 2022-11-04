@@ -55,16 +55,14 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
                 :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`.
             ansatz: The ``UVCC`` ansatz. Its attributes ``qubit_converter``, ``num_modals``, and
                 ``initial_point`` will be completed at runtime based on the problem being solved.
-            optimizer: The ``Optimizer`` or
-                ``Minimizer`` to use for the internal
+            optimizer: The ``Optimizer`` or ``Minimizer`` to use for the internal
                 :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`.
             initial_point: An optional initial point (i.e., initial parameter values for the VQE
                 optimizer). If ``None`` then VQE will use an all-zero initial point of the
                 appropriate length computed using
                 :class:`~initial_points.vscf_initial_point.VSCFInitialPoint`.
                 This then defaults to the VSCF state when the VSCF circuit is prepended
-                to the ansatz circuit. If another
-                :class:`~initial_points.initial_point.InitialPoint` instance, this is used to
+                to the ansatz circuit. If another ``InitialPoint`` instance, this is used to
                 compute an initial point for the VQE ansatz parameters. If a user-provided NumPy
                 array, this is used directly.
             initial_state: Allows specification of a custom ``QuantumCircuit`` to be used as the
