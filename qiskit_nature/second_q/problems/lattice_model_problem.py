@@ -28,7 +28,17 @@ from .eigenstate_result import EigenstateResult
 
 
 class LatticeModelProblem(BaseProblem):
-    """Lattice Model Problem class to create second quantized operators from a lattice model."""
+    """A lattice model problem.
+
+    This class specifically deals with handling of :class:`.LatticeModel` type hamiltonians.
+
+    The following attributes can be read and updated once the ``LatticeModelProblem`` object has
+    been constructed.
+
+    Attributes:
+        properties (LatticePropertiesContainer): a container for additional observable operator
+            factories.
+    """
 
     def __init__(self, hamiltonian: LatticeModel) -> None:
         """

@@ -35,10 +35,9 @@ class LogarithmicMapper(SpinMapper):
     represent :math:`>= 2S+1` distinct states [1].
 
     References:
-        [1]: S. V. Mathis, G. Mazzola and I. Tavernelli.
-            Toward scalable simulations of lattice gauge theories on quantum computers.
-            Phys. Rev. D, 102 (9), 094501 (2020).
-            https://doi.org/10.1103/PhysRevD.102.094501
+        [1] S. V. Mathis, G. Mazzola and I. Tavernelli.
+        Toward scalable simulations of lattice gauge theories on quantum computers.
+        Phys. Rev. D, 102 (9), 094501 (2020). https://doi.org/10.1103/PhysRevD.102.094501
     """
 
     def __init__(self, *, padding: float = 1, embed_upper: bool = True) -> None:
@@ -47,12 +46,12 @@ class LogarithmicMapper(SpinMapper):
             padding:
                 When embedding a matrix into the upper/lower diagonal block of a
                 :math:`2^n` by :math:`2^n` matrix ,where :math:`n` is the number of qubits, pads
-                the diagonal of the block matrix with the value of `padding`.
+                the diagonal of the block matrix with the value of ``padding``.
 
             embed_upper:
                 This parameter sets whether the given matrix is embedded in the upper left hand
                 corner or the lower right hand corner of the larger matrix.
-                I.e. using `embed_upper` = `True` returns the matrix:
+                I.e. using ``embed_upper`` = `True` returns the matrix:
 
                 .. math::
                     \begin{pmatrix}

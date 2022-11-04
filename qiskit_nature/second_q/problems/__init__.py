@@ -21,7 +21,10 @@ Problems (:mod:`qiskit_nature.second_q.problems`)
    :nosignatures:
 
    BaseProblem
+
    ElectronicBasis
+   VibrationalBasis
+   HarmonicBasis
 
    ElectronicStructureProblem
    VibrationalStructureProblem
@@ -39,9 +42,9 @@ Problems (:mod:`qiskit_nature.second_q.problems`)
 """
 
 from .base_problem import BaseProblem, EigenstateResult
-from .electronic_basis import ElectronicBasis
 from .properties_container import PropertiesContainer
 
+from .electronic_basis import ElectronicBasis
 from .electronic_properties_container import ElectronicPropertiesContainer
 from .electronic_structure_problem import ElectronicStructureProblem
 from .electronic_structure_result import DipoleTuple, ElectronicStructureResult
@@ -50,6 +53,8 @@ from .lattice_model_problem import LatticeModelProblem
 from .lattice_model_result import LatticeModelResult
 from .lattice_properties_container import LatticePropertiesContainer
 
+from .harmonic_basis import HarmonicBasis
+from .vibrational_basis import VibrationalBasis
 from .vibrational_properties_container import VibrationalPropertiesContainer
 from .vibrational_structure_problem import VibrationalStructureProblem
 from .vibrational_structure_result import VibrationalStructureResult
@@ -66,6 +71,8 @@ __all__ = [
     "LatticeModelProblem",
     "LatticeModelResult",
     "LatticePropertiesContainer",
+    "VibrationalBasis",
+    "HarmonicBasis",
     "VibrationalPropertiesContainer",
     "VibrationalStructureProblem",
     "VibrationalStructureResult",

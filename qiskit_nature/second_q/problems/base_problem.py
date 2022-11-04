@@ -31,7 +31,18 @@ from .properties_container import PropertiesContainer
 
 
 class BaseProblem:
-    """Base Problem"""
+    """The base representation of a second-quantization problem.
+
+    If none of the specific subclasses of this class fit your use case, you can instantiate this
+    class itself with your custom :class:`.Hamiltonian` instance and pass it into one of the
+    available algorithms.
+
+    The following attributes can be read and updated once the ``BaseProblem`` object has been
+    constructed.
+
+    Attributes:
+        properties (PropertiesContainer): a container for additional observable operator factories.
+    """
 
     def __init__(self, hamiltonian: Hamiltonian) -> None:
         """

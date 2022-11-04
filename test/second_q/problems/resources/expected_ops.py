@@ -28,7 +28,7 @@ _truncation_order_1_op = VibrationalOp(
         "+_3_1 -_3_1": 728.9613775000003,
     },
     num_modals=[2, 2, 2, 2],
-)
+).normal_order()
 
 _truncation_order_2_op = VibrationalOp(
     {
@@ -80,4 +80,4 @@ _truncation_order_2_op = VibrationalOp(
         "+_0_1 -_0_1 +_3_1 -_3_1": -91.85302125000007,
     },
     num_modals=[2, 2, 2, 2],
-)
+).normal_order()

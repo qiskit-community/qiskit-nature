@@ -14,17 +14,18 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional, Union
+from typing import Any
 from qiskit_nature import QiskitNatureError
 
 from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
-from qiskit_nature.second_q.problems import VibrationalStructureProblem
-from qiskit_nature.second_q.properties import OccupiedModals
+from qiskit_nature.second_q.formats.watson_translator import watson_to_problem
+from qiskit_nature.second_q.problems import VibrationalBasis, VibrationalStructureProblem
 import qiskit_nature.optionals as _optionals
-from ..vibrational_structure_driver import VibrationalStructureDriver
+
 from .gaussian_log_driver import GaussianLogDriver
 from .gaussian_log_result import GaussianLogResult
+from ..vibrational_structure_driver import VibrationalStructureDriver
 
 
 B3YLP_JCF_DEFAULT = """
@@ -45,8 +46,8 @@ class GaussianForcesDriver(VibrationalStructureDriver):
 
     def __init__(
         self,
-        jcf: Union[str, list[str]] = B3YLP_JCF_DEFAULT,
-        logfile: Optional[str] = None,
+        jcf: str | list[str] = B3YLP_JCF_DEFAULT,
+        logfile: str | None = None,
         *,
         normalize: bool = True,
     ) -> None:
@@ -86,21 +87,24 @@ class GaussianForcesDriver(VibrationalStructureDriver):
         *,
         basis: str = "sto-3g",
         xcf: str = "B3LYP",
-        driver_kwargs: Optional[dict[str, Any]] = None,
+        driver_kwargs: dict[str, Any] | None = None,
     ) -> "GaussianForcesDriver":
-        """
+        """Creates a driver from a molecule.
+
         Args:
-            molecule: If a molecule is supplied then an appropriate job control file will be
-                       built from this, and the `basis`, and will be used in precedence of either the
-                       `logfile` or the `jcf` params.
-            basis: The basis set to be used in the resultant job control file when a
-                    molecule is provided.
+            molecule: If a molecule is supplied then an appropriate job control file will be built
+                from this, and the `basis`, and will be used in precedence of either the `logfile`
+                or the `jcf` params.
+            basis: The basis set to be used in the resultant job control file when a molecule is
+                provided.
             xcf: The exchange-correlation functional to be used in the resultant job control file.
-            driver_kwargs: kwargs to be passed to driver
+            driver_kwargs: keyword arguments to be passed to driver.
+
         Returns:
-            driver
+            The constructed driver instance.
+
         Raises:
-            QiskitNatureError: Unknown unit
+            QiskitNatureError: when an unknown unit is encountered.
         """
         # Ignore kwargs parameter for this driver
         del driver_kwargs
@@ -127,27 +131,26 @@ class GaussianForcesDriver(VibrationalStructureDriver):
 
     @staticmethod
     def to_driver_basis(basis: str) -> str:
-        """
-        Converts basis to a driver acceptable basis
+        """Converts basis to a driver acceptable basis.
+
         Args:
-            basis: The basis set to be used
+            basis: The basis set to be used.
+
         Returns:
-            driver acceptable basis
+            A driver acceptable basis.
         """
         if basis == "sto3g":
             return "sto-3g"
         return basis
 
-    def run(self) -> VibrationalStructureProblem:
+    def run(self, basis: VibrationalBasis) -> VibrationalStructureProblem:  # type: ignore[override]
+        # pylint: disable=arguments-differ
         if self._logfile is not None:
             glr = GaussianLogResult(self._logfile)
         else:
             glr = GaussianLogDriver(jcf=self._jcf).run()
 
-        driver_result = VibrationalStructureProblem(
-            glr.get_vibrational_energy(normalize=self._normalize),
-            num_modes=len(glr.a_to_h_numbering),
-        )
-        driver_result.properties.occupied_modals = OccupiedModals()
+        watson = glr.get_watson_hamiltonian(normalize=self._normalize)
 
-        return driver_result
+        problem = watson_to_problem(watson, basis=basis)
+        return problem
