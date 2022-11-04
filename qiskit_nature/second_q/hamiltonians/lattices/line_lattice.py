@@ -33,8 +33,8 @@ class LineLattice(HyperCubicLattice):
                 Defaults to 0.0.
             boundary_condition: Boundary condition.
                 The available boundary conditions are:
-                BoundaryCondition.OPEN, BoundaryCondition.PERIODIC.
-                Defaults to BoundaryCondition.OPEN.
+                ``BoundaryCondition.OPEN``, ``BoundaryCondition.PERIODIC``.
+                Defaults to ``BoundaryCondition.OPEN``.
         """
         self._num_nodes = num_nodes
 

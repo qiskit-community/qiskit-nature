@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The Lattice Model class."""
+"""The lattice model class."""
 
 import numpy as np
 
@@ -19,7 +19,7 @@ from .lattices import Lattice
 
 
 class LatticeModel(Hamiltonian):
-    """Lattice Model"""
+    """The lattice model."""
 
     def __init__(self, lattice: Lattice) -> None:
         """

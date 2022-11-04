@@ -114,7 +114,7 @@ class LatticeDrawStyle:
 
 
 class Lattice:
-    """General Lattice."""
+    """General lattice."""
 
     def __init__(self, graph: Union[PyGraph, "nx.Graph"]) -> None:
         """

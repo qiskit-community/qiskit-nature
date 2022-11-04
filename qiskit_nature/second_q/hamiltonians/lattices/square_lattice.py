@@ -42,10 +42,10 @@ class SquareLattice(HyperCubicLattice):
                 Defaults to 0.0.
             boundary_condition: Boundary condition for each direction.
                 The available boundary conditions are:
-                BoundaryCondition.OPEN, BoundaryCondition.PERIODIC.
+                ``BoundaryCondition.OPEN``, ``BoundaryCondition.PERIODIC``.
                 When it is a single value, it is interpreted as a tuple of length 2
                 consisting of the same values.
-                Defaults to BoundaryCondition.OPEN.
+                Defaults to ``BoundaryCondition.OPEN``.
         """
         self._rows = rows
         self._cols = cols

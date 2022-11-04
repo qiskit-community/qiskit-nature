@@ -89,7 +89,7 @@ class QuadraticHamiltonian(PolynomialTensor, Hamiltonian):
         \sum_{p, q} M_{pq} a^\dagger_p a_q
         + \frac12 \sum_{p, q}
             (\Delta_{pq} a^\dagger_p a^\dagger_q + \text{h.c.})
-        + \text{constant}
+        + \text{constant},
 
     where :math:`M` is a Hermitian matrix and :math:`\Delta` is an antisymmetric matrix.
 
@@ -119,8 +119,8 @@ class QuadraticHamiltonian(PolynomialTensor, Hamiltonian):
             antisymmetric_part: The matrix :math:`\Delta` containing the coefficients of
                 the terms that do not conserve particle number.
             constant: An additive constant term.
-            num_modes: Number of fermionic modes. This should be consistent with hermitian_part
-                and antisymmetric_part if they are specified.
+            num_modes: Number of fermionic modes. This should be consistent with ``hermitian_part``
+                and ``antisymmetric_part`` if they are specified.
             validate: Whether to validate the inputs.
             rtol: Relative numerical tolerance for input validation.
                 The default behavior is to use ``self.rtol``.

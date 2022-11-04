@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The VibrationalEnergy property."""
+"""The vibrational energy Hamiltonian."""
 
 from __future__ import annotations
 
@@ -89,7 +89,7 @@ class VibrationalEnergy(Hamiltonian):
         """Returns the second quantized vibrational energy operator.
 
         Returns:
-            A `dict` of `VibrationalOp` objects.
+            A ``dict`` of ``VibrationalOp`` objects.
         """
         truncated_integrals = self.vibrational_integrals
         if self.truncation_order is not None:
@@ -109,5 +109,5 @@ class VibrationalEnergy(Hamiltonian):
         """Interprets an :class:`~qiskit_nature.second_q.problems.EigenstateResult`.
 
         Args:
-            result: the result to add meaning to.
+            result: The result to add meaning to.
         """
