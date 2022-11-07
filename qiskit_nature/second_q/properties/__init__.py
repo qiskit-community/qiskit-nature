@@ -20,7 +20,7 @@ Properties (:mod:`qiskit_nature.second_q.properties`)
    :toctree: ../stubs/
    :nosignatures:
 
-    SparseLabelOpFactory
+    SparseLabelOpsFactory
     Interpretable
 
 Electronic Properties
@@ -46,7 +46,7 @@ Vibrational Properties
    OccupiedModals
 """
 
-from .protocols import SparseLabelOpFactory, Interpretable
+from .protocols import SparseLabelOpsFactory, Interpretable
 
 from .angular_momentum import AngularMomentum
 from .dipole_moment import ElectronicDipoleMoment
@@ -58,7 +58,7 @@ from .occupied_modals import OccupiedModals
 
 
 __all__ = [
-    "SparseLabelOpFactory",
+    "SparseLabelOpsFactory",
     "Interpretable",
     "AngularMomentum",
     "ElectronicDensity",
