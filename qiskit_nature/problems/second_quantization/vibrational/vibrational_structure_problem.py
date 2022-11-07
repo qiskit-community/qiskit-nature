@@ -32,6 +32,7 @@ from qiskit_nature.transformers.second_quantization import BaseTransformer
 
 from .builders.hopping_ops_builder import _build_qeom_hopping_ops
 from ..base_problem import BaseProblem
+from ....deprecation import warn_deprecated, DeprecatedType, NatureDeprecationWarning
 
 
 class VibrationalStructureProblem(BaseProblem):
@@ -52,6 +53,18 @@ class VibrationalStructureProblem(BaseProblem):
             transformers: a list of transformations to be applied to the driver result.
         """
         super().__init__(bosonic_driver, transformers, "VibrationalEnergy")
+        warn_deprecated(
+            "0.5.0",
+            old_type=DeprecatedType.CLASS,
+            old_name=(
+                "qiskit_nature.problems.second_quantization."
+                "vibrational.VibrationalStructureProblem"
+            ),
+            new_type=DeprecatedType.CLASS,
+            new_name="qiskit_nature.second_q.problems.VibrationalStructureProblem",
+            stack_level=3,
+            category=NatureDeprecationWarning,
+        )
         self.num_modals = num_modals
         self.truncation_order = truncation_order
 

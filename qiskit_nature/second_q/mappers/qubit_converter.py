@@ -32,9 +32,7 @@ from typing import (
 
 import numpy as np
 
-from qiskit.algorithms.minimum_eigen_solvers.minimum_eigen_solver import (
-    ListOrDict as ListOrDictType,
-)
+from qiskit.algorithms.list_or_dict import ListOrDict as ListOrDictType
 from qiskit.opflow import PauliSumOp
 from qiskit.opflow.converters import TwoQubitReduction
 from qiskit.opflow.primitive_ops import Z2Symmetries

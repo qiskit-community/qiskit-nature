@@ -67,7 +67,7 @@ class TestReadmeSample(QiskitNatureTestCase):
                 return
 
         texts = out.getvalue().split("\n")
-        self.assertAlmostEqual(float(texts[0]), -1.8572750301938803, places=6)
+        self.assertAlmostEqual(float(texts[2].split()[-1]), -1.8572750301938803, places=6)
 
 
 if __name__ == "__main__":

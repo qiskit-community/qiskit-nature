@@ -114,6 +114,7 @@ dcx
 de
 debye
 deepcopy
+delocalized
 deuterium
 deuteron
 dft
@@ -153,6 +154,7 @@ eigenvectors
 einact
 einsum
 electronicintegrals
+electronicstructureproblem
 endian
 endif
 enum
@@ -234,6 +236,7 @@ init
 initializer
 initio
 inplace
+integrations
 intel
 intelvem
 interatomic
@@ -241,6 +244,7 @@ internuclear
 interpretable
 ints
 io
+ipynb
 isclose
 ising
 iso
@@ -524,6 +528,7 @@ str
 stylesheet
 subcircuits
 subclasses
+submodule
 submodules
 subtest
 subtype
@@ -614,6 +619,7 @@ whitfield
 wigner
 wikipedia
 woerner
+workflow
 xcf
 xcfun
 xdata
