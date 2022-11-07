@@ -18,17 +18,6 @@ Electronic Structure Problems (:mod:`qiskit_nature.problems.second_quantization.
 """
 
 from .electronic_structure_problem import ElectronicStructureProblem
-from ....deprecation import warn_deprecated, DeprecatedType, NatureDeprecationWarning
-
-warn_deprecated(
-    "0.5.0",
-    old_type=DeprecatedType.PACKAGE,
-    old_name="qiskit_nature.problems.second_quantization.electronic",
-    new_type=DeprecatedType.PACKAGE,
-    new_name="qiskit_nature.second_q.problems",
-    stack_level=3,
-    category=NatureDeprecationWarning,
-)
 
 __all__ = [
     "ElectronicStructureProblem",

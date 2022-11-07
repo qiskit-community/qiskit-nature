@@ -18,14 +18,3 @@ Vibrational Structure Problems (:mod:`qiskit_nature.problems.second_quantization
 """
 
 from .vibrational_structure_problem import VibrationalStructureProblem
-from ....deprecation import warn_deprecated, DeprecatedType, NatureDeprecationWarning
-
-warn_deprecated(
-    "0.5.0",
-    old_type=DeprecatedType.PACKAGE,
-    old_name="qiskit_nature.problems.second_quantization.vibrational",
-    new_type=DeprecatedType.PACKAGE,
-    new_name="qiskit_nature.second_q.problems",
-    stack_level=3,
-    category=NatureDeprecationWarning,
-)
