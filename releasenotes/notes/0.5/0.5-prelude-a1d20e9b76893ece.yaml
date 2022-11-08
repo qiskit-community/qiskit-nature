@@ -6,11 +6,13 @@ prelude: >
     various drivers (or built out by a user to their custom needs directly).
     As a short example comparing the previous to the new problem creation:
 
+
     .. code-block:: python
 
       problem = ElectronicStructureProblem(driver, [transformer])
 
-    the new design works as follows:
+    The new design works as follows:
+
 
     .. code-block:: python
 
