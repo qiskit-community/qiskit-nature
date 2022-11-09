@@ -88,6 +88,7 @@ runs:
     - name: Install Aer from Main
       env:
         MACOSX_DEPLOYMENT_TARGET: 10.16
+        KMP_DUPLICATE_LIB_OK: TRUE
       run: |
         echo 'Install Aer from Main'
         if [ "${{ inputs.use-conda }}" == "true" ]; then
