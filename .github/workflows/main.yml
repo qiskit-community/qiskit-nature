@@ -342,7 +342,7 @@ jobs:
           # run tutorials and zip results
           echo "earliest_version: 0.1.0" >> releasenotes/config.yaml
           # ignore unreleased/untagged notes
-          tools/ignore_untagged_notes.sh
+          # tools/ignore_untagged_notes.sh
           make html
           cd docs/_build/html
           mkdir artifacts
