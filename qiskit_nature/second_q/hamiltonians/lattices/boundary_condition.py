@@ -18,7 +18,7 @@ from enum import Enum
 
 
 class BoundaryCondition(Enum):
-    """Boundary condition Enum"""
+    """Boundary condition enum."""
 
     OPEN = "open"
     PERIODIC = "periodic"

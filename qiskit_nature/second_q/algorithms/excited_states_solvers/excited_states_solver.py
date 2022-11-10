@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" The excited states calculation interface """
+"""The excited states calculation interface."""
 
 from __future__ import annotations
 
@@ -19,24 +19,24 @@ from typing import Optional, Union, Tuple
 
 from qiskit.opflow import PauliSumOp
 
-from qiskit_nature.second_q.operators import SecondQuantizedOp
+from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.second_q.problems import EigenstateResult
 
 
 class ExcitedStatesSolver(ABC):
-    """The excited states calculation interface"""
+    """The excited states calculation interface."""
 
     @abstractmethod
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[dict[str, Union[SecondQuantizedOp, PauliSumOp]]] = None,
+        aux_operators: Optional[dict[str, Union[SparseLabelOp, PauliSumOp]]] = None,
     ) -> EigenstateResult:
         r"""Compute the excited states energies of the molecule that was supplied via the driver.
 
         Args:
-            problem: a class encoding a problem to be solved.
+            problem: A class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
 
         Returns:
@@ -54,13 +54,14 @@ class ExcitedStatesSolver(ABC):
     def get_qubit_operators(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[dict[str, Union[SecondQuantizedOp, PauliSumOp]]] = None,
+        aux_operators: Optional[dict[str, Union[SparseLabelOp, PauliSumOp]]] = None,
     ) -> Tuple[PauliSumOp, Optional[dict[str, PauliSumOp]]]:
         """Construct qubit operators by getting the second quantized operators from the problem
         (potentially running a driver in doing so [can be computationally expensive])
-        and using a QubitConverter to map + reduce the operators to qubit ops
+        and using a QubitConverter to map and reduce the operators to qubit operators.
+
         Args:
-            problem: a class encoding a problem to be solved.
+            problem: A class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
 
         Returns:

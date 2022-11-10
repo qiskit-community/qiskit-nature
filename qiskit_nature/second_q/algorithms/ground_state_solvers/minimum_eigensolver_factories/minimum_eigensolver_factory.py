@@ -30,8 +30,8 @@ class MinimumEigensolverFactory(ABC):
         """Returns a minimum eigensolver, based on the qubit operator transformation.
 
         Args:
-            problem: a class encoding a problem to be solved.
-            qubit_converter: a class that converts second quantized operator to qubit operator
+            problem: A class encoding a problem to be solved.
+            qubit_converter: A class that converts second quantized operator to qubit operator
                              according to a mapper it is initialized with.
 
         Returns:

@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    Fixes the compatibility of the fermionic excitation generator options which
+    disables spin preserving while also enabling generalized behavior.
+    Now, combining ``generalized=True`` with ``preserve_spin=False`` results in all
+    combinations of excitations in the given spin orbital space. De-excitations
+    are not included and filtered accordingly.

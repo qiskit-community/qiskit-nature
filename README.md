@@ -2,26 +2,22 @@
 
 [![License](https://img.shields.io/github/license/Qiskit/qiskit-nature.svg?style=popout-square)](https://opensource.org/licenses/Apache-2.0)<!--- long-description-skip-begin -->[![Build Status](https://github.com/Qiskit/qiskit-nature/workflows/Nature%20Unit%20Tests/badge.svg?branch=main)](https://github.com/Qiskit/qiskit-nature/actions?query=workflow%3A"Nature%20Unit%20Tests"+branch%3Amain+event%3Apush)[![](https://img.shields.io/github/release/Qiskit/qiskit-nature.svg?style=popout-square)](https://github.com/Qiskit/qiskit-nature/releases)[![](https://img.shields.io/pypi/dm/qiskit-nature.svg?style=popout-square)](https://pypi.org/project/qiskit-nature/)[![Coverage Status](https://coveralls.io/repos/github/Qiskit/qiskit-nature/badge.svg?branch=main)](https://coveralls.io/github/Qiskit/qiskit-nature?branch=main)<!--- long-description-skip-end -->
 
-> ⚠️ This branch of Qiskit Nature is under heavy development!
-> In particular, if you are encountering errors referring to modules under `qiskit_nature.second_q`,
-> you are very likely looking for the [stable branch](https://github.com/Qiskit/qiskit-nature/tree/stable/0.4)
-> instead of this one. That branch also matches the [published documentation](https://qiskit.org/documentation/nature/).
-
 **Qiskit Nature** is an open-source framework which supports solving quantum mechanical natural
 science problems using quantum computing algorithms. This includes finding ground and excited
 states of electronic and vibrational structure problems, measuring the dipole moments of molecular
 systems, solving the Ising and Fermi-Hubbard models on lattices, and much more.
 
-The code comprises chemistry drivers, which when provided with a molecular
-configuration will return one- and two-body integrals as well as other data that is efficiently
-computed classically. This output data from a driver can then be used as input in Qiskit
-Nature that contains logic which is able to translate this into a form that is suitable
-for quantum algorithms.
+![Qiskit Nature Design](./docs/images/overview.png)
 
-For the solution of electronic structure problems, the problem Hamiltonian is first expressed in
-the second quantization formalism, comprising fermionic excitation and annihilation operators.
-These can then be mapped to the qubit formalism using a variety of mappings such as Jordan-Wigner,
-Parity, and more, in readiness for the quantum computation.
+The code comprises various modules revolving around:
+
+- data loading from chemistry drivers or file formats
+- second-quantized operator construction and manipulation
+- translating from the second-quantized to the qubit space
+- a quantum circuit library of natural science targeted ansatze
+- natural science specific algorithms and utilities to make the use of Qiskit
+  Terra's algorithms easier
+- and much more
 
 ## Installation
 
@@ -49,55 +45,27 @@ to be installed separately.
 
 1. [Gaussian 16&trade;](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.second_q.drivers.gaussiand.html), a commercial chemistry program
 2. [PSI4](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.second_q.drivers.psi4d.html), a chemistry program that exposes a Python interface allowing for accessing internal objects
-3. [PyQuante](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.second_q.drivers.pyquanted.html), a pure cross-platform open-source Python chemistry program
-4. [PySCF](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.second_q.drivers.pyscfd.html), an open-source Python chemistry program
+3. [PySCF](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.second_q.drivers.pyscfd.html), an open-source Python chemistry program
 
-### HDF5 Driver
-
-A useful functionality integrated into Qiskit Nature is its ability to serialize a file
-in hierarchical Data Format 5 (HDF5) format representing all the output data from a chemistry driver.
-
-The [HDF5 driver](https://qiskit.org/documentation/nature/stubs/qiskit_nature.second_q.drivers.HDF5Driver.html#qiskit_nature.second_q.drivers.HDF5Driver)
-accepts such HDF5 files as input so molecular experiments can be run, albeit on the fixed data
-as stored in the file. As such, if you have some pre-created HDF5 files created from Qiskit
-Nature, you can use these with the HDF5 driver even if you do not install one of the classical
-computation packages listed above.
-
-### Creating Your First Chemistry Programming Experiment in Qiskit
+## Creating Your First Chemistry Programming Experiment in Qiskit
 
 Now that Qiskit Nature is installed, let's try a chemistry application experiment
 using the VQE (Variational Quantum Eigensolver) algorithm to compute
 the ground-state (minimum) energy of a molecule.
 
-> Note: The following example belongs to the version >= 0.5 .
-> The working example for version <0.5 can be found at [ the old README file](https://github.com/Qiskit/qiskit-nature/blob/stable/0.4/README.md).
-
 ```python
-from qiskit_nature.settings import settings
 from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.drivers import PySCFDriver
-from qiskit_nature.second_q.problems import ElectronicStructureProblem
-
-settings.dict_aux_operators = True
 
 # Use PySCF, a classical computational chemistry software
 # package, to compute the one-body and two-body integrals in
 # electronic-orbital basis, necessary to form the Fermionic operator
-driver = PySCFDriver(atom='H .0 .0 .0; H .0 .0 0.735',
-                     unit=DistanceUnit.ANGSTROM,
-                     basis='sto3g')
+driver = PySCFDriver(
+    atom='H .0 .0 .0; H .0 .0 0.735',
+    unit=DistanceUnit.ANGSTROM,
+    basis='sto3g',
+)
 problem = driver.run()
-
-# generate the second-quantized operators
-main_op, _ = problem.second_q_ops()
-
-num_particles = problem.num_particles
-num_spatial_orbitals = problem.num_spatial_orbitals
-
-# setup the classical optimizer for VQE
-from qiskit.algorithms.optimizers import L_BFGS_B
-
-optimizer = L_BFGS_B()
 
 # setup the mapper and qubit converter
 from qiskit_nature.second_q.mappers import ParityMapper
@@ -106,53 +74,52 @@ from qiskit_nature.second_q.mappers import QubitConverter
 mapper = ParityMapper()
 converter = QubitConverter(mapper=mapper, two_qubit_reduction=True)
 
-# map to qubit operators
-qubit_op = converter.convert(main_op, num_particles=num_particles)
+# setup the classical optimizer for the VQE
+from qiskit.algorithms.optimizers import L_BFGS_B
 
-# setup the initial state for the ansatz
-from qiskit_nature.second_q.circuit.library import HartreeFock
+optimizer = L_BFGS_B()
 
-init_state = HartreeFock(num_spatial_orbitals, num_particles, converter)
-
-# setup the ansatz for VQE
-from qiskit.circuit.library import TwoLocal
-
-num_qubits = 2 * num_spatial_orbitals
-ansatz = TwoLocal(num_qubits, ['ry', 'rz'], 'cz')
-
-# add the initial state
-ansatz.compose(init_state, front=True, inplace=True)
-
-# setup and run VQE
-from qiskit.algorithms.minimum_eigensolvers import VQE
+# setup the estimator primitive for the VQE
 from qiskit.primitives import Estimator
 
-algorithm = VQE(Estimator(), ansatz, optimizer)
+estimator = Estimator()
 
-result = algorithm.compute_minimum_eigenvalue(qubit_op)
-print(result.eigenvalue.real)
+# setup the ansatz for VQE
+from qiskit_nature.second_q.circuit.library import UCCSD
 
-electronic_structure_result = problem.interpret(result)
+ansatz = UCCSD()
+
+# use a factory to complement the VQE and its components at runtime
+from qiskit_nature.second_q.algorithms import VQEUCCFactory
+
+vqe_factory = VQEUCCFactory(estimator, ansatz, optimizer)
+
+# prepare the ground-state solver and run it
+from qiskit_nature.second_q.algorithms import GroundStateEigensolver
+
+algorithm = GroundStateEigensolver(converter, vqe_factory)
+
+electronic_structure_result = algorithm.solve(problem)
 print(electronic_structure_result)
 ```
 The program above uses a quantum computer to calculate the ground state energy of molecular Hydrogen,
 H<sub>2</sub>, where the two atoms are configured to be at a distance of 0.735 angstroms. The molecular
-input specification is processed by the PySCF driver. This driver is wrapped by the `ElectronicStructureProblem`.
-This problem instance generates a list of second-quantized operators which we can map to qubit operators
-with a `QubitConverter`. Here, we chose the parity mapping in combination with a 2-qubit reduction, which
+input specification is processed by the PySCF driver. This driver produces an `ElectronicStructureProblem`
+which gathers all the problem information required by Qiskit Nature.
+The second-quantized operators contained in that problem can be mapped to qubit operators with a
+`QubitConverter`. Here, we chose the parity mapping in combination with a 2-qubit reduction, which
 is a precision-preserving optimization removing two qubits; a reduction in complexity that is particularly
 advantageous for NISQ computers.
 
-The qubit operator is then passed as an input to the Variational Quantum Eigensolver (VQE) algorithm,
-instantiated with a classical optimizer and a RyRz ansatz (`TwoLocal`). A Hartree-Fock initial state
-is used as a starting point for the ansatz.
+For actually finding the ground state solution, the Variational Quantum Eigensolver (VQE) algorithm is used.
+Its main three components, the estimator primitive, wavefunciton ansatz (`UCCSD`), and optimizer, are passed
+to the `VQEUCCFactory`, a utility of Qiskit Nature simplifying the setup of the `VQE` algorithm and its
+components. This factory also ensures consistent settings for the ansatzes initial state and the optimizers
+initial point.
 
-The VQE algorithm is then run, in this case using the noiseless `Estimator` primitive implemented in
-[Qiskit Terra](https://github.com/Qiskit/qiskit-terra). For more information on the primitives refer to
-[their documentation](https://qiskit.org/documentation/apidoc/primitives.html).
-
-In the end, you are given a result object by the VQE which you can analyze further by interpreting it with
-your problem instance.
+The entire problem is then solved using a `GroundStateEigensolver` which wraps both, the `QubitConverter`
+and `VQEUCCFactory`. Since an `ElectronicStructureProblem` is provided to it (which was the output of the
+`PySCFDriver`) it also returns an `ElectronicStructureResult`.
 
 ### Further examples
 

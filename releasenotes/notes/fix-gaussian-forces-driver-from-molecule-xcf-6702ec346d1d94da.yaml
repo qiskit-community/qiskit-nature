@@ -1,5 +1,0 @@
----
-features:
-  - |
-    Added the `xcf` argument to the :meth:`qiskit_nature.second_q.drivers.GaussianForcesDriver.from_molecule`
-    which allows specifying the exchange-correlation functional to be used by Gaussian.

@@ -31,6 +31,7 @@ from qiskit_nature.transformers.second_quantization import BaseTransformer
 
 from .builders.hopping_ops_builder import _build_qeom_hopping_ops
 from ..base_problem import BaseProblem
+from ....deprecation import warn_deprecated, DeprecatedType, NatureDeprecationWarning
 
 
 class ElectronicStructureProblem(BaseProblem):
@@ -53,6 +54,15 @@ class ElectronicStructureProblem(BaseProblem):
             transformers: A list of transformations to be applied to the driver result.
         """
         super().__init__(driver, transformers, "ElectronicEnergy")
+        warn_deprecated(
+            "0.5.0",
+            old_type=DeprecatedType.CLASS,
+            old_name="qiskit_nature.problems.second_quantization.electronic.ElectronicStructureProblem",
+            new_type=DeprecatedType.CLASS,
+            new_name="qiskit_nature.second_q.problems.ElectronicStructureProblem",
+            stack_level=3,
+            category=NatureDeprecationWarning,
+        )
 
     @property
     def num_particles(self) -> Tuple[int, int]:

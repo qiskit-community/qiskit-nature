@@ -78,11 +78,11 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         """
         Args:
             data: the operator data, mapping string-based keys to numerical values.
-            copy: when set to False the `data` will not be copied and the dictionary will be
-                stored by reference rather than by value (which is the default; `copy=True`). Note,
+            copy: when set to False the ``data`` will not be copied and the dictionary will be
+                stored by reference rather than by value (which is the default; ``copy=True``). Note,
                 that this requires you to not change the contents of the dictionary after
-                constructing the operator. This also implies `validate=False`. Use with care!
-            validate: when set to False the `data` keys will not be validated. Note, that the
+                constructing the operator. This also implies ``validate=False``. Use with care!
+            validate: when set to False the ``data`` keys will not be validated. Note, that the
                 SparseLabelOp base class, makes no assumption about the data keys, so will not
                 perform any validation by itself. Only concrete subclasses are encouraged to
                 implement a key validation method. Disable this setting with care!
@@ -106,7 +106,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
     @abstractmethod
     def _new_instance(
         self,
-        data: Mapping[str, complex],
+        data: Mapping[str, _TCoeff],
         *,
         other: SparseLabelOp | None = None,
     ) -> SparseLabelOp:
@@ -146,19 +146,19 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
     @classmethod
     @abstractmethod
     def from_polynomial_tensor(cls, tensor: PolynomialTensor) -> SparseLabelOp:
-        """Constructs a ``SparseLabelOp`` from a ``PolynomialTensor``.
+        """Constructs the operator from a :class:`~.PolynomialTensor`.
 
         Args:
-            tensor: the ``PolynomialTensor`` to be expanded.
+            tensor: the :class:`~.PolynomialTensor` to be expanded.
 
         Returns:
-            The generated ``SparseLabelOp``.
+            The constructed operator.
         """
 
     @classmethod
     @abstractmethod
     def _validate_polynomial_tensor_key(cls, keys: Collection[str]) -> None:
-        """Validates the keys of a ``PolynomialTensor`` to be expanded into a ``SparseLabelOp``.
+        """Validates the keys of a :class:`~.PolynomialTensor` to be expanded into a ``SparseLabelOp``.
 
         Args:
             keys: the keys to validate.
@@ -241,20 +241,20 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
 
     @abstractmethod
     def transpose(self) -> SparseLabelOp:
-        """Returns the transpose of the ``SparseLabelOp``.
+        """Returns the transpose of the operator.
 
         Returns:
-            The transpose of the starting ``SparseLabelOp``.
+            The transpose of the operator.
         """
 
     @abstractmethod
     def compose(
         self, other: SparseLabelOp, qargs: None = None, front: bool = False
     ) -> SparseLabelOp:
-        r"""Returns the operator composition with another SparseLabelOp.
+        r"""Returns the operator composition with another operator.
 
         Args:
-            other: the other SparseLabelOp.
+            other: the other operator.
             qargs: UNUSED.
             front: If True composition uses right operator multiplication, otherwise left
                 multiplication is used (the default).
@@ -295,10 +295,10 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
 
     @abstractmethod
     def expand(self, other: SparseLabelOp) -> SparseLabelOp:
-        r"""Returns the reverse-order tensor product with another SparseLabelOp.
+        r"""Returns the reverse-order tensor product with another operator.
 
         Args:
-            other: the other SparseLabelOp.
+            other: the other operator.
 
         Returns:
             The operator resulting from the tensor product, :math:`othr \otimes self`.

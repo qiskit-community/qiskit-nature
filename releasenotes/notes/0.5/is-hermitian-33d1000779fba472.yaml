@@ -1,0 +1,11 @@
+---
+features:
+  - |
+    Adds `atol` parameter to :meth:`.SparseLabelOp.is_hermitian`.
+fixes:
+  - |
+    Fixes a bug that caused :meth:`.FermionicOp.is_hermitian` to return false negatives
+    due to not normal-ordering.
+  - |
+    Fixes a bug that caused :meth:`.FermionicOp.simplify` to fail when the
+    simplified operator is equal to zero.

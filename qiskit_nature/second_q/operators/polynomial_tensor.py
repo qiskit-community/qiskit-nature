@@ -154,7 +154,7 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
 
     Furthermore, the ``PolynomialTensor`` supports both, dense numpy arrays and sparse arrays. Since
     it needs to support more than 2-dimensional arrays, we rely on the
-    [sparse](https://sparse.pydata.org/en/stable/index.html) library.
+    `sparse <https://sparse.pydata.org/en/stable/index.html>`_ library.
 
     .. jupyter-execute::
 
@@ -176,7 +176,7 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         """
         Args:
             data: mapping of string-based operator keys to coefficient matrix values.
-            validate: when set to False the `data` will not be validated. Disable this setting with
+            validate: when set to False the ``data`` will not be validated. Disable this setting with
                 care!
 
         Raises:
@@ -222,7 +222,7 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
 
     @property
     def register_length(self) -> int | None:
-        """The size of the operator that can be generated from this `PolynomialTensor`."""
+        """The size of the operator that can be generated from this ``PolynomialTensor``."""
         for key in self._data:
             if key == "":
                 continue
@@ -265,10 +265,10 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         """Gets the value from the ``PolynomialTensor``.
 
         Args:
-            __k: operator key string in the `PolynomialTensor`.
+            __k: operator key string in the ``PolynomialTensor``.
 
         Returns:
-            Value corresponding to the operator key `__k`.
+            Value corresponding to the operator key ``__k``.
         """
         return self._data.__getitem__(__k)
 

@@ -1,5 +1,0 @@
----
-features:
-  - |
-    Adds support for the [QCSchema](https://molssi-qc-schema.readthedocs.io/en/latest/index.html)
-    via which we aim to standardize the I/O between classical drivers and Qiskit Nature.

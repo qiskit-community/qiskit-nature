@@ -19,7 +19,6 @@ import numpy as np
 
 from qiskit.algorithms.eigensolvers import EigensolverResult
 from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
-from qiskit_nature.second_q.operators import SecondQuantizedOp
 from qiskit_nature.second_q.hamiltonians import FermiHubbardModel
 from qiskit_nature.second_q.problems import LatticeModelProblem
 from qiskit_nature.second_q.hamiltonians.lattices import (
@@ -32,17 +31,6 @@ from qiskit_nature.second_q.problems import EigenstateResult
 class TestLatticeModelProblem(QiskitNatureTestCase):
     """Tests Lattice Model Problem."""
 
-    def _compare_second_q_op(self, first: SecondQuantizedOp, second: SecondQuantizedOp):
-        """Compares second quantized operators"""
-        f_list = first.items()
-        s_list = second.items()
-        self.assertEqual(len(f_list), len(s_list))
-        for f_term, s_term in zip(f_list, s_list):
-            # compare labels
-            self.assertEqual(f_term[0], s_term[0])
-            # compare coefficients
-            self.assertEqual(f_term[1], s_term[1])
-
     def test_second_q_ops(self):
         """Tests that the list of second quantized operators is created."""
         num_nodes = 4
@@ -52,7 +40,7 @@ class TestLatticeModelProblem(QiskitNatureTestCase):
         expected_op = fhm.second_q_op()
         lmp = LatticeModelProblem(fhm)
         main_op, _ = lmp.second_q_ops()
-        self._compare_second_q_op(expected_op, main_op)
+        self.assertTrue(main_op == expected_op)
 
     def test_interpret(self):
         """Tests that the result is interpreted"""

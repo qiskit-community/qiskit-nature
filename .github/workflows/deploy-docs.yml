@@ -35,7 +35,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install Dependencies
         run: |
-          pip install jupyter sphinx_rtd_theme qiskit-terra[visualization]
+          pip install jupyter qiskit-terra[visualization]
           sudo apt-get install -y pandoc graphviz
         shell: bash
       - name: Install Nature
@@ -51,7 +51,7 @@ jobs:
           QISKIT_DOCS_BUILD_TUTORIALS: 'always'
         run: |
           echo "earliest_version: 0.1.0" >> releasenotes/config.yaml
-          tools/ignore_untagged_notes.sh
+          # tools/ignore_untagged_notes.sh
           make html
           tools/deploy_documentation.sh
         shell: bash
@@ -71,7 +71,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install jupyter sphinx_rtd_theme qiskit-terra[visualization] torchvision tox
+          pip install jupyter qiskit-terra[visualization] torchvision tox
           sudo apt-get install -y pandoc graphviz
         shell: bash
       - name: Build and publish
@@ -82,6 +82,6 @@ jobs:
           QISKIT_DOCS_BUILD_TUTORIALS: 'always'
         run: |
           echo "earliest_version: 0.1.0" >> releasenotes/config.yaml
-          tools/ignore_untagged_notes.sh
+          # tools/ignore_untagged_notes.sh
           tools/deploy_translatable_strings.sh
         shell: bash

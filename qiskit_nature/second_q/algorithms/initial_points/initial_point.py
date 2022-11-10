@@ -63,7 +63,7 @@ class InitialPoint(ABC):
 
     @abstractmethod
     def to_numpy_array(self) -> np.ndarray:
-        """Returns a numpy array of the computed initial point.
+        """Returns a NumPy array of the computed initial point.
 
         Raises:
             NotImplementedError
@@ -75,5 +75,5 @@ class InitialPoint(ABC):
         ansatz: EvolvedOperatorAnsatz | None = None,
         problem: BaseProblem | None = None,
     ) -> None:
-        """Compute the initial point array"""
+        """Compute the initial point array."""
         raise NotImplementedError

@@ -23,7 +23,7 @@ from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
 from qiskit.opflow import Z2Symmetries
 
 from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.operators import SecondQuantizedOp
+from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.hamiltonians import Hamiltonian
 
 from .eigenstate_result import EigenstateResult
@@ -31,7 +31,18 @@ from .properties_container import PropertiesContainer
 
 
 class BaseProblem:
-    """Base Problem"""
+    """The base representation of a second-quantization problem.
+
+    If none of the specific subclasses of this class fit your use case, you can instantiate this
+    class itself with your custom :class:`.Hamiltonian` instance and pass it into one of the
+    available algorithms.
+
+    The following attributes can be read and updated once the ``BaseProblem`` object has been
+    constructed.
+
+    Attributes:
+        properties (PropertiesContainer): a container for additional observable operator factories.
+    """
 
     def __init__(self, hamiltonian: Hamiltonian) -> None:
         """
@@ -49,7 +60,7 @@ class BaseProblem:
         """Returns the hamiltonian wrapped by this problem."""
         return self._hamiltonian
 
-    def second_q_ops(self) -> tuple[SecondQuantizedOp, dict[str, SecondQuantizedOp]]:
+    def second_q_ops(self) -> tuple[SparseLabelOp, dict[str, SparseLabelOp]]:
         """Returns the second quantized operators associated with this problem.
 
         Returns:
@@ -58,7 +69,7 @@ class BaseProblem:
         """
         main_op = self.hamiltonian.second_q_op()
 
-        aux_ops: dict[str, SecondQuantizedOp] = {}
+        aux_ops: dict[str, SparseLabelOp] = {}
         for prop in self.properties:
             aux_ops.update(prop.second_q_ops())
 

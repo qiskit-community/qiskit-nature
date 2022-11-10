@@ -25,7 +25,7 @@ class TestPropertiesContainer(QiskitNatureTestCase):
 
     def setUp(self) -> None:
         super().setUp()
-        self.property = OccupiedModals()
+        self.property = OccupiedModals([])
 
     def test_contains(self) -> None:
         """Tests the `__contains__` method."""

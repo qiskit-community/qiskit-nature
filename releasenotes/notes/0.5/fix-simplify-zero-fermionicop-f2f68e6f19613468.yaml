@@ -1,0 +1,4 @@
+---
+fixes:
+  - |
+    Fixes the behavior of ``FermionicOp.simplify`` when called on a zero-operator.

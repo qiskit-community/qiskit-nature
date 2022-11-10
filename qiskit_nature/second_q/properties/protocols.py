@@ -29,7 +29,7 @@ else:
 
 
 @runtime_checkable
-class SparseLabelOpFactory(Protocol):
+class SparseLabelOpsFactory(Protocol):
     """A protocol indicating :class:`qiskit_nature.second_q.operators.SparseLabelOp` generators."""
 
     def second_q_ops(self) -> Mapping[str, SparseLabelOp]:

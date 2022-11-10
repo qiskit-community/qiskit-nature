@@ -1,5 +1,0 @@
----
-features:
-  - |
-    Adds `.SecondQuantizedOp.equiv` for checking approximate equality
-    between two SecondQuantizedOps.

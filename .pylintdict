@@ -21,6 +21,7 @@ ansatz
 ansatze
 ansatzes
 anticommutation
+antiparallel
 antisymmetric
 antisymmetrized
 ao
@@ -113,6 +114,7 @@ dcx
 de
 debye
 deepcopy
+delocalized
 deuterium
 deuteron
 dft
@@ -133,6 +135,7 @@ docstring
 dof
 doi
 dok
+downarrow
 dt
 dtype
 dumitrescu
@@ -151,6 +154,7 @@ eigenvectors
 einact
 einsum
 electronicintegrals
+electronicstructureproblem
 endian
 endif
 enum
@@ -232,6 +236,7 @@ init
 initializer
 initio
 inplace
+integrations
 intel
 intelvem
 interatomic
@@ -239,6 +244,7 @@ internuclear
 interpretable
 ints
 io
+ipynb
 isclose
 ising
 iso
@@ -277,6 +283,7 @@ kwarg
 kwargs
 kwds
 labelled
+langle
 lbrace
 lda
 ldots
@@ -292,6 +299,7 @@ lih
 lijh
 linewidths
 linux
+listordict
 ljik
 lk
 logfile
@@ -442,6 +450,7 @@ qregs
 qs
 quantization
 quantized
+quantumcircuit
 quartic
 qubit
 qubits
@@ -519,6 +528,7 @@ str
 stylesheet
 subcircuits
 subclasses
+submodule
 submodules
 subtest
 subtype
@@ -576,6 +586,7 @@ undirected
 unitaries
 unitstype
 untransforms
+uparrow
 username
 utils
 uvcc
@@ -585,6 +596,7 @@ vals
 varepsilon
 variational
 vdots
+vec
 verbatim
 versa
 vibrational
@@ -607,6 +619,7 @@ whitfield
 wigner
 wikipedia
 woerner
+workflow
 xcf
 xcfun
 xdata

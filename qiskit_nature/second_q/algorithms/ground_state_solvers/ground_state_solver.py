@@ -20,7 +20,7 @@ from typing import Union
 from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 
-from qiskit_nature.second_q.operators import SecondQuantizedOp
+from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.second_q.problems import EigenstateResult
@@ -29,12 +29,12 @@ QubitOperator = Union[BaseOperator, PauliSumOp]
 
 
 class GroundStateSolver(ABC):
-    """The ground state calculation interface"""
+    """The ground state calculation interface."""
 
     def __init__(self, qubit_converter: QubitConverter) -> None:
         """
         Args:
-            qubit_converter: a class that converts second quantized operator to qubit operator
+            qubit_converter: A class that converts second quantized operator to qubit operator
                              according to a mapper it is initialized with.
         """
         self._qubit_converter = qubit_converter
@@ -43,12 +43,12 @@ class GroundStateSolver(ABC):
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: dict[str, SecondQuantizedOp | QubitOperator] | None = None,
+        aux_operators: dict[str, SparseLabelOp | QubitOperator] | None = None,
     ) -> EigenstateResult:
         """Compute the ground state energy of the molecule that was supplied via the driver.
 
         Args:
-            problem: a class encoding a problem to be solved.
+            problem: A class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
 
         Returns:
@@ -61,13 +61,14 @@ class GroundStateSolver(ABC):
     def get_qubit_operators(
         self,
         problem: BaseProblem,
-        aux_operators: dict[str, SecondQuantizedOp | QubitOperator] | None = None,
+        aux_operators: dict[str, SparseLabelOp | QubitOperator] | None = None,
     ) -> tuple[QubitOperator, dict[str, QubitOperator] | None]:
         """Construct qubit operators by getting the second quantized operators from the problem
         (potentially running a driver in doing so [can be computationally expensive])
-        and using a QubitConverter to map + reduce the operators to qubit ops
+        and using a QubitConverter to map and reduce the operators to qubit operators.
+
         Args:
-            problem: a class encoding a problem to be solved.
+            problem: A class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
 
         Returns:

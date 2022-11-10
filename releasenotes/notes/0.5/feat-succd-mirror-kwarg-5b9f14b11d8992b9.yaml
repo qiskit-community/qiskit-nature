@@ -1,0 +1,14 @@
+---
+features:
+  - |
+    Adds the new keyword argument ``mirror`` to the
+    :class:`~qiskit_nature.second_q.circuit.library.SUCCD` ansatz, which allows
+    the inclusion of symmetrically mirrored double excitations while preserving
+    the number of circuit parameters.
+
+    .. code-block:: python
+
+      from qiskit_nature.second_q.circuit.library.ansatzes import SUCCD
+      from qiskit_nature.second_q.mappers import JordanWignerMapper, QubitConverter
+      converter = QubitConverter(JordanWignerMapper())
+      ansatz = SUCCD(converter, (1, 1), 6, mirror=True)

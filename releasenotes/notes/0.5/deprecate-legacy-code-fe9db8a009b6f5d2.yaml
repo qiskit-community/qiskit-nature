@@ -1,0 +1,47 @@
+---
+deprecations:
+  - |
+    Deprecated all code that was migrated to ``qiskit_nature/second_q`` according to issue:
+    https://github.com/Qiskit/qiskit-nature/issues/749
+
+    The following table provides a rough overview of the old and new package locations.
+    In certain cases, single classes might have been treated differently.
+    Be sure to check out the referenced issues or the
+    `migration guide <https://qiskit.org/documentation/nature/migration/index.html>`_
+    for more details.
+
+    +---------------------------------------+-----------------------------------------------------+
+    |                   Old                 |                        New                          |
+    +========================+==============+=====================================================+
+    | qiskit_nature.algorithms              | qiskit_nature.second_q.algorithms                   |
+    +---------------------------------------+-----------------------------------------------------+
+    | qiskit_nature.algorithms.pes_samplers | Removed.                                            |
+    |                                       | For more details, refer to:                         |
+    |                                       | https://github.com/Qiskit/qiskit-nature/issues/750  |
+    +---------------------------------------+-----------------------------------------------------+
+    | qiskit_nature.circuit                 | qiskit_nature.second_q.circuit                      |
+    +---------------------------------------+-----------------------------------------------------+
+    | qiskit_nature.converters              | qiskit_nature.second_q.mappers                      |
+    +---------------------------------------+-----------------------------------------------------+
+    | qiskit_nature.drivers                 | qiskit_nature.second_q.drivers and                  |
+    |                                       | qiskit_nature.second_q.formats                      |
+    +---------------------------------------+-----------------------------------------------------+
+    | qiskit_nature.mappers                 | qiskit_nature.second_q.mappers                      |
+    +---------------------------------------+-----------------------------------------------------+
+    | qiskit_nature.operators               | qiskit_nature.second_q.operators                    |
+    +---------------------------------------+-----------------------------------------------------+
+    | qiskit_nature.problems                | qiskit_nature.second_q.problems                     |
+    +---------------------------------------+-----------------------------------------------------+
+    | qiskit_nature.problems.sampling       | Moved to qiskit-research.                           |
+    |                                       | For more details, refer to:                         |
+    |                                       | https://github.com/qiskit-research/qiskit-research  |
+    +---------------------------------------+-----------------------------------------------------+
+    | qiskit_nature.properties              | qiskit_nature.second_q.hamiltonians and             |
+    |                                       | qiskit_nature.second_q.properties                   |
+    |                                       | For more details, refer to:                         |
+    |                                       | https://github.com/Qiskit/qiskit-nature/issues/705  |
+    +---------------------------------------+-----------------------------------------------------+
+    | qiskit_nature.results                 | qiskit_nature.second_q.problems                     |
+    +---------------------------------------+-----------------------------------------------------+
+    | qiskit_nature.transformers            | qiskit_nature.second_q.transformers                 |
+    +---------------------------------------+-----------------------------------------------------+

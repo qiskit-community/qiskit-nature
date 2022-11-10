@@ -1,5 +1,0 @@
----
-other:
-  - |
-    The classes `VQEProgram` and `VQEProgramResult` have been removed following the end
-    of the deprecation period.

@@ -14,7 +14,7 @@
 
 from pathlib import Path
 from tempfile import NamedTemporaryFile, TemporaryDirectory
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.hdf5 import load_from_hdf5, save_to_hdf5
 from qiskit_nature.properties.second_quantization.electronic import (
@@ -22,7 +22,7 @@ from qiskit_nature.properties.second_quantization.electronic import (
 )
 
 
-class TestHDF5(QiskitNatureTestCase):
+class TestHDF5(QiskitNatureDeprecatedTestCase):
     """Tests for the HDF5 methods."""
 
     def test_load_from_hdf5(self):

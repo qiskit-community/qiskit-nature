@@ -33,18 +33,18 @@ logger = logging.getLogger(__name__)
 class PUCCD(UCC):
     """The PUCCD Ansatz.
 
-    The PUCCD Ansatz (by default) only contains double excitations. Furthermore, it enforces all
+    The PUCCD ansatz (by default) only contains double excitations. Furthermore, it enforces all
     excitations to occur in parallel in the alpha and beta species. For more information see also
     [1].
 
-    Note, that this Ansatz can only work for singlet-spin systems. Therefore, the number of alpha
+    Note, that this ansatz can only work for singlet-spin systems. Therefore, the number of alpha
     and beta electrons must be equal.
 
-    This is a convenience subclass of the UCC Ansatz. For more information refer to :class:`UCC`.
+    This is a convenience subclass of the UCC ansatz. For more information refer to :class:`UCC`.
 
     References:
+        [1] `arXiv:1911.10864 <https://arxiv.org/abs/1911.10864>`_
 
-        [1] https://arxiv.org/abs/1911.10864
     """
 
     def __init__(
@@ -61,14 +61,14 @@ class PUCCD(UCC):
         """
 
         Args:
-            num_spatial_orbitals: the number of spatial orbitals.
-            num_particles: the tuple of the number of alpha- and beta-spin particles.
-            qubit_converter: the QubitConverter instance which takes care of mapping to a qubit
-                operator.
+            num_spatial_orbitals: The number of spatial orbitals.
+            num_particles: The tuple of the number of alpha- and beta-spin particles.
+            qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` instance
+                which takes care of mapping to a qubit operator.
             reps: The number of times to repeat the evolved operators.
-            initial_state: A `QuantumCircuit` object to prepend to the circuit.
+            initial_state: A ``QuantumCircuit`` object to prepend to the circuit.
             include_singles: enables the inclusion of single excitations per spin species.
-            generalized: boolean flag whether or not to use generalized excitations, which ignore
+            generalized: Boolean flag whether or not to use generalized excitations, which ignore
                 the occupation of the spin orbitals. As such, the set of generalized excitations is
                 only determined from the number of spin orbitals and independent from the number of
                 particles.

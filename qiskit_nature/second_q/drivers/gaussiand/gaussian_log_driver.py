@@ -60,7 +60,7 @@ class GaussianLogDriver(BaseDriver):
         self._jcf = jcf
         super().__init__()
 
-    def run(self) -> GaussianLogResult:  # type: ignore
+    def run(self) -> GaussianLogResult:  # type: ignore[override]
         """Runs the driver to produce a result given the supplied job control file.
 
         Returns:
