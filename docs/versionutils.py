@@ -28,6 +28,7 @@ translations_list = [
     ("en", "English"),
     ("bn_BN", "Bengali"),
     ("ja_JP", "Japanese"),
+    ("es_UN", "Spanish"),
 ]
 
 default_language = "en"
