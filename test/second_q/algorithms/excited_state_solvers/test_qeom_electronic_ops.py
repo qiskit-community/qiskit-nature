@@ -47,14 +47,14 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
         self.particle_number = self.electronic_structure_problem.properties.particle_number
 
     def test_build_hopping_operators(self):
-        """Tests that the correct hopping operator is built."""
+        """Tests that the correct hopping operators are built."""
         # TODO extract it somewhere
         expected_hopping_operators = {
-            "E_0": PauliSumOp.from_list([("IIXY", -1j), ("IIYY", 1), ("IIXX", 1), ("IIYX", 1j)]),
-            "Edag_0": PauliSumOp.from_list([("IIXY", 1j), ("IIXX", 1), ("IIYY", 1), ("IIYX", -1j)]),
-            "E_1": PauliSumOp.from_list([("XYII", -1j), ("YYII", 1), ("XXII", 1), ("YXII", 1j)]),
-            "Edag_1": PauliSumOp.from_list([("XYII", 1j), ("YYII", 1), ("XXII", 1), ("YXII", -1j)]),
-            "E_2": PauliSumOp.from_list(
+            "E_0": 1/4 * PauliSumOp.from_list([("IIXY", -1j), ("IIYY", 1), ("IIXX", 1), ("IIYX", 1j)]),
+            "Edag_0": 1/4 * PauliSumOp.from_list([("IIXY", 1j), ("IIXX", 1), ("IIYY", 1), ("IIYX", -1j)]),
+            "E_1": 1/4 * PauliSumOp.from_list([("XYII", -1j), ("YYII", 1), ("XXII", 1), ("YXII", 1j)]),
+            "Edag_1": 1/4 * PauliSumOp.from_list([("XYII", 1j), ("YYII", 1), ("XXII", 1), ("YXII", -1j)]),
+            "E_2": 1/16 * PauliSumOp.from_list(
                 [
                     ("XYXY", 1),
                     ("YYXY", 1j),
@@ -74,7 +74,7 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
                     ("YXYX", 1),
                 ]
             ),
-            "Edag_2": PauliSumOp.from_list(
+            "Edag_2": 1/16 * PauliSumOp.from_list(
                 [
                     ("XYXY", 1),
                     ("XXXY", -1j),
@@ -125,7 +125,7 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
                 if not val.equals(exp_val):
                     print(val)
                     print(exp_val)
-                self.assertTrue(val.equals(exp_val))
+                self.assertTrue(val.equals(exp_val), msg=(val, exp_val))
 
         with self.subTest("commutativities"):
             self.assertEqual(commutativities, expected_commutativies)
