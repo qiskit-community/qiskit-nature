@@ -723,10 +723,11 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
 
         .. note::
 
-           :class:`sparse.SparseArray` does not support ``numpy.einsum``. Thus, the resultant
+           :class:`sparse.SparseArray` supports ``opt_einsum.contract` if ``opt_einsum`` is installed.
+           It does not support ``numpy.einsum``. In this case, the resultant
            ``PolynomialTensor`` will contain all dense numpy arrays. If a user would like to work
-           with a sparse array instead, they should convert it explicitly using the
-           :meth:`to_sparse` method.
+           with a sparse array instead, they should install ``opt_einsum`` or
+           they should convert it explicitly using the :meth:`to_sparse` method.
 
         Args:
             einsum_map: a dictionary, mapping from :meth:`numpy.einsum` subscripts to a tuple of
@@ -740,12 +741,20 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         Returns:
             A new ``PolynomialTensor``.
         """
-        dense_operands = [op.to_dense() for op in operands]
+        if _optionals.HAS_OPT_EINSUM:
+            # pylint: disable=import-error
+            from opt_einsum import contract
+
+            einsum_func = contract
+            dense_operands = list(operands)
+        else:
+            einsum_func = np.einsum
+            dense_operands = [op.to_dense() for op in operands]
         new_data: dict[str, ARRAY_TYPE] = {}
         for einsum, terms in einsum_map.items():
             *inputs, output = terms
             try:
-                result = np.einsum(
+                result = einsum_func(
                     einsum,
                     *[dense_operands[idx]._data[term] for idx, term in enumerate(inputs)],
                     optimize=settings.optimize_einsum,

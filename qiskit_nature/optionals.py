@@ -87,3 +87,5 @@ HAS_SPARSE = LazyImportTester(
     name="sparse",
     install="pip install 'qiskit-nature[sparse]'",
 )
+
+HAS_OPT_EINSUM = LazyImportTester("opt_einsum", install="pip install opt_einsum")
