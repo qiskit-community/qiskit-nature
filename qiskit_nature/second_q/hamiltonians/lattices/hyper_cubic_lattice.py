@@ -24,7 +24,7 @@ from .lattice import Lattice, LatticeDrawStyle
 
 
 class HyperCubicLattice(Lattice):
-    """Hyper-cubic lattice in d dimensions.
+    """Hyper-cubic lattice in :math:`d` dimensions.
 
     The :class:`HyperCubicLattice` can be initialized with
     tuples of `size`, `edge_parameters`, and `boundary_conditions`.
@@ -305,6 +305,7 @@ class HyperCubicLattice(Lattice):
 
     def draw_without_boundary(
         self,
+        *,
         self_loop: bool = False,
         style: Optional[LatticeDrawStyle] = None,
     ):

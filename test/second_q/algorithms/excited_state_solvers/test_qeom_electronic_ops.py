@@ -14,7 +14,6 @@
 import unittest
 from test import QiskitNatureTestCase
 
-from qiskit.opflow import PauliSumOp
 from qiskit.utils import algorithm_globals
 
 from qiskit_nature.units import DistanceUnit
@@ -49,13 +48,15 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
         self.qubit_converter = QubitConverter(JordanWignerMapper())
         self.electronic_structure_problem = self.driver.run()
         self.electronic_structure_problem.second_q_ops()
-        self.particle_number = self.electronic_structure_problem.properties.particle_number
 
     def test_build_hopping_operators(self):
         """Tests that the correct hopping operators are built."""
 
         hopping_operators, commutativities, indices = build_electronic_ops(
-            self.particle_number, self.qubit_converter
+            self.electronic_structure_problem.num_spatial_orbitals,
+            self.electronic_structure_problem.num_particles,
+            "sd",
+            self.qubit_converter,
         )
 
         with self.subTest("hopping operators"):
@@ -76,3 +77,7 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
 
         with self.subTest("excitation indices"):
             self.assertEqual(indices, expected_indices_electronic)
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -15,7 +15,7 @@
 from typing import cast
 
 import unittest
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 
 from qiskit import BasicAer
 from qiskit.algorithms import VQE
@@ -32,7 +32,7 @@ from qiskit_nature.problems.second_quantization import ElectronicStructureProble
 from qiskit_nature.properties.second_quantization.electronic import ParticleNumber
 
 
-class TestExcitationPreserving(QiskitNatureTestCase):
+class TestExcitationPreserving(QiskitNatureDeprecatedTestCase):
     """The ExcitationPresering wavefunction was design to preserve the excitation of the system.
 
     We test it here from chemistry with JORDAN_WIGNER mapping (then the number of particles

@@ -14,7 +14,7 @@
 
 import unittest
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 
 from ddt import ddt, data, unpack
 
@@ -24,7 +24,7 @@ from qiskit_nature.mappers.second_quantization import LogarithmicMapper
 
 
 @ddt
-class TestLogarithmicMapper(QiskitNatureTestCase):
+class TestLogarithmicMapper(QiskitNatureDeprecatedTestCase):
     """Test Logarithmic Mapper"""
 
     spin_op1 = SpinOp([("Y_0", -0.432 + 1.32j)], 0.5, 1)

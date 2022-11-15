@@ -32,7 +32,7 @@ class TestUCCSD(QiskitNatureTestCase):
     @unpack
     @data(
         (
-            4,
+            2,
             (1, 1),
             [
                 FermionicOp({"+_0 -_1": 1j, "+_1 -_0": -1j}, num_spin_orbitals=4),
@@ -41,7 +41,7 @@ class TestUCCSD(QiskitNatureTestCase):
             ],
         ),
         (
-            8,
+            4,
             (2, 2),
             [
                 FermionicOp({"+_0 -_2": 1j, "+_2 -_0": -1j}, num_spin_orbitals=8),
@@ -73,7 +73,7 @@ class TestUCCSD(QiskitNatureTestCase):
             ],
         ),
         (
-            8,
+            4,
             (2, 1),
             [
                 FermionicOp({"+_0 -_2": 1j, "+_2 -_0": -1j}, num_spin_orbitals=8),
@@ -99,22 +99,22 @@ class TestUCCSD(QiskitNatureTestCase):
             ],
         ),
     )
-    def test_uccsd_ansatz(self, num_spin_orbitals, num_particles, expect):
+    def test_uccsd_ansatz(self, num_spatial_orbitals, num_particles, expect):
         """Tests the UCCSD Ansatz."""
         converter = QubitConverter(JordanWignerMapper())
 
         ansatz = UCCSD(
             qubit_converter=converter,
             num_particles=num_particles,
-            num_spin_orbitals=num_spin_orbitals,
+            num_spatial_orbitals=num_spatial_orbitals,
         )
 
-        assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)
+        assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
 
     @unpack
     @data(
         (
-            6,
+            3,
             (1, 1),
             [
                 FermionicOp({"+_0 -_1": 1j, "+_1 -_0": -1j}, num_spin_orbitals=6),
@@ -135,23 +135,23 @@ class TestUCCSD(QiskitNatureTestCase):
             ],
         ),
     )
-    def test_uccsd_ansatz_generalized(self, num_spin_orbitals, num_particles, expect):
+    def test_uccsd_ansatz_generalized(self, num_spatial_orbitals, num_particles, expect):
         """Tests the generalized UCCSD Ansatz."""
         converter = QubitConverter(JordanWignerMapper())
 
         ansatz = UCCSD(
             qubit_converter=converter,
             num_particles=num_particles,
-            num_spin_orbitals=num_spin_orbitals,
+            num_spatial_orbitals=num_spatial_orbitals,
             generalized=True,
         )
 
-        assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)
+        assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
 
     @unpack
     @data(
         (
-            4,
+            2,
             (1, 1),
             [
                 FermionicOp({"+_0 -_1": 1j, "+_1 -_0": -1j}, num_spin_orbitals=4),
@@ -162,7 +162,7 @@ class TestUCCSD(QiskitNatureTestCase):
             ],
         ),
         (
-            6,
+            3,
             (1, 1),
             [
                 FermionicOp({"+_0 -_1": 1j, "+_1 -_0": -1j}, num_spin_orbitals=6),
@@ -182,18 +182,18 @@ class TestUCCSD(QiskitNatureTestCase):
             ],
         ),
     )
-    def test_uccsd_ansatz_preserve_spin(self, num_spin_orbitals, num_particles, expect):
+    def test_uccsd_ansatz_preserve_spin(self, num_spatial_orbitals, num_particles, expect):
         """Tests UCCSD Ansatz with spin flips."""
         converter = QubitConverter(JordanWignerMapper())
 
         ansatz = UCCSD(
             qubit_converter=converter,
             num_particles=num_particles,
-            num_spin_orbitals=num_spin_orbitals,
+            num_spatial_orbitals=num_spatial_orbitals,
             preserve_spin=False,
         )
 
-        assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)
+        assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
 
 
 if __name__ == "__main__":

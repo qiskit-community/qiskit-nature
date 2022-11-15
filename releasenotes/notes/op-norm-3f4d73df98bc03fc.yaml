@@ -1,4 +1,0 @@
----
-features:
-  - |
-    Adds :meth:`.SecondQuantizedOp.induced_norm`.

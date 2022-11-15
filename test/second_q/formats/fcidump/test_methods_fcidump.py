@@ -16,7 +16,6 @@ import unittest
 
 from typing import List, Optional
 
-from test import QiskitNatureTestCase
 from test.second_q.drivers.test_driver_methods_gsc import TestDriverMethods
 from qiskit.algorithms.minimum_eigensolvers import NumPyMinimumEigensolver
 from qiskit_nature.second_q.algorithms import GroundStateEigensolver
@@ -26,7 +25,6 @@ from qiskit_nature.second_q.transformers import BaseTransformer, ActiveSpaceTran
 from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.second_q.mappers import QubitConverter, JordanWignerMapper
 from qiskit_nature.second_q.problems import EigenstateResult
-import qiskit_nature.optionals as _optionals
 
 
 class TestMethodsFCIDump(TestDriverMethods):
@@ -51,7 +49,6 @@ class TestMethodsFCIDump(TestDriverMethods):
         result = gsc.solve(problem)
         return result
 
-    @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     def test_lih(self):
         """LiH test"""
         fcidump = FCIDump.from_file(
@@ -60,7 +57,6 @@ class TestMethodsFCIDump(TestDriverMethods):
         result = self._run_fcidump(fcidump)
         self._assert_energy(result, "lih")
 
-    @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     def test_oh(self):
         """OH test"""
         fcidump = FCIDump.from_file(
@@ -69,7 +65,6 @@ class TestMethodsFCIDump(TestDriverMethods):
         result = self._run_fcidump(fcidump)
         self._assert_energy(result, "oh")
 
-    @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     def test_lih_with_active_space(self):
         """LiH with active space test"""
         fcidump = FCIDump.from_file(
@@ -78,7 +73,6 @@ class TestMethodsFCIDump(TestDriverMethods):
         result = self._run_fcidump(fcidump, transformers=[ActiveSpaceTransformer(4, 6)])
         self._assert_energy(result, "lih")
 
-    @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     def test_oh_with_active_space(self):
         """OH with active space test"""
         fcidump = FCIDump.from_file(
@@ -86,20 +80,6 @@ class TestMethodsFCIDump(TestDriverMethods):
         )
         result = self._run_fcidump(fcidump, transformers=[ActiveSpaceTransformer((5, 4), 6)])
         self._assert_energy(result, "oh")
-
-
-class TestFCIDumpResult(QiskitNatureTestCase):
-    """rResult FCIDump tests."""
-
-    def test_result_log(self):
-        """Test Result log function."""
-        fcidump = FCIDump.from_file(
-            self.get_resource_path("test_fcidump_h2.fcidump", "second_q/formats/fcidump")
-        )
-        properties = fcidump_to_problem(fcidump).properties
-        with self.assertLogs("qiskit_nature", level="DEBUG") as _:
-            for prop in properties:
-                prop.log()
 
 
 if __name__ == "__main__":

@@ -16,18 +16,16 @@ import unittest
 
 from test import QiskitNatureTestCase
 import numpy as np
-from typing import List, Union, Optional, Tuple, Dict, cast
+from typing import List, Dict
 
 
 from qiskit.algorithms.eigensolvers import NumPyEigensolver
-from qiskit.algorithms.minimum_eigensolvers import NumPyMinimumEigensolver
 from qiskit.algorithms.optimizers import SLSQP
 from qiskit.primitives import Estimator
 from qiskit.utils import algorithm_globals
 
 from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.circuit.library import UCCSD
-from qiskit_nature.second_q.transformers import ActiveSpaceTransformer
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import (
     BravyiKitaevMapper,
@@ -93,10 +91,9 @@ class TestNumericalQEOMOBScalculation(QiskitNatureTestCase):
         with self.subTest("same number of indices"):
             self.assertEqual(len(computed), len(references))
 
-        with self.subTest("operators computed included in reference operators"):
-            for key in computed.keys():
-                for opkey in computed[key].keys():
-                    self.assertTrue(opkey in references[key].keys())
+        with self.subTest("operators computed are reference operators"):
+            for key, key_ref in zip(computed.keys(), references.keys()):
+                self.assertTrue(key == key_ref)
 
         with self.subTest("same transition amplitude values"):
             for key in computed.keys():
@@ -104,25 +101,6 @@ class TestNumericalQEOMOBScalculation(QiskitNatureTestCase):
                     trans_amp = computed[key][opkey][0]
                     trans_amp_expected = references[key][opkey][0]
                     self.assertAlmostEqual(trans_amp, trans_amp_expected, places=places)
-
-    def filter_criterion(self, eigenstate, eigenvalue, aux_values):
-        if isinstance(aux_values, Dict):
-            pn = aux_values["ParticleNumber"][0]
-            mg = aux_values["Magnetization"][0]
-        if isinstance(aux_values, List):
-            pn = aux_values[0][0]
-            mg = aux_values[2][0]
-        return np.isclose(pn, 2.0) and np.isclose(mg, 0.0)
-
-    def test_FCI(self):
-        new_numpy_solver = NumPyEigensolverFactory(filter_criterion=self.filter_criterion)
-        nump_solver = ExcitedStatesEigensolver(self.qubit_converter, new_numpy_solver)
-        results = nump_solver.solve(self.electronic_structure_problem, aux_operators=self.aux_ops)
-        transition_amplitudes = results.raw_result.transition_amplitudes
-
-        self._assert_transition_amplitudes(
-            transition_amplitudes, self.reference_trans_amps, places=4
-        )
 
     def test_vqe_mes_jw(self):
         """Test VQEUCCSDFactory with QEOM + Jordan Wigner mapping"""
@@ -196,7 +174,6 @@ class TestNumericalQEOMOBScalculation(QiskitNatureTestCase):
         results = esc.solve(self.electronic_structure_problem, aux_operators=self.aux_ops)
 
         transition_amplitudes = results.raw_result.transition_amplitudes
-        print(transition_amplitudes)
 
         self._assert_transition_amplitudes(
             transition_amplitudes, self.reference_trans_amps, places=4

@@ -1,0 +1,13 @@
+---
+features:
+  - |
+    Following the MP2 T2 and energy correction calculation fix, the APIs for 
+    :class:`~qiskit_nature.second_q.algorithms.initial_points.MP2InitialPoint` and
+    :class:`~qiskit_nature.second_q.algorithms.initial_points.HFInitialPoint` have been changed
+    slightly. After setting the ``grouped_property``, the ``total_energy`` and ``energy_correction``
+    are now accessed via their respective properties, rather than via ``get_energy`` and 
+    ``get_energy_correction``.
+fixes:
+  - |
+    Fixed the MP2 T2 amplitudes and energy correction computation to ensure it matches the result
+    from PySCF.

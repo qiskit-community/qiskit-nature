@@ -33,11 +33,12 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         configured active space.
 
         The orbitals to be removed are specified in two ways:
-            1. When `freeze_core` is enabled (the default), the "core" orbitals will be determined
-               automatically according to `count_core_orbitals`. These will then be made inactive
+
+            #. When ``freeze_core`` is enabled (the default), the "core" orbitals will be determined
+               automatically according to ``count_core_orbitals``. These will then be made inactive
                and removed in the same fashion as in the :class:`ActiveSpaceTransformer`.
-            2. Additionally, unoccupied spatial orbitals can be removed via a list of indices
-               passed to `remove_orbitals`. It is the user's responsibility to ensure that these are
+            #. Additionally, unoccupied spatial orbitals can be removed via a list of indices
+               passed to ``remove_orbitals``. It is the user's responsibility to ensure that these are
                indeed unoccupied orbitals, as no checks are performed.
 
         If you want to remove additional occupied orbitals, please use the
@@ -78,7 +79,6 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
             )
 
         molecule = problem.molecule
-        particle_number = problem.properties.particle_number
 
         inactive_orbs_idxs: List[int] = []
         if self._freeze_core:
@@ -86,7 +86,7 @@ class FreezeCoreTransformer(ActiveSpaceTransformer):
         if self._remove_orbitals is not None:
             inactive_orbs_idxs.extend(self._remove_orbitals)
         active_orbs_idxs = [
-            o for o, _ in enumerate(particle_number.occupation_alpha) if o not in inactive_orbs_idxs
+            o for o, _ in enumerate(problem.orbital_occupations) if o not in inactive_orbs_idxs
         ]
         self._active_orbitals = active_orbs_idxs
         self._num_spatial_orbitals = len(active_orbs_idxs)

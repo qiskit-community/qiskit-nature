@@ -27,14 +27,14 @@ from qiskit_nature.second_q.mappers import QubitConverter
 
 def build_vibrational_ops(
     num_modals: List[int],
-    qubit_converter: QubitConverter,
     excitations: str
     | int
     | list[int]
     | Callable[
         [int, tuple[int, int]],
         list[tuple[tuple[int, ...], tuple[int, ...]]],
-    ] = "sd",
+    ],
+    qubit_converter: QubitConverter,
 ) -> Tuple[
     Dict[str, PauliSumOp],
     Dict[str, List[bool]],
@@ -42,22 +42,22 @@ def build_vibrational_ops(
 ]:
     """
     Args:
-        num_modals: the number of modals per mode.
-        qubit_converter: the `QubitConverter` to use for mapping and symmetry reduction. The Z2
-                         symmetries stored in this instance are the basis for the commutativity
-                         information returned by this method.
-        excitations: the types of excitations to consider. The simple cases for this input are:
+        num_modals: The number of modals per mode.
+        excitations: The types of excitations to consider. The simple cases for this input are:
             - a `str` containing any of the following characters: `s`, `d`, `t` or `q`.
             - a single, positive `int` denoting the excitation type (1 == `s`, etc.).
             - a list of positive integers.
             - and finally a callable which can be used to specify a custom list of excitations.
               For more details on how to write such a function refer to the default method,
               :meth:`generate_vibrational_excitations`.
+        qubit_converter: The ``QubitConverter`` to use for mapping and symmetry reduction. The Z2
+                         symmetries stored in this instance are the basis for the commutativity
+                         information returned by this method.
     Returns:
-        Dict of hopping operators, dict of commutativity types and dict of excitation indices
+        Dict of hopping operators, dict of commutativity types and dict of excitation indices.
     """
 
-    ansatz = UVCC(qubit_converter, num_modals, excitations)
+    ansatz = UVCC(num_modals, excitations, qubit_converter)
     excitations_list = ansatz._get_excitation_list()
     size = len(excitations_list)
 
@@ -93,14 +93,13 @@ def _build_single_hopping_operator(
     num_modals: List[int],
     qubit_converter: QubitConverter,
 ) -> PauliSumOp:
-    sum_modes = sum(num_modals)
-
-    label = ["I"] * sum_modes
+    label = []
     for occ in excitation[0]:
-        label[occ] = "+"
+        label.append(f"+_{VibrationalOp.build_dual_index(num_modals, occ)}")
     for unocc in excitation[1]:
-        label[unocc] = "-"
-    vibrational_op = VibrationalOp("".join(label), len(num_modals), num_modals)
+        label.append(f"-_{VibrationalOp.build_dual_index(num_modals, unocc)}")
+
+    vibrational_op = VibrationalOp({" ".join(label): 1}, num_modals)
     qubit_op: PauliSumOp = qubit_converter.convert_match(vibrational_op)
 
     return qubit_op

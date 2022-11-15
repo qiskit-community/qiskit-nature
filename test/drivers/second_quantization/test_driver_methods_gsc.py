@@ -16,7 +16,7 @@ from typing import List, Optional
 
 import unittest
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from qiskit.algorithms import NumPyMinimumEigensolver
 from qiskit_nature.algorithms import GroundStateEigensolver
 from qiskit_nature.drivers.second_quantization import ElectronicStructureDriver
@@ -26,7 +26,7 @@ from qiskit_nature.problems.second_quantization import ElectronicStructureProble
 from qiskit_nature.transformers.second_quantization import BaseTransformer
 
 
-class TestDriverMethods(QiskitNatureTestCase):
+class TestDriverMethods(QiskitNatureDeprecatedTestCase):
     """Common driver tests. For H2 @ 0.735, sto3g"""
 
     def setUp(self):

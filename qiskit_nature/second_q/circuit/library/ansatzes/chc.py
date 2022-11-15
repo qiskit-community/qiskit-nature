@@ -12,7 +12,9 @@
 
 """ Compact Heuristic ansatz for vibrational Chemistry """
 
-from typing import Any, List, Optional, Tuple
+from __future__ import annotations
+
+from typing import Any
 
 import numpy as np
 
@@ -36,23 +38,24 @@ class CHC(BlueprintCircuit):
 
     def __init__(
         self,
-        num_qubits: Optional[int] = None,
-        excitations: Optional[List[Tuple[Tuple[Any, ...], ...]]] = None,
+        num_qubits: int | None = None,
+        excitations: list[tuple[tuple[Any, ...], ...]] | None = None,
+        *,
         reps: int = 1,
         ladder: bool = False,
-        initial_state: Optional[QuantumCircuit] = None,
+        initial_state: QuantumCircuit | None = None,
     ) -> None:
         """
 
         Args:
-            num_qubits: number of qubits
+            num_qubits: The number of qubits.
             excitations: The list of excitations encoded as tuples of tuples. Each tuple in the list
-                         is a pair of tuples. The first tuple contains the occupied spin orbital
-                         indices whereas the second one contains the indices of the unoccupied spin
-                         orbitals.
-            reps: number of repetitions of basic module
-            ladder: use ladder of CNOTs between to indices in the entangling block
-            initial_state: an initial state to prepend to the ansatz
+                is a pair of tuples. The first tuple contains the occupied spin orbital indices
+                whereas the second one contains the indices of the unoccupied spin orbitals.
+            reps: The number of repetitions of basic module.
+            ladder: Boolean flag whether or not to use ladder of CNOTs between to indices in the
+                entangling block.
+            initial_state: An initial state to prepend to the ansatz.
         """
 
         super().__init__()
@@ -75,7 +78,7 @@ class CHC(BlueprintCircuit):
             self.initial_state = initial_state
 
     @property
-    def num_qubits(self) -> Optional[int]:
+    def num_qubits(self) -> int | None:
         """Number of qubits of the ansatz.
 
         Returns:
@@ -97,12 +100,12 @@ class CHC(BlueprintCircuit):
             self.qregs = [QuantumRegister(num_qubits, name="q")]
 
     @property
-    def excitations(self) -> Optional[List[Tuple[Tuple[Any, ...], ...]]]:
+    def excitations(self) -> list[tuple[tuple[Any, ...], ...]] | None:
         """The excitation indices to be included in the circuit."""
         return self._excitations
 
     @excitations.setter
-    def excitations(self, excitations: List[Tuple[Tuple[Any, ...], ...]]) -> None:
+    def excitations(self, excitations: list[tuple[tuple[Any, ...], ...]]) -> None:
         """Sets the excitation indices to be included in the circuit."""
         self._invalidate()
         self._excitations = excitations
@@ -110,7 +113,7 @@ class CHC(BlueprintCircuit):
         self._bounds = [(-np.pi, np.pi)] * self._num_parameters
 
     @property
-    def initial_state(self) -> Optional[QuantumCircuit]:
+    def initial_state(self) -> QuantumCircuit | None:
         """The initial state."""
         return self._initial_state
 

@@ -14,12 +14,12 @@
 
 import unittest
 from unittest.mock import patch
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 
 from qiskit_nature.algorithms.initial_points import InitialPoint
 
 
-class TestInitialPoint(QiskitNatureTestCase):
+class TestInitialPoint(QiskitNatureDeprecatedTestCase):
     """Test Initial Point"""
 
     @patch.multiple(InitialPoint, __abstractmethods__=set())

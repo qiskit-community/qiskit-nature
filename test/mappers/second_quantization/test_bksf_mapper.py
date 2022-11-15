@@ -13,7 +13,7 @@
 """ Test Bravyi-Kitaev Super-Fast Mapper """
 
 import unittest
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 
 from test.mappers.second_quantization.resources.bksf_lih import (
     FERMIONIC_HAMILTONIAN,
@@ -37,7 +37,7 @@ def _sort_simplify(sparse_pauli):
     return sparse_pauli
 
 
-class TestBravyiKitaevSuperFastMapper(QiskitNatureTestCase):
+class TestBravyiKitaevSuperFastMapper(QiskitNatureDeprecatedTestCase):
     """Test Bravyi-Kitaev Super-Fast Mapper"""
 
     def test_bksf_edge_op_bi(self):

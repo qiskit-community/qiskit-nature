@@ -1,7 +1,4 @@
-﻿Logging
-=======
-
-.. _qiskit_nature-logging:
+﻿.. _qiskit_nature-logging:
 
 .. automodule:: qiskit_nature.logging
 

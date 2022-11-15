@@ -14,14 +14,10 @@
 
 import unittest
 import json
-import tempfile
 from test.second_q.properties.property_test import PropertyTest
-
-import h5py
 
 from qiskit_nature.second_q.properties import AngularMomentum
 from qiskit_nature.second_q.operators import FermionicOp
-import qiskit_nature.optionals as _optionals
 
 
 class TestAngularMomentum(PropertyTest):
@@ -30,10 +26,9 @@ class TestAngularMomentum(PropertyTest):
     def setUp(self):
         """Setup."""
         super().setUp()
-        num_molecular_orbitals = 4
-        self.prop = AngularMomentum(num_molecular_orbitals * 2)
+        num_spatial_orbitals = 4
+        self.prop = AngularMomentum(num_spatial_orbitals)
 
-    @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     def test_second_q_ops(self):
         """Test second_q_ops."""
         op = self.prop.second_q_ops()["AngularMomentum"]
@@ -45,23 +40,6 @@ class TestAngularMomentum(PropertyTest):
             expected = json.load(file)
             expected_op = FermionicOp(expected, num_spin_orbitals=8).simplify()
         self.assertEqual(op, expected_op)
-
-    def test_to_hdf5(self):
-        """Test to_hdf5."""
-        with tempfile.TemporaryFile() as tmp_file:
-            with h5py.File(tmp_file, "w") as file:
-                self.prop.to_hdf5(file)
-
-    def test_from_hdf5(self):
-        """Test from_hdf5."""
-        with tempfile.TemporaryFile() as tmp_file:
-            with h5py.File(tmp_file, "w") as file:
-                self.prop.to_hdf5(file)
-
-            with h5py.File(tmp_file, "r") as file:
-                read_prop = AngularMomentum.from_hdf5(file["AngularMomentum"])
-
-                self.assertEqual(self.prop, read_prop)
 
 
 if __name__ == "__main__":

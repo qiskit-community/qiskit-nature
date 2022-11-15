@@ -28,9 +28,11 @@ class VSCFInitialPoint(InitialPoint):
 
     A class that provides an all-zero initial point for the ``VQE`` parameter values.
 
-    If used in concert with the :class:`~qiskit.circuit.library.initial_states.vscf.VSCF` initial
-    state (which will be prepended to the :class:`~qiskit.circuit.library.ansatzes.uvcc.UVCC`
-    circuit) the all-zero initial point will correspond to the VSCF initial point.
+    If used in concert with the
+    :class:`~qiskit_nature.second_q.circuit.library.initial_states.vscf.VSCF`
+    initial state (which will be prepended to the
+    :class:`~qiskit_nature.second_q.circuit.library.ansatzes.uvcc.UVCC` circuit) the all-zero
+    initial point will correspond to the VSCF initial point.
     """
 
     def __init__(self) -> None:
@@ -43,8 +45,8 @@ class VSCFInitialPoint(InitialPoint):
         """The UVCC ansatz.
 
         The ``excitation_list`` and ``reps`` used by the
-        :class:`~qiskit.circuit.library.ansatzes.uvcc.UVCC` ansatz is obtained to ensure that the
-        shape of the initial point is appropriate.
+        :class:`~qiskit_nature.second_q.circuit.library.ansatzes.uvcc.UVCC` ansatz is obtained to
+        ensure that the shape of the initial point is appropriate.
         """
         return self._ansatz
 
@@ -54,16 +56,16 @@ class VSCFInitialPoint(InitialPoint):
         self._ansatz = ansatz
 
     @property
-    def grouped_property(self) -> BaseProblem | None:
-        """The grouped property.
+    def problem(self) -> BaseProblem | None:
+        """The problem.
 
-        The grouped property is not required to compute the VSCF initial point.
+        The problem is not required to compute the VSCF initial point.
         """
-        return self._grouped_property
+        return self._problem
 
-    @grouped_property.setter
-    def grouped_property(self, grouped_property: BaseProblem) -> None:
-        self._grouped_property = grouped_property
+    @problem.setter
+    def problem(self, problem: BaseProblem) -> None:
+        self._problem = problem
 
     def to_numpy_array(self) -> np.ndarray:
         """The initial point as an array."""
@@ -74,14 +76,14 @@ class VSCFInitialPoint(InitialPoint):
     def compute(
         self,
         ansatz: UVCC | None = None,
-        grouped_property: BaseProblem | None = None,
+        problem: BaseProblem | None = None,
     ) -> None:
         """Compute the initial point parameter for each excitation.
 
         See class documentation for more information.
 
         Args:
-            grouped_property: The :attr:`grouped_property`.
+            problem: The :attr:`problem`.
             ansatz: The :attr:`ansatz`.
 
         Raises:

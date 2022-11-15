@@ -13,7 +13,7 @@
 """ Test Driver PyQuante """
 
 import unittest
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from test.drivers.second_quantization.test_driver import TestDriver
 from qiskit_nature.drivers import UnitsType
 from qiskit_nature.drivers.second_quantization import (
@@ -25,7 +25,7 @@ from qiskit_nature.drivers.second_quantization import (
 import qiskit_nature.optionals as _optionals
 
 
-class TestDriverPyQuante(QiskitNatureTestCase, TestDriver):
+class TestDriverPyQuante(QiskitNatureDeprecatedTestCase, TestDriver):
     """PYQUANTE Driver tests."""
 
     @unittest.skipIf(not _optionals.HAS_PYQUANTE2, "pyquante2 not available.")
@@ -41,7 +41,7 @@ class TestDriverPyQuante(QiskitNatureTestCase, TestDriver):
         self.driver_result = driver.run()
 
 
-class TestDriverPyQuanteMolecule(QiskitNatureTestCase, TestDriver):
+class TestDriverPyQuanteMolecule(QiskitNatureDeprecatedTestCase, TestDriver):
     """PYQUANTE Driver molecule tests."""
 
     @unittest.skipIf(not _optionals.HAS_PYQUANTE2, "pyquante2 not available.")

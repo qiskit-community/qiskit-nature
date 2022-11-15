@@ -1,0 +1,57 @@
+---
+features:
+  - |
+    The new :class:`qiskit_nature.second_q.operators.FermionicOp` replaces
+    the old :class:`qiskit_nature.operators.second_quantization.operators.FermionicOp`.
+    This new operator is a subclass of the :class:`qiskit_nature.second_q.operators.SparseLabelOp`
+    and, as such, only support sparse labels. It is initialized with a dictionary,
+    mapping sparse label keys to coefficients.
+    It supports the usual algebra for operator addition, scalar multiplication,
+    operator composition, operator tensoring, and complex conjugation.
+    It also provides methods for sorting, equality and equivalency checking,
+    operator simplification, normal ordering, and the computation of induced
+    norms as well as hermiticity properties.
+    Finally, it can also be converted to matrices in the occupation number basis.
+
+    .. code-block:: python
+
+      from qiskit_nature.second_q.operators import FermionicOp
+
+      op1 = FermionicOp({"+_0 -_1": 1.0}, register_length=2)
+
+      # scalar multiplication
+      op2 = 2.0 * op1
+
+      # operator addition
+      op1 + op2
+
+      # operator composition
+      op1 @ op2
+
+      # operator tensoring
+      op1 ^ op2
+
+      # complex conjugation
+      op1.adjoint()
+
+      # equality and equivalency checks
+      op1 == op2
+      op1.equiv(op2)
+
+      # simplification and normal ordering
+      op3 = FermionicOp({"+_0 -_0 +_0 -_0": 1.0}, register_length=2)
+      op3.simplify()
+      op3.normal_ordered()
+
+      # sorting
+      op4 = FermionicOp({"+_0": 2, "+_2": 1, "+_1": 1}, register_length=3)
+      op4.sort(weight=False)
+      op4.sort(weight=True)
+
+      # matrix conversion
+      op3.to_matrix(sparse=True)
+      op3.to_matrix(sparse=False)
+
+      # norm and hermiticity computation
+      op1.induced_norm()
+      op1.is_hermitian()

@@ -19,7 +19,7 @@ import warnings
 
 from typing import cast
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 
 import numpy as np
 
@@ -54,7 +54,7 @@ import qiskit_nature.optionals as _optionals
 
 
 @ddt
-class TestAdaptVQE(QiskitNatureTestCase):
+class TestAdaptVQE(QiskitNatureDeprecatedTestCase):
     """Test Adaptive VQE Ground State Calculation"""
 
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")

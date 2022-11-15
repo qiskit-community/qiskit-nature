@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Adds `.SparseLabelOp.equiv` for checking approximate equality
+    between two SparseLabelOps.

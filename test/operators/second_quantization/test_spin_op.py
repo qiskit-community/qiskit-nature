@@ -16,7 +16,7 @@ import unittest
 from fractions import Fraction
 from functools import lru_cache
 from itertools import product
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 
 import numpy as np
 from ddt import data, ddt, unpack
@@ -43,7 +43,7 @@ def dense_labels(length):
 
 
 @ddt
-class TestSpinOp(QiskitNatureTestCase):
+class TestSpinOp(QiskitNatureDeprecatedTestCase):
     """SpinOp tests."""
 
     def setUp(self):

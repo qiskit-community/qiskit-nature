@@ -15,9 +15,8 @@
 from __future__ import annotations
 
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
-from qiskit_nature.second_q.problems import ElectronicStructureProblem
+from qiskit_nature.second_q.problems import ElectronicBasis, ElectronicStructureProblem
 from qiskit_nature.second_q.properties import ParticleNumber
-from qiskit_nature.second_q.properties.bases import ElectronicBasis
 
 from .fcidump import FCIDump
 
@@ -38,10 +37,7 @@ def fcidump_to_problem(fcidump: FCIDump) -> ElectronicStructureProblem:
     num_beta = (fcidump.num_electrons - (fcidump.multiplicity - 1)) // 2
     num_alpha = fcidump.num_electrons - num_beta
 
-    particle_number = ParticleNumber(
-        num_spin_orbitals=fcidump.num_orbitals * 2,
-        num_particles=(num_alpha, num_beta),
-    )
+    particle_number = ParticleNumber(fcidump.num_orbitals)
 
     electronic_energy = ElectronicEnergy.from_raw_integrals(
         fcidump.hij, fcidump.hijkl, fcidump.hij_b, fcidump.hijkl_bb, fcidump.hijkl_ba
@@ -50,5 +46,8 @@ def fcidump_to_problem(fcidump: FCIDump) -> ElectronicStructureProblem:
 
     problem = ElectronicStructureProblem(electronic_energy)
     problem.basis = ElectronicBasis.MO
+    problem.num_particles = (num_alpha, num_beta)
+    problem.num_spatial_orbitals = fcidump.num_orbitals
     problem.properties.particle_number = particle_number
+
     return problem

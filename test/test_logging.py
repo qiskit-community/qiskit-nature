@@ -132,11 +132,9 @@ class TestLogging(QiskitNatureTestCase):
     def _run_test():
         """Run external test and ignore any failures. Intention is just check logging."""
         # pylint: disable=import-outside-toplevel
-        from test.second_q.algorithms.excited_state_solvers.test_bosonic_esc_calculation import (
-            TestBosonicESCCalculation,
-        )
+        from test.second_q.circuit.library.ansatzes.test_ucc import TestUCC
 
-        unittest.TextTestRunner().run(TestBosonicESCCalculation("test_numpy_mes"))
+        unittest.TextTestRunner().run(TestUCC("test_transpile_no_parameters"))
 
 
 if __name__ == "__main__":

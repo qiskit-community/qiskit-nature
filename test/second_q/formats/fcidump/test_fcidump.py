@@ -114,22 +114,20 @@ class BaseTestFCIDump(ABC):
                     np.absolute(beta_2body), np.absolute(self.mo_eri_bb), decimal=4
                 )
 
-    def test_particle_number(self):
-        """Test the ParticleNumber property."""
-
-        particle_number = self.problem.properties.particle_number
+    def test_system_size(self):
+        """Test the system size problem attributes."""
 
         with self.subTest("orbital number"):
-            self.log.debug("Number of orbitals is %s", particle_number.num_spin_orbitals)
-            self.assertEqual(particle_number.num_spin_orbitals, self.num_molecular_orbitals * 2)
+            self.log.debug("Number of orbitals is %s", self.problem.num_spatial_orbitals)
+            self.assertEqual(self.problem.num_spatial_orbitals, self.num_molecular_orbitals)
 
         with self.subTest("alpha electron number"):
-            self.log.debug("Number of alpha electrons is %s", particle_number.num_alpha)
-            self.assertEqual(particle_number.num_alpha, self.num_alpha)
+            self.log.debug("Number of alpha electrons is %s", self.problem.num_alpha)
+            self.assertEqual(self.problem.num_alpha, self.num_alpha)
 
         with self.subTest("beta electron number"):
-            self.log.debug("Number of beta electrons is %s", particle_number.num_beta)
-            self.assertEqual(particle_number.num_beta, self.num_beta)
+            self.log.debug("Number of beta electrons is %s", self.problem.num_beta)
+            self.assertEqual(self.problem.num_beta, self.num_beta)
 
 
 class TestFCIDumpH2(QiskitNatureTestCase, BaseTestFCIDump):

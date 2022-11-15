@@ -20,12 +20,7 @@ from pathlib import Path
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_q.operators.tensor_ordering import (
-    IndexType,
-    find_index_order,
-    to_chemist_ordering,
-    _phys_to_chem,
-)
+from qiskit_nature.second_q.operators.tensor_ordering import find_index_order, to_chemist_ordering
 
 from .dumper import _dump_1e_ints, _dump_2e_ints, _write_to_outfile
 
@@ -44,29 +39,32 @@ class FCIDump:
             ISSN 0010-4655, https://doi.org/10.1016/0010-4655(89)90033-7.
     """
 
+    num_electrons: int
+    """The number of electrons."""
     hij: np.ndarray
     """The alpha 1-electron integrals."""
     hijkl: np.ndarray
     """The alpha/alpha 2-electron integrals."""
-    hij_b: np.ndarray | None
+    hij_b: np.ndarray | None = None
     """The beta 1-electron integrals."""
-    hijkl_ba: np.ndarray | None
-    """The beta/alpha 2-electron integrals."""
-    hijkl_bb: np.ndarray | None
+    hijkl_bb: np.ndarray | None = None
     """The beta/beta 2-electron integrals."""
-    multiplicity: int
+    hijkl_ba: np.ndarray | None = None
+    """The beta/alpha 2-electron integrals."""
+    constant_energy: float | None = None
+    """The constant energy comprising (for example) the nuclear repulsion energy and inactive
+    energies."""
+    multiplicity: int = 1
     """The multiplicity."""
-    num_electrons: int
-    """The number of electrons."""
-    num_orbitals: int
-    """The number of orbitals."""
-    constant_energy: float | None
-    """The constant energy comprising (for example) the nuclear repulsion energy
-    and inactive energies."""
-    orbsym: Sequence[str] | None
+    orbsym: Sequence[int] | None = None
     """A list of spatial symmetries of the orbitals."""
-    isym: int
+    isym: int = 1
     """The spatial symmetry of the wave function."""
+
+    @property
+    def num_orbitals(self) -> int:
+        """The number of orbitals."""
+        return self.hij.shape[0]
 
     @property
     def _hijkl(self) -> np.ndarray:
@@ -97,14 +95,20 @@ class FCIDump:
         if hijkl_ba is None:
             self._chemist_hijkl_ba = None
             return
-        if self._original_index_order == IndexType.CHEMIST:
-            self._chemist_hijkl_ba = hijkl_ba
-        elif self._original_index_order == IndexType.PHYSICIST:
-            self._chemist_hijkl_ba = _phys_to_chem(hijkl_ba)
+        self._chemist_hijkl_ba = to_chemist_ordering(
+            hijkl_ba, index_order=self._original_index_order
+        )
 
     @classmethod
     def from_file(cls, fcidump: str | Path) -> FCIDump:
-        """Constructs an FCIDump object from a file."""
+        """Constructs an FCIDump object from a file.
+
+        Args:
+            fcidump: Path to the input file.
+
+        Returns:
+            A :class:`.FCIDump` instance.
+        """
         # pylint: disable=cyclic-import
         from .parser import _parse
 
@@ -116,8 +120,8 @@ class FCIDump:
         Args:
             fcidump: Path to the output file.
         Raises:
-            QiskitNatureError: invalid number of orbitals.
             QiskitNatureError: not all beta-spin related matrices are either None or not None.
+            QiskitNatureError: if the dimensions of the provided integral matrices do not match.
         """
         outpath = fcidump if isinstance(fcidump, Path) else Path(fcidump)
         # either all beta variables are None or all of them are not
@@ -125,36 +129,37 @@ class FCIDump:
             h is not None for h in [self.hij_b, self.hijkl_ba, self.hijkl_bb]
         ):
             raise QiskitNatureError("Invalid beta variables.")
-        norb = self.num_orbitals
+        if set(self.hij.shape) != set(self.hijkl.shape):
+            raise QiskitNatureError(
+                "The number of orbitals of the 1- and 2-body matrices do not match: "
+                f"{set(self.hij.shape)} vs. {set(self.hijkl.shape)}"
+            )
+        norb = self.hij.shape[0]
         nelec = self.num_electrons
         einact = self.constant_energy
         ms2 = self.multiplicity - 1
-        if norb != self.hij.shape[0] or norb != self.hijkl.shape[0]:
-            raise QiskitNatureError(
-                f"Invalid number of orbitals {norb} {self.hij.shape[0]} {self.hijkl.shape[0]}"
-            )
 
         mos = range(norb)
         with outpath.open("w", encoding="utf8") as outfile:
             # print header
-            outfile.write(f"&FCI NORB={norb:4d},NELEC={nelec:4d},MS2={ms2:4d}\n")
+            outfile.write(f"&FCI NORB={norb:4d},NELEC={nelec:4d},MS2={ms2:4d},\n")
             if self.orbsym is None:
-                outfile.write(" ORBSYM=" + "1," * norb + "\n")
+                outfile.write(" ORBSYM=" + "1," * norb + ",\n")
             else:
                 if len(self.orbsym) != norb:
                     raise QiskitNatureError(f"Invalid number of orbitals {norb} {len(self.orbsym)}")
-                outfile.write(" ORBSYM=" + ",".join(self.orbsym) + "\n")
+                outfile.write(" ORBSYM=" + ",".join(str(o) for o in self.orbsym) + ",\n")
             outfile.write(f" ISYM={self.isym:d},\n&END\n")
             # append 2e integrals
             _dump_2e_ints(self.hijkl, mos, outfile)
             if self.hijkl_ba is not None:
-                _dump_2e_ints(self.hijkl_ba.transpose(), mos, outfile)
+                _dump_2e_ints(self.hijkl_ba.transpose(), mos, outfile, beta=1)
             if self.hijkl_bb is not None:
-                _dump_2e_ints(self.hijkl_bb, mos, outfile)
+                _dump_2e_ints(self.hijkl_bb, mos, outfile, beta=2)
             # append 1e integrals
             _dump_1e_ints(self.hij, mos, outfile)
             if self.hij_b is not None:
-                _dump_1e_ints(self.hij_b, mos, outfile)
+                _dump_1e_ints(self.hij_b, mos, outfile, beta=True)
             # TODO append MO energies (last three indices are 0)
             # append inactive energy
             if einact is not None:

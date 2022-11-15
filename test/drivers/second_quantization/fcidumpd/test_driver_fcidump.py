@@ -16,7 +16,7 @@ from typing import cast
 
 import unittest
 from abc import ABC, abstractmethod
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 import numpy as np
 from qiskit_nature.drivers.second_quantization import FCIDumpDriver
 from qiskit_nature.properties.second_quantization.electronic import ElectronicEnergy, ParticleNumber
@@ -136,7 +136,7 @@ class BaseTestDriverFCIDump(ABC):
             self.assertEqual(particle_number.num_beta, self.num_beta)
 
 
-class TestDriverFCIDumpH2(QiskitNatureTestCase, BaseTestDriverFCIDump):
+class TestDriverFCIDumpH2(QiskitNatureDeprecatedTestCase, BaseTestDriverFCIDump):
     """RHF FCIDump Driver tests."""
 
     def setUp(self):
@@ -163,7 +163,7 @@ class TestDriverFCIDumpH2(QiskitNatureTestCase, BaseTestDriverFCIDump):
         self.driver_result = driver.run()
 
 
-class TestDriverFCIDumpLiH(QiskitNatureTestCase, BaseTestDriverFCIDump):
+class TestDriverFCIDumpLiH(QiskitNatureDeprecatedTestCase, BaseTestDriverFCIDump):
     """RHF FCIDump Driver tests."""
 
     def setUp(self):
@@ -190,7 +190,7 @@ class TestDriverFCIDumpLiH(QiskitNatureTestCase, BaseTestDriverFCIDump):
         self.driver_result = driver.run()
 
 
-class TestDriverFCIDumpOH(QiskitNatureTestCase, BaseTestDriverFCIDump):
+class TestDriverFCIDumpOH(QiskitNatureDeprecatedTestCase, BaseTestDriverFCIDump):
     """RHF FCIDump Driver tests."""
 
     def setUp(self):

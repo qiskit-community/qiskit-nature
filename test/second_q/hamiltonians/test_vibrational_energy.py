@@ -16,70 +16,86 @@ import json
 import unittest
 from test.second_q.properties.property_test import PropertyTest
 
-import numpy as np
-
-from qiskit_nature.second_q.hamiltonians import VibrationalEnergy
-from qiskit_nature.second_q.properties.integrals import VibrationalIntegrals
-from qiskit_nature.second_q.properties.bases import HarmonicBasis
+from qiskit_nature.second_q.formats.watson import WatsonHamiltonian
+from qiskit_nature.second_q.formats.watson_translator import watson_to_problem
+from qiskit_nature.second_q.operators import VibrationalOp
+from qiskit_nature.second_q.problems import HarmonicBasis
+import qiskit_nature.optionals as _optionals
 
 
 class TestVibrationalEnergy(PropertyTest):
     """Test VibrationalEnergy Property"""
 
+    @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     def setUp(self):
         """Setup basis."""
         super().setUp()
         basis = HarmonicBasis([2, 2, 2, 2])
-        data = [
-            [352.3005875, 2, 2],
-            [-352.3005875, -2, -2],
-            [631.6153975, 1, 1],
-            [-631.6153975, -1, -1],
-            [115.653915, 4, 4],
-            [-115.653915, -4, -4],
-            [115.653915, 3, 3],
-            [-115.653915, -3, -3],
-            [-15.341901966295344, 2, 2, 2],
-            [-88.2017421687633, 1, 1, 2],
-            [42.40478531359112, 4, 4, 2],
-            [26.25167512727164, 4, 3, 2],
-            [2.2874639206341865, 3, 3, 2],
-            [0.4207357291666667, 2, 2, 2, 2],
-            [4.9425425, 1, 1, 2, 2],
-            [1.6122932291666665, 1, 1, 1, 1],
-            [-4.194299375, 4, 4, 2, 2],
-            [-4.194299375, 3, 3, 2, 2],
-            [-10.20589125, 4, 4, 1, 1],
-            [-10.20589125, 3, 3, 1, 1],
-            [2.2973803125, 4, 4, 4, 4],
-            [2.7821204166666664, 4, 4, 4, 3],
-            [7.329224375, 4, 4, 3, 3],
-            [-2.7821200000000004, 4, 3, 3, 3],
-            [2.2973803125, 3, 3, 3, 3],
-        ]
-        sorted_integrals: dict[int, list[tuple[float, tuple[int, ...]]]] = {1: [], 2: [], 3: []}
-        for coeff, *indices in data:
-            ints = [int(i) for i in indices]
-            num_body = len(set(ints))
-            sorted_integrals[num_body].append((coeff, tuple(ints)))
 
-        self.prop = VibrationalEnergy(
-            [VibrationalIntegrals(num_body, ints) for num_body, ints in sorted_integrals.items()]
+        import sparse as sp  # pylint: disable=import-error
+
+        watson = WatsonHamiltonian(
+            quadratic_force_constants=sp.as_coo(
+                {
+                    (1, 1): 352.3005875,
+                    (0, 0): 631.6153975,
+                    (3, 3): 115.653915,
+                    (2, 2): 115.653915,
+                },
+                shape=(4, 4),
+            ),
+            cubic_force_constants=sp.as_coo(
+                {
+                    (1, 1, 1): -15.341901966295344,
+                    (0, 0, 1): -88.2017421687633,
+                    (3, 3, 1): 42.40478531359112,
+                    (3, 2, 1): 26.25167512727164,
+                    (2, 2, 1): 2.2874639206341865,
+                },
+                shape=(4, 4, 4),
+            ),
+            quartic_force_constants=sp.as_coo(
+                {
+                    (1, 1, 1, 1): 0.4207357291666667,
+                    (0, 0, 1, 1): 4.9425425,
+                    (0, 0, 0, 0): 1.6122932291666665,
+                    (3, 3, 1, 1): -4.194299375,
+                    (2, 2, 1, 1): -4.194299375,
+                    (3, 3, 0, 0): -10.20589125,
+                    (2, 2, 0, 0): -10.20589125,
+                    (3, 3, 3, 3): 2.2973803125,
+                    (3, 3, 3, 2): 2.7821204166666664,
+                    (3, 3, 2, 2): 7.329224375,
+                    (3, 2, 2, 2): -2.7821200000000004,
+                    (2, 2, 2, 2): 2.2973803125,
+                },
+                shape=(4, 4, 4, 4),
+            ),
+            kinetic_coefficients=sp.as_coo(
+                {
+                    (1, 1): -352.3005875,
+                    (0, 0): -631.6153975,
+                    (3, 3): -115.653915,
+                    (2, 2): -115.653915,
+                },
+                shape=(4, 4),
+            ),
         )
-        self.prop.basis = basis
+
+        problem = watson_to_problem(watson, basis)
+        self.prop = problem.hamiltonian
 
     def test_second_q_op(self):
         """Test second_q_op."""
-        op = self.prop.second_q_op()
+        op = self.prop.second_q_op().normal_order()
         with open(
             self.get_resource_path("vibrational_energy_op.json", "second_q/properties/resources"),
             "r",
             encoding="utf8",
         ) as file:
-            expected = json.load(file)
-        for op, expected_op in zip(op.to_list(), expected):
-            self.assertEqual(op[0], expected_op[0])
-            self.assertTrue(np.isclose(op[1], expected_op[1]))
+            expected = VibrationalOp(json.load(file)).normal_order()
+
+        self.assertTrue(op.equiv(expected))
 
 
 if __name__ == "__main__":

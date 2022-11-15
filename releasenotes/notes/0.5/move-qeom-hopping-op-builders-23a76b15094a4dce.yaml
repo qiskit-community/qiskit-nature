@@ -1,0 +1,14 @@
+---
+deprecations:
+  - |
+    The utility methods building out the ``QEOM`` hopping operators have been
+    moved away from the ``BaseProblem`` interface and have been attached to the
+    ``QEOM`` implementation itself.
+features:
+  - |
+    The supported ``excitation`` types in the QEOM code have been updated. It now
+    exposes the full set of excitation generation functionalities provided by
+    the internally used UCC and UVCC ansatze. In particular, this means that
+    rather than providing a custom list of excitation tuples, a function can be
+    set by the user which generates such a custom list.
+    The documentation has been updated accordingly to reflect this in all places.

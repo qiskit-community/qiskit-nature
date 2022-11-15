@@ -36,7 +36,7 @@ def assert_ucc_like_ansatz(test_case, ansatz, num_modals, expected_ops):
 
     test_case.assertEqual(len(excitation_ops), len(expected_ops))
     for op, exp in zip(excitation_ops, expected_ops):
-        test_case.assertListEqual(op.to_list(), exp.to_list())
+        test_case.assertEqual(op, exp)
 
     ansatz._build()
     test_case.assertEqual(ansatz.num_qubits, sum(num_modals))
@@ -48,13 +48,13 @@ class TestUVCC(QiskitNatureTestCase):
 
     @unpack
     @data(
-        ("s", [2], [VibrationalOp([("+-", 1j), ("-+", -1j)], 1, 2)]),
+        ("s", [2], [VibrationalOp({"+_0_0 -_0_1": 1j, "+_0_1 -_0_0": -1j}, [2])]),
         (
             "s",
             [2, 2],
             [
-                VibrationalOp([("+-II", 1j), ("-+II", -1j)], 2, 2),
-                VibrationalOp([("II+-", 1j), ("II-+", -1j)], 2, 2),
+                VibrationalOp({"+_0_0 -_0_1": 1j, "+_0_1 -_0_0": -1j}, [2, 2]),
+                VibrationalOp({"+_1_0 -_1_1": 1j, "+_1_1 -_1_0": -1j}, [2, 2]),
             ],
         ),
     )
@@ -113,11 +113,10 @@ class TestUVCCVSCF(QiskitNatureTestCase):
                 [[[0, 1, 1], [1, 1, 1]], -179.0536532281924],
             ],
         ]
-        num_modes = 2
         num_modals = [2, 2]
 
         vibrational_op_labels = _create_labels(co2_2modes_2modals_2body)
-        vibr_op = VibrationalOp(vibrational_op_labels, num_modes, num_modals)
+        vibr_op = VibrationalOp(vibrational_op_labels, num_modals)
 
         converter = QubitConverter(DirectMapper())
 
@@ -125,7 +124,7 @@ class TestUVCCVSCF(QiskitNatureTestCase):
 
         init_state = VSCF(num_modals)
 
-        uvcc_ansatz = UVCC(converter, num_modals, "sd", initial_state=init_state)
+        uvcc_ansatz = UVCC(num_modals, "sd", converter, initial_state=init_state)
 
         optimizer = COBYLA(maxiter=1000)
 

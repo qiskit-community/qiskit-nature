@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The calculation of excited states via the qEOM algorithm"""
+"""The calculation of excited states via the qEOM algorithm."""
 
 from __future__ import annotations
 
@@ -36,11 +36,8 @@ from qiskit.opflow import (
 )
 from qiskit.quantum_info import SparsePauliOp
 from qiskit.primitives import BaseEstimator
-
-from qiskit_nature import QiskitNatureError
 from qiskit_nature.converters.second_quantization.utils import ListOrDict
-from qiskit_nature.second_q.operators import SecondQuantizedOp
-from qiskit_nature.second_q.operators.fermionic_op import FermionicOp
+from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.problems import (
     BaseProblem,
     ElectronicStructureProblem,
@@ -59,7 +56,7 @@ logger = logging.getLogger(__name__)
 
 
 class QEOM(ExcitedStatesSolver):
-    """The calculation of excited states via the qEOM algorithm"""
+    """The calculation of excited states via the qEOM algorithm."""
 
     def __init__(
         self,
@@ -76,11 +73,11 @@ class QEOM(ExcitedStatesSolver):
     ) -> None:
         """
         Args:
-            ground_state_solver: a GroundStateSolver object. The qEOM algorithm
-                will use this ground state to compute the EOM matrix elements
-            estimator: the :class:`~qiskit.primitives.BaseEstimator` to use for the evaluation of
+            ground_state_solver: A ``GroundStateSolver`` object. The qEOM algorithm
+                will use this ground state to compute the EOM matrix elements.
+            estimator: The ``BaseEstimator`` to use for the evaluation of
                 the qubit operators at the ground state ansatz. If the internal solver provided to
-                the `GroundStateSolver` also uses a `BaseEstimator` primitive, you can provide the
+                the ``GroundStateSolver`` also uses a ``BaseEstimator`` primitive, you can provide the
                 same estimator instance here.
             excitations: The excitations to be included in the eom pseudo-eigenvalue problem.
 
@@ -94,8 +91,8 @@ class QEOM(ExcitedStatesSolver):
                 :`Callable`: a function which can be used to specify a custom list of excitations.
                     For more details on how to write such a function refer to one of the default
                     methods, :meth:`generate_fermionic_excitations` or
-                    :meth:`generate_vibrational_excitations`, when solving a
-                    :class:`.ElectronicStructureProblem` or :class:`.VibrationalStructureProblem`,
+                    :meth:`generate_vibrational_excitations`, when solving an
+                    :class:`.ElectronicStructureProblem` or a :class:`.VibrationalStructureProblem`,
                     respectively.
             aux_eval_rules: The rules determining how observables should be evaluated on excited states.
 
@@ -132,7 +129,7 @@ class QEOM(ExcitedStatesSolver):
         | Callable[[int, tuple[int, int]], list[tuple[tuple[int, ...], tuple[int, ...]]]],
     ) -> None:
         """The excitations to be included in the eom pseudo-eigenvalue problem. If a string then
-        all excitations of given type will be used. Otherwise a list of custom excitations can
+        all excitations of given type will be used. Otherwise, a list of custom excitations can
         directly be provided."""
         if isinstance(excitations, str) and excitations not in ["s", "d", "sd"]:
             raise ValueError(
@@ -153,8 +150,8 @@ class QEOM(ExcitedStatesSolver):
     def get_qubit_operators(
         self,
         problem: BaseProblem,
-        aux_operators: dict[str, SecondQuantizedOp | FermionicOp | QubitOperator] | None = None,
-    ) -> tuple[QubitOperator, dict[str, QubitOperator] | None]:
+        aux_operators: Optional[dict[str, Union[SparseLabelOp, PauliSumOp]]] = None,
+    ) -> Tuple[QubitOperator, dict[str, QubitOperator] | None]:
         """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators.
         Note that contrary to the method :meth:`get_qubit_oprators` from the
         :class:`GroundStateEigensolver`, this returns three outputs: the hamiltonian, second quantization
@@ -165,18 +162,19 @@ class QEOM(ExcitedStatesSolver):
 
         # 1. Convert to PauliSumOp and apply two qubit reduction
         # We apply the meth:`convert()` with the symmetries deliberatly set to None
+        num_particles = getattr(problem, "num_particles", None)
         main_operator = self.qubit_converter.convert_only(
             main_second_q_op,
-            num_particles=problem.num_particles,
+            num_particles=num_particles,
         )
-        self.qubit_converter.force_match(num_particles=problem.num_particles)
+        self.qubit_converter.force_match(num_particles=num_particles)
 
         aux_default_ops = self.qubit_converter.convert_match(aux_second_q_ops)
         aux_custom_ops = {}
         if aux_operators is not None:
             for name_aux, aux_op in aux_operators.items():
-                if isinstance(aux_op, (SecondQuantizedOp, FermionicOp)):
-                    converted_aux_op = self.qubit_converter.convert_match(aux_op, True)
+                if isinstance(aux_op, (SparseLabelOp)):
+                    converted_aux_op = self.qubit_converter.convert_match(aux_op)
                 else:
                     converted_aux_op = aux_op
 
@@ -208,7 +206,7 @@ class QEOM(ExcitedStatesSolver):
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[dict[str, SecondQuantizedOp]] = None,
+        aux_operators: Optional[dict[str, SparseLabelOp]] = None,
     ) -> EigenstateResult:
         """Run the excited-states calculation.
 
@@ -216,7 +214,7 @@ class QEOM(ExcitedStatesSolver):
         and the excitation operators expansion coefficients.
 
         Args:
-            problem: a class encoding a problem to be solved.
+            problem: A class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
         Returns:
             An interpreted :class:`~.EigenstateResult`. For more information see also
@@ -298,25 +296,26 @@ class QEOM(ExcitedStatesSolver):
         """Builds the product of raising and lowering operators for a given problem.
 
         Args:
-            problem: the problem for which to build out the operators.
+            problem: The problem for which to build out the operators.
 
         Raises:
-            NotImplementedError: for an unsupported problem type.
+            NotImplementedError: For an unsupported problem type.
 
         Returns:
-            Dict of hopping operators, dict of commutativity types and dict of excitation indices
+            Dict of hopping operators, dict of commutativity types and dict of excitation indices.
         """
         if isinstance(problem, ElectronicStructureProblem):
             return build_electronic_ops(
-                problem.properties.particle_number,
-                self._gsc.qubit_converter,
+                problem.num_spatial_orbitals,
+                (problem.num_alpha, problem.num_beta),
                 self.excitations,
+                self._gsc.qubit_converter,
             )
         elif isinstance(problem, VibrationalStructureProblem):
             return build_vibrational_ops(
                 problem.num_modals,
-                self._gsc.qubit_converter,
                 self.excitations,
+                self._gsc.qubit_converter,
             )
         else:
             raise NotImplementedError(
@@ -334,11 +333,9 @@ class QEOM(ExcitedStatesSolver):
             expansion_basis_data: all hopping operators based on excitations_list,
                 key is the string of single/double excitation;
                 value is corresponding operator.
-            commutator: If True, the double and single commutators are built. Else, it is the double and
-            single product of operators.
 
         Returns:
-            a dictionary that contains the operators for each matrix element
+            A dictionary that contains the operators for each matrix element.
         """
 
         pre_tap_hopping_ops, type_of_commutativities, size = expansion_basis_data
@@ -408,14 +405,14 @@ class QEOM(ExcitedStatesSolver):
         """Numerically computes the commutator / double commutator between operators.
 
         Args:
-            params: list containing the indices of matrix element and the corresponding
-                excitation operators
-            operator: the hamiltonian
-            z2_symmetries: z2_symmetries in case of tapering
+            params: List containing the indices of matrix element and the corresponding
+                excitation operators.
+            operator: The hamiltonian.
+            z2_symmetries: z2_symmetries in case of tapering.
 
         Returns:
             The indices of the matrix element and the corresponding qubit
-            operator for each of the EOM matrices
+            operator for each of the EOM matrices.
         """
         m_u, n_u, left_op1, right_op_1, right_op_2 = params
         if left_op1 is None or right_op_1 is None and right_op_2 is None:
@@ -467,8 +464,8 @@ class QEOM(ExcitedStatesSolver):
         """Constructs the H and S matrices from the results on the ground state.
 
         Args:
-            gs_results: a ground state result object
-            size: size of eigenvalue problem
+            gs_results: A ground state result object.
+            size: Size of eigenvalue problem.
 
         Returns:
             H and S matrices and their standard deviation
@@ -620,8 +617,8 @@ class QEOM(ExcitedStatesSolver):
             s_mat : S matrix
 
         Returns:
-            1-D vector stores all energy gap to reference state
-            2-D array storing the X and Y expansion coefficients
+            1-D vector stores all energy gap to reference state.
+            2-D array storing the X and Y expansion coefficients.
         """
         logger.debug("Diagonalizing qeom matrices for excited states...")
 
@@ -817,8 +814,6 @@ class QEOM(ExcitedStatesSolver):
                 self._estimator, reference_state[0], tap_op_aux_op_dict, reference_state[1]
             )
 
-            print(aux_measurements)
-
             # 4. Format aux_operators_eigenvalues
             indices_diag = np.diag_indices(size + 1)
             indices_diag_as_list = [(i, j) for i, j in zip(indices_diag[0], indices_diag[1])]
@@ -842,6 +837,47 @@ class QEOM(ExcitedStatesSolver):
                     )
 
         return aux_operators_eigenvalues, transition_amplitudes
+
+    def _build_qeom_result(
+        self,
+        problem,
+        groundstate_result,
+        expansion_coefs,
+        energy_gaps,
+        h_mat,
+        s_mat,
+        h_mat_std,
+        s_mat_std,
+        aux_operators_eigenvalues,
+        transition_amplitudes,
+        gammas_square,
+    ) -> ElectronicStructureResult:
+
+        qeom_result = QEOMResult()
+        qeom_result.ground_state_raw_result = groundstate_result.raw_result
+        qeom_result.expansion_coefficients = expansion_coefs
+        qeom_result.excitation_energies = energy_gaps
+        qeom_result.h_matrix = h_mat
+        qeom_result.s_matrix = s_mat
+        qeom_result.h_matrix_std = h_mat_std
+        qeom_result.s_matrix_std = s_mat_std
+        qeom_result.gamma_square = gammas_square
+
+        qeom_result.aux_operators_evaluated = list(aux_operators_eigenvalues.values())
+        qeom_result.transition_amplitudes = transition_amplitudes
+
+        groundstate_energy_reference = groundstate_result.eigenvalues[0]
+        excited_eigenenergies = energy_gaps + groundstate_energy_reference
+        qeom_result.eigenvalues = np.append(
+            groundstate_result.eigenvalues[0], excited_eigenenergies
+        )
+
+        qeom_result.eigenstates = []
+
+        eigenstate_result = EigenstateResult.from_result(qeom_result)
+        result = problem.interpret(eigenstate_result)
+
+        return result
 
     def _build_qeom_result(
         self,

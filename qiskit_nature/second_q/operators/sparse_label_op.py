@@ -16,12 +16,12 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Collection, Mapping
-from numbers import Number
-from typing import Iterator, Sequence
+from numbers import Complex
+from typing import Iterator, Sequence, Union
 
 import cmath
 import numpy as np
-
+from qiskit.circuit import ParameterExpression
 from qiskit.quantum_info.operators.mixins import (
     AdjointMixin,
     GroupMixin,
@@ -30,6 +30,16 @@ from qiskit.quantum_info.operators.mixins import (
 )
 
 from .polynomial_tensor import PolynomialTensor
+
+
+_TCoeff = Union[complex, ParameterExpression]
+
+
+def _to_number(a: _TCoeff) -> complex:
+    if isinstance(a, ParameterExpression):
+        sympified = a.sympify()
+        return complex(sympified) if sympified.is_Number else np.nan
+    return a
 
 
 class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC, Mapping):
@@ -48,11 +58,19 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
     - equality and equivalence (using the :attr:`atol` and :attr:`rtol` tolerances) comparisons
 
     Furthermore, several general utility methods exist which are documented below.
+
+    .. note::
+
+        A SparseLabelOp can contain :class:`qiskit.circuit.ParameterExpression` objects as coefficients.
+        However, a SparseLabelOp containing parameters does not support the following methods:
+
+        - ``equiv``
+        - ``induced_norm``
     """
 
     def __init__(
         self,
-        data: Mapping[str, complex],
+        data: Mapping[str, _TCoeff],
         *,
         copy: bool = True,
         validate: bool = True,
@@ -60,11 +78,11 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         """
         Args:
             data: the operator data, mapping string-based keys to numerical values.
-            copy: when set to False the `data` will not be copied and the dictionary will be
-                stored by reference rather than by value (which is the default; `copy=True`). Note,
+            copy: when set to False the ``data`` will not be copied and the dictionary will be
+                stored by reference rather than by value (which is the default; ``copy=True``). Note,
                 that this requires you to not change the contents of the dictionary after
-                constructing the operator. This also implies `validate=False`. Use with care!
-            validate: when set to False the `data` keys will not be validated. Note, that the
+                constructing the operator. This also implies ``validate=False``. Use with care!
+            validate: when set to False the ``data`` keys will not be validated. Note, that the
                 SparseLabelOp base class, makes no assumption about the data keys, so will not
                 perform any validation by itself. Only concrete subclasses are encouraged to
                 implement a key validation method. Disable this setting with care!
@@ -72,7 +90,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         Raises:
             QiskitNatureError: when an invalid key is encountered during validation.
         """
-        self._data: Mapping[str, complex] = {}
+        self._data: Mapping[str, _TCoeff] = {}
         if copy:
             if validate:
                 self._validate_keys(data.keys())
@@ -88,7 +106,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
     @abstractmethod
     def _new_instance(
         self,
-        data: Mapping[str, complex],
+        data: Mapping[str, _TCoeff],
         *,
         other: SparseLabelOp | None = None,
     ) -> SparseLabelOp:
@@ -128,19 +146,19 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
     @classmethod
     @abstractmethod
     def from_polynomial_tensor(cls, tensor: PolynomialTensor) -> SparseLabelOp:
-        """Constructs a ``SparseLabelOp`` from a ``PolynomialTensor``.
+        """Constructs the operator from a :class:`~.PolynomialTensor`.
 
         Args:
-            tensor: the ``PolynomialTensor`` to be expanded.
+            tensor: the :class:`~.PolynomialTensor` to be expanded.
 
         Returns:
-            The generated ``SparseLabelOp``.
+            The constructed operator.
         """
 
     @classmethod
     @abstractmethod
     def _validate_polynomial_tensor_key(cls, keys: Collection[str]) -> None:
-        """Validates the keys of a ``PolynomialTensor`` to be expanded into a ``SparseLabelOp``.
+        """Validates the keys of a :class:`~.PolynomialTensor` to be expanded into a ``SparseLabelOp``.
 
         Args:
             keys: the keys to validate.
@@ -191,7 +209,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
 
         return self._new_instance(new_data, other=other)
 
-    def _multiply(self, other: complex) -> SparseLabelOp:
+    def _multiply(self, other: _TCoeff) -> SparseLabelOp:
         """Return scalar multiplication of self and other.
 
         Args:
@@ -203,7 +221,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         Raises:
             TypeError: if ``other`` is not compatible type (int, float or complex)
         """
-        if not isinstance(other, Number):
+        if not isinstance(other, (Complex, ParameterExpression)):
             raise TypeError(
                 f"Unsupported operand type(s) for *: 'SparseLabelOp' and '{type(other).__name__}'"
             )
@@ -223,20 +241,20 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
 
     @abstractmethod
     def transpose(self) -> SparseLabelOp:
-        """Returns the transpose of the ``SparseLabelOp``.
+        """Returns the transpose of the operator.
 
         Returns:
-            The transpose of the starting ``SparseLabelOp``.
+            The transpose of the operator.
         """
 
     @abstractmethod
     def compose(
         self, other: SparseLabelOp, qargs: None = None, front: bool = False
     ) -> SparseLabelOp:
-        r"""Returns the operator composition with another SparseLabelOp.
+        r"""Returns the operator composition with another operator.
 
         Args:
-            other: the other SparseLabelOp.
+            other: the other operator.
             qargs: UNUSED.
             front: If True composition uses right operator multiplication, otherwise left
                 multiplication is used (the default).
@@ -277,10 +295,10 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
 
     @abstractmethod
     def expand(self, other: SparseLabelOp) -> SparseLabelOp:
-        r"""Returns the reverse-order tensor product with another SparseLabelOp.
+        r"""Returns the reverse-order tensor product with another operator.
 
         Args:
-            other: the other SparseLabelOp.
+            other: the other operator.
 
         Returns:
             The operator resulting from the tensor product, :math:`othr \otimes self`.
@@ -296,9 +314,6 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
     ) -> bool:
         """Check equivalence of two ``SparseLabelOp`` instances up to an accepted tolerance.
 
-        The absolute and relative tolerances can be changed via the `atol` and `rtol` attributes,
-        respectively.
-
         Args:
             other: the second ``SparseLabelOp`` to compare with this instance.
             atol: Absolute numerical tolerance. The default behavior is to use ``self.atol``.
@@ -306,9 +321,15 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
 
         Returns:
             True if operators are equivalent, False if not.
+
+        Raises:
+            ValueError: Raised if either operator contains parameters
         """
         if not isinstance(other, self.__class__):
             return False
+
+        if self.is_parameterized() or other.is_parameterized():
+            raise ValueError("Cannot compare an operator that contains parameters.")
 
         if self._data.keys() != other._data.keys():
             return False
@@ -335,7 +356,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
 
         return self._data == other._data
 
-    def __getitem__(self, __k: str) -> complex:
+    def __getitem__(self, __k: str) -> _TCoeff:
         """Get the requested element of the ``SparseLabelOp``."""
         return self._data.__getitem__(__k)
 
@@ -348,7 +369,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         return self._data.__iter__()
 
     @abstractmethod
-    def terms(self) -> Iterator[tuple[list[tuple[str, int]], complex]]:
+    def terms(self) -> Iterator[tuple[list[tuple[str, int]], _TCoeff]]:
         """Provides an iterator analogous to :meth:`items` but with the labels already split into
         pairs of operation characters and indices.
 
@@ -393,37 +414,39 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         indices = self.argsort(weight=weight)
         return self._new_instance({ind: self[ind] for ind in indices})
 
-    def chop(self, tol: float | None = None) -> SparseLabelOp:
-        """Chops the real and imaginary phases of the operator coefficients.
+    def chop(self, atol: float | None = None) -> SparseLabelOp:
+        """Chops the real and imaginary parts of the operator coefficients.
 
-        This function separately chops the real and imaginary phase of all coefficients to the
-        provided tolerance.
+        This function separately chops the real and imaginary parts of all coefficients to the
+        provided tolerance. Parameters are chopped only if they are exactly zero.
 
         Args:
-            tol: the tolerance to which to chop. If ``None``, :attr:`atol` will be used.
+            atol: the tolerance to which to chop. If ``None``, :attr:`atol` will be used.
 
         Returns:
             The chopped operator.
         """
-        tol = tol if tol is not None else self.atol
+        atol = atol if atol is not None else self.atol
 
         new_data = {}
         for key, value in self.items():
-            zero_real = cmath.isclose(value.real, 0.0, abs_tol=tol)
-            zero_imag = cmath.isclose(value.imag, 0.0, abs_tol=tol)
-            if zero_real and zero_imag:
+            if _to_number(value) == 0:
                 continue
-            if zero_imag:
-                new_data[key] = value.real
-            elif zero_real:
-                new_data[key] = value.imag
-            else:
-                new_data[key] = value
+            if not isinstance(value, ParameterExpression):
+                zero_real = cmath.isclose(value.real, 0.0, abs_tol=atol)
+                zero_imag = cmath.isclose(value.imag, 0.0, abs_tol=atol)
+                if zero_real and zero_imag:
+                    continue
+                if zero_imag:
+                    value = value.real
+                elif zero_real:
+                    value = value.imag * 1j
+            new_data[key] = value
 
         return self._new_instance(new_data)
 
     @abstractmethod
-    def simplify(self, *, atol: float | None = None) -> SparseLabelOp:
+    def simplify(self, atol: float | None = None) -> SparseLabelOp:
         """Simplify the operator.
 
         Merges terms with same labels and eliminates terms with coefficients close to 0.
@@ -463,5 +486,66 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
 
         .. _https://en.wikipedia.org/wiki/Norm_(mathematics)#p-norm:
             https://en.wikipedia.org/wiki/Norm_(mathematics)#p-norm
+
+        Raises:
+            ValueError: Operator contains parameters.
         """
+        if self.is_parameterized():
+            raise ValueError("Cannot compute norm of an operator that contains parameters.")
         return sum(abs(coeff) ** order for coeff in self.values()) ** (1 / order)
+
+    def is_parameterized(self) -> bool:
+        """Returns whether the operator contains any parameters."""
+        return any(isinstance(coeff, ParameterExpression) for coeff in self.values())
+
+    def assign_parameters(self, parameters: Mapping[ParameterExpression, _TCoeff]) -> SparseLabelOp:
+        """Assign parameters to new parameters or values.
+
+        Args:
+            parameters: The mapping from parameters to new parameters or values.
+
+        Returns:
+            A new operator with the parameters assigned.
+        """
+        data = {
+            key: parameters[value] if value in parameters else value
+            for key, value in self._data.items()
+        }
+        return self._new_instance(data, other=self)
+
+    def round(self, decimals: int = 0) -> SparseLabelOp:
+        """Rounds the operator coefficients to a specified number of decimal places.
+
+        Args:
+            decimals: the number of decimal places to round coefficients to. By default this
+                will round to the nearest integer value.
+
+        Returns:
+            The rounded operator.
+        """
+        new_data = {key: np.around(value, decimals=decimals) for key, value in self.items()}
+
+        return self._new_instance(new_data)
+
+    def is_zero(self, tol: int | None = None) -> bool:
+        r"""Returns true if operator length is zero or all coefficients have value zero.
+
+        Args:
+            tol: tolerance for checking coefficient values. If this is `None`,
+                :attr:`atol` will be used instead.
+
+        Returns:
+            If operator length is zero or all coefficients are zero.
+        """
+        if len(self) == 0:
+            return True
+        tol = tol if tol is not None else self.atol
+        return all(np.isclose(val, 0, atol=tol) for val in self._data.values())
+
+    def parameters(self) -> list[ParameterExpression]:
+        """Returns a list of the parameters in the operator.
+
+        Returns:
+            A list of the parameters in the operator.
+        """
+        return [coeff for coeff in self.values() if isinstance(coeff, ParameterExpression)]

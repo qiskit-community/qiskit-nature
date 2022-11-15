@@ -23,96 +23,66 @@ from qiskit.algorithms.eigensolvers import EigensolverResult
 from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
 
 from qiskit_nature.second_q.hamiltonians import VibrationalEnergy
-from qiskit_nature.second_q.operators import SecondQuantizedOp
-from qiskit_nature.second_q.properties.bases import HarmonicBasis
+from qiskit_nature.second_q.properties import Interpretable
 
 from .base_problem import BaseProblem
-
+from .vibrational_basis import VibrationalBasis
 from .vibrational_structure_result import VibrationalStructureResult
 from .vibrational_properties_container import VibrationalPropertiesContainer
 from .eigenstate_result import EigenstateResult
 
 
 class VibrationalStructureProblem(BaseProblem):
-    """Vibrational Structure Problem"""
+    """Vibrational Structure Problem
 
-    def __init__(
-        self,
-        hamiltonian: VibrationalEnergy,
-        num_modes: int,
-        num_modals: Union[int, List[int]] = None,
-        truncation_order: int = None,
-    ):
+    The following attributes can be read and updated once the ``VibrationalStructureProblem`` object
+    has been constructed.
+
+    Attributes:
+        properties (VibrationalPropertiesContainer): a container for additional observable operator
+            factories.
+        basis (VibrationalBasis): the second-quantization basis in which the problem's operators are
+            expressed.
+    """
+
+    def __init__(self, hamiltonian: VibrationalEnergy) -> None:
         """
         Args:
             hamiltonian: the Hamiltonian of this problem.
-            num_modes: the number of modes.
-            num_modals: the number of modals per mode.
-            truncation_order: order at which an n-body expansion is truncated
-
-        Raises:
-            TypeError: if the provided ``hamiltonian`` is not of type :class:`.VibrationalEnergy`.
         """
         super().__init__(hamiltonian)
         self.properties: VibrationalPropertiesContainer = VibrationalPropertiesContainer()
-        self.num_modes = num_modes
-        self._num_modals = num_modals if num_modals is not None else []
-        self.truncation_order = truncation_order
-        self.basis: HarmonicBasis = None
+        self.basis: VibrationalBasis = None
 
     @property
     def hamiltonian(self) -> VibrationalEnergy:
         return cast(VibrationalEnergy, self._hamiltonian)
 
     @property
-    def num_modals(self) -> List[int]:
-        """Returns the number of modals, always expanded as a list."""
-        if isinstance(self._num_modals, int):
-            num_modals = [self._num_modals] * self.num_modes
-        else:
-            num_modals = self._num_modals
-        return num_modals
-
-    @num_modals.setter
-    def num_modals(self, num_modals: Union[int, List[int]]) -> None:
-        """Sets the number of modals."""
-        self._num_modals = num_modals
-
-    def second_q_ops(self) -> tuple[SecondQuantizedOp, dict[str, SecondQuantizedOp]]:
-        """Returns the second quantized operators associated with this problem.
-
-        Returns:
-            A tuple, with the first object being the main operator and the second being a dictionary
-            of auxiliary operators.
-        """
-        # TODO: expose this as an argument in __init__
-        self.basis = HarmonicBasis(self.num_modals)
-
-        self.hamiltonian.truncation_order = self.truncation_order
-        self.hamiltonian.basis = self.basis
-
-        for prop in self.properties:
-            prop.basis = self.basis  # type: ignore[attr-defined]
-
-        return super().second_q_ops()
+    def num_modals(self) -> list[int]:
+        """The number of modals into which each mode got expanded in second-quantization."""
+        return self.basis.num_modals
 
     def interpret(
         self,
         raw_result: Union[EigenstateResult, EigensolverResult, MinimumEigensolverResult],
     ) -> VibrationalStructureResult:
-        """Interprets an EigenstateResult in the context of this transformation.
+        """Interprets an EigenstateResult in the context of this problem.
+
         Args:
             raw_result: an eigenstate result object.
+
         Returns:
-            An vibrational structure result.
+            A vibrational structure result.
         """
         eigenstate_result = super().interpret(raw_result)
         result = VibrationalStructureResult()
         result.combine(eigenstate_result)
-        self.hamiltonian.interpret(result)
+        if isinstance(self.hamiltonian, Interpretable):
+            self.hamiltonian.interpret(result)
         for prop in self.properties:
-            if hasattr(prop, "interpret"):
-                prop.interpret(result)  # type: ignore[attr-defined]
+            if isinstance(prop, Interpretable):
+                prop.interpret(result)
         result.computed_vibrational_energies = eigenstate_result.eigenvalues
         return result
 
@@ -121,15 +91,14 @@ class VibrationalStructureProblem(BaseProblem):
     ) -> Optional[Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]]:
         """Returns a default filter criterion method to filter the eigenvalues computed by the
         eigen solver. For more information see also
-        aqua.algorithms.eigen_solvers.NumPyEigensolver.filter_criterion.
-        In the fermionic case the default filter ensures that the number of particles is being
-        preserved.
+        :class:`qiskit.algorithms.eigensolvers.NumPyEigensolver.filter_criterion`.
+
+        This particular default ensures that the occupation of every mode is (close to) 1.
         """
 
         # pylint: disable=unused-argument
         def filter_criterion(self, eigenstate, eigenvalue, aux_values):
-            # the first num_modes aux_value is the evaluated number of particles for the given mode
-            for mode in range(self.num_modes):
+            for mode, _ in enumerate(self.num_modals):
                 if aux_values is None or not np.isclose(aux_values[str(mode)][0], 1):
                     return False
             return True

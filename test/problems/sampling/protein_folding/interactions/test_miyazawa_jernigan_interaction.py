@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 """Tests MiyazawaJerniganInteraction."""
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 from qiskit_nature.problems.sampling.protein_folding.exceptions.invalid_residue_exception import (
     InvalidResidueException,
 )
@@ -19,7 +19,7 @@ from qiskit_nature.problems.sampling.protein_folding.interactions.miyazawa_jerni
 )
 
 
-class TestMiyazawaJerniganInteraction(QiskitNatureTestCase):
+class TestMiyazawaJerniganInteraction(QiskitNatureDeprecatedTestCase):
     """Tests MiyazawaJerniganInteraction."""
 
     def test_calc_energy_matrix(self):

@@ -31,9 +31,10 @@ class HFInitialPoint(InitialPoint):
     A class that provides an all-zero initial point for the ``VQE`` parameter values.
 
     If used in concert with the
-    :class:`~qiskit.circuit.library.initial_states.hartree_fock.HartreeFock` initial state (which
-    will be prepended to the :class:`~qiskit.circuit.library.ansatzes.ucc.UCC` circuit) the all-zero
-    initial point will correspond to the HF initial point.
+    :class:`~qiskit_nature.second_q.circuit.library.initial_states.hartree_fock.HartreeFock` initial
+    state (which will be prepended to the
+    :class:`~qiskit_nature.second_q.circuit.library.ansatzes.ucc.UCC` circuit) the all-zero initial
+    point will correspond to the HF initial point.
     """
 
     def __init__(self) -> None:
@@ -47,8 +48,8 @@ class HFInitialPoint(InitialPoint):
         """The UCC ansatz.
 
         The ``excitation_list`` and ``reps`` used by the
-        :class:`~qiskit.circuit.library.ansatzes.ucc.UCC` ansatz is obtained to ensure that the
-        shape of the initial point is appropriate.
+        :class:`~qiskit_nature.circuit.library.ansatzes.ucc.UCC` ansatz is obtained to ensure that
+        the shape of the initial point is appropriate.
         """
         return self._ansatz
 
@@ -58,32 +59,32 @@ class HFInitialPoint(InitialPoint):
         self._ansatz = ansatz
 
     @property
-    def grouped_property(self) -> BaseProblem | None:
-        """The grouped property.
+    def problem(self) -> BaseProblem | None:
+        """The problem.
 
-        The grouped property is not required to compute the HF initial point. If it is provided we
+        The problem is not required to compute the HF initial point. If it is provided we
         will attempt to obtain the HF ``reference_energy``.
         """
-        return self._grouped_property
+        return self._problem
 
-    @grouped_property.setter
-    def grouped_property(self, grouped_property: BaseProblem) -> None:
-        if not isinstance(grouped_property, ElectronicStructureProblem):
+    @problem.setter
+    def problem(self, problem: BaseProblem) -> None:
+        if not isinstance(problem, ElectronicStructureProblem):
             raise QiskitNatureError(
                 "Only an `ElectronicStructureProblem` is compatible with the HFInitialPoint, not a"
-                f" problem of type, {type(grouped_property)}."
+                f" problem of type, {type(problem)}."
             )
 
-        electronic_energy = grouped_property.hamiltonian
+        electronic_energy = problem.hamiltonian
         if electronic_energy is None:
             warnings.warn(
-                "The ElectronicEnergy was not obtained from the grouped_property. "
-                "The grouped_property and reference_energy will not be set."
+                "The ElectronicEnergy was not obtained from the problem. "
+                "The problem and reference_energy will not be set."
             )
             return
 
-        self._reference_energy = grouped_property.reference_energy if not None else 0.0
-        self._grouped_property = grouped_property
+        self._reference_energy = problem.reference_energy if not None else 0.0
+        self._problem = problem
 
     def to_numpy_array(self) -> np.ndarray:
         """The initial point as an array."""
@@ -94,21 +95,21 @@ class HFInitialPoint(InitialPoint):
     def compute(
         self,
         ansatz: UCC | None = None,
-        grouped_property: BaseProblem | None = None,
+        problem: BaseProblem | None = None,
     ) -> None:
         """Compute the initial point parameter for each excitation.
 
         See class documentation for more information.
 
         Args:
-            grouped_property: The :attr:`grouped_property`.
+            problem: The :attr:`problem`.
             ansatz: The :attr:`ansatz`.
 
         Raises:
             QiskitNatureError: If :attr:`ansatz` is not set.
         """
-        if grouped_property is not None:
-            self.grouped_property = grouped_property
+        if problem is not None:
+            self.problem = problem
 
         if ansatz is not None:
             self.ansatz = ansatz

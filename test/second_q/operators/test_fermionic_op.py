@@ -14,9 +14,10 @@
 
 import unittest
 from test import QiskitNatureTestCase
-from ddt import ddt, data, unpack
 
 import numpy as np
+from ddt import data, ddt, unpack
+from qiskit.circuit import Parameter
 from scipy.sparse import csc_matrix
 from scipy.sparse.linalg import eigs
 
@@ -29,9 +30,13 @@ import qiskit_nature.optionals as _optionals
 class TestFermionicOp(QiskitNatureTestCase):
     """FermionicOp tests."""
 
-    op1 = FermionicOp({"+_0 -_0": 1}, num_spin_orbitals=1)
-    op2 = FermionicOp({"-_0 +_0": 2}, num_spin_orbitals=1)
-    op3 = FermionicOp({"+_0 -_0": 1, "-_0 +_0": 2}, num_spin_orbitals=1)
+    a = Parameter("a")
+    b = Parameter("b")
+
+    op1 = FermionicOp({"+_0 -_0": 1})
+    op2 = FermionicOp({"-_0 +_0": 2})
+    op3 = FermionicOp({"+_0 -_0": 1, "-_0 +_0": 2})
+    op4 = FermionicOp({"+_0 -_0": a})
 
     def test_neg(self):
         """Test __neg__"""
@@ -39,11 +44,19 @@ class TestFermionicOp(QiskitNatureTestCase):
         targ = FermionicOp({"+_0 -_0": -1}, num_spin_orbitals=1)
         self.assertEqual(fer_op, targ)
 
+        fer_op = -self.op4
+        targ = FermionicOp({"+_0 -_0": -self.a})
+        self.assertEqual(fer_op, targ)
+
     def test_mul(self):
         """Test __mul__, and __rmul__"""
         with self.subTest("rightmul"):
             fer_op = self.op1 * 2
             targ = FermionicOp({"+_0 -_0": 2}, num_spin_orbitals=1)
+            self.assertEqual(fer_op, targ)
+
+            fer_op = self.op1 * self.a
+            targ = FermionicOp({"+_0 -_0": self.a})
             self.assertEqual(fer_op, targ)
 
         with self.subTest("left mul"):
@@ -57,16 +70,28 @@ class TestFermionicOp(QiskitNatureTestCase):
         targ = FermionicOp({"+_0 -_0": 0.5}, num_spin_orbitals=1)
         self.assertEqual(fer_op, targ)
 
+        fer_op = self.op1 / self.a
+        targ = FermionicOp({"+_0 -_0": 1 / self.a})
+        self.assertEqual(fer_op, targ)
+
     def test_add(self):
         """Test __add__"""
         fer_op = self.op1 + self.op2
         targ = self.op3
         self.assertEqual(fer_op, targ)
 
+        fer_op = self.op1 + self.op4
+        targ = FermionicOp({"+_0 -_0": 1 + self.a})
+        self.assertEqual(fer_op, targ)
+
     def test_sub(self):
         """Test __sub__"""
         fer_op = self.op3 - self.op2
         targ = FermionicOp({"+_0 -_0": 1, "-_0 +_0": 0}, num_spin_orbitals=1)
+        self.assertEqual(fer_op, targ)
+
+        fer_op = self.op4 - self.op1
+        targ = FermionicOp({"+_0 -_0": self.a - 1})
         self.assertEqual(fer_op, targ)
 
     def test_compose(self):
@@ -78,14 +103,34 @@ class TestFermionicOp(QiskitNatureTestCase):
             targ = FermionicOp({"+_0 -_1 -_0": 1}, num_spin_orbitals=2)
             self.assertEqual(fer_op, targ)
 
+        with self.subTest("single compose with parameters"):
+            fer_op = FermionicOp({"+_0 -_1": self.a}) @ FermionicOp({"-_0": 1})
+            targ = FermionicOp({"+_0 -_1 -_0": self.a})
+            self.assertEqual(fer_op, targ)
+
         with self.subTest("multi compose"):
             fer_op = FermionicOp(
                 {"+_0 +_1 -_1": 1, "-_0 +_0 -_1": 1}, num_spin_orbitals=2
             ) @ FermionicOp({"": 1, "-_0 +_1": 1}, num_spin_orbitals=2)
             fer_op = fer_op.simplify()
             targ = FermionicOp(
-                {"+_0 +_1 -_1": 1, "-_0 +_0 -_1": 1, "+_0 -_0 +_1": 1, "-_0 -_1 +_1": -1},
+                {"+_0 +_1 -_1": 1, "-_0 +_0 -_1": 1, "+_0 +_1 -_0": -1, "-_0 -_1 +_1": -1},
                 num_spin_orbitals=2,
+            )
+            self.assertEqual(fer_op, targ)
+
+        with self.subTest("multi compose with parameters"):
+            fer_op = FermionicOp({"+_0 +_1 -_1": self.a, "-_0 +_0 -_1": 1}) @ FermionicOp(
+                {"": 1, "-_0 +_1": self.b}
+            )
+            fer_op = fer_op.simplify()
+            targ = FermionicOp(
+                {
+                    "+_0 +_1 -_1": self.a,
+                    "-_0 +_0 -_1": 1,
+                    "+_0 +_1 -_0": -self.a * self.b,
+                    "-_0 -_1 +_1": -self.b,
+                }
             )
             self.assertEqual(fer_op, targ)
 
@@ -95,10 +140,18 @@ class TestFermionicOp(QiskitNatureTestCase):
         targ = FermionicOp({"+_0 -_0 -_1 +_1": 2}, num_spin_orbitals=2)
         self.assertEqual(fer_op, targ)
 
+        fer_op = self.op4.tensor(self.op2)
+        targ = FermionicOp({"+_0 -_0 -_1 +_1": 2 * self.a})
+        self.assertEqual(fer_op, targ)
+
     def test_expand(self):
         """Test reversed tensor multiplication"""
         fer_op = self.op1.expand(self.op2)
         targ = FermionicOp({"-_0 +_0 +_1 -_1": 2}, num_spin_orbitals=2)
+        self.assertEqual(fer_op, targ)
+
+        fer_op = self.op4.expand(self.op2)
+        targ = FermionicOp({"-_0 +_0 +_1 -_1": 2 * self.a})
         self.assertEqual(fer_op, targ)
 
     def test_pow(self):
@@ -126,6 +179,12 @@ class TestFermionicOp(QiskitNatureTestCase):
             targ = FermionicOp.one()
             self.assertEqual(fer_op, targ)
 
+        with self.subTest("square nontrivial with parameters"):
+            fer_op = FermionicOp({"+_0 +_1 -_1": self.a, "+_0 -_0 -_1": 1}) ** 2
+            fer_op = fer_op.simplify()
+            targ = FermionicOp({"+_0 -_1": -self.a})
+            self.assertEqual(fer_op, targ)
+
     def test_adjoint(self):
         """Test adjoint method"""
         fer_op = FermionicOp(
@@ -133,6 +192,14 @@ class TestFermionicOp(QiskitNatureTestCase):
         ).adjoint()
         targ = FermionicOp(
             {"": -1j, "+_1 -_1 -_0": 3, "+_1 +_0 -_0": 1, "+_1 +_0": 2 - 4j}, num_spin_orbitals=3
+        )
+        self.assertEqual(fer_op, targ)
+
+        fer_op = FermionicOp(
+            {"": 1j, "+_0 +_1 -_1": 3, "+_0 -_0 -_1": self.a, "-_0 -_1": 2 + 4j}
+        ).adjoint()
+        targ = FermionicOp(
+            {"": -1j, "+_1 -_1 -_0": 3, "+_1 +_0 -_0": self.a.conjugate(), "+_1 +_0": 2 - 4j}
         )
         self.assertEqual(fer_op, targ)
 
@@ -155,11 +222,31 @@ class TestFermionicOp(QiskitNatureTestCase):
             simplified_op = fer_op.simplify()
             self.assertEqual(simplified_op, fer_op)
 
+            fer_op = FermionicOp({"-_1 +_0": 1 + 0j}, num_spin_orbitals=2)
+            simplified_op = fer_op.simplify()
+            self.assertEqual(simplified_op, fer_op)
+
         with self.subTest("simplify zero"):
             fer_op = self.op1 - self.op1
             simplified_op = fer_op.simplify()
             targ = FermionicOp.zero()
             self.assertEqual(simplified_op, targ)
+
+        with self.subTest("simplify parameters"):
+            fer_op = FermionicOp({"+_0 -_0": self.a, "+_0 -_0 +_0 -_0": 1j})
+            simplified_op = fer_op.simplify()
+            targ = FermionicOp({"+_0 -_0": self.a + 1j})
+            self.assertEqual(simplified_op, targ)
+
+        with self.subTest("simplify commutes with normal_order"):
+            fer_op = FermionicOp({"-_0 +_1": 1}, num_spin_orbitals=2)
+            self.assertEqual(fer_op.simplify().normal_order(), fer_op.normal_order().simplify())
+
+        with self.subTest("simplify + index order"):
+            orig = FermionicOp({"+_1 -_0 +_0 -_0": 1, "-_0 +_1": 2})
+            fer_op = orig.simplify().index_order()
+            targ = FermionicOp({"-_0 +_1": 1})
+            self.assertEqual(fer_op, targ)
 
     def test_hermiticity(self):
         """test is_hermitian"""
@@ -199,6 +286,11 @@ class TestFermionicOp(QiskitNatureTestCase):
             self.assertFalse(fer_op.is_hermitian())
             self.assertFalse(fer_op.is_hermitian(atol=1e-8))
             self.assertTrue(fer_op.is_hermitian(atol=1e-6))
+
+        with self.subTest("parameters"):
+            fer_op = FermionicOp({"+_0": self.a})
+            with self.assertRaisesRegex(ValueError, "parameter"):
+                _ = fer_op.is_hermitian()
 
     def test_equiv(self):
         """test equiv"""
@@ -274,45 +366,102 @@ class TestFermionicOp(QiskitNatureTestCase):
                 binary = f"{idx:0{4}b}"
                 self.assertEqual(binary.count("1"), 2)
 
-    def test_normal_ordered(self):
-        """test normal_ordered method"""
+        with self.subTest("parameters"):
+            fer_op = FermionicOp({"+_0": self.a})
+            with self.assertRaisesRegex(ValueError, "parameter"):
+                _ = fer_op.to_matrix()
+
+    def test_normal_order(self):
+        """test normal_order method"""
         with self.subTest("Test for creation operator"):
             orig = FermionicOp({"+_0": 1}, num_spin_orbitals=1)
-            fer_op = orig.normal_ordered()
+            fer_op = orig.normal_order()
             self.assertEqual(fer_op, orig)
 
         with self.subTest("Test for annihilation operator"):
             orig = FermionicOp({"-_0": 1}, num_spin_orbitals=1)
-            fer_op = orig.normal_ordered()
+            fer_op = orig.normal_order()
             self.assertEqual(fer_op, orig)
 
         with self.subTest("Test for number operator"):
             orig = FermionicOp({"+_0 -_0": 1}, num_spin_orbitals=1)
-            fer_op = orig.normal_ordered()
+            fer_op = orig.normal_order()
             self.assertEqual(fer_op, orig)
 
         with self.subTest("Test for empty operator"):
             orig = FermionicOp({"-_0 +_0": 1}, num_spin_orbitals=1)
-            fer_op = orig.normal_ordered()
+            fer_op = orig.normal_order()
             targ = FermionicOp({"": 1, "+_0 -_0": -1}, num_spin_orbitals=1)
             self.assertEqual(fer_op, targ)
 
         with self.subTest("Test for multiple operators 1"):
             orig = FermionicOp({"-_0 +_1": 1}, num_spin_orbitals=2)
-            fer_op = orig.normal_ordered()
+            fer_op = orig.normal_order()
             targ = FermionicOp({"+_1 -_0": -1}, num_spin_orbitals=2)
             self.assertEqual(fer_op, targ)
 
         with self.subTest("Test for multiple operators 2"):
             orig = FermionicOp({"-_0 +_0 +_1 -_2": 1}, num_spin_orbitals=3)
-            fer_op = orig.normal_ordered()
+            fer_op = orig.normal_order()
             targ = FermionicOp({"+_1 -_2": 1, "+_0 +_1 -_0 -_2": 1}, num_spin_orbitals=3)
             self.assertEqual(fer_op, targ)
 
         with self.subTest("Test normal ordering simplifies"):
-            orig = FermionicOp({"-_0 +_1": 1, "+_1 -_0": -1}, num_spin_orbitals=2)
-            fer_op = orig.normal_ordered()
+            orig = FermionicOp({"-_0 +_1": 1, "+_1 -_0": -1, "+_0": 0.0}, num_spin_orbitals=2)
+            fer_op = orig.normal_order()
             targ = FermionicOp({"+_1 -_0": -2}, num_spin_orbitals=2)
+            self.assertEqual(fer_op, targ)
+
+        with self.subTest("Test parameters"):
+            orig = FermionicOp({"-_0 +_0 +_1 -_2": self.a})
+            fer_op = orig.normal_order()
+            targ = FermionicOp({"+_1 -_2": self.a, "+_0 +_1 -_0 -_2": self.a})
+            self.assertEqual(fer_op, targ)
+
+    def test_index_order(self):
+        """test index_order method"""
+        with self.subTest("Test for creation operator"):
+            orig = FermionicOp({"+_0": 1})
+            fer_op = orig.index_order()
+            self.assertEqual(fer_op, orig)
+
+        with self.subTest("Test for annihilation operator"):
+            orig = FermionicOp({"-_0": 1})
+            fer_op = orig.index_order()
+            self.assertEqual(fer_op, orig)
+
+        with self.subTest("Test for number operator"):
+            orig = FermionicOp({"+_0 -_0": 1})
+            fer_op = orig.index_order()
+            self.assertEqual(fer_op, orig)
+
+        with self.subTest("Test for empty operator"):
+            orig = FermionicOp({"-_0 +_0": 1})
+            fer_op = orig.index_order()
+            self.assertEqual(fer_op, orig)
+
+        with self.subTest("Test for multiple operators 1"):
+            orig = FermionicOp({"+_1 -_0": 1})
+            fer_op = orig.index_order()
+            targ = FermionicOp({"-_0 +_1": -1})
+            self.assertEqual(fer_op, targ)
+
+        with self.subTest("Test for multiple operators 2"):
+            orig = FermionicOp({"+_2 -_0 +_1 -_0": 1, "-_0 +_1": 2})
+            fer_op = orig.index_order()
+            targ = FermionicOp({"-_0 -_0 +_1 +_2": 1, "-_0 +_1": 2})
+            self.assertEqual(fer_op, targ)
+
+        with self.subTest("Test index ordering simplifies"):
+            orig = FermionicOp({"-_0 +_1": 1, "+_1 -_0": -1, "+_0": 0.0})
+            fer_op = orig.index_order()
+            targ = FermionicOp({"-_0 +_1": 2})
+            self.assertEqual(fer_op, targ)
+
+        with self.subTest("index order + simplify"):
+            orig = FermionicOp({"+_1 -_0 +_0 -_0": 1, "-_0 +_1": 2})
+            fer_op = orig.index_order().simplify()
+            targ = FermionicOp({"-_0 +_1": 1})
             self.assertEqual(fer_op, targ)
 
     def test_induced_norm(self):
@@ -346,10 +495,8 @@ class TestFermionicOp(QiskitNatureTestCase):
             with self.assertRaises(QiskitNatureError):
                 _ = FermionicOp({key: 1.0}, num_spin_orbitals=length)
 
-    @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     def test_from_polynomial_tensor(self):
         """Test from PolynomialTensor construction"""
-        import sparse as sp  # pylint: disable=import-error
 
         with self.subTest("dense tensor"):
             r_l = 2
@@ -389,41 +536,72 @@ class TestFermionicOp(QiskitNatureTestCase):
 
             self.assertEqual(op, expected)
 
-        with self.subTest("sparse tensor"):
+        if _optionals.HAS_SPARSE:
+            import sparse as sp  # pylint: disable=import-error
+
+            with self.subTest("sparse tensor"):
+                r_l = 2
+                p_t = PolynomialTensor(
+                    {
+                        "+-": sp.as_coo({(0, 0): 1, (1, 0): 2}, shape=(r_l, r_l)),
+                        "++--": sp.as_coo(
+                            {(0, 0, 0, 1): 1, (1, 0, 1, 1): 2}, shape=(r_l, r_l, r_l, r_l)
+                        ),
+                    }
+                )
+                op = FermionicOp.from_polynomial_tensor(p_t)
+
+                expected = FermionicOp(
+                    {
+                        "+_0 -_0": 1,
+                        "+_1 -_0": 2,
+                        "+_0 +_0 -_0 -_1": 1,
+                        "+_1 +_0 -_1 -_1": 2,
+                    },
+                    num_spin_orbitals=r_l,
+                )
+
+                self.assertEqual(op, expected)
+
+        with self.subTest("compose operation order"):
             r_l = 2
             p_t = PolynomialTensor(
                 {
-                    "+-": sp.as_coo({(0, 0): 1, (1, 0): 2}, shape=(r_l, r_l)),
-                    "++--": sp.as_coo(
-                        {(0, 0, 0, 1): 1, (1, 0, 1, 1): 2}, shape=(r_l, r_l, r_l, r_l)
-                    ),
+                    "+-": np.arange(1, 5).reshape((r_l, r_l)),
+                    "++--": np.arange(1, 17).reshape((r_l, r_l, r_l, r_l)),
                 }
             )
             op = FermionicOp.from_polynomial_tensor(p_t)
 
-            expected = FermionicOp(
-                {
-                    "+_0 -_0": 1,
-                    "+_1 -_0": 2,
-                    "+_0 +_0 -_0 -_1": 1,
-                    "+_1 +_0 -_1 -_1": 2,
-                },
-                num_spin_orbitals=r_l,
-            )
+            self.assertEqual(op @ op, FermionicOp.from_polynomial_tensor(p_t @ p_t))
 
-            self.assertEqual(op, expected)
+        with self.subTest("tensor operation order"):
+            r_l = 2
+            p_t = PolynomialTensor(
+                {
+                    "+-": np.arange(1, 5).reshape((r_l, r_l)),
+                    "++--": np.arange(1, 17).reshape((r_l, r_l, r_l, r_l)),
+                }
+            )
+            op = FermionicOp.from_polynomial_tensor(p_t)
+
+            self.assertEqual(op ^ op, FermionicOp.from_polynomial_tensor(p_t ^ p_t))
 
     def test_no_num_spin_orbitals(self):
         """Test operators with automatic register length"""
+        op0 = FermionicOp({"": 1})
         op1 = FermionicOp({"+_0 -_0": 1})
         op2 = FermionicOp({"-_0 +_1": 2})
 
         with self.subTest("Inferred register length"):
+            self.assertEqual(op0.num_spin_orbitals, 0)
             self.assertEqual(op1.num_spin_orbitals, 1)
             self.assertEqual(op2.num_spin_orbitals, 2)
 
         with self.subTest("Mathematical operations"):
+            self.assertEqual((op0 + op2).num_spin_orbitals, 2)
             self.assertEqual((op1 + op2).num_spin_orbitals, 2)
+            self.assertEqual((op0 @ op2).num_spin_orbitals, 2)
             self.assertEqual((op1 @ op2).num_spin_orbitals, 2)
             self.assertEqual((op1 ^ op2).num_spin_orbitals, 3)
 
@@ -437,6 +615,9 @@ class TestFermionicOp(QiskitNatureTestCase):
             np.testing.assert_array_almost_equal(op1.to_matrix(False), ref)
             op1.num_spin_orbitals = 2
             np.testing.assert_array_almost_equal(op1.to_matrix(False), np.kron(ref, np.eye(2)))
+
+            ref = np.array([[1]])
+            np.testing.assert_array_almost_equal(op0.to_matrix(False), ref)
 
 
 if __name__ == "__main__":

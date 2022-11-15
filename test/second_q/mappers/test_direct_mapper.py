@@ -15,15 +15,15 @@
 import unittest
 
 from test import QiskitNatureTestCase
-
-from qiskit_nature.second_q.drivers import GaussianForcesDriver
-from qiskit_nature.second_q.mappers import DirectMapper
-from qiskit_nature.second_q.properties.bases import HarmonicBasis
-
-from .resources.reference_direct_mapper import (
+from test.second_q.mappers.resources.reference_direct_mapper import (
     _num_modals_2_q_op,
     _num_modals_3_q_op,
 )
+
+from qiskit_nature.second_q.drivers import GaussianForcesDriver
+from qiskit_nature.second_q.mappers import DirectMapper
+from qiskit_nature.second_q.problems import HarmonicBasis
+import qiskit_nature.optionals as _optionals
 
 
 class TestDirectMapper(QiskitNatureTestCase):
@@ -33,22 +33,21 @@ class TestDirectMapper(QiskitNatureTestCase):
         """Setup."""
         super().setUp()
 
-        driver = GaussianForcesDriver(
+        self.driver = GaussianForcesDriver(
             logfile=self.get_resource_path(
                 "test_driver_gaussian_log_C01.txt",
                 "second_q/drivers/gaussiand",
             )
         )
-        self.driver_result = driver.run()
 
+    @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     def test_mapping(self):
         """Test mapping to qubit operator"""
-        num_modes = self.driver_result.num_modes
-        num_modals = [2] * num_modes
+        num_modals = [2, 2, 2, 2]
+        basis = HarmonicBasis(num_modals)
+        problem = self.driver.run(basis)
 
-        vibration_energy = self.driver_result.hamiltonian
-        vibration_energy.basis = HarmonicBasis(num_modals)
-
+        vibration_energy = problem.hamiltonian
         vibration_op = vibration_energy.second_q_op()
 
         mapper = DirectMapper()
@@ -56,14 +55,14 @@ class TestDirectMapper(QiskitNatureTestCase):
 
         self.assertEqual(qubit_op, _num_modals_2_q_op)
 
+    @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     def test_larger_tutorial_qubit_op(self):
         """Test the 3-modal qubit operator generated in the vibrational structure tutorial."""
-        num_modes = self.driver_result.num_modes
-        num_modals = [3] * num_modes
+        num_modals = [3, 3, 3, 3]
+        basis = HarmonicBasis(num_modals)
+        problem = self.driver.run(basis)
 
-        vibration_energy = self.driver_result.hamiltonian
-        vibration_energy.basis = HarmonicBasis(num_modals)
-
+        vibration_energy = problem.hamiltonian
         vibration_op = vibration_energy.second_q_op()
 
         mapper = DirectMapper()

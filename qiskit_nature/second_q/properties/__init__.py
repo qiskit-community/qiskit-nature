@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """
-Second-Quantization Properties (:mod:`qiskit_nature.second_q.properties`)
+Properties (:mod:`qiskit_nature.second_q.properties`)
 ================================================================================================
 
 .. currentmodule:: qiskit_nature.second_q.properties
@@ -20,7 +20,8 @@ Second-Quantization Properties (:mod:`qiskit_nature.second_q.properties`)
    :toctree: ../stubs/
    :nosignatures:
 
-    Property
+    SparseLabelOpsFactory
+    Interpretable
 
 Electronic Properties
 ---------------------
@@ -45,7 +46,7 @@ Vibrational Properties
    OccupiedModals
 """
 
-from .property import Property
+from .protocols import SparseLabelOpsFactory, Interpretable
 
 from .angular_momentum import AngularMomentum
 from .dipole_moment import ElectronicDipoleMoment
@@ -57,7 +58,8 @@ from .occupied_modals import OccupiedModals
 
 
 __all__ = [
-    "Property",
+    "SparseLabelOpsFactory",
+    "Interpretable",
     "AngularMomentum",
     "ElectronicDensity",
     "ElectronicDipoleMoment",

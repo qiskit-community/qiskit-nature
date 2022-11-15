@@ -13,7 +13,7 @@
 """ Test Jordan Wigner Mapper """
 
 import unittest
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 
 from qiskit.opflow import I, PauliSumOp, X, Y, Z
 
@@ -22,7 +22,7 @@ from qiskit_nature.mappers.second_quantization import JordanWignerMapper
 from qiskit_nature.operators.second_quantization import FermionicOp
 
 
-class TestJordanWignerMapper(QiskitNatureTestCase):
+class TestJordanWignerMapper(QiskitNatureDeprecatedTestCase):
     """Test Jordan Wigner Mapper"""
 
     REF_H2 = (

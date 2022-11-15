@@ -73,7 +73,7 @@ jobs:
         run: |
           source "$CONDA/etc/profile.d/conda.sh"
           conda activate psi4env
-          pip install jupyter sphinx_rtd_theme qiskit-terra[visualization]
+          pip install jupyter qiskit-terra[visualization]
           sudo apt-get install -y pandoc graphviz
           sudo apt-get -y install python3-enchant
           sudo apt-get -y install hunspell-en-us
@@ -179,6 +179,12 @@ jobs:
           os: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
         if: ${{ matrix.os != 'windows-2019' || (matrix.os == 'windows-2019' && matrix.python-version != '3.10') }}
+      - name: Install PyQuante2
+        run: |
+          source "$CONDA/etc/profile.d/conda.sh"
+          conda activate psi4env
+          conda install -y pyquante2_pure -c rpmuller
+        shell: bash
       - uses: ./.github/actions/install-main-dependencies
         with:
           os: ${{ matrix.os }}
@@ -188,12 +194,6 @@ jobs:
       - uses: ./.github/actions/install-nature
         with:
           use-conda: "true"
-      - name: Install PyQuante2
-        run: |
-          source "$CONDA/etc/profile.d/conda.sh"
-          conda activate psi4env
-          conda install -y pyquante2_pure python=${{ matrix.python-version }} -c rpmuller
-        shell: bash
       - name: Set up problem matches
         run: |
           echo "::add-matcher::./.github/problem_matchers/pylint.json"
@@ -282,7 +282,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.7, 3.8]
+        python-version: [3.8, 3.9]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -306,7 +306,7 @@ jobs:
           use-conda: "false"
       - name: Install Dependencies
         run: |
-          pip install jupyter sphinx_rtd_theme qiskit-terra[visualization]
+          pip install jupyter qiskit-terra[visualization]
           sudo apt-get install -y pandoc graphviz
           echo "earliest_version: 0.1.0" >> releasenotes/config.yaml
         shell: bash
@@ -338,7 +338,6 @@ jobs:
           wget https://codeload.github.com/Qiskit/qiskit-nature/zip/stable/$version -O /tmp/repo.zip
           unzip /tmp/repo.zip -d /tmp/
           # copy stable tutorials to main tutorials
-          rm -rf docs/tutorials/*
           cp -R /tmp/qiskit-nature-stable-$version/docs/tutorials/* docs/tutorials
           # run tutorials and zip results
           echo "earliest_version: 0.1.0" >> releasenotes/config.yaml

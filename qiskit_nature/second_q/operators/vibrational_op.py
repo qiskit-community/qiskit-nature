@@ -9,574 +9,615 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-"""A Vibration operator."""
 
-import itertools
+"""The Vibrational Operator."""
+
+from __future__ import annotations
+
+import re
+from collections import defaultdict
+from collections.abc import Collection, Mapping
+from typing import Iterator, Sequence, Tuple, cast
 import logging
 import operator
-import re
-from functools import reduce
-from typing import List, Optional, Tuple, Union
+import itertools
 
 import numpy as np
-from qiskit_nature import QiskitNatureError
 
-from .second_quantized_op import SecondQuantizedOp
+from qiskit_nature.exceptions import QiskitNatureError
+import qiskit_nature.optionals as _optionals
+
+from ._bits_container import _BitsContainer
+from .polynomial_tensor import PolynomialTensor
+from .sparse_label_op import _TCoeff, SparseLabelOp, _to_number
 
 logger = logging.getLogger(__name__)
 
 
-class VibrationalOp(SecondQuantizedOp):
-    """Vibration type operators.
+class VibrationalOp(SparseLabelOp):
+    r"""N-mode vibrational operator.
 
-    **Label**
-
-    This class supports two kinds of labels: sparse and dense ones.
-
-    1. Sparse Labels:
-
-    Allowed characters for primitives of labels are `+` and `-`.
-
-    .. list-table::
-        :header-rows: 1
-
-        * - Label
-          - Mathematical Representation
-          - Meaning
-        * - `+`
-          - :math:`S_+`
-          - Raising operator
-        * - `-`
-          - :math:`S_-`
-          - Lowering operator
-
-    This class accepts the notation that encodes raising (`+`) and lowering (`-`)
-    operators together with indices of modes and modals that they act on, e.g.
-    `+_{mode_index}*{modal_index}`. Each modal can be excited at most once.
-
-    For more information on how the sparse label notation works, please refer to the more extensive
-    examples in the :class:`SpinOp` class.
-
-    2. Dense Labels:
-
-    Internally, this class is stored as a dense label in an identical notation to that
-    of the :class:`FermionicOp`. Thus, each modal is mapped onto a position of the string and can be
-    one of the following characters: `I`, `+`, `-`, `N` and `E`. Here, `N` and `E` are shorthand
-    for `+-` and `-+` applied on the same modal, respectively.
-    The length of a dense label is given by `register_length` and can be computed as the sum of all
-    modals over all modes.
-
-    For more information on how the dense label notation works, please refer to the more extensive
-    examples in the :class:`FermionicOp` class.
+    A ``VibrationalOp`` represents a weighted sum of vibrational creation/annihilation operator terms.
+    These terms are encoded as sparse labels, strings consisting of a space-separated list of
+    expressions. Each expression must look like :code:`[+-]_<mode_index>_<modal_index>`, where the
+    :code:`<mode_index>` and :code:`<modal_index>` are non-negative integers representing the index
+    of the vibrational mode and modal, respectively, where the ``+`` (creation) or ``-`` (annihilation)
+    operation is to be performed.
 
     **Initialization**
 
-    This class can be initialized by the list of tuples that each contains a string with a label as
-    explained above and a corresponding coefficient. This argument must be accompanied by the number
-    of modes and modals, and possibly, the value of a spin.
+    A ``VibrationalOp`` is initialized with a dictionary, mapping terms to their respective
+    coefficients:
+
+    .. jupyter-execute::
+
+        from qiskit_nature.second_q.operators import VibrationalOp
+
+        op = VibrationalOp(
+            {
+                "+_0_0 -_0_0": 1.0,
+                "+_0_1 -_0_1": 1.0,
+                "+_1_0 -_1_0": -1.0,
+                "+_1_1 -_1_1": -1.0,
+            },
+            num_modals=[2, 2]
+        )
+
+    By default, this way of initializing will create a full copy of the dictionary of coefficients.
+    If you have very restricted memory resources available, or would like to avoid the additional
+    copy, the dictionary will be stored by reference if you disable ``copy`` like so:
+
+    .. jupyter-execute::
+
+        some_big_data = {
+            "+_0_0 -_0_0": 1.0,
+            "+_0_1 -_0_1": 1.0,
+            # ...
+        }
+
+        op = VibrationalOp(
+            some_big_data,
+            num_modals=[2, 2],
+            copy=False,
+        )
+
+    .. note::
+
+        It is the users' responsibility, that in the above scenario, :code:`some_big_data` is not
+        changed after initialization of the ``VibrationalOp``, since the operator contents are not
+        guaranteed to remain unaffected by such changes.
+
+    If :code:`num_modals` is not provided then the maximum :code:`modal_index` per
+    mode will determine the :code:`num_modals` for that mode.
+
+    .. jupyter-execute::
+
+        from qiskit_nature.second_q.operators import VibrationalOp
+
+        op = VibrationalOp(
+            {
+                "+_0_0 -_0_0": 1.0,
+                "+_0_1 -_0_1": 1.0,
+                "+_1_0 -_1_0": -1.0,
+                "+_1_1 -_1_1": -1.0,
+            },
+        )
+
 
     **Algebra**
 
     This class supports the following basic arithmetic operations: addition, subtraction, scalar
-    multiplication, and dagger(adjoint).
+    multiplication, operator multiplication, and adjoint.
+    For example,
+
+    Addition
+
+    .. jupyter-execute::
+
+      VibrationalOp({"+_1_0": 1}, num_modals=[2, 2]) + VibrationalOp({"+_0_0": 1}, num_modals=[2, 2])
+
+    Sum
+
+    .. jupyter-execute::
+
+      sum(VibrationalOp({label: 1}, num_modals=[1, 1, 1]) for label in ["+_0_0", "-_1_0", "+_2_0 -_2_0"])
+
+    Scalar multiplication
+
+    .. jupyter-execute::
+
+      0.5 * VibrationalOp({"+_1_0": 1}, num_modals=[1, 1])
+
+    Operator multiplication
+
+    .. jupyter-execute::
+
+      op1 = VibrationalOp({"+_0_0 -_1_0": 1}, num_modals=[1, 1])
+      op2 = VibrationalOp({"-_0_0 +_0_0 +_1_0": 1}, num_modals=[1, 1])
+      print(op1 @ op2)
+
+    Tensor multiplication
+
+    .. jupyter-execute::
+
+      op = VibrationalOp({"+_0_0 -_1_0": 1}, num_modals=[1, 1])
+      print(op ^ op)
+
+    Adjoint
+
+    .. jupyter-execute::
+
+      VibrationalOp({"+_0_0 -_1_0": 1j}, num_modals=[1, 1]).adjoint()
+
+    In principle, you can also add :class:`VibrationalOp` and integers, but the only valid case is the
+    addition of `0 + VibrationalOp`. This makes the `sum` operation from the example above possible
+    and it is useful in the following scenario:
+
+    .. code-block:: python
+
+        vibrational_op = 0
+        for i in some_iterable:
+            # some processing
+            vibrational_op += VibrationalOp(somedata)
+
+    **Iteration**
+
+    Instances of ``VibrationalOp`` are iterable. Iterating a ``VibrationalOp`` yields (term, coefficient)
+    pairs describing the terms contained in the operator.
+
+    .. note::
+
+        A VibrationalOp can contain :class:`qiskit.circuit.ParameterExpression` objects as
+        coefficients.
     """
 
     # a valid pattern consists of a single "+" or "-" operator followed by "_" and a mode index
-    # followed by "*" and a modal index, possibly appearing multiple times and separated by a space
-    _VALID_VIBR_LABEL_PATTERN = re.compile(r"^([\+\-]_\d+\*\d+\s)*[\+\-]_\d+\*\d+(?!\s)$|^[\+\-]+$")
+    # followed by "_" and a modal index, possibly appearing multiple times and separated by a space
+    _OPERATION_REGEX = re.compile(r"([\+\-]_\d+_\d+\s)*[\+\-]_\d+_\d+(?!\s)")
 
     def __init__(
         self,
-        data: Union[str, Tuple[str, complex], List[Tuple[str, complex]]],
-        num_modes: int,
-        num_modals: Union[int, List[int]],
-    ):
-        r"""
+        data: Mapping[str, _TCoeff],
+        num_modals: Sequence[int] | None = None,
+        *,
+        copy: bool = True,
+        validate: bool = True,
+    ) -> None:
+        """
         Args:
-            data: list of labels and coefficients.
-            num_modes : number of modes.
-            num_modals: number of modals - described by a list of integers where each integer
-                        describes the number of modals in a corresponding mode; in case of the
-                        same number of modals in each mode it is enough to provide an integer
-                        that describes the number of them; the total number of modals defines a
-                        `register_length`
+            data: the operator data, mapping string-based keys to numerical values.
+            num_modals: number of modals - described by a sequence of integers where each integer
+                describes the number of modals in the corresponding mode; the total number of modals
+                defines a ``register_length``.
+            copy: when set to False the `data` will not be copied and the dictionary will be
+                stored by reference rather than by value (which is the default; ``copy=True``). Note,
+                that this requires you to not change the contents of the dictionary after
+                constructing the operator. This also implies ``validate=False``. Use with care!
+            validate: when set to False the ``data`` keys will not be validated. Note, that the
+                SparseLabelOp base class, makes no assumption about the data keys, so will not
+                perform any validation by itself. Only concrete subclasses are encouraged to
+                implement a key validation method. Disable this setting with care!
+
         Raises:
-            TypeError: given data has invalid type.
-            ValueError: invalid labels.
+            QiskitNatureError: when an invalid key is encountered during validation.
         """
-        if not isinstance(data, (tuple, list, str)):
-            raise TypeError(f"Type of data must be str, tuple, or list, not {type(data)}.")
-
-        if isinstance(data, tuple):
-            if not isinstance(data[0], str) or not isinstance(data[1], (int, float, complex)):
-                raise TypeError(
-                    f"Data tuple must be (str, number), not ({type(data[0])}, {type(data[1])})."
-                )
-            data = [data]
-
-        if isinstance(data, str):
-            data = [(data, 1)]
-
-        if not all(
-            isinstance(label, str) and isinstance(coeff, (int, float, complex))
-            for label, coeff in data
-        ):
-            raise TypeError("Data list must be [(str, number)].")
-
-        self._coeffs: np.ndarray
-        self._labels: List[str]
-
-        if isinstance(num_modals, int):
-            num_modals = [num_modals] * num_modes
-
-        self._num_modes = num_modes
-        self._num_modals = num_modals
-        self._register_length = sum(self._num_modals)
-
-        labels, coeffs = zip(*data)
-        self._coeffs = np.array(coeffs, np.complex128)
-
-        if not any("_" in label for label in labels):
-            # Dense label
-            if not all(len(label) == self._register_length for label in labels):
-                raise ValueError("Lengths of strings of label are different.")
-            label_pattern = re.compile(r"^[I\+\-NE]+$")
-            invalid_labels = [label for label in labels if not label_pattern.match(label)]
-            if invalid_labels:
-                raise ValueError(f"Invalid labels for dense labels are given: {invalid_labels}")
-            self._labels = list(labels)
-        else:
-            # Sparse label
-            dense_labels = self._convert_to_dense_labels(data, num_modals)
-
-            ops: List["VibrationalOp"] = []
-            for dense_label, coeff in dense_labels:
-                new_op = reduce(
-                    lambda a, b: a @ b,
-                    (VibrationalOp((label, 1), num_modes, num_modals) for label in dense_label),
-                )
-                # We ignore the type here because mypy only sees the complex coefficient
-                ops.append(coeff * new_op)  # type: ignore
-
-            op = reduce(lambda a, b: a + b, ops)
-
-            self._labels = op._labels.copy()
-
-    def __repr__(self) -> str:
-        if len(self) == 1:
-            if self._coeffs[0] == 1:
-                return f"VibrationalOp('{self._labels[0]}')"
-            return f"VibrationalOp({self.to_list()[0]})"
-        return f"VibrationalOp({self.to_list()})"  # TODO truncate
-
-    def __str__(self) -> str:
-        """Sets the representation of `self` in the console."""
-        if len(self) == 1:
-            label, coeff = self.to_list()[0]
-            return f"{label} * {coeff}"
-        return "  " + "\n+ ".join([f"{label} * {coeff}" for label, coeff in self.to_list()])
-
-    def __len__(self):
-        return len(self._labels)
+        self.num_modals = num_modals
+        super().__init__(data, copy=copy, validate=validate)
 
     @property
-    def num_modes(self) -> int:
-        """The number of modes.
-        Returns:
-            The number of modes
-        """
-        return self._num_modes
+    def num_modals(self) -> Sequence[int]:
+        """The number of modals for each mode on which this operator acts.
 
-    @property
-    def num_modals(self) -> List[int]:
-        """The number of modals.
-        Returns:
-            The number of modals
+        This is an optional sequence of integers which are considered lower bounds. That means that
+        mathematical operations acting on two or more operators will result in a new operator with
+        the maximum number of modals for each mode involved in any of the operators.
         """
+        # to ensure future flexibility, the type here is Sequence. However, the current
+        # implementation ensures it will always be a list.
         return self._num_modals
 
+    @num_modals.setter
+    def num_modals(self, num_modals: Sequence[int] | None):
+        self._num_modals = list(num_modals) if num_modals is not None else []
+
     @property
-    def register_length(self) -> int:
-        """Gets the register length."""
-        return self._register_length
+    def register_length(self) -> int | None:
+        return sum(self.num_modals) if self.num_modals is not None else None
 
-    def mul(self, other: complex) -> "VibrationalOp":
-        if not isinstance(other, (int, float, complex)):
-            raise TypeError(
-                f"Unsupported operand type(s) for *: 'VibrationalOp' and '{type(other).__name__}'"
-            )
-        return VibrationalOp(
-            list(zip(self._labels, (other * self._coeffs).tolist())),
-            self._num_modes,
-            self._num_modals,
-        )
+    def _new_instance(
+        self, data: Mapping[str, _TCoeff], *, other: VibrationalOp | None = None
+    ) -> VibrationalOp:
+        num_modals = self.num_modals
+        if other is not None:
+            other_num_modals = other.num_modals
 
-    def add(self, other: "VibrationalOp") -> "VibrationalOp":
-        if not isinstance(other, VibrationalOp):
-            raise TypeError(
-                f"Unsupported operand type(s) for +: 'VibrationalOp' and '{type(other).__name__}'"
-            )
+            def pad_to_length(a, b):
+                if len(a) < len(b):
+                    a, b = b, a
+                return a, b + [0] * (len(a) - len(b))
 
-        # Check compatibility
-        if self.num_modes != other.num_modes or self.num_modals != other.num_modals:
-            raise TypeError("Incompatible register lengths for '+'.")
+            def elementwise_max(a, b):
+                return [max(i, j) for i, j in zip(*pad_to_length(a, b))]
 
-        return VibrationalOp(
-            list(
-                zip(
-                    self._labels + other._labels,
-                    np.hstack((self._coeffs, other._coeffs)).tolist(),
-                )
-            ),
-            self._num_modes,
-            self._num_modals,
-        )
+            num_modals = elementwise_max(num_modals, other_num_modals)
 
-    def to_list(self) -> List[Tuple[str, complex]]:
-        """Returns the operators internal contents in list-format.
+        return self.__class__(data, copy=False, num_modals=num_modals)
 
-        Returns:
-            A list of tuples consisting of the dense label and corresponding coefficient.
-        """
-        return list(zip(self._labels, self._coeffs.tolist()))
+    def _validate_keys(self, keys: Collection[str]) -> None:
+        super()._validate_keys(keys)
+        num_modals = list(self.num_modals)
 
-    def adjoint(self) -> "VibrationalOp":
-        dagger_map = {"+": "-", "-": "+", "I": "I"}
-        label_list = []
-        coeff_list = []
-        for label, coeff in zip(self._labels, self._coeffs.tolist()):
-            conjugated_coeff = coeff.conjugate()
+        for key in keys:
+            # 0. explicitly allow the empty key
+            if key == "":
+                continue
 
-            daggered_label = []
-            for char in label:
-                daggered_label.append(dagger_map[char])
-                if char in "+-":
-                    conjugated_coeff *= -1
+            # Validate overall key structure
+            if not re.fullmatch(VibrationalOp._OPERATION_REGEX, key):
+                raise QiskitNatureError(f"{key} is not a valid VibrationalOp label.")
 
-            label_list.append("".join(daggered_label))
-            coeff_list.append(conjugated_coeff)
-
-        return VibrationalOp(
-            list(zip(label_list, np.array(coeff_list, dtype=np.complex128))),
-            self._num_modes,
-            self._num_modals,
-        )
-
-    def simplify(self, atol: Optional[float] = None) -> "VibrationalOp":
-        if atol is None:
-            atol = self.atol
-
-        label_list, indices = np.unique(self._labels, return_inverse=True, axis=0)
-        coeff_list = np.zeros(label_list.shape[0], dtype=np.complex128)
-        np.add.at(coeff_list, indices, self._coeffs)
-        is_zero = np.isclose(coeff_list, 0, atol=atol)
-        if np.all(is_zero):
-            return VibrationalOp.zero(self._num_modes, self._num_modals)
-        non_zero = np.logical_not(is_zero)
-        return VibrationalOp(
-            list(zip(label_list[non_zero], coeff_list[non_zero])),
-            self._num_modes,
-            self._num_modals,
-        )
-
-    def compose(self, other: "VibrationalOp") -> "VibrationalOp":
-        if isinstance(other, VibrationalOp):
-            # Initialize new operator_list for the returned Vibration operator
-            new_data = []
-
-            # Compute the product (Vibration type operators consist of a sum of VibrationalOp):
-            # F1 * F2 = (B1 + B2 + ...) * (C1 + C2 + ...) where Bi and Ci are VibrationalOp labels
-            for label1, cf1 in self.to_list():
-                for label2, cf2 in other.to_list():
-                    new_label, not_empty = self._single_mul(label1, label2)
-                    if not not_empty:
-                        # empty operator
-                        continue
-                    new_data.append((new_label, cf1 * cf2))
-
-            if not new_data:
-                return VibrationalOp(("I_0*0", 0), self._num_modes, self._num_modals)
-
-            return VibrationalOp(new_data, self._num_modes, self._num_modals)
-
-        raise TypeError(
-            f"Unsupported operand type(s) for *: 'VibrationalOp' and '{type(other).__name__}'"
-        )
-
-    # Map the products of two operators on a single vibrational mode to their result.
-    _MAPPING = {
-        # 0                   - if product vanishes,
-        # new label           - if product does not vanish
-        ("I", "I"): "I",
-        ("I", "+"): "+",
-        ("I", "-"): "-",
-        ("I", "N"): "N",
-        ("I", "E"): "E",
-        ("+", "I"): "+",
-        ("+", "+"): "0",
-        ("+", "-"): "N",
-        ("+", "N"): "0",
-        ("+", "E"): "+",
-        ("-", "I"): "-",
-        ("-", "+"): "E",
-        ("-", "-"): "0",
-        ("-", "N"): "-",
-        ("-", "E"): "0",
-        ("N", "I"): "N",
-        ("N", "+"): "+",
-        ("N", "-"): "0",
-        ("N", "N"): "N",
-        ("N", "E"): "0",
-        ("E", "I"): "E",
-        ("E", "+"): "0",
-        ("E", "-"): "-",
-        ("E", "N"): "0",
-        ("E", "E"): "E",
-    }
-
-    @classmethod
-    def _single_mul(cls, label1: str, label2: str) -> Tuple[str, bool]:
-        if len(label1) != len(label2):
-            raise QiskitNatureError("Operators act on Fermion Registers of different length")
-
-        new_label = []
-
-        for pair in zip(label1, label2):
-            new_char = cls._MAPPING[pair]
-            if new_char == "0":
-                # if the new symbol is a zero-op, return early
-                return "I" * len(label1), False
-            new_label.append(new_char)
-            # NOTE: we can ignore the type because the only scenario where an `int` occurs is caught
-            # by the `if`-statement above.
-
-        return "".join(new_label), True
-
-    def _validate_vibrational_labels(
-        self, vibrational_labels: List[Tuple[str, complex]], num_modals: List[int]
-    ):
-        """Validates vibrational labels in the following aspects:
-        - vibrational labels stored in a correct data structure,
-        - labels for each coefficient conform with a regular expression,
-        - indices of operators in each label are correct and ordered correctly:
-            * indices for modes and modals do not exceed declared ranges,
-            * there are no duplicated operators for each coefficient,
-            * operators in each label are sorted in the decreasing order of modes and modals,
-            if both are equal then '+' comes before '-' (i.e. they are normal ordered),
-            * Finally, a warning will be logged if the number of particles is not preserved
-            within each mode. This corresponds to a mismatching number of `+` and `-` operators.
-            This case only leads to a warning because it allows re-use of the
-            :class:`VibrationalOp` for state initialization, where only `+` operators are
-            present.
-
-        Args:
-            vibrational_labels: list of vibrational labels with coefficients.
-            num_modals: the number of modals.
-
-        Raises:
-            ValueError: if invalid vibrational labels provided.
-        """
-        if not isinstance(vibrational_labels, list):
-            raise ValueError("Invalid data type.")
-
-        invalid_labels = [
-            label
-            for label, _ in vibrational_labels
-            if not self._VALID_VIBR_LABEL_PATTERN.match(label)
-        ]
-        if invalid_labels:
-            raise ValueError(f"Invalid labels: {invalid_labels}")
-
-        self._validate_indices(vibrational_labels, num_modals)
-
-    def _validate_indices(
-        self, vibrational_labels: List[Tuple[str, complex]], num_modals: List[int]
-    ):
-        for labels, _ in vibrational_labels:
-            coeff_labels_split = labels.split()
-            num_modes = len(num_modals)
-            par_num_mode_conserved_check = [0] * num_modes
-            prev_op, prev_mode_index, prev_modal_index = "+", -1, -1
+            coeff_labels_split = key.split()
             for label in coeff_labels_split:
-                op, mode_index_str, modal_index_str = re.split("[*_]", label)
+                _, mode_index_str, modal_index_str = label.split("_")
                 mode_index = int(mode_index_str)
                 modal_index = int(modal_index_str)
-                if self._is_index_out_of_range(mode_index, num_modes, modal_index, num_modals):
-                    raise ValueError(f"Indices out of the declared range for label {label}.")
-                if self._is_label_duplicated(
-                    mode_index,
-                    prev_mode_index,
-                    modal_index,
-                    prev_modal_index,
-                    op,
-                    prev_op,
-                ):
-                    raise ValueError(f"Operators in a label duplicated for label {label}.")
-                if self._is_order_incorrect(
-                    mode_index,
-                    prev_mode_index,
-                    modal_index,
-                    prev_modal_index,
-                    op,
-                    prev_op,
-                ):
-                    raise ValueError(
-                        f"Incorrect order of operators for label {label} and previous label "
-                        f"{str(prev_op)}_{str(prev_mode_index)}*{str(prev_modal_index)}."
-                    )
 
-                prev_op, prev_mode_index, prev_modal_index = op, mode_index, modal_index
+                if mode_index + 1 > len(num_modals):
+                    num_modals += [0] * (mode_index + 1 - len(num_modals))
 
-                par_num_mode_conserved_check[int(mode_index)] += 1 if op == "+" else -1
-            for index, item in enumerate(par_num_mode_conserved_check):
-                if item != 0:
-                    logger.warning(
-                        "Number of raising and lowering operators do not agree for mode %s in "
-                        "label %s.",
-                        index,
-                        labels,
-                    )
+                if modal_index > num_modals[mode_index] - 1:
+                    num_modals[mode_index] = modal_index + 1
 
-    def _is_index_out_of_range(
-        self, mode_index: int, num_modes: int, modal_index: int, num_modals: List[int]
-    ) -> bool:
-        return mode_index >= num_modes or modal_index >= num_modals[int(mode_index)]
+        self.num_modals = num_modals
 
-    def _is_label_duplicated(
-        self,
-        mode_index: int,
-        prev_mode_index: int,
-        modal_index: int,
-        prev_modal_index: int,
-        op: str,
-        prev_op: str,
-    ) -> bool:
-        return modal_index == prev_modal_index and mode_index == prev_mode_index and op == prev_op
+    @classmethod
+    def _validate_polynomial_tensor_key(cls, keys: Collection[str]) -> None:
+        allowed = re.compile(r"(_\+\-)*")
 
-    def _is_order_incorrect(
-        self,
-        mode_index: int,
-        prev_mode_index: int,
-        modal_index: int,
-        prev_modal_index: int,
-        op: str,
-        prev_op: str,
-    ) -> bool:
-        return (
-            self._is_mode_order_incorrect(mode_index, prev_mode_index)
-            or self._is_modal_order_incorrect(
-                prev_mode_index, mode_index, prev_modal_index, modal_index
-            )
-            or self._is_operator_order_incorrect(
-                mode_index, prev_mode_index, modal_index, prev_modal_index, op, prev_op
-            )
+        for key in keys:
+            if not re.fullmatch(allowed, key):
+                raise QiskitNatureError(
+                    f"The key '{key}' is invalid. PolynomialTensor keys must be multiples of the "
+                    "'_+-' character sequence, for them to be expandable into a VibrationalOp."
+                )
+
+    @classmethod
+    def from_polynomial_tensor(cls, tensor: PolynomialTensor) -> VibrationalOp:
+        cls._validate_polynomial_tensor_key(tensor.keys())
+
+        data: dict[str, _TCoeff] = {}
+
+        def _reshape_index(index):
+            new_index = []
+            for idx in range(0, len(index), 3):
+                new_index.extend([index[idx], index[idx + 1], index[idx], index[idx + 2]])
+            return new_index
+
+        for key in tensor:
+            if key == "":
+                # TODO: deal with complexity
+                data[""] = cast(float, tensor[key])
+                continue
+
+            label_template = " ".join(f"{op}_{{}}_{{}}" for op in key.replace("_", ""))
+
+            mat = tensor[key]
+            if isinstance(mat, np.ndarray):
+                for index in np.ndindex(*mat.shape):
+                    data[label_template.format(*_reshape_index(index))] = mat[index]
+            else:
+                _optionals.HAS_SPARSE.require_now("SparseArray")
+                import sparse as sp  # pylint: disable=import-error
+
+                if isinstance(mat, sp.SparseArray):
+                    coo = sp.as_coo(mat)
+                    for value, *index in zip(coo.data, *coo.coords):
+                        data[label_template.format(*_reshape_index(index))] = value
+
+        return cls(data)
+
+    def __repr__(self) -> str:
+        data_str = f"{dict(self.items())}"
+
+        return "VibrationalOp(" f"{data_str}, " f"num_modals={self.num_modals}, " ")"
+
+    def __str__(self) -> str:
+        pre = (
+            "Vibrational Operator\n"
+            f"number modes={len(self.num_modals)}, number modals={self.num_modals}, "
+            f"number terms={len(self)}\n"
         )
-
-    def _is_mode_order_incorrect(self, mode_index: int, prev_mode_index: int) -> bool:
-        return mode_index < prev_mode_index
-
-    def _is_modal_order_incorrect(
-        self,
-        prev_mode_index: int,
-        mode_index: int,
-        prev_modal_index: int,
-        modal_index: int,
-    ) -> bool:
-        return mode_index == prev_mode_index and modal_index < prev_modal_index
-
-    def _is_operator_order_incorrect(
-        self,
-        mode_index: int,
-        prev_mode_index: int,
-        modal_index: int,
-        prev_modal_index: int,
-        op: str,
-        prev_op: str,
-    ) -> bool:
-        return (
-            mode_index == prev_mode_index
-            and modal_index == prev_modal_index
-            and prev_op == "-"
-            and op == "+"
+        ret = "  " + "\n+ ".join(
+            [f"{coeff} * ( {label} )" if label else f"{coeff}" for label, coeff in self.items()]
         )
+        return pre + ret
 
-    def _convert_to_dense_labels(
-        self, vibrational_labels: List[Tuple[str, complex]], num_modals: List[int]
-    ) -> List[Tuple[List[str], complex]]:
-        """Converts sparse :class:`VibrationalOp` labels to dense ones.
-        The dense labels match the notation of :class:`FermionicOp`.
+    def terms(self) -> Iterator[tuple[list[tuple[str, int]], _TCoeff]]:
+        """Provides an iterator analogous to :meth:`items` but with the labels already split into
+        pairs of operation characters and indices.
 
-        Args:
-            vibrational_labels: list of labels and corresponding coefficients that describe a
-            vibrational problem.
-            num_modals: number of modals in each mode.
-        Returns:
-            The converted list of dense labels.
-        Raises:
-            ValueError: if invalid labels provided or the length of list of modal sizes do not agree
-            with the number of modes provided
+        Yields:
+            A tuple with two items; the first one being a list of pairs of the form (char, int)
+            where char is either ``+`` or ``-`` and the integer corresponds to the vibrational mode and
+            modal index on which the operator gets applied; the second item of the returned tuple is
+            the coefficient of this term.
         """
-        self._validate_vibrational_labels(vibrational_labels, num_modals)
-
+        num_modals = self.num_modals
         partial_sum_modals = [0] + list(itertools.accumulate(num_modals, operator.add))
 
-        dense_labels = []
-        for labels, coeff in vibrational_labels:
-            coeff_new_labels = self._build_coeff_dense_labels(labels, partial_sum_modals)
-            dense_labels.append((coeff_new_labels, coeff))
-        return dense_labels
+        for label in iter(self):
+            if not label:
+                yield ([], self[label])
+                continue
+            terms = [self._build_register_label(lbl, partial_sum_modals) for lbl in label.split()]
+            yield (terms, self[label])
 
-    def _build_coeff_dense_labels(self, labels: str, partial_sum_modals: List[int]) -> List[str]:
-        coeff_labels_split = labels.split()
-        coeff_new_labels = []
-        for label in coeff_labels_split:
-            op, index = self._build_dense_label(label, partial_sum_modals)
-            new_label = ["I"] * partial_sum_modals[-1]
-            new_label[index] = op
-            coeff_new_labels.append("".join(new_label))
-        return coeff_new_labels
-
-    def _build_dense_label(self, label: str, partial_sum_modals: List[int]) -> Tuple[str, int]:
-        op, mode_index, modal_index = re.split("[*_]", label)
+    def _build_register_label(self, label: str, partial_sum_modals: list[int]) -> tuple[str, int]:
+        op, mode_index, modal_index = label.split("_")
         index = partial_sum_modals[int(mode_index)] + int(modal_index)
         return (op, index)
 
-    @classmethod
-    def zero(cls, num_modes: int, num_modals: Union[int, List[int]]) -> "VibrationalOp":
-        """Constructs a zero-operator.
+    def compose(self, other: VibrationalOp, qargs=None, front: bool = False) -> VibrationalOp:
+        if not isinstance(other, VibrationalOp):
+            raise TypeError(
+                f"Unsupported operand type(s) for *: 'VibrationalOp' and '{type(other).__name__}'"
+            )
 
-        Args:
-            num_modes : number of modes.
-            num_modals: number of modals - described by a list of integers where each integer
-                        describes the number of modals in a corresponding mode; in case of the
-                        same number of modals in each mode it is enough to provide an integer
-                        that describes the number of them; the total number of modals defines a
-                        `register_length`
+        if front:
+            return self._tensor(self, other, offset=False)
+        else:
+            return self._tensor(other, self, offset=False)
 
-        Returns:
-            The zero-operator of the given length.
-        """
-        if isinstance(num_modals, int):
-            num_modals = [num_modals] * num_modes
+    def tensor(self, other: VibrationalOp) -> VibrationalOp:
+        return self._tensor(self, other)
 
-        return VibrationalOp(("I" * sum(num_modals), 0.0), num_modes, num_modals)
+    def expand(self, other: VibrationalOp) -> VibrationalOp:
+        return self._tensor(other, self)
 
     @classmethod
-    def one(cls, num_modes: int, num_modals: Union[int, List[int]]) -> "VibrationalOp":
-        """Constructs a unity-operator.
+    def _tensor(cls, a: VibrationalOp, b: VibrationalOp, *, offset: bool = True) -> VibrationalOp:
+        shift = len(a.num_modals) if offset else 0
 
-        Args:
-            num_modes : number of modes.
-            num_modals: number of modals - described by a list of integers where each integer
-                        describes the number of modals in a corresponding mode; in case of the
-                        same number of modals in each mode it is enough to provide an integer
-                        that describes the number of them; the total number of modals defines a
-                        `register_length`
+        new_data: dict[str, _TCoeff] = {}
+        for a_labels, a_coeff in a.items():
+            for b_labels, b_coeff in b.items():
+                if b_labels == "":
+                    new_label = a_labels
+                else:
+                    b_terms = [lbl.split("_") for lbl in b_labels.split()]
+                    new_b_label = " ".join(f"{op}_{int(i)+shift}_{j}" for op, i, j in b_terms)
+                    new_label = f"{a_labels} {new_b_label}".strip()
+
+                if new_label in new_data:
+                    new_data[new_label] += a_coeff * b_coeff
+                else:
+                    new_data[new_label] = a_coeff * b_coeff
+
+        new_op = a._new_instance(new_data, other=b)
+        if offset:
+            new_op.num_modals = [*a.num_modals, *b.num_modals]
+        return new_op
+
+    def transpose(self) -> VibrationalOp:
+        data = {}
+
+        trans = "".maketrans("+-", "-+")
+
+        for label, coeff in self.items():
+            data[" ".join(lbl.translate(trans) for lbl in reversed(label.split()))] = coeff
+
+        return self._new_instance(data)
+
+    def normal_order(self) -> VibrationalOp:
+        """Convert to the equivalent operator in normal order.
+
+        The normal order for this operator is defined as follows:
+        - creation (``+``) operations are applied before annihilation (``-``) ones
+        - operators are ordered by index within each of the operator type groups
+
+        Returns a new operator (the original operator is not modified).
+
+        .. note::
+
+            The operations encoded by a ``VibrationalOp`` are fully commutative, which means that
+            re-ordering of individual terms does **not** result in a phase shift.
 
         Returns:
-            The unity-operator of the given length.
+            The normal ordered operator.
         """
-        if isinstance(num_modals, int):
-            num_modals = [num_modals] * num_modes
+        ordered_op = VibrationalOp.zero()
 
-        return VibrationalOp(("I" * sum(num_modals), 1.0), num_modes, num_modals)
+        for label, coeff in self.items():
+            terms = []
+            for lbl in label.split():
+                char, mode, modal = lbl.split("_")
+                terms.append((char, int(mode), int(modal)))
+            ordered_op += self._normal_order(terms, coeff)
+
+        # after successful normal ordering, we remove all zero coefficients
+        return self._new_instance(
+            {
+                label: coeff
+                for label, coeff in ordered_op.items()
+                if not np.isclose(_to_number(coeff), 0.0, atol=self.atol)
+            }
+        )
+
+    def _normal_order(self, terms: list[tuple[str, int, int]], coeff: _TCoeff) -> VibrationalOp:
+        if not terms:
+            return self._new_instance({"": coeff})
+
+        ordered_op = VibrationalOp.zero()
+
+        # perform insertion sorting
+        for i in range(1, len(terms)):
+            for j in range(i, 0, -1):
+                right = terms[j]
+                left = terms[j - 1]
+
+                if right[0] == "+" and left[0] == "-":
+                    # swap terms where an annihilation operator is left of a creation operator
+                    terms[j - 1] = right
+                    terms[j] = left
+
+                elif right[0] == left[0]:
+                    # when we have identical neighboring operators, differentiate two cases:
+
+                    # on identical index, this is an invalid operation which evaluates to
+                    # zero: e.g. +_0_0 +_0_0 = 0
+                    if right[1] == left[1] and right[2] == left[2]:
+                        # thus, we bail on this recursion call
+                        return ordered_op
+
+                    # otherwise, if the left index is higher than the right one, swap the terms
+                    elif left[1] > right[1] or (left[1] == right[1] and left[2] > right[2]):
+                        terms[j - 1] = right
+                        terms[j] = left
+
+        new_label = " ".join(f"{term[0]}_{term[1]}_{term[2]}" for term in terms)
+        ordered_op += self._new_instance({new_label: coeff})
+        return ordered_op
+
+    def index_order(self) -> VibrationalOp:
+        """Convert to the equivalent operator with the terms of each label ordered by index.
+
+        Returns a new operator (the original operator is not modified).
+
+        .. note::
+
+            You can use this method to achieve the most aggressive simplification of an operator
+            without changing the operation order per index. :meth:`simplify` does *not* reorder the
+            terms and, thus, cannot deduce ``-_0_0 +_1_0`` and ``+_1_0 -_0_0 +_0_0 -_0_0`` to be
+            identical labels. Calling this method will reorder the latter label to
+            ``-_0_0 +_0_0 -_0_0 +_1_0``, after which :meth:`simplify` will be able to correctly
+            collapse these two labels into one.
+
+        Returns:
+            The index ordered operator.
+        """
+        data = defaultdict(complex)  # type: dict[str, _TCoeff]
+        for label, coeff in self.items():
+            terms = []
+            for lbl in label.split():
+                char, mode, modal = lbl.split("_")
+                terms.append((char, int(mode), int(modal)))
+            label, coeff = self._index_order(terms, coeff)
+            data[label] += coeff
+
+        # after successful index ordering, we remove all zero coefficients
+        return self._new_instance(
+            {
+                label: coeff
+                for label, coeff in data.items()
+                if not np.isclose(_to_number(coeff), 0.0, atol=self.atol)
+            }
+        )
+
+    def _index_order(
+        self, terms: list[tuple[str, int, int]], coeff: _TCoeff
+    ) -> tuple[str, _TCoeff]:
+        if not terms:
+            return "", coeff
+
+        # perform insertion sorting
+        for i in range(1, len(terms)):
+            for j in range(i, 0, -1):
+                right = terms[j]
+                left = terms[j - 1]
+
+                if left[1] > right[1] or (left[1] == right[1] and left[2] > right[2]):
+                    terms[j - 1] = right
+                    terms[j] = left
+
+        new_label = " ".join(f"{term[0]}_{term[1]}_{term[2]}" for term in terms)
+        return new_label, coeff
+
+    def simplify(self, atol: float | None = None) -> VibrationalOp:
+        atol = self.atol if atol is None else atol
+
+        data = defaultdict(complex)  # type: dict[str, _TCoeff]
+        # TODO: use parallel_map to make this more efficient (?)
+        for label, coeff in self.items():
+            label, coeff = self._simplify_label(label, coeff)
+            data[label] += coeff
+        simplified_data = {
+            label: coeff
+            for label, coeff in data.items()
+            if not np.isclose(_to_number(coeff), 0.0, atol=self.atol)
+        }
+        return self._new_instance(simplified_data)
+
+    def _simplify_label(self, label: str, coeff: _TCoeff) -> tuple[str, _TCoeff]:
+        bits = _BitsContainer[Tuple[int, int]]()
+
+        # Since Python 3.7, dictionaries are guaranteed to be insert-order preserving. We use this
+        # to our advantage, to implement an ordered set, which allows us to preserve the label order
+        # and only remove canceling terms.
+        new_label: dict[str, None] = {}
+
+        for lbl in label.split():
+            char, mode_index, modal_index = lbl.split("_")
+            idx = (int(mode_index), int(modal_index))
+            char_b = char == "+"
+
+            if idx not in bits:
+                # we store all relevant information for each register index in 4 bits:
+                #   1. True if a `+` has been applied on this index
+                #   2. True if a `-` has been applied on this index
+                #   3. True if a `+` was applied first, False if a `-` was applied first
+                #   4. True if the last added operation on this index was `+`, False if `-`
+                bits[idx] = int(f"{char_b:b}{not char_b:b}{char_b:b}{char_b:b}", base=2)
+                # and we insert the encountered label into our ordered set
+                new_label[lbl] = None
+
+            elif bits.get_last(idx) == char_b:
+                # we bail, if we apply the same operator as the last one
+                return "", 0
+
+            elif bits.get_plus(idx) and bits.get_minus(idx):
+                # If both, `+` and `-`, have already been applied, we cancel the opposite to the
+                # current one (i.e. `+` will cancel `-` and vice versa).
+                # 1. we construct the reversed label which is the key we need to pop
+                pop_lbl = f"{'-' if char_b else '+'}_{idx[0]}_{idx[1]}"
+                # 2. we perform the information update by:
+                #  a) popping the key we just canceled out
+                new_label.pop(pop_lbl)
+                #  b) updating the bits container
+                bits.set_plus_or_minus(idx, not char_b, False)
+                #  c) and updating the last bit to the current char
+                bits.set_last(idx, char_b)
+
+            else:
+                # else, we simply set the bit of the currently applied char
+                bits.set_plus_or_minus(idx, char_b, True)
+                # and track it in our ordered set
+                new_label[lbl] = None
+                # we also update the last bit to the current char
+                bits.set_last(idx, char_b)
+
+        return " ".join(new_label), coeff
+
+    @staticmethod
+    def build_dual_index(num_modals: Sequence[int], index: int) -> str:
+        r"""Convert a single expanded index into a dual mode and modal index string.
+
+        Args:
+            num_modals: The number of modals - described by a list of integers where each integer
+                describes the number of modals in the corresponding mode; the total number of modals
+                defines the ``register_length``.
+            index: The expanded (register) index.
+
+        Returns:
+            The dual index label.
+
+        Raises:
+            ValueError: If the index is greater than the sum of num_modals.
+        """
+
+        for mode_index, num_modals_per_mode in enumerate(num_modals):
+            if index < num_modals_per_mode:
+                return f"{mode_index}_{index}"
+            else:
+                index -= num_modals_per_mode
+
+        raise ValueError("Invalid index: index > sum(num_modals) - 1.")

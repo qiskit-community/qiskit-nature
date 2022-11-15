@@ -14,16 +14,14 @@
 
 from test import QiskitNatureTestCase
 
-import numpy as np
+from itertools import zip_longest
 
-from qiskit_nature.second_q.hamiltonians import VibrationalEnergy
 from qiskit_nature.second_q.properties import (
     AngularMomentum,
     Magnetization,
     ParticleNumber,
+    OccupiedModals,
 )
-from qiskit_nature.second_q.properties import OccupiedModals
-from qiskit_nature.second_q.properties.integrals import VibrationalIntegrals
 
 
 class PropertyTest(QiskitNatureTestCase):
@@ -33,72 +31,30 @@ class PropertyTest(QiskitNatureTestCase):
         self, first: AngularMomentum, second: AngularMomentum, msg: str = None
     ) -> None:
         """Compares two AngularMomentum instances."""
-        if first.num_spin_orbitals != second.num_spin_orbitals:
-            raise self.failureException(msg)
-        if first.spin != second.spin:
-            raise self.failureException(msg)
-        if not np.isclose(first.absolute_tolerance, second.absolute_tolerance):
-            raise self.failureException(msg)
-        if not np.isclose(first.relative_tolerance, second.relative_tolerance):
+        if first.num_spatial_orbitals != second.num_spatial_orbitals:
             raise self.failureException(msg)
 
     def compare_magnetization(
         self, first: Magnetization, second: Magnetization, msg: str = None
     ) -> None:
         """Compares two Magnetization instances."""
-        if first.num_spin_orbitals != second.num_spin_orbitals:
+        if first.num_spatial_orbitals != second.num_spatial_orbitals:
             raise self.failureException(msg)
 
     def compare_particle_number(
         self, first: ParticleNumber, second: ParticleNumber, msg: str = None
     ) -> None:
         """Compares two ParticleNumber instances."""
-        if first.num_spin_orbitals != second.num_spin_orbitals:
+        if first.num_spatial_orbitals != second.num_spatial_orbitals:
             raise self.failureException(msg)
-        if first.num_alpha != second.num_alpha:
-            raise self.failureException(msg)
-        if first.num_beta != second.num_beta:
-            raise self.failureException(msg)
-        if not np.allclose(first.occupation_alpha, second.occupation_alpha):
-            raise self.failureException(msg)
-        if not np.allclose(first.occupation_beta, second.occupation_beta):
-            raise self.failureException(msg)
-        if not np.isclose(first.absolute_tolerance, second.absolute_tolerance):
-            raise self.failureException(msg)
-        if not np.isclose(first.relative_tolerance, second.relative_tolerance):
-            raise self.failureException(msg)
-
-    def compare_vibrational_integral(
-        self, first: VibrationalIntegrals, second: VibrationalIntegrals, msg: str = None
-    ) -> None:
-        """Compares two VibrationalIntegral instances."""
-        if first.name != second.name:
-            raise self.failureException(msg)
-
-        if first.num_body_terms != second.num_body_terms:
-            raise self.failureException(msg)
-
-        for f_int, s_int in zip(first.integrals, second.integrals):
-            if not np.isclose(f_int[0], s_int[0]):
-                raise self.failureException(msg)
-
-            if not all(f == s for f, s in zip(f_int[1:], s_int[1:])):
-                raise self.failureException(msg)
-
-    def compare_vibrational_energy(
-        self, first: VibrationalEnergy, second: VibrationalEnergy, msg: str = None
-    ) -> None:
-        # pylint: disable=unused-argument
-        """Compares two VibrationalEnergy instances."""
-        for f_ints, s_ints in zip(first, second):
-            self.compare_vibrational_integral(f_ints, s_ints)
 
     def compare_occupied_modals(
         self, first: OccupiedModals, second: OccupiedModals, msg: str = None
     ) -> None:
         # pylint: disable=unused-argument
         """Compares two OccupiedModals instances."""
-        pass
+        if any(f != s for f, s in zip_longest(first.num_modals, second.num_modals)):
+            raise self.failureException(msg)
 
     def setUp(self) -> None:
         """Setup expected object."""
@@ -106,6 +62,4 @@ class PropertyTest(QiskitNatureTestCase):
         self.addTypeEqualityFunc(AngularMomentum, self.compare_angular_momentum)
         self.addTypeEqualityFunc(Magnetization, self.compare_magnetization)
         self.addTypeEqualityFunc(ParticleNumber, self.compare_particle_number)
-        self.addTypeEqualityFunc(VibrationalIntegrals, self.compare_vibrational_integral)
-        self.addTypeEqualityFunc(VibrationalEnergy, self.compare_vibrational_energy)
         self.addTypeEqualityFunc(OccupiedModals, self.compare_occupied_modals)

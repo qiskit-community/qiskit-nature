@@ -1,7 +1,4 @@
-
-
-drivers
-==============================
+.. _qiskit_nature-second_q-drivers:
 
 .. automodule:: qiskit_nature.second_q.drivers
    :no-members:

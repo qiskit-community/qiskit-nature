@@ -33,12 +33,12 @@ class TestSUCCD(QiskitNatureTestCase):
     @unpack
     @data(
         (
-            4,
+            2,
             (1, 1),
             [FermionicOp({"+_0 +_2 -_1 -_3": 1j, "+_3 +_1 -_2 -_0": -1j}, num_spin_orbitals=4)],
         ),
         (
-            8,
+            4,
             (2, 2),
             [
                 FermionicOp({"+_0 +_4 -_2 -_6": 1j, "+_6 +_2 -_4 -_0": -1j}, num_spin_orbitals=8),
@@ -54,22 +54,22 @@ class TestSUCCD(QiskitNatureTestCase):
             ],
         ),
     )
-    def test_succd_ansatz(self, num_spin_orbitals, num_particles, expect):
+    def test_succd_ansatz(self, num_spatial_orbitals, num_particles, expect):
         """Tests the SUCCD Ansatz."""
         converter = QubitConverter(JordanWignerMapper())
 
         ansatz = SUCCD(
             qubit_converter=converter,
             num_particles=num_particles,
-            num_spin_orbitals=num_spin_orbitals,
+            num_spatial_orbitals=num_spatial_orbitals,
         )
 
-        assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)
+        assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
 
     @unpack
     @data(
         (
-            4,
+            2,
             (1, 1),
             (True, True),
             [
@@ -79,7 +79,7 @@ class TestSUCCD(QiskitNatureTestCase):
             ],
         ),
         (
-            4,
+            2,
             (1, 1),
             (True, False),
             [
@@ -88,7 +88,7 @@ class TestSUCCD(QiskitNatureTestCase):
             ],
         ),
         (
-            4,
+            2,
             (1, 1),
             (False, True),
             [
@@ -98,7 +98,7 @@ class TestSUCCD(QiskitNatureTestCase):
         ),
     )
     def test_succd_ansatz_with_singles(
-        self, num_spin_orbitals, num_particles, include_singles, expect
+        self, num_spatial_orbitals, num_particles, include_singles, expect
     ):
         """Tests the SUCCD Ansatz with included single excitations."""
         converter = QubitConverter(JordanWignerMapper())
@@ -106,11 +106,11 @@ class TestSUCCD(QiskitNatureTestCase):
         ansatz = SUCCD(
             qubit_converter=converter,
             num_particles=num_particles,
-            num_spin_orbitals=num_spin_orbitals,
+            num_spatial_orbitals=num_spatial_orbitals,
             include_singles=include_singles,
         )
 
-        assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)
+        assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
 
     def test_raise_non_singlet(self):
         """Test an error is raised when the number of alpha and beta electrons differ."""
@@ -120,7 +120,7 @@ class TestSUCCD(QiskitNatureTestCase):
     @unpack
     @data(
         (
-            6,
+            3,
             (1, 1),
             [
                 FermionicOp({"+_0 +_3 -_1 -_4": 1j, "+_4 +_1 -_3 -_0": -1j}, num_spin_orbitals=6),
@@ -132,7 +132,7 @@ class TestSUCCD(QiskitNatureTestCase):
             ],
         ),
         (
-            6,
+            3,
             (2, 2),
             [
                 FermionicOp({"+_0 +_3 -_1 -_4": 1j, "+_4 +_1 -_3 -_0": -1j}, num_spin_orbitals=6),
@@ -144,23 +144,23 @@ class TestSUCCD(QiskitNatureTestCase):
             ],
         ),
     )
-    def test_puccd_ansatz_generalized(self, num_spin_orbitals, num_particles, expect):
+    def test_succd_ansatz_generalized(self, num_spatial_orbitals, num_particles, expect):
         """Tests the generalized SUCCD Ansatz."""
         converter = QubitConverter(JordanWignerMapper())
 
         ansatz = SUCCD(
             qubit_converter=converter,
             num_particles=num_particles,
-            num_spin_orbitals=num_spin_orbitals,
+            num_spatial_orbitals=num_spatial_orbitals,
             generalized=True,
         )
 
-        assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)
+        assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
 
     @unpack
     @data(
         (
-            6,
+            3,
             (1, 1),
             [
                 FermionicOp({"+_0 +_3 -_1 -_4": 1j, "+_4 +_1 -_3 -_0": -1j}, num_spin_orbitals=6),
@@ -177,23 +177,23 @@ class TestSUCCD(QiskitNatureTestCase):
             ],
         ),
     )
-    def test_succ_mirror(self, num_spin_orbitals, num_particles, expect):
+    def test_succ_mirror(self, num_spatial_orbitals, num_particles, expect):
         """Tests the `mirror` option of the SUCCD Ansatz."""
         converter = QubitConverter(JordanWignerMapper())
 
         ansatz = SUCCD(
             qubit_converter=converter,
             num_particles=num_particles,
-            num_spin_orbitals=num_spin_orbitals,
+            num_spatial_orbitals=num_spatial_orbitals,
             mirror=True,
         )
 
-        assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)
+        assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
 
     @unpack
     @data(
         (
-            6,
+            3,
             (1, 1),
             (True, True),
             [
@@ -215,7 +215,7 @@ class TestSUCCD(QiskitNatureTestCase):
             ],
         ),
         (
-            6,
+            3,
             (1, 1),
             (True, False),
             [
@@ -235,7 +235,7 @@ class TestSUCCD(QiskitNatureTestCase):
             ],
         ),
         (
-            6,
+            3,
             (1, 1),
             (False, True),
             [
@@ -256,7 +256,7 @@ class TestSUCCD(QiskitNatureTestCase):
         ),
     )
     def test_succ_mirror_with_singles(
-        self, num_spin_orbitals, num_particles, include_singles, expect
+        self, num_spatial_orbitals, num_particles, include_singles, expect
     ):
         """Tests the succ_mirror Ansatz with included single excitations."""
         converter = QubitConverter(JordanWignerMapper())
@@ -264,17 +264,17 @@ class TestSUCCD(QiskitNatureTestCase):
         ansatz = SUCCD(
             qubit_converter=converter,
             num_particles=num_particles,
-            num_spin_orbitals=num_spin_orbitals,
+            num_spatial_orbitals=num_spatial_orbitals,
             include_singles=include_singles,
             mirror=True,
         )
 
-        assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)
+        assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
 
     @unpack
     @data(
         (
-            6,
+            3,
             (1, 1),
             [
                 FermionicOp({"+_0 +_3 -_1 -_4": 1j, "+_4 +_1 -_3 -_0": -1j}, num_spin_orbitals=6),
@@ -310,19 +310,19 @@ class TestSUCCD(QiskitNatureTestCase):
             ],
         )
     )
-    def test_succ_mirror_ansatz_generalized(self, num_spin_orbitals, num_particles, expect):
+    def test_succ_mirror_ansatz_generalized(self, num_spatial_orbitals, num_particles, expect):
         """Tests the generalized succ_mirror Ansatz."""
         converter = QubitConverter(JordanWignerMapper())
 
         ansatz = SUCCD(
             qubit_converter=converter,
             num_particles=num_particles,
-            num_spin_orbitals=num_spin_orbitals,
+            num_spatial_orbitals=num_spatial_orbitals,
             generalized=True,
             mirror=True,
         )
 
-        assert_ucc_like_ansatz(self, ansatz, num_spin_orbitals, expect)
+        assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
 
 
 if __name__ == "__main__":

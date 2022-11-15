@@ -85,8 +85,7 @@ class TestQubitConverter(QiskitNatureTestCase):
         super().setUp()
         driver = PySCFDriver()
         self.driver_result = driver.run()
-        particle_number = self.driver_result.properties.particle_number
-        self.num_particles = (particle_number.num_alpha, particle_number.num_beta)
+        self.num_particles = self.driver_result.num_particles
         self.h2_op, _ = self.driver_result.second_q_ops()
 
     def test_mapping_basic(self):
@@ -123,7 +122,7 @@ class TestQubitConverter(QiskitNatureTestCase):
             self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY)
 
         with self.subTest("Force match set num particles"):
-            qubit_conv.force_match(self.num_particles)
+            qubit_conv.force_match(num_particles=self.num_particles)
             qubit_op = qubit_conv.convert_match(self.h2_op)
             self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED)
 

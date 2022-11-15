@@ -19,6 +19,8 @@ import numpy as np
 from qiskit import QuantumCircuit
 from qiskit_nature.second_q.circuit.library import VSCF
 from qiskit_nature.second_q.circuit.library.initial_states.vscf import vscf_bitstring
+from qiskit_nature.second_q.mappers import ParityMapper
+from qiskit_nature.second_q.mappers import QubitConverter
 
 
 class TestVSCF(QiskitNatureTestCase):
@@ -43,6 +45,19 @@ class TestVSCF(QiskitNatureTestCase):
         num_modals = [2, 3]
         vscf = VSCF(num_modals)
         ref = QuantumCircuit(5)
+        ref.x([0, 2])
+
+        self.assertEqual(ref, vscf)
+
+    def test_qubits_6_lazy_attribute_setting(self):
+        """Test 2 modes 2 modal for the first mode and 4 modals for the second
+        with lazy attribute setting."""
+        num_modals = [2, 4]
+        qubit_converter = QubitConverter(ParityMapper())
+        vscf = VSCF()
+        vscf.num_modals = num_modals
+        vscf.qubit_converter = qubit_converter
+        ref = QuantumCircuit(6)
         ref.x([0, 2])
 
         self.assertEqual(ref, vscf)

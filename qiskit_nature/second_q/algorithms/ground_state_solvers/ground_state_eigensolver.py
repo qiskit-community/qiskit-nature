@@ -17,7 +17,7 @@ from __future__ import annotations
 from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolver
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_q.operators import SecondQuantizedOp
+from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.second_q.problems import EigenstateResult
@@ -35,9 +35,8 @@ class GroundStateEigensolver(GroundStateSolver):
         solver: MinimumEigensolver | MinimumEigensolverFactory,
     ) -> None:
         """
-
         Args:
-            qubit_converter: a class that converts second quantized operator to qubit operator
+            qubit_converter: A class that converts second quantized operator to qubit operator
                              according to a mapper it is initialized with.
             solver: Minimum Eigensolver or MESFactory object, e.g. the VQEUCCSDFactory.
         """
@@ -54,18 +53,18 @@ class GroundStateEigensolver(GroundStateSolver):
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: dict[str, SecondQuantizedOp | QubitOperator] | None = None,
+        aux_operators: dict[str, SparseLabelOp | QubitOperator] | None = None,
     ) -> EigenstateResult:
         """Compute Ground State properties.
 
         Args:
-            problem: a class encoding a problem to be solved.
+            problem: A class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
 
         Raises:
-            ValueError: if the grouped property object returned by the driver does not contain a
-                main property as requested by the problem being solved (`problem.main_property_name`)
-            QiskitNatureError: if the user-provided `aux_operators` contain a name which clashes
+            ValueError: If the grouped property object returned by the driver does not contain a
+                main property as requested by the problem being solved (`problem.main_property_name`).
+            QiskitNatureError: If the user-provided ``aux_operators`` contain a name which clashes
                 with an internally constructed auxiliary operator. Note: the names used for the
                 internal auxiliary operators correspond to the `Property.name` attributes which
                 generated the respective operators.
@@ -86,22 +85,29 @@ class GroundStateEigensolver(GroundStateSolver):
     def get_qubit_operators(
         self,
         problem: BaseProblem,
-        aux_operators: dict[str, SecondQuantizedOp | QubitOperator] | None = None,
+        aux_operators: dict[str, SparseLabelOp | QubitOperator] | None = None,
     ) -> tuple[QubitOperator, dict[str, QubitOperator] | None]:
-        """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators"""
+        """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators."""
         # Note that ``aux_ops`` contains not only the transformed ``aux_operators`` passed by the
         # user but also additional ones from the transformation
         main_second_q_op, aux_second_q_ops = problem.second_q_ops()
+
+        num_particles = None
+        if hasattr(problem, "num_particles"):
+            num_particles = problem.num_particles  # type: ignore[attr-defined]
+
         main_operator = self._qubit_converter.convert(
             main_second_q_op,
-            num_particles=problem.num_particles,
+            num_particles=num_particles,
             sector_locator=problem.symmetry_sector_locator,
         )
         aux_ops = self._qubit_converter.convert_match(aux_second_q_ops)
         if aux_operators is not None:
             for name_aux, aux_op in aux_operators.items():
-                if isinstance(aux_op, SecondQuantizedOp):
-                    converted_aux_op = self._qubit_converter.convert_match(aux_op, True)
+                if isinstance(aux_op, SparseLabelOp):
+                    converted_aux_op = self._qubit_converter.convert_match(
+                        aux_op, suppress_none=True
+                    )
                 else:
                     converted_aux_op = aux_op
                 if name_aux in aux_ops.keys():

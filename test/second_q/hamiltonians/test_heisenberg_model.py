@@ -38,7 +38,7 @@ class TestHeisenbergModel(QiskitNatureTestCase):
 
             hamiltonian = terms
 
-            self.assertSetEqual(set(hamiltonian), set(heisenberg_model.second_q_op().to_list()))
+            self.assertSetEqual(set(hamiltonian), set(heisenberg_model.second_q_op().items()))
 
     def test_triangular(self):
         """Test triangular lattice."""
@@ -87,7 +87,7 @@ class TestHeisenbergModel(QiskitNatureTestCase):
             hamiltonian = terms
 
             self.assertSetEqual(
-                set(hamiltonian), set(triangle_y_heisenberg_model.second_q_op().to_list())
+                set(hamiltonian), set(triangle_y_heisenberg_model.second_q_op().items())
             )
 
     def test_ising(self):
@@ -105,8 +105,8 @@ class TestHeisenbergModel(QiskitNatureTestCase):
         with self.subTest("Check if the HeisenbergModel reproduce IsingModel in a special case."):
 
             self.assertSetEqual(
-                set(ism.second_q_op().to_list()),
-                set(hm_to_ism.second_q_op().to_list()),
+                set(ism.second_q_op().items()),
+                set(hm_to_ism.second_q_op().items()),
             )
 
     def test_xy(self):
@@ -130,7 +130,7 @@ class TestHeisenbergModel(QiskitNatureTestCase):
 
             hamiltonian = terms
 
-            self.assertSetEqual(set(hamiltonian), set(xy_test_hm.second_q_op().to_list()))
+            self.assertSetEqual(set(hamiltonian), set(xy_test_hm.second_q_op().items()))
 
     def test_xyz_ext_field(self):
         """Test external field."""
@@ -153,4 +153,4 @@ class TestHeisenbergModel(QiskitNatureTestCase):
 
             hamiltonian = terms
 
-            self.assertSetEqual(set(hamiltonian), set(xyz_test_hm.second_q_op().to_list()))
+            self.assertSetEqual(set(hamiltonian), set(xyz_test_hm.second_q_op().items()))

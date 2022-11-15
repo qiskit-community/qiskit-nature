@@ -1,4 +1,6 @@
 aa
+ab
+acb
 acknowledgment
 adjoint
 aer
@@ -19,6 +21,7 @@ ansatz
 ansatze
 ansatzes
 anticommutation
+antiparallel
 antisymmetric
 antisymmetrized
 ao
@@ -38,6 +41,7 @@ attr
 autosummary
 avogadro
 äquivalenzverbot
+bac
 backend
 barkoutsos
 bb
@@ -110,6 +114,7 @@ dcx
 de
 debye
 deepcopy
+delocalized
 deuterium
 deuteron
 dft
@@ -130,6 +135,7 @@ docstring
 dof
 doi
 dok
+downarrow
 dt
 dtype
 dumitrescu
@@ -148,6 +154,7 @@ eigenvectors
 einact
 einsum
 electronicintegrals
+electronicstructureproblem
 endian
 endif
 enum
@@ -229,6 +236,7 @@ init
 initializer
 initio
 inplace
+integrations
 intel
 intelvem
 interatomic
@@ -236,6 +244,7 @@ internuclear
 interpretable
 ints
 io
+ipynb
 isclose
 ising
 iso
@@ -268,11 +277,14 @@ ket
 kitaev
 knowles
 kohn
+kron
 kronecker
 kwarg
 kwargs
 kwds
 labelled
+langle
+lbrace
 lda
 ldots
 leighton
@@ -287,6 +299,7 @@ lih
 lijh
 linewidths
 linux
+listordict
 ljik
 lk
 logfile
@@ -437,6 +450,7 @@ qregs
 qs
 quantization
 quantized
+quantumcircuit
 quartic
 qubit
 qubits
@@ -479,6 +493,7 @@ rzz
 scalable
 scf
 schroedinger
+schrödinger
 schur
 scikit
 scipy
@@ -513,6 +528,7 @@ str
 stylesheet
 subcircuits
 subclasses
+submodule
 submodules
 subtest
 subtype
@@ -540,6 +556,7 @@ timestamp
 toctree
 toffoli
 tol
+tos
 traceback
 tran
 translational
@@ -569,6 +586,7 @@ undirected
 unitaries
 unitstype
 untransforms
+uparrow
 username
 utils
 uvcc
@@ -578,6 +596,7 @@ vals
 varepsilon
 variational
 vdots
+vec
 verbatim
 versa
 vibrational
@@ -600,6 +619,7 @@ whitfield
 wigner
 wikipedia
 woerner
+workflow
 xcf
 xcfun
 xdata

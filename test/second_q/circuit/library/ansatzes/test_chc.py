@@ -67,11 +67,11 @@ class TestCHCVSCF(QiskitNatureTestCase):
                 [[[0, 1, 1], [1, 1, 1]], -179.0536532281924],
             ],
         ]
-        num_modes = 2
         num_modals = [2, 2]
 
         vibrational_op_labels = _create_labels(co2_2modes_2modals_2body)
-        vibr_op = VibrationalOp(vibrational_op_labels, num_modes, num_modals)
+
+        vibr_op = VibrationalOp(vibrational_op_labels, num_modals)
 
         converter = QubitConverter(DirectMapper())
 

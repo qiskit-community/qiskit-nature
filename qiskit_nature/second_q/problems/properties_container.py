@@ -18,7 +18,7 @@ from collections.abc import MutableSet
 from collections import OrderedDict
 from typing import Generator
 
-from qiskit_nature.second_q.properties import Property
+from qiskit_nature.second_q.properties import SparseLabelOpsFactory
 
 
 class PropertiesContainer(MutableSet):
@@ -34,9 +34,9 @@ class PropertiesContainer(MutableSet):
     """
 
     def __init__(self) -> None:
-        self._properties: OrderedDict[str, Property] = OrderedDict()
+        self._properties: OrderedDict[str, SparseLabelOpsFactory] = OrderedDict()
 
-    def add(self, value: Property) -> None:
+    def add(self, value: SparseLabelOpsFactory) -> None:
         key = value.__class__.__name__
         if key in self._properties.keys():
             raise ValueError(
@@ -45,17 +45,18 @@ class PropertiesContainer(MutableSet):
             )
         self._properties[key] = value
 
-    def discard(self, value: str | type | Property) -> None:
+    def discard(self, value: str | type | SparseLabelOpsFactory) -> None:
         key: str
         if isinstance(value, str):
             key = value
         elif isinstance(value, type):
             key = value.__name__
-        elif isinstance(value, Property):
+        elif isinstance(value, SparseLabelOpsFactory):
             key = value.__class__.__name__
         else:
             raise TypeError(
-                f"Only inputs of type 'str', 'type', or 'Property' are supported, not {type(value)}."
+                "Only inputs of type 'str', 'type', or 'SparseLabelOpsFactory' are supported, not "
+                f"{type(value)}."
             )
 
         self._properties.pop(key, None)
@@ -66,42 +67,43 @@ class PropertiesContainer(MutableSet):
             actual_key = key
         elif isinstance(key, type):
             actual_key = key.__name__
-        elif isinstance(key, Property):
+        elif isinstance(key, SparseLabelOpsFactory):
             actual_key = key.__class__.__name__
         else:
             raise TypeError(
-                f"Only inputs of type 'str', 'type', or 'Property' are supported, not {type(key)}."
+                "Only inputs of type 'str', 'type', or 'SparseLabelOpsFactory' are supported, not "
+                f"{type(key)}."
             )
         return actual_key in self._properties.keys()
 
     def __len__(self) -> int:
         return len(self._properties)
 
-    def __iter__(self) -> Generator[Property, None, None]:
+    def __iter__(self) -> Generator[SparseLabelOpsFactory, None, None]:
         for prop in self._properties.values():
             yield prop
 
-    def _getter(self, _type: type) -> Property | None:
+    def _getter(self, _type: type) -> SparseLabelOpsFactory | None:
         """An internal utility method to handle the attribute getter implementation.
 
         Args:
-            _type: the target Property type of this getter.
+            _type: the target SparseLabelOpsFactory type of this getter.
 
         Returns:
             The property of the corresponding type or `None` if it is not available.
         """
         return self._properties.get(_type.__name__, None)
 
-    def _setter(self, _property: Property | None, _type: type) -> None:
+    def _setter(self, _property: SparseLabelOpsFactory | None, _type: type) -> None:
         """An internal utility method to handle the attribute setter implementation.
 
         Args:
-            _property: the Property to set. If `None`, the internally stored property of the
+            _property: the SparseLabelOpsFactory to set. If `None`, the internally stored property of the
                 indicated type (see next argument) will be discarded instead of set.
-            _type: the target Property type of this setter.
+            _type: the target SparseLabelOpsFactory type of this setter.
 
         Raises:
-            TypeError: if the provided Property does not match the indicate type.
+            TypeError: if the provided SparseLabelOpsFactory does not match the indicate type.
         """
         if _property is None:
             self.discard(_type)

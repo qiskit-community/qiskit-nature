@@ -15,16 +15,14 @@
 from __future__ import annotations
 
 from copy import copy
-from typing import MutableMapping, TYPE_CHECKING
+from typing import MutableMapping
 
 import numpy as np
 
+import qiskit_nature  # pylint: disable=unused-import
 from qiskit_nature.second_q.operators import ElectronicIntegrals, FermionicOp, PolynomialTensor
 
 from .hamiltonian import Hamiltonian
-
-if TYPE_CHECKING:
-    from qiskit_nature.second_q.problems import EigenstateResult
 
 
 class ElectronicEnergy(Hamiltonian):
@@ -37,41 +35,63 @@ class ElectronicEnergy(Hamiltonian):
         + \sum_{p, q, r, s} g_{pqrs} a^\dagger_p a^\dagger_q a_r a_s ,
 
     where :math:`h_{pq}` and :math:`g_{pqrs}` are the one- and two-body electronic integrals,
-    stored in an :class:`qiskit_nature.second_q.operators.ElectronicIntegrals` container.
-    When dealing with separate coefficients for the :math:`\alpha` and :math:`\beta`-spin electrons,
+    stored in an :class:`~qiskit_nature.second_q.operators.ElectronicIntegrals` container.
+    When dealing with separate coefficients for the :math:`\alpha`- and :math:`\beta`-spin electrons,
     the unrestricted-spin Hamiltonian can be obtained from the one above in a straight-forward
     manner, following any quantum chemistry textbook.
 
-    It is possible to include constant energy terms inside of the
-    :class:`qiskit_nature.second_q.operators.ElectronicIntegrals` container, which will be included
-    in the qubit operator, once mapping the second-quantized operator to the qubit space (see also
-    :class:`qiskit_nature.second_q.mappers.QubitMapper`).
+    You can construct an instance of this Hamiltonian in multiple ways:
+
+    1. With an existing instance of :class:`~qiskit_nature.second_q.operators.ElectronicIntegrals`:
+
+    .. code-block:: python
+
+        integrals: ElectronicIntegrals = ...
+
+        from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
+
+        hamiltonian = ElectronicEnergy(integrals, constants={"nuclear_repulsion_energy": 1.0})
+
+    2. From a raw set of integral coefficient matrices:
+
+    .. code-block:: python
+
+        # assuming, you have your one- and two-body integrals from somewhere
+        h1_a, h2_aa, h1_b, h2_bb, h2_ba = ...
+
+        hamiltonian = ElectronicEnergy.from_raw_integrals(h1_a, h2_aa, h1_b, h2_bb, h2_ba)
+        hamiltonian.nuclear_repulsion_energy = 1.0
+
+    Note, how we specified the nuclear repulsion energy as a constant energy offset in the above
+    examples. This term will not be included in the mapped qubit operator since it is a constant
+    offset term and does not need to incur any errors from being measured on a quantum device.
+    It is however possible to include constant energy terms inside of the
+    :class:`~qiskit_nature.second_q.operators.ElectronicIntegrals` container, if you want it to be
+    included in the qubit operator, once mapping the second-quantized operator to the qubit space
+    (see also :class:`~qiskit_nature.second_q.mappers.QubitMapper`).
 
     .. code-block:: python
 
         from qiskit_nature.second_q.operators import PolynomialTensor
 
-        # you have obtained your Hamiltonian and stored it in this variable
-        hamiltonian: ElectronicEnergy
         e_nuc = hamiltonian.nuclear_repulsion_energy
         hamiltonian.electronic_integrals.alpha += PolynomialTensor({"": e_nuc})
+        hamiltonian.nuclear_repulsion_energy = None
 
-    Alternatively, it is also possible to add constant energy offsets to the :attr:`.constants`
-    attribute of this Hamiltonian. Offsets registered in that dictionary will **not** be mapped to
-    the qubit operator and, thus, will not incur any errors that may arise during the quantum
-    algorithm, used to find the eigenvalue of this Hamiltonian.
-    In particular, this also applies to the :attr:`nuclear_repulsion_energy`, which is why this
-    class implement the purely __electronic__ energy operator.
+    It is also possible to add other constant energy offsets to the :attr:`.constants` attribute of
+    this Hamiltonian. All offsets registered in that dictionary will **not** be mapped to the qubit
+    operator.
 
     .. code-block:: python
 
-        hamiltonian: ElectronicEnergy
-        hamiltonian.nuclear_repulsion_energy = 10.0
         hamiltonian.constants["my custom offset"] = 5.0
 
+        # be careful, the following overwrites the hamiltonian.nuclear_repulsion_energy value
+        hamiltonian.constants["nuclear_repulsion_energy"] = 10.0
+
     Attributes:
-        electronic_integrals: the :class:`qiskit_nature.second_q.operators.ElectronicIntegrals`.
-        constants: a mapping of constant energy offsets, not mapped to the qubit operator.
+        electronic_integrals: The :class:`qiskit_nature.second_q.operators.ElectronicIntegrals`.
+        constants: A mapping of constant energy offsets, not mapped to the qubit operator.
     """
 
     def __init__(
@@ -82,8 +102,8 @@ class ElectronicEnergy(Hamiltonian):
     ) -> None:
         """
         Args:
-            electronic_integrals: the container with the one- and two-body coefficients.
-            constants: a mapping of constant energy offsets.
+            electronic_integrals: The container with the one- and two-body coefficients.
+            constants: A mapping of constant energy offsets.
         """
         self.electronic_integrals = electronic_integrals
         self.constants = constants if constants is not None else {}
@@ -135,7 +155,7 @@ class ElectronicEnergy(Hamiltonian):
         """Constructs a hamiltonian instance from raw integrals.
 
         This function simply calls
-        :meth:`qiskit_nature.second_q.operators.ElectronicIntegrals.from_raw_integrals`.
+        :meth:`~qiskit_nature.second_q.operators.ElectronicIntegrals.from_raw_integrals`.
         See its documentation for more details.
 
         Args:
@@ -171,8 +191,10 @@ class ElectronicEnergy(Hamiltonian):
         """
         return FermionicOp.from_polynomial_tensor(self.electronic_integrals.second_q_coeffs())
 
-    def interpret(self, result: "EigenstateResult") -> None:
-        """Interprets an :class:`qiskit_nature.second_q.problems.EigenstateResult`.
+    def interpret(
+        self, result: "qiskit_nature.second_q.problems.EigenstateResult"  # type: ignore[name-defined]
+    ) -> None:
+        """Interprets an :class:`~qiskit_nature.second_q.problems.EigenstateResult`.
 
         In particular, this adds the constant energy shifts stored in this hamiltonian to the result
         object.
@@ -249,4 +271,4 @@ class ElectronicEnergy(Hamiltonian):
         Returns:
             The Fock operator coefficients.
         """
-        return self.electronic_integrals + self.coulomb(density) - self.exchange(density)
+        return self.electronic_integrals.one_body + self.coulomb(density) - self.exchange(density)

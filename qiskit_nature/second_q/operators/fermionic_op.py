@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
-from collections.abc import Collection, Mapping, MutableMapping
+from collections.abc import Collection, Mapping
 from typing import cast, Iterator
 
 import numpy as np
@@ -25,24 +25,25 @@ from scipy.sparse import csc_matrix
 from qiskit_nature.exceptions import QiskitNatureError
 import qiskit_nature.optionals as _optionals
 
+from ._bits_container import _BitsContainer
 from .polynomial_tensor import PolynomialTensor
-from .sparse_label_op import SparseLabelOp
+from .sparse_label_op import _TCoeff, SparseLabelOp, _to_number
 
 
 class FermionicOp(SparseLabelOp):
     r"""N-mode Fermionic operator.
 
-    A `FermionicOp` represents a weighted sum of fermionic creation/annihilation operator terms.
-    These terms are encoded as sparse labels, strings consisting of a space-separated list of
+    A ``FermionicOp`` represents a weighted sum of fermionic creation/annihilation operator terms.
+    These terms are encoded as sparse labels, which are strings consisting of a space-separated list of
     expressions. Each expression must look like :code:`[+-]_<index>`, where the :code:`<index>` is a
-    non-negative integer representing the index of the fermionic mode where the `+` (creation) or
-    `-` (annihilation) operation is to be performed. The value of :code:`index` is bound by the
-    number of spin orbitals (`num_spin_orbitals`) of the operator (Note: since Python indices are
+    non-negative integer representing the index of the fermionic mode where the ``+`` (creation) or
+    ``-`` (annihilation) operation is to be performed. The value of :code:`index` is bound by the
+    number of spin orbitals (``num_spin_orbitals``) of the operator (Note: since Python indices are
     0-based, the maximum value an index can take is given by :code:`num_spin_orbitals-1`).
 
     **Initialization**
 
-    A `FermionicOp` is initialized with a dictionary, mapping terms to their respective
+    A ``FermionicOp`` is initialized with a dictionary, mapping terms to their respective
     coefficients:
 
     .. jupyter-execute::
@@ -127,7 +128,7 @@ class FermionicOp(SparseLabelOp):
 
       FermionicOp({"+_0 -_1": 1j}, num_spin_orbitals=2).adjoint()
 
-    In principle, you can also add :class:`FermionicOp` and integers, but the only valid case is the
+    In principle, you can also add `FermionicOp` and integers, but the only valid case is the
     addition of `0 + FermionicOp`. This makes the `sum` operation from the example above possible
     and it is useful in the following scenario:
 
@@ -140,7 +141,7 @@ class FermionicOp(SparseLabelOp):
 
     **Iteration**
 
-    Instances of `FermionicOp` are iterable. Iterating a FermionicOp yields (term, coefficient)
+    Instances of ``FermionicOp`` are iterable. Iterating a ``FermionicOp`` yields (term, coefficient)
     pairs describing the terms contained in the operator.
 
     Attributes:
@@ -148,13 +149,21 @@ class FermionicOp(SparseLabelOp):
             considered a lower bound, which means that mathematical operations acting on two or more
             operators will result in a new operator with the maximum number of spin orbitals of any
             of the involved operators.
+
+    .. note::
+
+        A FermionicOp can contain :class:`qiskit.circuit.ParameterExpression` objects as coefficients.
+        However, a FermionicOp containing parameters does not support the following methods:
+
+        - ``is_hermitian``
+        - ``to_matrix``
     """
 
     _OPERATION_REGEX = re.compile(r"([\+\-]_\d+\s)*[\+\-]_\d+")
 
     def __init__(
         self,
-        data: Mapping[str, complex],
+        data: Mapping[str, _TCoeff],
         num_spin_orbitals: int | None = None,
         *,
         copy: bool = True,
@@ -164,11 +173,11 @@ class FermionicOp(SparseLabelOp):
         Args:
             data: the operator data, mapping string-based keys to numerical values.
             num_spin_orbitals: the number of spin orbitals on which this operator acts.
-            copy: when set to False the `data` will not be copied and the dictionary will be
-                stored by reference rather than by value (which is the default; `copy=True`). Note,
+            copy: when set to False the ``data`` will not be copied and the dictionary will be
+                stored by reference rather than by value (which is the default; ``copy=True``). Note,
                 that this requires you to not change the contents of the dictionary after
-                constructing the operator. This also implies `validate=False`. Use with care!
-            validate: when set to False the `data` keys will not be validated. Note, that the
+                constructing the operator. This also implies ``validate=False``. Use with care!
+            validate: when set to False the ``data`` keys will not be validated. Note, that the
                 SparseLabelOp base class, makes no assumption about the data keys, so will not
                 perform any validation by itself. Only concrete subclasses are encouraged to
                 implement a key validation method. Disable this setting with care!
@@ -184,7 +193,7 @@ class FermionicOp(SparseLabelOp):
         return self.num_spin_orbitals
 
     def _new_instance(
-        self, data: Mapping[str, complex], *, other: FermionicOp | None = None
+        self, data: Mapping[str, _TCoeff], *, other: FermionicOp | None = None
     ) -> FermionicOp:
         num_so = self.num_spin_orbitals
         if other is not None:
@@ -201,7 +210,7 @@ class FermionicOp(SparseLabelOp):
 
         num_so = self.num_spin_orbitals
 
-        max_index = 0
+        max_index = -1
 
         for key in keys:
             # 0. explicitly allow the empty key
@@ -213,7 +222,7 @@ class FermionicOp(SparseLabelOp):
                 raise QiskitNatureError(f"{key} is not a valid FermionicOp label.")
 
             # 2. validate all indices against register length
-            for term in key.split(" "):
+            for term in key.split():
                 index = int(term[2:])
                 if num_so is None:
                     if index > max_index:
@@ -238,11 +247,10 @@ class FermionicOp(SparseLabelOp):
                 )
 
     @classmethod
-    @_optionals.HAS_SPARSE.require_in_call
     def from_polynomial_tensor(cls, tensor: PolynomialTensor) -> FermionicOp:
         cls._validate_polynomial_tensor_key(tensor.keys())
 
-        data: dict[str, complex] = {}
+        data: dict[str, _TCoeff] = {}
 
         for key in tensor:
             if key == "":
@@ -254,16 +262,19 @@ class FermionicOp(SparseLabelOp):
 
             # PERF: the following matrix unpacking is a performance bottleneck!
             # We could consider using Rust in the future to improve upon this.
-            import sparse as sp  # pylint: disable=import-error
 
             mat = tensor[key]
             if isinstance(mat, np.ndarray):
                 for index in np.ndindex(*mat.shape):
                     data[label_template.format(*index)] = mat[index]
-            elif isinstance(mat, sp.SparseArray):
-                coo = sp.as_coo(mat)
-                for value, *index in zip(coo.data, *coo.coords):
-                    data[label_template.format(*index)] = value
+            else:
+                _optionals.HAS_SPARSE.require_now("SparseArray")
+                import sparse as sp  # pylint: disable=import-error
+
+                if isinstance(mat, sp.SparseArray):
+                    coo = sp.as_coo(mat)
+                    for value, *index in zip(coo.data, *coo.coords):
+                        data[label_template.format(*index)] = value
 
         return cls(data, copy=False, num_spin_orbitals=tensor.register_length).chop()
 
@@ -282,7 +293,7 @@ class FermionicOp(SparseLabelOp):
         )
         return pre + ret
 
-    def terms(self) -> Iterator[tuple[list[tuple[str, int]], complex]]:
+    def terms(self) -> Iterator[tuple[list[tuple[str, int]], _TCoeff]]:
         """Provides an iterator analogous to :meth:`items` but with the labels already split into
         pairs of operation characters and indices.
 
@@ -299,7 +310,7 @@ class FermionicOp(SparseLabelOp):
             # we hard-code the result of lbl.split("_") as follows:
             #   lbl[0] is either + or -
             #   lbl[2:] corresponds to the index
-            terms = [(lbl[0], int(lbl[2:])) for lbl in label.split(" ")]
+            terms = [(lbl[0], int(lbl[2:])) for lbl in label.split()]
             yield (terms, self[label])
 
     def compose(self, other: FermionicOp, qargs=None, front: bool = False) -> FermionicOp:
@@ -323,11 +334,14 @@ class FermionicOp(SparseLabelOp):
     def _tensor(cls, a: FermionicOp, b: FermionicOp, *, offset: bool = True) -> FermionicOp:
         shift = a.num_spin_orbitals if offset else 0
 
-        new_data = {
-            f"{label1} {' '.join(f'{c}_{i+shift}' for c, i in terms2)}".strip(): cf1 * cf2
-            for terms2, cf2 in b.terms()
-            for label1, cf1 in a.items()
-        }
+        new_data: dict[str, _TCoeff] = {}
+        for label1, cf1 in a.items():
+            for terms2, cf2 in b.terms():
+                new_label = f"{label1} {' '.join(f'{c}_{i+shift}' for c, i in terms2)}".strip()
+                if new_label in new_data:
+                    new_data[new_label] += cf1 * cf2
+                else:
+                    new_data[new_label] = cf1 * cf2
 
         new_op = a._new_instance(new_data, other=b)
         if offset:
@@ -347,7 +361,12 @@ class FermionicOp(SparseLabelOp):
 
         Returns:
             The matrix of the operator in the Fock basis
+
+        Raises:
+            ValueError: Operator contains parameters.
         """
+        if self.is_parameterized():
+            raise ValueError("to_matrix is not supported for operators containing parameters.")
 
         csc_data, csc_col, csc_row = [], [], []
 
@@ -404,12 +423,15 @@ class FermionicOp(SparseLabelOp):
         trans = "".maketrans("+-", "-+")
 
         for label, coeff in self.items():
-            data[" ".join(lbl.translate(trans) for lbl in reversed(label.split(" ")))] = coeff
+            data[" ".join(lbl.translate(trans) for lbl in reversed(label.split()))] = coeff
 
         return self._new_instance(data)
 
-    def normal_ordered(self) -> FermionicOp:
-        """Convert to the equivalent operator with normal order.
+    def normal_order(self) -> FermionicOp:
+        """Convert to the equivalent operator in normal order.
+
+        The normal order for fermions is defined
+        [here](https://en.wikipedia.org/wiki/Normal_order#Fermions).
 
         Returns a new operator (the original operator is not modified).
 
@@ -429,11 +451,18 @@ class FermionicOp(SparseLabelOp):
         ordered_op = FermionicOp.zero()
 
         for terms, coeff in self.terms():
-            ordered_op += self._normal_ordered(terms, coeff)
+            ordered_op += self._normal_order(terms, coeff)
 
-        return ordered_op
+        # after successful normal ordering, we remove all zero coefficients
+        return self._new_instance(
+            {
+                label: coeff
+                for label, coeff in ordered_op.items()
+                if not np.isclose(_to_number(coeff), 0.0, atol=self.atol)
+            }
+        )
 
-    def _normal_ordered(self, terms: list[tuple[str, int]], coeff: complex) -> FermionicOp:
+    def _normal_order(self, terms: list[tuple[str, int]], coeff: _TCoeff) -> FermionicOp:
         if not terms:
             return self._new_instance({"": coeff})
 
@@ -456,7 +485,7 @@ class FermionicOp(SparseLabelOp):
                         # a_i a_i^\dagger = 1 - a_i^\dagger a_i
                         new_terms = terms[: (j - 1)] + terms[(j + 1) :]
                         # we can do so by recursion on this method
-                        ordered_op += self._normal_ordered(new_terms, -1.0 * coeff)
+                        ordered_op += self._normal_order(new_terms, -1.0 * coeff)
 
                 elif right[0] == left[0]:
                     # when we have identical neighboring operators, differentiate two cases:
@@ -477,7 +506,56 @@ class FermionicOp(SparseLabelOp):
         ordered_op += self._new_instance({new_label: coeff})
         return ordered_op
 
-    def is_hermitian(self, *, atol: float | None = None) -> bool:
+    def index_order(self) -> FermionicOp:
+        """Convert to the equivalent operator with the terms of each label ordered by index.
+
+        Returns a new operator (the original operator is not modified).
+
+        .. note::
+
+            You can use this method to achieve the most aggressive simplification of an operator
+            without changing the operation order per index. :meth:`simplify` does *not* reorder the
+            terms and, thus, cannot deduce ``-_0 +_1`` and ``+_1 -_0 +_0 -_0`` to be
+            identical labels. Calling this method will reorder the latter label to
+            ``-_0 +_0 -_0 +_1``, after which :meth:`simplify` will be able to correctly collapse
+            these two labels into one.
+
+        Returns:
+            The index ordered operator.
+        """
+        data = defaultdict(complex)  # type: dict[str, _TCoeff]
+        for terms, coeff in self.terms():
+            label, coeff = self._index_order(terms, coeff)
+            data[label] += coeff
+
+        # after successful index ordering, we remove all zero coefficients
+        return self._new_instance(
+            {
+                label: coeff
+                for label, coeff in data.items()
+                if not np.isclose(_to_number(coeff), 0.0, atol=self.atol)
+            }
+        )
+
+    def _index_order(self, terms: list[tuple[str, int]], coeff: _TCoeff) -> tuple[str, _TCoeff]:
+        if not terms:
+            return "", coeff
+
+        # perform insertion sorting
+        for i in range(1, len(terms)):
+            for j in range(i, 0, -1):
+                right = terms[j]
+                left = terms[j - 1]
+
+                if left[1] > right[1]:
+                    terms[j - 1] = right
+                    terms[j] = left
+                    coeff *= -1.0
+
+        new_label = " ".join(f"{term[0]}_{term[1]}" for term in terms)
+        return new_label, coeff
+
+    def is_hermitian(self, atol: float | None = None) -> bool:
         """Checks whether the operator is hermitian.
 
         Args:
@@ -485,26 +563,38 @@ class FermionicOp(SparseLabelOp):
 
         Returns:
             True if the operator is hermitian up to numerical tolerance, False otherwise.
+
+        Raises:
+            ValueError: Operator contains parameters.
         """
+        if self.is_parameterized():
+            raise ValueError("is_hermitian is not supported for operators containing parameters.")
         atol = self.atol if atol is None else atol
-        diff = (self - self.adjoint()).normal_ordered().simplify(atol=atol)
+        diff = (self - self.adjoint()).normal_order().simplify(atol=atol)
         return all(np.isclose(coeff, 0.0, atol=atol) for coeff in diff.values())
 
-    def simplify(self, *, atol: float | None = None) -> FermionicOp:
+    def simplify(self, atol: float | None = None) -> FermionicOp:
         atol = self.atol if atol is None else atol
 
-        data = defaultdict(complex)  # type: dict[str, complex]
+        data = defaultdict(complex)  # type: dict[str, _TCoeff]
         # TODO: use parallel_map to make this more efficient (?)
         for label, coeff in self.items():
             label, coeff = self._simplify_label(label, coeff)
             data[label] += coeff
         simplified_data = {
-            label: coeff for label, coeff in data.items() if not np.isclose(coeff, 0.0, atol=atol)
+            label: coeff
+            for label, coeff in data.items()
+            if not np.isclose(_to_number(coeff), 0.0, atol=atol)
         }
         return self._new_instance(simplified_data)
 
-    def _simplify_label(self, label: str, coeff: complex) -> tuple[str, complex]:
-        bits = _BitsContainer()
+    def _simplify_label(self, label: str, coeff: _TCoeff) -> tuple[str, _TCoeff]:
+        bits = _BitsContainer[int]()
+
+        # Since Python 3.7, dictionaries are guaranteed to be insert-order preserving. We use this
+        # to our advantage, to implement an ordered set, which allows us to preserve the label order
+        # and only remove canceling terms.
+        new_label: dict[str, None] = {}
 
         for lbl in label.split():
             char, index = lbl.split("_")
@@ -512,176 +602,46 @@ class FermionicOp(SparseLabelOp):
             char_b = char == "+"
 
             if idx not in bits:
-                bits[idx] = int(f"{char_b:b}{not char_b:b}{char_b:b}{char_b:b}", base=2)
                 # we store all relevant information for each register index in 4 bits:
                 #   1. True if a `+` has been applied on this index
                 #   2. True if a `-` has been applied on this index
                 #   3. True if a `+` was applied first, False if a `-` was applied first
                 #   4. True if the last added operation on this index was `+`, False if `-`
+                bits[idx] = int(f"{char_b:b}{not char_b:b}{char_b:b}{char_b:b}", base=2)
+                # and we insert the encountered label into our ordered set
+                new_label[lbl] = None
 
             elif bits.get_last(idx) == char_b:
                 # we bail, if we apply the same operator as the last one
                 return "", 0
 
             elif bits.get_plus(idx) and bits.get_minus(idx):
-                # if both, `+` and `-`, have already been applied, we cancel the opposite to the
-                # current one (i.e. `+` will cancel `-` and vice versa)
+                # If both, `+` and `-`, have already been applied, we cancel the opposite to the
+                # current one (i.e. `+` will cancel `-` and vice versa).
+                # 1. we construct the reversed label which is the key we need to pop
+                pop_lbl = f"{'-' if char_b else '+'}_{idx}"
+                # 2. we find its index in the insertion order of the new label
+                pop_idx = list(new_label).index(pop_lbl)
+                # 3. we use this index plus the current length of the new label to determine the
+                #    number of exchange operations necessary to move the current term next to the
+                #    one being popped
+                num_exchange = len(new_label) - pop_idx - 1
+                # 4. we perform the information update by:
+                #  a) updating the coefficient sign
+                coeff *= -1 if num_exchange % 2 else 1
+                #  b) popping the key we just canceled out
+                new_label.pop(pop_lbl)
+                #  c) updating the bits container
                 bits.set_plus_or_minus(idx, not char_b, False)
-                # we also update the last bit to the current char
+                #  d) and updating the last bit to the current char
                 bits.set_last(idx, char_b)
 
             else:
                 # else, we simply set the bit of the currently applied char
                 bits.set_plus_or_minus(idx, char_b, True)
+                # and track it in our ordered set
+                new_label[lbl] = None
                 # we also update the last bit to the current char
                 bits.set_last(idx, char_b)
 
-            if idx != self.num_spin_orbitals:
-                num_exchange = 0
-                for i in range(idx + 1, self.num_spin_orbitals):
-                    if i in bits:
-                        num_exchange += (bits.get_plus(i) + bits.get_minus(i)) % 2
-                coeff *= -1 if num_exchange % 2 else 1
-
-        new_label = []
-        for idx in sorted(bits):
-            plus = f"+_{idx}" if bits.get_plus(idx) else None
-            minus = f"-_{idx}" if bits.get_minus(idx) else None
-            new_label.extend([plus, minus] if bits.get_order(idx) else [minus, plus])
-
-        return " ".join(lbl for lbl in new_label if lbl is not None), coeff
-
-
-class _BitsContainer(MutableMapping):
-    """A bit-storage container.
-
-    This is a utility object used during the simplification process of a `FermionicOp`.
-    It manages access to an internal data container, which maps from integers to bytes.
-    Each integer key corresponds to a fermionic mode of an operator term.
-    Each value consists of four bits which encoding for the corresponding index:
-
-        1. if a `+` has been applied
-        2. if a `-` has been applied
-        3. whether a `+` or `-` was applied first
-        4. whether the last applied operator was a `+` or `-`
-    """
-
-    def __init__(self):
-        self.data: dict[int, int] = {}
-
-    def get_plus(self, index: int) -> int:
-        """Returns the value of the `+`-register.
-
-        Args:
-            index: the internal data key (corresponding to the fermionic mode).
-
-        Returns:
-            1 if `+` has been applied, 0 otherwise.
-        """
-        return self.get_bit(index, 3)
-
-    def get_minus(self, index: int) -> int:
-        """Returns the value of the `-`-register.
-
-        Args:
-            index: the internal data key (corresponding to the fermionic mode).
-
-        Returns:
-            1 if `-` has been applied, 0 otherwise.
-        """
-        return self.get_bit(index, 2)
-
-    def set_plus_or_minus(self, index: int, plus_or_minus: bool, value: bool) -> None:
-        """Sets the `+`- or `-`-register of the provided index to the provided value.
-
-        Args:
-            index: the internal data key (corresponding to the fermionic mode).
-            plus_or_minus: True if the `+`-register is to be set, False for the `-`-register
-            value: True if the register is to be set to 1, False for 0.
-        """
-        if value:
-            # plus is stored at index 0, but plus_or_minus is True if it is Plus
-            self.set_bit(index, 3 - int(not plus_or_minus))
-        else:
-            self.clear_bit(index, 3 - int(not plus_or_minus))
-
-    def get_order(self, index: int) -> int:
-        """Returns the value of the order-register.
-
-        Note: the order-register is read-only and can only be set during initialization.
-
-        Args:
-            index: the internal data key (corresponding to the fermionic mode).
-
-        Returns:
-            1 if `+` was applied first, 0 if `-` was applied first.
-        """
-        return self.get_bit(index, 1)
-
-    def get_last(self, index: int) -> int:
-        """Returns the value of the last-register.
-
-        Args:
-            index: the internal data key (corresponding to the fermionic mode).
-
-        Returns:
-            1 if `+` was applied last, 0 otherwise.
-        """
-        return self.get_bit(index, 0)
-
-    def set_last(self, index: int, value: bool) -> None:
-        """Sets the value of the last-register.
-
-        Args:
-            index: the internal data key (corresponding to the fermionic mode).
-            value: True if the register is to be set to 1, False for 0.
-        """
-        if value:
-            self.set_bit(index, 0)
-        else:
-            self.clear_bit(index, 0)
-
-    def get_bit(self, index: int, offset: int) -> int:
-        """Returns the value of a requested register.
-
-        Args:
-            index: the internal data key (corresponding to the fermionic mode).
-            offset: the bit-wise offset for the bit-shift operation to obtain the desired register.
-
-        Returns:
-            1 if the register was set, 0 otherwise.
-        """
-        return (self.data[index] >> offset) & 1
-
-    def set_bit(self, index: int, offset: int) -> None:
-        """Sets the provided register to 1.
-
-        Args:
-            index: the internal data key (corresponding to the fermionic mode).
-            offset: the bit-wise offset for the bit-shift operation to set the desired register.
-        """
-        self.data[index] = self.data[index] | (1 << offset)
-
-    def clear_bit(self, index: int, offset: int) -> None:
-        """Clears the provided register (to 0).
-
-        Args:
-            index: the internal data key (corresponding to the fermionic mode).
-            offset: the bit-wise offset for the bit-shift operation to set the desired register.
-        """
-        self.data[index] = self.data[index] & ~(1 << offset)
-
-    def __getitem__(self, __k):
-        return self.data.__getitem__(__k)
-
-    def __setitem__(self, __k, __v):
-        return self.data.__setitem__(__k, __v)
-
-    def __delitem__(self, __v):
-        return self.data.__delitem__(__v)
-
-    def __iter__(self):
-        return self.data.__iter__()
-
-    def __len__(self):
-        return self.data.__len__()
+        return " ".join(new_label), coeff

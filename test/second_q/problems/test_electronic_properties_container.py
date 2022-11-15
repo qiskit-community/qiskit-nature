@@ -39,7 +39,7 @@ class TestElectronicPropertiesContainer(QiskitNatureTestCase):
 
         with self.subTest("wrong setting type"):
             with self.assertRaises(TypeError):
-                container.angular_momentum = OccupiedModals()  # type: ignore[assignment]
+                container.angular_momentum = OccupiedModals([])  # type: ignore[assignment]
 
         with self.subTest("successful setting"):
             container.angular_momentum = AngularMomentum(1)
@@ -58,7 +58,7 @@ class TestElectronicPropertiesContainer(QiskitNatureTestCase):
 
         with self.subTest("wrong setting type"):
             with self.assertRaises(TypeError):
-                container.electronic_density = OccupiedModals()  # type: ignore[assignment]
+                container.electronic_density = OccupiedModals([])  # type: ignore[assignment]
 
         with self.subTest("successful setting"):
             container.electronic_density = ElectronicDensity()
@@ -77,7 +77,7 @@ class TestElectronicPropertiesContainer(QiskitNatureTestCase):
 
         with self.subTest("wrong setting type"):
             with self.assertRaises(TypeError):
-                container.electronic_dipole_moment = OccupiedModals()  # type: ignore[assignment]
+                container.electronic_dipole_moment = OccupiedModals([])  # type: ignore[assignment]
 
         with self.subTest("successful setting"):
             container.electronic_dipole_moment = ElectronicDipoleMoment(None, None, None)
@@ -96,7 +96,7 @@ class TestElectronicPropertiesContainer(QiskitNatureTestCase):
 
         with self.subTest("wrong setting type"):
             with self.assertRaises(TypeError):
-                container.magnetization = OccupiedModals()  # type: ignore[assignment]
+                container.magnetization = OccupiedModals([])  # type: ignore[assignment]
 
         with self.subTest("successful setting"):
             container.magnetization = Magnetization(1)
@@ -115,10 +115,10 @@ class TestElectronicPropertiesContainer(QiskitNatureTestCase):
 
         with self.subTest("wrong setting type"):
             with self.assertRaises(TypeError):
-                container.particle_number = OccupiedModals()  # type: ignore[assignment]
+                container.particle_number = OccupiedModals([])  # type: ignore[assignment]
 
         with self.subTest("successful setting"):
-            container.particle_number = ParticleNumber(1, 1)
+            container.particle_number = ParticleNumber(1)
             self.assertIn(ParticleNumber, container)
 
         with self.subTest("removal via None setting"):
@@ -128,7 +128,7 @@ class TestElectronicPropertiesContainer(QiskitNatureTestCase):
     def test_custom_property(self) -> None:
         """Tests support for custom property objects."""
         container = ElectronicPropertiesContainer()
-        container.add(OccupiedModals())
+        container.add(OccupiedModals([]))
         self.assertIn(OccupiedModals, container)
 
 

@@ -18,7 +18,7 @@ import io
 import unittest
 import warnings
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 
 import numpy as np
 
@@ -50,7 +50,7 @@ from qiskit_nature import settings
 from qiskit_nature.algorithms.initial_points import MP2InitialPoint
 
 
-class TestGroundStateEigensolver(QiskitNatureTestCase):
+class TestGroundStateEigensolver(QiskitNatureDeprecatedTestCase):
     """Test GroundStateEigensolver"""
 
     def setUp(self):

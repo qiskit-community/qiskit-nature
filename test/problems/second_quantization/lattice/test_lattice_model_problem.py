@@ -12,7 +12,7 @@
 
 """Tests Lattice Model Problem."""
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureDeprecatedTestCase
 
 import numpy as np
 
@@ -27,7 +27,7 @@ from qiskit_nature.problems.second_quantization.lattice import (
 from qiskit_nature.results import EigenstateResult
 
 
-class TestLatticeModelProblem(QiskitNatureTestCase):
+class TestLatticeModelProblem(QiskitNatureDeprecatedTestCase):
     """Tests Lattice Model Problem."""
 
     def _compare_second_q_op(self, first: SecondQuantizedOp, second: SecondQuantizedOp):

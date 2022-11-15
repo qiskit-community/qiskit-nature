@@ -15,19 +15,30 @@
 from __future__ import annotations
 
 import math
-from typing import List, Tuple, Union, cast
+from typing import List, Sequence, Tuple, Union, cast
 import copy
 import logging
 import re
 
-from qiskit_nature.second_q.hamiltonians import VibrationalEnergy
-from qiskit_nature.second_q.properties.integrals import (
-    VibrationalIntegrals,
-)
+from qiskit_nature.second_q.formats.watson import WatsonHamiltonian
+import qiskit_nature.optionals as _optionals
+
+if _optionals.HAS_SPARSE:
+    # pylint: disable=import-error
+    from sparse import as_coo
+else:
+
+    def as_coo(*args):
+        """Empty as_coo function
+        Replacement if sparse.as_coo is not present.
+        """
+        del args
+
 
 logger = logging.getLogger(__name__)
 
 
+@_optionals.HAS_SPARSE.require_in_instance
 class GaussianLogResult:
     """Result for Gaussian™ 16 log driver.
 
@@ -206,7 +217,7 @@ class GaussianLogResult:
         multinomial = 1
         for val in tmp:
             count = indices.count(val)
-            multinomial = multinomial * math.factorial(count)
+            multinomial *= math.factorial(count)
         return multinomial
 
     def _process_entry_indices(self, entry: list[Union[str, float]]) -> list[int]:
@@ -221,46 +232,52 @@ class GaussianLogResult:
         num_indices = len(entry) - 3
         return [a2h_vals + 1 - a2h[cast(str, x)] for x in entry[0:num_indices]]
 
-    def get_vibrational_energy(self, normalize: bool = True) -> VibrationalEnergy:
-        """
-        Get the force constants as a VibrationalEnergy property.
+    def _force_constants_array(
+        self,
+        force_constants: Sequence[tuple],
+        factor: float,
+        *,
+        normalize: bool = True,
+    ):
+        sparse_data = {}
+        max_index = -1
 
-        Args:
-            normalize: Whether to normalize the factors or not
-
-        Returns:
-            A VibrationalEnergy property.
-        """
-        sorted_integrals: dict[int, list[tuple[float, tuple[int, ...]]]] = {1: [], 2: [], 3: []}
-
-        for entry in self.quadratic_force_constants:
+        for entry in force_constants:
             indices = self._process_entry_indices(list(entry))
             if indices:
-                factor = 2.0
-                factor *= self._multinomial(indices) if normalize else 1.0
-                coeff = entry[2] / factor
-                num_body = len(set(indices))
-                sorted_integrals[num_body].append((coeff, tuple(indices)))
-                sorted_integrals[num_body].append((-coeff, tuple(-i for i in indices)))
+                max_index = max(max_index, *set(indices))
+                fac = factor
+                fac *= self._multinomial(indices) if normalize else 1.0
+                coeff = entry[-3] / fac
+                sparse_data[tuple(i - 1 for i in indices)] = coeff
 
-        for entry_c in self.cubic_force_constants:
-            indices = self._process_entry_indices(list(entry_c))
-            if indices:
-                factor = 2.0 * math.sqrt(2.0)
-                factor *= self._multinomial(indices) if normalize else 1.0
-                coeff = entry_c[3] / factor
-                num_body = len(set(indices))
-                sorted_integrals[num_body].append((coeff, tuple(indices)))
+        return sparse_data, max_index
 
-        for entry_q in self.quartic_force_constants:
-            indices = self._process_entry_indices(list(entry_q))
-            if indices:
-                factor = 4.0
-                factor *= self._multinomial(indices) if normalize else 1.0
-                coeff = entry_q[4] / factor
-                num_body = len(set(indices))
-                sorted_integrals[num_body].append((coeff, tuple(indices)))
+    def get_watson_hamiltonian(self, *, normalize: bool = True) -> WatsonHamiltonian:
+        """Extracts a Watson Hamiltonian from the Gaussian log.
 
-        return VibrationalEnergy(
-            [VibrationalIntegrals(num_body, ints) for num_body, ints in sorted_integrals.items()]
+        Args:
+            normalize: whether or not to normalize the force constants.
+
+        Returns:
+            The constructed ``WatsonHamiltonian``.
+        """
+        quadratic_data, quadratic_max_index = self._force_constants_array(
+            self.quadratic_force_constants, factor=2.0, normalize=normalize
         )
+        cubic_data, cubic_max_index = self._force_constants_array(
+            self.cubic_force_constants, factor=2.0 * math.sqrt(2.0), normalize=normalize
+        )
+        quartic_data, quartic_max_index = self._force_constants_array(
+            self.quartic_force_constants, factor=4.0, normalize=normalize
+        )
+
+        max_index = max(quadratic_max_index, cubic_max_index, quartic_max_index)
+
+        watson = WatsonHamiltonian(
+            as_coo(quadratic_data, shape=(max_index,) * 2),
+            as_coo(cubic_data, shape=(max_index,) * 3),
+            as_coo(quartic_data, shape=(max_index,) * 4),
+            -as_coo(quadratic_data, shape=(max_index,) * 2),
+        )
+        return watson

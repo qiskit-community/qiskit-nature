@@ -81,6 +81,26 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
             with self.subTest("ElectronicDensity"):
                 self.assertTrue(density.equiv(expected_density))
 
+        with self.subTest("attributes"):
+            self.assertEqual(driver_result.num_particles, expected.num_particles)
+            self.assertEqual(driver_result.num_spatial_orbitals, expected.num_spatial_orbitals)
+            if expected.orbital_energies is not None:
+                self.assertTrue(
+                    np.allclose(driver_result.orbital_energies, expected.orbital_energies)
+                )
+            if expected.orbital_energies_b is not None:
+                self.assertTrue(
+                    np.allclose(driver_result.orbital_energies_b, expected.orbital_energies_b)
+                )
+            if expected.orbital_occupations is not None:
+                self.assertTrue(
+                    np.allclose(driver_result.orbital_occupations, expected.orbital_occupations)
+                )
+            if expected.orbital_occupations_b is not None:
+                self.assertTrue(
+                    np.allclose(driver_result.orbital_occupations_b, expected.orbital_occupations_b)
+                )
+
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     @idata(
         [
@@ -109,10 +129,9 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         """Test a minimal active space manually."""
         driver = PySCFDriver(basis="631g")
         driver_result = driver.run()
-        particle_number = driver_result.properties.particle_number
         driver_result.properties.electronic_density = ElectronicDensity.from_orbital_occupation(
-            particle_number.occupation_alpha,
-            particle_number.occupation_beta,
+            driver_result.orbital_occupations,
+            driver_result.orbital_occupations_b,
         )
 
         trafo = ActiveSpaceTransformer(2, 2)
@@ -135,6 +154,8 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         )
         electronic_energy.constants["ActiveSpaceTransformer"] = 0.0
         expected = ElectronicStructureProblem(electronic_energy)
+        expected.num_particles = (1, 1)
+        expected.num_spatial_orbitals = 2
         dipole_moment = ElectronicDipoleMoment(
             ElectronicIntegrals.from_raw_integrals(np.zeros((2, 2))),
             ElectronicIntegrals.from_raw_integrals(np.zeros((2, 2))),
@@ -155,16 +176,21 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         driver = PySCFDriver(atom="Be 0 0 0; H 0 0 1.3", basis="sto3g", spin=1)
         driver_result = driver.run()
 
-        trafo = ActiveSpaceTransformer((2, 1), 3)
+        nelec = (2, 1)
+        norb = 3
+        trafo = ActiveSpaceTransformer(nelec, norb)
         driver_result_reduced = trafo.transform(driver_result)
 
         expected = qcschema_to_problem(
             QCSchema.from_json(
                 self.get_resource_path("BeH_sto3g_reduced.json", "second_q/transformers/resources")
-            )
+            ),
+            include_dipole=False,
         )
         # add energy shift, which currently cannot be stored in the QCSchema
         expected.hamiltonian.constants["ActiveSpaceTransformer"] = -14.253802923103054
+        expected.num_particles = nelec
+        expected.num_spatial_orbitals = norb
 
         self.assertDriverResult(driver_result_reduced, expected)
 
@@ -194,6 +220,8 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         )
         electronic_energy.constants["ActiveSpaceTransformer"] = 0.0
         expected = ElectronicStructureProblem(electronic_energy)
+        expected.num_particles = (1, 1)
+        expected.num_spatial_orbitals = 2
         dipole_moment = ElectronicDipoleMoment(
             ElectronicIntegrals.from_raw_integrals(np.zeros((2, 2))),
             ElectronicIntegrals.from_raw_integrals(np.zeros((2, 2))),
@@ -236,7 +264,9 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         driver = PySCFDriver(basis="631g")
         driver_result = driver.run()
 
-        trafo = ActiveSpaceTransformer((1, 1), 2, [0, 1])
+        nelec = (1, 1)
+        norb = 2
+        trafo = ActiveSpaceTransformer(nelec, norb, [0, 1])
         driver_result_reduced = trafo.transform(driver_result)
 
         electronic_energy = ElectronicEnergy.from_raw_integrals(
@@ -256,6 +286,8 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         )
         electronic_energy.constants["ActiveSpaceTransformer"] = 0.0
         expected = ElectronicStructureProblem(electronic_energy)
+        expected.num_particles = nelec
+        expected.num_spatial_orbitals = norb
         dipole_moment = ElectronicDipoleMoment(
             ElectronicIntegrals.from_raw_integrals(np.zeros((2, 2))),
             ElectronicIntegrals.from_raw_integrals(np.zeros((2, 2))),
@@ -277,16 +309,13 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         """
         driver = PySCFDriver(basis="631g")
         driver_result = driver.run()
+        driver_result.num_spatial_orbitals = np.int64(driver_result.num_spatial_orbitals)
+        driver_result.num_particles = (
+            np.int64(driver_result.num_alpha),
+            np.int64(driver_result.num_beta),
+        )
 
-        particle_number = driver_result.properties.particle_number
-        driver_result.properties.particle_number = None
-        particle_number.num_alpha = np.int64(particle_number.num_alpha)
-        particle_number.num_beta = np.int64(particle_number.num_beta)
-        particle_number.num_spin_orbitals = np.int64(particle_number.num_spin_orbitals)
-
-        driver_result.properties.particle_number = particle_number
-
-        trafo = ActiveSpaceTransformer(particle_number.num_particles, 2)
+        trafo = ActiveSpaceTransformer(driver_result.num_particles, 2)
         _ = trafo.transform(driver_result)
 
 

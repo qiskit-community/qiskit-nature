@@ -1,7 +1,4 @@
-
-
-circuit
-==============================
+.. _qiskit_nature-second_q-circuit:
 
 .. automodule:: qiskit_nature.second_q.circuit
    :no-members:

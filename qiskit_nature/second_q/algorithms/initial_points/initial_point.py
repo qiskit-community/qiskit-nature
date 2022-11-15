@@ -32,7 +32,7 @@ class InitialPoint(ABC):
     @abstractmethod
     def __init__(self):
         self._ansatz: EvolvedOperatorAnsatz | None = None
-        self._grouped_property: BaseProblem | None = None
+        self._problem: BaseProblem | None = None
 
     @property
     @abstractmethod
@@ -49,21 +49,21 @@ class InitialPoint(ABC):
         raise NotImplementedError
 
     @property
-    def grouped_property(self) -> BaseProblem | None:
-        """The grouped property.
+    def problem(self) -> BaseProblem | None:
+        """The problem.
 
         Raises:
             NotImplementedError
         """
         raise NotImplementedError
 
-    @grouped_property.setter
-    def grouped_property(self, grouped_property: BaseProblem) -> None:
+    @problem.setter
+    def problem(self, problem: BaseProblem) -> None:
         raise NotImplementedError
 
     @abstractmethod
     def to_numpy_array(self) -> np.ndarray:
-        """Returns a numpy array of the computed initial point.
+        """Returns a NumPy array of the computed initial point.
 
         Raises:
             NotImplementedError
@@ -73,7 +73,7 @@ class InitialPoint(ABC):
     def compute(
         self,
         ansatz: EvolvedOperatorAnsatz | None = None,
-        grouped_property: BaseProblem | None = None,
+        problem: BaseProblem | None = None,
     ) -> None:
-        """Compute the initial point array"""
+        """Compute the initial point array."""
         raise NotImplementedError
