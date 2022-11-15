@@ -100,7 +100,7 @@ class QEOM(ExcitedStatesSolver):
                     + `all` to compute all expectation values and all transition amplitudes
                     + `diag` to only compute expectation values
                 :`dict[str, list[tuple]]`: Dictionnary mapping valid auxiliary operator's name to lists
-                of tuple (i, j) specifying the indices of the excited states to be evaluated on. By 
+                of tuple (i, j) specifying the indices of the excited states to be evaluated on. By
                 default, none of the auxiliary operators are evaluated on none of the excited states.
 
         """
@@ -339,35 +339,18 @@ class QEOM(ExcitedStatesSolver):
         """
 
         pre_tap_hopping_ops, type_of_commutativities, size = expansion_basis_data
+        to_be_computed_list = []
         all_matrix_operators = {}
 
         mus, nus = np.triu_indices(size)
 
         def _build_one_sector(available_hopping_ops, untapered_op, z2_symmetries):
-
-            to_be_computed_list = []
             for idx, m_u in enumerate(mus):
                 n_u = nus[idx]
                 left_op_1 = available_hopping_ops.get(f"E_{m_u}")
                 right_op_1 = available_hopping_ops.get(f"E_{n_u}")
                 right_op_2 = available_hopping_ops.get(f"Edag_{n_u}")
                 to_be_computed_list.append((m_u, n_u, left_op_1, right_op_1, right_op_2))
-
-            if logger.isEnabledFor(logging.INFO):
-                logger.info("Building all commutators:")
-                TextProgressBar(sys.stderr)
-            results = parallel_map(
-                self._build_commutator_routine,
-                to_be_computed_list,
-                task_args=(untapered_op, z2_symmetries),
-                num_processes=algorithm_globals.num_processes,
-            )
-            for result in results:
-                m_u, n_u, eom_operators = result
-
-                for index_op, op in eom_operators.items():
-                    if op is not None:
-                        all_matrix_operators[f"{index_op}_{m_u}_{n_u}"] = op
 
         try:
             z2_symmetries = self._gsc.qubit_converter.z2symmetries
@@ -389,12 +372,26 @@ class QEOM(ExcitedStatesSolver):
                     value = np.asarray(value)
                     if np.all(value == targeted_sector):
                         available_hopping_ops[key] = pre_tap_hopping_ops[key]
-                # untapered_qubit_op is a PauliSumOp and should not be exposed.
                 _build_one_sector(available_hopping_ops, pre_tap_operator, z2_symmetries)
 
         else:
-            # untapered_qubit_op is a PauliSumOp and should not be exposed.
             _build_one_sector(pre_tap_hopping_ops, pre_tap_operator, z2_symmetries)
+
+        if logger.isEnabledFor(logging.INFO):
+            logger.info("Building all commutators:")
+            TextProgressBar(sys.stderr)
+        results = parallel_map(
+            self._build_commutator_routine,
+            to_be_computed_list,
+            task_args=(pre_tap_operator, z2_symmetries),
+            num_processes=algorithm_globals.num_processes,
+        )
+        for result in results:
+            m_u, n_u, eom_operators = result
+
+            for index_op, op in eom_operators.items():
+                if op is not None:
+                    all_matrix_operators[f"{index_op}_{m_u}_{n_u}"] = op
 
         return all_matrix_operators
 
@@ -536,7 +533,13 @@ class QEOM(ExcitedStatesSolver):
 
         return h_mat, s_mat, h_mat_std, s_mat_std
 
-    def _prepare_expansion_basis(self, problem: BaseProblem):
+    def _prepare_expansion_basis(
+        self, problem: BaseProblem
+    ) -> Tuple[
+        Dict[str, PauliSumOp],
+        Dict[str, List[bool]],
+        Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]],
+    ]:
         """Prepares the basis expansion operators by calling the builder for second quantized operator
         and applying tranformations (Mapping, Reduction, First step of the tapering).
 
@@ -567,7 +570,7 @@ class QEOM(ExcitedStatesSolver):
             Dict[str, List[bool]],
             Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]],
         ],
-        reference_state: Tuple[QuantumCircuit, Sequence(float)],
+        reference_state: Tuple[QuantumCircuit, Sequence[float]],
     ) -> Tuple[np.ndarray, np.ndarray, float, float]:
         """Builds the matrices for the qEOM pseudo-eigenvalue problem
 
@@ -663,7 +666,7 @@ class QEOM(ExcitedStatesSolver):
             expansion_basis_data: Dict of transformed hopping operators, dict of commutativity types,
             size of the qEOM problem.
             reference_state : Reference ground state
-            expansion_coefs_rescaled: Expansion coefficient matrix X such that HX=SXE and X^\dag SX is
+            expansion_coefs_rescaled: Expansion coefficient matrix X such that HX=SXE and X^dag SX is
             the identity
 
         Returns:
@@ -711,7 +714,7 @@ class QEOM(ExcitedStatesSolver):
         operators_reduced: list[PauliSumOp],
         size: int,
     ) -> dict[str, PauliSumOp]:
-        """Prepare the operators O_k^\dag @ Aux @ O_l associated to properties of the excited states k,l
+        """Prepare the operators O_k^dag @ Aux @ O_l associated to properties of the excited states k,l
         defined in the aux_eval_rules. By default, the expectation value of all observables on all
         excited states are evaluated while no transition amplitudes are computed.
 
@@ -727,7 +730,7 @@ class QEOM(ExcitedStatesSolver):
             observable and excited state.
 
         Returns:
-            Dict of operators of the form O_k^\dag @ Aux @ O_l as specified in the constraints.
+            Dict of operators of the form O_k^dag @ Aux @ O_l as specified in the constraints.
         """
 
         indices = np.diag_indices(size + 1)
@@ -782,7 +785,7 @@ class QEOM(ExcitedStatesSolver):
             expansion_basis_data: Dict of transformed hopping operators, dict of commutativity types,
             size of the qEOM problem.
             reference_state: Reference ground state.
-            expansion_coefs_rescaled: Expansion coefficient matrix X such that HX=SXE and X^\dag SX is
+            expansion_coefs_rescaled: Expansion coefficient matrix X such that HX=SXE and X^dag SX is
             the identity.
 
         Returns:
@@ -837,47 +840,6 @@ class QEOM(ExcitedStatesSolver):
                     )
 
         return aux_operators_eigenvalues, transition_amplitudes
-
-    def _build_qeom_result(
-        self,
-        problem,
-        groundstate_result,
-        expansion_coefs,
-        energy_gaps,
-        h_mat,
-        s_mat,
-        h_mat_std,
-        s_mat_std,
-        aux_operators_eigenvalues,
-        transition_amplitudes,
-        gammas_square,
-    ) -> ElectronicStructureResult:
-
-        qeom_result = QEOMResult()
-        qeom_result.ground_state_raw_result = groundstate_result.raw_result
-        qeom_result.expansion_coefficients = expansion_coefs
-        qeom_result.excitation_energies = energy_gaps
-        qeom_result.h_matrix = h_mat
-        qeom_result.s_matrix = s_mat
-        qeom_result.h_matrix_std = h_mat_std
-        qeom_result.s_matrix_std = s_mat_std
-        qeom_result.gamma_square = gammas_square
-
-        qeom_result.aux_operators_evaluated = list(aux_operators_eigenvalues.values())
-        qeom_result.transition_amplitudes = transition_amplitudes
-
-        groundstate_energy_reference = groundstate_result.eigenvalues[0]
-        excited_eigenenergies = energy_gaps + groundstate_energy_reference
-        qeom_result.eigenvalues = np.append(
-            groundstate_result.eigenvalues[0], excited_eigenenergies
-        )
-
-        qeom_result.eigenstates = []
-
-        eigenstate_result = EigenstateResult.from_result(qeom_result)
-        result = problem.interpret(eigenstate_result)
-
-        return result
 
     def _build_qeom_result(
         self,

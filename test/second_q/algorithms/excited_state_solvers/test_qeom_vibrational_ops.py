@@ -21,7 +21,6 @@ from qiskit.utils import algorithm_globals
 from qiskit_nature.second_q.algorithms.excited_states_solvers.qeom_vibrational_ops_builder import (
     build_vibrational_ops,
 )
-from .resources.expected_qeom_ops import expected_hopping_operators_vibrational
 from qiskit_nature.second_q.formats.watson import WatsonHamiltonian
 from qiskit_nature.second_q.formats.watson_translator import watson_to_problem
 from qiskit_nature.second_q.mappers import DirectMapper, QubitConverter
@@ -84,10 +83,14 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
     def test_build_hopping_operators(self):
         """Tests that the correct hopping operator is built."""
 
-        hopping_operators, commutativities, indices  = build_vibrational_ops(self.basis.num_modals, "sd", self.qubit_converter)
-        
+        hopping_operators, commutativities, indices = build_vibrational_ops(
+            self.basis.num_modals, "sd", self.qubit_converter
+        )
+
         with self.subTest("hopping operators"):
-            self.assertEqual(hopping_operators.keys(), expected_hopping_operators_vibrational.keys())
+            self.assertEqual(
+                hopping_operators.keys(), expected_hopping_operators_vibrational.keys()
+            )
             for key, exp_key in zip(
                 hopping_operators.keys(), expected_hopping_operators_vibrational.keys()
             ):

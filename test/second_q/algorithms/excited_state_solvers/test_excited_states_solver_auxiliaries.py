@@ -15,9 +15,9 @@
 import unittest
 
 from test import QiskitNatureTestCase
-import numpy as np
 from typing import List, Dict
 
+import numpy as np
 
 from qiskit.algorithms.eigensolvers import NumPyEigensolver
 from qiskit.algorithms.optimizers import SLSQP
@@ -36,8 +36,6 @@ from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.algorithms import (
     GroundStateEigensolver,
     VQEUCCFactory,
-    NumPyEigensolverFactory,
-    ExcitedStatesEigensolver,
     QEOM,
 )
 import qiskit_nature.optionals as _optionals

@@ -10,6 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+"""Reference PauliSumOp for testing."""
+
 from qiskit.opflow import PauliSumOp
 
 expected_hopping_operators_electronic = {

@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-from qiskit.opflow import PauliSumOp
+"""Reference Transition amplitudes for testing."""
 
 reference_trans_amps = {
     (0, 1): {
