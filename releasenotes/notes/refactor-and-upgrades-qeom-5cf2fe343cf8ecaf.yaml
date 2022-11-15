@@ -1,0 +1,65 @@
+---
+features:
+  - |
+    Improves readability of the QEOM code and implements the calculation of 
+    excited state properties and transition 
+    amplitudes with QEOM.
+
+    The new funtionnalities can be used as follows:
+
+    .. code-block:: python
+
+    from qiskit.algorithms.optimizers import COBYLA
+    from qiskit.primitives import Estimator
+
+    from qiskit_nature.units import DistanceUnit
+    from qiskit_nature.second_q.algorithms import (
+      VQEUCCFactory, 
+      GroundStateEigensolver
+    )
+    from qiskit_nature.second_q.algorithms.excited_states_solvers import QEOM
+    from qiskit_nature.second_q.circuit.library import UCCSD
+    from qiskit_nature.second_q.drivers import PySCFDriver
+    from qiskit_nature.second_q.mappers import QubitConverter
+    from qiskit_nature.second_q.mappers import JordanWignerMapper
+
+    import numpy as np
+
+    optimizer = COBYLA(maxiter=500,disp=False)
+    qubit_converter = QubitConverter(
+      JordanWignerMapper(), 
+      z2symmetry_reduction=None, 
+      two_qubit_reduction=False
+      )
+
+    new_driver = PySCFDriver(
+        atom="H 0 0 0; H 0 0 1.735",
+        basis="sto3g",
+        charge=0,
+        spin=0,
+        unit=DistanceUnit.ANGSTROM,
+    )
+    new_es_problem = new_driver.run()
+    hamiltonian_op, _ = new_es_problem.second_q_ops()
+    aux_ops = {'hamiltonian':hamiltonian_op}
+
+    # Qeom results
+    vqe_solver = VQEUCCFactory(Estimator(), UCCSD(), optimizer)
+    me_gsc = GroundStateEigensolver(qubit_converter, vqe_solver)
+    qeom_solver = QEOM(
+      me_gsc, 
+      estimator=Estimator(), 
+      excitations='sd', 
+      aux_eval_rules="all"
+    )
+    results_qeom = qeom_solver.solve(new_es_problem, aux_operators=aux_ops)
+
+    print("Aux QEOM")
+    for aux_op_eval in results_qeom.aux_operators_evaluated:
+        print(aux_op_eval)
+
+upgrade:
+  - |
+    Refactors the treatment of symmetries in the QEOM to reduce the classical overhead.
+    The parallelism was also reworked to improve the performances of the current hybrid 
+    sequential+parallel approach.
