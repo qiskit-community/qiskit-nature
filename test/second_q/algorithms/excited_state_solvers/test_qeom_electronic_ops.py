@@ -24,6 +24,11 @@ from qiskit_nature.second_q.algorithms.excited_states_solvers.qeom_electronic_op
     build_electronic_ops,
 )
 import qiskit_nature.optionals as _optionals
+from .resources.expected_qeom_ops import (
+    expected_hopping_operators_electronic,
+    expected_commutativies_electronic,
+    expected_indices_electronic,
+)
 
 
 class TestHoppingOpsBuilder(QiskitNatureTestCase):
@@ -48,87 +53,26 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
 
     def test_build_hopping_operators(self):
         """Tests that the correct hopping operators are built."""
-        # TODO extract it somewhere
-        expected_hopping_operators = {
-            "E_0": 1/4 * PauliSumOp.from_list([("IIXY", -1j), ("IIYY", 1), ("IIXX", 1), ("IIYX", 1j)]),
-            "Edag_0": 1/4 * PauliSumOp.from_list([("IIXY", 1j), ("IIXX", 1), ("IIYY", 1), ("IIYX", -1j)]),
-            "E_1": 1/4 * PauliSumOp.from_list([("XYII", -1j), ("YYII", 1), ("XXII", 1), ("YXII", 1j)]),
-            "Edag_1": 1/4 * PauliSumOp.from_list([("XYII", 1j), ("YYII", 1), ("XXII", 1), ("YXII", -1j)]),
-            "E_2": 1/16 * PauliSumOp.from_list(
-                [
-                    ("XYXY", 1),
-                    ("YYXY", 1j),
-                    ("XYYY", 1j),
-                    ("YYYY", -1),
-                    ("XXXY", 1j),
-                    ("YXXY", -1),
-                    ("XXYY", -1),
-                    ("YXYY", -1j),
-                    ("XYXX", 1j),
-                    ("YYXX", -1),
-                    ("XYYX", -1),
-                    ("YYYX", -1j),
-                    ("XXXX", -1),
-                    ("YXXX", -1j),
-                    ("XXYX", -1j),
-                    ("YXYX", 1),
-                ]
-            ),
-            "Edag_2": 1/16 * PauliSumOp.from_list(
-                [
-                    ("XYXY", 1),
-                    ("XXXY", -1j),
-                    ("XYXX", -1j),
-                    ("XXXX", -1),
-                    ("YYXY", -1j),
-                    ("YXXY", -1),
-                    ("YYXX", -1),
-                    ("YXXX", 1j),
-                    ("XYYY", -1j),
-                    ("XXYY", -1),
-                    ("XYYX", -1),
-                    ("XXYX", 1j),
-                    ("YYYY", -1),
-                    ("YXYY", 1j),
-                    ("YYYX", 1j),
-                    ("YXYX", 1),
-                ]
-            ),
-        }
-        expected_commutativies = {
-            "E_0": [],
-            "Edag_0": [],
-            "E_1": [],
-            "Edag_1": [],
-            "E_2": [],
-            "Edag_2": [],
-        }
-        expected_indices = {
-            "E_0": ((0,), (1,)),
-            "Edag_0": ((1,), (0,)),
-            "E_1": ((2,), (3,)),
-            "Edag_1": ((3,), (2,)),
-            "E_2": ((0, 2), (1, 3)),
-            "Edag_2": ((1, 3), (0, 2)),
-        }
 
         hopping_operators, commutativities, indices = build_electronic_ops(
             self.particle_number, self.qubit_converter
         )
 
         with self.subTest("hopping operators"):
-            self.assertEqual(hopping_operators.keys(), expected_hopping_operators.keys())
-            for key, exp_key in zip(hopping_operators.keys(), expected_hopping_operators.keys()):
+            self.assertEqual(hopping_operators.keys(), expected_hopping_operators_electronic.keys())
+            for key, exp_key in zip(
+                hopping_operators.keys(), expected_hopping_operators_electronic.keys()
+            ):
                 self.assertEqual(key, exp_key)
                 val = hopping_operators[key]
-                exp_val = expected_hopping_operators[exp_key]
+                exp_val = expected_hopping_operators_electronic[exp_key]
                 if not val.equals(exp_val):
                     print(val)
                     print(exp_val)
                 self.assertTrue(val.equals(exp_val), msg=(val, exp_val))
 
         with self.subTest("commutativities"):
-            self.assertEqual(commutativities, expected_commutativies)
+            self.assertEqual(commutativities, expected_commutativies_electronic)
 
         with self.subTest("excitation indices"):
-            self.assertEqual(indices, expected_indices)
+            self.assertEqual(indices, expected_indices_electronic)
