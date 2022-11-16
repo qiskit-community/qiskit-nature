@@ -830,7 +830,7 @@ class QEOM(ExcitedStatesSolver):
 
             # 3. Measure observables
             tap_op_aux_op_dict = self.qubit_converter._symmetry_reduce_clifford(
-                op_aux_op_dict, True
+                ListOrDict(op_aux_op_dict), True
             )
             aux_measurements = estimate_observables(
                 self._estimator, reference_state[0], tap_op_aux_op_dict, reference_state[1]
