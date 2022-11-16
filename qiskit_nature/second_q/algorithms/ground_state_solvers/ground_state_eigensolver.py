@@ -94,7 +94,7 @@ class GroundStateEigensolver(GroundStateSolver):
 
         num_particles = None
         if hasattr(problem, "num_particles"):
-            num_particles = problem.num_particles  # type: ignore[attr-defined]
+            num_particles = problem.num_particles
 
         main_operator = self._qubit_converter.convert(
             main_second_q_op,
