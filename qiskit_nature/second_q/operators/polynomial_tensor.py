@@ -746,17 +746,17 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
             from opt_einsum import contract
 
             einsum_func = contract
-            dense_operands = list(operands)
+            operand_list = list(operands)
         else:
             einsum_func = np.einsum
-            dense_operands = [op.to_dense() for op in operands]
+            operand_list = [op.to_dense() for op in operands]
         new_data: dict[str, ARRAY_TYPE] = {}
         for einsum, terms in einsum_map.items():
             *inputs, output = terms
             try:
                 result = einsum_func(
                     einsum,
-                    *[dense_operands[idx]._data[term] for idx, term in enumerate(inputs)],
+                    *[operand_list[idx]._data[term] for idx, term in enumerate(inputs)],
                     optimize=settings.optimize_einsum,
                 )
             except KeyError:
