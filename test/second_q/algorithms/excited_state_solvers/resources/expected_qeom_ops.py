@@ -12,10 +12,10 @@
 
 """Reference PauliSumOp for testing."""
 
-from typing import Any
+from typing import Any, List, Dict
 from qiskit.opflow import PauliSumOp
 
-expected_hopping_operators_electronic: dict[str, PauliSumOp] = {
+expected_hopping_operators_electronic: Dict[str, PauliSumOp] = {
     "E_0": 1 / 4 * PauliSumOp.from_list([("IIXY", -1j), ("IIYY", 1), ("IIXX", 1), ("IIYX", 1j)]),
     "Edag_0": 1 / 4 * PauliSumOp.from_list([("IIXY", 1j), ("IIXX", 1), ("IIYY", 1), ("IIYX", -1j)]),
     "E_1": 1 / 4 * PauliSumOp.from_list([("XYII", -1j), ("YYII", 1), ("XXII", 1), ("YXII", 1j)]),
@@ -66,7 +66,7 @@ expected_hopping_operators_electronic: dict[str, PauliSumOp] = {
     ),
 }
 
-expected_commutativies_electronic: dict[str, list[bool]] = {
+expected_commutativies_electronic: Dict[str, List[bool]] = {
     "E_0": [],
     "Edag_0": [],
     "E_1": [],
@@ -75,7 +75,7 @@ expected_commutativies_electronic: dict[str, list[bool]] = {
     "Edag_2": [],
 }
 
-expected_indices_electronic: dict[str, Any] = {
+expected_indices_electronic: Dict[str, Any] = {
     "E_0": ((0,), (1,)),
     "Edag_0": ((1,), (0,)),
     "E_1": ((2,), (3,)),
@@ -84,7 +84,7 @@ expected_indices_electronic: dict[str, Any] = {
     "Edag_2": ((1, 3), (0, 2)),
 }
 
-expected_hopping_operators_vibrational: dict[str, PauliSumOp] = {
+expected_hopping_operators_vibrational: Dict[str, PauliSumOp] = {
     "E_0": PauliSumOp.from_list(
         [("IIXX", 0.25), ("IIYX", 0.25j), ("IIXY", -0.25j), ("IIYY", 0.25)]
     ),
@@ -138,8 +138,8 @@ expected_hopping_operators_vibrational: dict[str, PauliSumOp] = {
         ]
     ),
 }
-expected_commutativies_vibrational: dict[str, list[bool]] = {}
-expected_indices_vibrational: dict[str, Any] = {
+expected_commutativies_vibrational: Dict[str, List[bool]] = {}
+expected_indices_vibrational: Dict[str, Any] = {
     "E_0": ((0,), (1,)),
     "Edag_0": ((1,), (0,)),
     "E_1": ((2,), (3,)),

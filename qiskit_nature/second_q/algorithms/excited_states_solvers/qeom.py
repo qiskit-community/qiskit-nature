@@ -550,9 +550,7 @@ class QEOM(ExcitedStatesSolver):
         # P = Q.adjoint() = Q.conj()
         # U = -V.conj() = -V.T
         # T = W.adjoint()
-        h_mat: np.ndarray = np.array(
-            np.matrixlib.bmat([[m_mat, q_mat], [q_mat.T.conj(), m_mat.T]])
-        )
+        h_mat: np.ndarray = np.array(np.matrixlib.bmat([[m_mat, q_mat], [q_mat.T.conj(), m_mat.T]]))
         s_mat: np.ndarray = np.array(
             np.matrixlib.bmat([[v_mat, w_mat], [w_mat.T.conj(), -v_mat.T]])
         )
