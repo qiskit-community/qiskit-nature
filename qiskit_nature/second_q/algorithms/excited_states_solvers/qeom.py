@@ -64,12 +64,12 @@ class QEOM(ExcitedStatesSolver):
         estimator: BaseEstimator,
         excitations: str
         | int
-        | list[int]
+        | List[int]
         | Callable[
-            [int, tuple[int, int]],
-            list[tuple[tuple[int, ...], tuple[int, ...]]],
+            [int, Tuple[int, int]],
+            List[Tuple[Tuple[int, ...], Tuple[int, ...]]],
         ] = "sd",
-        aux_eval_rules: str | dict[str, list[tuple[int, int]]] | None = None,
+        aux_eval_rules: str | Dict[str, List[Tuple[int, int]]] | None = None,
     ) -> None:
         """
         Args:
@@ -86,7 +86,7 @@ class QEOM(ExcitedStatesSolver):
                     + `d` for doubles
                 :`int`: a single, positive integer which denotes the number of excitations
                     (1 == `s`, 2 == `d`, etc.)
-                :`list[int]`: a list of positive integers generalizing the above to multiple numbers
+                :`List[int]`: a list of positive integers generalizing the above to multiple numbers
                     of excitations ([1, 2] == `sd`, etc.)
                 :`Callable`: a function which can be used to specify a custom list of excitations.
                     For more details on how to write such a function refer to one of the default
@@ -94,13 +94,12 @@ class QEOM(ExcitedStatesSolver):
                     :meth:`generate_vibrational_excitations`, when solving an
                     :class:`.ElectronicStructureProblem` or a :class:`.VibrationalStructureProblem`,
                     respectively.
-
             aux_eval_rules: The rules determining how observables should be evaluated on excited states.
 
                 :`str`: specific predefined rules. Allowed strings are:
                     + `all` to compute all expectation values and all transition amplitudes
                     + `diag` to only compute expectation values
-                :`dict[str, list[tuple]]`: Dictionary mapping valid auxiliary operator's name to lists
+                :`Dict[str, List[Tuple]]`: Dictionary mapping valid auxiliary operator's name to lists
                 of tuple (i, j) specifying the indices of the excited states to be evaluated on. By
                 default, none of the auxiliary operators are evaluated on none of the excited states.
         """
@@ -114,8 +113,8 @@ class QEOM(ExcitedStatesSolver):
     @property
     def excitations(
         self,
-    ) -> str | int | list[int] | Callable[
-        [int, tuple[int, int]], list[tuple[tuple[int, ...], tuple[int, ...]]]
+    ) -> str | int | List[int] | Callable[
+        [int, Tuple[int, int]], List[Tuple[Tuple[int, ...], Tuple[int, ...]]]
     ]:
         """Returns the excitations to be included in the eom pseudo-eigenvalue problem."""
         return self._excitations
@@ -125,8 +124,8 @@ class QEOM(ExcitedStatesSolver):
         self,
         excitations: str
         | int
-        | list[int]
-        | Callable[[int, tuple[int, int]], list[tuple[tuple[int, ...], tuple[int, ...]]]],
+        | List[int]
+        | Callable[[int, Tuple[int, int]], List[Tuple[Tuple[int, ...], Tuple[int, ...]]]],
     ) -> None:
         """The excitations to be included in the eom pseudo-eigenvalue problem. If a string then
         all excitations of given type will be used. Otherwise, a list of custom excitations can
@@ -150,8 +149,8 @@ class QEOM(ExcitedStatesSolver):
     def get_qubit_operators(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[dict[str, Union[SparseLabelOp, PauliSumOp]]] = None,
-    ) -> Tuple[PauliSumOp, Optional[dict[str, PauliSumOp]]]:
+        aux_operators: Optional[Dict[str, Union[SparseLabelOp, PauliSumOp]]] = None,
+    ) -> Tuple[PauliSumOp, Optional[Dict[str, PauliSumOp]]]:
         """Construct qubit operators by getting the second quantized operators from the problem
         (potentially running a driver in doing so [can be computationally expensive])
         and using a QubitConverter to map and reduce the operators to qubit operators.
@@ -169,9 +168,9 @@ class QEOM(ExcitedStatesSolver):
     def get_qeom_qubit_operators(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[dict[str, Union[SparseLabelOp, PauliSumOp]]] = None,
+        aux_operators: Optional[Dict[str, Union[SparseLabelOp, PauliSumOp]]] = None,
     ) -> Tuple[
-        QubitOperator, Optional[dict[str, QubitOperator]], Optional[dict[str, QubitOperator]]
+        QubitOperator, Optional[Dict[str, QubitOperator]], Optional[Dict[str, QubitOperator]]
     ]:
         """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators.
         Note that contrary to the method :meth:`get_qubit_oprators` from the
@@ -228,7 +227,7 @@ class QEOM(ExcitedStatesSolver):
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[dict[str, SparseLabelOp]] = None,
+        aux_operators: Optional[Dict[str, SparseLabelOp]] = None,
     ) -> EigenstateResult:
         """Run the excited-states calculation.
 
@@ -350,7 +349,7 @@ class QEOM(ExcitedStatesSolver):
     def _build_all_eom_operators(
         self,
         pre_tap_operator: PauliSumOp,
-        expansion_basis_data: Tuple[dict[str, PauliSumOp], dict[str, List[bool]], int],
+        expansion_basis_data: Tuple[Dict[str, PauliSumOp], Dict[str, List[bool]], int],
     ) -> dict:
         """Building all commutators for Q, W, M, V matrices.
 
@@ -423,7 +422,7 @@ class QEOM(ExcitedStatesSolver):
     @staticmethod
     def _build_commutator_routine(
         params: List, operator: PauliSumOp, z2_symmetries: Z2Symmetries
-    ) -> Tuple[int, int, dict[str, PauliSumOp]]:
+    ) -> Tuple[int, int, Dict[str, PauliSumOp]]:
         """Numerically computes the commutator / double commutator between operators.
 
         Args:
@@ -481,7 +480,7 @@ class QEOM(ExcitedStatesSolver):
         return m_u, n_u, eom_operators
 
     def _build_eom_matrices(
-        self, gs_results: dict[str, tuple[complex, dict[str, Any]]], size: int
+        self, gs_results: Dict[str, Tuple[complex, Dict[str, Any]]], size: int
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """Constructs the H and S matrices from the results on the ground state.
 
@@ -671,13 +670,13 @@ class QEOM(ExcitedStatesSolver):
     def _build_excitation_operators(
         self,
         expansion_basis_data: Tuple[
-            dict[str, PauliSumOp],
-            dict[str, List[bool]],
+            Dict[str, PauliSumOp],
+            Dict[str, List[bool]],
             int,
         ],
         reference_state: Tuple[QuantumCircuit, Sequence[float]],
         expansion_coefs_rescaled: np.ndarray,
-    ) -> list[PauliSumOp]:
+    ) -> List[PauliSumOp]:
         """Build the excitation operators O_k such that O_k applied on the reference ground state gives
         the k-th excited state.
 
@@ -726,10 +725,10 @@ class QEOM(ExcitedStatesSolver):
 
     def _prepare_excited_states_observables(
         self,
-        pre_tap_aux_observables: dict[str, PauliSumOp],
-        operators_reduced: list[PauliSumOp],
+        pre_tap_aux_observables: Dict[str, PauliSumOp],
+        operators_reduced: List[PauliSumOp],
         size: int,
-    ) -> dict[Tuple[str, int, int], PauliSumOp]:
+    ) -> Dict[Tuple[str, int, int], PauliSumOp]:
         """Prepare the operators O_k^dag @ Aux @ O_l associated to properties of the excited states k,l
         defined in the aux_eval_rules. By default, the expectation value of all observables on all
         excited states are evaluated while no transition amplitudes are computed.
@@ -769,7 +768,7 @@ class QEOM(ExcitedStatesSolver):
         else:
             raise ValueError("Aux evaluation rules are ill-defined")
 
-        op_aux_op_dict: dict[Tuple[str, int, int], PauliSumOp] = {}
+        op_aux_op_dict: Dict[Tuple[str, int, int], PauliSumOp] = {}
 
         for op_name, indices_constraint in eval_rules.items():
             if op_name not in pre_tap_aux_observables.keys():
@@ -781,14 +780,14 @@ class QEOM(ExcitedStatesSolver):
                     raise ValueError("Evaluation constrains cannot be satisfied")
 
                 opi, opj = operators_reduced[i], operators_reduced[j]
-                op_aux_op_dict[(op_name, i, j)] = (opi.adjoint() @ aux_op @ opj).reduce()
+                op_aux_op_Dict[(op_name, i, j)] = (opi.adjoint() @ aux_op @ opj).reduce()
 
         return op_aux_op_dict
 
     def _evaluate_observables_excited_states(
         self,
-        pre_tap_aux_observables: dict[str, PauliSumOp],
-        expansion_basis_data: Tuple[dict[str, PauliSumOp], dict[str, List[bool]], int],
+        pre_tap_aux_observables: Dict[str, PauliSumOp],
+        expansion_basis_data: Tuple[Dict[str, PauliSumOp], Dict[str, List[bool]], int],
         reference_state: Tuple[QuantumCircuit, Sequence[float]],
         expansion_coefs_rescaled: np.ndarray,
     ) -> Tuple[Dict[Tuple[int, int], Dict[str, Any]], Dict[Tuple[int, int], Dict[str, Any]]]:
