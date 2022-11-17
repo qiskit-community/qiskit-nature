@@ -1,6 +1,4 @@
 ---
 fixes:
   - |
-    Removes sign change in :meth:`qiskit_nature.second_q.operators.spin_op.index_order` carried over from
-    :class:`~qiskit_nature.second_q.operators.FermionicOp`'s implementation. Adds corresponding unit
-    tests to verify behavior.
+    Removes wrong sign change from :meth:`qiskit_nature.second_q.operators.SpinOp.index_order`.
