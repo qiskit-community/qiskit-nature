@@ -68,6 +68,9 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         - ``induced_norm``
     """
 
+    # ensure operational compatibility with numpy numeric types
+    __array_priority__ = 20
+
     def __init__(
         self,
         data: Mapping[str, _TCoeff],

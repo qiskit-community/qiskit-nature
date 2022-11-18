@@ -18,6 +18,9 @@ from typing import Collection, Iterator, Mapping
 
 import unittest
 from test import QiskitNatureTestCase
+
+import numpy as np
+
 from qiskit.circuit import Parameter
 
 from qiskit_nature.second_q.operators import PolynomialTensor, SparseLabelOp
@@ -234,6 +237,18 @@ class TestSparseLabelOp(QiskitNatureTestCase):
         with self.subTest("raises TypeError"):
             with self.assertRaises(TypeError):
                 _ = DummySparseLabelOp(op1) * "something"
+
+        # regression test against https://github.com/Qiskit/qiskit-nature/issues/953
+        with self.subTest("numpy types"):
+            test_op = np.double(2) * DummySparseLabelOp(op1)
+            target_op = DummySparseLabelOp(
+                {
+                    "+_0 -_1": 0.0,
+                    "+_0 -_2": 2.0,
+                },
+            )
+
+            self.assertEqual(test_op, target_op)
 
     def test_adjoint(self):
         """Test adjoint method"""
