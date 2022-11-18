@@ -30,6 +30,7 @@ from qiskit.quantum_info.operators.mixins import (
 
 from qiskit_nature.settings import settings
 import qiskit_nature.optionals as _optionals
+from qiskit_nature.utils import get_einsum
 
 if _optionals.HAS_SPARSE:
     # pylint: disable=import-error
@@ -741,15 +742,8 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         Returns:
             A new ``PolynomialTensor``.
         """
-        if _optionals.HAS_OPT_EINSUM:
-            # pylint: disable=import-error
-            from opt_einsum import contract
-
-            einsum_func = contract
-            operand_list = list(operands)
-        else:
-            einsum_func = np.einsum
-            operand_list = [op.to_dense() for op in operands]
+        einsum_func, dense = get_einsum()
+        operand_list = [op.to_dense() for op in operands] if dense else list(operands)
         new_data: dict[str, ARRAY_TYPE] = {}
         for einsum, terms in einsum_map.items():
             *inputs, output = terms
