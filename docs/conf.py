@@ -216,9 +216,7 @@ intersphinx_mapping = {
     "sparse": ("https://sparse.pydata.org/en/stable/", None),
 }
 
-html_context = {
-    'analytics_enabled': True
-}
+html_context = {"analytics_enabled": True}
 # -- Extension configuration -------------------------------------------------
 
 
