@@ -552,7 +552,6 @@ class SpinOp(SparseLabelOp):
                 if left[1] > right[1]:
                     terms[j - 1] = right
                     terms[j] = left
-                    coeff *= -1.0
 
         new_label = " ".join(f"{term[0]}_{term[1]}" for term in terms)
         return new_label, coeff
