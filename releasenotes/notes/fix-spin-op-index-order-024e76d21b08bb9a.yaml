@@ -1,0 +1,4 @@
+---
+fixes:
+  - |
+    Removes wrong sign change from :meth:`qiskit_nature.second_q.operators.SpinOp.index_order`.
