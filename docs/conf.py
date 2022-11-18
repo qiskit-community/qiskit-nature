@@ -215,6 +215,10 @@ intersphinx_mapping = {
     "rustworkx": ("https://qiskit.org/documentation/rustworkx/", None),
     "sparse": ("https://sparse.pydata.org/en/stable/", None),
 }
+
+html_context = {
+    'analytics_enabled': True
+}
 # -- Extension configuration -------------------------------------------------
 
 
