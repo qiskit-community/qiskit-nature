@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fixes a bug when multiplying a :class:`~qiskit_nature.second_q.operators.SparseLabelOp`
+    with numpy numeric types from the left.
