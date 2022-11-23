@@ -780,7 +780,7 @@ class QEOM(ExcitedStatesSolver):
                     raise ValueError("Evaluation constrains cannot be satisfied")
 
                 opi, opj = operators_reduced[i], operators_reduced[j]
-                op_aux_op_Dict[(op_name, i, j)] = (opi.adjoint() @ aux_op @ opj).reduce()
+                op_aux_op_dict[(op_name, i, j)] = (opi.adjoint() @ aux_op @ opj).reduce()
 
         return op_aux_op_dict
 
