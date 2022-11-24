@@ -13,16 +13,15 @@
 """Tests for QuadraticHamiltonian"""
 
 from test import QiskitNatureTestCase
-from test.nature_random import random_antisymmetric_matrix
 
 import numpy as np
 from ddt import data, ddt
 from qiskit.quantum_info import random_hermitian
 
-from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.mappers import JordanWignerMapper
 from qiskit_nature.second_q.hamiltonians import QuadraticHamiltonian
+from qiskit_nature.second_q.mappers import JordanWignerMapper, QubitConverter
 from qiskit_nature.second_q.operators import FermionicOp
+from qiskit_nature.testing import random_antisymmetric_matrix
 
 
 @ddt
