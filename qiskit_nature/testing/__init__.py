@@ -20,8 +20,6 @@ Random sampling utilities
 -------------------------
 
 .. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
 
    parse_random_seed
    random_antisymmetric_matrix
