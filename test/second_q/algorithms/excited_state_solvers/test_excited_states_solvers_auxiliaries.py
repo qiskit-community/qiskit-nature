@@ -93,11 +93,11 @@ class TestNumericalQEOMOBScalculation(QiskitNatureTestCase):
             for key, key_ref in zip(computed.keys(), references.keys()):
                 self.assertTrue(key == key_ref)
 
-        with self.subTest("same transition amplitude values"):
+        with self.subTest("same transition amplitude absolute value"):
             for key in computed.keys():
                 for opkey in computed[key].keys():
-                    trans_amp = computed[key][opkey][0]
-                    trans_amp_expected = references[key][opkey][0]
+                    trans_amp = np.abs(computed[key][opkey][0])
+                    trans_amp_expected = np.abs(references[key][opkey][0])
                     self.assertAlmostEqual(trans_amp, trans_amp_expected, places=places)
 
     def test_vqe_mes_jw(self):

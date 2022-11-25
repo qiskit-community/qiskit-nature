@@ -15,7 +15,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Union
+from typing import Union, Any
 
 from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators.base_operator import BaseOperator
@@ -38,6 +38,7 @@ class GroundStateSolver(ABC):
                              according to a mapper it is initialized with.
         """
         self._qubit_converter = qubit_converter
+        self._solver: Any = None
 
     @abstractmethod
     def solve(
