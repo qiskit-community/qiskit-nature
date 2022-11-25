@@ -35,8 +35,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install Dependencies
         run: |
-          pip install jupyter qiskit-terra[visualization]
-          sudo apt-get install -y pandoc graphviz
+          sudo apt-get install -y pandoc
         shell: bash
       - name: Install Nature
         run: |
@@ -71,8 +70,8 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install jupyter qiskit-terra[visualization] torchvision tox
-          sudo apt-get install -y pandoc graphviz
+          pip install torchvision tox
+          sudo apt-get install -y pandoc
         shell: bash
       - name: Build and publish
         env:
