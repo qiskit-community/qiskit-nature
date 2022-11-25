@@ -94,14 +94,17 @@ class QEOM(ExcitedStatesSolver):
                     :meth:`generate_vibrational_excitations`, when solving an
                     :class:`.ElectronicStructureProblem` or a :class:`.VibrationalStructureProblem`,
                     respectively.
+
             aux_eval_rules: The rules determining how observables should be evaluated on excited states.
 
                 :`str`: specific predefined rules. Allowed strings are:
+
                     + `all` to compute all expectation values and all transition amplitudes
                     + `diag` to only compute expectation values
+
                 :`Dict[str, List[Tuple]]`: Dictionary mapping valid auxiliary operator's name to lists
-                of tuple (i, j) specifying the indices of the excited states to be evaluated on. By
-                default, none of the auxiliary operators are evaluated on none of the excited states.
+                    of tuple (i, j) specifying the indices of the excited states to be evaluated on. By
+                    default, none of the auxiliary operators are evaluated on none of the excited states.
         """
         self._gsc = ground_state_solver
         self._estimator = estimator
@@ -549,10 +552,8 @@ class QEOM(ExcitedStatesSolver):
         # P = Q.adjoint() = Q.conj()
         # U = -V.conj() = -V.T
         # T = W.adjoint()
-        h_mat: np.ndarray = np.array(np.matrixlib.bmat([[m_mat, q_mat], [q_mat.T.conj(), m_mat.T]]))
-        s_mat: np.ndarray = np.array(
-            np.matrixlib.bmat([[v_mat, w_mat], [w_mat.T.conj(), -v_mat.T]])
-        )
+        h_mat: np.ndarray = np.block([[m_mat, q_mat], [q_mat.T.conj(), m_mat.T]])
+        s_mat: np.ndarray = np.block([[v_mat, w_mat], [w_mat.T.conj(), -v_mat.T]])
 
         h_mat_std: np.ndarray = np.array([[m_mat_std, q_mat_std], [q_mat_std, m_mat_std]])
         s_mat_std: np.ndarray = np.array([[v_mat_std, w_mat_std], [w_mat_std, v_mat_std]])
