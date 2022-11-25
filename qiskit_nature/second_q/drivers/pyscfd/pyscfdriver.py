@@ -295,7 +295,6 @@ class PySCFDriver(ElectronicStructureDriver):
         self._chkfile = chkfile
 
     @staticmethod
-    @_optionals.HAS_PYSCF.require_in_call
     def from_molecule(
         molecule: MoleculeInfo,
         *,
