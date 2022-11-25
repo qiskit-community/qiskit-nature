@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Added missing Gaussian native libraries from package
+    `qiskit_nature.second_q.drivers.gaussiand.gauopen` to the wheels file distribution.
