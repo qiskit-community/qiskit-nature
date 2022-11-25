@@ -742,8 +742,8 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         Returns:
             A new ``PolynomialTensor``.
         """
-        einsum_func, dense = get_einsum()
-        operand_list = [op.to_dense() for op in operands] if dense else list(operands)
+        einsum_func, uses_sparse = get_einsum()
+        operand_list = list(operands) if uses_sparse else [op.to_dense() for op in operands]
         new_data: dict[str, ARRAY_TYPE] = {}
         for einsum, terms in einsum_map.items():
             *inputs, output = terms

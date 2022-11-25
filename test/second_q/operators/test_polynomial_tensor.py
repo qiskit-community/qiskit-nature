@@ -34,11 +34,11 @@ class TestPolynomialTensor(QiskitNatureTestCase):
         # pylint: disable=import-error
         import sparse as sp
 
-        self.einsum_funcs = [(np.einsum, True)]
+        self.einsum_funcs = [(np.einsum, False)]
         if _optionals.HAS_OPT_EINSUM:
             from opt_einsum import contract
 
-            self.einsum_funcs.append((contract, False))
+            self.einsum_funcs.append((contract, True))
 
         self.og_poly = {
             "": 1.0,
@@ -783,10 +783,10 @@ class TestPolynomialTensor(QiskitNatureTestCase):
                 coeffs_pt,
             )
 
-            for einsum_func, dense in self.einsum_funcs:
-                list_one_body = one_body.todense() if dense else one_body
-                list_two_body = two_body.todense() if dense else two_body
-                list_coeffs = coeffs.todense() if dense else coeffs
+            for einsum_func, uses_sparse in self.einsum_funcs:
+                list_one_body = one_body if uses_sparse else one_body.todense()
+                list_two_body = two_body if uses_sparse else two_body.todense()
+                list_coeffs = coeffs if uses_sparse else coeffs.todense()
                 expected = PolynomialTensor(
                     {
                         "+-": np.dot(np.dot(list_coeffs.T, list_one_body), list_coeffs),
@@ -823,9 +823,9 @@ class TestPolynomialTensor(QiskitNatureTestCase):
                 coeffs_pt,
             )
 
-            for einsum_func, dense in self.einsum_funcs:
-                list_one_body = one_body.todense() if dense else one_body
-                list_two_body = two_body.todense() if dense else two_body
+            for einsum_func, uses_sparse in self.einsum_funcs:
+                list_one_body = one_body if uses_sparse else one_body.todense()
+                list_two_body = two_body if uses_sparse else two_body.todense()
                 expected = PolynomialTensor(
                     {
                         "+-": np.dot(np.dot(coeffs.T, list_one_body), coeffs),

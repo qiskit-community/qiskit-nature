@@ -33,6 +33,6 @@ def get_einsum() -> tuple[Callable, bool]:
         # pylint: disable=import-error
         from opt_einsum import contract
 
-        return contract, False
+        return contract, True
 
-    return np.einsum, True
+    return np.einsum, False
