@@ -21,7 +21,7 @@ from qiskit_nature.second_q.circuit.library import UCC
 from qiskit_nature.second_q.operators import ElectronicIntegrals
 from qiskit_nature.second_q.operators.tensor_ordering import IndexType, to_chemist_ordering
 from qiskit_nature.second_q.problems import BaseProblem, ElectronicStructureProblem
-
+from qiskit_nature.utils import get_einsum
 
 from .initial_point import InitialPoint
 
@@ -63,8 +63,9 @@ def _compute_mp2(
     t2_amplitudes = (integral_matrix_ovov / double_deltas).transpose(0, 2, 1, 3)
 
     # Compute MP2 energy correction.
-    energy_correction = np.einsum("ijab,iajb", t2_amplitudes, integral_matrix_ovov) * 2
-    energy_correction -= np.einsum("ijab,ibja", t2_amplitudes, integral_matrix_ovov)
+    einsum_func, _ = get_einsum()
+    energy_correction = einsum_func("ijab,iajb", t2_amplitudes, integral_matrix_ovov) * 2
+    energy_correction -= einsum_func("ijab,ibja", t2_amplitudes, integral_matrix_ovov)
 
     return t2_amplitudes, energy_correction
 
