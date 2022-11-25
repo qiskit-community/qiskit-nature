@@ -20,11 +20,14 @@ import qiskit_nature.optionals as _optionals
 
 
 def get_einsum() -> tuple[Callable, bool]:
-    """Returns tuple einsum function and flag indicating if dense should be applied
-    to parameters.
+    """Returns the ``einsum`` implementation.
+
+    This returns a tuple of a callable and boolean. The callable is the ``einsum`` implementation.
+    If ``opt_einsum`` is installed, ``opt_einsum.contract`` will be used. Otherwise this falls
+    back to ``np.einsum``. The boolean indicates support for sparse arrays.
 
     Returns:
-        Tuple with function and if dense should be applied to parameters.
+        The pair of the ``einsum`` callable and sparse support indicator.
     """
     if _optionals.HAS_OPT_EINSUM:
         # pylint: disable=import-error
