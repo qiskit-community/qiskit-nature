@@ -21,15 +21,13 @@ Random sampling utilities
 
 .. autosummary::
 
-   parse_random_seed
    random_antisymmetric_matrix
    random_quadratic_hamiltonian
 """
 
-from .random import parse_random_seed, random_antisymmetric_matrix, random_quadratic_hamiltonian
+from .random import random_antisymmetric_matrix, random_quadratic_hamiltonian
 
 __all__ = [
-    "parse_random_seed",
     "random_antisymmetric_matrix",
     "random_quadratic_hamiltonian",
 ]
