@@ -33,6 +33,7 @@ from qiskit_nature.second_q.formats.qcschema_translator import qcschema_to_probl
 from qiskit_nature.second_q.problems import ElectronicBasis, ElectronicStructureProblem
 from qiskit_nature.settings import settings
 import qiskit_nature.optionals as _optionals
+from qiskit_nature.utils import get_einsum
 
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType, _QCSchemaData
 
@@ -295,7 +296,6 @@ class PySCFDriver(ElectronicStructureDriver):
         self._chkfile = chkfile
 
     @staticmethod
-    @_optionals.HAS_PYSCF.require_in_call
     def from_molecule(
         molecule: MoleculeInfo,
         *,
@@ -509,6 +509,7 @@ class PySCFDriver(ElectronicStructureDriver):
         from pyscf import gto
         from pyscf.tools import dump_mat
 
+        einsum_func, _ = get_einsum()
         data = _QCSchemaData()
 
         data.mo_coeff, data.mo_coeff_b = self._extract_mo_data("mo_coeff", array_dimension=3)
@@ -534,7 +535,7 @@ class PySCFDriver(ElectronicStructureDriver):
             data.hij_mo_b = np.dot(np.dot(data.mo_coeff_b.T, data.hij), data.mo_coeff_b)
         data.eri = self._mol.intor("int2e", aosym=1)
         einsum_ao_to_mo = "pqrs,pi,qj,rk,sl->ijkl"
-        data.eri_mo = np.einsum(
+        data.eri_mo = einsum_func(
             einsum_ao_to_mo,
             data.eri,
             data.mo_coeff,
@@ -544,7 +545,7 @@ class PySCFDriver(ElectronicStructureDriver):
             optimize=settings.optimize_einsum,
         )
         if data.mo_coeff_b is not None:
-            data.eri_mo_ba = np.einsum(
+            data.eri_mo_ba = einsum_func(
                 einsum_ao_to_mo,
                 data.eri,
                 data.mo_coeff_b,
@@ -553,7 +554,7 @@ class PySCFDriver(ElectronicStructureDriver):
                 data.mo_coeff,
                 optimize=settings.optimize_einsum,
             )
-            data.eri_mo_bb = np.einsum(
+            data.eri_mo_bb = einsum_func(
                 einsum_ao_to_mo,
                 data.eri,
                 data.mo_coeff_b,
@@ -588,9 +589,9 @@ class PySCFDriver(ElectronicStructureDriver):
             if not (isinstance(d_m, np.ndarray) and d_m.ndim == 2):
                 d_m = d_m[0] + d_m[1]
 
-            elec_dip = np.negative(np.einsum("xij,ji->x", ao_dip, d_m).real)
+            elec_dip = np.negative(einsum_func("xij,ji->x", ao_dip, d_m).real)
             elec_dip = np.round(elec_dip, decimals=8)
-            nucl_dip = np.einsum("i,ix->x", self._mol.atom_charges(), self._mol.atom_coords())
+            nucl_dip = einsum_func("i,ix->x", self._mol.atom_charges(), self._mol.atom_coords())
             nucl_dip = np.round(nucl_dip, decimals=8)
             ref_dip = nucl_dip + elec_dip
 

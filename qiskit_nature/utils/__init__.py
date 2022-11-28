@@ -28,8 +28,6 @@ Linear algebra utilities
 """
 
 from .linalg import apply_matrix_to_slices, givens_matrix
+from .opt_einsum import get_einsum
 
-__all__ = [
-    "apply_matrix_to_slices",
-    "givens_matrix",
-]
+__all__ = ["apply_matrix_to_slices", "givens_matrix", "get_einsum"]

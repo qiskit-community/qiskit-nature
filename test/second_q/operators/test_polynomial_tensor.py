@@ -31,7 +31,14 @@ class TestPolynomialTensor(QiskitNatureTestCase):
     @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     def setUp(self) -> None:
         super().setUp()
-        import sparse as sp  # pylint: disable=import-error
+        # pylint: disable=import-error
+        import sparse as sp
+
+        self.einsum_funcs = [(np.einsum, False)]
+        if _optionals.HAS_OPT_EINSUM:
+            from opt_einsum import contract
+
+            self.einsum_funcs.append((contract, True))
 
         self.og_poly = {
             "": 1.0,
@@ -739,22 +746,23 @@ class TestPolynomialTensor(QiskitNatureTestCase):
                 coeffs_pt,
             )
 
-            expected = PolynomialTensor(
-                {
-                    "+-": np.dot(np.dot(coeffs.T, one_body), coeffs),
-                    "++--": np.einsum(
-                        "pqrs,pi,qj,rk,sl->ijkl",
-                        two_body,
-                        coeffs,
-                        coeffs,
-                        coeffs,
-                        coeffs,
-                        optimize=True,
-                    ),
-                }
-            )
+            for einsum_func, _ in self.einsum_funcs:
+                expected = PolynomialTensor(
+                    {
+                        "+-": np.dot(np.dot(coeffs.T, one_body), coeffs),
+                        "++--": einsum_func(
+                            "pqrs,pi,qj,rk,sl->ijkl",
+                            two_body,
+                            coeffs,
+                            coeffs,
+                            coeffs,
+                            coeffs,
+                            optimize=True,
+                        ),
+                    }
+                )
 
-            self.assertTrue(result.equiv(expected))
+                self.assertTrue(result.equiv(expected))
 
         with self.subTest("all sparse"):
             one_body = sp.random((2, 2), density=0.5)
@@ -775,25 +783,26 @@ class TestPolynomialTensor(QiskitNatureTestCase):
                 coeffs_pt,
             )
 
-            dense_one_body = one_body.todense()
-            dense_two_body = two_body.todense()
-            dense_coeffs = coeffs.todense()
-            expected = PolynomialTensor(
-                {
-                    "+-": np.dot(np.dot(dense_coeffs.T, dense_one_body), dense_coeffs),
-                    "++--": np.einsum(
-                        "pqrs,pi,qj,rk,sl->ijkl",
-                        dense_two_body,
-                        dense_coeffs,
-                        dense_coeffs,
-                        dense_coeffs,
-                        dense_coeffs,
-                        optimize=True,
-                    ),
-                }
-            )
+            for einsum_func, uses_sparse in self.einsum_funcs:
+                list_one_body = one_body if uses_sparse else one_body.todense()
+                list_two_body = two_body if uses_sparse else two_body.todense()
+                list_coeffs = coeffs if uses_sparse else coeffs.todense()
+                expected = PolynomialTensor(
+                    {
+                        "+-": np.dot(np.dot(list_coeffs.T, list_one_body), list_coeffs),
+                        "++--": einsum_func(
+                            "pqrs,pi,qj,rk,sl->ijkl",
+                            list_two_body,
+                            list_coeffs,
+                            list_coeffs,
+                            list_coeffs,
+                            list_coeffs,
+                            optimize=True,
+                        ),
+                    }
+                )
 
-            self.assertTrue(result.equiv(expected))
+                self.assertTrue(result.equiv(expected))
 
         with self.subTest("mixed"):
             one_body = sp.random((2, 2), density=0.5)
@@ -814,24 +823,25 @@ class TestPolynomialTensor(QiskitNatureTestCase):
                 coeffs_pt,
             )
 
-            dense_one_body = one_body.todense()
-            dense_two_body = two_body.todense()
-            expected = PolynomialTensor(
-                {
-                    "+-": np.dot(np.dot(coeffs.T, dense_one_body), coeffs),
-                    "++--": np.einsum(
-                        "pqrs,pi,qj,rk,sl->ijkl",
-                        dense_two_body,
-                        coeffs,
-                        coeffs,
-                        coeffs,
-                        coeffs,
-                        optimize=True,
-                    ),
-                }
-            )
+            for einsum_func, uses_sparse in self.einsum_funcs:
+                list_one_body = one_body if uses_sparse else one_body.todense()
+                list_two_body = two_body if uses_sparse else two_body.todense()
+                expected = PolynomialTensor(
+                    {
+                        "+-": np.dot(np.dot(coeffs.T, list_one_body), coeffs),
+                        "++--": einsum_func(
+                            "pqrs,pi,qj,rk,sl->ijkl",
+                            list_two_body,
+                            coeffs,
+                            coeffs,
+                            coeffs,
+                            coeffs,
+                            optimize=True,
+                        ),
+                    }
+                )
 
-            self.assertTrue(result.equiv(expected))
+                self.assertTrue(result.equiv(expected))
 
 
 if __name__ == "__main__":
