@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added :mod:`qiskit_nature.testing` to house testing utilities.
+    Currently it contains some functions for random sampling.

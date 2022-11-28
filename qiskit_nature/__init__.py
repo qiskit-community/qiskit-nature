@@ -45,6 +45,7 @@ Submodules
    :toctree:
 
    second_q
+   testing
    utils
 
 """

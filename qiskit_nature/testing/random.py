@@ -16,30 +16,11 @@ from typing import Any
 
 import numpy as np
 from qiskit.quantum_info import random_hermitian
-from qiskit.utils import algorithm_globals
+
 from qiskit_nature.operators.second_quantization import (
     QuadraticHamiltonian as LegacyQuadraticHamiltonian,
 )
 from qiskit_nature.second_q.hamiltonians import QuadraticHamiltonian
-
-
-# TODO see if type of seed can be specified instead of using Any
-def parse_random_seed(seed: Any) -> np.random.Generator:
-    """Parse a random number generator seed and return a Generator.
-
-    Args:
-        seed: The pseudorandom number generator or seed. Should be an
-            instance of `np.random.Generator` or else a valid input to
-            `np.random.default_rng`
-
-    Returns:
-        The np.random.Generator instance
-    """
-    if seed is None:
-        return algorithm_globals.random
-    if isinstance(seed, np.random.Generator):
-        return seed
-    return np.random.default_rng(seed)
 
 
 def random_antisymmetric_matrix(dim: int, seed: Any = None) -> np.ndarray:
@@ -49,12 +30,12 @@ def random_antisymmetric_matrix(dim: int, seed: Any = None) -> np.ndarray:
         dim: The width and height of the matrix.
         seed: The pseudorandom number generator or seed. Should be an
             instance of `np.random.Generator` or else a valid input to
-            `np.random.default_rng`
+            `np.random.default_rng`.
 
     Returns:
         The sampled antisymmetric matrix.
     """
-    rng = parse_random_seed(seed)
+    rng = np.random.default_rng(seed)
     mat = rng.standard_normal((dim, dim)) + 1j * rng.standard_normal((dim, dim))
     return mat - mat.T
 
@@ -65,16 +46,16 @@ def random_quadratic_hamiltonian(
     """Generate a random instance of QuadraticHamiltonian.
 
     Args:
-        n_orbitals: the number of orbitals
-        num_conserving: whether the Hamiltonian should conserve particle number
+        n_orbitals: The number of orbitals.
+        num_conserving: Whether the Hamiltonian should conserve particle number.
         seed: The pseudorandom number generator or seed. Should be an
             instance of `np.random.Generator` or else a valid input to
-            `np.random.default_rng`
+            `np.random.default_rng`.
 
     Returns:
-        The sampled QuadraticHamiltonian
+        The sampled QuadraticHamiltonian.
     """
-    rng = parse_random_seed(seed)
+    rng = np.random.default_rng(seed)
     hermitian_part = np.array(random_hermitian(n_orbitals, seed=rng))
     antisymmetric_part = (
         None if num_conserving else random_antisymmetric_matrix(n_orbitals, seed=rng)
@@ -92,16 +73,16 @@ def random_legacy_quadratic_hamiltonian(
     """Generate a random instance of QuadraticHamiltonian.
 
     Args:
-        n_orbitals: the number of orbitals
-        num_conserving: whether the Hamiltonian should conserve particle number
+        n_orbitals: The number of orbitals.
+        num_conserving: Whether the Hamiltonian should conserve particle number.
         seed: The pseudorandom number generator or seed. Should be an
             instance of `np.random.Generator` or else a valid input to
-            `np.random.default_rng`
+            `np.random.default_rng`.
 
     Returns:
-        The sampled QuadraticHamiltonian
+        The sampled QuadraticHamiltonian.
     """
-    rng = parse_random_seed(seed)
+    rng = np.random.default_rng(seed)
     hermitian_part = np.array(random_hermitian(n_orbitals, seed=rng))
     antisymmetric_part = (
         None if num_conserving else random_antisymmetric_matrix(n_orbitals, seed=rng)
