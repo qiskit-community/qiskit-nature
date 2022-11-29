@@ -15,7 +15,7 @@ The SUCCD Ansatz.
 
 from __future__ import annotations
 
-from typing import Sequence, cast
+from typing import Sequence, cast, Union
 from collections import defaultdict
 
 import itertools
@@ -23,7 +23,7 @@ import logging
 
 from qiskit.circuit import QuantumCircuit
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 
 from qiskit_nature.second_q.operators import FermionicOp
 
@@ -57,7 +57,7 @@ class SUCCD(UCC):
         self,
         num_spatial_orbitals: int | None = None,
         num_particles: tuple[int, int] | None = None,
-        qubit_converter: QubitConverter | None = None,
+        qubit_converter: Union[QubitConverter, QubitMapper] | None = None,
         *,
         reps: int = 1,
         initial_state: QuantumCircuit | None = None,
@@ -69,8 +69,8 @@ class SUCCD(UCC):
         Args:
             num_spatial_orbitals: The number of spatial orbitals.
             num_particles: The tuple of the number of alpha- and beta-spin particles.
-            qubit_converter: The QubitConverter instance which takes care of mapping to a qubit
-                operator.
+            qubit_converter: The QubitConverter or QubitMapper instance which takes care of mapping to a
+            qubit operator.
             reps: The number of times to repeat the evolved operators.
             initial_state: A ``QuantumCircuit`` object to prepend to the circuit.
             include_singles: enables the inclusion of single excitations per spin species.

@@ -41,14 +41,12 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
             basis="sto3g",
         )
 
-        self.qubit_converter = QubitConverter(JordanWignerMapper())
+        self.mapper = JordanWignerMapper()
+        self.qubit_converter = QubitConverter(self.mapper)
         self.electronic_structure_problem = self.driver.run()
         self.electronic_structure_problem.second_q_ops()
 
-    def test_build_hopping_operators(self):
-        """Tests that the correct hopping operator is built."""
-        # TODO extract it somewhere
-        expected_hopping_operators = {
+        self.expected_hopping_operators = {
             "E_0": PauliSumOp.from_list([("IIXY", -1j), ("IIYY", 1), ("IIXX", 1), ("IIYX", 1j)]),
             "Edag_0": PauliSumOp.from_list([("IIXY", 1j), ("IIXX", 1), ("IIYY", 1), ("IIYX", -1j)]),
             "E_1": PauliSumOp.from_list([("XYII", -1j), ("YYII", 1), ("XXII", 1), ("YXII", 1j)]),
@@ -94,7 +92,7 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
                 ]
             ),
         }
-        expected_commutativies = {
+        self.expected_commutativies = {
             "E_0": [],
             "Edag_0": [],
             "E_1": [],
@@ -102,7 +100,7 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
             "E_2": [],
             "Edag_2": [],
         }
-        expected_indices = {
+        self.expected_indices = {
             "E_0": ((0,), (1,)),
             "Edag_0": ((1,), (0,)),
             "E_1": ((2,), (3,)),
@@ -110,6 +108,10 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
             "E_2": ((0, 2), (1, 3)),
             "Edag_2": ((1, 3), (0, 2)),
         }
+
+    def test_build_hopping_operators(self):
+        """Tests that the correct hopping operator is built."""
+        # TODO extract it somewhere
 
         hopping_operators, commutativities, indices = build_electronic_ops(
             self.electronic_structure_problem.num_spatial_orbitals,
@@ -119,21 +121,53 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
         )
 
         with self.subTest("hopping operators"):
-            self.assertEqual(hopping_operators.keys(), expected_hopping_operators.keys())
-            for key, exp_key in zip(hopping_operators.keys(), expected_hopping_operators.keys()):
+            self.assertEqual(hopping_operators.keys(), self.expected_hopping_operators.keys())
+            for key, exp_key in zip(
+                hopping_operators.keys(), self.expected_hopping_operators.keys()
+            ):
                 self.assertEqual(key, exp_key)
                 val = hopping_operators[key]
-                exp_val = expected_hopping_operators[exp_key]
+                exp_val = self.expected_hopping_operators[exp_key]
                 if not val.equals(exp_val):
                     print(val)
                     print(exp_val)
                 self.assertTrue(val.equals(exp_val))
 
         with self.subTest("commutativities"):
-            self.assertEqual(commutativities, expected_commutativies)
+            self.assertEqual(commutativities, self.expected_commutativies)
 
         with self.subTest("excitation indices"):
-            self.assertEqual(indices, expected_indices)
+            self.assertEqual(indices, self.expected_indices)
+
+    def test_build_hopping_operators_mapper(self):
+        """Tests that the correct hopping operator is built."""
+        # TODO extract it somewhere
+
+        hopping_operators, commutativities, indices = build_electronic_ops(
+            self.electronic_structure_problem.num_spatial_orbitals,
+            self.electronic_structure_problem.num_particles,
+            "sd",
+            self.mapper,
+        )
+
+        with self.subTest("hopping operators"):
+            self.assertEqual(hopping_operators.keys(), self.expected_hopping_operators.keys())
+            for key, exp_key in zip(
+                hopping_operators.keys(), self.expected_hopping_operators.keys()
+            ):
+                self.assertEqual(key, exp_key)
+                val = hopping_operators[key]
+                exp_val = self.expected_hopping_operators[exp_key]
+                if not val.equals(exp_val):
+                    print(val)
+                    print(exp_val)
+                self.assertTrue(val.equals(exp_val))
+
+        with self.subTest("commutativities"):
+            self.assertEqual(commutativities, self.expected_commutativies)
+
+        with self.subTest("excitation indices"):
+            self.assertEqual(indices, self.expected_indices)
 
 
 if __name__ == "__main__":

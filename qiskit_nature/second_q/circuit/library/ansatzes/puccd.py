@@ -16,10 +16,11 @@ The paired-UCCD Ansatz.
 from __future__ import annotations
 
 import logging
+from typing import Union
 
 from qiskit.circuit import QuantumCircuit
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 
 from .ucc import UCC
 from .utils.fermionic_excitation_generator import (
@@ -51,7 +52,7 @@ class PUCCD(UCC):
         self,
         num_spatial_orbitals: int | None = None,
         num_particles: tuple[int, int] | None = None,
-        qubit_converter: QubitConverter | None = None,
+        qubit_converter: Union[QubitConverter, QubitMapper] | None = None,
         *,
         reps: int = 1,
         initial_state: QuantumCircuit | None = None,
@@ -63,8 +64,9 @@ class PUCCD(UCC):
         Args:
             num_spatial_orbitals: The number of spatial orbitals.
             num_particles: The tuple of the number of alpha- and beta-spin particles.
-            qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` instance
-                which takes care of mapping to a qubit operator.
+            qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` or
+            :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance which takes care of mapping to
+            a qubit operator.
             reps: The number of times to repeat the evolved operators.
             initial_state: A ``QuantumCircuit`` object to prepend to the circuit.
             include_singles: enables the inclusion of single excitations per spin species.

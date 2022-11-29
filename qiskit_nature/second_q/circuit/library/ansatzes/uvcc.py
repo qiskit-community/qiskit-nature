@@ -73,7 +73,7 @@ class UVCC(EvolvedOperatorAnsatz):
             list[tuple[tuple[int, ...], tuple[int, ...]]],
         ]
         | None = None,
-        qubit_converter: QubitConverter | None = None,
+        qubit_converter: Union[QubitConverter, QubitMapper] | None = None,
         *,
         reps: int = 1,
         initial_state: QuantumCircuit | None = None,

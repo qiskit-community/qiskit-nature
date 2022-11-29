@@ -14,16 +14,16 @@
 
 from __future__ import annotations
 
-from typing import Callable, Dict, List, Tuple
+from typing import Callable, Dict, List, Tuple, Union
 
-from qiskit.opflow import PauliSumOp
+from qiskit.opflow import PauliSumOp, Z2Symmetries
 from qiskit.tools import parallel_map
 from qiskit.utils import algorithm_globals
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import UCC
 from qiskit_nature.second_q.operators import FermionicOp
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 
 
 def build_electronic_ops(
@@ -36,7 +36,7 @@ def build_electronic_ops(
         [int, tuple[int, int]],
         list[tuple[tuple[int, ...], tuple[int, ...]]],
     ],
-    qubit_converter: QubitConverter,
+    qubit_converter: Union[QubitConverter, QubitMapper],
 ) -> Tuple[
     Dict[str, PauliSumOp],
     Dict[str, List[bool]],
@@ -100,7 +100,7 @@ def build_electronic_ops(
 def _build_single_hopping_operator(
     excitation: Tuple[Tuple[int, ...], Tuple[int, ...]],
     num_spatial_orbitals: int,
-    qubit_converter: QubitConverter,
+    qubit_converter: Union[QubitConverter, QubitMapper],
 ) -> Tuple[PauliSumOp, List[bool]]:
     label = []
     for occ in excitation[0]:
@@ -111,8 +111,18 @@ def _build_single_hopping_operator(
         {" ".join(label): 4.0 ** len(excitation[0])}, num_spin_orbitals=2 * num_spatial_orbitals
     )
 
-    qubit_op = qubit_converter.convert_only(fer_op, qubit_converter.num_particles)
-    z2_symmetries = qubit_converter.z2symmetries
+    if isinstance(qubit_converter, QubitConverter):
+        print("Qubit Converter")
+        qubit_op = qubit_converter.convert_only(fer_op, qubit_converter.num_particles)
+        z2_symmetries = qubit_converter.z2symmetries
+
+    elif issubclass(type(qubit_converter), QubitMapper):
+        print("MAPPER")
+        qubit_op = qubit_converter._map(fer_op)
+        z2_symmetries = Z2Symmetries([], [], [])
+
+    else:
+        raise QiskitNatureError("QubitConverter object is not valid")
 
     commutativities = []
     if not z2_symmetries.is_empty():

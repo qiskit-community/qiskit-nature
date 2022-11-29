@@ -24,7 +24,7 @@ class FermionicMapper(QubitMapper):
     """Mapper of Fermionic Operator to Qubit Operator"""
 
     @abstractmethod
-    def map(self, second_q_op: FermionicOp) -> PauliSumOp:
+    def _map(self, second_q_op: FermionicOp) -> PauliSumOp:
         """Maps a :class:`~qiskit_nature.second_q.operators.FermionicOp`
         to a `PauliSumOp`.
 

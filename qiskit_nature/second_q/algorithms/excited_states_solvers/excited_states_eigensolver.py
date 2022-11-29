@@ -20,7 +20,7 @@ from qiskit.algorithms.eigensolvers import Eigensolver
 from qiskit.opflow import PauliSumOp
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.second_q.problems import EigenstateResult
@@ -34,7 +34,7 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
 
     def __init__(
         self,
-        qubit_converter: QubitConverter,
+        qubit_converter: Union[QubitConverter, QubitMapper],
         solver: Union[Eigensolver, EigensolverFactory],
     ) -> None:
         """
@@ -70,11 +70,20 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
 
         num_particles = getattr(problem, "num_particles", None)
 
-        main_operator = self._qubit_converter.convert(
-            main_second_q_op,
-            num_particles=num_particles,
-            sector_locator=problem.symmetry_sector_locator,
-        )
+        if isinstance(self._qubit_converter, QubitConverter):
+            main_operator = self._qubit_converter.convert(
+                main_second_q_op,
+                num_particles=num_particles,
+                sector_locator=problem.symmetry_sector_locator,
+            )
+
+        elif issubclass(type(self._qubit_converter), QubitMapper):
+            print("MAPPER")
+            main_operator = self._qubit_converter._map(main_second_q_op)
+
+        else:
+            raise QiskitNatureError("QubitConverter object is not valid")
+
         aux_ops = self._qubit_converter.convert_match(aux_second_q_ops)
 
         if aux_operators is not None:

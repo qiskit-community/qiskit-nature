@@ -21,7 +21,7 @@ from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 
 from qiskit_nature.second_q.operators import SparseLabelOp
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.second_q.problems import EigenstateResult
 
@@ -31,7 +31,7 @@ QubitOperator = Union[BaseOperator, PauliSumOp]
 class GroundStateSolver(ABC):
     """The ground state calculation interface."""
 
-    def __init__(self, qubit_converter: QubitConverter) -> None:
+    def __init__(self, qubit_converter: Union[QubitConverter, QubitMapper]) -> None:
         """
         Args:
             qubit_converter: A class that converts second quantized operator to qubit operator

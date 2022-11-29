@@ -16,13 +16,56 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from functools import lru_cache
+from typing import Union, TypeVar, Dict, Iterable, Generic, Tuple, Generator, Optional
 
 import numpy as np
 from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators import Pauli, SparsePauliOp
+from qiskit.algorithms.list_or_dict import ListOrDict as ListOrDictType
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.operators import SparseLabelOp
+
+# pylint: disable=invalid-name
+T = TypeVar("T")
+
+
+class _ListOrDict(Dict, Iterable, Generic[T]):
+    """The ListOrDict utility class.
+
+    This is a utility which allows seamless iteration of a `list` or `dict` object.
+    """
+
+    def __init__(self, values: Optional[ListOrDictType] = None):
+        """
+        Args:
+            values: an optional object of `list` or `dict` type.
+        """
+        if isinstance(values, list):
+            values = dict(enumerate(values))
+        elif values is None:
+            values = {}
+        super().__init__(values)
+
+    def __iter__(self) -> Generator[Tuple[Union[int, str], T], T, None]:
+        """Return the generator-iterator method."""
+        return self._generator()
+
+    def _generator(self) -> Generator[Tuple[Union[int, str], T], T, None]:
+        """Return generator method iterating the contents of this class.
+
+        This generator yields the `(key, value)` pairs of the underlying dictionary. If this object
+        was constructed from a list, the keys in this generator are simply the numeric indices.
+
+        This generator also supports overriding the yielded value upon receiving any value other
+        than `None` from a `send` [1] instruction.
+
+        [1]: https://docs.python.org/3/reference/expressions.html#generator.send
+        """
+        for key, value in self.items():
+            new_value = yield (key, value)
+            if new_value is not None:
+                self[key] = new_value
 
 
 class QubitMapper(ABC):
@@ -60,6 +103,49 @@ class QubitMapper(ABC):
             The `PauliSumOp` corresponding to the problem-Hamiltonian in the qubit space.
         """
         raise NotImplementedError()
+
+    def convert_match(
+        self,
+        second_q_ops: Union[SparseLabelOp, _ListOrDict[SparseLabelOp]],
+        *,
+        suppress_none: bool = False,
+        check_commutes: bool = True,
+    ) -> _ListOrDict[PauliSumOp]:
+        """A convenience method to map second quantized operators based on current mapper.
+
+        Args:
+            second_q_ops: A second quantized operator, or list thereof
+            sort_operators: Boolean
+
+        Returns:
+            A qubit operator in the form of a PauliSumOp, or list thereof if a list of
+            second quantized operators was supplied
+        """
+        wrapped_type = type(second_q_ops)
+
+        if isinstance(second_q_ops, SparseLabelOp):
+            second_q_ops = [second_q_ops]
+            suppress_none = False  # When only a single op we will return None back
+
+        wrapped_second_q_ops: _ListOrDict[SparseLabelOp] = _ListOrDict(second_q_ops)
+
+        qubit_ops = _ListOrDict()
+        for name, second_q_op in iter(wrapped_second_q_ops):
+            qubit_ops[name] = self.map(second_q_op)
+
+        returned_ops: Union[PauliSumOp, ListOrDictType[PauliSumOp]]
+
+        if issubclass(wrapped_type, SparseLabelOp):
+            returned_ops = list(iter(qubit_ops))[0][1]
+        elif wrapped_type == list:
+            if suppress_none:
+                returned_ops = [op for _, op in iter(qubit_ops) if op is not None]
+            else:
+                returned_ops = [op for _, op in iter(qubit_ops)]
+        elif wrapped_type == dict:
+            returned_ops = dict(iter(qubit_ops))
+
+        return returned_ops
 
     @classmethod
     @lru_cache(maxsize=32)

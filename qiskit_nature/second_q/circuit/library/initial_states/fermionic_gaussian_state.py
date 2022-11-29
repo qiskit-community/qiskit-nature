@@ -12,12 +12,11 @@
 
 """Fermionic Gaussian states."""
 
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Union
 
 import numpy as np
 from qiskit import QuantumCircuit, QuantumRegister
-from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.mappers import JordanWignerMapper
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper, JordanWignerMapper
 
 from .utils.givens_rotations import _prepare_fermionic_gaussian_state_jw
 
@@ -116,7 +115,7 @@ class FermionicGaussianState(QuantumCircuit):
         self,
         transformation_matrix: np.ndarray,
         occupied_orbitals: Optional[Sequence[int]] = None,
-        qubit_converter: QubitConverter = None,
+        qubit_converter: Optional[Union[QubitConverter, QubitMapper]] = None,
         *,
         validate: bool = True,
         rtol: float = 1e-5,
@@ -164,7 +163,10 @@ class FermionicGaussianState(QuantumCircuit):
         register = QuantumRegister(n)
         super().__init__(register, **circuit_kwargs)
 
-        if isinstance(qubit_converter.mapper, JordanWignerMapper):
+        if (
+            isinstance(qubit_converter, QubitConverter)
+            and isinstance(qubit_converter.mapper, JordanWignerMapper)
+        ) or (isinstance(qubit_converter, JordanWignerMapper)):
             operations = _prepare_fermionic_gaussian_state_jw(
                 register, transformation_matrix, occupied_orbitals
             )

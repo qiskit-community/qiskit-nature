@@ -22,7 +22,7 @@ from qiskit.utils import algorithm_globals
 
 from qiskit_nature.second_q.circuit.library import UVCC
 from qiskit_nature.second_q.operators import VibrationalOp
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 
 
 def build_vibrational_ops(
@@ -34,7 +34,7 @@ def build_vibrational_ops(
         [int, tuple[int, int]],
         list[tuple[tuple[int, ...], tuple[int, ...]]],
     ],
-    qubit_converter: QubitConverter,
+    qubit_converter: Union[QubitConverter, QubitMapper],
 ) -> Tuple[
     Dict[str, PauliSumOp],
     Dict[str, List[bool]],

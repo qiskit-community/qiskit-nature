@@ -36,7 +36,9 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
     def setUp(self):
         super().setUp()
         algorithm_globals.random_seed = 8
-        self.qubit_converter = QubitConverter(DirectMapper())
+
+        self.mapper = DirectMapper()
+        self.qubit_converter = QubitConverter(self.mapper)
 
         import sparse as sp  # pylint: disable=import-error
 
@@ -75,10 +77,7 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
         self.basis = HarmonicBasis([2, 2])
         self.vibrational_problem = watson_to_problem(watson, self.basis)
 
-    def test_build_hopping_operators(self):
-        """Tests that the correct hopping operator is built."""
-        # TODO extract it somewhere
-        expected_hopping_operators = (
+        self.expected_hopping_operators = (
             {
                 "E_0": PauliSumOp.from_list(
                     [("IIXX", 0.25), ("IIYX", 0.25j), ("IIXY", -0.25j), ("IIYY", 0.25)]
@@ -144,8 +143,17 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
             },
         )
 
+    def test_build_hopping_operators(self):
+        """Tests that the correct hopping operator is built."""
+
         hopping_operators = build_vibrational_ops(self.basis.num_modals, "sd", self.qubit_converter)
-        self.assertEqual(hopping_operators, expected_hopping_operators)
+        self.assertEqual(hopping_operators, self.expected_hopping_operators)
+
+    def test_build_hopping_operators_mapper(self):
+        """Tests that the correct hopping operator is built."""
+
+        hopping_operators = build_vibrational_ops(self.basis.num_modals, "sd", self.mapper)
+        self.assertEqual(hopping_operators, self.expected_hopping_operators)
 
 
 if __name__ == "__main__":

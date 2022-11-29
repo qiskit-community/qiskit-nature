@@ -47,5 +47,5 @@ class JordanWignerMapper(FermionicMapper):  # pylint: disable=missing-class-docs
 
         return pauli_table
 
-    def map(self, second_q_op: FermionicOp) -> PauliSumOp:
+    def _map(self, second_q_op: FermionicOp) -> PauliSumOp:
         return JordanWignerMapper.mode_based_mapping(second_q_op, second_q_op.register_length)

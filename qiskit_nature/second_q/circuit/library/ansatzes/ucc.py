@@ -17,14 +17,14 @@ from __future__ import annotations
 
 import logging
 from functools import partial
-from typing import Callable, Sequence
+from typing import Callable, Sequence, Union
 
 from qiskit.circuit import QuantumCircuit
 from qiskit.circuit.library import EvolvedOperatorAnsatz
 from qiskit.opflow import PauliTrotterEvolution
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.operators import FermionicOp, SparseLabelOp
 
 from .utils.fermionic_excitation_generator import generate_fermionic_excitations
@@ -137,7 +137,7 @@ class UCC(EvolvedOperatorAnsatz):
             list[tuple[tuple[int, ...], tuple[int, ...]]],
         ]
         | None = None,
-        qubit_converter: QubitConverter | None = None,
+        qubit_converter: Union[QubitConverter, QubitMapper] | None = None,
         *,
         alpha_spin: bool = True,
         beta_spin: bool = True,
@@ -167,8 +167,9 @@ class UCC(EvolvedOperatorAnsatz):
                     to write such a callable refer to the default method
                     :meth:`~qiskit_nature.second_q.circuit.library.ansatzes.utils.\
                     generate_fermionic_excitations`.
-            qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` instance
-                which takes care of mapping to a qubit operator.
+            qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` or 
+            :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance which takes care of mapping
+            to a qubit operator.
             alpha_spin: Boolean flag whether to include alpha-spin excitations.
             beta_spin: Boolean flag whether to include beta-spin excitations.
             max_spin_excitation: The largest number of excitations within a spin. E.g. you can set
@@ -219,12 +220,12 @@ class UCC(EvolvedOperatorAnsatz):
         _ = self.operators
 
     @property
-    def qubit_converter(self) -> QubitConverter:
+    def qubit_converter(self) -> Union[QubitConverter, QubitMapper]:
         """The qubit operator converter."""
         return self._qubit_converter
 
     @qubit_converter.setter
-    def qubit_converter(self, conv: QubitConverter) -> None:
+    def qubit_converter(self, conv: Union[QubitConverter, QubitMapper]) -> None:
         """Sets the qubit operator converter."""
         self._operators = None
         self._invalidate()
