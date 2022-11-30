@@ -72,7 +72,7 @@ class LogarithmicMapper(SpinMapper):
         self._padding = padding
         self._embed_upper = embed_upper
 
-    def _map(self, second_q_op: SpinOp) -> PauliSumOp:
+    def map(self, second_q_op: SpinOp) -> PauliSumOp:
         """Map spins to qubits using the Logarithmic encoding.
 
         Args:

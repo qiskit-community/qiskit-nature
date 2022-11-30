@@ -49,5 +49,5 @@ class DirectMapper(VibrationalMapper):  # pylint: disable=missing-class-docstrin
 
         return pauli_table
 
-    def _map(self, second_q_op: VibrationalOp) -> PauliSumOp:
+    def map(self, second_q_op: VibrationalOp) -> PauliSumOp:
         return DirectMapper.mode_based_mapping(second_q_op, sum(second_q_op.num_modals))

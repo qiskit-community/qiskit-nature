@@ -33,7 +33,7 @@ class LinearMapper(SpinMapper):  # pylint: disable=missing-class-docstring
         """The Linear spin-to-qubit mapping."""
         super().__init__(allows_two_qubit_reduction=False)
 
-    def _map(self, second_q_op: SpinOp) -> PauliSumOp:
+    def map(self, second_q_op: SpinOp) -> PauliSumOp:
 
         qubit_ops_list: list[PauliSumOp] = []
 
