@@ -65,12 +65,12 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
                 hopping_operators.keys(), expected_hopping_operators_electronic.keys()
             ):
                 self.assertEqual(key, exp_key)
-                val = hopping_operators[key]
+                val = hopping_operators[key].primitive
                 exp_val = expected_hopping_operators_electronic[exp_key]
-                if not val.equals(exp_val):
+                if not val.equiv(exp_val):
                     print(val)
                     print(exp_val)
-                self.assertTrue(val.equals(exp_val), msg=(val, exp_val))
+                self.assertTrue(val.equiv(exp_val), msg=(val, exp_val))
 
         with self.subTest("commutativities"):
             self.assertEqual(commutativities, expected_commutativies_electronic)

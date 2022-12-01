@@ -28,7 +28,7 @@ reference_trans_amps = {
         "ParticleNumber": (0.0, {"variance": 0.0}),
         "XDipole": (0.0, {"variance": 0.0}),
         "YDipole": (0.0, {"variance": 0.0}),
-        "ZDipole": ((-1.1633636825848008 + 0j), {"variance": 0.0}),
+        "ZDipole": (-1.1633636825848008, {"variance": 0.0}),
         "hamiltonian": (0.0, {"variance": 0.0}),
     },
     (0, 3): {
@@ -64,7 +64,7 @@ reference_trans_amps = {
         "ParticleNumber": (0.0, {"variance": 0.0}),
         "XDipole": (0.0, {"variance": 0.0}),
         "YDipole": (0.0, {"variance": 0.0}),
-        "ZDipole": ((1.4667186749299648 + 0j), {"variance": 0.0}),
+        "ZDipole": (1.4667186749299648, {"variance": 0.0}),
         "hamiltonian": (0.0, {"variance": 0.0}),
     },
 }

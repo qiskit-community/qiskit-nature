@@ -16,7 +16,7 @@ from test import QiskitNatureTestCase
 
 import unittest
 
-from qiskit.opflow import PauliSumOp
+from qiskit.quantum_info import SparsePauliOp
 from qiskit.utils import algorithm_globals
 
 from qiskit_nature.second_q.algorithms.excited_states_solvers.qeom_vibrational_ops_builder import (
@@ -27,6 +27,12 @@ from qiskit_nature.second_q.formats.watson_translator import watson_to_problem
 from qiskit_nature.second_q.mappers import DirectMapper, QubitConverter
 from qiskit_nature.second_q.problems import HarmonicBasis
 import qiskit_nature.optionals as _optionals
+
+from .resources.expected_qeom_ops import (
+    expected_hopping_operators_vibrational,
+    expected_commutativies_vibrational,
+    expected_indices_vibrational,
+)
 
 
 class TestHoppingOpsBuilder(QiskitNatureTestCase):
@@ -77,75 +83,29 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
 
     def test_build_hopping_operators(self):
         """Tests that the correct hopping operator is built."""
-        # TODO extract it somewhere
-        expected_hopping_operators = (
-            {
-                "E_0": PauliSumOp.from_list(
-                    [("IIXX", 0.25), ("IIYX", 0.25j), ("IIXY", -0.25j), ("IIYY", 0.25)]
-                ),
-                "Edag_0": PauliSumOp.from_list(
-                    [("IIXX", 0.25), ("IIYX", -0.25j), ("IIXY", 0.25j), ("IIYY", 0.25)]
-                ),
-                "E_1": PauliSumOp.from_list(
-                    [("XXII", 0.25), ("YXII", 0.25j), ("XYII", -0.25j), ("YYII", 0.25)]
-                ),
-                "Edag_1": PauliSumOp.from_list(
-                    [("XXII", 0.25), ("YXII", -0.25j), ("XYII", 0.25j), ("YYII", 0.25)]
-                ),
-                "E_2": PauliSumOp.from_list(
-                    [
-                        ("XXXX", 0.0625),
-                        ("YXXX", 0.0625j),
-                        ("XYXX", -0.0625j),
-                        ("YYXX", 0.0625),
-                        ("XXYX", 0.0625j),
-                        ("YXYX", -0.0625),
-                        ("XYYX", 0.0625),
-                        ("YYYX", 0.0625j),
-                        ("XXXY", -0.0625j),
-                        ("YXXY", 0.0625),
-                        ("XYXY", -0.0625),
-                        ("YYXY", -0.0625j),
-                        ("XXYY", 0.0625),
-                        ("YXYY", 0.0625j),
-                        ("XYYY", -0.0625j),
-                        ("YYYY", 0.0625),
-                    ]
-                ),
-                "Edag_2": PauliSumOp.from_list(
-                    [
-                        ("XXXX", 0.0625),
-                        ("YXXX", -0.0625j),
-                        ("XYXX", 0.0625j),
-                        ("YYXX", 0.0625),
-                        ("XXYX", -0.0625j),
-                        ("YXYX", -0.0625),
-                        ("XYYX", 0.0625),
-                        ("YYYX", -0.0625j),
-                        ("XXXY", 0.0625j),
-                        ("YXXY", 0.0625),
-                        ("XYXY", -0.0625),
-                        ("YYXY", 0.0625j),
-                        ("XXYY", 0.0625),
-                        ("YXYY", -0.0625j),
-                        ("XYYY", 0.0625j),
-                        ("YYYY", 0.0625),
-                    ]
-                ),
-            },
-            {},
-            {
-                "E_0": ((0,), (1,)),
-                "Edag_0": ((1,), (0,)),
-                "E_1": ((2,), (3,)),
-                "Edag_1": ((3,), (2,)),
-                "E_2": ((0, 2), (1, 3)),
-                "Edag_2": ((1, 3), (0, 2)),
-            },
+
+        hopping_operators, commutativities, indices = build_vibrational_ops(
+            self.basis.num_modals, "sd", self.qubit_converter
         )
 
-        hopping_operators = build_vibrational_ops(self.basis.num_modals, "sd", self.qubit_converter)
-        self.assertEqual(hopping_operators, expected_hopping_operators)
+        with self.subTest("hopping operators"):
+            self.assertEqual(hopping_operators.keys(), expected_hopping_operators_vibrational.keys())
+            for key, exp_key in zip(
+                hopping_operators.keys(), expected_hopping_operators_vibrational.keys()
+            ):
+                self.assertEqual(key, exp_key)
+                val = hopping_operators[key].primitive
+                exp_val = expected_hopping_operators_vibrational[exp_key]
+                if not val.equiv(exp_val):
+                    print(val)
+                    print(exp_val)
+                self.assertTrue(val.equiv(exp_val), msg=(val, exp_val))
+
+        with self.subTest("commutativities"):
+            self.assertEqual(commutativities, expected_commutativies_vibrational)
+
+        with self.subTest("excitation indices"):
+            self.assertEqual(indices, expected_indices_vibrational)
 
 
 if __name__ == "__main__":

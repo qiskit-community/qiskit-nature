@@ -10,19 +10,19 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Reference PauliSumOp for testing."""
+"""Reference SparsePauliOp for testing."""
 
 from typing import Any, List, Dict
-from qiskit.opflow import PauliSumOp
+from qiskit.quantum_info import SparsePauliOp
 
-expected_hopping_operators_electronic: Dict[str, PauliSumOp] = {
-    "E_0": 1 / 4 * PauliSumOp.from_list([("IIXY", -1j), ("IIYY", 1), ("IIXX", 1), ("IIYX", 1j)]),
-    "Edag_0": 1 / 4 * PauliSumOp.from_list([("IIXY", 1j), ("IIXX", 1), ("IIYY", 1), ("IIYX", -1j)]),
-    "E_1": 1 / 4 * PauliSumOp.from_list([("XYII", -1j), ("YYII", 1), ("XXII", 1), ("YXII", 1j)]),
-    "Edag_1": 1 / 4 * PauliSumOp.from_list([("XYII", 1j), ("YYII", 1), ("XXII", 1), ("YXII", -1j)]),
+expected_hopping_operators_electronic: Dict[str, SparsePauliOp] = {
+    "E_0": 1 / 4 * SparsePauliOp.from_list([("IIXY", -1j), ("IIYY", 1), ("IIXX", 1), ("IIYX", 1j)]),
+    "Edag_0": 1 / 4 * SparsePauliOp.from_list([("IIXY", 1j), ("IIXX", 1), ("IIYY", 1), ("IIYX", -1j)]),
+    "E_1": 1 / 4 * SparsePauliOp.from_list([("XYII", -1j), ("YYII", 1), ("XXII", 1), ("YXII", 1j)]),
+    "Edag_1": 1 / 4 * SparsePauliOp.from_list([("XYII", 1j), ("YYII", 1), ("XXII", 1), ("YXII", -1j)]),
     "E_2": 1
     / 16
-    * PauliSumOp.from_list(
+    * SparsePauliOp.from_list(
         [
             ("XYXY", 1),
             ("YYXY", 1j),
@@ -44,7 +44,7 @@ expected_hopping_operators_electronic: Dict[str, PauliSumOp] = {
     ),
     "Edag_2": 1
     / 16
-    * PauliSumOp.from_list(
+    * SparsePauliOp.from_list(
         [
             ("XYXY", 1),
             ("XXXY", -1j),
@@ -84,20 +84,20 @@ expected_indices_electronic: Dict[str, Any] = {
     "Edag_2": ((1, 3), (0, 2)),
 }
 
-expected_hopping_operators_vibrational: Dict[str, PauliSumOp] = {
-    "E_0": PauliSumOp.from_list(
+expected_hopping_operators_vibrational: Dict[str, SparsePauliOp] = {
+    "E_0": SparsePauliOp.from_list(
         [("IIXX", 0.25), ("IIYX", 0.25j), ("IIXY", -0.25j), ("IIYY", 0.25)]
     ),
-    "Edag_0": PauliSumOp.from_list(
+    "Edag_0": SparsePauliOp.from_list(
         [("IIXX", 0.25), ("IIYX", -0.25j), ("IIXY", 0.25j), ("IIYY", 0.25)]
     ),
-    "E_1": PauliSumOp.from_list(
+    "E_1": SparsePauliOp.from_list(
         [("XXII", 0.25), ("YXII", 0.25j), ("XYII", -0.25j), ("YYII", 0.25)]
     ),
-    "Edag_1": PauliSumOp.from_list(
+    "Edag_1": SparsePauliOp.from_list(
         [("XXII", 0.25), ("YXII", -0.25j), ("XYII", 0.25j), ("YYII", 0.25)]
     ),
-    "E_2": PauliSumOp.from_list(
+    "E_2": SparsePauliOp.from_list(
         [
             ("XXXX", 0.0625),
             ("YXXX", 0.0625j),
@@ -117,7 +117,7 @@ expected_hopping_operators_vibrational: Dict[str, PauliSumOp] = {
             ("YYYY", 0.0625),
         ]
     ),
-    "Edag_2": PauliSumOp.from_list(
+    "Edag_2": SparsePauliOp.from_list(
         [
             ("XXXX", 0.0625),
             ("YXXX", -0.0625j),

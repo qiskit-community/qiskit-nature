@@ -242,7 +242,7 @@ class QubitConverter:
         """
         qubit_op = self._map(second_q_op)
         reduced_op = self._two_qubit_reduce(qubit_op, num_particles)
-        tapered_op, z2symmetries = self._find_taper_op(reduced_op, sector_locator)
+        tapered_op, z2symmetries = self.find_taper_op(reduced_op, sector_locator)
 
         self._num_particles = num_particles
         self._z2symmetries = z2symmetries
@@ -459,7 +459,7 @@ class QubitConverter:
 
         return qubit_ops
 
-    def _find_taper_op(
+    def find_taper_op(
         self,
         qubit_op: PauliSumOp,
         sector_locator: Optional[
@@ -552,21 +552,24 @@ class QubitConverter:
 
         return tapered_qubit_ops
 
-    def _symmetry_reduce_clifford(
+    def symmetry_reduce_clifford(
         self,
-        converted_ops: _ListOrDict[PauliSumOp],
+        converted_ops: ListOrDictType[PauliSumOp],
         check_commutes: bool,
-    ) -> _ListOrDict[PauliSumOp]:
+    ) -> ListOrDictType[PauliSumOp]:
         if converted_ops is None or self._z2symmetries is None or self._z2symmetries.is_empty():
             tapered_qubit_ops = converted_ops
         else:
+            wrapped_type = type(converted_ops)
+            wrapped_converted_ops: _ListOrDict[PauliSumOp] = _ListOrDict(converted_ops)
+
             if check_commutes:
                 logger.debug("Checking operators commute with symmetry:")
                 symmetry_ops = []
                 for sq_pauli in self._z2symmetries._sq_paulis:
                     symmetry_ops.append(PauliSumOp.from_list([(sq_pauli.to_label(), 1.0)]))
                 commuted = {}
-                for name, qubit_op in iter(converted_ops):
+                for name, qubit_op in iter(wrapped_converted_ops):
                     commutes = QubitConverter._check_commutes(symmetry_ops, qubit_op)
                     commuted[name] = commutes
                     logger.debug("Qubit operator '%s' commuted with symmetry: %s", name, commutes)
@@ -576,17 +579,24 @@ class QubitConverter:
                 for name, commutes in commuted.items():
                     if commutes:
                         tapered_qubit_ops[name] = self._z2symmetries.taper_clifford(
-                            converted_ops[name]
+                            wrapped_converted_ops[name]
                         )
             else:
                 logger.debug("Tapering operators whether they commute with symmetry or not:")
                 tapered_qubit_ops = _ListOrDict()
-                for name, qubit_op in iter(converted_ops):
-                    tapered_qubit_ops[name] = self._z2symmetries.taper_clifford(converted_ops[name])
+                for name, qubit_op in iter(wrapped_converted_ops):
+                    tapered_qubit_ops[name] = self._z2symmetries.taper_clifford(
+                        wrapped_converted_ops[name]
+                    )
+
+            if wrapped_type == list:
+                return_ops = [op for _, op in iter(tapered_qubit_ops)]
+            elif wrapped_type == dict:
+                return_ops = dict(iter(tapered_qubit_ops))
 
         return tapered_qubit_ops
 
-    def _convert_clifford(
+    def convert_clifford(
         self,
         qubit_ops: PauliSumOp | ListOrDictType[PauliSumOp],
     ):

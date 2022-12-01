@@ -17,13 +17,17 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Union, Any
 
+from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolver
 from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators.base_operator import BaseOperator
+
 
 from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.second_q.problems import EigenstateResult
+
+from .minimum_eigensolver_factories import MinimumEigensolverFactory
 
 QubitOperator = Union[BaseOperator, PauliSumOp]
 
@@ -38,7 +42,7 @@ class GroundStateSolver(ABC):
                              according to a mapper it is initialized with.
         """
         self._qubit_converter = qubit_converter
-        self._solver: Any = None
+        self._solver: MinimumEigensolver | MinimumEigensolverFactory | None = None
 
     @abstractmethod
     def solve(

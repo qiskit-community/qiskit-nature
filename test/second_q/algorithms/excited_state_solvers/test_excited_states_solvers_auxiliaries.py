@@ -10,11 +10,12 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" Test Numerical qEOM excited states calculation """
+""" Test Numerical qEOM excited states calculation."""
 
 import unittest
 
 from test import QiskitNatureTestCase
+from ddt import ddt, named_data
 from typing import List, Dict
 
 import numpy as np
@@ -41,9 +42,9 @@ from qiskit_nature.second_q.algorithms import (
 import qiskit_nature.optionals as _optionals
 from .resources.expected_transition_amplitudes import reference_trans_amps
 
-
-class TestNumericalQEOMOBScalculation(QiskitNatureTestCase):
-    """Test qEOM excited state observables calculation"""
+@ddt
+class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
+    """Test qEOM excited state observables calculation."""
 
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def setUp(self):
@@ -65,14 +66,9 @@ class TestNumericalQEOMOBScalculation(QiskitNatureTestCase):
         ]
 
         self.reference_trans_amps = reference_trans_amps
-
-        self.qubit_converter = QubitConverter(JordanWignerMapper())
         self.electronic_structure_problem = self.driver.run()
         hamiltonian_op, _ = self.electronic_structure_problem.second_q_ops()
         self.aux_ops = {"hamiltonian": hamiltonian_op}
-
-        solver = NumPyEigensolver()
-        self.ref = solver
 
     def _assert_energies(self, computed, references, *, places=4):
         with self.subTest("same number of energies"):
@@ -90,8 +86,7 @@ class TestNumericalQEOMOBScalculation(QiskitNatureTestCase):
             self.assertEqual(len(computed), len(references))
 
         with self.subTest("operators computed are reference operators"):
-            for key, key_ref in zip(computed.keys(), references.keys()):
-                self.assertTrue(key == key_ref)
+            self.assertEqual(computed.keys(), references.keys())
 
         with self.subTest("same transition amplitude absolute value"):
             for key in computed.keys():
@@ -100,57 +95,17 @@ class TestNumericalQEOMOBScalculation(QiskitNatureTestCase):
                     trans_amp_expected = np.abs(references[key][opkey][0])
                     self.assertAlmostEqual(trans_amp, trans_amp_expected, places=places)
 
-    def test_vqe_mes_jw(self):
-        """Test VQEUCCSDFactory with QEOM + Jordan Wigner mapping"""
-        converter = QubitConverter(JordanWignerMapper())
-        self._aux_ops_with_vqe_mes(converter)
-        self._trans_amps_with_vqe_mes(converter)
-
-    def test_vqe_mes_jw_auto(self):
-        """Test VQEUCCSDFactory with QEOM + Jordan Wigner mapping + auto symmetry"""
-        converter = QubitConverter(JordanWignerMapper(), z2symmetry_reduction="auto")
-        self._aux_ops_with_vqe_mes(converter)
-        self._trans_amps_with_vqe_mes(converter)
-
-    def test_vqe_mes_parity(self):
-        """Test VQEUCCSDFactory with QEOM + Parity mapping"""
-        converter = QubitConverter(ParityMapper())
-        self._aux_ops_with_vqe_mes(converter)
-        self._trans_amps_with_vqe_mes(converter)
-
-    def test_vqe_mes_parity_2q(self):
-        """Test VQEUCCSDFactory with QEOM + Parity mapping + reduction"""
-        converter = QubitConverter(ParityMapper(), two_qubit_reduction=True)
-        self._aux_ops_with_vqe_mes(converter)
-        self._trans_amps_with_vqe_mes(converter)
-
-    def test_vqe_mes_parity_auto(self):
-        """Test VQEUCCSDFactory with QEOM + Parity mapping + auto symmetry"""
-        converter = QubitConverter(ParityMapper(), z2symmetry_reduction="auto")
-        self._aux_ops_with_vqe_mes(converter)
-        self._trans_amps_with_vqe_mes(converter)
-
-    def test_vqe_mes_parity_2q_auto(self):
-        """Test VQEUCCSDFactory with QEOM + Parity mapping + reduction + auto symmetry"""
-        converter = QubitConverter(
-            ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto"
-        )
-        self._aux_ops_with_vqe_mes(converter)
-        self._trans_amps_with_vqe_mes(converter)
-
-    def test_vqe_mes_bk(self):
-        """Test VQEUCCSDFactory with QEOM + Bravyi-Kitaev mapping"""
-        converter = QubitConverter(BravyiKitaevMapper())
-        self._aux_ops_with_vqe_mes(converter)
-        self._trans_amps_with_vqe_mes(converter)
-
-    def test_vqe_mes_bk_auto(self):
-        """Test VQEUCCSDFactory with QEOM + Bravyi-Kitaev mapping + auto symmetry"""
-        converter = QubitConverter(BravyiKitaevMapper(), z2symmetry_reduction="auto")
-        self._aux_ops_with_vqe_mes(converter)
-        self._trans_amps_with_vqe_mes(converter)
-
-    def _aux_ops_with_vqe_mes(self, converter: QubitConverter):
+    @named_data(
+        ["JWM", QubitConverter(JordanWignerMapper())],
+        ["JWM_Z2", QubitConverter(JordanWignerMapper(), z2symmetry_reduction="auto")],
+        ["PM", QubitConverter(ParityMapper())],
+        ["PM_TQR", QubitConverter(ParityMapper(), two_qubit_reduction=True)],
+        ["PM_Z2", QubitConverter(ParityMapper(), z2symmetry_reduction="auto")],
+        ["PM_TQR_Z2", QubitConverter(ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto")],
+        ["BKM", QubitConverter(BravyiKitaevMapper())],
+        ["BKM_Z2", QubitConverter(BravyiKitaevMapper(), z2symmetry_reduction="auto")],
+    )
+    def test_aux_ops_qeom(self, converter: QubitConverter):
         estimator = Estimator()
         solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
         gsc = GroundStateEigensolver(converter, solver)
@@ -164,7 +119,17 @@ class TestNumericalQEOMOBScalculation(QiskitNatureTestCase):
         self._assert_energies(results.computed_energies, self.reference_energies)
         self._assert_energies(energies_recalculated, self.reference_energies)
 
-    def _trans_amps_with_vqe_mes(self, converter: QubitConverter):
+    @named_data(
+        ["JWM", QubitConverter(JordanWignerMapper())],
+        ["JWM_Z2", QubitConverter(JordanWignerMapper(), z2symmetry_reduction="auto")],
+        ["PM", QubitConverter(ParityMapper())],
+        ["PM_TQR", QubitConverter(ParityMapper(), two_qubit_reduction=True)],
+        ["PM_Z2", QubitConverter(ParityMapper(), z2symmetry_reduction="auto")],
+        ["PM_TQR_Z2", QubitConverter(ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto")],
+        ["BKM", QubitConverter(BravyiKitaevMapper())],
+        ["BKM_Z2", QubitConverter(BravyiKitaevMapper(), z2symmetry_reduction="auto")],
+    )
+    def test_trans_amps_qeom(self, converter: QubitConverter):
         estimator = Estimator()
         solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
         gsc = GroundStateEigensolver(converter, solver)
@@ -172,10 +137,11 @@ class TestNumericalQEOMOBScalculation(QiskitNatureTestCase):
         results = esc.solve(self.electronic_structure_problem, aux_operators=self.aux_ops)
 
         transition_amplitudes = results.raw_result.transition_amplitudes
+        print(transition_amplitudes)
 
         self._assert_transition_amplitudes(
             transition_amplitudes, self.reference_trans_amps, places=4
-        )
+        )   
 
 
 if __name__ == "__main__":
