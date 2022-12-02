@@ -108,12 +108,7 @@ class GroundStateEigensolver(GroundStateSolver):
                     )
                 else:
                     converted_aux_op = aux_op
-                if name_aux in aux_ops.keys():
-                    raise QiskitNatureError(
-                        f"The key '{name_aux}' is already taken by an internally constructed "
-                        "auxiliary operator! Please use a different name for your custom "
-                        "operator."
-                    )
+                # The custom op overrides the default op if the key is already taken.
                 aux_ops[name_aux] = converted_aux_op
 
         if isinstance(self.solver, MinimumEigensolverFactory):

@@ -17,9 +17,13 @@ from qiskit.quantum_info import SparsePauliOp
 
 expected_hopping_operators_electronic: Dict[str, SparsePauliOp] = {
     "E_0": 1 / 4 * SparsePauliOp.from_list([("IIXY", -1j), ("IIYY", 1), ("IIXX", 1), ("IIYX", 1j)]),
-    "Edag_0": 1 / 4 * SparsePauliOp.from_list([("IIXY", 1j), ("IIXX", 1), ("IIYY", 1), ("IIYX", -1j)]),
+    "Edag_0": 1
+    / 4
+    * SparsePauliOp.from_list([("IIXY", 1j), ("IIXX", 1), ("IIYY", 1), ("IIYX", -1j)]),
     "E_1": 1 / 4 * SparsePauliOp.from_list([("XYII", -1j), ("YYII", 1), ("XXII", 1), ("YXII", 1j)]),
-    "Edag_1": 1 / 4 * SparsePauliOp.from_list([("XYII", 1j), ("YYII", 1), ("XXII", 1), ("YXII", -1j)]),
+    "Edag_1": 1
+    / 4
+    * SparsePauliOp.from_list([("XYII", 1j), ("YYII", 1), ("XXII", 1), ("YXII", -1j)]),
     "E_2": 1
     / 16
     * SparsePauliOp.from_list(

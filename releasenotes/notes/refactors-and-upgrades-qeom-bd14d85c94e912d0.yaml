@@ -1,8 +1,7 @@
 ---
 features:
   - |
-    Improves readability of the QEOM code and implements the calculation of 
-    excited state properties and transition 
+    Improves the QEOM code and implements the calculation of excited state properties and transition 
     amplitudes with QEOM.
 
     The new functionalities can be used as follows:
@@ -13,53 +12,56 @@ features:
       from qiskit.primitives import Estimator
 
       from qiskit_nature.units import DistanceUnit
-      from qiskit_nature.second_q.algorithms import (
-        VQEUCCFactory, 
-        GroundStateEigensolver
-      )
+      from qiskit_nature.second_q.algorithms import VQEUCCFactory, GroundStateEigensolver
       from qiskit_nature.second_q.algorithms.excited_states_solvers import QEOM
       from qiskit_nature.second_q.circuit.library import UCCSD
       from qiskit_nature.second_q.drivers import PySCFDriver
       from qiskit_nature.second_q.mappers import QubitConverter
       from qiskit_nature.second_q.mappers import JordanWignerMapper
 
-      import numpy as np
-
-      optimizer = COBYLA(maxiter=500,disp=False)
+      optimizer = COBYLA(maxiter=500, disp=False)
       qubit_converter = QubitConverter(
-        JordanWignerMapper(), 
-        z2symmetry_reduction=None, 
-        two_qubit_reduction=False
-        )
+          JordanWignerMapper(), z2symmetry_reduction=None, two_qubit_reduction=False
+      )
 
-      new_driver = PySCFDriver(
+      driver = PySCFDriver(
           atom="H 0 0 0; H 0 0 1.735",
           basis="sto3g",
           charge=0,
           spin=0,
           unit=DistanceUnit.ANGSTROM,
       )
-      new_es_problem = new_driver.run()
-      hamiltonian_op, _ = new_es_problem.second_q_ops()
-      aux_ops = {'hamiltonian':hamiltonian_op}
+      es_problem = driver.run()
+      hamiltonian_op, _ = es_problem.second_q_ops()
+      aux_ops = {"hamiltonian": hamiltonian_op}
 
       # Qeom results
       vqe_solver = VQEUCCFactory(Estimator(), UCCSD(), optimizer)
       me_gsc = GroundStateEigensolver(qubit_converter, vqe_solver)
       qeom_solver = QEOM(
-        me_gsc, 
-        estimator=Estimator(), 
-        excitations='sd', 
-        aux_eval_rules="all"
+          me_gsc, estimator=Estimator(), excitations="sd", aux_eval_rules="all"
       )
-      results_qeom = qeom_solver.solve(new_es_problem, aux_operators=aux_ops)
+      results_qeom = qeom_solver.solve(es_problem, aux_operators=aux_ops)
 
       print("Aux QEOM")
       for aux_op_eval in results_qeom.aux_operators_evaluated:
           print(aux_op_eval)
 
+    Added public methods :meth:`qiskit_nature.second_q.mappers.qubit_converter.symmetry_reduce_clifford` 
+    and :meth:`qiskit_nature.second_q.mappers.qubit_converter.convert_clifford` and 
+    :meth:`qiskit_nature.second_q.mappers.qubit_converter.find_taper_op` to allow a step by step 
+    tapering of operators.
+
+    Changed the behavior of the 
+    :class:`qiskit_nature.second_q.algorithms.ground_state_solvers.ground_state_eigensolver` to not raise 
+    an error when the user specifies a auxiliary operator which name was already taken internally. The
+    new behavior is to apply precedence of the user-defined operators over the builtin ones in case of 
+    conflicts.
+
 upgrade:
   - |
-    Refactors the treatment of symmetries in the QEOM to reduce the classical overhead.
+    Refactored the treatment of symmetries in the QEOM to reduce the classical overhead.
     The parallelism was also reworked to improve the performances of the current hybrid 
     sequential+parallel approach.
+
+    Added the parametrization of the eigenvalue treshold in the QEOM calculation.

@@ -89,7 +89,9 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
         )
 
         with self.subTest("hopping operators"):
-            self.assertEqual(hopping_operators.keys(), expected_hopping_operators_vibrational.keys())
+            self.assertEqual(
+                hopping_operators.keys(), expected_hopping_operators_vibrational.keys()
+            )
             for key, exp_key in zip(
                 hopping_operators.keys(), expected_hopping_operators_vibrational.keys()
             ):
