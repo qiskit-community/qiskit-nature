@@ -11,23 +11,23 @@
 # that they have been altered from the originals.
 
 """
-Utilities (:mod:`qiskit_nature.utils`)
-==============================================
+Testing utilities (:mod:`qiskit_nature.testing`)
+================================================
 
-.. currentmodule:: qiskit_nature.utils
+.. currentmodule:: qiskit_nature.testing
 
-Linear algebra utilities
-------------------------
+Random sampling utilities
+-------------------------
 
 .. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
 
-   apply_matrix_to_slices
-   givens_matrix
+   random_antisymmetric_matrix
+   random_quadratic_hamiltonian
 """
 
-from .linalg import apply_matrix_to_slices, givens_matrix
-from .opt_einsum import get_einsum
+from .random import random_antisymmetric_matrix, random_quadratic_hamiltonian
 
-__all__ = ["apply_matrix_to_slices", "givens_matrix", "get_einsum"]
+__all__ = [
+    "random_antisymmetric_matrix",
+    "random_quadratic_hamiltonian",
+]

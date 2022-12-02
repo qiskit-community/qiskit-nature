@@ -24,6 +24,6 @@ runs:
           source "$CONDA/etc/profile.d/conda.sh"
           conda activate psi4env
         fi
-        pip install -e .[pyscf,mpl,sparse]
+        pip install -e .[pyscf,mpl,sparse,opt_einsum]
         pip install -U -c constraints.txt -r requirements-dev.txt
       shell: bash

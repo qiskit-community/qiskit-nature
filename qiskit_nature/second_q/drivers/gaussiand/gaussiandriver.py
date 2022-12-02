@@ -33,6 +33,7 @@ from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
 from qiskit_nature.second_q.formats.qcschema import QCSchema
 from qiskit_nature.second_q.formats.qcschema_translator import qcschema_to_problem
 from qiskit_nature.second_q.problems import ElectronicBasis, ElectronicStructureProblem
+from qiskit_nature.utils import get_einsum
 
 from .gaussian_utils import run_g16
 from ..electronic_structure_driver import ElectronicStructureDriver, MethodType, _QCSchemaData
@@ -293,6 +294,7 @@ class GaussianDriver(ElectronicStructureDriver):
 
     @staticmethod
     def _qcschema_from_matrix_file(mel: MatEl, *, include_dipole: bool = True) -> QCSchema:
+        einsum_func, _ = get_einsum()
         data = _QCSchemaData()
 
         data.mo_coeff = GaussianDriver._get_matrix(mel, "ALPHA MO COEFFICIENTS")
@@ -341,7 +343,7 @@ class GaussianDriver(ElectronicStructureDriver):
             # eri are 2-body in AO. We can convert to MO via the ElectronicBasisTransform but using
             # ints in MO already, as in the else here, is better
             einsum_ao_to_mo = "pqrs,pi,qj,rk,sl->ijkl"
-            data.eri_mo = np.einsum(
+            data.eri_mo = einsum_func(
                 einsum_ao_to_mo,
                 data.eri,
                 data.mo_coeff,
@@ -351,7 +353,7 @@ class GaussianDriver(ElectronicStructureDriver):
                 optimize=settings.optimize_einsum,
             )
             if data.mo_coeff_b is not None:
-                data.eri_mo_ba = np.einsum(
+                data.eri_mo_ba = einsum_func(
                     einsum_ao_to_mo,
                     data.eri,
                     data.mo_coeff_b,
@@ -360,7 +362,7 @@ class GaussianDriver(ElectronicStructureDriver):
                     data.mo_coeff,
                     optimize=settings.optimize_einsum,
                 )
-                data.eri_mo_bb = np.einsum(
+                data.eri_mo_bb = einsum_func(
                     einsum_ao_to_mo,
                     data.eri,
                     data.mo_coeff_b,
@@ -408,7 +410,7 @@ class GaussianDriver(ElectronicStructureDriver):
         if include_dipole:
             # dipole moment
             dipints = GaussianDriver._get_matrix(mel, "DIPOLE INTEGRALS")
-            dipints = np.einsum("ijk->kji", dipints)
+            dipints = einsum_func("ijk->kji", dipints)
 
             data.dip_x = dipints[0]
             data.dip_y = dipints[1]
@@ -422,7 +424,7 @@ class GaussianDriver(ElectronicStructureDriver):
                 data.dip_mo_z_b = np.dot(np.dot(data.mo_coeff_b.T, data.dip_z), data.mo_coeff_b)
 
             coords = np.reshape(mel.c, (len(mel.ian), 3))
-            nucl_dip = np.einsum("i,ix->x", mel.ian, coords)
+            nucl_dip = einsum_func("i,ix->x", mel.ian, coords)
             nucl_dip = np.round(nucl_dip, decimals=8)
             ref_dip = GaussianDriver._get_matrix(mel, "ELECTRIC DIPOLE MOMENT")
             ref_dip = np.round(ref_dip, decimals=8)

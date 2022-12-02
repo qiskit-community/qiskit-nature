@@ -13,17 +13,13 @@
 """Test fermionic Gaussian state preparation circuits."""
 
 from test import QiskitNatureTestCase
-from test.nature_random import random_quadratic_hamiltonian
 
 import numpy as np
 from qiskit.quantum_info import Statevector
 
 from qiskit_nature.second_q.circuit.library import FermionicGaussianState
-from qiskit_nature.second_q.mappers import QubitConverter
-from qiskit_nature.second_q.mappers import (
-    BravyiKitaevMapper,
-    JordanWignerMapper,
-)
+from qiskit_nature.second_q.mappers import BravyiKitaevMapper, JordanWignerMapper, QubitConverter
+from qiskit_nature.testing import random_quadratic_hamiltonian
 
 
 class TestFermionicGaussianState(QiskitNatureTestCase):
