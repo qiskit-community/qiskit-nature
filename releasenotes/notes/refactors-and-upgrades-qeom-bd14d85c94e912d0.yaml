@@ -46,12 +46,12 @@ features:
       print("Aux QEOM")
       for aux_op_eval in results_qeom.aux_operators_evaluated:
           print(aux_op_eval)
-
+  - |
     Added public methods :meth:`qiskit_nature.second_q.mappers.qubit_converter.symmetry_reduce_clifford` 
     and :meth:`qiskit_nature.second_q.mappers.qubit_converter.convert_clifford` and 
     :meth:`qiskit_nature.second_q.mappers.qubit_converter.find_taper_op` to allow a step by step 
     tapering of operators.
-
+  - |
     Changed the behavior of the 
     :class:`qiskit_nature.second_q.algorithms.ground_state_solvers.ground_state_eigensolver` to not raise 
     an error when the user specifies a auxiliary operator which name was already taken internally. The
@@ -63,5 +63,5 @@ upgrade:
     Refactored the treatment of symmetries in the QEOM to reduce the classical overhead.
     The parallelism was also reworked to improve the performances of the current hybrid 
     sequential+parallel approach.
-
-    Added the parametrization of the eigenvalue treshold in the QEOM calculation.
+  - |
+    Added a parameter to control the eigenvalue threshold in the QEOM calculation.

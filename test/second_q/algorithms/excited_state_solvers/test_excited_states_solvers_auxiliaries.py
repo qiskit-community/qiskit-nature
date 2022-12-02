@@ -102,7 +102,7 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
         )
 
         return delta_hamiltonian.simplify()
-    
+
     def _assert_energies(self, computed, references, *, places=4):
         with self.subTest("same number of energies"):
             self.assertEqual(len(computed), len(references))
@@ -142,10 +142,10 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
         ["BKM_Z2", QubitConverter(BravyiKitaevMapper(), z2symmetry_reduction="auto")],
     )
     def test_aux_ops_qeom(self, converter: QubitConverter):
-        
+
         hamiltonian_op, _ = self.electronic_structure_problem.second_q_ops()
         aux_ops = {"hamiltonian": hamiltonian_op}
-        
+
         estimator = Estimator()
         solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
         gsc = GroundStateEigensolver(converter, solver)
@@ -173,8 +173,10 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
         ["BKM_Z2", QubitConverter(BravyiKitaevMapper(), z2symmetry_reduction="auto")],
     )
     def test_trans_amps_qeom(self, converter: QubitConverter):
-        
-        aux_eval_rules = {"hamiltonian_derivative": [(0,1), (0,2), (0,3), (1,2), (1,3), (2,3)]}
+
+        aux_eval_rules = {
+            "hamiltonian_derivative": [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)]
+        }
         aux_ops = {"hamiltonian_derivative": self.hamiltonian_derivative()}
 
         estimator = Estimator()

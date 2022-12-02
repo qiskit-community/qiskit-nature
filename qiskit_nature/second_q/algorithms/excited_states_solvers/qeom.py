@@ -103,7 +103,7 @@ class QEOM(ExcitedStatesSolver):
 
             aux_eval_rules: The rules determining how observables should be evaluated on excited states.
 
-                :`EvaluationRules`: specific predefined rules. Allowed rules are:
+                :`Enum`: specific predefined rules. Allowed rules are:
 
                     + ALL to compute all expectation values and all transition amplitudes
                     + DIAG to only compute expectation values
@@ -111,8 +111,8 @@ class QEOM(ExcitedStatesSolver):
                 :`dict[str, list[tuple]]`: Dictionary mapping valid auxiliary operator's name to lists
                     of tuple (i, j) specifying the indices of the excited states to be evaluated on. By
                     default, none of the auxiliary operators are evaluated on none of the excited states.
-            
-            eigenvalue_treshold: Treshold for the qEOM eigenvalues. This plays a role when one
+
+            eigenvalue_treshold: Threshold for the qEOM eigenvalues. This plays a role when one
                 excited state approaches the ground state, in which case it is best to avoid manipulating
                 very small absolute values.
         """
@@ -344,7 +344,7 @@ class QEOM(ExcitedStatesSolver):
         """Building all commutators for Q, W, M, V matrices.
 
         Args:
-            untap_operator: Untapered Hamiltonian operator
+            untap_operator: Not yet tapered Hamiltonian operator
             expansion_basis_data: all hopping operators based on excitations_list,
                 key is the string of single/double excitation;
                 value is corresponding operator.
@@ -580,7 +580,7 @@ class QEOM(ExcitedStatesSolver):
         """Builds the matrices for the qEOM pseudo-eigenvalue problem
 
         Args:
-            untap_operator: Partially tapered hamiltonian
+            untap_operator: Not yet tapered hamiltonian
             expansion_basis_data: Dict of transformed hopping operators, dict of commutativity types,
             size of the qEOM problem
             reference_state: Reference state (often the VQE ground state) to be used for the evaluation
@@ -642,7 +642,7 @@ class QEOM(ExcitedStatesSolver):
         # small values (positive or negative) take the absolute and then threshold zero.
         logger.debug("... %s", res[0])
         # We keep only the negative half of the eigenvalues in decreasing order. Negative eigenvalues
-        # correspond to the excitations whereas positive eigenvalues correspond to deexcitations
+        # correspond to the excitations whereas positive eigenvalues correspond to de-excitations
         order = np.argsort(np.real(res[0]))[::-1][len(res[0]) // 2 : :]
         w = np.real(res[0])[order]
         logger.debug("Sorted real parts %s", w)
@@ -703,7 +703,7 @@ class QEOM(ExcitedStatesSolver):
                 untap_hopping_ops[key] - identity_op * tap_hopping_ops_eval
             )
 
-        # From the matrix of coefficients and the vector of basis operators, we create the vector of 
+        # From the matrix of coefficients and the vector of basis operators, we create the vector of
         # excitation operators. An alternative with list comprehension is provided below as reference.
         #
         # excitations_ops = [
@@ -753,12 +753,12 @@ class QEOM(ExcitedStatesSolver):
             eval_rules = {}
         elif isinstance(self._aux_eval_rules, dict):
             eval_rules = self._aux_eval_rules
-        elif self._aux_eval_rules == "all":
+        elif self._aux_eval_rules == EvaluationRules.ALL:
             indices = np.triu_indices(size + 1)
             aux_names = untap_aux_ops.keys()
             indices_list = list(zip(indices[0], indices[1]))
             eval_rules = {aux_name: indices_list for aux_name in aux_names}
-        elif self._aux_eval_rules == "diag":
+        elif self._aux_eval_rules == EvaluationRules.DIAG:
             indices = np.diag_indices(size + 1)
             aux_names = untap_aux_ops.keys()
             indices_list = list(zip(indices[0], indices[1]))
