@@ -54,14 +54,12 @@ features:
   - |
     Changed the behavior of the 
     :class:`qiskit_nature.second_q.algorithms.ground_state_solvers.ground_state_eigensolver` to not raise 
-    an error when the user specifies a auxiliary operator which name was already taken internally. The
-    new behavior is to apply precedence of the user-defined operators over the builtin ones in case of 
-    conflicts.
-
-upgrade:
+    an error when the user specifies a auxiliary operator which name clashes an internally constructed
+    operator's name. The new behavior is to apply precedence to the user-defined operators over the 
+    builtin ones in case of conflicts. A warning will be logged when this case happens.
   - |
     Refactored the treatment of symmetries in the QEOM to reduce the classical overhead.
     The parallelism was also reworked to improve the performances of the current hybrid 
     sequential+parallel approach.
   - |
-    Added a parameter to control the eigenvalue threshold in the QEOM calculation.
+    Added a tolerance parameter to control the eigenvalue threshold in the QEOM calculation.

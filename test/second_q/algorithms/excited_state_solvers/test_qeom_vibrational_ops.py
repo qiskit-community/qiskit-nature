@@ -16,7 +16,6 @@ from test import QiskitNatureTestCase
 
 import unittest
 
-from qiskit.quantum_info import SparsePauliOp
 from qiskit.utils import algorithm_globals
 
 from qiskit_nature.second_q.algorithms.excited_states_solvers.qeom_vibrational_ops_builder import (

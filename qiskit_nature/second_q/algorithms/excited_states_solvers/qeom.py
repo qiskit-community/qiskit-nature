@@ -14,10 +14,12 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, Sequence, Union, Optional, cast
+from typing import Any, Callable, Sequence, cast
+from enum import Enum
 import itertools
 import logging
 import sys
+
 
 import numpy as np
 from scipy import linalg
@@ -28,12 +30,7 @@ from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolver
 from qiskit.algorithms.observables_evaluator import estimate_observables
 
 from qiskit.circuit import QuantumCircuit
-from qiskit.opflow import (
-    Z2Symmetries,
-    commutator,
-    double_commutator,
-    PauliSumOp,
-)
+from qiskit.opflow import Z2Symmetries, commutator, double_commutator, PauliSumOp
 from qiskit.tools import parallel_map
 from qiskit.tools.events import TextProgressBar
 from qiskit.utils import algorithm_globals
@@ -41,15 +38,15 @@ from qiskit.utils import algorithm_globals
 from qiskit.quantum_info import SparsePauliOp
 from qiskit.primitives import BaseEstimator
 
-from .excited_states_solver_eval_rules import EvaluationRules
-from .qeom_electronic_ops_builder import build_electronic_ops
-from .qeom_vibrational_ops_builder import build_vibrational_ops
-from .excited_states_solver import ExcitedStatesSolver
-from ..ground_state_solvers import GroundStateSolver
-from ..ground_state_solvers.minimum_eigensolver_factories import MinimumEigensolverFactory
-from ...mappers import QubitConverter
-from ...operators import SparseLabelOp
-from ...problems import (
+from qiskit_nature.second_q.algorithms.ground_state_solvers import GroundStateSolver
+from qiskit_nature.second_q.algorithms.ground_state_solvers.ground_state_solver import QubitOperator
+from qiskit_nature.second_q.algorithms.ground_state_solvers.minimum_eigensolver_factories import (
+    MinimumEigensolverFactory,
+)
+from qiskit_nature.second_q.algorithms.excited_states_solvers import ExcitedStatesSolver
+from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.operators import SparseLabelOp
+from qiskit_nature.second_q.problems import (
     BaseProblem,
     ElectronicStructureProblem,
     VibrationalStructureProblem,
@@ -57,11 +54,47 @@ from ...problems import (
     ElectronicStructureResult,
 )
 
+from .qeom_electronic_ops_builder import build_electronic_ops
+from .qeom_vibrational_ops_builder import build_vibrational_ops
+
+
 logger = logging.getLogger(__name__)
 
 
+class EvaluationRule(Enum):
+    """An enumeration of the available evaluation rules for the excited states solvers.
+
+    This ``Enum`` simply names the available evaluation rules.
+    """
+
+    ALL = "all"
+    DIAG = "diag"
+
+
 class QEOM(ExcitedStatesSolver):
-    """The calculation of excited states via the qEOM algorithm."""
+    """
+    The calculation of excited states via the qEOM algorithm.
+    This algorithms extends a ``GroundStateSolver`` object to identify good approximations to the excited
+    states of a problem provided that the ``GroundStateSolver.solve`` method yields a good approximation
+    to the ground state of the same problem.
+    The ``excitations`` are used to build a linear subspace in which an eigenvalue problem for the
+    projected Hamiltonian will solved. This method typically works well for calculating the lowest-lying
+    excited states of a problem.
+    In addition to the excited state energies, one can calculate other properties of the excited states
+    at the cost of additional measurements to perform on the ground state.
+    This requires providing the desired auxiliary observables to the ``solve`` method and having
+    specified the auxiliary evaluation rules of the ``QEOM`` object.
+
+    The following attributes can be read and updated once the ``QEOM`` object has been
+    constructed.
+
+    Attributes:
+        excitations (str, int, list, Callable): The excitations to be included in the eom
+            pseudo-eigenvalue problem.
+        aux_eval_rules (EvaluationRule, dict[str, list[tuple[int, int]]], None): The rules determining
+            how observables should be evaluated on excited states.
+        tol (float): The tolerance threshold for the qEOM eigenvalues.
+    """
 
     def __init__(
         self,
@@ -74,8 +107,9 @@ class QEOM(ExcitedStatesSolver):
             [int, tuple[int, int]],
             list[tuple[tuple[int, ...], tuple[int, ...]]],
         ] = "sd",
-        aux_eval_rules: EvaluationRules | dict[str, list[tuple[int, int]]] | None = None,
-        eigenvalue_treshold: float = 1e-6,
+        aux_eval_rules: EvaluationRule | dict[str, list[tuple[int, int]]] | None = None,
+        *,
+        tol: float = 1e-6,
     ) -> None:
         """
         Args:
@@ -112,17 +146,17 @@ class QEOM(ExcitedStatesSolver):
                     of tuple (i, j) specifying the indices of the excited states to be evaluated on. By
                     default, none of the auxiliary operators are evaluated on none of the excited states.
 
-            eigenvalue_treshold: Threshold for the qEOM eigenvalues. This plays a role when one
+            tol: Tolerance threshold for the qEOM eigenvalues. This plays a role when one
                 excited state approaches the ground state, in which case it is best to avoid manipulating
                 very small absolute values.
         """
         self._gsc = ground_state_solver
         self._estimator = estimator
         self.excitations = excitations
-        self._aux_eval_rules = aux_eval_rules
-        self.eigenvalue_treshold = eigenvalue_treshold
+        self.aux_eval_rules = aux_eval_rules
+        self.tol = tol
 
-        self._untapered_qubit_op_main: PauliSumOp | None = None
+        self._untapered_qubit_op_main: QubitOperator | None = None
 
     @property
     def excitations(
@@ -163,14 +197,16 @@ class QEOM(ExcitedStatesSolver):
     def get_qubit_operators(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[dict[str, Union[SparseLabelOp, PauliSumOp]]] = None,
-    ) -> tuple[PauliSumOp, Optional[dict[str, PauliSumOp]]]:
-        """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators.
+        aux_operators: dict[str, SparseLabelOp | QubitOperator] | None = None,
+    ) -> tuple[QubitOperator, dict[str, QubitOperator] | None]:
+        """
+        Gets the operator and auxiliary operators, and transforms the provided auxiliary operators.
+        If the user-provided ``aux_operators`` contain a name which clashes with an internally
+        constructed auxiliary operator, then the corresponding internal operator will be overridden by
+        the user-provided operator. Note: the names used for the internal auxiliary operators correspond
+        to the `Property.name` attributes which generated the respective operators.
 
-        Note that contrary to the method :meth:`get_qubit_operators` from the
-        :class:`GroundStateEigensolver`, this returns three outputs: the hamiltonian, second quantization
-        default auxiliaries, and user defined auxiliaries.
-        Also note that this methods performs a specific treatment of the symmetries required by the qEOM
+        Note that this methods performs a specific treatment of the symmetries required by the qEOM
         calculation.
 
         Args:
@@ -183,23 +219,36 @@ class QEOM(ExcitedStatesSolver):
 
         main_operator, aux_second_q_operators = problem.second_q_ops()
 
-        # 1. Convert the main operator (hamiltonian) to PauliSumOp and apply two qubit reduction
+        # 1. Convert the main operator (hamiltonian) to QubitOperator and apply two qubit reduction
         num_particles = getattr(problem, "num_particles", None)
         main_op = self.qubit_converter.convert_only(
             main_operator,
             num_particles=num_particles,
         )
-        self.qubit_converter.force_match(num_particles=num_particles)
+        # aux_ops set to None if the solver does not support auxiliary operators.
+        aux_ops = None
 
-        aux_ops = self.qubit_converter.convert_match(aux_second_q_operators)
-        cast(ListOrDictType[PauliSumOp], aux_ops)
-        if aux_operators is not None:
-            for name, op in aux_operators.items():
-                if isinstance(op, (SparseLabelOp)):
-                    converted_aux_op = self.qubit_converter.convert_match(op)
-                else:
-                    converted_aux_op = op
-                aux_ops[name] = converted_aux_op
+        if self.solver.supports_aux_operators():
+            self.qubit_converter.force_match(num_particles=num_particles)
+            aux_ops = self.qubit_converter.convert_match(aux_second_q_operators)
+            cast(ListOrDictType[QubitOperator], aux_ops)
+            if aux_operators is not None:
+                for name, op in aux_operators.items():
+                    if isinstance(op, (SparseLabelOp)):
+                        converted_aux_op = self.qubit_converter.convert_match(op)
+                    else:
+                        converted_aux_op = op
+                    if name in aux_ops.keys():
+                        logger.warning(
+                            "The key '%s' was already taken by an internally constructed auxiliary"
+                            "operator!"
+                            "The internal operator was overridden by the one provided manually."
+                            "If this was not the intended behavior, please consider renaming"
+                            "this operator.",
+                            name,
+                        )
+                    # The custom op overrides the default op if the key is already taken.
+                    aux_ops[name] = converted_aux_op
 
         # 2. Find the z2symmetries, set them in the qubit_converter, and apply the first step of the
         # tapering.
@@ -207,13 +256,8 @@ class QEOM(ExcitedStatesSolver):
             main_op, problem.symmetry_sector_locator
         )
         self.qubit_converter.force_match(z2symmetries=z2symmetries)
-
         untap_main_op = self.qubit_converter.convert_clifford(main_op)
         untap_aux_ops = self.qubit_converter.convert_clifford(aux_ops)
-
-        # 3. If the eigensolver does not support auxiliary operators, reset them
-        if not self.solver.supports_aux_operators():
-            untap_aux_ops = None
 
         # 4. If a MinimumEigensolverFactory was provided, then an additional call to get_solver() is
         # required.
@@ -225,7 +269,7 @@ class QEOM(ExcitedStatesSolver):
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[dict[str, Union[SparseLabelOp, PauliSumOp]]] = None,
+        aux_operators: dict[str, SparseLabelOp | QubitOperator] | None = None,
     ) -> EigenstateResult:
         """Run the excited-states calculation.
 
@@ -302,7 +346,7 @@ class QEOM(ExcitedStatesSolver):
     def _build_hopping_ops(
         self, problem: BaseProblem
     ) -> tuple[
-        dict[str, PauliSumOp],
+        dict[str, QubitOperator],
         dict[str, list[bool]],
         dict[str, tuple[tuple[int, ...], tuple[int, ...]]],
     ]:
@@ -338,8 +382,8 @@ class QEOM(ExcitedStatesSolver):
 
     def _build_all_eom_operators(
         self,
-        untap_operator: PauliSumOp,
-        expansion_basis_data: tuple[dict[str, PauliSumOp], dict[str, list[bool]], int],
+        untap_operator: QubitOperator,
+        expansion_basis_data: tuple[dict[str, QubitOperator], dict[str, list[bool]], int],
     ) -> dict:
         """Building all commutators for Q, W, M, V matrices.
 
@@ -411,8 +455,8 @@ class QEOM(ExcitedStatesSolver):
 
     @staticmethod
     def _build_commutator_routine(
-        params: list, operator: PauliSumOp, z2_symmetries: Z2Symmetries
-    ) -> tuple[int, int, dict[str, PauliSumOp]]:
+        params: list, operator: QubitOperator, z2_symmetries: Z2Symmetries
+    ) -> tuple[int, int, dict[str, QubitOperator]]:
         """Numerically computes the commutator / double commutator between operators.
 
         Args:
@@ -425,8 +469,8 @@ class QEOM(ExcitedStatesSolver):
             The indices of the matrix element and the corresponding qubit
             operator for each of the EOM matrices.
         """
-        m_u, n_u, left_op1, right_op_1, right_op_2 = params
-        if left_op1 is None or right_op_1 is None and right_op_2 is None:
+        m_u, n_u, left_op_1, right_op_1, right_op_2 = params
+        if left_op_1 is None or right_op_1 is None and right_op_2 is None:
             q_mat_op = None
             w_mat_op = None
             m_mat_op = None
@@ -438,11 +482,11 @@ class QEOM(ExcitedStatesSolver):
                 # theory, one would choose this according to the nature of the problem (i.e.
                 # whether it is fermionic or bosonic), but in practice, always choosing the
                 # anti-commutator has proven to be more robust.
-                q_mat_op = -double_commutator(left_op1, operator, right_op_1, sign=False)
+                q_mat_op = -double_commutator(left_op_1, operator, right_op_1, sign=False)
                 # In the case of the single commutator, we are always interested in the energy
                 # difference of two states. Thus, regardless of the problem's nature, we will
                 # always use the commutator.
-                w_mat_op = -commutator(left_op1, right_op_1)
+                w_mat_op = -commutator(left_op_1, right_op_1)
                 q_mat_op = None if len(q_mat_op) == 0 else q_mat_op
                 w_mat_op = None if len(w_mat_op) == 0 else w_mat_op
             else:
@@ -452,8 +496,8 @@ class QEOM(ExcitedStatesSolver):
             if right_op_2 is not None:
                 # For explanations on the choice of commutation relation, please refer to the
                 # comments above.
-                m_mat_op = double_commutator(left_op1, operator, right_op_2, sign=False)
-                v_mat_op = commutator(left_op1, right_op_2)
+                m_mat_op = double_commutator(left_op_1, operator, right_op_2, sign=False)
+                v_mat_op = commutator(left_op_1, right_op_2)
                 m_mat_op = None if len(m_mat_op) == 0 else m_mat_op
                 v_mat_op = None if len(v_mat_op) == 0 else v_mat_op
             else:
@@ -549,7 +593,7 @@ class QEOM(ExcitedStatesSolver):
 
     def _prepare_expansion_basis(
         self, problem: BaseProblem
-    ) -> tuple[dict[str, PauliSumOp], dict[str, list[bool]], int]:
+    ) -> tuple[dict[str, QubitOperator], dict[str, list[bool]], int]:
         """Prepares the basis expansion operators by calling the builder for second quantized operator
         and applying transformations (Mapping, Reduction, First step of the tapering).
 
@@ -566,15 +610,19 @@ class QEOM(ExcitedStatesSolver):
         hopping_operators, type_of_commutativities, excitation_indices = data
         size = int(len(list(excitation_indices.keys())) // 2)
 
-        reduced_hopping_ops = self.qubit_converter.two_qubit_reduce(hopping_operators)
+        # Small workaround to apply two_qubit_reduction to a list with convert_match()
+        z2_symmetries = self.qubit_converter.z2symmetries
+        self.qubit_converter.force_match(z2symmetries=Z2Symmetries([], [], []))
+        reduced_hopping_ops = self.qubit_converter.convert_match(hopping_operators)
+        self.qubit_converter.force_match(z2symmetries=z2_symmetries)
         untap_hopping_ops = self.qubit_converter.convert_clifford(reduced_hopping_ops)
 
         return untap_hopping_ops, type_of_commutativities, size
 
     def _build_qeom_pseudoeigenvalue_problem(
         self,
-        untap_operator: PauliSumOp,
-        expansion_basis_data: tuple[dict[str, PauliSumOp], dict[str, list[bool]], int],
+        untap_operator: QubitOperator,
+        expansion_basis_data: tuple[dict[str, QubitOperator], dict[str, list[bool]], int],
         reference_state: tuple[QuantumCircuit, Sequence[float]],
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """Builds the matrices for the qEOM pseudo-eigenvalue problem
@@ -614,9 +662,8 @@ class QEOM(ExcitedStatesSolver):
 
         return h_mat, s_mat, h_mat_std, s_mat_std
 
-    @staticmethod
     def _compute_excitation_energies(
-        h_mat: np.ndarray, s_mat: np.ndarray
+        self, h_mat: np.ndarray, s_mat: np.ndarray
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Diagonalizing H, S matrices for excitation energies.
 
@@ -647,7 +694,7 @@ class QEOM(ExcitedStatesSolver):
         w = np.real(res[0])[order]
         logger.debug("Sorted real parts %s", w)
         w = np.abs(w)
-        w[w < self.eigenvalue_treshold] = 0
+        w[w < self.tol] = 0
         excitation_energies_gap = w
         expansion_coefs = res[1][:, order]
 
@@ -658,13 +705,13 @@ class QEOM(ExcitedStatesSolver):
     def _build_excitation_operators(
         self,
         expansion_basis_data: tuple[
-            dict[str, PauliSumOp],
+            dict[str, QubitOperator],
             dict[str, list[bool]],
             int,
         ],
         reference_state: tuple[QuantumCircuit, Sequence[float]],
         expansion_coefs_rescaled: np.ndarray,
-    ) -> list[PauliSumOp]:
+    ) -> list[QubitOperator]:
         """Build the excitation operators O_k such that O_k applied on the reference ground state gives
         the k-th excited state.
 
@@ -723,10 +770,10 @@ class QEOM(ExcitedStatesSolver):
 
     def _prepare_excited_states_observables(
         self,
-        untap_aux_ops: dict[str, PauliSumOp],
-        operators_reduced: list[PauliSumOp],
+        untap_aux_ops: dict[str, QubitOperator],
+        operators_reduced: list[QubitOperator],
         size: int,
-    ) -> dict[tuple[str, int, int], PauliSumOp]:
+    ) -> dict[tuple[str, int, int], QubitOperator]:
         """Prepare the operators O_k^dag @ Aux @ O_l associated to properties of the excited states k,l
         defined in the aux_eval_rules. By default, the expectation value of all observables on all
         excited states are evaluated while no transition amplitudes are computed.
@@ -749,16 +796,16 @@ class QEOM(ExcitedStatesSolver):
         indices = np.diag_indices(size + 1)
         eval_rules: dict[str, list[tuple[Any, Any]]]
 
-        if self._aux_eval_rules is None:
+        if self.aux_eval_rules is None:
             eval_rules = {}
-        elif isinstance(self._aux_eval_rules, dict):
-            eval_rules = self._aux_eval_rules
-        elif self._aux_eval_rules == EvaluationRules.ALL:
+        elif isinstance(self.aux_eval_rules, dict):
+            eval_rules = self.aux_eval_rules
+        elif self.aux_eval_rules == EvaluationRule.ALL:
             indices = np.triu_indices(size + 1)
             aux_names = untap_aux_ops.keys()
             indices_list = list(zip(indices[0], indices[1]))
             eval_rules = {aux_name: indices_list for aux_name in aux_names}
-        elif self._aux_eval_rules == EvaluationRules.DIAG:
+        elif self.aux_eval_rules == EvaluationRule.DIAG:
             indices = np.diag_indices(size + 1)
             aux_names = untap_aux_ops.keys()
             indices_list = list(zip(indices[0], indices[1]))
@@ -766,7 +813,7 @@ class QEOM(ExcitedStatesSolver):
         else:
             raise ValueError("Aux evaluation rules are ill-defined")
 
-        op_aux_op_dict: dict[tuple[str, int, int], PauliSumOp] = {}
+        op_aux_op_dict: dict[tuple[str, int, int], QubitOperator] = {}
 
         for op_name, indices_constraint in eval_rules.items():
             if op_name not in untap_aux_ops.keys():
@@ -784,8 +831,8 @@ class QEOM(ExcitedStatesSolver):
 
     def _evaluate_observables_excited_states(
         self,
-        untap_aux_ops: dict[str, PauliSumOp],
-        expansion_basis_data: tuple[dict[str, PauliSumOp], dict[str, list[bool]], int],
+        untap_aux_ops: dict[str, QubitOperator],
+        expansion_basis_data: tuple[dict[str, QubitOperator], dict[str, list[bool]], int],
         reference_state: tuple[QuantumCircuit, Sequence[float]],
         expansion_coefs_rescaled: np.ndarray,
     ) -> tuple[dict[tuple[int, int], dict[str, Any]], dict[tuple[int, int], dict[str, Any]]]:
@@ -909,27 +956,27 @@ class QEOMResult(EigensolverResult):
     def __init__(self) -> None:
         super().__init__()
         self._ground_state_raw_result = None
-        self._excitation_energies: Optional[np.ndarray] = None
-        self._expansion_coefficients: Optional[np.ndarray] = None
-        self._eigenvalues: Optional[np.ndarray] = None
-        self._eigenstates: Optional[np.ndarray] = None
-        self._m_matrix: Optional[np.ndarray] = None
-        self._v_matrix: Optional[np.ndarray] = None
-        self._q_matrix: Optional[np.ndarray] = None
-        self._w_matrix: Optional[np.ndarray] = None
+        self._excitation_energies: np.ndarray | None = None
+        self._expansion_coefficients: np.ndarray | None = None
+        self._eigenvalues: np.ndarray | None = None
+        self._eigenstates: np.ndarray | None = None
+        self._m_matrix: np.ndarray | None = None
+        self._v_matrix: np.ndarray | None = None
+        self._q_matrix: np.ndarray | None = None
+        self._w_matrix: np.ndarray | None = None
         self._v_matrix_std: float = 0.0
         self._q_matrix_std: float = 0.0
         self._w_matrix_std: float = 0.0
-        self._h_matrix: Optional[np.ndarray] = None
-        self._s_matrix: Optional[np.ndarray] = None
+        self._h_matrix: np.ndarray | None = None
+        self._s_matrix: np.ndarray | None = None
         self._h_matrix_std: np.ndarray = np.zeros((2, 2))
         self._s_matrix_std: np.ndarray = np.zeros((2, 2))
         self._aux_operators_evaluated: list[
             ListOrDictType[tuple[complex, dict[str, Any]]]
         ] | None = None
-        self._transition_amplitudes: Optional[
-            list[ListOrDictType[tuple[complex, dict[str, Any]]]]
-        ] = None
+        self._transition_amplitudes: list[
+            ListOrDictType[tuple[complex, dict[str, Any]]]
+        ] | None = None
         self._gamma_square: np.ndarray = None
 
     @property
@@ -943,7 +990,7 @@ class QEOMResult(EigensolverResult):
         self._ground_state_raw_result = value
 
     @property
-    def excitation_energies(self) -> Optional[np.ndarray]:
+    def excitation_energies(self) -> np.ndarray | None:
         """returns the excitation energies (energy gaps)"""
         return self._excitation_energies
 
@@ -953,7 +1000,7 @@ class QEOMResult(EigensolverResult):
         self._excitation_energies = value
 
     @property
-    def expansion_coefficients(self) -> Optional[np.ndarray]:
+    def expansion_coefficients(self) -> np.ndarray | None:
         """returns the X and Y expansion coefficients"""
         return self._expansion_coefficients
 
@@ -963,7 +1010,7 @@ class QEOMResult(EigensolverResult):
         self._expansion_coefficients = value
 
     @property
-    def h_matrix(self) -> Optional[np.ndarray]:
+    def h_matrix(self) -> np.ndarray | None:
         """returns the H matrix"""
         return self._h_matrix
 
@@ -973,7 +1020,7 @@ class QEOMResult(EigensolverResult):
         self._h_matrix = value
 
     @property
-    def s_matrix(self) -> Optional[np.ndarray]:
+    def s_matrix(self) -> np.ndarray | None:
         """returns the S matrix"""
         return self._s_matrix
 
@@ -983,27 +1030,27 @@ class QEOMResult(EigensolverResult):
         self._s_matrix = value
 
     @property
-    def h_matrix_std(self) -> Optional[np.ndarray]:
+    def h_matrix_std(self) -> np.ndarray | None:
         """returns the H matrix standard deviation"""
         return self._h_matrix_std
 
     @h_matrix_std.setter
-    def h_matrix_std(self, value: Optional[np.ndarray]) -> None:
+    def h_matrix_std(self, value: np.ndarray | None) -> None:
         """sets the H matrix standard deviation"""
         self._h_matrix_std = value
 
     @property
-    def s_matrix_std(self) -> Optional[np.ndarray]:
+    def s_matrix_std(self) -> np.ndarray | None:
         """returns the S matrix standard deviation"""
         return self._s_matrix_std
 
     @s_matrix_std.setter
-    def s_matrix_std(self, value: Optional[np.ndarray]) -> None:
+    def s_matrix_std(self, value: np.ndarray | None) -> None:
         """sets the S matrix standard deviation"""
         self._s_matrix_std = value
 
     @property
-    def q_matrix(self) -> Optional[np.ndarray]:
+    def q_matrix(self) -> np.ndarray | None:
         """returns the Q matrix"""
         return self._q_matrix
 
@@ -1013,7 +1060,7 @@ class QEOMResult(EigensolverResult):
         self._q_matrix = value
 
     @property
-    def w_matrix(self) -> Optional[np.ndarray]:
+    def w_matrix(self) -> np.ndarray | None:
         """returns the W matrix"""
         return self._w_matrix
 
@@ -1023,7 +1070,7 @@ class QEOMResult(EigensolverResult):
         self._s_matrix = value
 
     @property
-    def m_matrix(self) -> Optional[np.ndarray]:
+    def m_matrix(self) -> np.ndarray | None:
         """returns the M matrix"""
         return self._m_matrix
 
@@ -1033,7 +1080,7 @@ class QEOMResult(EigensolverResult):
         self._m_matrix = value
 
     @property
-    def v_matrix(self) -> Optional[np.ndarray]:
+    def v_matrix(self) -> np.ndarray | None:
         """returns the V matrix"""
         return self._v_matrix
 
@@ -1083,7 +1130,7 @@ class QEOMResult(EigensolverResult):
         self._v_matrix_std = value
 
     @property
-    def eigenvalues(self) -> Optional[np.ndarray]:
+    def eigenvalues(self) -> np.ndarray | None:
         """returns eigen values"""
         return self._eigenvalues
 
@@ -1093,7 +1140,7 @@ class QEOMResult(EigensolverResult):
         self._eigenvalues = value
 
     @property
-    def eigenstates(self) -> Optional[np.ndarray]:
+    def eigenstates(self) -> np.ndarray | None:
         """return eigen states"""
         return self._eigenstates
 
@@ -1103,7 +1150,7 @@ class QEOMResult(EigensolverResult):
         self._eigenstates = value
 
     @property
-    def alphas(self) -> Optional[np.ndarray]:
+    def alphas(self) -> np.ndarray | None:
         """return alphas"""
         return self._alphas
 
@@ -1113,7 +1160,7 @@ class QEOMResult(EigensolverResult):
         self._alphas = value
 
     @property
-    def gamma_square(self) -> Optional[np.ndarray]:
+    def gamma_square(self) -> np.ndarray | None:
         """return gamma_square"""
         return self._gamma_square
 
@@ -1139,7 +1186,7 @@ class QEOMResult(EigensolverResult):
     @property
     def transition_amplitudes(
         self,
-    ) -> Optional[list[ListOrDictType[tuple[complex, dict[str, Any]]]]]:
+    ) -> list[ListOrDictType[tuple[complex, dict[str, Any]]]] | None:
         """Return the transition amplitudes."""
         return self._transition_amplitudes
 

@@ -15,7 +15,7 @@
 import unittest
 
 from test import QiskitNatureTestCase
-from ddt import ddt, data, unpack
+from ddt import ddt, named_data
 import numpy as np
 
 from qiskit.algorithms.eigensolvers import NumPyEigensolver
@@ -91,27 +91,28 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         results = esc.solve(self.electronic_structure_problem)
         self._assert_energies(results.computed_energies, self.reference_energies)
 
-    def _solve_with_vqe_mes(self, converter: QubitConverter):
+    @named_data(
+        ["JWM", QubitConverter(JordanWignerMapper())],
+        ["JWM_Z2", QubitConverter(JordanWignerMapper(), z2symmetry_reduction="auto")],
+        ["PM", QubitConverter(ParityMapper())],
+        ["PM_TQR", QubitConverter(ParityMapper(), two_qubit_reduction=True)],
+        ["PM_Z2", QubitConverter(ParityMapper(), z2symmetry_reduction="auto")],
+        [
+            "PM_TQR_Z2",
+            QubitConverter(ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto"),
+        ],
+        ["BKM", QubitConverter(BravyiKitaevMapper())],
+        ["BKM_Z2", QubitConverter(BravyiKitaevMapper(), z2symmetry_reduction="auto")],
+    )
+    def test_solve_with_vqe_mes(self, converter: QubitConverter):
+        """Test QEOM with VQEUCCFactory and various QubitConverter"""
+
         estimator = Estimator()
         solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
         gsc = GroundStateEigensolver(converter, solver)
         esc = QEOM(gsc, estimator, "sd")
         results = esc.solve(self.electronic_structure_problem)
         self._assert_energies(results.computed_energies, self.reference_energies)
-
-    @data(
-        QubitConverter(JordanWignerMapper()),
-        QubitConverter(JordanWignerMapper(), z2symmetry_reduction="auto"),
-        QubitConverter(ParityMapper()),
-        QubitConverter(ParityMapper(), two_qubit_reduction=True),
-        QubitConverter(ParityMapper(), z2symmetry_reduction="auto"),
-        QubitConverter(ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto"),
-        QubitConverter(BravyiKitaevMapper()),
-        QubitConverter(BravyiKitaevMapper(), z2symmetry_reduction="auto"),
-    )
-    def test_vqe_mes(self, qubit_converter):
-        """Test VQEUCCSDFactory with QEOM + Various mappings"""
-        self._solve_with_vqe_mes(qubit_converter)
 
     def test_numpy_factory(self):
         """Test NumPyEigenSolverFactory with ExcitedStatesEigensolver"""

@@ -16,11 +16,8 @@ import unittest
 
 from test import QiskitNatureTestCase
 from ddt import ddt, named_data
-from typing import List, Dict
-
 import numpy as np
 
-from qiskit.algorithms.eigensolvers import NumPyEigensolver
 from qiskit.algorithms.optimizers import SLSQP
 from qiskit.primitives import Estimator
 from qiskit.utils import algorithm_globals
@@ -40,7 +37,7 @@ from qiskit_nature.second_q.algorithms import (
     VQEUCCFactory,
     QEOM,
 )
-
+from qiskit_nature.second_q.algorithms.excited_states_solvers.qeom import EvaluationRule
 import qiskit_nature.optionals as _optionals
 from .resources.expected_transition_amplitudes import reference_trans_amps
 
@@ -71,7 +68,8 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
         self.reference_trans_amps = reference_trans_amps
         self.electronic_structure_problem = self.driver.run()
 
-    def hamiltonian_derivative(self):
+    def _hamiltonian_derivative(self):
+
         identity = FermionicOp.one()
         esp_plus = PySCFDriver(
             atom="H .0 .0 .0; H .0 .0 0.7501",
@@ -142,14 +140,14 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
         ["BKM_Z2", QubitConverter(BravyiKitaevMapper(), z2symmetry_reduction="auto")],
     )
     def test_aux_ops_qeom(self, converter: QubitConverter):
+        """Test QEOM evaluation of excited state properties"""
 
         hamiltonian_op, _ = self.electronic_structure_problem.second_q_ops()
         aux_ops = {"hamiltonian": hamiltonian_op}
-
         estimator = Estimator()
         solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
         gsc = GroundStateEigensolver(converter, solver)
-        esc = QEOM(gsc, estimator, "sd", aux_eval_rules="diag")
+        esc = QEOM(gsc, estimator, "sd", aux_eval_rules=EvaluationRule.DIAG)
         results = esc.solve(self.electronic_structure_problem, aux_operators=aux_ops)
 
         energies_recalculated = np.zeros_like(results.computed_energies)
@@ -172,12 +170,13 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
         ["BKM", QubitConverter(BravyiKitaevMapper())],
         ["BKM_Z2", QubitConverter(BravyiKitaevMapper(), z2symmetry_reduction="auto")],
     )
-    def test_trans_amps_qeom(self, converter: QubitConverter):
+    def _test_trans_amps_qeom(self, converter: QubitConverter):
+        """Test QEOM evaluation of transition amplitudes"""
 
         aux_eval_rules = {
             "hamiltonian_derivative": [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)]
         }
-        aux_ops = {"hamiltonian_derivative": self.hamiltonian_derivative()}
+        aux_ops = {"hamiltonian_derivative": self._hamiltonian_derivative()}
 
         estimator = Estimator()
         solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
