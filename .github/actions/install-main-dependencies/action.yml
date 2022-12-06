@@ -110,7 +110,7 @@ runs:
         if [ "$cache_hit" == "true" ]; then
           pip_result=0
           pushd "${BASE_DIR}"
-          python -m pip install --upgrade --force-reinstall *.whl && pip_result=$? || pip_result=$?
+          python -m pip install *.whl && pip_result=$? || pip_result=$?
           popd
           if [ $pip_result == 0 ]; then
             echo 'Verifying cached Aer with tools/verify_wheels.py ...'
@@ -123,6 +123,7 @@ runs:
               build_from_main=false
             else
               echo 'Cached Aer failed verification.'
+              pip uninstall -y qiskit-aer
             fi
           fi
         else
@@ -142,7 +143,7 @@ runs:
           popd
           cp -rf /tmp/qiskit-aer/dist/*.whl "${BASE_DIR}"
           pushd "${BASE_DIR}"
-          python -m pip install --upgrade --force-reinstall *.whl
+          python -m pip install *.whl
           popd
         fi
       shell: bash
