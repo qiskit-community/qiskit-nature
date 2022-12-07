@@ -89,7 +89,7 @@ class ElectronicStructureProblem(BaseProblem):
                 np.isclose(num_particles_aux, expected_num_electrons)
             )
 
-        solver = NumPyEigensolverFactory(filter_criterion=filter_criterion_spin)
+        solver = NumPyEigensolverFactory(filter_criterion=filter_criterion_custom)
 
     The following attributes can be read and updated once the ``ElectronicStructureProblem`` object
     has been constructed.

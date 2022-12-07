@@ -124,7 +124,7 @@ class TestBosonicESCCalculation(QiskitNatureDeprecatedTestCase):
         esc = QEOM(gsc, "sd")
         results = esc.solve(self.vibrational_problem)
         for idx, energy in enumerate(self.reference_energies):
-            self.assertAlmostEqual(results.computed_vibrational_energies[idx], energy, places=1)
+            self.assertAlmostEqual(results.computed_vibrational_energies[idx], energy, delta=0.06)
 
     def test_vqe_uvcc_factory_with_user_initial_point(self):
         """Test VQEUVCCFactory when using it with a user defined initial point."""
@@ -166,7 +166,7 @@ class TestBosonicESCCalculation(QiskitNatureDeprecatedTestCase):
         with contextlib.redirect_stdout(io.StringIO()) as out:
             results = esc.solve(self.vibrational_problem)
         for idx, energy in enumerate(self.reference_energies):
-            self.assertAlmostEqual(results.computed_vibrational_energies[idx], energy, places=1)
+            self.assertAlmostEqual(results.computed_vibrational_energies[idx], energy, delta=0.06)
         for idx, line in enumerate(out.getvalue().split("\n")):
             if line.strip():
                 self.assertTrue(line.startswith(f"iterations {idx+1}: energy: "))
