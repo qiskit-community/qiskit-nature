@@ -574,7 +574,7 @@ class QubitConverter:
                     logger.debug("Qubit operator '%s' commuted with symmetry: %s", name, commutes)
 
                 # Tapering values were set from prior convert, so we go ahead and taper operators
-                tapered_qubit_ops = _ListOrDict()
+                tapered_qubit_ops: _ListOrDict[PauliSumOp] = _ListOrDict()
                 for name, commutes in commuted.items():
                     if commutes:
                         tapered_qubit_ops[name] = self._z2symmetries.taper_clifford(
@@ -598,7 +598,7 @@ class QubitConverter:
     def convert_clifford(
         self,
         qubit_ops: PauliSumOp | ListOrDictType[PauliSumOp],
-    ) -> _ListOrDict(PauliSumOp):
+    ) -> _ListOrDict[PauliSumOp]:
         """
         Applies the Clifford transformation from the current symmetry to all operators.
 

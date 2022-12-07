@@ -12,7 +12,9 @@
 
 """Reference Transition amplitudes for testing."""
 
-reference_trans_amps = {
+from typing import Any, Dict, Tuple
+
+reference_trans_amps: Dict[Tuple[int, int], Dict[str, Any]] = {
     (0, 1): {
         "AngularMomentum": (0.0, {}),
         "Magnetization": (0.0, {}),

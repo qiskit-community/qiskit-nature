@@ -43,7 +43,9 @@ from qiskit_nature.second_q.algorithms.ground_state_solvers.ground_state_solver 
 from qiskit_nature.second_q.algorithms.ground_state_solvers.minimum_eigensolver_factories import (
     MinimumEigensolverFactory,
 )
-from qiskit_nature.second_q.algorithms.excited_states_solvers import ExcitedStatesSolver
+from qiskit_nature.second_q.algorithms.excited_states_solvers.excited_states_solver import (
+    ExcitedStatesSolver,
+)
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.problems import (
@@ -89,8 +91,6 @@ class QEOM(ExcitedStatesSolver):
     constructed.
 
     Attributes:
-        excitations (str, int, list, Callable): The excitations to be included in the eom
-            pseudo-eigenvalue problem.
         aux_eval_rules (EvaluationRule, dict[str, list[tuple[int, int]]], None): The rules determining
             how observables should be evaluated on excited states.
         tol (float): The tolerance threshold for the qEOM eigenvalues.
