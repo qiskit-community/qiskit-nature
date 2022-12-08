@@ -13,7 +13,6 @@
 """Test fermionic Gaussian state preparation circuits."""
 
 from test import QiskitNatureDeprecatedTestCase
-from test.nature_random import random_legacy_quadratic_hamiltonian as random_quadratic_hamiltonian
 
 import numpy as np
 from qiskit.quantum_info import Statevector
@@ -21,6 +20,9 @@ from qiskit.quantum_info import Statevector
 from qiskit_nature.circuit.library import FermionicGaussianState
 from qiskit_nature.converters.second_quantization import QubitConverter
 from qiskit_nature.mappers.second_quantization import BravyiKitaevMapper, JordanWignerMapper
+from qiskit_nature.testing.random import (
+    random_legacy_quadratic_hamiltonian as random_quadratic_hamiltonian,
+)
 
 
 class TestFermionicGaussianState(QiskitNatureDeprecatedTestCase):

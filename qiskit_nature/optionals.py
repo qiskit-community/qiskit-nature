@@ -54,21 +54,13 @@ class NatureLazySubprocessTester(LazySubprocessTester):
 
 
 HAS_PYQUANTE2 = LazyImportTester(
-    {
-        "pyquante2": ("molecule", "rhf", "uhf", "rohf", "basisset", "onee_integrals"),
-        "pyquante2.geo.zmatrix": ("z2xyz",),
-        "pyquante2.ints.integrals": ("twoe_integrals",),
-    },
+    "pyquante2",
     name="pyquante2",
     msg="See https://github.com/rpmuller/pyquante2",
 )
 
 HAS_PYSCF = LazyImportTester(
-    {
-        "pyscf": ("__version__", "gto", "scf"),
-        "pyscf.lib": ("chkfile", "logger", "param"),
-        "pyscf.tools": ("dump_mat",),
-    },
+    "pyscf",
     name="pyscf",
     msg="See https://pyscf.org/install.html",
 )
@@ -91,9 +83,11 @@ HAS_PSI4 = NatureLazySubprocessTester(
 )
 
 HAS_SPARSE = LazyImportTester(
-    {
-        "sparse": ("SparseArray", "COO", "DOK"),
-    },
+    "sparse",
     name="sparse",
     install="pip install 'qiskit-nature[sparse]'",
+)
+
+HAS_OPT_EINSUM = LazyImportTester(
+    "opt_einsum", name="Optimized einsum", install="pip install opt_einsum"
 )

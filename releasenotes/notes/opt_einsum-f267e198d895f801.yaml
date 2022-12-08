@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Leverage library opt_einsum, if installed, for sparse-einsum support.
+    This library supports einsum summation directly on sparse objects as described in its
+    `documentation <https://optimized-einsum.readthedocs.io/en/stable/index.html>`_.

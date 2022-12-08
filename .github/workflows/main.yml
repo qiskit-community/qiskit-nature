@@ -73,8 +73,7 @@ jobs:
         run: |
           source "$CONDA/etc/profile.d/conda.sh"
           conda activate psi4env
-          pip install jupyter qiskit-terra[visualization]
-          sudo apt-get install -y pandoc graphviz
+          sudo apt-get install -y pandoc
           sudo apt-get -y install python3-enchant
           sudo apt-get -y install hunspell-en-us
           pip install pyenchant
@@ -256,13 +255,13 @@ jobs:
         with:
           name: ${{ matrix.os }}-${{ matrix.python-version }}
           path: ./ci-artifact-data/*
-      - name: Nature Unit Tests without matplotlib/pyscf/psi4/pyquante2/sparse under Python ${{ matrix.python-version }}
+      - name: Nature Unit Tests without matplotlib/pyscf/psi4/pyquante2/sparse/opt_einsum under Python ${{ matrix.python-version }}
         env:
           PYTHONWARNINGS: default
         run: |
           source "$CONDA/etc/profile.d/conda.sh"
           conda activate psi4env
-          pip uninstall -y matplotlib pyscf sparse
+          pip uninstall -y matplotlib pyscf sparse opt_einsum
           if [[ "${{ matrix.os }}" != "windows-2019" || ("${{ matrix.os }}" == "windows-2019" && "${{ matrix.python-version }}" != "3.10") ]]; then
               echo 'Uninstall psi4'
               conda remove -y --force psi4
@@ -307,8 +306,7 @@ jobs:
           use-conda: "false"
       - name: Install Dependencies
         run: |
-          pip install jupyter qiskit-terra[visualization]
-          sudo apt-get install -y pandoc graphviz
+          sudo apt-get install -y pandoc
           echo "earliest_version: 0.1.0" >> releasenotes/config.yaml
         shell: bash
       - name: Run Qiskit Nature Tutorials

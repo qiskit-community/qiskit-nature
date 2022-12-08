@@ -30,6 +30,7 @@ from qiskit.quantum_info.operators.mixins import (
 
 from qiskit_nature.settings import settings
 import qiskit_nature.optionals as _optionals
+from qiskit_nature.utils import get_einsum
 
 if _optionals.HAS_SPARSE:
     # pylint: disable=import-error
@@ -723,10 +724,11 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
 
         .. note::
 
-           :class:`sparse.SparseArray` does not support ``numpy.einsum``. Thus, the resultant
+           :class:`sparse.SparseArray` supports ``opt_einsum.contract` if ``opt_einsum`` is installed.
+           It does not support ``numpy.einsum``. In this case, the resultant
            ``PolynomialTensor`` will contain all dense numpy arrays. If a user would like to work
-           with a sparse array instead, they should convert it explicitly using the
-           :meth:`to_sparse` method.
+           with a sparse array instead, they should install ``opt_einsum`` or
+           they should convert it explicitly using the :meth:`to_sparse` method.
 
         Args:
             einsum_map: a dictionary, mapping from :meth:`numpy.einsum` subscripts to a tuple of
@@ -740,14 +742,15 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         Returns:
             A new ``PolynomialTensor``.
         """
-        dense_operands = [op.to_dense() for op in operands]
+        einsum_func, uses_sparse = get_einsum()
+        operand_list = list(operands) if uses_sparse else [op.to_dense() for op in operands]
         new_data: dict[str, ARRAY_TYPE] = {}
         for einsum, terms in einsum_map.items():
             *inputs, output = terms
             try:
-                result = np.einsum(
+                result = einsum_func(
                     einsum,
-                    *[dense_operands[idx]._data[term] for idx, term in enumerate(inputs)],
+                    *[operand_list[idx]._data[term] for idx, term in enumerate(inputs)],
                     optimize=settings.optimize_einsum,
                 )
             except KeyError:
