@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import logging
 from functools import partial
-from typing import Callable, Sequence, Union
+from typing import Callable, Sequence
 
 from qiskit.circuit import QuantumCircuit
 from qiskit.circuit.library import EvolvedOperatorAnsatz
@@ -137,7 +137,7 @@ class UCC(EvolvedOperatorAnsatz):
             list[tuple[tuple[int, ...], tuple[int, ...]]],
         ]
         | None = None,
-        qubit_converter: Union[QubitConverter, QubitMapper] | None = None,
+        qubit_converter: QubitConverter | QubitMapper | None = None,
         *,
         alpha_spin: bool = True,
         beta_spin: bool = True,
@@ -167,7 +167,7 @@ class UCC(EvolvedOperatorAnsatz):
                     to write such a callable refer to the default method
                     :meth:`~qiskit_nature.second_q.circuit.library.ansatzes.utils.\
                     generate_fermionic_excitations`.
-            qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` or 
+            qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` or
             :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance which takes care of mapping
             to a qubit operator.
             alpha_spin: Boolean flag whether to include alpha-spin excitations.
@@ -220,12 +220,12 @@ class UCC(EvolvedOperatorAnsatz):
         _ = self.operators
 
     @property
-    def qubit_converter(self) -> Union[QubitConverter, QubitMapper]:
+    def qubit_converter(self) -> QubitConverter | QubitMapper:
         """The qubit operator converter."""
         return self._qubit_converter
 
     @qubit_converter.setter
-    def qubit_converter(self, conv: Union[QubitConverter, QubitMapper]) -> None:
+    def qubit_converter(self, conv: QubitConverter | QubitMapper) -> None:
         """Sets the qubit operator converter."""
         self._operators = None
         self._invalidate()
@@ -311,7 +311,12 @@ class UCC(EvolvedOperatorAnsatz):
                 # inserting ``None`` as the result if an operator did not commute. To ensure that
                 # the ``excitation_list`` is transformed identically to the operators, we retain
                 # ``None`` for non-commuting operators in order to manually remove them in unison.
-                operators = self.qubit_converter.convert_match(excitation_ops, suppress_none=False)
+                if isinstance(self.qubit_converter, QubitConverter):
+                    operators = self.qubit_converter.convert_match(
+                        excitation_ops, suppress_none=False
+                    )
+                else:
+                    operators = self.qubit_converter.map_all(excitation_ops)
                 self._filter_operators(operators=operators)
 
         return super(UCC, self.__class__).operators.__get__(self)

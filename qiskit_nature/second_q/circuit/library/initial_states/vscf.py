@@ -15,7 +15,6 @@
 from __future__ import annotations
 
 import logging
-from typing import Union
 
 import numpy as np
 
@@ -43,7 +42,7 @@ class VSCF(BlueprintCircuit):
     def __init__(
         self,
         num_modals: list[int] | None = None,
-        qubit_converter: Union[QubitConverter, QubitMapper] | None = None,
+        qubit_converter: QubitConverter | QubitMapper | None = None,
     ) -> None:
         """
         Args:
@@ -64,12 +63,12 @@ class VSCF(BlueprintCircuit):
         )
 
     @property
-    def qubit_converter(self) -> Union[QubitConverter, QubitMapper]:
+    def qubit_converter(self) -> QubitConverter | QubitMapper | None:
         """The qubit converter."""
         return self._qubit_converter
 
     @qubit_converter.setter
-    def qubit_converter(self, conv: Union[QubitConverter, QubitMapper]) -> None:
+    def qubit_converter(self, conv: QubitConverter | QubitMapper) -> None:
         """Sets the qubit converter."""
         self._invalidate()
         mapper = conv if isinstance(conv, QubitMapper) else conv.mapper
@@ -159,7 +158,7 @@ class VSCF(BlueprintCircuit):
 
 def vscf_bitstring_mapped(
     num_modals: list[int],
-    qubit_converter: Union[QubitConverter, QubitMapper],
+    qubit_converter: QubitConverter | QubitMapper,
 ) -> list[bool]:
     """Compute the bitstring representing the mapped VSCF initial state
     based on the given the number of modals per mode and qubit converter.
@@ -167,7 +166,7 @@ def vscf_bitstring_mapped(
     Args:
         num_modals: A list defining the number of modals per mode. E.g. for a 3 modes system
             with 4 modals per mode num_modals = [4,4,4].
-        qubit_converter: A QubitConverter instance.
+        qubit_converter: A QubitConverter or QubitMapper instance.
 
     Returns:
         The bitstring representing the mapped state of the VSCF initial state as array of bools.
@@ -188,7 +187,11 @@ def vscf_bitstring_mapped(
         num_modals=num_modals,
     )
     # map the `VibrationalOp` to a qubit operator
-    qubit_op: PauliSumOp = qubit_converter.convert_match(bitstr_op, check_commutes=False)
+    qubit_op: PauliSumOp
+    if isinstance(qubit_converter, QubitConverter):
+        qubit_op = qubit_converter.convert_match(bitstr_op, check_commutes=False)
+    else:
+        qubit_op = qubit_converter.map(bitstr_op)
 
     # We check the mapped operator `x` part of the paulis because we want to have particles
     # i.e. True, where the initial state introduced a creation (`+`) operator.

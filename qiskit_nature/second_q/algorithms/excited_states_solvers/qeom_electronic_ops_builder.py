@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import Callable, Dict, List, Tuple, Union
+from typing import Callable, Dict, List, Tuple
 
 from qiskit.opflow import PauliSumOp, Z2Symmetries
 from qiskit.tools import parallel_map
@@ -36,7 +36,7 @@ def build_electronic_ops(
         [int, tuple[int, int]],
         list[tuple[tuple[int, ...], tuple[int, ...]]],
     ],
-    qubit_converter: Union[QubitConverter, QubitMapper],
+    qubit_converter: QubitConverter | QubitMapper,
 ) -> Tuple[
     Dict[str, PauliSumOp],
     Dict[str, List[bool]],
@@ -56,8 +56,8 @@ def build_electronic_ops(
               :meth:`generate_fermionic_excitations`.
         qubit_converter: The ``QubitConverter`` to use for mapping and symmetry reduction. The Z2
                          symmetries stored in this instance are the basis for the commutativity
-                         information returned by this method.
-
+                         information returned by this method. These symmetries are set to `None`
+                         when a ``QubitMapper`` is used.
     Returns:
         A tuple containing the hopping operators, the types of commutativities and the excitation
         indices.
@@ -100,7 +100,7 @@ def build_electronic_ops(
 def _build_single_hopping_operator(
     excitation: Tuple[Tuple[int, ...], Tuple[int, ...]],
     num_spatial_orbitals: int,
-    qubit_converter: Union[QubitConverter, QubitMapper],
+    qubit_converter: QubitConverter | QubitMapper,
 ) -> Tuple[PauliSumOp, List[bool]]:
     label = []
     for occ in excitation[0]:
@@ -112,17 +112,12 @@ def _build_single_hopping_operator(
     )
 
     if isinstance(qubit_converter, QubitConverter):
-        print("Qubit Converter")
-        qubit_op = qubit_converter.convert_only(fer_op, qubit_converter.num_particles)
+        qubit_op = qubit_converter.convert_only(fer_op, num_particles=qubit_converter.num_particles)
         z2_symmetries = qubit_converter.z2symmetries
 
-    elif issubclass(type(qubit_converter), QubitMapper):
-        print("MAPPER")
-        qubit_op = qubit_converter._map(fer_op)
-        z2_symmetries = Z2Symmetries([], [], [])
-
     else:
-        raise QiskitNatureError("QubitConverter object is not valid")
+        qubit_op = qubit_converter.map(fer_op)
+        z2_symmetries = Z2Symmetries([], [], [])
 
     commutativities = []
     if not z2_symmetries.is_empty():

@@ -12,7 +12,9 @@
 
 """Fermionic Gaussian states."""
 
-from typing import Optional, Sequence, Union
+from __future__ import annotations
+
+from typing import Sequence
 
 import numpy as np
 from qiskit import QuantumCircuit, QuantumRegister
@@ -114,8 +116,8 @@ class FermionicGaussianState(QuantumCircuit):
     def __init__(
         self,
         transformation_matrix: np.ndarray,
-        occupied_orbitals: Optional[Sequence[int]] = None,
-        qubit_converter: Optional[Union[QubitConverter, QubitMapper]] = None,
+        occupied_orbitals: Sequence[int] | None = None,
+        qubit_converter: QubitConverter | QubitMapper | None = None,
         *,
         validate: bool = True,
         rtol: float = 1e-5,
@@ -131,7 +133,7 @@ class FermionicGaussianState(QuantumCircuit):
                 of the operators :math:`\{b^\dagger_j\}` from the main body of the docstring
                 of this function. The default behavior is to use the empty set of orbitals,
                 which corresponds to a state with zero pseudo-particles.
-            qubit_converter: The qubit converter. The default behavior is to create
+            qubit_converter: The qubit converter or qubit mapper. The default behavior is to create
                 one using the call ``QubitConverter(JordanWignerMapper())``.
             validate: Whether to validate the inputs.
             rtol: Relative numerical tolerance for input validation.

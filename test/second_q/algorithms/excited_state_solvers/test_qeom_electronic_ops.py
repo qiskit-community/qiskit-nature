@@ -111,7 +111,6 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
 
     def test_build_hopping_operators(self):
         """Tests that the correct hopping operator is built."""
-        # TODO extract it somewhere
 
         hopping_operators, commutativities, indices = build_electronic_ops(
             self.electronic_structure_problem.num_spatial_orbitals,
@@ -141,7 +140,6 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
 
     def test_build_hopping_operators_mapper(self):
         """Tests that the correct hopping operator is built."""
-        # TODO extract it somewhere
 
         hopping_operators, commutativities, indices = build_electronic_ops(
             self.electronic_structure_problem.num_spatial_orbitals,

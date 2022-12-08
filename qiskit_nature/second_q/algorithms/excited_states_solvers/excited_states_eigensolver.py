@@ -76,22 +76,21 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
                 num_particles=num_particles,
                 sector_locator=problem.symmetry_sector_locator,
             )
-
-        elif issubclass(type(self._qubit_converter), QubitMapper):
-            print("MAPPER")
-            main_operator = self._qubit_converter._map(main_second_q_op)
+            aux_ops = self._qubit_converter.convert_match(aux_second_q_ops)
 
         else:
-            raise QiskitNatureError("QubitConverter object is not valid")
-
-        aux_ops = self._qubit_converter.convert_match(aux_second_q_ops)
+            main_operator = self._qubit_converter.map(main_second_q_op)
+            aux_ops = self._qubit_converter.map_all(aux_second_q_ops)
 
         if aux_operators is not None:
             for name_aux, aux_op in aux_operators.items():
                 if isinstance(aux_op, SparseLabelOp):
-                    converted_aux_op = self._qubit_converter.convert_match(
-                        aux_op, suppress_none=True
-                    )
+                    if isinstance(self._qubit_converter, QubitConverter):
+                        converted_aux_op = self._qubit_converter.convert_match(
+                            aux_op, suppress_none=True
+                        )
+                    else:
+                        converted_aux_op = self._qubit_converter.map_all(aux_op)
                 else:
                     converted_aux_op = aux_op
                 if name_aux in aux_ops.keys():

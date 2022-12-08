@@ -31,7 +31,7 @@ class GroundStateEigensolver(GroundStateSolver):
 
     def __init__(
         self,
-        qubit_converter: Union[QubitConverter, QubitMapper],
+        qubit_converter: QubitConverter | QubitMapper,
         solver: MinimumEigensolver | MinimumEigensolverFactory,
     ) -> None:
         """
@@ -68,6 +68,7 @@ class GroundStateEigensolver(GroundStateSolver):
                 with an internally constructed auxiliary operator. Note: the names used for the
                 internal auxiliary operators correspond to the `Property.name` attributes which
                 generated the respective operators.
+            QiskitNatureError: Invalid type for ``QubitConverter``.
 
         Returns:
             An interpreted :class:`~.EigenstateResult`. For more information see also
@@ -102,23 +103,23 @@ class GroundStateEigensolver(GroundStateSolver):
                 num_particles=num_particles,
                 sector_locator=problem.symmetry_sector_locator,
             )
-
-        elif issubclass(type(self._qubit_converter), QubitMapper):
-            print("MAPPER")
-            main_operator = self._qubit_converter._map(main_second_q_op)
-
+            aux_ops = self._qubit_converter.convert_match(aux_second_q_ops)
         else:
-            raise QiskitNatureError("QubitConverter object is not valid")
+            main_operator = self._qubit_converter.map(main_second_q_op)
+            aux_ops = self._qubit_converter.map_all(aux_second_q_ops)
 
-        aux_ops = self._qubit_converter.convert_match(aux_second_q_ops)
         if aux_operators is not None:
             for name_aux, aux_op in aux_operators.items():
                 if isinstance(aux_op, SparseLabelOp):
-                    converted_aux_op = self._qubit_converter.convert_match(
-                        aux_op, suppress_none=True
-                    )
+                    if isinstance(self._qubit_converter, QubitConverter):
+                        converted_aux_op = self._qubit_converter.convert_match(
+                            aux_op, suppress_none=True
+                        )
+                    else:
+                        converted_aux_op = self._qubit_converter.map_all(aux_op)
                 else:
                     converted_aux_op = aux_op
+
                 if name_aux in aux_ops.keys():
                     raise QiskitNatureError(
                         f"The key '{name_aux}' is already taken by an internally constructed "

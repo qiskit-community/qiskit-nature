@@ -12,8 +12,9 @@
 
 """The minimum eigensolver factory for ground state calculation algorithms."""
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import Union
 
 from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolver
 
@@ -26,7 +27,7 @@ class MinimumEigensolverFactory(ABC):
 
     @abstractmethod
     def get_solver(
-        self, problem: BaseProblem, qubit_converter: Union[QubitConverter, QubitMapper]
+        self, problem: BaseProblem, qubit_converter: QubitConverter | QubitMapper
     ) -> MinimumEigensolver:
         """Returns a minimum eigensolver, based on the qubit operator transformation.
 

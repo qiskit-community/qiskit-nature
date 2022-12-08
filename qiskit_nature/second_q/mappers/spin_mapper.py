@@ -16,6 +16,8 @@ from abc import abstractmethod
 from typing import Union
 
 from qiskit.opflow import PauliSumOp
+from qiskit.algorithms.list_or_dict import ListOrDict as ListOrDictType
+
 from qiskit_nature.second_q.operators import SpinOp
 
 from .qubit_mapper import QubitMapper, _ListOrDict
@@ -36,18 +38,18 @@ class SpinMapper(QubitMapper):
         """
         raise NotImplementedError()
 
-    def convert_match(
+    def map_all(
         self,
-        second_q_ops: Union[SpinOp, _ListOrDict[SpinOp]],
-        *,
+        second_q_ops: Union[SpinOp, ListOrDictType[SpinOp]],
         suppress_none: bool = False,
-        check_commutes: bool = True,
-    ) -> _ListOrDict[PauliSumOp]:
+    ) -> ListOrDictType[PauliSumOp]:
         """A convenience method to map second quantized operators based on current mapper.
 
         Args:
             second_q_ops: A second quantized operator, or list thereof
-            sort_operators: Boolean
+            suppress_none: If None should be placed in the output list where an operator
+                did not commute with symmetry, to maintain order, or whether that should
+                be suppressed where the output list length may then be smaller than the input.
 
         Returns:
             A qubit operator in the form of a PauliSumOp, or list thereof if a list of
@@ -57,11 +59,11 @@ class SpinMapper(QubitMapper):
 
         if isinstance(second_q_ops, SpinOp):
             second_q_ops = [second_q_ops]
-            suppress_none = False  # When only a single op we will return None back
+            suppress_none = False
 
         wrapped_second_q_ops: _ListOrDict[SpinOp] = _ListOrDict(second_q_ops)
 
-        qubit_ops = _ListOrDict()
+        qubit_ops: _ListOrDict = _ListOrDict()
         for name, second_q_op in iter(wrapped_second_q_ops):
             qubit_ops[name] = self.map(second_q_op)
 

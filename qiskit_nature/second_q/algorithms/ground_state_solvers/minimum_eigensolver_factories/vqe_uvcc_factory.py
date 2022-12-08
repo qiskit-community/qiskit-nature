@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import logging
 import numpy as np
-from typing import Union
 
 from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolver, VQE
 from qiskit.algorithms.optimizers import Minimizer, Optimizer
@@ -115,7 +114,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
     def get_solver(  # type: ignore[override]
         self,
         problem: VibrationalStructureProblem,
-        qubit_converter: Union[QubitConverter, QubitMapper],
+        qubit_converter: QubitConverter | QubitMapper,
     ) -> MinimumEigensolver:
         """Returns a VQE with a :class:`~.UVCC` wavefunction ansatz, based on ``qubit_converter``.
 

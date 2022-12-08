@@ -15,7 +15,7 @@ The SUCCD Ansatz.
 
 from __future__ import annotations
 
-from typing import Sequence, cast, Union
+from typing import Sequence, cast
 from collections import defaultdict
 
 import itertools
@@ -57,7 +57,7 @@ class SUCCD(UCC):
         self,
         num_spatial_orbitals: int | None = None,
         num_particles: tuple[int, int] | None = None,
-        qubit_converter: Union[QubitConverter, QubitMapper] | None = None,
+        qubit_converter: QubitConverter | QubitMapper | None = None,
         *,
         reps: int = 1,
         initial_state: QuantumCircuit | None = None,

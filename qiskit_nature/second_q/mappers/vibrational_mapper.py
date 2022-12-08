@@ -15,7 +15,9 @@
 from abc import abstractmethod
 from typing import Union
 
+from qiskit.algorithms.list_or_dict import ListOrDict as ListOrDictType
 from qiskit.opflow import PauliSumOp
+
 from qiskit_nature.second_q.operators import VibrationalOp
 
 from .qubit_mapper import QubitMapper, _ListOrDict
@@ -37,18 +39,18 @@ class VibrationalMapper(QubitMapper):
         """
         raise NotImplementedError()
 
-    def convert_match(
+    def map_all(
         self,
-        second_q_ops: Union[VibrationalOp, _ListOrDict[VibrationalOp]],
-        *,
+        second_q_ops: Union[VibrationalOp, ListOrDictType[VibrationalOp]],
         suppress_none: bool = False,
-        check_commutes: bool = True,
-    ) -> _ListOrDict[PauliSumOp]:
+    ) -> ListOrDictType[PauliSumOp]:
         """A convenience method to map second quantized operators based on current mapper.
 
         Args:
-            second_q_ops: A second quantized operator, or list thereof
-            sort_operators: Boolean
+            second_q_ops: A second quantized operator, or list thereof.
+            suppress_none: If None should be placed in the output list where an operator
+                did not commute with symmetry, to maintain order, or whether that should
+                be suppressed where the output list length may then be smaller than the input.
 
         Returns:
             A qubit operator in the form of a PauliSumOp, or list thereof if a list of
@@ -62,7 +64,7 @@ class VibrationalMapper(QubitMapper):
 
         wrapped_second_q_ops: _ListOrDict[VibrationalOp] = _ListOrDict(second_q_ops)
 
-        qubit_ops = _ListOrDict()
+        qubit_ops: _ListOrDict = _ListOrDict()
         for name, second_q_op in iter(wrapped_second_q_ops):
             qubit_ops[name] = self.map(second_q_op)
 

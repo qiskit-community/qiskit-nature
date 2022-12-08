@@ -104,32 +104,32 @@ class QubitMapper(ABC):
         """
         raise NotImplementedError()
 
-    def convert_match(
+    def map_all(
         self,
-        second_q_ops: Union[SparseLabelOp, _ListOrDict[SparseLabelOp]],
-        *,
-        suppress_none: bool = False,
-        check_commutes: bool = True,
-    ) -> _ListOrDict[PauliSumOp]:
+        second_q_ops: SparseLabelOp | ListOrDictType[SparseLabelOp],
+        suppress_none: bool = None,
+    ) -> PauliSumOp | ListOrDictType[PauliSumOp]:
         """A convenience method to map second quantized operators based on current mapper.
 
         Args:
-            second_q_ops: A second quantized operator, or list thereof
-            sort_operators: Boolean
+            second_q_ops: A second quantized operator, or list thereof.
+            suppress_none: If None should be placed in the output list where an operator
+                did not commute with symmetry, to maintain order, or whether that should
+                be suppressed where the output list length may then be smaller than the input.
 
         Returns:
             A qubit operator in the form of a PauliSumOp, or list thereof if a list of
-            second quantized operators was supplied
+            second quantized operators was supplied.
         """
         wrapped_type = type(second_q_ops)
 
         if isinstance(second_q_ops, SparseLabelOp):
             second_q_ops = [second_q_ops]
-            suppress_none = False  # When only a single op we will return None back
+            suppress_none = False
 
         wrapped_second_q_ops: _ListOrDict[SparseLabelOp] = _ListOrDict(second_q_ops)
 
-        qubit_ops = _ListOrDict()
+        qubit_ops: _ListOrDict = _ListOrDict()
         for name, second_q_op in iter(wrapped_second_q_ops):
             qubit_ops[name] = self.map(second_q_op)
 

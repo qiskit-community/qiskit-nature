@@ -22,7 +22,7 @@ from qiskit.algorithms.eigensolvers import EigensolverResult
 from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
 from qiskit.opflow import Z2Symmetries
 
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.hamiltonians import Hamiltonian
 
@@ -78,7 +78,7 @@ class BaseProblem:
     def symmetry_sector_locator(
         self,
         z2_symmetries: Z2Symmetries,
-        converter: QubitConverter,
+        converter: QubitConverter | QubitMapper,
     ) -> list[int] | None:
         # pylint: disable=unused-argument
         """Given the detected Z2Symmetries, it can determine the correct sector of the tapered
@@ -86,7 +86,7 @@ class BaseProblem:
 
         Args:
             z2_symmetries: the z2 symmetries object.
-            converter: the qubit converter instance used for the operator conversion that
+            converter: the qubit converter or qubit mapper instance used for the operator conversion that
                 symmetries are to be determined for.
 
         Returns:

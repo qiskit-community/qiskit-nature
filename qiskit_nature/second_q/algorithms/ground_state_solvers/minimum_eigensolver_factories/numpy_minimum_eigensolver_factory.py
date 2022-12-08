@@ -12,7 +12,8 @@
 
 """The NumPy minimum eigensolver factory for ground state calculation algorithms."""
 
-from typing import Union
+from __future__ import annotations
+
 from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolver, NumPyMinimumEigensolver
 from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.problems import BaseProblem
@@ -38,7 +39,7 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
         self._minimum_eigensolver = NumPyMinimumEigensolver(**kwargs)
 
     def get_solver(
-        self, problem: BaseProblem, qubit_converter: Union[QubitConverter, QubitMapper]
+        self, problem: BaseProblem, qubit_converter: QubitConverter | QubitMapper
     ) -> MinimumEigensolver:
         """Returns a NumPyMinimumEigensolver which possibly uses the default filter criterion
         provided by the ``problem``.

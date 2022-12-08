@@ -15,13 +15,12 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
-from typing import Optional
 
 import numpy as np
 from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.circuit import Gate, Qubit
 from qiskit.circuit.library import RZGate, XXPlusYYGate
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.mappers import JordanWignerMapper
 from qiskit_nature.utils import apply_matrix_to_slices, givens_matrix
 from qiskit_nature.utils.linalg import fermionic_gaussian_decomposition_jw
@@ -133,7 +132,7 @@ class BogoliubovTransform(QuantumCircuit):
     def __init__(
         self,
         transformation_matrix: np.ndarray,
-        qubit_converter: Optional[QubitConverter] = None,
+        qubit_converter: QubitConverter | QubitMapper | None = None,
         *,
         validate: bool = True,
         rtol: float = 1e-5,
@@ -145,7 +144,7 @@ class BogoliubovTransform(QuantumCircuit):
             transformation_matrix: The matrix :math:`W` that specifies the coefficients of the
                 new creation operators in terms of the original creation operators.
                 Should be either :math:`N \times N` or :math:`N \times 2N`.
-            qubit_converter: The qubit converter. The default behavior is to create
+            qubit_converter: The qubit converter or qubit mapper. The default behavior is to create
                 one using the call ``QubitConverter(JordanWignerMapper())``.
             validate: Whether to validate the inputs.
             rtol: Relative numerical tolerance for input validation.
@@ -176,7 +175,10 @@ class BogoliubovTransform(QuantumCircuit):
         register = QuantumRegister(n)
         super().__init__(register, **circuit_kwargs)
 
-        if isinstance(qubit_converter.mapper, JordanWignerMapper):
+        if (
+            isinstance(qubit_converter, QubitConverter)
+            and isinstance(qubit_converter.mapper, JordanWignerMapper)
+        ) or (isinstance(qubit_converter, JordanWignerMapper)):
             operations = _bogoliubov_transform_jw(register, transformation_matrix)
             for gate, qubits in operations:
                 self.append(gate, qubits)

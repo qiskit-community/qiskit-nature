@@ -20,6 +20,7 @@ from qiskit.opflow import PauliSumOp
 from qiskit.tools import parallel_map
 from qiskit.utils import algorithm_globals
 
+from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import UVCC
 from qiskit_nature.second_q.operators import VibrationalOp
 from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
@@ -34,7 +35,7 @@ def build_vibrational_ops(
         [int, tuple[int, int]],
         list[tuple[tuple[int, ...], tuple[int, ...]]],
     ],
-    qubit_converter: Union[QubitConverter, QubitMapper],
+    qubit_converter: QubitConverter | QubitMapper,
 ) -> Tuple[
     Dict[str, PauliSumOp],
     Dict[str, List[bool]],
@@ -91,7 +92,7 @@ def build_vibrational_ops(
 def _build_single_hopping_operator(
     excitation: Tuple[Tuple[int, ...], Tuple[int, ...]],
     num_modals: List[int],
-    qubit_converter: QubitConverter,
+    qubit_converter: QubitConverter | QubitMapper,
 ) -> PauliSumOp:
     label = []
     for occ in excitation[0]:
@@ -100,6 +101,13 @@ def _build_single_hopping_operator(
         label.append(f"-_{VibrationalOp.build_dual_index(num_modals, unocc)}")
 
     vibrational_op = VibrationalOp({" ".join(label): 1}, num_modals)
-    qubit_op: PauliSumOp = qubit_converter.convert_match(vibrational_op)
+
+    qubit_op: PauliSumOp
+    if isinstance(qubit_converter, QubitConverter):
+        qubit_op = qubit_converter.convert_match(vibrational_op)
+    elif issubclass(type(qubit_converter), QubitMapper):
+        qubit_op = qubit_converter.map_all(vibrational_op)
+    else:
+        raise QiskitNatureError("QubitConverter object is not valid")
 
     return qubit_op

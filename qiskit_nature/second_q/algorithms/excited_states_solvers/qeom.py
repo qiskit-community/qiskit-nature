@@ -34,14 +34,14 @@ from qiskit.opflow import (
 )
 from qiskit.primitives import BaseEstimator
 
+from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.problems import (
     BaseProblem,
     ElectronicStructureProblem,
     VibrationalStructureProblem,
+    EigenstateResult,
 )
-from qiskit_nature.second_q.problems import EigenstateResult
-
 from .qeom_electronic_ops_builder import build_electronic_ops
 from .qeom_vibrational_ops_builder import build_vibrational_ops
 from .excited_states_solver import ExcitedStatesSolver
@@ -165,9 +165,13 @@ class QEOM(ExcitedStatesSolver):
 
         num_particles = getattr(problem, "num_particles", None)
 
-        self._untapered_qubit_op_main = self._gsc.qubit_converter.convert_only(
-            main_second_q_op, num_particles
-        )
+        if isinstance(self._gsc.qubit_converter, QubitConverter):
+            self._untapered_qubit_op_main = self._gsc.qubit_converter.convert_only(
+                main_second_q_op, num_particles
+            )
+        else:
+            self._untapered_qubit_op_main = self._gsc.qubit_converter.map(main_second_q_op)
+
         matrix_operators_dict, size = self._prepare_matrix_operators(problem)
 
         # 3. Evaluate eom operators

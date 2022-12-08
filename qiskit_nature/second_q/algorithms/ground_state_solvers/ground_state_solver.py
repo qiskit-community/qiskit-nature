@@ -31,7 +31,7 @@ QubitOperator = Union[BaseOperator, PauliSumOp]
 class GroundStateSolver(ABC):
     """The ground state calculation interface."""
 
-    def __init__(self, qubit_converter: Union[QubitConverter, QubitMapper]) -> None:
+    def __init__(self, qubit_converter: QubitConverter | QubitMapper) -> None:
         """
         Args:
             qubit_converter: A class that converts second quantized operator to qubit operator

@@ -16,11 +16,9 @@ from __future__ import annotations
 
 import copy
 import logging
-from abc import ABC
 from typing import (
     cast,
     Callable,
-    Dict,
     List,
     Optional,
     Tuple,
@@ -325,7 +323,7 @@ class QubitConverter:
         return returned_ops
 
     def _map(self, second_q_ops: ListOrDictType[SparseLabelOp]) -> _ListOrDict[PauliSumOp]:
-        return self._mapper._map(second_q_ops)
+        return self._mapper.map(second_q_ops)
 
     def _two_qubit_reduce(
         self, qubit_op: PauliSumOp, num_particles: Optional[Tuple[int, int]]

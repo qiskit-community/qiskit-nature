@@ -13,7 +13,6 @@
 """Hartree-Fock initial state."""
 
 from __future__ import annotations
-from typing import Union
 import numpy as np
 from qiskit import QuantumRegister
 from qiskit.circuit.library import BlueprintCircuit
@@ -31,7 +30,7 @@ class HartreeFock(BlueprintCircuit):
         self,
         num_spatial_orbitals: int | None = None,
         num_particles: tuple[int, int] | None = None,
-        qubit_converter: Union[QubitConverter, QubitMapper] | None = None,
+        qubit_converter: QubitConverter | QubitMapper | None = None,
     ) -> None:
         """
         Args:
@@ -39,7 +38,7 @@ class HartreeFock(BlueprintCircuit):
             num_particles: The number of particles as a tuple storing the number of alpha and
                 beta-spin electrons in the first and second number, respectively.
             qubit_converter: a :class:`~qiskit_nature.second_q.mappers.QubitConverter` or a
-                :class:`~qiskit_nature.second_q.mappers.QubitMapper`instance.
+                :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance.
 
         Raises:
             NotImplementedError: If ``qubit_converter`` contains
@@ -56,12 +55,12 @@ class HartreeFock(BlueprintCircuit):
         self._reset_register()
 
     @property
-    def qubit_converter(self) -> Union[QubitConverter, QubitMapper]:
+    def qubit_converter(self) -> QubitConverter | QubitMapper | None:
         """The qubit converter."""
         return self._qubit_converter
 
     @qubit_converter.setter
-    def qubit_converter(self, conv: Union[QubitConverter, QubitMapper]) -> None:
+    def qubit_converter(self, conv: QubitConverter | QubitMapper) -> None:
         """Sets the qubit converter."""
         self._invalidate()
         self._qubit_converter = conv
@@ -204,7 +203,7 @@ class HartreeFock(BlueprintCircuit):
 def hartree_fock_bitstring_mapped(
     num_spatial_orbitals: int,
     num_particles: tuple[int, int],
-    qubit_converter: Union[QubitConverter, QubitMapper],
+    qubit_converter: QubitConverter | QubitMapper,
     *,
     match_convert: bool = True,
 ) -> list[bool]:
@@ -234,12 +233,14 @@ def hartree_fock_bitstring_mapped(
     )
 
     # map the `FermionicOp` to a qubit operator
-    if match_convert:
-        qubit_op: PauliSumOp = qubit_converter.convert_match(bitstr_op, check_commutes=False)
-    elif isinstance(qubit_converter, QubitConverter):
-        qubit_op: PauliSumOp = qubit_converter.convert_only(bitstr_op, num_particles)
+    qubit_op: PauliSumOp
+    if isinstance(qubit_converter, QubitConverter):
+        if match_convert:
+            qubit_op = qubit_converter.convert_match(bitstr_op, check_commutes=False)
+        else:
+            qubit_op = qubit_converter.convert_only(bitstr_op, num_particles)
     else:
-        qubit_op: PauliSumOp = qubit_converter._map(bitstr_op)
+        qubit_op = qubit_converter.map(bitstr_op)
 
     # We check the mapped operator `x` part of the paulis because we want to have particles
     # i.e. True, where the initial state introduced a creation (`+`) operator.

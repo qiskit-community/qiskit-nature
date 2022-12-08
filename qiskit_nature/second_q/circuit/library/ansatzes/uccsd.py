@@ -14,7 +14,6 @@ The UCCSD Ansatz.
 """
 
 from __future__ import annotations
-from typing import Union
 
 from qiskit.circuit import QuantumCircuit
 from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
@@ -31,7 +30,7 @@ class UCCSD(UCC):
         self,
         num_spatial_orbitals: int | None = None,
         num_particles: tuple[int, int] | None = None,
-        qubit_converter: Union[QubitConverter, QubitMapper] | None = None,
+        qubit_converter: QubitConverter | QubitMapper | None = None,
         *,
         reps: int = 1,
         initial_state: QuantumCircuit | None = None,
