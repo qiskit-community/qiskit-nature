@@ -51,9 +51,9 @@ def build_vibrational_ops(
             - and finally a callable which can be used to specify a custom list of excitations.
               For more details on how to write such a function refer to the default method,
               :meth:`generate_vibrational_excitations`.
-        qubit_converter: The ``QubitConverter`` to use for mapping and symmetry reduction. The Z2
-                         symmetries stored in this instance are the basis for the commutativity
-                         information returned by this method.
+        qubit_converter: The ``QubitConverter`` or ``QubitMapper`` to use for mapping and symmetry
+            reduction. Note that the ``QubitConverter`` will use its stored Z2 symmetries as basis for
+            the commutativity information returned by this method.
     Returns:
         Dict of hopping operators, dict of commutativity types and dict of excitation indices.
     """
@@ -105,9 +105,7 @@ def _build_single_hopping_operator(
     qubit_op: PauliSumOp
     if isinstance(qubit_converter, QubitConverter):
         qubit_op = qubit_converter.convert_match(vibrational_op)
-    elif issubclass(type(qubit_converter), QubitMapper):
-        qubit_op = qubit_converter.map_all(vibrational_op)
     else:
-        raise QiskitNatureError("QubitConverter object is not valid")
+        qubit_op = qubit_converter.map_all(vibrational_op)
 
     return qubit_op

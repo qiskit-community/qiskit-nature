@@ -1,14 +1,14 @@
 ---
 features:
   - |
-    Updated the API to allow :class:`~qiskit_nature/second_q/mappers/QubitMapper` objects  in places
-    where :class:`qiskit_nature/second_q/mappers/QubitConverter` were previously required. This addition 
-    advances toward a future deprecation of :class:`~qiskit_nature/second_q/mappers/QubitConverter`. 
-    All inputs of type :class:`~qiskit_nature/second_q/mappers/QubitConverter` now support
-    :class:`~qiskit_nature/second_q/mappers/QubitMapper` objects implementing a transformation from 
+    Updated the API to allow :class:`~qiskit_nature.second_q.mappers.QubitMapper` objects  in places
+    where :class:`qiskit_nature.second_q.mappers.QubitConverter` were previously required. This addition 
+    advances toward a future deprecation of :class:`~qiskit_nature.second_q.mappers.QubitConverter`. 
+    All inputs of type :class:`~qiskit_nature.second_q.mappers.QubitConverter` now support
+    :class:`~qiskit_nature.second_q.mappers.QubitMapper` objects implementing a transformation from 
     second quantized operators to Pauli operators. Note that the mappers currently do not support 
     qubit reduction techniques.
   - | 
-    Added a method ``map_all()`` to the class :class:`~qiskit_nature/second_q/mappers/QubitMapper` to
+    Added a method ``map_all()`` to the class :class:`~qiskit_nature.second_q.mappers.QubitMapper` to
     allow the mapping of a list or dict of operators as the ``convert_match()`` does for the 
-    :class:`~qiskit_nature/second_q/mappers/QubitConverter`.
+    :class:`~qiskit_nature.second_q.mappers.QubitConverter`.

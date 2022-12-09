@@ -49,7 +49,7 @@ class TestBogoliubovTransform(QiskitNatureTestCase):
             orbital_energies,
             transformed_constant,
         ) = hamiltonian.diagonalizing_bogoliubov_transform()
-        matrix = converter._map(hamiltonian.second_q_op()).to_matrix()
+        matrix = converter.convert_only(hamiltonian.second_q_op()).to_matrix()
         bog_circuit = BogoliubovTransform(transformation_matrix, qubit_converter=converter)
         for initial_state in range(2**n_orbitals):
             state = Statevector.from_int(initial_state, dims=2**n_orbitals)

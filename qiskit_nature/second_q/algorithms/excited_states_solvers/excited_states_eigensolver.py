@@ -34,7 +34,7 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
 
     def __init__(
         self,
-        qubit_converter: Union[QubitConverter, QubitMapper],
+        qubit_converter: QubitConverter | QubitMapper,
         solver: Union[Eigensolver, EigensolverFactory],
     ) -> None:
         """
