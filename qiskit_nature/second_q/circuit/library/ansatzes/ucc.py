@@ -168,8 +168,8 @@ class UCC(EvolvedOperatorAnsatz):
                     :meth:`~qiskit_nature.second_q.circuit.library.ansatzes.utils.\
                     generate_fermionic_excitations`.
             qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` or
-            :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance which takes care of mapping
-            to a qubit operator.
+                :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance which takes care of mapping
+                to a qubit operator.
             alpha_spin: Boolean flag whether to include alpha-spin excitations.
             beta_spin: Boolean flag whether to include beta-spin excitations.
             max_spin_excitation: The largest number of excitations within a spin. E.g. you can set

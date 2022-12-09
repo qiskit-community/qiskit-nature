@@ -42,8 +42,8 @@ class UCCSD(UCC):
             num_spatial_orbitals: The number of spatial orbitals.
             num_particles: The tuple of the number of alpha- and beta-spin particles.
             qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` or
-            :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance which takes care of mapping
-            to a qubit operator.
+                :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance which takes care of mapping
+                to a qubit operator.
             reps: The number of times to repeat the evolved operators.
             initial_state: A ``QuantumCircuit`` object to prepend to the circuit.
             generalized: Boolean flag whether or not to use generalized excitations, which ignore
@@ -51,6 +51,7 @@ class UCCSD(UCC):
                 only determined from the number of spin orbitals and independent from the number of
                 particles.
             preserve_spin: Boolean flag whether or not to preserve the particle spins.
+        
         """
         super().__init__(
             num_spatial_orbitals=num_spatial_orbitals,

@@ -64,8 +64,8 @@ class PUCCD(UCC):
             num_spatial_orbitals: The number of spatial orbitals.
             num_particles: The tuple of the number of alpha- and beta-spin particles.
             qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` or
-            :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance which takes care of mapping to
-            a qubit operator.
+                :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance which takes care of mapping
+                to a qubit operator.
             reps: The number of times to repeat the evolved operators.
             initial_state: A ``QuantumCircuit`` object to prepend to the circuit.
             include_singles: enables the inclusion of single excitations per spin species.
@@ -76,6 +76,7 @@ class PUCCD(UCC):
 
         Raises:
             QiskitNatureError: if the number of alpha and beta electrons is not equal.
+        
         """
         self._validate_num_particles(num_particles)
         self._include_singles = include_singles
