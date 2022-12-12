@@ -109,6 +109,23 @@ class TestVibrationalOp(QiskitNatureTestCase):
             )
             self.assertEqual(vib_op, targ)
 
+        with self.subTest("creation commutation relation"):
+            op1 = VibrationalOp({"+_0_0": 1}, num_modals=[1])
+            comm = (op1 @ op1 - op1 @ op1).normal_order()
+            self.assertTrue(comm.is_zero())
+
+        with self.subTest("annihilation commutation relation"):
+            op1 = VibrationalOp({"-_0_0": 1}, num_modals=[1])
+            comm = (op1 @ op1 - op1 @ op1).normal_order()
+            self.assertTrue(comm.is_zero())
+
+        with self.subTest("mixed commutation relation"):
+            op1 = VibrationalOp({"-_0_0": 1}, num_modals=[1])
+            op2 = VibrationalOp({"+_0_0": 1}, num_modals=[1])
+            comm = (op1 @ op2 - op2 @ op1).normal_order()
+            targ = VibrationalOp({"": 1})
+            self.assertEqual(comm, targ)
+
     def test_tensor(self):
         """Test tensor multiplication"""
         vib_op = self.op1.tensor(self.op2)
@@ -247,7 +264,7 @@ class TestVibrationalOp(QiskitNatureTestCase):
         with self.subTest("Test for empty operator"):
             orig = VibrationalOp({"-_0_0 +_0_0": 1})
             vib_op = orig.normal_order()
-            targ = VibrationalOp({"+_0_0 -_0_0": 1})
+            targ = VibrationalOp({"": 1, "+_0_0 -_0_0": 1})
             self.assertEqual(vib_op, targ)
 
         with self.subTest("Test for multiple operators 1"):
@@ -259,7 +276,7 @@ class TestVibrationalOp(QiskitNatureTestCase):
         with self.subTest("Test for multiple operators 2"):
             orig = VibrationalOp({"-_0_0 +_0_0 +_1_0 -_2_0": 1})
             vib_op = orig.normal_order()
-            targ = VibrationalOp({"+_0_0 +_1_0 -_0_0 -_2_0": 1})
+            targ = VibrationalOp({"+_1_0 -_2_0": 1, "+_0_0 +_1_0 -_0_0 -_2_0": 1})
             self.assertEqual(vib_op, targ)
 
         with self.subTest("Test normal ordering simplifies"):
