@@ -115,7 +115,16 @@ html_css_files = ["style.css", "custom.css", "gallery.css"]
 nbsphinx_timeout = 360
 nbsphinx_execute = os.getenv("QISKIT_DOCS_BUILD_TUTORIALS", "never")
 nbsphinx_widgets_path = ""
-nbsphinx_thumbnails = {}
+nbsphinx_thumbnails = {
+    'migration/00_Migration_Guide_to_v0.5':
+    '_images/qiskit_nature_0.5_overview.png',
+    'tutorials/03_ground_state_solvers':
+    '_images/h2_gs.png',
+    'tutorials/04_excited_states_solvers':
+    '_images/h2_es.png',
+    'tutorials/06_qubit_mappers':
+    '_images/jw_mapping.png',
+}
 
 spelling_word_list_filename = "../.pylintdict"
 spelling_filters = ["lowercase_filter.LowercaseFilter"]
