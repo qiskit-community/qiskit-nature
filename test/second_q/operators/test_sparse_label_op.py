@@ -143,6 +143,12 @@ class TestSparseLabelOp(QiskitNatureTestCase):
 
             self.assertEqual(test_op, target_op)
 
+        with self.subTest("parameter + parameter"):
+            test_op = DummySparseLabelOp({"+_0 -_1": a}) + DummySparseLabelOp({"+_1 -_0": a})
+            target_op = DummySparseLabelOp({"+_0 -_1": a, "+_1 -_0": a})
+
+            self.assertEqual(test_op, target_op)
+
         with self.subTest("new key"):
             test_op = DummySparseLabelOp(op1) + DummySparseLabelOp(op3)
             target_op = DummySparseLabelOp(
@@ -417,6 +423,10 @@ class TestSparseLabelOp(QiskitNatureTestCase):
         assigned_op = op.assign_parameters({a: 1.0})
         self.assertEqual(assigned_op, DummySparseLabelOp({"+_0 -_1": 1.0, "+_0 -_2": b}))
         self.assertEqual(op, DummySparseLabelOp({"+_0 -_1": a, "+_0 -_2": b}))
+
+        op = DummySparseLabelOp({"+_0 -_1": a + 1}) + DummySparseLabelOp({"+_1 -_0": a})
+        assigned_op = op.assign_parameters({a: 1})
+        self.assertEqual(assigned_op, DummySparseLabelOp({"+_0 -_1": 2, "+_1 -_0": 1}))
 
     def test_round(self):
         """test round function"""

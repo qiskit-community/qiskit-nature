@@ -511,7 +511,9 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
             A new operator with the parameters assigned.
         """
         data = {
-            key: parameters[value] if value in parameters else value
+            key: value.bind(parameters, allow_unknown_parameters=True)
+            if isinstance(value, ParameterExpression)
+            else value
             for key, value in self._data.items()
         }
         return self._new_instance(data, other=self)
