@@ -32,7 +32,7 @@ def _compute_mp2(
 
     Args:
         num_occ: The number of occupied molecular orbitals.
-        integral_matrix: The two-body molecular orbitals matrix in physicist' index order.
+        integral_matrix: The two-body molecular orbitals matrix in physicists' index order.
         orbital_energies: The orbital energies.
 
     Returns:
