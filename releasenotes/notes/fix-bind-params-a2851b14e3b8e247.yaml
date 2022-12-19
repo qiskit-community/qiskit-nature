@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fixes :meth:`.SparseLabelOp.assign_parameters` failing to
+    assign parameters recursively.
