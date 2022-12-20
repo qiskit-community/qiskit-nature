@@ -168,6 +168,8 @@ def _get_mo_hamiltonian_direct(qcschema) -> ElectronicEnergy:
         hijkl_bb = _reshape_4(qcschema.wavefunction.scf_eri_mo_bb, norb)
     if qcschema.wavefunction.scf_eri_mo_ba is not None:
         hijkl_ba = _reshape_4(qcschema.wavefunction.scf_eri_mo_ba, norb)
+    if qcschema.wavefunction.scf_eri_mo_ab is not None and hijkl_ba is None:
+        hijkl_ba = _reshape_4(qcschema.wavefunction.scf_eri_mo_ab, norb).T
 
     hamiltonian = ElectronicEnergy.from_raw_integrals(hij, hijkl, hij_b, hijkl_bb, hijkl_ba)
 
