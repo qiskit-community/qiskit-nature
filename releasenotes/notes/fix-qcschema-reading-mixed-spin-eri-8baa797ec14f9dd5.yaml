@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fixes the :meth:`.qcschema_to_problem` method to take :attr:`.QCWavefunction.eri_mo_ab`
+    into account when :attr:`.QCWavefunction.eri_mo_ba` is not available.
