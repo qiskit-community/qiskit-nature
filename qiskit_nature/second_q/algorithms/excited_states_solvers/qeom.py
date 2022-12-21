@@ -124,9 +124,11 @@ class QEOM(ExcitedStatesSolver):
             excitations: The excitations to be included in the eom pseudo-eigenvalue problem.
 
                 :`str`: which contains the types of excitations. Allowed characters are
-                    + `s` for singles
-                    + `d` for doubles
-                    + `sd` for singles and doubles
+
+                    + `s` for singles.
+                    + `d` for doubles.
+                    + `sd` for singles and doubles.
+
                 :`int`: a single, positive integer which denotes the number of excitations
                     (1 == `s`, 2 == `d`, etc.)
                 :`list[int]`: a list of positive integers generalizing the above to multiple numbers
