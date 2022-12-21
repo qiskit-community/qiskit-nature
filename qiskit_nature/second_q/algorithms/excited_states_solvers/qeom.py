@@ -91,9 +91,11 @@ class QEOM(ExcitedStatesSolver):
     constructed.
 
     Attributes:
-        aux_eval_rules (EvaluationRule | dict[str, list[tuple[int, int]]] | None): The rules determining
-            how observables should be evaluated on excited states.
-        tol (float): The tolerance threshold for the qEOM eigenvalues.
+        excitations: The excitations to be included in the eom pseudo-eigenvalue problem. If a string
+        then all excitations of given type will be used. Otherwise, a list of custom excitations can
+        directly be provided.
+        aux_eval_rules: The rules determining how observables should be evaluated on excited states.
+        tol: The tolerance threshold for the qEOM eigenvalues.
     """
 
     def __init__(
@@ -124,6 +126,7 @@ class QEOM(ExcitedStatesSolver):
                 :`str`: which contains the types of excitations. Allowed characters are
                     + `s` for singles
                     + `d` for doubles
+                    + `sd` for singles and doubles
                 :`int`: a single, positive integer which denotes the number of excitations
                     (1 == `s`, 2 == `d`, etc.)
                 :`list[int]`: a list of positive integers generalizing the above to multiple numbers
@@ -158,32 +161,6 @@ class QEOM(ExcitedStatesSolver):
         self.tol = tol
 
         self._untapered_qubit_op_main: QubitOperator | None = None
-
-    @property
-    def excitations(
-        self,
-    ) -> str | int | list[int] | Callable[
-        [int, tuple[int, int]], list[tuple[tuple[int, ...], tuple[int, ...]]]
-    ]:
-        """Returns the excitations to be included in the eom pseudo-eigenvalue problem."""
-        return self._excitations
-
-    @excitations.setter
-    def excitations(
-        self,
-        excitations: str
-        | int
-        | list[int]
-        | Callable[[int, tuple[int, int]], list[tuple[tuple[int, ...], tuple[int, ...]]]],
-    ) -> None:
-        """The excitations to be included in the eom pseudo-eigenvalue problem. If a string then
-        all excitations of given type will be used. Otherwise, a list of custom excitations can
-        directly be provided."""
-        if isinstance(excitations, str) and excitations not in ["s", "d", "sd"]:
-            raise ValueError(
-                "Excitation type must be s (singles), d (doubles) or sd (singles and doubles)"
-            )
-        self._excitations = excitations
 
     @property
     def qubit_converter(self) -> QubitConverter:
@@ -262,7 +239,7 @@ class QEOM(ExcitedStatesSolver):
         # 4. If a MinimumEigensolverFactory was provided, then an additional call to get_solver() is
         # required.
         if isinstance(self.solver, MinimumEigensolverFactory):
-            self._gsc._solver = self.solver.get_solver(problem, self.qubit_converter) # type: ignore
+            self._gsc._solver = self.solver.get_solver(problem, self.qubit_converter)  # type: ignore
 
         return untap_main_op, untap_aux_ops
 
