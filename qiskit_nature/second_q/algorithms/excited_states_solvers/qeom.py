@@ -74,24 +74,24 @@ class EvaluationRule(Enum):
 
 
 class QEOM(ExcitedStatesSolver):
-    """
-    The calculation of excited states via the qEOM algorithm.
-    This algorithms extends a ``GroundStateSolver`` object to identify good approximations to the excited
-    states of a problem provided that the ``GroundStateSolver.solve`` method yields a good approximation
-    to the ground state of the same problem.
+    """The calculation of excited states via the qEOM algorithm.
+
+    This algorithm approximates the excited-state properties of a problem using additional measurements
+    on the ground state provided by a ``GroundStateSolver`` object.
+    The precision of the ``GroundStateSolver.solve`` method for the ground state approximate directly
+    affects the precision of the qEOM algorithm for the same problem.
     The ``excitations`` are used to build a linear subspace in which an eigenvalue problem for the
-    projected Hamiltonian will solved. This method typically works well for calculating the lowest-lying
-    excited states of a problem.
-    In addition to the excited state energies, one can calculate other properties of the excited states
-    at the cost of additional measurements to perform on the ground state.
-    This requires providing the desired auxiliary observables to the ``solve`` method and having
-    specified the auxiliary evaluation rules of the ``QEOM`` object.
+    projected Hamiltonian will be solved. This method typically works well for calculating the
+    lowest-lying excited states of a problem.
+    The excited-state energies are calculated by default in this algorithm for all excited states.
+    Auxiliary observables can be specified to the ``solve`` method along with auxiliary evaluation
+    rules of the ``QEOM`` object.
 
     The following attributes can be read and updated once the ``QEOM`` object has been
     constructed.
 
     Attributes:
-        aux_eval_rules (EvaluationRule, dict[str, list[tuple[int, int]]], None): The rules determining
+        aux_eval_rules (EvaluationRule | dict[str, list[tuple[int, int]]] | None): The rules determining
             how observables should be evaluated on excited states.
         tol (float): The tolerance threshold for the qEOM eigenvalues.
     """
@@ -136,15 +136,16 @@ class QEOM(ExcitedStatesSolver):
                     respectively.
 
             aux_eval_rules: The rules determining how observables should be evaluated on excited states.
+                By default, none of the auxiliary operators are evaluated on none of the excited states.
 
                 :`Enum`: specific predefined rules. Allowed rules are:
 
-                    + ALL to compute all expectation values and all transition amplitudes
-                    + DIAG to only compute expectation values
+                    + ALL to compute all expectation values and all transition amplitudes.
+                    + DIAG to only compute expectation values.
 
-                :`dict[str, list[tuple]]`: Dictionary mapping valid auxiliary operator's name to lists
-                    of tuple (i, j) specifying the indices of the excited states to be evaluated on. By
-                    default, none of the auxiliary operators are evaluated on none of the excited states.
+                :`dict[str, list[tuple[int, int]]]`: Dictionary mapping valid auxiliary operator's name
+                    to lists of tuple (i, j) specifying the indices of the excited states to be evaluated
+                    on.
 
             tol: Tolerance threshold for the qEOM eigenvalues. This plays a role when one
                 excited state approaches the ground state, in which case it is best to avoid manipulating
@@ -203,8 +204,7 @@ class QEOM(ExcitedStatesSolver):
         Gets the operator and auxiliary operators, and transforms the provided auxiliary operators.
         If the user-provided ``aux_operators`` contain a name which clashes with an internally
         constructed auxiliary operator, then the corresponding internal operator will be overridden by
-        the user-provided operator. Note: the names used for the internal auxiliary operators correspond
-        to the `Property.name` attributes which generated the respective operators.
+        the user-provided operator.
 
         Note that this methods performs a specific treatment of the symmetries required by the qEOM
         calculation.
@@ -918,15 +918,6 @@ class QEOM(ExcitedStatesSolver):
         qeom_result.expansion_coefficients = expansion_coefs
         qeom_result.excitation_energies = energy_gaps
 
-        qeom_result.m_matrix = h_mat[: len(h_mat) // 2, : len(h_mat) // 2]
-        qeom_result.v_matrix = s_mat[: len(h_mat) // 2, : len(h_mat) // 2]
-        qeom_result.q_matrix = h_mat[len(h_mat) // 2 :, : len(h_mat) // 2]
-        qeom_result.w_matrix = s_mat[len(h_mat) // 2 :, : len(h_mat) // 2]
-        qeom_result.m_matrix_std = h_mat_std[0, 0]
-        qeom_result.v_matrix_std = s_mat_std[0, 0]
-        qeom_result.q_matrix_std = h_mat_std[0, 1]
-        qeom_result.w_matrix_std = s_mat_std[0, 1]
-
         qeom_result.h_matrix = h_mat
         qeom_result.s_matrix = s_mat
         qeom_result.h_matrix_std = h_mat_std
@@ -955,124 +946,40 @@ class QEOMResult(EigensolverResult):
 
     def __init__(self) -> None:
         super().__init__()
-        self._ground_state_raw_result = None
-        self._excitation_energies: np.ndarray | None = None
-        self._expansion_coefficients: np.ndarray | None = None
-        self._eigenvalues: np.ndarray | None = None
-        self._eigenstates: np.ndarray | None = None
+        self.ground_state_raw_result = None
+        self.excitation_energies: np.ndarray | None = None
+        self.expansion_coefficients: np.ndarray | None = None
+        self.eigenvalues: np.ndarray | None = None
+        self.eigenstates: np.ndarray | None = None
+        self.h_matrix: np.ndarray | None = None
+        self.s_matrix: np.ndarray | None = None
+        self.h_matrix_std: np.ndarray = np.zeros((2, 2))
+        self.s_matrix_std: np.ndarray = np.zeros((2, 2))
+
         self._m_matrix: np.ndarray | None = None
         self._v_matrix: np.ndarray | None = None
         self._q_matrix: np.ndarray | None = None
         self._w_matrix: np.ndarray | None = None
+        self._m_matrix_std: float = 0.0
         self._v_matrix_std: float = 0.0
         self._q_matrix_std: float = 0.0
         self._w_matrix_std: float = 0.0
-        self._h_matrix: np.ndarray | None = None
-        self._s_matrix: np.ndarray | None = None
-        self._h_matrix_std: np.ndarray = np.zeros((2, 2))
-        self._s_matrix_std: np.ndarray = np.zeros((2, 2))
-        self._aux_operators_evaluated: list[
+
+        self.aux_operators_evaluated: list[
             ListOrDictType[tuple[complex, dict[str, Any]]]
         ] | None = None
-        self._transition_amplitudes: list[
+        self.transition_amplitudes: list[
             ListOrDictType[tuple[complex, dict[str, Any]]]
         ] | None = None
-        self._gamma_square: np.ndarray = None
-
-    @property
-    def ground_state_raw_result(self):
-        """returns ground state raw result"""
-        return self._ground_state_raw_result
-
-    @ground_state_raw_result.setter
-    def ground_state_raw_result(self, value) -> None:
-        """sets ground state raw result"""
-        self._ground_state_raw_result = value
-
-    @property
-    def excitation_energies(self) -> np.ndarray | None:
-        """returns the excitation energies (energy gaps)"""
-        return self._excitation_energies
-
-    @excitation_energies.setter
-    def excitation_energies(self, value: np.ndarray) -> None:
-        """sets the excitation energies (energy gaps)"""
-        self._excitation_energies = value
-
-    @property
-    def expansion_coefficients(self) -> np.ndarray | None:
-        """returns the X and Y expansion coefficients"""
-        return self._expansion_coefficients
-
-    @expansion_coefficients.setter
-    def expansion_coefficients(self, value: np.ndarray) -> None:
-        """sets the X and Y expansion coefficients"""
-        self._expansion_coefficients = value
-
-    @property
-    def h_matrix(self) -> np.ndarray | None:
-        """returns the H matrix"""
-        return self._h_matrix
-
-    @h_matrix.setter
-    def h_matrix(self, value: np.ndarray) -> None:
-        """sets the H matrix"""
-        self._h_matrix = value
-
-    @property
-    def s_matrix(self) -> np.ndarray | None:
-        """returns the S matrix"""
-        return self._s_matrix
-
-    @s_matrix.setter
-    def s_matrix(self, value: np.ndarray) -> None:
-        """sets the S matrix"""
-        self._s_matrix = value
-
-    @property
-    def h_matrix_std(self) -> np.ndarray | None:
-        """returns the H matrix standard deviation"""
-        return self._h_matrix_std
-
-    @h_matrix_std.setter
-    def h_matrix_std(self, value: np.ndarray | None) -> None:
-        """sets the H matrix standard deviation"""
-        self._h_matrix_std = value
-
-    @property
-    def s_matrix_std(self) -> np.ndarray | None:
-        """returns the S matrix standard deviation"""
-        return self._s_matrix_std
-
-    @s_matrix_std.setter
-    def s_matrix_std(self, value: np.ndarray | None) -> None:
-        """sets the S matrix standard deviation"""
-        self._s_matrix_std = value
-
-    @property
-    def q_matrix(self) -> np.ndarray | None:
-        """returns the Q matrix"""
-        return self._q_matrix
-
-    @q_matrix.setter
-    def q_matrix(self, value: np.ndarray) -> None:
-        """sets the Q matrix"""
-        self._q_matrix = value
-
-    @property
-    def w_matrix(self) -> np.ndarray | None:
-        """returns the W matrix"""
-        return self._w_matrix
-
-    @w_matrix.setter
-    def w_matrix(self, value: np.ndarray) -> None:
-        """sets the S matrix"""
-        self._s_matrix = value
+        self.gamma_square: np.ndarray = None
 
     @property
     def m_matrix(self) -> np.ndarray | None:
         """returns the M matrix"""
-        return self._m_matrix
+        if self.h_matrix is not None and self._m_matrix is None:
+            return self.h_matrix[: len(self.h_matrix) // 2, : len(self.h_matrix) // 2]
+        else:
+            return self._m_matrix
 
     @m_matrix.setter
     def m_matrix(self, value: np.ndarray) -> None:
@@ -1082,7 +989,10 @@ class QEOMResult(EigensolverResult):
     @property
     def v_matrix(self) -> np.ndarray | None:
         """returns the V matrix"""
-        return self._v_matrix
+        if self.s_matrix is not None and self._v_matrix is None:
+            return self.s_matrix[: len(self.s_matrix) // 2, : len(self.s_matrix) // 2]
+        else:
+            return self._v_matrix
 
     @v_matrix.setter
     def v_matrix(self, value: np.ndarray) -> None:
@@ -1090,29 +1000,40 @@ class QEOMResult(EigensolverResult):
         self._v_matrix = value
 
     @property
-    def q_matrix_std(self) -> float:
-        """returns the Q matrix standard deviation"""
-        return self._q_matrix_std
+    def q_matrix(self) -> np.ndarray | None:
+        """returns the Q matrix"""
+        q_mat: np.ndarray | None = None
+        if self.h_matrix is not None:
+            q_mat = self.h_matrix[len(self.h_matrix) // 2 :, : len(self.h_matrix) // 2]
+        if self._q_matrix is not None:
+            q_mat = self._q_matrix
+        return q_mat
 
-    @q_matrix_std.setter
-    def q_matrix_std(self, value: float) -> None:
-        """sets the Q matrix standard deviation"""
-        self._q_matrix_std = value
+    @q_matrix.setter
+    def q_matrix(self, value: np.ndarray) -> None:
+        """sets the Q matrix"""
+        self._q_matrix = value
 
     @property
-    def w_matrix_std(self) -> float:
-        """returns the W matrix standard deviation"""
-        return self._w_matrix_std
+    def w_matrix(self) -> np.ndarray | None:
+        """returns the W matrix"""
+        if self.s_matrix is not None and self._w_matrix is None:
+            return self.s_matrix[len(self.s_matrix) // 2 :, : len(self.s_matrix) // 2]
+        else:
+            return self._w_matrix
 
-    @w_matrix_std.setter
-    def w_matrix_std(self, value: float) -> None:
-        """sets the W matrix standard deviation"""
-        self._w_matrix_std = value
+    @w_matrix.setter
+    def w_matrix(self, value: np.ndarray) -> None:
+        """sets the W matrix"""
+        self._w_matrix = value
 
     @property
     def m_matrix_std(self) -> float:
         """returns the M matrix standard deviation"""
-        return self._m_matrix_std
+        if not np.isclose(self.h_matrix_std[0, 0], 0.0) and np.isclose(self._m_matrix_std, 0.0):
+            return self.h_matrix_std[0, 0]
+        else:
+            return self._m_matrix_std
 
     @m_matrix_std.setter
     def m_matrix_std(self, value: float) -> None:
@@ -1122,7 +1043,10 @@ class QEOMResult(EigensolverResult):
     @property
     def v_matrix_std(self) -> float:
         """returns the V matrix standard deviation"""
-        return self._v_matrix_std
+        if not np.isclose(self.s_matrix_std[0, 0], 0.0) and np.isclose(self._v_matrix_std, 0.0):
+            return self.s_matrix_std[0, 0]
+        else:
+            return self._v_matrix_std
 
     @v_matrix_std.setter
     def v_matrix_std(self, value: float) -> None:
@@ -1130,69 +1054,27 @@ class QEOMResult(EigensolverResult):
         self._v_matrix_std = value
 
     @property
-    def eigenvalues(self) -> np.ndarray | None:
-        """returns eigen values"""
-        return self._eigenvalues
+    def q_matrix_std(self) -> float:
+        """returns the Q matrix standard deviation"""
+        if not np.isclose(self.h_matrix_std[0, 1], 0.0) and np.isclose(self._q_matrix_std, 0.0):
+            return self.h_matrix_std[0, 0]
+        else:
+            return self._q_matrix_std
 
-    @eigenvalues.setter
-    def eigenvalues(self, value: np.ndarray) -> None:
-        """set eigen values"""
-        self._eigenvalues = value
-
-    @property
-    def eigenstates(self) -> np.ndarray | None:
-        """return eigen states"""
-        return self._eigenstates
-
-    @eigenstates.setter
-    def eigenstates(self, value: np.ndarray) -> None:
-        """set eigen states"""
-        self._eigenstates = value
+    @q_matrix_std.setter
+    def q_matrix_std(self, value: float) -> None:
+        """sets the Q matrix standard deviation"""
+        self._q_matrix_std = value
 
     @property
-    def alphas(self) -> np.ndarray | None:
-        """return alphas"""
-        return self._alphas
+    def w_matrix_std(self) -> float:
+        """returns the W matrix standard deviation"""
+        if not np.isclose(self.s_matrix_std[0, 1], 0.0) and np.isclose(self._w_matrix_std, 0.0):
+            return self.s_matrix_std[0, 0]
+        else:
+            return self._w_matrix_std
 
-    @alphas.setter
-    def alphas(self, value: np.ndarray) -> None:
-        """set alphas"""
-        self._alphas = value
-
-    @property
-    def gamma_square(self) -> np.ndarray | None:
-        """return gamma_square"""
-        return self._gamma_square
-
-    @gamma_square.setter
-    def gamma_square(self, value: np.ndarray) -> None:
-        """set gamma_square"""
-        self._gamma_square = value
-
-    @property
-    def aux_operators_evaluated(
-        self,
-    ) -> list[ListOrDictType[tuple[complex, dict[str, Any]]]] | None:
-        """Return aux operator expectation values."""
-        return self._aux_operators_evaluated
-
-    @aux_operators_evaluated.setter
-    def aux_operators_evaluated(
-        self, value: list[ListOrDictType[tuple[complex, dict[str, Any]]]] | None
-    ) -> None:
-        """set aux operator eigen values"""
-        self._aux_operators_evaluated = value
-
-    @property
-    def transition_amplitudes(
-        self,
-    ) -> list[ListOrDictType[tuple[complex, dict[str, Any]]]] | None:
-        """Return the transition amplitudes."""
-        return self._transition_amplitudes
-
-    @transition_amplitudes.setter
-    def transition_amplitudes(
-        self, value: list[ListOrDictType[tuple[complex, dict[str, Any]]]]
-    ) -> None:
-        """set transition amplitudes"""
-        self._transition_amplitudes = value
+    @w_matrix_std.setter
+    def w_matrix_std(self, value: float) -> None:
+        """sets the W matrix standard deviation"""
+        self._w_matrix_std = value

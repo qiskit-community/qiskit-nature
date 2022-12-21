@@ -89,8 +89,17 @@ class GroundStateEigensolver(GroundStateSolver):
         """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators.
         If the user-provided ``aux_operators`` contain a name which clashes with an internally
         constructed auxiliary operator, then the corresponding internal operator will be overridden by
-        the user-provided operator. Note: the names used for the internal auxiliary operators correspond
-        to the `Property.name` attributes which generated the respective operators."""
+        the user-provided operator.
+
+        Args:
+            problem:  A class encoding a problem defining the qubit operators.
+            aux_operators: Additional auxiliary operators to transform.
+
+        Returns:
+            A tuple with the main operator (hamiltonian) and a dictionary of auxiliary default and
+            custom operators.
+        """
+
         # Note that ``aux_ops`` contains not only the transformed ``aux_operators`` passed by the
         # user but also additional ones from the transformation
         main_second_q_op, aux_second_q_ops = problem.second_q_ops()
@@ -113,9 +122,9 @@ class GroundStateEigensolver(GroundStateSolver):
                     converted_aux_op = aux_op
                 if name_aux in aux_ops.keys():
                     LOGGER.warning(
-                        "The key '%s' was already taken by an internally constructed auxiliary"
-                        "operator! The internal operator was overridden by the one provided manually."
-                        "If this was not the intended behavior, please consider renaming"
+                        "The key '%s' was already taken by an internally constructed auxiliary "
+                        "operator! The internal operator was overridden by the one provided manually. "
+                        "If this was not the intended behavior, please consider renaming "
                         "this operator.",
                         name_aux,
                     )

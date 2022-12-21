@@ -441,9 +441,9 @@ class QubitConverter:
         Find the $Z_2$-symmetries associated with the qubit operator and taper it accordingly.
 
         Args:
-            qubit_op (PauliSumOp): Qubit main operator - often the hamiltonian - from which symmetries
+            qubit_op: Qubit main operator - often the hamiltonian - from which symmetries
                 will be identified.
-            sector_locator (Callable): Method associated to the problem of interest which identifies the
+            sector_locator: Method associated to the problem of interest which identifies the
                 symmetry sector of the solution. Defaults to None.
 
         Raises:
@@ -452,7 +452,7 @@ class QubitConverter:
             QiskitNatureError: The main operator does not commute with its expected symmetries.
 
         Returns:
-            Tuple: Tuple (tapered qubit operator, identified $Z_2$-symmetry object)
+            Tuple of the form (tapered qubit operator, identified $Z_2$-symmetry object)
         """
         # Return operator unchanged and empty symmetries if we do not taper
         tapered_qubit_op = qubit_op
@@ -550,11 +550,11 @@ class QubitConverter:
         transformation from the current symmetry.
 
         Args:
-            converted_ops (ListOrDictType[PauliSumOp]): Operators to taper.
-            check_commutes (bool): Whether or not to check if the operators commute with the symmetries.
+            converted_ops: Operators to taper.
+            check_commutes: Whether or not to check if the operators commute with the symmetries.
 
         Returns:
-            ListOrDictType[PauliSumOp]: Tapered operators.
+            Tapered operators.
         """
         if converted_ops is None or self._z2symmetries is None or self._z2symmetries.is_empty():
             return_ops = converted_ops
@@ -603,10 +603,10 @@ class QubitConverter:
         Applies the Clifford transformation from the current symmetry to all operators.
 
         Args:
-            qubit_ops (PauliSumOp | ListOrDictType[PauliSumOp]): Operators to convert.
+            qubit_ops: Operators to convert.
 
         Returns:
-            _ListOrDict(PauliSumOp): Converted operators
+            Converted operators
         """
         if qubit_ops is None or self._z2symmetries is None or self._z2symmetries.is_empty():
             converted_ops = qubit_ops
