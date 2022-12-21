@@ -262,7 +262,7 @@ class QEOM(ExcitedStatesSolver):
         # 4. If a MinimumEigensolverFactory was provided, then an additional call to get_solver() is
         # required.
         if isinstance(self.solver, MinimumEigensolverFactory):
-            self._gsc._solver = self.solver.get_solver(problem, self.qubit_converter)
+            self._gsc._solver = self.solver.get_solver(problem, self.qubit_converter) # type: ignore
 
         return untap_main_op, untap_aux_ops
 
