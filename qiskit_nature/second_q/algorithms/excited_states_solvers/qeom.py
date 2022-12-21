@@ -292,7 +292,7 @@ class QEOM(ExcitedStatesSolver):
 
         # 2. Run ground state calculation with fully tapered custom auxiliary operators
         # Note that the solve() method includes the `second_q' auxiliary operators
-        tap_aux_operators = self.qubit_converter.symmetry_reduce_clifford(untap_aux_ops, True)
+        tap_aux_operators = self.qubit_converter.symmetry_reduce_clifford(untap_aux_ops)
 
         groundstate_result = self._gsc.solve(problem, tap_aux_operators)
         ground_state = groundstate_result.eigenstates[0]
@@ -727,7 +727,7 @@ class QEOM(ExcitedStatesSolver):
         """
 
         untap_hopping_ops, _, size = expansion_basis_data
-        tap_hopping_ops = self.qubit_converter.symmetry_reduce_clifford(untap_hopping_ops, True)
+        tap_hopping_ops = self.qubit_converter.symmetry_reduce_clifford(untap_hopping_ops)
 
         additionnal_measurements = estimate_observables(
             self._estimator, reference_state[0], tap_hopping_ops, reference_state[1]
@@ -871,7 +871,7 @@ class QEOM(ExcitedStatesSolver):
             )
 
             # 3. Measure observables
-            tap_op_aux_op_dict = self.qubit_converter.symmetry_reduce_clifford(op_aux_op_dict, True)
+            tap_op_aux_op_dict = self.qubit_converter.symmetry_reduce_clifford(op_aux_op_dict)
             aux_measurements = estimate_observables(
                 self._estimator, reference_state[0], tap_op_aux_op_dict, reference_state[1]
             )

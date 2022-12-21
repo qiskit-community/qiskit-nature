@@ -14,12 +14,13 @@
 
 from __future__ import annotations
 
+import logging
+
 from typing import Union, Optional, Tuple
 
 from qiskit.algorithms.eigensolvers import Eigensolver
 from qiskit.opflow import PauliSumOp
 
-from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.problems import BaseProblem
@@ -27,6 +28,8 @@ from qiskit_nature.second_q.problems import EigenstateResult
 
 from .excited_states_solver import ExcitedStatesSolver
 from .eigensolver_factories import EigensolverFactory
+
+LOGGER = logging.getLogger(__name__)
 
 
 class ExcitedStatesEigensolver(ExcitedStatesSolver):
@@ -63,7 +66,6 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         problem: BaseProblem,
         aux_operators: Optional[dict[str, Union[SparseLabelOp, PauliSumOp]]] = None,
     ) -> Tuple[PauliSumOp, Optional[dict[str, PauliSumOp]]]:
-        """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators."""
         # Note that ``aux_ops`` contains not only the transformed ``aux_operators`` passed by the
         # user but also additional ones from the transformation
         main_second_q_op, aux_second_q_ops = problem.second_q_ops()
@@ -86,10 +88,12 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
                 else:
                     converted_aux_op = aux_op
                 if name_aux in aux_ops.keys():
-                    raise QiskitNatureError(
-                        f"The key '{name_aux}' is already taken by an internally constructed "
-                        "auxiliary operator! Please use a different name for your custom "
-                        "operator."
+                    LOGGER.warning(
+                        "The key '%s' was already taken by an internally constructed auxiliary "
+                        "operator! The internal operator was overridden by the one provided manually. "
+                        "If this was not the intended behavior, please consider renaming "
+                        "this operator.",
+                        name_aux,
                     )
                 aux_ops[name_aux] = converted_aux_op
 
@@ -112,14 +116,6 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         Args:
             problem: A class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
-
-        Raises:
-            ValueError: If the grouped property object returned by the driver does not contain a
-                main property as requested by the problem being solved (`problem.main_property_name`).
-            QiskitNatureError: If the user-provided ``aux_operators`` contain a name which clashes
-                with an internally constructed auxiliary operator. Note: the names used for the
-                internal auxiliary operators correspond to the `Property.name` attributes which
-                generated the respective operators.
 
         Returns:
             An interpreted :class:`~.EigenstateResult`. For more information see also

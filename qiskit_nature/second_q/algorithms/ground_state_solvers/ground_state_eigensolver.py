@@ -86,20 +86,6 @@ class GroundStateEigensolver(GroundStateSolver):
         problem: BaseProblem,
         aux_operators: dict[str, SparseLabelOp | QubitOperator] | None = None,
     ) -> tuple[QubitOperator, dict[str, QubitOperator] | None]:
-        """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators.
-        If the user-provided ``aux_operators`` contain a name which clashes with an internally
-        constructed auxiliary operator, then the corresponding internal operator will be overridden by
-        the user-provided operator.
-
-        Args:
-            problem:  A class encoding a problem defining the qubit operators.
-            aux_operators: Additional auxiliary operators to transform.
-
-        Returns:
-            A tuple with the main operator (hamiltonian) and a dictionary of auxiliary default and
-            custom operators.
-        """
-
         # Note that ``aux_ops`` contains not only the transformed ``aux_operators`` passed by the
         # user but also additional ones from the transformation
         main_second_q_op, aux_second_q_ops = problem.second_q_ops()

@@ -17,17 +17,13 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Union
 
-from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolver
 from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 
-
 from qiskit_nature.second_q.operators import SparseLabelOp
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.second_q.problems import EigenstateResult
-
-from .minimum_eigensolver_factories import MinimumEigensolverFactory
 
 QubitOperator = Union[BaseOperator, PauliSumOp]
 
@@ -35,14 +31,13 @@ QubitOperator = Union[BaseOperator, PauliSumOp]
 class GroundStateSolver(ABC):
     """The ground state calculation interface."""
 
-    def __init__(self, qubit_converter: QubitConverter) -> None:
+    def __init__(self, qubit_converter: QubitConverter | QubitMapper) -> None:
         """
         Args:
             qubit_converter: A class that converts second quantized operator to qubit operator
                              according to a mapper it is initialized with.
         """
         self._qubit_converter = qubit_converter
-        self._solver: MinimumEigensolver | MinimumEigensolverFactory | None = None
 
     @abstractmethod
     def solve(
@@ -68,17 +63,18 @@ class GroundStateSolver(ABC):
         problem: BaseProblem,
         aux_operators: dict[str, SparseLabelOp | QubitOperator] | None = None,
     ) -> tuple[QubitOperator, dict[str, QubitOperator] | None]:
-        """Construct qubit operators by getting the second quantized operators from the problem
-        (potentially running a driver in doing so [can be computationally expensive])
-        and using a QubitConverter to map and reduce the operators to qubit operators.
+        """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators.
+        If the user-provided ``aux_operators`` contain a name which clashes with an internally
+        constructed auxiliary operator, then the corresponding internal operator will be overridden by
+        the user-provided operator.
 
         Args:
-            problem: A class encoding a problem to be solved.
-            aux_operators: Additional auxiliary operators to evaluate.
+            problem:  A class encoding a problem defining the qubit operators.
+            aux_operators: Additional auxiliary operators to transform.
 
         Returns:
-            Qubit operator.
-            Additional auxiliary operators.
+            A tuple with the main operator (hamiltonian) and a dictionary of auxiliary default and
+            custom operators.
         """
 
     @abstractmethod

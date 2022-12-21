@@ -325,7 +325,7 @@ class QubitConverter:
             suppress_none: If None should be placed in the output list where an operator
                 did not commute with symmetry, to maintain order, or whether that should
                 be suppressed where the output list length may then be smaller than the input
-            check_commutes: If True (default) a tapered operator must commute with the
+            check_commutes: If True (default) an operator must commute with the
                 symmetry to be tapered otherwise None is returned for that operator. When
                 False the operator is tapered with no check so due consideration needs to
                 be given in this case to how such operator(s) are eventually used.
@@ -543,7 +543,8 @@ class QubitConverter:
     def symmetry_reduce_clifford(
         self,
         converted_ops: ListOrDictType[PauliSumOp],
-        check_commutes: bool,
+        *,
+        check_commutes: bool = True,
     ) -> ListOrDictType[PauliSumOp]:
         """
         Applies the tapering to a list of operators previously converted with the Clifford
@@ -551,7 +552,10 @@ class QubitConverter:
 
         Args:
             converted_ops: Operators to taper.
-            check_commutes: Whether or not to check if the operators commute with the symmetries.
+            check_commutes: If True (default) an operator must commute with the
+                symmetry to be tapered otherwise None is returned for that operator. When
+                False the operator is tapered with no check so due consideration needs to
+                be given in this case to how such operator(s) are eventually used.
 
         Returns:
             Tapered operators.

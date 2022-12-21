@@ -44,9 +44,11 @@ features:
       )
       results_qeom = qeom_solver.solve(es_problem, aux_operators=aux_ops)
 
-      print("Aux QEOM")
-      for aux_op_eval in results_qeom.aux_operators_evaluated:
-          print(aux_op_eval)
+      for n, aux_op_eval in enumerate(results_qeom.aux_operators_evaluated):
+          print(f"Properties of eigen state {n}")
+          for aux_name, aux_result in aux_op_eval.items():
+              print(f" Expectation value of {aux_name} operator: {aux_result}")
+
   - |
     Added public methods :meth:`~qiskit_nature.second_q.mappers.QubitConverter.symmetry_reduce_clifford` 
     and :meth:`~qiskit_nature.second_q.mappers.QubitConverter.convert_clifford` and 
