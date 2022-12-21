@@ -20,7 +20,6 @@ from qiskit.opflow import PauliSumOp
 from qiskit.tools import parallel_map
 from qiskit.utils import algorithm_globals
 
-from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import UVCC
 from qiskit_nature.second_q.operators import VibrationalOp
 from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
@@ -106,6 +105,6 @@ def _build_single_hopping_operator(
     if isinstance(qubit_converter, QubitConverter):
         qubit_op = qubit_converter.convert_match(vibrational_op)
     else:
-        qubit_op = qubit_converter.map_all(vibrational_op)
+        qubit_op = qubit_converter.map(vibrational_op)
 
     return qubit_op

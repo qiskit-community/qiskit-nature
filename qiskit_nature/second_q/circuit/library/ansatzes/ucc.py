@@ -316,7 +316,7 @@ class UCC(EvolvedOperatorAnsatz):
                         excitation_ops, suppress_none=False
                     )
                 else:
-                    operators = self.qubit_converter.map_all(excitation_ops)
+                    operators = self.qubit_converter.map(excitation_ops)
                 self._filter_operators(operators=operators)
 
         return super(UCC, self.__class__).operators.__get__(self)

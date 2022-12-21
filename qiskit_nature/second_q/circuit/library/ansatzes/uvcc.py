@@ -211,7 +211,7 @@ class UVCC(EvolvedOperatorAnsatz):
                         excitation_ops, suppress_none=False
                     )
                 else:
-                    operators = self.qubit_converter.map_all(excitation_ops)
+                    operators = self.qubit_converter.map(excitation_ops)
 
                 valid_operators, valid_excitations = [], []
                 for op, ex in zip(operators, self._excitation_list):

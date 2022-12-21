@@ -106,7 +106,7 @@ class GroundStateEigensolver(GroundStateSolver):
             aux_ops = self._qubit_converter.convert_match(aux_second_q_ops)
         else:
             main_operator = self._qubit_converter.map(main_second_q_op)
-            aux_ops = self._qubit_converter.map_all(aux_second_q_ops)
+            aux_ops = self._qubit_converter.map(aux_second_q_ops)
 
         if aux_operators is not None:
             for name_aux, aux_op in aux_operators.items():
@@ -116,7 +116,7 @@ class GroundStateEigensolver(GroundStateSolver):
                             aux_op, suppress_none=True
                         )
                     else:
-                        converted_aux_op = self._qubit_converter.map_all(aux_op)
+                        converted_aux_op = self._qubit_converter.map(aux_op)
                 else:
                     converted_aux_op = aux_op
 

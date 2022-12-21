@@ -194,7 +194,7 @@ class QubitConverter:
         Returns:
             PauliSumOp qubit operator
         """
-        qubit_op = self._map(second_q_op)
+        qubit_op = self._mapper.map(second_q_op)
         reduced_op = self._two_qubit_reduce(qubit_op, num_particles)
         tapered_op, z2symmetries = self._find_taper_op(reduced_op, sector_locator)
         self._num_particles = num_particles
@@ -221,7 +221,7 @@ class QubitConverter:
         Returns:
             PauliSumOp qubit operator
         """
-        qubit_op = self._map(second_q_op)
+        qubit_op = self._mapper.map(second_q_op)
         reduced_op = self._two_qubit_reduce(qubit_op, num_particles)
 
         return reduced_op
@@ -303,7 +303,7 @@ class QubitConverter:
         reduced_ops: _ListOrDict[SparseLabelOp] = _ListOrDict()
 
         for name, second_q_op in iter(wrapped_second_q_ops):
-            qubit_op: PauliSumOp = self._map(second_q_op)
+            qubit_op: PauliSumOp = self._mapper.map(second_q_op)
             reduced_op: PauliSumOp = self._two_qubit_reduce(qubit_op, self._num_particles)
             reduced_ops[name] = reduced_op
 
@@ -321,9 +321,6 @@ class QubitConverter:
             returned_ops = dict(iter(tapered_ops))
 
         return returned_ops
-
-    def _map(self, second_q_ops: ListOrDictType[SparseLabelOp]) -> _ListOrDict[PauliSumOp]:
-        return self._mapper.map(second_q_ops)
 
     def _two_qubit_reduce(
         self, qubit_op: PauliSumOp, num_particles: Optional[Tuple[int, int]]

@@ -76,7 +76,7 @@ class PUCCD(UCC):
 
         Raises:
             QiskitNatureError: if the number of alpha and beta electrons is not equal.
-        
+
         """
         self._validate_num_particles(num_particles)
         self._include_singles = include_singles

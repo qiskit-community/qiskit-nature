@@ -51,7 +51,7 @@ class UCCSD(UCC):
                 only determined from the number of spin orbitals and independent from the number of
                 particles.
             preserve_spin: Boolean flag whether or not to preserve the particle spins.
-        
+
         """
         super().__init__(
             num_spatial_orbitals=num_spatial_orbitals,

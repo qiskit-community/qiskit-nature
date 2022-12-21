@@ -92,7 +92,7 @@ class QubitMapper(ABC):
         return self._allows_two_qubit_reduction
 
     @abstractmethod
-    def map(self, second_q_op: SparseLabelOp) -> PauliSumOp:
+    def _map_single(self, second_q_op: SparseLabelOp) -> PauliSumOp:
         """Maps a :class:`~qiskit_nature.second_q.operators.SparseLabelOp`
         to a `PauliSumOp`.
 
@@ -104,12 +104,13 @@ class QubitMapper(ABC):
         """
         raise NotImplementedError()
 
-    def map_all(
+    def map(
         self,
         second_q_ops: SparseLabelOp | ListOrDictType[SparseLabelOp],
         suppress_none: bool = None,
     ) -> PauliSumOp | ListOrDictType[PauliSumOp]:
-        """A convenience method to map second quantized operators based on current mapper.
+        """Maps a second quantized operator or a list, dict of second quantized operators based on
+        the current mapper.
 
         Args:
             second_q_ops: A second quantized operator, or list thereof.
@@ -118,12 +119,12 @@ class QubitMapper(ABC):
                 be suppressed where the output list length may then be smaller than the input.
 
         Returns:
-            A qubit operator in the form of a PauliSumOp, or list thereof if a list of
-            second quantized operators was supplied.
+            A qubit operator in the form of a PauliSumOp, or list (resp. dict) thereof if a list
+            (resp. dict) of second quantized operators was supplied.
         """
         wrapped_type = type(second_q_ops)
 
-        if isinstance(second_q_ops, SparseLabelOp):
+        if issubclass(wrapped_type, SparseLabelOp):
             second_q_ops = [second_q_ops]
             suppress_none = False
 
@@ -131,7 +132,7 @@ class QubitMapper(ABC):
 
         qubit_ops: _ListOrDict = _ListOrDict()
         for name, second_q_op in iter(wrapped_second_q_ops):
-            qubit_ops[name] = self.map(second_q_op)
+            qubit_ops[name] = self._map_single(second_q_op)
 
         returned_ops: Union[PauliSumOp, ListOrDictType[PauliSumOp]]
 
