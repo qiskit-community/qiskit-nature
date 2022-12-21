@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fixes the :meth:`~qiskit_nature.second_q.operators.VibrationalOp.normal_order`
+    method, which in turn corrects the commutation relations of this operator type.

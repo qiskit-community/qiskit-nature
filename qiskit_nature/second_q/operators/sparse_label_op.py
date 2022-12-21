@@ -511,7 +511,13 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
             A new operator with the parameters assigned.
         """
         data = {
-            key: parameters[value] if value in parameters else value
+            # TODO use this line once
+            # https://github.com/Qiskit/qiskit-terra/pull/9304
+            # is merged:
+            # key: value.bind(parameters, allow_unknown_parameters=True)
+            key: value.bind({k: v for k, v in parameters.items() if k in value.parameters})
+            if isinstance(value, ParameterExpression)
+            else value
             for key, value in self._data.items()
         }
         return self._new_instance(data, other=self)
