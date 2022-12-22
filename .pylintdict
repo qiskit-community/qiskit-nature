@@ -242,6 +242,7 @@ intel
 intelvem
 interatomic
 internuclear
+interoperability
 interpretable
 ints
 io
@@ -354,6 +355,7 @@ natom
 nbasis
 nd
 ndarray
+ndim
 nelec
 neq
 networkx
@@ -583,6 +585,7 @@ uccsd
 ucrx
 ucry
 ucrz
+ufuncs
 uhf
 ulimit
 un

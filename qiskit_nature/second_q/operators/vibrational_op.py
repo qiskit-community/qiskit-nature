@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -299,9 +299,10 @@ class VibrationalOp(SparseLabelOp):
                 data[""] = cast(float, tensor[key])
                 continue
 
+            # TODO: extract label_template into Tensor class
             label_template = " ".join(f"{op}_{{}}_{{}}" for op in key.replace("_", ""))
 
-            mat = tensor[key]
+            mat = tensor[key].array
             if isinstance(mat, np.ndarray):
                 for index in np.ndindex(*mat.shape):
                     data[label_template.format(*_reshape_index(index))] = mat[index]

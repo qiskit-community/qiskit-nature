@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -304,12 +304,13 @@ class SpinOp(SparseLabelOp):
                 data[""] = cast(float, tensor[key])
                 continue
 
+            # TODO: extract label_template into Tensor class
             label_template = " ".join(f"{op}_{{}}" for op in key)
 
             # PERF: the following matrix unpacking is a performance bottleneck!
             # We could consider using Rust in the future to improve upon this.
 
-            mat = tensor[key]
+            mat = tensor[key].array
             if isinstance(mat, np.ndarray):
                 for index in np.ndindex(*mat.shape):
                     data[label_template.format(*index)] = mat[index]
