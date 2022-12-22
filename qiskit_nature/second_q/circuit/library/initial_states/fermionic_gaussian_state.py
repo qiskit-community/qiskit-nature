@@ -133,7 +133,7 @@ class FermionicGaussianState(QuantumCircuit):
                 of the operators :math:`\{b^\dagger_j\}` from the main body of the docstring
                 of this function. The default behavior is to use the empty set of orbitals,
                 which corresponds to a state with zero pseudo-particles.
-            qubit_converter: The qubit converter or qubit mapper. The default behavior is to create
+            qubit_converter: The ``QubitConverter`` or ``QubitMapper``. The default behavior is to create
                 one using the call ``QubitConverter(JordanWignerMapper())``.
             validate: Whether to validate the inputs.
             rtol: Relative numerical tolerance for input validation.
