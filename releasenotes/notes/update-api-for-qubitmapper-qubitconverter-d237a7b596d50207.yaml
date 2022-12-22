@@ -10,4 +10,4 @@ features:
     qubit reduction techniques.
   - | 
     The method :meth:`~qiskit_nature.second_q.mappers.QubitMapper.map()` now supports individual operators
-    as well as list and dictionaries of operators.
+    as well as lists and dictionaries of operators.

@@ -64,7 +64,8 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
             -1.8427016 + 0.95788352,
             -1.8427016 + 1.5969296,
         ]
-        self.qubit_converter = QubitConverter(JordanWignerMapper())
+        self.mapper = JordanWignerMapper()
+        self.qubit_converter = QubitConverter(self.mapper)
         self.electronic_structure_problem = self.driver.run()
 
         solver = NumPyEigensolver()
@@ -209,6 +210,25 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         ]
 
         self._assert_energies(computed_energies, ref_energies, places=3)
+
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
+    def test_solver_compatibility_with_mappers(self):
+        """Test that solvers can use both QubitConverter and QubitMapper"""
+        with self.subTest("Excited states solver"):
+            # pylint: disable=unused-argument
+            def filter_criterion(eigenstate, eigenvalue, aux_values):
+                return np.isclose(aux_values["ParticleNumber"][0], 2.0)
+
+            # with qubitconverter
+            solver = NumPyEigensolverFactory(filter_criterion=filter_criterion)
+            esc_converter = ExcitedStatesEigensolver(self.qubit_converter, solver)
+            results_converter = esc_converter.solve(self.electronic_structure_problem)
+            computed_energies_converter = results_converter.computed_energies
+            # with mapper
+            esc_mapper = ExcitedStatesEigensolver(self.mapper, solver)
+            results_mapper = esc_mapper.solve(self.electronic_structure_problem)
+            computed_energies_mapper = results_mapper.computed_energies
+            self._assert_energies(computed_energies_converter, computed_energies_mapper)
 
 
 if __name__ == "__main__":

@@ -139,7 +139,7 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
             self.assertEqual(indices, self.expected_indices)
 
     def test_build_hopping_operators_mapper(self):
-        """Tests that the correct hopping operator is built."""
+        """Tests that the correct hopping operator is built when using a mapper instead of converter."""
 
         hopping_operators, commutativities, indices = build_electronic_ops(
             self.electronic_structure_problem.num_spatial_orbitals,
