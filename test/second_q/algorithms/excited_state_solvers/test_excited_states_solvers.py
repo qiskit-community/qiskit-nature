@@ -219,7 +219,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
             def filter_criterion(eigenstate, eigenvalue, aux_values):
                 return np.isclose(aux_values["ParticleNumber"][0], 2.0)
 
-            # with qubitconverter
+            # with qubit converter
             solver = NumPyEigensolverFactory(filter_criterion=filter_criterion)
             esc_converter = ExcitedStatesEigensolver(self.qubit_converter, solver)
             results_converter = esc_converter.solve(self.electronic_structure_problem)
