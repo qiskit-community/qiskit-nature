@@ -91,9 +91,7 @@ class QEOM(ExcitedStatesSolver):
     constructed.
 
     Attributes:
-        excitations: The excitations to be included in the eom pseudo-eigenvalue problem. If a string
-        then all excitations of given type will be used. Otherwise, a list of custom excitations can
-        directly be provided.
+        excitations: The excitations to be included in the eom pseudo-eigenvalue problem.
         aux_eval_rules: The rules determining how observables should be evaluated on excited states.
         tol: The tolerance threshold for the qEOM eigenvalues.
     """
@@ -124,34 +122,28 @@ class QEOM(ExcitedStatesSolver):
             excitations: The excitations to be included in the eom pseudo-eigenvalue problem.
 
                 :`str`: which contains the types of excitations. Allowed characters are
-
-                    + `s` for singles.
-                    + `d` for doubles.
-                    + `sd` for singles and doubles.
-
+                    + `s` for singles
+                    + `d` for doubles
+                    + `t` for triples
+                    + `q` for quadruples
                 :`int`: a single, positive integer which denotes the number of excitations
-                    (1 == `s`, 2 == `d`, etc.)
-                :`list[int]`: a list of positive integers generalizing the above to multiple numbers
-                    of excitations ([1, 2] == `sd`, etc.)
-                :`Callable`: a function which can be used to specify a custom list of excitations.
-                    For more details on how to write such a function refer to one of the default
-                    methods, :meth:`generate_fermionic_excitations` or
-                    :meth:`generate_vibrational_excitations`, when solving an
-                    :class:`.ElectronicStructureProblem` or a :class:`.VibrationalStructureProblem`,
-                    respectively.
-
+                    (1 == `s`, etc.)
+                :`list[int]`: a list of positive integers generalizing the above
+                :`Callable`: a function which is used to generate the excitations.
+                    The callable must take the __keyword__ arguments `num_spin_orbitals` and
+                    `num_particles` (with identical types to those explained above) and must return
+                    a `list[tuple[tuple[int, ...], tuple[int, ...]]]`. For more information on how
+                    to write such a callable refer to the default method
+                    :meth:`~qiskit_nature.circuit.library.ansatzes.utils.generate_fermionic_excitations`.
             aux_eval_rules: The rules determining how observables should be evaluated on excited states.
                 By default, none of the auxiliary operators are evaluated on none of the excited states.
 
                 :`Enum`: specific predefined rules. Allowed rules are:
-
                     + ALL to compute all expectation values and all transition amplitudes.
                     + DIAG to only compute expectation values.
-
                 :`dict[str, list[tuple[int, int]]]`: Dictionary mapping valid auxiliary operator's name
                     to lists of tuple (i, j) specifying the indices of the excited states to be evaluated
                     on.
-
             tol: Tolerance threshold for the qEOM eigenvalues. This plays a role when one
                 excited state approaches the ground state, in which case it is best to avoid manipulating
                 very small absolute values.
