@@ -68,7 +68,7 @@ class VSCF(BlueprintCircuit):
         return self._qubit_converter
 
     @qubit_converter.setter
-    def qubit_converter(self, conv: QubitConverter | QubitMapper) -> None:
+    def qubit_converter(self, conv: QubitConverter | QubitMapper | None) -> None:
         """Sets the qubit converter."""
         self._invalidate()
         mapper = conv if isinstance(conv, QubitMapper) else conv.mapper

@@ -63,9 +63,8 @@ class GroundStateSolver(ABC):
         problem: BaseProblem,
         aux_operators: dict[str, SparseLabelOp | QubitOperator] | None = None,
     ) -> tuple[QubitOperator, dict[str, QubitOperator] | None]:
-        """Construct qubit operators by getting the second quantized operators from the problem
-        (potentially running a driver in doing so [can be computationally expensive])
-        and using a QubitConverter to map and reduce the operators to qubit operators.
+        """Construct qubit operators by getting the second quantized operators from the problem and
+        using a ``QubitConverter`` or ``QubitMapper`` to map and reduce the operators to qubit operators.
 
         Args:
             problem: A class encoding a problem to be solved.

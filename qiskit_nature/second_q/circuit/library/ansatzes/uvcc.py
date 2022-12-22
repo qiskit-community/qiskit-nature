@@ -97,8 +97,9 @@ class UVCC(EvolvedOperatorAnsatz):
                     ``list[tuple[tuple[int, ...], tuple[int, ...]]]``. For more information on
                     how to write such a callable refer to the default method :meth:`~qiskit_nature.\
                     second_q.circuit.library.ansatzes.utils.generate_vibration_excitations`.
-            qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` instance
-                which takes care of mapping to a qubit operator.
+            qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` or
+                :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance which takes care of mapping
+                to a qubit operator.
             reps: The number of repetitions of basic module.
             initial_state: A ``QuantumCircuit`` object to prepend to the circuit. Note that this
                 setting does *not* influence the ``excitations``. When relying on the default

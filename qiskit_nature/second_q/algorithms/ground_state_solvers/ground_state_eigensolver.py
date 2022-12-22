@@ -62,14 +62,9 @@ class GroundStateEigensolver(GroundStateSolver):
             aux_operators: Additional auxiliary operators to evaluate.
 
         Raises:
-            ValueError: If the grouped property object returned by the driver does not contain a
-                main property as requested by the problem being solved (`problem.main_property_name`).
             QiskitNatureError: If the user-provided ``aux_operators`` contain a name which clashes
-                with an internally constructed auxiliary operator. Note: the names used for the
-                internal auxiliary operators correspond to the `Property.name` attributes which
-                generated the respective operators.
-            QiskitNatureError: Invalid type for ``QubitConverter``.
-
+                with an internally constructed auxiliary operator.
+                
         Returns:
             An interpreted :class:`~.EigenstateResult`. For more information see also
             :meth:`~.BaseProblem.interpret`.

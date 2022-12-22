@@ -277,8 +277,8 @@ class ElectronicStructureProblem(BaseProblem):
 
         Args:
             z2_symmetries: the z2 symmetries object.
-            converter: the qubit converter or qubit mapper instance used for the operator conversion that
-                symmetries are to be determined for.
+            converter: the ``QubitConverter`` or ``QubitMapper`` instance used for the operator
+                conversion that symmetries are to be determined for.
 
         Raises:
             QiskitNatureError: if the :attr:`num_particles` attribute is ``None``.

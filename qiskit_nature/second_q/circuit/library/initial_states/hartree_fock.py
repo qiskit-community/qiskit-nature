@@ -37,7 +37,7 @@ class HartreeFock(BlueprintCircuit):
             num_spatial_orbitals: The number of spatial orbitals.
             num_particles: The number of particles as a tuple storing the number of alpha and
                 beta-spin electrons in the first and second number, respectively.
-            qubit_converter: a :class:`~qiskit_nature.second_q.mappers.QubitConverter` or a
+            qubit_converter: A :class:`~qiskit_nature.second_q.mappers.QubitConverter` or a
                 :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance.
 
         Raises:
@@ -60,7 +60,7 @@ class HartreeFock(BlueprintCircuit):
         return self._qubit_converter
 
     @qubit_converter.setter
-    def qubit_converter(self, conv: QubitConverter | QubitMapper) -> None:
+    def qubit_converter(self, conv: QubitConverter | QubitMapper | None) -> None:
         """Sets the qubit converter."""
         self._invalidate()
         self._qubit_converter = conv

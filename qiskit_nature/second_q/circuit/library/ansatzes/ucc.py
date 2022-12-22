@@ -220,12 +220,12 @@ class UCC(EvolvedOperatorAnsatz):
         _ = self.operators
 
     @property
-    def qubit_converter(self) -> QubitConverter | QubitMapper:
+    def qubit_converter(self) -> QubitConverter | QubitMapper | None:
         """The qubit operator converter."""
         return self._qubit_converter
 
     @qubit_converter.setter
-    def qubit_converter(self, conv: QubitConverter | QubitMapper) -> None:
+    def qubit_converter(self, conv: QubitConverter | QubitMapper | None) -> None:
         """Sets the qubit operator converter."""
         self._operators = None
         self._invalidate()

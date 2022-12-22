@@ -86,8 +86,8 @@ class BaseProblem:
 
         Args:
             z2_symmetries: the z2 symmetries object.
-            converter: the qubit converter or qubit mapper instance used for the operator conversion that
-                symmetries are to be determined for.
+            converter: the ``QubitConverter`` or ``QubitMapper`` instance used for the operator
+                conversion that symmetries are to be determined for.
 
         Returns:
             the sector of the tapered operators with the problem solution
