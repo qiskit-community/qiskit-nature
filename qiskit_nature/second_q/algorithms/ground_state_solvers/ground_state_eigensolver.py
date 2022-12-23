@@ -64,7 +64,7 @@ class GroundStateEigensolver(GroundStateSolver):
         Raises:
             QiskitNatureError: If the user-provided ``aux_operators`` contain a name which clashes
                 with an internally constructed auxiliary operator.
-                
+
         Returns:
             An interpreted :class:`~.EigenstateResult`. For more information see also
             :meth:`~.BaseProblem.interpret`.
