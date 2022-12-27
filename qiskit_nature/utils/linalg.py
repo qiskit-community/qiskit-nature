@@ -98,7 +98,7 @@ def givens_matrix(a: complex, b: complex) -> np.ndarray:
         sign_a = a / abs(a)
         sine = sign_a * b.conjugate() / hypotenuse
 
-    return np.array([[cosine, sine], [-sine.conjugate(), cosine]])
+    return np.array([[cosine, sine], [-sine.conjugate(), cosine]], dtype=complex)
 
 
 def fermionic_gaussian_decomposition_jw(  # pylint: disable=invalid-name
