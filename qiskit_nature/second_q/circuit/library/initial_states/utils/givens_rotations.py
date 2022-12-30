@@ -48,7 +48,7 @@ def _prepare_slater_determinant_jw(
     if m == n:
         return
 
-    current_matrix = transformation_matrix
+    current_matrix = transformation_matrix.astype(complex, copy=False)
 
     # zero out top right corner by rotating rows; this is a no-op
     for j in reversed(range(n - m + 1, n)):
