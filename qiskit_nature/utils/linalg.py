@@ -81,7 +81,7 @@ def givens_matrix(a: complex, b: complex) -> np.ndarray:
         b: A complex number representing the second row entry
 
     Returns:
-        The Givens rotation matrix.
+        The Givens rotation matrix, as a 2x2 Numpy array with dtype=complex.
     """
     # Handle case that a is zero
     if np.isclose(a, 0.0):
@@ -129,9 +129,9 @@ def fermionic_gaussian_decomposition_jw(  # pylint: disable=invalid-name
     # compute left_unitary
     left_unitary = np.eye(n, dtype=complex)
     for j in range(n - 1):
-        # Zero out entries in column k
+        # Zero out entries in column j
         for i in range(n - 1 - j):
-            # Zero out entry in row l if needed
+            # Zero out entry in row i if needed
             if not np.isclose(current_matrix[i, j], 0.0):
                 givens_mat = givens_matrix(current_matrix[i + 1, j], current_matrix[i, j])
                 current_matrix = apply_matrix_to_slices(current_matrix, givens_mat, [i + 1, i])
