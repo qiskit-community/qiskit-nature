@@ -1,6 +1,5 @@
 ---
 fixes:
   - |
-    Makes :func:`~.givens_matrix` always return a complex matrix. This fixes a bug in
-    which :class:`~.BogoliubovTransform` would throw an error due to an inability to
+    Fixes a bug in which :class:`~.BogoliubovTransform` would sometimes throw an error due to an inability to
     cast complex numbers to floats.

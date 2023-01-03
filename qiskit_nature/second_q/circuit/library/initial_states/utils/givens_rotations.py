@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -48,7 +48,7 @@ def _prepare_slater_determinant_jw(
     if m == n:
         return
 
-    current_matrix = transformation_matrix.astype(complex, copy=False)
+    current_matrix = transformation_matrix
 
     # zero out top right corner by rotating rows; this is a no-op
     for j in reversed(range(n - m + 1, n)):

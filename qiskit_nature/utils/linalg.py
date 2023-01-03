@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -81,7 +81,7 @@ def givens_matrix(a: complex, b: complex) -> np.ndarray:
         b: A complex number representing the second row entry
 
     Returns:
-        The Givens rotation matrix, as a 2x2 Numpy array with dtype=complex.
+        The Givens rotation matrix.
     """
     # Handle case that a is zero
     if np.isclose(a, 0.0):
@@ -98,7 +98,7 @@ def givens_matrix(a: complex, b: complex) -> np.ndarray:
         sign_a = a / abs(a)
         sine = sign_a * b.conjugate() / hypotenuse
 
-    return np.array([[cosine, sine], [-sine.conjugate(), cosine]], dtype=complex)
+    return np.array([[cosine, sine], [-sine.conjugate(), cosine]])
 
 
 def fermionic_gaussian_decomposition_jw(  # pylint: disable=invalid-name
