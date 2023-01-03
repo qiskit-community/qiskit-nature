@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -108,9 +108,7 @@ def _build_single_hopping_operator(
         label.append(f"+_{occ}")
     for unocc in excitation[1]:
         label.append(f"-_{unocc}")
-    fer_op = FermionicOp(
-        {" ".join(label): 4.0 ** len(excitation[0])}, num_spin_orbitals=2 * num_spatial_orbitals
-    )
+    fer_op = FermionicOp({" ".join(label): 1.0}, num_spin_orbitals=2 * num_spatial_orbitals)
 
     if isinstance(qubit_converter, QubitConverter):
         qubit_op = qubit_converter.convert_only(fer_op, num_particles=qubit_converter.num_particles)

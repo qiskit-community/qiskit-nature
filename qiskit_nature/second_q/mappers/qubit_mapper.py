@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -106,7 +106,7 @@ class QubitMapper(ABC):
 
     def map(
         self,
-        second_q_ops: SparseLabelOp | ListOrDictType[SparseLabelOp],
+        second_q_ops: SparseLabelOp | PauliSumOp | ListOrDictType[SparseLabelOp | PauliSumOp],
         suppress_none: bool = None,
     ) -> PauliSumOp | ListOrDictType[PauliSumOp]:
         """Maps a second quantized operator or a list, dict of second quantized operators based on
@@ -124,19 +124,22 @@ class QubitMapper(ABC):
         """
         wrapped_type = type(second_q_ops)
 
-        if issubclass(wrapped_type, SparseLabelOp):
+        if issubclass(wrapped_type, (SparseLabelOp, PauliSumOp)):
             second_q_ops = [second_q_ops]
             suppress_none = False
 
-        wrapped_second_q_ops: _ListOrDict[SparseLabelOp] = _ListOrDict(second_q_ops)
+        wrapped_second_q_ops: _ListOrDict[SparseLabelOp | PauliSumOp] = _ListOrDict(second_q_ops)
 
         qubit_ops: _ListOrDict = _ListOrDict()
         for name, second_q_op in iter(wrapped_second_q_ops):
-            qubit_ops[name] = self._map_single(second_q_op)
+            if isinstance(second_q_op, PauliSumOp):
+                qubit_ops[name] = second_q_op
+            else:
+                qubit_ops[name] = self._map_single(second_q_op)
 
         returned_ops: Union[PauliSumOp, ListOrDictType[PauliSumOp]]
 
-        if issubclass(wrapped_type, SparseLabelOp):
+        if issubclass(wrapped_type, (SparseLabelOp, PauliSumOp)):
             returned_ops = list(iter(qubit_ops))[0][1]
         elif wrapped_type == list:
             if suppress_none:

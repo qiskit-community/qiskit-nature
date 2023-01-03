@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -15,6 +15,7 @@
 import unittest
 
 from test import QiskitNatureTestCase
+from ddt import ddt, named_data
 import numpy as np
 
 from qiskit.algorithms.eigensolvers import NumPyEigensolver
@@ -43,6 +44,7 @@ from qiskit_nature.second_q.algorithms import (
 import qiskit_nature.optionals as _optionals
 
 
+@ddt
 class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
     """Test Numerical qEOM excited states calculation"""
 
@@ -90,49 +92,22 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         results = esc.solve(self.electronic_structure_problem)
         self._assert_energies(results.computed_energies, self.reference_energies)
 
-    def test_vqe_mes_jw(self):
-        """Test VQEUCCSDFactory with QEOM + Jordan Wigner mapping"""
-        converter = QubitConverter(JordanWignerMapper())
-        self._solve_with_vqe_mes(converter)
+    @named_data(
+        ["JWM", QubitConverter(JordanWignerMapper())],
+        ["JWM_Z2", QubitConverter(JordanWignerMapper(), z2symmetry_reduction="auto")],
+        ["PM", QubitConverter(ParityMapper())],
+        ["PM_TQR", QubitConverter(ParityMapper(), two_qubit_reduction=True)],
+        ["PM_Z2", QubitConverter(ParityMapper(), z2symmetry_reduction="auto")],
+        [
+            "PM_TQR_Z2",
+            QubitConverter(ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto"),
+        ],
+        ["BKM", QubitConverter(BravyiKitaevMapper())],
+        ["BKM_Z2", QubitConverter(BravyiKitaevMapper(), z2symmetry_reduction="auto")],
+    )
+    def test_solve_with_vqe_mes(self, converter: QubitConverter):
+        """Test QEOM with VQEUCCFactory and various QubitConverter"""
 
-    def test_vqe_mes_jw_auto(self):
-        """Test VQEUCCSDFactory with QEOM + Jordan Wigner mapping + auto symmetry"""
-        converter = QubitConverter(JordanWignerMapper(), z2symmetry_reduction="auto")
-        self._solve_with_vqe_mes(converter)
-
-    def test_vqe_mes_parity(self):
-        """Test VQEUCCSDFactory with QEOM + Parity mapping"""
-        converter = QubitConverter(ParityMapper())
-        self._solve_with_vqe_mes(converter)
-
-    def test_vqe_mes_parity_2q(self):
-        """Test VQEUCCSDFactory with QEOM + Parity mapping + reduction"""
-        converter = QubitConverter(ParityMapper(), two_qubit_reduction=True)
-        self._solve_with_vqe_mes(converter)
-
-    def test_vqe_mes_parity_auto(self):
-        """Test VQEUCCSDFactory with QEOM + Parity mapping + auto symmetry"""
-        converter = QubitConverter(ParityMapper(), z2symmetry_reduction="auto")
-        self._solve_with_vqe_mes(converter)
-
-    def test_vqe_mes_parity_2q_auto(self):
-        """Test VQEUCCSDFactory with QEOM + Parity mapping + reduction + auto symmetry"""
-        converter = QubitConverter(
-            ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto"
-        )
-        self._solve_with_vqe_mes(converter)
-
-    def test_vqe_mes_bk(self):
-        """Test VQEUCCSDFactory with QEOM + Bravyi-Kitaev mapping"""
-        converter = QubitConverter(BravyiKitaevMapper())
-        self._solve_with_vqe_mes(converter)
-
-    def test_vqe_mes_bk_auto(self):
-        """Test VQEUCCSDFactory with QEOM + Bravyi-Kitaev mapping + auto symmetry"""
-        converter = QubitConverter(BravyiKitaevMapper(), z2symmetry_reduction="auto")
-        self._solve_with_vqe_mes(converter)
-
-    def _solve_with_vqe_mes(self, converter: QubitConverter):
         estimator = Estimator()
         solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
         gsc = GroundStateEigensolver(converter, solver)
@@ -228,6 +203,23 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
             esc_mapper = ExcitedStatesEigensolver(self.mapper, solver)
             results_mapper = esc_mapper.solve(self.electronic_structure_problem)
             computed_energies_mapper = results_mapper.computed_energies
+            self._assert_energies(computed_energies_converter, computed_energies_mapper)
+
+        with self.subTest("QEOM"):
+            estimator = Estimator()
+            solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
+
+            # with qubit converter
+            gsc_converter = GroundStateEigensolver(self.qubit_converter, solver)
+            esc_converter = QEOM(gsc_converter, estimator, "sd")
+            results_converter = esc_converter.solve(self.electronic_structure_problem)
+            computed_energies_converter = results_converter.computed_energies
+            # with mapper
+            gsc_mapper = GroundStateEigensolver(self.mapper, solver)
+            esc_mapper = QEOM(gsc_mapper, estimator, "sd")
+            results_mapper = esc_mapper.solve(self.electronic_structure_problem)
+            computed_energies_mapper = results_mapper.computed_energies
+
             self._assert_energies(computed_energies_converter, computed_energies_mapper)
 
 
