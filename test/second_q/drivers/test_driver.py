@@ -39,7 +39,7 @@ class TestDriver(ABC):
 
     def __init__(self) -> None:
         self.log: Logger | None = None
-        self.driver_result: ElectronicStructureProblem = None
+        self.driver_result: ElectronicStructureProblem | None = None
 
     @abstractmethod
     def subTest(self, msg, **kwargs):
