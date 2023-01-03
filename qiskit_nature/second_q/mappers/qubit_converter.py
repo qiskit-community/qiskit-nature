@@ -521,7 +521,7 @@ class QubitConverter:
     def convert_clifford(
         self,
         qubit_ops: PauliSumOp | ListOrDictType[PauliSumOp],
-    ) -> _ListOrDict[PauliSumOp]:
+    ) -> PauliSumOp | ListOrDictType[PauliSumOp]:
         """
         Applies the Clifford transformation from the current symmetry to all operators.
 

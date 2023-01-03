@@ -403,9 +403,12 @@ class QEOM(ExcitedStatesSolver):
                 right_op_2 = available_hopping_ops.get(f"Edag_{n_u}")
                 to_be_computed_list.append((m_u, n_u, left_op_1, right_op_1, right_op_2))
 
-        try:
-            z2_symmetries = self.qubit_converter.z2symmetries
-        except AttributeError:
+        if isinstance(self.qubit_converter, QubitConverter):
+            try:
+                z2_symmetries = self.qubit_converter.z2symmetries
+            except AttributeError:
+                z2_symmetries = Z2Symmetries([], [], [])
+        else:
             z2_symmetries = Z2Symmetries([], [], [])
 
         if not z2_symmetries.is_empty():
