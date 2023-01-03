@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018, 2022.
+# (C) Copyright IBM 2018, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,8 +12,10 @@
 
 """ Test Driver """
 
+from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import cast
+from logging import Logger
 
 import numpy as np
 
@@ -35,8 +37,8 @@ class TestDriver(ABC):
         units=DistanceUnit.ANGSTROM,
     )
 
-    def __init__(self):
-        self.log = None
+    def __init__(self) -> None:
+        self.log: Logger | None = None
         self.driver_result: ElectronicStructureProblem = None
 
     @abstractmethod
