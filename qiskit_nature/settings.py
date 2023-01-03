@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -24,7 +24,7 @@ class ListAuxOpsDeprecationWarning(DeprecationWarning):
 class QiskitNatureSettings:
     """Global settings for Qiskit Nature."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._dict_aux_operators: bool = True
         self._optimize_einsum: bool = True
         self._deprecation_shown: bool = False
