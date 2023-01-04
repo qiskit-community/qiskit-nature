@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -19,14 +19,9 @@ import logging
 from typing import (
     cast,
     Callable,
-    Dict,
-    Generator,
-    Generic,
-    Iterable,
     List,
     Optional,
     Tuple,
-    TypeVar,
     Union,
 )
 
@@ -39,51 +34,9 @@ from qiskit.opflow.primitive_ops import Z2Symmetries
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.operators import SparseLabelOp
-
-from .qubit_mapper import QubitMapper
-
-# pylint: disable=invalid-name
-T = TypeVar("T")
+from .qubit_mapper import QubitMapper, _ListOrDict
 
 logger = logging.getLogger(__name__)
-
-
-class _ListOrDict(Dict, Iterable, Generic[T]):
-    """The ListOrDict utility class.
-
-    This is a utility which allows seamless iteration of a `list` or `dict` object.
-    """
-
-    def __init__(self, values: Optional[ListOrDictType] = None):
-        """
-        Args:
-            values: an optional object of `list` or `dict` type.
-        """
-        if isinstance(values, list):
-            values = dict(enumerate(values))
-        elif values is None:
-            values = {}
-        super().__init__(values)
-
-    def __iter__(self) -> Generator[Tuple[Union[int, str], T], T, None]:
-        """Return the generator-iterator method."""
-        return self._generator()
-
-    def _generator(self) -> Generator[Tuple[Union[int, str], T], T, None]:
-        """Return generator method iterating the contents of this class.
-
-        This generator yields the `(key, value)` pairs of the underlying dictionary. If this object
-        was constructed from a list, the keys in this generator are simply the numeric indices.
-
-        This generator also supports overriding the yielded value upon receiving any value other
-        than `None` from a `send` [1] instruction.
-
-        [1]: https://docs.python.org/3/reference/expressions.html#generator.send
-        """
-        for key, value in self.items():
-            new_value = yield (key, value)
-            if new_value is not None:
-                self[key] = new_value
 
 
 class QubitConverter:
@@ -312,7 +265,7 @@ class QubitConverter:
 
     def convert_match(
         self,
-        second_q_ops: SparseLabelOp | ListOrDictType[SparseLabelOp],
+        second_q_ops: SparseLabelOp | PauliSumOp | ListOrDictType[SparseLabelOp | PauliSumOp],
         *,
         suppress_none: bool = False,
         check_commutes: bool = True,
@@ -342,22 +295,22 @@ class QubitConverter:
         # actual conversions, we make a single entry list of it here and unwrap to return.
         wrapped_type = type(second_q_ops)
 
-        if isinstance(second_q_ops, SparseLabelOp):
+        if isinstance(second_q_ops, (SparseLabelOp, PauliSumOp)):
             second_q_ops = [second_q_ops]
             suppress_none = False  # When only a single op we will return None back
 
-        wrapped_second_q_ops: _ListOrDict[SparseLabelOp] = _ListOrDict(second_q_ops)
-
-        qubit_ops: _ListOrDict[PauliSumOp] = _ListOrDict()
-        for name, second_q_op in iter(wrapped_second_q_ops):
-            qubit_ops[name] = self._mapper.map(second_q_op)
+        wrapped_second_q_ops: _ListOrDict[SparseLabelOp | PauliSumOp] = _ListOrDict(second_q_ops)
 
         reduced_ops: _ListOrDict[PauliSumOp] = _ListOrDict()
-        for name, qubit_op in iter(qubit_ops):
-            reduced_ops[name] = self._two_qubit_reduce(qubit_op, self._num_particles)
+        for name, second_q_op in iter(wrapped_second_q_ops):
+            if isinstance(second_q_op, PauliSumOp):
+                reduced_ops[name] = second_q_op
+            else:
+                qubit_op: PauliSumOp = self._mapper.map(second_q_op)
+                reduced_op: PauliSumOp = self._two_qubit_reduce(qubit_op, self._num_particles)
+                reduced_ops[name] = reduced_op
 
-        tapered_ops = self._symmetry_reduce(reduced_ops, check_commutes)
-
+        tapered_ops: PauliSumOp = self._symmetry_reduce(reduced_ops, check_commutes)
         returned_ops: Union[PauliSumOp, ListOrDictType[PauliSumOp]]
 
         if issubclass(wrapped_type, SparseLabelOp):
@@ -564,7 +517,7 @@ class QubitConverter:
     def convert_clifford(
         self,
         qubit_ops: PauliSumOp | ListOrDictType[PauliSumOp],
-    ) -> _ListOrDict[PauliSumOp]:
+    ) -> PauliSumOp | ListOrDictType[PauliSumOp]:
         """
         Applies the Clifford transformation from the current symmetry to all operators.
 

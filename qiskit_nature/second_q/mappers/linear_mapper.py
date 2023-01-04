@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -33,7 +33,7 @@ class LinearMapper(SpinMapper):  # pylint: disable=missing-class-docstring
         """The Linear spin-to-qubit mapping."""
         super().__init__(allows_two_qubit_reduction=False)
 
-    def map(self, second_q_op: SpinOp) -> PauliSumOp:
+    def _map_single(self, second_q_op: SpinOp) -> PauliSumOp:
 
         qubit_ops_list: list[PauliSumOp] = []
 

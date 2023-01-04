@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -74,6 +74,34 @@ class TestQubitConverter(QiskitNatureTestCase):
         - 0.01128010423438501 * (Z ^ Z)
         + 0.18093119996471000 * (X ^ X)
     )
+
+    REF_H2_PARITY_2Q_REDUCED_LIST = [
+        (
+            -0.56872272 * (I ^ I)
+            - 0.05356956 * (I ^ Z)
+            - 0.05356956 * (Z ^ I)
+            + 0.67586183 * (Z ^ Z)
+        ),
+        (
+            -0.81054798 * (I ^ I)
+            - 0.05356956 * (I ^ Z)
+            + 0.39793742 * (Z ^ I)
+            - 0.00571589 * (Z ^ Z)
+        ),
+        (
+            -1.05237325 * (I ^ I)
+            + 0.39793742 * (I ^ Z)
+            - 0.39793742 * (Z ^ I)
+            - 0.0112801 * (Z ^ Z)
+            + 0.1809312 * (X ^ X)
+        ),
+        (
+            -0.81054798 * (I ^ I)
+            + 0.39793742 * (I ^ Z)
+            + 0.05356956 * (Z ^ I)
+            + 0.00571589 * (Z ^ Z)
+        ),
+    ]
 
     REF_H2_JW_TAPERED = -1.04109314222921270 * I - 0.79587484566286240 * Z + 0.18093119996470988 * X
 
@@ -164,6 +192,54 @@ class TestQubitConverter(QiskitNatureTestCase):
         # Regression test against https://github.com/Qiskit/qiskit-nature/issues/271
         with self.subTest("Two qubit reduction skipped when operator too small"):
             qubit_conv.two_qubit_reduction = True
+            small_op = FermionicOp({"+_0 -_0": 1.0, "-_1 +_1": 1.0}, num_spin_orbitals=2)
+            expected_op = 1.0 * (I ^ I) - 0.5 * (I ^ Z) + 0.5 * (Z ^ Z)
+            with contextlib.redirect_stderr(io.StringIO()) as out:
+                qubit_op = qubit_conv.convert(small_op, num_particles=self.num_particles)
+            self.assertEqual(qubit_op, expected_op)
+            self.assertTrue(
+                out.getvalue()
+                .strip()
+                .startswith(
+                    "The original qubit operator only contains 2 qubits! "
+                    "Skipping the requested two-qubit reduction!"
+                )
+            )
+
+    def test_paritymapper_two_qubit_reduction(self):
+        """Test mapping to qubit operator with two qubit reduction from the parity Mapper."""
+
+        with self.subTest("Two qubit reduction ignored as it is set to false in the parity mapper"):
+            mapper = ParityMapper(two_qubit_reduction=False)
+            qubit_conv = QubitConverter(mapper, two_qubit_reduction=False)
+            qubit_op = qubit_conv.convert(self.h2_op)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY)
+            self.assertIsNone(qubit_conv.num_particles)
+
+        with self.subTest("Two qubit reduction ignored as no num particles given"):
+            mapper = ParityMapper(two_qubit_reduction=True)
+            qubit_conv = QubitConverter(mapper, two_qubit_reduction=False)
+            qubit_op = qubit_conv.convert(self.h2_op)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED_LIST)
+            self.assertIsNone(qubit_conv.num_particles)
+
+        with self.subTest("Two qubit reduction, num particles given"):
+            mapper = ParityMapper(two_qubit_reduction=True, num_particles=self.num_particles)
+            qubit_conv = QubitConverter(mapper, two_qubit_reduction=False)
+            qubit_op = qubit_conv.convert(self.h2_op)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED)
+            self.assertEqual(mapper.num_particles, self.num_particles)
+
+        with self.subTest("Set for no two qubit reduction (partity mapper not affected)"):
+            mapper = ParityMapper(two_qubit_reduction=True, num_particles=self.num_particles)
+            qubit_conv = QubitConverter(mapper, two_qubit_reduction=False)
+            qubit_op = qubit_conv.convert(self.h2_op)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED)
+
+        # Regression test against https://github.com/Qiskit/qiskit-nature/issues/271
+        with self.subTest("Two qubit reduction skipped when operator too small"):
+            mapper = ParityMapper(two_qubit_reduction=True, num_particles=self.num_particles)
+            qubit_conv = QubitConverter(mapper, two_qubit_reduction=False)
             small_op = FermionicOp({"+_0 -_0": 1.0, "-_1 +_1": 1.0}, num_spin_orbitals=2)
             expected_op = 1.0 * (I ^ I) - 0.5 * (I ^ Z) + 0.5 * (Z ^ Z)
             with contextlib.redirect_stderr(io.StringIO()) as out:

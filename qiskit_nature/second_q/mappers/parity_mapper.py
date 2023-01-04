@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -14,6 +14,8 @@
 
 from __future__ import annotations
 
+import logging
+
 from functools import lru_cache
 from typing import Union, List
 
@@ -25,6 +27,8 @@ from qiskit.quantum_info.operators import Pauli, PauliList, SparsePauliOp
 
 from qiskit_nature.second_q.operators import FermionicOp
 from .fermionic_mapper import FermionicMapper
+
+logger = logging.getLogger(__name__)
 
 
 class ParityMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
@@ -39,8 +43,8 @@ class ParityMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
         """
         super().__init__(allows_two_qubit_reduction=True)
         self.two_qubit_reduction = two_qubit_reduction
-        self._num_particles = num_particles
         self._tapering_values: list | None = None
+        self.num_particles = num_particles
 
     @property
     def num_particles(self) -> tuple[int, int] | None:
@@ -51,9 +55,7 @@ class ParityMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
     def num_particles(self, value: tuple[int, int] | None) -> None:
         """Set number of particles."""
         self._num_particles = value
-        print("bbbb")
         if self.two_qubit_reduction and self._num_particles is not None:
-            print("aaaa")
             num_alpha = self._num_particles[0]
             num_beta = self._num_particles[1]
             par_1 = 1 if (num_alpha + num_beta) % 2 == 0 else -1
@@ -111,14 +113,26 @@ class ParityMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
 
         return z2_symmetries.taper(operator)
 
-    def map(self, second_q_op: FermionicOp) -> PauliSumOp | list[PauliSumOp]:
+    def _map_single(self, second_q_op: FermionicOp) -> PauliSumOp | list[PauliSumOp]:
         mapped_op = ParityMapper.mode_based_mapping(
             second_q_op, second_q_op.register_length
         ).primitive
 
-        reduced_op = self.convert(mapped_op) if self.two_qubit_reduction else mapped_op
-
-        if isinstance(reduced_op, SparsePauliOp):
-            return PauliSumOp(reduced_op)
+        if self.two_qubit_reduction and mapped_op.num_qubits > 2:
+            reduced_op = self.convert(mapped_op)
         else:
-            return [PauliSumOp(op) for op in reduced_op]
+            if mapped_op.num_qubits <= 2:
+                logger.warning(
+                    "The original qubit operator only contains %s qubits! Skipping the requested "
+                    "two-qubit reduction!",
+                    mapped_op.num_qubits,
+                )
+            reduced_op = mapped_op
+
+        returned_op: PauliSumOp | list[PauliSumOp]
+        if isinstance(reduced_op, SparsePauliOp):
+            returned_op = PauliSumOp(reduced_op)
+        else:
+            returned_op = [PauliSumOp(op) for op in reduced_op]
+
+        return returned_op
