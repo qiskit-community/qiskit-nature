@@ -1,0 +1,65 @@
+---
+features:
+  - |
+    Improves the :class:`~qiskit_nature.second_q.algorithms.excited_states_solvers.QEOM` code and
+    implements the calculation of excited state properties and transition amplitudes with QEOM.
+
+    The new functionalities can be used as follows:
+
+    .. code-block:: python
+
+      from qiskit.algorithms.optimizers import COBYLA
+      from qiskit.primitives import Estimator
+
+      from qiskit_nature.units import DistanceUnit
+      from qiskit_nature.second_q.algorithms import VQEUCCFactory, GroundStateEigensolver
+      from qiskit_nature.second_q.algorithms.excited_states_solvers import QEOM
+      from qiskit_nature.second_q.algorithms.excited_states_solvers.qeom import EvaluationRule
+      from qiskit_nature.second_q.circuit.library import UCCSD
+      from qiskit_nature.second_q.drivers import PySCFDriver
+      from qiskit_nature.second_q.mappers import QubitConverter
+      from qiskit_nature.second_q.mappers import JordanWignerMapper
+
+      optimizer = COBYLA(maxiter=500, disp=False)
+      qubit_converter = QubitConverter(
+          JordanWignerMapper(), z2symmetry_reduction=None, two_qubit_reduction=False
+      )
+
+      driver = PySCFDriver(
+          atom="H 0 0 0; H 0 0 1.735",
+          basis="sto3g",
+          charge=0,
+          spin=0,
+          unit=DistanceUnit.ANGSTROM,
+      )
+      es_problem = driver.run()
+      hamiltonian_op, _ = es_problem.second_q_ops()
+      aux_ops = {"hamiltonian": hamiltonian_op}
+
+      # Qeom results
+      vqe_solver = VQEUCCFactory(Estimator(), UCCSD(), optimizer)
+      me_gsc = GroundStateEigensolver(qubit_converter, vqe_solver)
+      qeom_solver = QEOM(
+          me_gsc, estimator=Estimator(), excitations="sd", aux_eval_rules=EvaluationRule.ALL
+      )
+      results_qeom = qeom_solver.solve(es_problem, aux_operators=aux_ops)
+
+      for n, aux_op_eval in enumerate(results_qeom.aux_operators_evaluated):
+          print(f"Properties of eigen state {n}")
+          for aux_name, aux_result in aux_op_eval.items():
+              print(f" Expectation value of {aux_name} operator: {aux_result}")
+
+  - |
+    Added public methods :meth:`~qiskit_nature.second_q.mappers.QubitConverter.symmetry_reduce_clifford` 
+    and :meth:`~qiskit_nature.second_q.mappers.QubitConverter.convert_clifford` and 
+    :meth:`~qiskit_nature.second_q.mappers.QubitConverter.find_taper_op` to allow a step by step 
+    tapering of operators.
+  - |
+    Changed the behavior of the :class:`qiskit_nature.second_q.algorithms.GroundStateEigensolver` to not
+    raise an error when the user specifies a auxiliary operator which name clashes an internally
+    constructed operator's name. The new behavior is to apply precedence to the user-defined operators
+    over the builtin ones in case of conflicts. A warning will be logged when this case happens.
+  - |
+    Added a tolerance parameter 
+    :attr:`~qiskit_nature.second_q.algorithms.excited_states_solvers.QEOM.tol` to control the eigenvalue
+    threshold in the QEOM calculation.

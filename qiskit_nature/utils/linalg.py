@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -129,9 +129,9 @@ def fermionic_gaussian_decomposition_jw(  # pylint: disable=invalid-name
     # compute left_unitary
     left_unitary = np.eye(n, dtype=complex)
     for j in range(n - 1):
-        # Zero out entries in column k
+        # Zero out entries in column j
         for i in range(n - 1 - j):
-            # Zero out entry in row l if needed
+            # Zero out entry in row i if needed
             if not np.isclose(current_matrix[i, j], 0.0):
                 givens_mat = givens_matrix(current_matrix[i + 1, j], current_matrix[i, j])
                 current_matrix = apply_matrix_to_slices(current_matrix, givens_mat, [i + 1, i])
