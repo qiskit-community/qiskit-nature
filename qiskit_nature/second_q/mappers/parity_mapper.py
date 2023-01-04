@@ -21,7 +21,7 @@ import numpy as np
 
 from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.analysis.z2_symmetries import Z2Symmetries
-from qiskit.quantum_info.operators import Pauli, PauliList, SparsePauliOp, Clifford
+from qiskit.quantum_info.operators import Pauli, PauliList, SparsePauliOp
 
 from qiskit_nature.second_q.operators import FermionicOp
 from .fermionic_mapper import FermionicMapper
@@ -39,15 +39,26 @@ class ParityMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
         """
         super().__init__(allows_two_qubit_reduction=True)
         self.two_qubit_reduction = two_qubit_reduction
+        self._num_particles = num_particles
+        self._tapering_values: list | None = None
 
-        if two_qubit_reduction and num_particles is not None:
-            num_alpha = num_particles[0]
-            num_beta = num_particles[1]
+    @property
+    def num_particles(self) -> tuple[int, int] | None:
+        """Get number of particles."""
+        return self._num_particles
+
+    @num_particles.setter
+    def num_particles(self, value: tuple[int, int] | None) -> None:
+        """Set number of particles."""
+        self._num_particles = value
+        print("bbbb")
+        if self.two_qubit_reduction and self._num_particles is not None:
+            print("aaaa")
+            num_alpha = self._num_particles[0]
+            num_beta = self._num_particles[1]
             par_1 = 1 if (num_alpha + num_beta) % 2 == 0 else -1
             par_2 = 1 if num_alpha % 2 == 0 else -1
             self._tapering_values = [par_2, par_1]
-        else:
-            self._tapering_values = None
 
     @classmethod
     @lru_cache(maxsize=32)
@@ -100,51 +111,14 @@ class ParityMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
 
         return z2_symmetries.taper(operator)
 
-    def convert_fast(self, operator: SparsePauliOp) -> SparsePauliOp:
-        """
-        Converts the Operator to tapered one by Z2 symmetries.
-
-        Args:
-            operator: the operator
-        Returns:
-            A new operator whose qubit number is reduced by 2.
-        """
-        num_qubits = operator.num_qubits
-        last_idx = num_qubits - 1
-        mid_idx = num_qubits // 2 - 1
-        sq_list = [mid_idx, last_idx]
-
-        # build symmetries, sq_paulis:
-        symmetries, sq_paulis = [], []
-        for idx in sq_list:
-            pauli_str = ["I"] * num_qubits
-
-            pauli_str[idx] = "Z"
-            z_sym = "".join(pauli_str)[::-1]
-            symmetries.append(z_sym)
-
-            pauli_str[idx] = "X"
-            sq_pauli = "".join(pauli_str)[::-1]
-            sq_paulis.append(sq_pauli)
-
-        symmetries = PauliList(symmetries)
-        sq_paulis = PauliList(sq_paulis)
-
-        z2_symmetries = Z2Symmetries(symmetries, sq_paulis, sq_list, self._tapering_values)
-
-        clifford = Clifford.from_label("HIHI")
-        new_operator = SparsePauliOp(
-            operator.paulis.evolve(clifford), operator.coeffs
-        )  # replaces ..Z..Z with ..X..X
-        return z2_symmetries.taper_clifford(new_operator)
-
     def map(self, second_q_op: FermionicOp) -> PauliSumOp | list[PauliSumOp]:
         mapped_op = ParityMapper.mode_based_mapping(
             second_q_op, second_q_op.register_length
         ).primitive
-        reduced_op = self.convert(mapped_op)
 
-        if isinstance(reduced_op, PauliSumOp):
+        reduced_op = self.convert(mapped_op) if self.two_qubit_reduction else mapped_op
+
+        if isinstance(reduced_op, SparsePauliOp):
             return PauliSumOp(reduced_op)
         else:
             return [PauliSumOp(op) for op in reduced_op]

@@ -15,7 +15,7 @@
 import unittest
 from test import QiskitNatureTestCase
 
-from qiskit.opflow import I, PauliSumOp, X, Z
+from qiskit.opflow import PauliSumOp
 
 import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.drivers import PySCFDriver
@@ -26,27 +26,62 @@ from qiskit_nature.second_q.operators import FermionicOp
 class TestParityMapper(QiskitNatureTestCase):
     """Test Parity Mapper"""
 
-    REF_H2 = (
-        -0.81054798160031430 * (I ^ I ^ I ^ I)
-        - 0.22575349071287365 * (Z ^ Z ^ I ^ I)
-        + 0.12091263243164174 * (I ^ I ^ Z ^ I)
-        + 0.12091263243164174 * (Z ^ I ^ Z ^ I)
-        + 0.17218393211855787 * (I ^ Z ^ Z ^ I)
-        + 0.17218393211855818 * (I ^ I ^ I ^ Z)
-        + 0.16614543242281926 * (I ^ Z ^ I ^ Z)
-        + 0.16614543242281926 * (Z ^ Z ^ I ^ Z)
-        - 0.22575349071287362 * (I ^ I ^ Z ^ Z)
-        + 0.16892753854646372 * (I ^ Z ^ Z ^ Z)
-        + 0.17464343053355980 * (Z ^ Z ^ Z ^ Z)
-        + 0.04523279999117751 * (I ^ X ^ I ^ X)
-        + 0.04523279999117751 * (Z ^ X ^ I ^ X)
-        - 0.04523279999117751 * (I ^ X ^ Z ^ X)
-        - 0.04523279999117751 * (Z ^ X ^ Z ^ X)
+    REF_H2 = PauliSumOp.from_list(
+        [
+            ("IIII", -0.81054798160031430),
+            ("ZZII", -0.22575349071287365),
+            ("IIZI", 0.12091263243164174),
+            ("ZIZI", 0.12091263243164174),
+            ("IZZI", 0.17218393211855787),
+            ("IIIZ", 0.17218393211855818),
+            ("IZIZ", 0.16614543242281926),
+            ("ZZIZ", 0.16614543242281926),
+            ("IIZZ", -0.22575349071287362),
+            ("IZZZ", 0.16892753854646372),
+            ("ZZZZ", 0.17464343053355980),
+            ("IXIX", 0.04523279999117751),
+            ("ZXIX", 0.04523279999117751),
+            ("IXZX", -0.04523279999117751),
+            ("ZXZX", -0.04523279999117751),
+        ]
+    )
+
+    REF_H2_reduced_list = [
+        PauliSumOp.from_list(
+            [("II", -0.56872272), ("IZ", -0.05356956), ("ZI", -0.05356956), ("ZZ", 0.67586183)]
+        ),
+        PauliSumOp.from_list(
+            [("II", -0.81054798), ("IZ", -0.05356956), ("ZI", 0.39793742), ("ZZ", -0.00571589)]
+        ),
+        PauliSumOp.from_list(
+            [
+                ("II", -1.05237325),
+                ("IZ", 0.39793742),
+                ("ZI", -0.39793742),
+                ("ZZ", -0.0112801),
+                ("XX", 0.1809312),
+            ]
+        ),
+        PauliSumOp.from_list(
+            [("II", -0.81054798), ("IZ", 0.39793742), ("ZI", 0.05356956), ("ZZ", 0.00571589)]
+        ),
+    ]
+
+    tapering_values_expected = [-1, 1]
+
+    REF_H2_reduced_tapered = PauliSumOp.from_list(
+        [
+            ("II", -1.05237325),
+            ("IZ", 0.39793742),
+            ("ZI", -0.39793742),
+            ("ZZ", -0.0112801),
+            ("XX", 0.1809312),
+        ]
     )
 
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
-    def test_mapping(self):
-        """Test mapping to qubit operator"""
+    def test_mapping_without_two_qubit_reduction(self):
+        """Test mapping to qubit operator with two_qubit_reduction set to False."""
         driver = PySCFDriver()
         driver_result = driver.run()
         fermionic_op, _ = driver_result.second_q_ops()
@@ -59,6 +94,29 @@ class TestParityMapper(QiskitNatureTestCase):
         #       we don't need to worry about tiny precision changes for any reason.
 
         self.assertEqual(qubit_op, TestParityMapper.REF_H2)
+
+        mapper.num_particles = [1, 1]
+        # By default two_qubit_reduction is set to False so that setting mapper.num_particles does not
+        # affect the mapping.
+        qubit_op_no_reduction = mapper.map(fermionic_op)
+        self.assertEqual(qubit_op_no_reduction, TestParityMapper.REF_H2)
+
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
+    def test_mapping_with_two_qubit_reduction(self):
+        """Test mapping to qubit operator with two_qubit_reduction set to True."""
+        driver = PySCFDriver()
+        driver_result = driver.run()
+        fermionic_op, _ = driver_result.second_q_ops()
+        mapper = ParityMapper(two_qubit_reduction=True)
+        qubit_op = mapper.map(fermionic_op)
+
+        self.assertEqual(qubit_op, TestParityMapper.REF_H2_reduced_list)
+
+        mapper.num_particles = [1, 1]
+        self.assertEqual(mapper._tapering_values, TestParityMapper.tapering_values_expected)
+
+        qubit_op_reduction = mapper.map(fermionic_op)
+        self.assertEqual(qubit_op_reduction, TestParityMapper.REF_H2_reduced_tapered)
 
     def test_allows_two_qubit_reduction(self):
         """Test this returns True for this mapper"""

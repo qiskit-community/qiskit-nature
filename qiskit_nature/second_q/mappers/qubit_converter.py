@@ -240,7 +240,7 @@ class QubitConverter:
         Returns:
             PauliSumOp qubit operator
         """
-        qubit_op = self._map(second_q_op)
+        qubit_op = self._mapper.map(second_q_op)
         reduced_op = self._two_qubit_reduce(qubit_op, num_particles)
         tapered_op, z2symmetries = self._find_taper_op(reduced_op, sector_locator)
 
@@ -268,7 +268,7 @@ class QubitConverter:
         Returns:
             PauliSumOp qubit operator
         """
-        qubit_op = self._map(second_q_op)
+        qubit_op = self._mapper.map(second_q_op)
         reduced_op = self._two_qubit_reduce(qubit_op, num_particles)
 
         return reduced_op
@@ -350,7 +350,7 @@ class QubitConverter:
 
         qubit_ops: _ListOrDict[PauliSumOp] = _ListOrDict()
         for name, second_q_op in iter(wrapped_second_q_ops):
-            qubit_ops[name] = self._map(second_q_op)
+            qubit_ops[name] = self._mapper.map(second_q_op)
 
         reduced_ops: _ListOrDict[PauliSumOp] = _ListOrDict()
         for name, qubit_op in iter(qubit_ops):
@@ -371,42 +371,6 @@ class QubitConverter:
             returned_ops = dict(iter(tapered_ops))
 
         return returned_ops
-
-    def map(
-        self,
-        second_q_ops: SparseLabelOp | ListOrDictType[SparseLabelOp],
-    ) -> Union[PauliSumOp, ListOrDictType[PauliSumOp]]:
-        """A convenience method to map second quantized operators based on current mapper.
-
-        Args:
-            second_q_ops: A second quantized operator, or list thereof
-
-        Returns:
-            A qubit operator in the form of a PauliSumOp, or list thereof if a list of
-            second quantized operators was supplied
-        """
-        if isinstance(second_q_ops, SparseLabelOp):
-            qubit_ops = self._map(second_q_ops)
-        else:
-            wrapped_type = type(second_q_ops)
-
-            wrapped_second_q_ops: _ListOrDict[SparseLabelOp] = _ListOrDict(second_q_ops)
-
-            qubit_ops = _ListOrDict()
-            for name, second_q_op in iter(wrapped_second_q_ops):
-                qubit_ops[name] = self._map(second_q_op)
-
-            if wrapped_type == list:
-                qubit_ops = [op for _, op in iter(qubit_ops)]
-            elif wrapped_type == dict:
-                qubit_ops = dict(iter(qubit_ops))
-
-        return qubit_ops
-
-    def _map(self, second_q_op: SparseLabelOp) -> PauliSumOp:
-        if self._sort_operators and isinstance(second_q_op, SparseLabelOp):
-            second_q_op = second_q_op.sort()
-        return self._mapper.map(second_q_op)
 
     def _two_qubit_reduce(
         self, qubit_op: PauliSumOp, num_particles: Optional[Tuple[int, int]]
