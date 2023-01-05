@@ -17,7 +17,6 @@ from __future__ import annotations
 import copy
 import logging
 from typing import (
-    cast,
     Callable,
     List,
     Optional,
@@ -29,11 +28,11 @@ import numpy as np
 
 from qiskit.algorithms.list_or_dict import ListOrDict as ListOrDictType
 from qiskit.opflow import PauliSumOp
-from qiskit.opflow.converters import TwoQubitReduction
 from qiskit.opflow.primitive_ops import Z2Symmetries
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.operators import SparseLabelOp
+from .parity_mapper import ParityMapper
 from .qubit_mapper import QubitMapper, _ListOrDict
 
 logger = logging.getLogger(__name__)
@@ -91,10 +90,11 @@ class QubitConverter:
 
         self._mapper: QubitMapper = mapper
         self._two_qubit_reduction: bool = two_qubit_reduction
+        if isinstance(self._mapper, ParityMapper):
+            self._mapper.two_qubit_reduction = two_qubit_reduction
         self._z2symmetry_reduction: Optional[Union[str, List[int]]] = None
         self.z2symmetry_reduction = z2symmetry_reduction  # Setter does validation
 
-        self._did_two_qubit_reduction: bool = False
         self._num_particles: Optional[Tuple[int, int]] = None
         self._z2symmetries: Z2Symmetries = self._no_symmetries
 
@@ -124,6 +124,8 @@ class QubitConverter:
     def two_qubit_reduction(self, value: bool) -> None:
         """Set two_qubit_reduction"""
         self._two_qubit_reduction = value
+        if isinstance(self._mapper, ParityMapper):
+            self._mapper.two_qubit_reduction = value
         self._z2symmetries = None  # Reset as symmetries my change due to this reduction
 
     @property
@@ -193,8 +195,9 @@ class QubitConverter:
         Returns:
             PauliSumOp qubit operator
         """
-        qubit_op = self._mapper.map(second_q_op)
-        reduced_op = self._two_qubit_reduce(qubit_op, num_particles)
+        if isinstance(self._mapper, ParityMapper):
+            self._mapper.num_particles = num_particles
+        reduced_op = self._mapper.map(second_q_op)
         tapered_op, z2symmetries = self.find_taper_op(reduced_op, sector_locator)
 
         self._num_particles = num_particles
@@ -221,8 +224,9 @@ class QubitConverter:
         Returns:
             PauliSumOp qubit operator
         """
-        qubit_op = self._mapper.map(second_q_op)
-        reduced_op = self._two_qubit_reduce(qubit_op, num_particles)
+        if isinstance(self._mapper, ParityMapper):
+            self._mapper.num_particles = num_particles
+        reduced_op = self._mapper.map(second_q_op)
 
         return reduced_op
 
@@ -306,8 +310,9 @@ class QubitConverter:
             if isinstance(second_q_op, PauliSumOp):
                 reduced_ops[name] = second_q_op
             else:
-                qubit_op: PauliSumOp = self._mapper.map(second_q_op)
-                reduced_op: PauliSumOp = self._two_qubit_reduce(qubit_op, self._num_particles)
+                if isinstance(self._mapper, ParityMapper):
+                    self._mapper.num_particles = self.num_particles
+                reduced_op: PauliSumOp = self._mapper.map(second_q_op)
                 reduced_ops[name] = reduced_op
 
         tapered_ops: PauliSumOp = self._symmetry_reduce(reduced_ops, check_commutes)
@@ -324,26 +329,6 @@ class QubitConverter:
             returned_ops = dict(iter(tapered_ops))
 
         return returned_ops
-
-    def _two_qubit_reduce(
-        self, qubit_op: PauliSumOp, num_particles: Optional[Tuple[int, int]]
-    ) -> PauliSumOp:
-        reduced_op = qubit_op
-
-        if num_particles is not None:
-            if self._two_qubit_reduction and self._mapper.allows_two_qubit_reduction:
-                if qubit_op.num_qubits <= 2:
-                    logger.warning(
-                        "The original qubit operator only contains %s qubits! Skipping the requested "
-                        "two-qubit reduction!",
-                        qubit_op.num_qubits,
-                    )
-                    return reduced_op
-
-                two_q_reducer = TwoQubitReduction(num_particles)
-                reduced_op = cast(PauliSumOp, two_q_reducer.convert(qubit_op))
-
-        return reduced_op
 
     def find_taper_op(
         self,

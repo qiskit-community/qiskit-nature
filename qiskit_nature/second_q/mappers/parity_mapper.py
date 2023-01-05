@@ -55,7 +55,8 @@ class ParityMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
     def num_particles(self, value: tuple[int, int] | None) -> None:
         """Set number of particles."""
         self._num_particles = value
-        if self.two_qubit_reduction and self._num_particles is not None:
+        self._tapering_values = None
+        if self._num_particles is not None:
             num_alpha = self._num_particles[0]
             num_beta = self._num_particles[1]
             par_1 = 1 if (num_alpha + num_beta) % 2 == 0 else -1

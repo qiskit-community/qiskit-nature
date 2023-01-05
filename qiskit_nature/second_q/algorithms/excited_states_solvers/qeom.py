@@ -583,11 +583,10 @@ class QEOM(ExcitedStatesSolver):
         size = int(len(list(excitation_indices.keys())) // 2)
 
         # Small workaround to apply two_qubit_reduction to a list with convert_match()
-        z2_symmetries = self.qubit_converter.z2symmetries
-        self.qubit_converter.force_match(z2symmetries=Z2Symmetries([], [], []))
-        reduced_hopping_ops = self.qubit_converter.convert_match(hopping_operators)
-        self.qubit_converter.force_match(z2symmetries=z2_symmetries)
-        untap_hopping_ops = self.qubit_converter.convert_clifford(reduced_hopping_ops)
+        if isinstance(self.qubit_converter, QubitConverter):
+            untap_hopping_ops = self.qubit_converter.convert_clifford(hopping_operators)
+        else:
+            untap_hopping_ops = hopping_operators
 
         return untap_hopping_ops, type_of_commutativities, size
 
