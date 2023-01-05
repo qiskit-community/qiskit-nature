@@ -78,7 +78,7 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
 
         with self.subTest("excitation indices"):
             self.assertEqual(indices, expected_indices_electronic)
-            
+
     def test_build_hopping_operators_mapper(self):
         """Tests that the correct hopping operator is built with a qubit mapper."""
 
