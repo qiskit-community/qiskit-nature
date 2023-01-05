@@ -189,38 +189,58 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_solver_compatibility_with_mappers(self):
         """Test that solvers can use both QubitConverter and QubitMapper"""
-        with self.subTest("Excited states solver"):
-            # pylint: disable=unused-argument
-            def filter_criterion(eigenstate, eigenvalue, aux_values):
-                return np.isclose(aux_values["ParticleNumber"][0], 2.0)
 
-            # with qubit converter
+        # pylint: disable=unused-argument
+        def filter_criterion(eigenstate, eigenvalue, aux_values):
+            return np.isclose(aux_values["ParticleNumber"][0], 2.0)
+
+        with self.subTest("Excited states solver with qubit converter"):
             solver = NumPyEigensolverFactory(filter_criterion=filter_criterion)
             esc_converter = ExcitedStatesEigensolver(self.qubit_converter, solver)
             results_converter = esc_converter.solve(self.electronic_structure_problem)
-            computed_energies_converter = results_converter.computed_energies
-            # with mapper
+            computed_energies_converter = [results_converter.computed_energies[0]]
+            # filter duplicates from list
+            for comp_energy in results_converter.computed_energies[1:]:
+                if not np.isclose(comp_energy, computed_energies_converter[-1]):
+                    computed_energies_converter.append(comp_energy)
+            self._assert_energies(computed_energies_converter, self.reference_energies)
+
+        with self.subTest("Excited states solver with qubit mapper"):
+            solver = NumPyEigensolverFactory(filter_criterion=filter_criterion)
             esc_mapper = ExcitedStatesEigensolver(self.mapper, solver)
             results_mapper = esc_mapper.solve(self.electronic_structure_problem)
-            computed_energies_mapper = results_mapper.computed_energies
-            self._assert_energies(computed_energies_converter, computed_energies_mapper)
+            # filter duplicates from list
+            computed_energies_mapper = [results_mapper.computed_energies[0]]
+            for comp_energy in results_mapper.computed_energies[1:]:
+                if not np.isclose(comp_energy, computed_energies_mapper[-1]):
+                    computed_energies_mapper.append(comp_energy)
+            self._assert_energies(computed_energies_mapper, self.reference_energies)
 
-        with self.subTest("QEOM"):
+        with self.subTest("QEOM with qubit converter"):
             estimator = Estimator()
             solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
-
-            # with qubit converter
             gsc_converter = GroundStateEigensolver(self.qubit_converter, solver)
             esc_converter = QEOM(gsc_converter, estimator, "sd")
             results_converter = esc_converter.solve(self.electronic_structure_problem)
-            computed_energies_converter = results_converter.computed_energies
-            # with mapper
+            # filter duplicates from list
+            computed_energies_converter = [results_converter.computed_energies[0]]
+            for comp_energy in results_converter.computed_energies[1:]:
+                if not np.isclose(comp_energy, computed_energies_converter[-1]):
+                    computed_energies_converter.append(comp_energy)
+            self._assert_energies(computed_energies_converter, self.reference_energies)
+
+        with self.subTest("QEOM with qubit mapper"):
+            estimator = Estimator()
+            solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
             gsc_mapper = GroundStateEigensolver(self.mapper, solver)
             esc_mapper = QEOM(gsc_mapper, estimator, "sd")
             results_mapper = esc_mapper.solve(self.electronic_structure_problem)
-            computed_energies_mapper = results_mapper.computed_energies
-
-            self._assert_energies(computed_energies_converter, computed_energies_mapper)
+            # filter duplicates from list
+            computed_energies_mapper = [results_mapper.computed_energies[0]]
+            for comp_energy in results_mapper.computed_energies[1:]:
+                if not np.isclose(comp_energy, computed_energies_mapper[-1]):
+                    computed_energies_mapper.append(comp_energy)
+            self._assert_energies(computed_energies_mapper, self.reference_energies)
 
 
 if __name__ == "__main__":

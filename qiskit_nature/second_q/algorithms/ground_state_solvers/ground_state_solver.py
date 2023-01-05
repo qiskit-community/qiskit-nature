@@ -34,8 +34,9 @@ class GroundStateSolver(ABC):
     def __init__(self, qubit_converter: QubitConverter | QubitMapper) -> None:
         """
         Args:
-            qubit_converter: A class that converts second quantized operator to qubit operator
-                             according to a mapper it is initialized with.
+            qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` or
+                :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance that converts a second
+                quantized operator to qubit operators and applies subsequent qubit reduction.
         """
         self._qubit_converter = qubit_converter
 

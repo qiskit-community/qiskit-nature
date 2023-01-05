@@ -246,6 +246,9 @@ class QEOM(ExcitedStatesSolver):
             untap_main_op = self.qubit_converter.convert_clifford(main_op)
             untap_aux_ops = self.qubit_converter.convert_clifford(aux_ops)
         else:
+            # TODO: Issue #974 sketches the construction of a Tapered Qubit Mapper which would implement
+            # the logic of the symmetries. Here, there should be a check for a Tapered Qubit Mapper and
+            # a similar logic that used above.
             untap_main_op = main_op
             untap_aux_ops = aux_ops
 

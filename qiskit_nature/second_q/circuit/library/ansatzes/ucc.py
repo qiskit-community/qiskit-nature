@@ -316,6 +316,9 @@ class UCC(EvolvedOperatorAnsatz):
                         excitation_ops, suppress_none=False
                     )
                 else:
+                    # TODO: Issue #974 sketches the construction of a Tapered Qubit Mapper which would
+                    # implement the logic of the symmetries. Here, there should be a check for a Tapered
+                    # Qubit Mapper and a similar logic that used above.
                     operators = self.qubit_converter.map(excitation_ops)
                 self._filter_operators(operators=operators)
 

@@ -39,8 +39,9 @@ class GroundStateEigensolver(GroundStateSolver):
     ) -> None:
         """
         Args:
-            qubit_converter: A class that converts second quantized operator to qubit operator
-                             according to a mapper it is initialized with.
+            qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` or
+                :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance that converts a second
+                quantized operator to qubit operators and applies subsequent qubit reduction.
             solver: Minimum Eigensolver or MESFactory object, e.g. the VQEUCCSDFactory.
         """
         super().__init__(qubit_converter)

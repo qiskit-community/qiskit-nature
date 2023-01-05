@@ -110,6 +110,34 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
         with self.subTest("excitation indices"):
             self.assertEqual(indices, expected_indices_vibrational)
 
+    def test_build_hopping_operators_mapper(self):
+        """Tests that the correct hopping operator is built with a qubit mapper."""
+
+        hopping_operators, commutativities, indices = build_vibrational_ops(
+            self.basis.num_modals, "sd", self.mapper
+        )
+
+        with self.subTest("hopping operators"):
+            self.assertEqual(
+                hopping_operators.keys(), expected_hopping_operators_vibrational.keys()
+            )
+            for key, exp_key in zip(
+                hopping_operators.keys(), expected_hopping_operators_vibrational.keys()
+            ):
+                self.assertEqual(key, exp_key)
+                val = hopping_operators[key].primitive
+                exp_val = expected_hopping_operators_vibrational[exp_key]
+                if not val.equiv(exp_val):
+                    print(val)
+                    print(exp_val)
+                self.assertTrue(val.equiv(exp_val), msg=(val, exp_val))
+
+        with self.subTest("commutativities"):
+            self.assertEqual(commutativities, expected_commutativies_vibrational)
+
+        with self.subTest("excitation indices"):
+            self.assertEqual(indices, expected_indices_vibrational)
+
 
 if __name__ == "__main__":
     unittest.main()
