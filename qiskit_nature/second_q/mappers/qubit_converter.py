@@ -265,7 +265,7 @@ class QubitConverter:
 
     def convert_match(
         self,
-        second_q_ops: SparseLabelOp | PauliSumOp | ListOrDictType[SparseLabelOp | PauliSumOp],
+        second_q_ops: SparseLabelOp | ListOrDictType[SparseLabelOp],
         *,
         suppress_none: bool = False,
         check_commutes: bool = True,
@@ -295,20 +295,17 @@ class QubitConverter:
         # actual conversions, we make a single entry list of it here and unwrap to return.
         wrapped_type = type(second_q_ops)
 
-        if isinstance(second_q_ops, (SparseLabelOp, PauliSumOp)):
+        if isinstance(second_q_ops, SparseLabelOp):
             second_q_ops = [second_q_ops]
             suppress_none = False  # When only a single op we will return None back
 
-        wrapped_second_q_ops: _ListOrDict[SparseLabelOp | PauliSumOp] = _ListOrDict(second_q_ops)
+        wrapped_second_q_ops: _ListOrDict[SparseLabelOp] = _ListOrDict(second_q_ops)
 
         reduced_ops: _ListOrDict[PauliSumOp] = _ListOrDict()
         for name, second_q_op in iter(wrapped_second_q_ops):
-            if isinstance(second_q_op, PauliSumOp):
-                reduced_ops[name] = second_q_op
-            else:
-                qubit_op: PauliSumOp = self._mapper.map(second_q_op)
-                reduced_op: PauliSumOp = self._two_qubit_reduce(qubit_op, self._num_particles)
-                reduced_ops[name] = reduced_op
+            qubit_op: PauliSumOp = self._mapper.map(second_q_op)
+            reduced_op: PauliSumOp = self._two_qubit_reduce(qubit_op, self._num_particles)
+            reduced_ops[name] = reduced_op
 
         tapered_ops: PauliSumOp = self._symmetry_reduce(reduced_ops, check_commutes)
         returned_ops: Union[PauliSumOp, ListOrDictType[PauliSumOp]]

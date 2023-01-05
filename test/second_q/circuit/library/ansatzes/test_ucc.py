@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -120,16 +120,26 @@ class TestUCC(QiskitNatureTestCase):
     )
     def test_ucc_ansatz(self, excitations, num_spatial_orbitals, num_particles, expect):
         """Tests the UCC Ansatz."""
-        converter = QubitConverter(JordanWignerMapper())
+        mapper = JordanWignerMapper()
+        converter = QubitConverter(mapper)
 
-        ansatz = UCC(
-            qubit_converter=converter,
-            num_particles=num_particles,
-            num_spatial_orbitals=num_spatial_orbitals,
-            excitations=excitations,
-        )
+        with self.subTest("Qubit Converter object"):
+            ansatz = UCC(
+                qubit_converter=converter,
+                num_particles=num_particles,
+                num_spatial_orbitals=num_spatial_orbitals,
+                excitations=excitations,
+            )
+            assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
 
-        assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
+        with self.subTest("Qubit Mapper object"):
+            ansatz = UCC(
+                qubit_converter=mapper,
+                num_particles=num_particles,
+                num_spatial_orbitals=num_spatial_orbitals,
+                excitations=excitations,
+            )
+            assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
 
     @unpack
     @data(
@@ -179,17 +189,31 @@ class TestUCC(QiskitNatureTestCase):
 
         num_spatial_orbitals = 4
         num_particles = (2, 2)
-        qubit_converter = QubitConverter(mapper=JordanWignerMapper())
 
-        ansatz = UCC(
-            num_spatial_orbitals=num_spatial_orbitals,
-            num_particles=num_particles,
-            qubit_converter=qubit_converter,
-            excitations="s",
-        )
+        mapper = JordanWignerMapper()
+        converter = QubitConverter(mapper)
 
-        ansatz = transpile(ansatz, optimization_level=3)
-        self.assertEqual(ansatz.num_qubits, 8)
+        with self.subTest("Qubit Converter object"):
+            ansatz = UCC(
+                num_spatial_orbitals=num_spatial_orbitals,
+                num_particles=num_particles,
+                qubit_converter=converter,
+                excitations="s",
+            )
+
+            ansatz = transpile(ansatz, optimization_level=3)
+            self.assertEqual(ansatz.num_qubits, 8)
+
+        with self.subTest("Qubit Mapper object"):
+            ansatz = UCC(
+                num_spatial_orbitals=num_spatial_orbitals,
+                num_particles=num_particles,
+                qubit_converter=mapper,
+                excitations="s",
+            )
+
+            ansatz = transpile(ansatz, optimization_level=3)
+            self.assertEqual(ansatz.num_qubits, 8)
 
     def test_build_ucc(self):
         """Test building UCC"""
@@ -275,6 +299,14 @@ class TestUCC(QiskitNatureTestCase):
             ucc.qubit_converter.force_match(num_particles=ucc.num_particles)
             self.assertIsNotNone(ucc.operators)
             self.assertEqual(ucc.num_qubits, 4)
+
+        with self.subTest("Change qubit converter to qubit mapper"):
+            mapper = ParityMapper()
+            ucc.qubit_converter = mapper
+            self.assertIsNotNone(ucc.operators)
+            self.assertEqual(ucc.qubit_converter, mapper)
+            self.assertEqual(ucc.num_qubits, 6)
+            # TODO: PR #1018 Add test with parity mapper and two qubit reduction
 
 
 if __name__ == "__main__":

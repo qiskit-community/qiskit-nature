@@ -611,10 +611,13 @@ class QEOM(ExcitedStatesSolver):
 
         # Small workaround to apply two_qubit_reduction to a list with convert_match()
         if isinstance(self.qubit_converter, QubitConverter):
-            z2_symmetries = self.qubit_converter.z2symmetries
-            self.qubit_converter.force_match(z2symmetries=Z2Symmetries([], [], []))
-            reduced_hopping_ops = self.qubit_converter.convert_match(hopping_operators)
-            self.qubit_converter.force_match(z2symmetries=z2_symmetries)
+            num_particles = self.qubit_converter.num_particles
+
+            reduced_hopping_ops = {}
+            for hopping_name, hopping_op in hopping_operators.items():
+                reduced_hopping_ops[hopping_name] = self.qubit_converter._two_qubit_reduce(
+                    hopping_op, num_particles
+                )
             untap_hopping_ops = self.qubit_converter.convert_clifford(reduced_hopping_ops)
         else:
             untap_hopping_ops = hopping_operators
