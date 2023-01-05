@@ -34,6 +34,7 @@ from qiskit.opflow import Z2Symmetries, commutator, double_commutator, PauliSumO
 from qiskit.tools import parallel_map
 from qiskit.tools.events import TextProgressBar
 from qiskit.utils import algorithm_globals
+from qiskit.utils.deprecation import deprecate_function
 
 from qiskit.quantum_info import SparsePauliOp
 from qiskit.primitives import BaseEstimator
@@ -987,6 +988,12 @@ class QEOMResult(EigensolverResult):
             return self._m_matrix
 
     @m_matrix.setter
+    @deprecate_function(
+        "The M matrix is now computed from the H matrix. "
+        "This setter will be deprecated in a future release and subsequently "
+        "removed after that.",
+        category=PendingDeprecationWarning,
+    )
     def m_matrix(self, value: np.ndarray) -> None:
         """sets the M matrix"""
         self._m_matrix = value
@@ -1000,6 +1007,12 @@ class QEOMResult(EigensolverResult):
             return self._v_matrix
 
     @v_matrix.setter
+    @deprecate_function(
+        "The V matrix is now computed from the S matrix. "
+        "This setter will be deprecated in a future release and subsequently "
+        "removed after that.",
+        category=PendingDeprecationWarning,
+    )
     def v_matrix(self, value: np.ndarray) -> None:
         """sets the V matrix"""
         self._v_matrix = value
@@ -1015,6 +1028,12 @@ class QEOMResult(EigensolverResult):
         return q_mat
 
     @q_matrix.setter
+    @deprecate_function(
+        "The Q matrix is now computed from the H matrix. "
+        "This setter will be deprecated in a future release and subsequently "
+        "removed after that.",
+        category=PendingDeprecationWarning,
+    )
     def q_matrix(self, value: np.ndarray) -> None:
         """sets the Q matrix"""
         self._q_matrix = value
@@ -1028,6 +1047,12 @@ class QEOMResult(EigensolverResult):
             return self._w_matrix
 
     @w_matrix.setter
+    @deprecate_function(
+        "The W matrix is now computed from the S matrix. "
+        "This setter will be deprecated in a future release and subsequently "
+        "removed after that.",
+        category=PendingDeprecationWarning,
+    )
     def w_matrix(self, value: np.ndarray) -> None:
         """sets the W matrix"""
         self._w_matrix = value

@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -97,6 +97,19 @@ class TestBogoliubovTransform(QiskitNatureTestCase):
         circuit.append(bog_circuit_2, register)
 
         self.assertTrue(Operator(circuit).equiv(Operator(bog_circuit_composed), atol=1e-8))
+
+    def test_bogoliubov_transform_jw_inverse_general_identity(self):
+        """Test Bogoliubov transform for the identity transformation."""
+        n_orbitals = 3
+        mat = np.eye(n_orbitals, 2 * n_orbitals, k=n_orbitals)
+        bog = BogoliubovTransform(mat)
+
+        register = QuantumRegister(n_orbitals)
+        circuit = QuantumCircuit(register)
+        circuit.append(bog, register)
+        circuit.append(bog.inverse(), register)
+
+        self.assertTrue(Operator(circuit).equiv(np.eye(2**n_orbitals), atol=1e-8))
 
     def test_no_side_effects(self):
         """Test that the routines don't mutate the input array."""

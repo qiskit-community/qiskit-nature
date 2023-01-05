@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -246,7 +246,7 @@ def _bogoliubov_transform_num_conserving_jw(  # pylint: disable=invalid-name
 
     # convert left rotations to right rotations
     for givens_mat, (i, j) in reversed(left_rotations):
-        givens_mat = givens_mat.T.conj()
+        givens_mat = givens_mat.T.conj().astype(complex, copy=False)
         givens_mat[:, 0] *= current_matrix[i, i]
         givens_mat[:, 1] *= current_matrix[j, j]
         new_givens_mat = givens_matrix(givens_mat[1, 1], givens_mat[1, 0])

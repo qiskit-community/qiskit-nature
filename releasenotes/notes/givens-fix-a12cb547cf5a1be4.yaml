@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fixes a bug in which :class:`~.BogoliubovTransform` would sometimes throw an error due to an inability to
+    cast complex numbers to floats.
