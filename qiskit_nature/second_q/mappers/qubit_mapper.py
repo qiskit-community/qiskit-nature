@@ -67,6 +67,27 @@ class _ListOrDict(Dict, Iterable, Generic[T]):
             if new_value is not None:
                 self[key] = new_value
 
+    def unwrap(self, wrapped_type: type, suppress_none: bool = False) -> Dict | Iterable | T:
+        """Return the unwraped content of this class according to the initial type of the data before
+        the creation of the ListOrDict object.
+
+        Args:
+            wrapped_type: Type of the data before the creation of the ListOrDict object.
+            suppress_none: If None should be suppressed from the output list.
+
+        Returns:
+            Unwraped content of the current class instance.
+        """
+        if wrapped_type == list:
+            if suppress_none:
+                return [op for _, op in iter(self) if op is not None]
+            else:
+                return [op for _, op in iter(self)]
+        if wrapped_type == dict:
+            return dict(iter(self))
+        # only other case left is that it was a single operator to begin with:
+        return list(iter(self))[0][1]
+
 
 class QubitMapper(ABC):
     """The interface for implementing methods which map from a `SparseLabelOp` to a
@@ -134,17 +155,9 @@ class QubitMapper(ABC):
         for name, second_q_op in iter(wrapped_second_q_ops):
             qubit_ops[name] = self._map_single(second_q_op)
 
-        returned_ops: Union[PauliSumOp, ListOrDictType[PauliSumOp]]
-
-        if issubclass(wrapped_type, SparseLabelOp):
-            returned_ops = list(iter(qubit_ops))[0][1]
-        elif wrapped_type == list:
-            if suppress_none:
-                returned_ops = [op for _, op in iter(qubit_ops) if op is not None]
-            else:
-                returned_ops = [op for _, op in iter(qubit_ops)]
-        elif wrapped_type == dict:
-            returned_ops = dict(iter(qubit_ops))
+        returned_ops: Union[PauliSumOp, ListOrDictType[PauliSumOp]] = qubit_ops.unwrap(
+            wrapped_type, suppress_none=suppress_none
+        )
 
         return returned_ops
 

@@ -307,18 +307,11 @@ class QubitConverter:
             reduced_op: PauliSumOp = self._two_qubit_reduce(qubit_op, self._num_particles)
             reduced_ops[name] = reduced_op
 
-        tapered_ops: PauliSumOp = self._symmetry_reduce(reduced_ops, check_commutes)
-        returned_ops: Union[PauliSumOp, ListOrDictType[PauliSumOp]]
+        tapered_ops: _ListOrDict[PauliSumOp] = self._symmetry_reduce(reduced_ops, check_commutes)
 
-        if issubclass(wrapped_type, SparseLabelOp):
-            returned_ops = list(iter(tapered_ops))[0][1]
-        elif wrapped_type == list:
-            if suppress_none:
-                returned_ops = [op for _, op in iter(tapered_ops) if op is not None]
-            else:
-                returned_ops = [op for _, op in iter(tapered_ops)]
-        elif wrapped_type == dict:
-            returned_ops = dict(iter(tapered_ops))
+        returned_ops: Union[PauliSumOp, ListOrDictType[PauliSumOp]] = tapered_ops.unwrap(
+            wrapped_type, suppress_none=suppress_none
+        )
 
         return returned_ops
 
