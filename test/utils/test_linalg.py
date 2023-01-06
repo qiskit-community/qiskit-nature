@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,11 +12,17 @@
 
 """Test linear algebra utilities."""
 
+import unittest
 from test import QiskitNatureTestCase
 
 import numpy as np
 from ddt import data, ddt, unpack
-from qiskit_nature.utils import givens_matrix
+
+import qiskit_nature.optionals as _optionals
+from qiskit_nature.second_q.drivers import PySCFDriver
+from qiskit_nature.second_q.operators.tensor_ordering import to_chemist_ordering
+from qiskit_nature.testing import random_two_body_tensor_real
+from qiskit_nature.utils import givens_matrix, low_rank_two_body_decomposition, modified_cholesky
 
 
 @ddt
@@ -30,3 +36,122 @@ class TestGivensMatrix(QiskitNatureTestCase):
         givens_mat = givens_matrix(a, b)
         product = givens_mat @ np.array([a, b])
         np.testing.assert_allclose(product[1], 0.0, atol=1e-8)
+
+
+@ddt
+class TestModifiedCholesky(QiskitNatureTestCase):
+    """Tests for modified Cholesky decomposition."""
+
+    @data(4, 5)
+    def test_modified_cholesky_random(self, dim: int):
+        """Test modified Cholesky decomposition on a random tensor."""
+        two_body_tensor = random_two_body_tensor_real(dim, seed=9766)
+        cholesky_vecs = modified_cholesky(two_body_tensor)
+        reconstructed = np.einsum("ipq,irs->pqrs", cholesky_vecs, cholesky_vecs)
+        np.testing.assert_allclose(reconstructed, two_body_tensor, atol=1e-8)
+
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
+    def test_modified_cholesky_error_threshold_max_rank(self):
+        """Test modified Cholesky decomposition error threshold and max rank."""
+        driver = PySCFDriver(atom="Li 0 0 0; H 0 0 1.6")
+        driver_result = driver.run()
+        electronic_energy = driver_result.hamiltonian
+        two_body_tensor = to_chemist_ordering(electronic_energy.electronic_integrals.alpha["++--"])
+
+        max_rank = 20
+        cholesky_vecs = modified_cholesky(two_body_tensor, max_rank=max_rank)
+        reconstructed = np.einsum("ipq,irs->pqrs", cholesky_vecs, cholesky_vecs)
+        self.assertEqual(len(cholesky_vecs), max_rank)
+        np.testing.assert_allclose(reconstructed, two_body_tensor, atol=1e-5)
+
+        error_threshold = 1e-4
+        cholesky_vecs = modified_cholesky(two_body_tensor, error_threshold=error_threshold)
+        reconstructed = np.einsum("ipq,irs->pqrs", cholesky_vecs, cholesky_vecs)
+        self.assertLessEqual(len(cholesky_vecs), 18)
+        np.testing.assert_allclose(reconstructed, two_body_tensor, atol=error_threshold)
+
+        cholesky_vecs = modified_cholesky(
+            two_body_tensor, error_threshold=error_threshold, max_rank=max_rank
+        )
+        reconstructed = np.einsum("ipq,irs->pqrs", cholesky_vecs, cholesky_vecs)
+        self.assertLessEqual(len(cholesky_vecs), 18)
+        np.testing.assert_allclose(reconstructed, two_body_tensor, atol=error_threshold)
+
+
+@ddt
+class TestLowRankTwoBodyDecomposition(QiskitNatureTestCase):
+    """Tests for low rank two-body decomposition."""
+
+    @data(4, 5)
+    def test_low_rank_two_body_decomposition_random(self, dim: int):
+        """Test low rank two-body decomposition on a random tensor."""
+        two_body_tensor = random_two_body_tensor_real(dim, seed=25257)
+        leaf_tensors, core_tensors = low_rank_two_body_decomposition(two_body_tensor)
+        reconstructed = np.einsum(
+            "tpk,tqk,tkl,trl,tsl->pqrs",
+            leaf_tensors,
+            leaf_tensors,
+            core_tensors,
+            leaf_tensors,
+            leaf_tensors,
+        )
+        np.testing.assert_allclose(reconstructed, two_body_tensor, atol=1e-8)
+
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
+    def test_low_rank_two_body_decomposition_error_threshold_max_rank(self):
+        """Test low rank decomposition error threshold and max rank."""
+        driver = PySCFDriver(atom="Li 0 0 0; H 0 0 1.6")
+        driver_result = driver.run()
+        electronic_energy = driver_result.hamiltonian
+        two_body_tensor = to_chemist_ordering(electronic_energy.electronic_integrals.alpha["++--"])
+
+        max_rank = 20
+        leaf_tensors, core_tensors = low_rank_two_body_decomposition(
+            two_body_tensor, max_rank=max_rank
+        )
+        reconstructed = np.einsum(
+            "tpk,tqk,tkl,trl,tsl->pqrs",
+            leaf_tensors,
+            leaf_tensors,
+            core_tensors,
+            leaf_tensors,
+            leaf_tensors,
+        )
+        self.assertEqual(len(leaf_tensors), max_rank)
+        np.testing.assert_allclose(reconstructed, two_body_tensor, atol=1e-5)
+
+        error_threshold = 1e-4
+        leaf_tensors, core_tensors = low_rank_two_body_decomposition(
+            two_body_tensor, error_threshold=error_threshold
+        )
+        reconstructed = np.einsum(
+            "tpk,tqk,tkl,trl,tsl->pqrs",
+            leaf_tensors,
+            leaf_tensors,
+            core_tensors,
+            leaf_tensors,
+            leaf_tensors,
+        )
+        self.assertLessEqual(len(leaf_tensors), 18)
+        np.testing.assert_allclose(reconstructed, two_body_tensor, atol=error_threshold)
+
+        leaf_tensors, core_tensors = low_rank_two_body_decomposition(
+            two_body_tensor, error_threshold=error_threshold, max_rank=max_rank
+        )
+        reconstructed = np.einsum(
+            "tpk,tqk,tkl,trl,tsl->pqrs",
+            leaf_tensors,
+            leaf_tensors,
+            core_tensors,
+            leaf_tensors,
+            leaf_tensors,
+        )
+        self.assertLessEqual(len(leaf_tensors), 18)
+        np.testing.assert_allclose(reconstructed, two_body_tensor, atol=error_threshold)
+
+    def test_low_rank_two_body_decomposition_validation(self):
+        """Test low rank two-body decomposition."""
+        with self.assertRaisesRegex(ValueError, "real"):
+            _ = low_rank_two_body_decomposition(1j * np.ones(16).reshape((2, 2, 2, 2)))
+        with self.assertRaisesRegex(ValueError, "symmetric"):
+            _ = low_rank_two_body_decomposition(np.arange(16).reshape((2, 2, 2, 2)))

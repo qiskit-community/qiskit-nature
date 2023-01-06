@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -11,6 +11,8 @@
 # that they have been altered from the originals.
 
 """Methods to sample random objects."""
+
+from __future__ import annotations
 
 from typing import Any
 
@@ -64,6 +66,29 @@ def random_quadratic_hamiltonian(
     return QuadraticHamiltonian(
         hermitian_part=hermitian_part, antisymmetric_part=antisymmetric_part, constant=constant
     )
+
+
+def random_two_body_tensor_real(dim: int, rank: int | None = None, seed: Any = None) -> np.ndarray:
+    """Sample a random two-body tensor with real-valued orbitals.
+
+    Args:
+        dim: The dimension of the tensor. The shape of the returned tensor will be
+            (dim, dim, dim, dim).
+        rank: Rank of the sampled tensor. The default behavior is to use
+            the maximum rank, which is `n_orbitals * (n_orbitals + 1) // 2`.
+        seed: The pseudorandom number generator or seed. Should be an
+            instance of `np.random.Generator` or else a valid input to
+            `np.random.default_rng`.
+
+    Returns:
+        The sampled two-body tensor.
+    """
+    rng = np.random.default_rng(seed)
+    if rank is None:
+        rank = dim * (dim + 1) // 2
+    cholesky_vecs = rng.standard_normal((rank, dim, dim))
+    cholesky_vecs += cholesky_vecs.transpose((0, 2, 1))
+    return np.einsum("ipr,iqs->prqs", cholesky_vecs, cholesky_vecs)
 
 
 # pylint: disable=invalid-name
