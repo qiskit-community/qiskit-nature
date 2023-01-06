@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -56,7 +56,8 @@ class ExcitedStatesSolver(ABC):
         problem: BaseProblem,
         aux_operators: Optional[dict[str, Union[SparseLabelOp, PauliSumOp]]] = None,
     ) -> Tuple[PauliSumOp, Optional[dict[str, PauliSumOp]]]:
-        """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators.
+        """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators
+        using a ``QubitConverter`` or ``QubitMapper``.
         If the user-provided ``aux_operators`` contain a name which clashes with an internally
         constructed auxiliary operator, then the corresponding internal operator will be overridden by
         the user-provided operator.

@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -21,7 +21,7 @@ from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 
 from qiskit_nature.second_q.operators import SparseLabelOp
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.second_q.problems import EigenstateResult
 
@@ -31,11 +31,12 @@ QubitOperator = Union[BaseOperator, PauliSumOp]
 class GroundStateSolver(ABC):
     """The ground state calculation interface."""
 
-    def __init__(self, qubit_converter: QubitConverter) -> None:
+    def __init__(self, qubit_converter: QubitConverter | QubitMapper) -> None:
         """
         Args:
-            qubit_converter: A class that converts second quantized operator to qubit operator
-                             according to a mapper it is initialized with.
+            qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` or
+                :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance that converts a second
+                quantized operator to qubit operators and applies subsequent qubit reduction.
         """
         self._qubit_converter = qubit_converter
 
@@ -63,7 +64,8 @@ class GroundStateSolver(ABC):
         problem: BaseProblem,
         aux_operators: dict[str, SparseLabelOp | QubitOperator] | None = None,
     ) -> tuple[QubitOperator, dict[str, QubitOperator] | None]:
-        """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators.
+        """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators
+        using a ``QubitConverter`` or ``QubitMapper``.
         If the user-provided ``aux_operators`` contain a name which clashes with an internally
         constructed auxiliary operator, then the corresponding internal operator will be overridden by
         the user-provided operator.

@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -60,20 +60,32 @@ class TestUVCC(QiskitNatureTestCase):
     )
     def test_ucc_ansatz(self, excitations, num_modals, expect):
         """Tests the UVCC Ansatz."""
-        converter = QubitConverter(DirectMapper())
+        mapper = DirectMapper()
+        converter = QubitConverter(mapper)
 
-        ansatz = UVCC(qubit_converter=converter, num_modals=num_modals, excitations=excitations)
+        with self.subTest("Qubit Converter object"):
+            ansatz = UVCC(qubit_converter=converter, num_modals=num_modals, excitations=excitations)
+            assert_ucc_like_ansatz(self, ansatz, num_modals, expect)
 
-        assert_ucc_like_ansatz(self, ansatz, num_modals, expect)
+        with self.subTest("Qubit Mapper object"):
+            ansatz = UVCC(qubit_converter=mapper, num_modals=num_modals, excitations=excitations)
+            assert_ucc_like_ansatz(self, ansatz, num_modals, expect)
 
     def test_transpile_no_parameters(self):
         """Test transpilation without parameters"""
 
-        qubit_converter = QubitConverter(mapper=DirectMapper())
+        mapper = DirectMapper()
+        converter = QubitConverter(mapper)
 
-        ansatz = UVCC(qubit_converter=qubit_converter, num_modals=[2], excitations="s")
-        ansatz = transpile(ansatz, optimization_level=3)
-        self.assertEqual(ansatz.num_qubits, 2)
+        with self.subTest("Qubit Converter object"):
+            ansatz = UVCC(qubit_converter=converter, num_modals=[2], excitations="s")
+            ansatz = transpile(ansatz, optimization_level=3)
+            self.assertEqual(ansatz.num_qubits, 2)
+
+        with self.subTest("Qubit Mapper object"):
+            ansatz = UVCC(qubit_converter=mapper, num_modals=[2], excitations="s")
+            ansatz = transpile(ansatz, optimization_level=3)
+            self.assertEqual(ansatz.num_qubits, 2)
 
 
 class TestUVCCVSCF(QiskitNatureTestCase):
@@ -117,23 +129,27 @@ class TestUVCCVSCF(QiskitNatureTestCase):
 
         vibrational_op_labels = _create_labels(co2_2modes_2modals_2body)
         vibr_op = VibrationalOp(vibrational_op_labels, num_modals)
-
-        converter = QubitConverter(DirectMapper())
-
-        qubit_op = converter.convert_match(vibr_op)
-
         init_state = VSCF(num_modals)
+        mapper = DirectMapper()
+        converter = QubitConverter(mapper)
 
-        uvcc_ansatz = UVCC(num_modals, "sd", converter, initial_state=init_state)
+        with self.subTest("Qubit Converter object"):
+            qubit_op = converter.convert_match(vibr_op)
+            uvcc_ansatz = UVCC(num_modals, "sd", converter, initial_state=init_state)
+            optimizer = COBYLA(maxiter=1000)
+            algo = VQE(Estimator(), uvcc_ansatz, optimizer)
+            vqe_result = algo.compute_minimum_eigenvalue(qubit_op)
+            energy = vqe_result.optimal_value
+            self.assertAlmostEqual(energy, self.reference_energy, places=4)
 
-        optimizer = COBYLA(maxiter=1000)
-
-        algo = VQE(Estimator(), uvcc_ansatz, optimizer)
-        vqe_result = algo.compute_minimum_eigenvalue(qubit_op)
-
-        energy = vqe_result.optimal_value
-
-        self.assertAlmostEqual(energy, self.reference_energy, places=4)
+        with self.subTest("Qubit Mapper object"):
+            qubit_op = mapper.map(vibr_op)
+            uvcc_ansatz = UVCC(num_modals, "sd", mapper, initial_state=init_state)
+            optimizer = COBYLA(maxiter=1000)
+            algo = VQE(Estimator(), uvcc_ansatz, optimizer)
+            vqe_result = algo.compute_minimum_eigenvalue(qubit_op)
+            energy = vqe_result.optimal_value
+            self.assertAlmostEqual(energy, self.reference_energy, places=4)
 
     def test_build_uvcc(self):
         """Test building UVCC"""

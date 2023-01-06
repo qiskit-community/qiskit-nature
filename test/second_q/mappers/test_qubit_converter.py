@@ -115,6 +115,8 @@ class TestQubitConverter(QiskitNatureTestCase):
         self.driver_result = driver.run()
         self.num_particles = self.driver_result.num_particles
         self.h2_op, _ = self.driver_result.second_q_ops()
+        self.mapper = ParityMapper()
+        self.qubit_conv = QubitConverter(self.mapper)
 
     def test_mapping_basic(self):
         """Test mapping to qubit operator"""
@@ -358,6 +360,23 @@ class TestQubitConverter(QiskitNatureTestCase):
             sector_locator=problem.symmetry_sector_locator,
         )
         self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW_TAPERED)
+
+    def test_compatibiliy_with_mappers(self):
+        """Test that QubitConverter.convert() is equivalent to QubitMapper.map() without any reduction"""
+
+        with self.subTest("JordanWigner Mapper"):
+            mapper = JordanWignerMapper()
+            qubit_conv = QubitConverter(mapper)
+            qubit_op_converter = mapper.map(self.h2_op)
+            qubit_op_mapper = qubit_conv.convert(self.h2_op)
+            self.assertEqual(qubit_op_converter, qubit_op_mapper)
+
+        with self.subTest("Parity Mapper"):
+            mapper = ParityMapper()
+            qubit_conv = QubitConverter(mapper)
+            qubit_op_converter = mapper.map(self.h2_op)
+            qubit_op_mapper = qubit_conv.convert(self.h2_op)
+            self.assertEqual(qubit_op_converter, qubit_op_mapper)
 
 
 if __name__ == "__main__":

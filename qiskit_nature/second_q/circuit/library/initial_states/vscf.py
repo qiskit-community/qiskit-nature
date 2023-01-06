@@ -22,7 +22,7 @@ from qiskit import QuantumRegister
 from qiskit.circuit.library import BlueprintCircuit
 from qiskit.opflow import PauliSumOp
 from qiskit_nature.second_q.mappers import DirectMapper
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.operators import VibrationalOp
 
 logger = logging.getLogger(__name__)
@@ -42,14 +42,14 @@ class VSCF(BlueprintCircuit):
     def __init__(
         self,
         num_modals: list[int] | None = None,
-        qubit_converter: QubitConverter | None = None,
+        qubit_converter: QubitConverter | QubitMapper | None = None,
     ) -> None:
         """
         Args:
             num_modals: Is a list defining the number of modals per mode. E.g. for a 3 modes system
                 with 4 modals per mode num_modals = [4,4,4]
-            qubit_converter: a QubitConverter instance. This argument is currently being ignored
-                because only a single use-case is supported at the time of release: that of the
+            qubit_converter: a QubitConverter or QubitMapper instance. This argument is currently being
+                ignored because only a single use-case is supported at the time of release: that of the
                 :class:`DirectMapper`. However, for future-compatibility of this functions
                 signature, the argument has already been inserted.
         """
@@ -63,20 +63,21 @@ class VSCF(BlueprintCircuit):
         )
 
     @property
-    def qubit_converter(self) -> QubitConverter:
+    def qubit_converter(self) -> QubitConverter | QubitMapper | None:
         """The qubit converter."""
         return self._qubit_converter
 
     @qubit_converter.setter
-    def qubit_converter(self, conv: QubitConverter) -> None:
+    def qubit_converter(self, conv: QubitConverter | QubitMapper | None) -> None:
         """Sets the qubit converter."""
         self._invalidate()
-        if not isinstance(conv.mapper, DirectMapper):
+        mapper = conv if isinstance(conv, QubitMapper) else conv.mapper
+        if not isinstance(mapper, DirectMapper):
             logger.warning(
                 "The only supported `QubitConverter` is one with a `DirectMapper` as the mapper "
                 "instance. However you specified %s as an input, which will be ignored until more "
                 "variants will be supported.",
-                type(conv.mapper),
+                type(mapper),
             )
             conv = QubitConverter(DirectMapper())
         self._qubit_converter = conv
@@ -157,7 +158,7 @@ class VSCF(BlueprintCircuit):
 
 def vscf_bitstring_mapped(
     num_modals: list[int],
-    qubit_converter: QubitConverter,
+    qubit_converter: QubitConverter | QubitMapper,
 ) -> list[bool]:
     """Compute the bitstring representing the mapped VSCF initial state
     based on the given the number of modals per mode and qubit converter.
@@ -165,7 +166,7 @@ def vscf_bitstring_mapped(
     Args:
         num_modals: A list defining the number of modals per mode. E.g. for a 3 modes system
             with 4 modals per mode num_modals = [4,4,4].
-        qubit_converter: A QubitConverter instance.
+        qubit_converter: A QubitConverter or QubitMapper instance.
 
     Returns:
         The bitstring representing the mapped state of the VSCF initial state as array of bools.
@@ -186,7 +187,11 @@ def vscf_bitstring_mapped(
         num_modals=num_modals,
     )
     # map the `VibrationalOp` to a qubit operator
-    qubit_op: PauliSumOp = qubit_converter.convert_match(bitstr_op, check_commutes=False)
+    qubit_op: PauliSumOp
+    if isinstance(qubit_converter, QubitConverter):
+        qubit_op = qubit_converter.convert_match(bitstr_op, check_commutes=False)
+    else:
+        qubit_op = qubit_converter.map(bitstr_op)
 
     # We check the mapped operator `x` part of the paulis because we want to have particles
     # i.e. True, where the initial state introduced a creation (`+`) operator.

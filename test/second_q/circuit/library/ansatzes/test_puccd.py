@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -134,16 +134,26 @@ class TestPUCC(QiskitNatureTestCase):
     )
     def test_puccd_ansatz_generalized(self, num_spatial_orbitals, num_particles, expect):
         """Tests the generalized PUCCD Ansatz."""
-        converter = QubitConverter(JordanWignerMapper())
+        mapper = JordanWignerMapper()
+        converter = QubitConverter(mapper)
 
-        ansatz = PUCCD(
-            qubit_converter=converter,
-            num_particles=num_particles,
-            num_spatial_orbitals=num_spatial_orbitals,
-            generalized=True,
-        )
+        with self.subTest("Qubit Converter object"):
+            ansatz = PUCCD(
+                qubit_converter=converter,
+                num_particles=num_particles,
+                num_spatial_orbitals=num_spatial_orbitals,
+                generalized=True,
+            )
+            assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
 
-        assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
+        with self.subTest("Qubit Mapper object"):
+            ansatz = PUCCD(
+                qubit_converter=mapper,
+                num_particles=num_particles,
+                num_spatial_orbitals=num_spatial_orbitals,
+                generalized=True,
+            )
+            assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
 
 
 if __name__ == "__main__":
