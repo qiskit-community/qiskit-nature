@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022, 2023.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -117,11 +117,11 @@ nbsphinx_execute = os.getenv("QISKIT_DOCS_BUILD_TUTORIALS", "never")
 nbsphinx_widgets_path = ""
 nbsphinx_thumbnails = {
     "migration/00_Migration_Guide_to_v0.5": "_images/qiskit_nature_0.5_overview.png",
-    "migration/00b_Electronic_structure_with_v0.5": "_static/hartreefock.png",
+    "migration/00b_Electronic_structure_with_v0.5": "_static/orbitals.png",
     "migration/00c_Vibrational_structure_with_v0.5": "_static/co2_vibration.png",
     "migration/00d_Lattice_models_with_v0.5": "_images/tutorials_10_lattice_models_18_0.png",
     "migration/00e_Protein_folding_with_v0.5": "_static/lattice_protein.png",
-    "tutorials/01_electronic_structure": "_static/hartreefock.png",
+    "tutorials/01_electronic_structure": "_static/orbitals.png",
     "tutorials/02_vibrational_structure": "_static/co2_vibration.png",
     "tutorials/03_ground_state_solvers": "_images/h2_gs.png",
     "tutorials/04_excited_states_solvers": "_images/h2_es.png",
