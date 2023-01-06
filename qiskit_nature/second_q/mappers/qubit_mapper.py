@@ -68,7 +68,7 @@ class _ListOrDict(Dict, Iterable, Generic[T]):
                 self[key] = new_value
 
     def unwrap(self, wrapped_type: type, suppress_none: bool = False) -> Dict | Iterable | T:
-        """Return the unwraped content of this class according to the initial type of the data before
+        """Return the content of this class according to the initial type of the data before
         the creation of the ListOrDict object.
 
         Args:
@@ -76,7 +76,7 @@ class _ListOrDict(Dict, Iterable, Generic[T]):
             suppress_none: If None values should be suppressed from the output list.
 
         Returns:
-            Content of the current class instance as a list, a dictionary or a single element
+            Content of the current class instance as a list, a dictionary or a single element.
         """
         if wrapped_type == list:
             if suppress_none:
