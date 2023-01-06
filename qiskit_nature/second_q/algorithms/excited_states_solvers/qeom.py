@@ -190,18 +190,22 @@ class QEOM(ExcitedStatesSolver):
         """
 
         main_operator, aux_second_q_operators = problem.second_q_ops()
-
-        # 1. Convert the main operator (hamiltonian) to QubitOperator and apply two qubit reduction
         num_particles = getattr(problem, "num_particles", None)
+
+        # 1. Convert the main operator (hamiltonian) to a Qubit Operator and apply two qubit reduction
         main_op = self.qubit_converter.convert_only(
             main_operator,
             num_particles=num_particles,
         )
+
+        # 2. Set the Qubit Converter number of particles for later calls to force_match
+        self.qubit_converter.force_match(num_particles=num_particles)
+
+        # 3. Convert the auxiliary operators.
         # aux_ops set to None if the solver does not support auxiliary operators.
         aux_ops = None
 
         if self.solver.supports_aux_operators():
-            self.qubit_converter.force_match(num_particles=num_particles)
             aux_ops = self.qubit_converter.convert_match(aux_second_q_operators)
             cast(ListOrDictType[QubitOperator], aux_ops)
             if aux_operators is not None:
@@ -222,7 +226,7 @@ class QEOM(ExcitedStatesSolver):
                     # The custom op overrides the default op if the key is already taken.
                     aux_ops[name] = converted_aux_op
 
-        # 2. Find the z2symmetries, set them in the qubit_converter, and apply the first step of the
+        # 4. Find the z2symmetries, set them in the qubit_converter, and apply the first step of the
         # tapering.
         _, z2symmetries = self.qubit_converter.find_taper_op(
             main_op, problem.symmetry_sector_locator
@@ -231,7 +235,7 @@ class QEOM(ExcitedStatesSolver):
         untap_main_op = self.qubit_converter.convert_clifford(main_op)
         untap_aux_ops = self.qubit_converter.convert_clifford(aux_ops)
 
-        # 4. If a MinimumEigensolverFactory was provided, then an additional call to get_solver() is
+        # 5. If a MinimumEigensolverFactory was provided, then an additional call to get_solver() is
         # required.
         if isinstance(self.solver, MinimumEigensolverFactory):
             self._gsc._solver = self.solver.get_solver(problem, self.qubit_converter)  # type: ignore
@@ -256,7 +260,7 @@ class QEOM(ExcitedStatesSolver):
             :meth:`~.BaseProblem.interpret`.
         """
 
-        # 1. Prepare all operators
+        # 1. Prepare all operators and set the particle number in the qubit converter
         (
             untap_main_op,  # Hamiltonian
             untap_aux_ops,  # Auxiliary observables
@@ -338,13 +342,13 @@ class QEOM(ExcitedStatesSolver):
                 problem.num_spatial_orbitals,
                 (problem.num_alpha, problem.num_beta),
                 self.excitations,
-                self._gsc.qubit_converter,
+                self.qubit_converter,
             )
         elif isinstance(problem, VibrationalStructureProblem):
             return build_vibrational_ops(
                 problem.num_modals,
                 self.excitations,
-                self._gsc.qubit_converter,
+                self.qubit_converter,
             )
         else:
             raise NotImplementedError(
@@ -384,7 +388,7 @@ class QEOM(ExcitedStatesSolver):
                 to_be_computed_list.append((m_u, n_u, left_op_1, right_op_1, right_op_2))
 
         try:
-            z2_symmetries = self._gsc.qubit_converter.z2symmetries
+            z2_symmetries = self.qubit_converter.z2symmetries
         except AttributeError:
             z2_symmetries = Z2Symmetries([], [], [])
 
@@ -582,7 +586,6 @@ class QEOM(ExcitedStatesSolver):
         hopping_operators, type_of_commutativities, excitation_indices = data
         size = int(len(list(excitation_indices.keys())) // 2)
 
-        # Small workaround to apply two_qubit_reduction to a list with convert_match()
         if isinstance(self.qubit_converter, QubitConverter):
             untap_hopping_ops = self.qubit_converter.convert_clifford(hopping_operators)
         else:
