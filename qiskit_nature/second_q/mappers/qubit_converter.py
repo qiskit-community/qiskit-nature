@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -18,14 +18,9 @@ import copy
 import logging
 from typing import (
     Callable,
-    Dict,
-    Generator,
-    Generic,
-    Iterable,
-    List,
     Optional,
+    List,
     Tuple,
-    TypeVar,
     Union,
 )
 
@@ -37,51 +32,11 @@ from qiskit.opflow.primitive_ops import Z2Symmetries
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.operators import SparseLabelOp
+from .parity_mapper import ParityMapper
+from .qubit_mapper import QubitMapper, _ListOrDict
 
-from .qubit_mapper import QubitMapper
-
-# pylint: disable=invalid-name
-T = TypeVar("T")
 
 logger = logging.getLogger(__name__)
-
-
-class _ListOrDict(Dict, Iterable, Generic[T]):
-    """The ListOrDict utility class.
-
-    This is a utility which allows seamless iteration of a `list` or `dict` object.
-    """
-
-    def __init__(self, values: Optional[ListOrDictType] = None):
-        """
-        Args:
-            values: an optional object of `list` or `dict` type.
-        """
-        if isinstance(values, list):
-            values = dict(enumerate(values))
-        elif values is None:
-            values = {}
-        super().__init__(values)
-
-    def __iter__(self) -> Generator[Tuple[Union[int, str], T], T, None]:
-        """Return the generator-iterator method."""
-        return self._generator()
-
-    def _generator(self) -> Generator[Tuple[Union[int, str], T], T, None]:
-        """Return generator method iterating the contents of this class.
-
-        This generator yields the `(key, value)` pairs of the underlying dictionary. If this object
-        was constructed from a list, the keys in this generator are simply the numeric indices.
-
-        This generator also supports overriding the yielded value upon receiving any value other
-        than `None` from a `send` [1] instruction.
-
-        [1]: https://docs.python.org/3/reference/expressions.html#generator.send
-        """
-        for key, value in self.items():
-            new_value = yield (key, value)
-            if new_value is not None:
-                self[key] = new_value
 
 
 class QubitConverter:
@@ -241,8 +196,10 @@ class QubitConverter:
         Returns:
             PauliSumOp qubit operator
         """
-        qubit_op = self._map(second_q_op)
-        reduced_op = self._two_qubit_reduce(qubit_op, num_particles)
+        if isinstance(self._mapper, ParityMapper):
+            self._mapper.num_particles = num_particles
+        reduced_op = self._mapper.map(second_q_op)
+
         tapered_op, z2symmetries = self.find_taper_op(reduced_op, sector_locator)
 
         self._num_particles = num_particles
@@ -269,8 +226,9 @@ class QubitConverter:
         Returns:
             PauliSumOp qubit operator
         """
-        qubit_op = self._map(second_q_op)
-        reduced_op = self._two_qubit_reduce(qubit_op, num_particles)
+        if isinstance(self._mapper, ParityMapper):
+            self._mapper.num_particles = num_particles
+        reduced_op = self._mapper.map(second_q_op)
 
         return reduced_op
 
@@ -347,12 +305,13 @@ class QubitConverter:
             second_q_ops = [second_q_ops]
             suppress_none = False  # When only a single op we will return None back
 
+        if isinstance(self._mapper, ParityMapper):
+            self._mapper.num_particles = self.num_particles
+
         wrapped_second_q_ops: _ListOrDict[SparseLabelOp] = _ListOrDict(second_q_ops)
 
         reduced_ops: _ListOrDict[PauliSumOp] = _ListOrDict()
         for name, second_q_op in iter(wrapped_second_q_ops):
-            if isinstance(self._mapper, ParityMapper):
-                    self._mapper.num_particles = self.num_particles
             reduced_op: PauliSumOp = self._mapper.map(second_q_op)
             reduced_ops[name] = reduced_op
 

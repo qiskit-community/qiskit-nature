@@ -196,10 +196,7 @@ class QEOM(ExcitedStatesSolver):
 
         if isinstance(self.qubit_converter, QubitConverter):
             self.qubit_converter.force_match(num_particles=num_particles)
-            main_op = self.qubit_converter.convert_only(
-                main_operator,
-                num_particles=num_particles,
-            )
+            main_op = self.qubit_converter.convert_only(main_operator, num_particles=num_particles)
         else:
             self.qubit_converter.num_particles = num_particles
             main_op = self.qubit_converter.map(main_operator)
