@@ -47,7 +47,7 @@ from qiskit_nature.second_q.algorithms.ground_state_solvers.minimum_eigensolver_
 from qiskit_nature.second_q.algorithms.excited_states_solvers.excited_states_solver import (
     ExcitedStatesSolver,
 )
-from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper, ParityMapper
 from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.problems import (
     BaseProblem,
@@ -198,7 +198,8 @@ class QEOM(ExcitedStatesSolver):
             self.qubit_converter.force_match(num_particles=num_particles)
             main_op = self.qubit_converter.convert_only(main_operator, num_particles=num_particles)
         else:
-            self.qubit_converter.num_particles = num_particles
+            if isinstance(self.qubit_converter, ParityMapper):
+                self.qubit_converter.num_particles = num_particles
             main_op = self.qubit_converter.map(main_operator)
 
         # 3. Convert the auxiliary operators.
