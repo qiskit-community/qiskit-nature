@@ -22,6 +22,7 @@ from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.analysis.z2_symmetries import Z2Symmetries
 from qiskit.quantum_info.operators import SparsePauliOp
 
+from qiskit_nature import settings
 from qiskit_nature.second_q.operators import SparseLabelOp
 
 from .qubit_mapper import QubitMapper, _ListOrDict
@@ -69,7 +70,9 @@ class TaperedQubitMapper(QubitMapper):
     def _map_clifford_single(
         self, second_q_op: SparseLabelOp, *, register_length: int | None = None
     ) -> SparsePauliOp:
-        mapped_op = self.mapper.map(second_q_op, register_length=register_length).primitive
+        mapped_op = self.mapper.map(second_q_op, register_length=register_length)
+        if isinstance(mapped_op, PauliSumOp):
+            mapped_op = mapped_op.primitive
         converted_op = self.z2symmetries.convert_clifford(mapped_op)
         return converted_op
 
@@ -84,18 +87,17 @@ class TaperedQubitMapper(QubitMapper):
 
     def _map_single(
         self, second_q_op: SparseLabelOp, *, register_length: int | None = None
-    ) -> PauliSumOp:
+    ) -> SparsePauliOp | PauliSumOp:
         converted_op = self._map_clifford_single(second_q_op, register_length=register_length)
         tapered_op = self._taper_clifford_single(converted_op)
-        returned_op = PauliSumOp(tapered_op)
-        return returned_op
+        return PauliSumOp(tapered_op) if settings.use_pauli_sum_op else tapered_op
 
     def map_clifford(
         self,
         second_q_ops: SparseLabelOp | ListOrDictType[SparseLabelOp],
         *,
         register_length: int | None = None,
-    ) -> PauliSumOp | ListOrDictType[PauliSumOp]:
+    ) -> SparsePauliOp | PauliSumOp | ListOrDictType[SparsePauliOp | PauliSumOp]:
         """Maps a second quantized operator or a list, dict of second quantized operators based on
         the internal mapper. Then, composes all mapped pauli operators with the clifford operations
         defined by the internal ``Z2Symmetries`` to prepare for the symmetry reduction.
@@ -105,11 +107,12 @@ class TaperedQubitMapper(QubitMapper):
             second_q_ops: A second quantized operator, or list (resp. dict) thereof.
             register_length: when provided, this will be used to overwrite the ``register_length``
                 attribute of the operator being mapped. This is possible because the
-                ``register_length`` is considered a lower bound in a ``SparseLabelOp``.
+            ``register_length`` is considered a lower bound in a ``SparseLabelOp``.
 
         Returns:
-            A qubit operator in the form of a PauliSumOp, or list (resp. dict) thereof if a list
-            (resp. dict) of second quantized operators was supplied.
+            A qubit operator in the form of a ``PauliSumOp`` or ``SparsePauliOp`` (depending on
+            :attr:`~qiskit_nature.settings.use_pauli_sum_op`), or list (resp. dict) thereof if a
+            list (resp. dict) of second quantized operators was supplied.
         """
         wrapped_type = type(second_q_ops)
 
@@ -118,24 +121,25 @@ class TaperedQubitMapper(QubitMapper):
 
         wrapped_second_q_ops: _ListOrDict[SparseLabelOp] = _ListOrDict(second_q_ops)
 
-        qubit_ops: _ListOrDict = _ListOrDict()
+        qubit_ops: _ListOrDict[SparsePauliOp] = _ListOrDict()
         for name, second_q_op in iter(wrapped_second_q_ops):
-            qubit_ops[name] = PauliSumOp(
-                self._map_clifford_single(second_q_op, register_length=register_length)
+            qubit_ops[name] = self._map_clifford_single(
+                second_q_op, register_length=register_length
             )
 
-        returned_ops: PauliSumOp | ListOrDictType[PauliSumOp]
+        # NOTE: _ListOrDict.unwrap takes care of the conversion to/from PauliSumOp based on
+        # settings.use_pauli_sum_op
         returned_ops = qubit_ops.unwrap(wrapped_type)
 
         return returned_ops
 
     def taper_clifford(
         self,
-        pauli_ops: PauliSumOp | ListOrDictType[PauliSumOp],
+        pauli_ops: SparsePauliOp | PauliSumOp | ListOrDictType[SparsePauliOp | PauliSumOp],
         *,
         check_commutes: bool = True,
         suppress_none: bool = True,
-    ) -> PauliSumOp | None | ListOrDictType[PauliSumOp | None]:
+    ) -> SparsePauliOp | PauliSumOp | None | ListOrDictType[SparsePauliOp | PauliSumOp | None]:
         """Applies the symmetry reduction on a ``PauliSumOp`` or a list (resp. dict). This method implies
         that the second quantized operators were already mapped to Pauli operators and composed with the
         clifford operations defined in the symmetry, for example using the ``map_clifford`` method.
@@ -149,30 +153,35 @@ class TaperedQubitMapper(QubitMapper):
                 be suppressed where the output list length may then be smaller than the input.
 
         Returns:
-            A qubit operator in the form of a PauliSumOp, or list (resp. dict) thereof if a list
-            (resp. dict) of second quantized operators was supplied.
+            A qubit operator in the form of a ``PauliSumOp`` or ``SparsePauliOp`` (depending on
+            :attr:`~qiskit_nature.settings.use_pauli_sum_op`), or list (resp. dict) thereof if a
+            list (resp. dict) of second quantized operators was supplied.
         """
         wrapped_type = type(pauli_ops)
 
-        if issubclass(wrapped_type, PauliSumOp):
+        if issubclass(wrapped_type, (PauliSumOp, SparsePauliOp)):
             pauli_ops = [pauli_ops]
 
-        wrapped_pauli_ops: _ListOrDict[PauliSumOp] = _ListOrDict(pauli_ops)
+        wrapped_pauli_ops: _ListOrDict[SparsePauliOp | PauliSumOp] = _ListOrDict(pauli_ops)
 
-        qubit_ops: _ListOrDict[PauliSumOp]
+        qubit_ops: _ListOrDict[SparsePauliOp | PauliSumOp]
         if self.z2symmetries.is_empty():
             qubit_ops = wrapped_pauli_ops
         else:
             qubit_ops = _ListOrDict()
             for name, pauli_op in iter(wrapped_pauli_ops):
-                if check_commutes and not self._check_commutes(pauli_op.primitive):
+                if isinstance(pauli_op, PauliSumOp):
+                    pauli_op = pauli_op.primitive
+                if check_commutes and not self._check_commutes(pauli_op):
                     qubit_ops[name] = None
                 else:
-                    qubit_ops[name] = PauliSumOp(self._taper_clifford_single(pauli_op.primitive))
+                    qubit_ops[name] = self._taper_clifford_single(pauli_op)
 
-        returned_ops: PauliSumOp | ListOrDictType[PauliSumOp] = qubit_ops.unwrap(
-            wrapped_type, suppress_none=suppress_none
-        )
+        # NOTE: _ListOrDict.unwrap takes care of the conversion to/from PauliSumOp based on
+        # settings.use_pauli_sum_op
+        returned_ops: SparsePauliOp | PauliSumOp | ListOrDictType[
+            SparsePauliOp | PauliSumOp
+        ] = qubit_ops.unwrap(wrapped_type, suppress_none=suppress_none)
 
         return returned_ops
 
@@ -181,7 +190,7 @@ class TaperedQubitMapper(QubitMapper):
         second_q_ops: SparseLabelOp | ListOrDictType[SparseLabelOp],
         *,
         register_length: int | None = None,
-    ) -> None | PauliSumOp | ListOrDictType[PauliSumOp]:
+    ) -> SparsePauliOp | PauliSumOp | None | ListOrDictType[SparsePauliOp | PauliSumOp | None]:
         """Maps a second quantized operator or a list, dict of second quantized operators based on
         the current mapper.
 
@@ -192,8 +201,9 @@ class TaperedQubitMapper(QubitMapper):
                 ``register_length`` is considered a lower bound in a ``SparseLabelOp``.
 
         Returns:
-            A qubit operator in the form of a PauliSumOp, or list (resp. dict) thereof if a list
-            (resp. dict) of second quantized operators was supplied.
+            A qubit operator in the form of a ``PauliSumOp`` or ``SparsePauliOp`` (depending on
+            :attr:`~qiskit_nature.settings.use_pauli_sum_op`), or list (resp. dict) thereof if a
+            list (resp. dict) of second quantized operators was supplied.
         """
         # NOTE: we do not rely on the `_map_single` method here because we want to ensure that
         # `check_commutes=True` is set. This is not done via `_map_single` because the correct

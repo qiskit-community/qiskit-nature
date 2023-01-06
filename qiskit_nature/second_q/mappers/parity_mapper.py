@@ -17,7 +17,6 @@ from __future__ import annotations
 import logging
 
 from functools import lru_cache
-from typing import Union, List
 
 import numpy as np
 
@@ -25,6 +24,7 @@ from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.analysis.z2_symmetries import Z2Symmetries
 from qiskit.quantum_info.operators import Pauli, PauliList, SparsePauliOp
 
+from qiskit_nature import settings
 from qiskit_nature.deprecation import deprecate_arguments, deprecate_property
 from qiskit_nature.second_q.operators import FermionicOp
 from .fermionic_mapper import FermionicMapper
@@ -82,10 +82,10 @@ class ParityMapper(FermionicMapper):
         pauli_table = []
 
         for i in range(register_length):
-            a_z: Union[List[int], np.ndarray] = [0] * (i - 1) + [1] if i > 0 else []
-            a_x: Union[List[int], np.ndarray] = [0] * (i - 1) + [0] if i > 0 else []
-            b_z: Union[List[int], np.ndarray] = [0] * (i - 1) + [0] if i > 0 else []
-            b_x: Union[List[int], np.ndarray] = [0] * (i - 1) + [0] if i > 0 else []
+            a_z: list[int] | np.ndarray = [0] * (i - 1) + [1] if i > 0 else []
+            a_x: list[int] | np.ndarray = [0] * (i - 1) + [0] if i > 0 else []
+            b_z: list[int] | np.ndarray = [0] * (i - 1) + [0] if i > 0 else []
+            b_x: list[int] | np.ndarray = [0] * (i - 1) + [0] if i > 0 else []
             a_z = np.asarray(a_z + [0] + [0] * (register_length - i - 1), dtype=bool)
             a_x = np.asarray(a_x + [1] + [1] * (register_length - i - 1), dtype=bool)
             b_z = np.asarray(b_z + [1] + [0] * (register_length - i - 1), dtype=bool)
@@ -131,10 +131,11 @@ class ParityMapper(FermionicMapper):
 
     def _map_single(
         self, second_q_op: FermionicOp, *, register_length: int | None = None
-    ) -> PauliSumOp:
-        mapped_op = ParityMapper.mode_based_mapping(
-            second_q_op, register_length=register_length
-        ).primitive
+    ) -> SparsePauliOp | PauliSumOp:
+        mapped_op = ParityMapper.mode_based_mapping(second_q_op, register_length=register_length)
+
+        if isinstance(mapped_op, PauliSumOp):
+            mapped_op = mapped_op.primitive
 
         reduced_op = mapped_op
         if self.num_particles is not None:
@@ -147,4 +148,4 @@ class ParityMapper(FermionicMapper):
                     mapped_op.num_qubits,
                 )
 
-        return PauliSumOp(reduced_op)
+        return PauliSumOp(reduced_op) if settings.use_pauli_sum_op else reduced_op

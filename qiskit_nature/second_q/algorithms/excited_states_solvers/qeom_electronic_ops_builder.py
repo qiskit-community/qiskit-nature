@@ -14,9 +14,10 @@
 
 from __future__ import annotations
 
-from typing import Callable, Dict, List, Tuple
+from typing import Callable
 
 from qiskit.opflow import PauliSumOp
+from qiskit.quantum_info import SparsePauliOp
 from qiskit.tools import parallel_map
 from qiskit.utils import algorithm_globals
 
@@ -28,7 +29,7 @@ from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper, TaperedQ
 
 def build_electronic_ops(
     num_spatial_orbitals: int,
-    num_particles: Tuple[int, int],
+    num_particles: tuple[int, int],
     excitations: str
     | int
     | list[int]
@@ -37,10 +38,10 @@ def build_electronic_ops(
         list[tuple[tuple[int, ...], tuple[int, ...]]],
     ],
     qubit_converter: QubitConverter | QubitMapper,
-) -> Tuple[
-    Dict[str, PauliSumOp],
-    Dict[str, List[bool]],
-    Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]],
+) -> tuple[
+    dict[str, PauliSumOp | SparsePauliOp],
+    dict[str, list[bool]],
+    dict[str, tuple[tuple[int, ...], tuple[int, ...]]],
 ]:
     """Builds the product of raising and lowering operators (basic excitation operators)
 
@@ -71,9 +72,9 @@ def build_electronic_ops(
     size = len(excitations_list)
 
     # build all hopping operators
-    hopping_operators: Dict[str, PauliSumOp] = {}
-    type_of_commutativities: Dict[str, List[bool]] = {}
-    excitation_indices: Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]] = {}
+    hopping_operators: dict[str, PauliSumOp | SparsePauliOp] = {}
+    type_of_commutativities: dict[str, list[bool]] = {}
+    excitation_indices: dict[str, tuple[tuple[int, ...], tuple[int, ...]]] = {}
     to_be_executed_list = []
     for idx in range(size):
         to_be_executed_list += [excitations_list[idx], excitations_list[idx][::-1]]
@@ -99,10 +100,10 @@ def build_electronic_ops(
 
 
 def _build_single_hopping_operator(
-    excitation: Tuple[Tuple[int, ...], Tuple[int, ...]],
+    excitation: tuple[tuple[int, ...], tuple[int, ...]],
     num_spatial_orbitals: int,
     qubit_converter: QubitConverter | QubitMapper,
-) -> Tuple[PauliSumOp, List[bool]]:
+) -> tuple[PauliSumOp | SparsePauliOp, list[bool]]:
     label = []
     for occ in excitation[0]:
         label.append(f"+_{occ}")
@@ -125,13 +126,14 @@ def _build_single_hopping_operator(
     commutativities = []
     if not len(symmetries_for_commutativity) == 0:
         for symmetry in symmetries_for_commutativity:
-            symmetry_op = PauliSumOp.from_list([(symmetry.to_label(), 1.0)])
-            paulis = qubit_op.primitive.paulis
+            symmetry_op = SparsePauliOp.from_list([(symmetry.to_label(), 1.0)])
+            if isinstance(qubit_op, PauliSumOp):
+                paulis = qubit_op.primitive.paulis
+            else:
+                paulis = qubit_op.paulis
             len_paulis = len(paulis)
-            commuting = len(paulis.commutes_with_all(symmetry_op.primitive.paulis)) == len_paulis
-            anticommuting = (
-                len(paulis.anticommutes_with_all(symmetry_op.primitive.paulis)) == len_paulis
-            )
+            commuting = len(paulis.commutes_with_all(symmetry_op.paulis)) == len_paulis
+            anticommuting = len(paulis.anticommutes_with_all(symmetry_op.paulis)) == len_paulis
 
             if commuting != anticommuting:  # only one of them is True
                 if commuting:

@@ -15,12 +15,13 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import List, Tuple
 import numpy as np
 
 from qiskit.opflow import PauliSumOp
-from qiskit.quantum_info.operators import Pauli, SparsePauliOp
+from qiskit.quantum_info import SparsePauliOp
+from qiskit.quantum_info.operators import Pauli
 
+from qiskit_nature import settings
 from qiskit_nature.second_q.operators import FermionicOp
 from .fermionic_mapper import FermionicMapper
 
@@ -38,7 +39,7 @@ class BravyiKitaevSuperFastMapper(FermionicMapper):
 
     def _map_single(
         self, second_q_op: FermionicOp, *, register_length: int | None = None
-    ) -> PauliSumOp:
+    ) -> SparsePauliOp | PauliSumOp:
         if register_length is None:
             register_length = second_q_op.register_length
 
@@ -55,7 +56,7 @@ class BravyiKitaevSuperFastMapper(FermionicMapper):
         coeffs = sparse_pauli.coeffs[indices]
         sorted_sparse_pauli = SparsePauliOp(table, coeffs)
 
-        return PauliSumOp(sorted_sparse_pauli)
+        return PauliSumOp(sorted_sparse_pauli) if settings.use_pauli_sum_op else sorted_sparse_pauli
 
 
 class TermType(Enum):
@@ -155,7 +156,7 @@ def _add_sparse_pauli(qubit_op1: SparsePauliOp, qubit_op2: SparsePauliOp) -> Spa
         return qubit_op1 + qubit_op2
 
 
-def _analyze_term(terms: list[tuple[str, int]]) -> Tuple[TermType, List[Tuple[int, str]]]:
+def _analyze_term(terms: list[tuple[str, int]]) -> tuple[TermType, list[tuple[int, str]]]:
     """Return the type of interaction represented by `term_str` and
     a list of the factors and their indices in `term_str`.
 
@@ -171,14 +172,14 @@ def _analyze_term(terms: list[tuple[str, int]]) -> Tuple[TermType, List[Tuple[in
     return _type, facs
 
 
-def _operator_string(term: Tuple) -> list[tuple[str, int]]:
+def _operator_string(term: tuple) -> list[tuple[str, int]]:
     """Return the list of pairs describing the operators in the term extracted from a `FermionicOp`
     given by `term`.
     """
     return term[0]
 
 
-def _operator_coefficient(term: Tuple) -> float:
+def _operator_coefficient(term: tuple) -> float:
     """Return the coefficient of the multi-mode operator term extracted from a `FermionicOp`."""
     return term[1]
 
@@ -360,7 +361,7 @@ def _number_excitation(  # pylint: disable=invalid-name
 
 def _unpack_term(
     terms: list[tuple[str, int]], compress_number_op: bool
-) -> Tuple[Tuple[int, int, int], List[Tuple[int, str]]]:
+) -> tuple[tuple[int, int, int], list[tuple[int, str]]]:
     """Return a tuple specifying the counts of kinds of operators in `term_str` and
     a list of the factors and their indices in `term_str`.
 
@@ -585,7 +586,7 @@ def _edge_operator_bi(edge_list: np.ndarray, i: int) -> SparsePauliOp:
     return SparsePauliOp(qubit_op)
 
 
-def _to_physicist_index_order(facs: List[Tuple[int, str]]) -> Tuple[List[Tuple[int, str]], int]:
+def _to_physicist_index_order(facs: list[tuple[int, str]]) -> tuple[list[tuple[int, str]], int]:
     """Reorder the factors `facs` to be two raising operators followed by two lowering operators and
     return the new factors and the phase incurred by the reordering. Note that `facs` are not in
     chemists' order, but rather sorted by index with least index first.

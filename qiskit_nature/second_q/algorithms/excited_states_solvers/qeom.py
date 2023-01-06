@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, Sequence, cast
+from typing import Any, Callable, Sequence
 from enum import Enum
 import itertools
 import logging
@@ -38,7 +38,6 @@ from qiskit.quantum_info import SparsePauliOp
 from qiskit.primitives import BaseEstimator
 
 from qiskit_nature.second_q.algorithms.ground_state_solvers import GroundStateSolver
-from qiskit_nature.second_q.algorithms.ground_state_solvers.ground_state_solver import QubitOperator
 from qiskit_nature.second_q.algorithms.ground_state_solvers.minimum_eigensolver_factories import (
     MinimumEigensolverFactory,
 )
@@ -58,6 +57,7 @@ from qiskit_nature.second_q.problems import (
     EigenstateResult,
     ElectronicStructureResult,
 )
+from qiskit_nature.deprecation import warn_deprecated, DeprecatedType
 
 from .qeom_electronic_ops_builder import build_electronic_ops
 from .qeom_vibrational_ops_builder import build_vibrational_ops
@@ -270,8 +270,8 @@ class QEOM(ExcitedStatesSolver):
     def get_qubit_operators(
         self,
         problem: BaseProblem,
-        aux_operators: dict[str, SparseLabelOp | QubitOperator] | None = None,
-    ) -> tuple[QubitOperator, dict[str, QubitOperator] | None]:
+        aux_operators: dict[str, SparseLabelOp | PauliSumOp] | None = None,
+    ) -> tuple[SparsePauliOp | PauliSumOp, dict[str, SparsePauliOp | PauliSumOp] | None]:
         """
         Gets the operator and auxiliary operators, and transforms the provided auxiliary operators.
         If the user-provided ``aux_operators`` contain a name which clashes with an internally
@@ -308,9 +308,15 @@ class QEOM(ExcitedStatesSolver):
         if self.solver.supports_aux_operators():
             aux_ops = self._map_operators(aux_second_q_operators)
 
-            cast(ListOrDictType[QubitOperator], aux_ops)
             if aux_operators is not None:
                 for name, op in aux_operators.items():
+                    if isinstance(op, PauliSumOp):
+                        warn_deprecated(
+                            "0.6.0",
+                            old_type=DeprecatedType.ARGUMENT,
+                            old_name="PauliSumOp",
+                            new_name="SparsePauliOp",
+                        )
                     if isinstance(op, (SparseLabelOp)):
                         converted_aux_op = self._map_operators(op)
                     else:
@@ -350,7 +356,7 @@ class QEOM(ExcitedStatesSolver):
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: dict[str, SparseLabelOp | QubitOperator] | None = None,
+        aux_operators: dict[str, SparseLabelOp | SparsePauliOp | PauliSumOp] | None = None,
     ) -> EigenstateResult:
         """Run the excited-states calculation.
 
@@ -433,7 +439,7 @@ class QEOM(ExcitedStatesSolver):
     def _build_hopping_ops(
         self, problem: BaseProblem
     ) -> tuple[
-        dict[str, QubitOperator],
+        dict[str, SparsePauliOp | PauliSumOp],
         dict[str, list[bool]],
         dict[str, tuple[tuple[int, ...], tuple[int, ...]]],
     ]:

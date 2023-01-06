@@ -29,6 +29,7 @@ from qiskit_nature.second_q.mappers.bksf import (
     _edge_operator_bi,
     _bksf_edge_list_fermionic_op,
 )
+from qiskit_nature import settings
 
 
 def _sort_simplify(sparse_pauli):
@@ -158,42 +159,101 @@ class TestBravyiKitaevSuperFastMapper(QiskitNatureTestCase):
             ]
         )
 
-        pauli_sum_op = BravyiKitaevSuperFastMapper().map(h2_fop)
+        aux = settings.use_pauli_sum_op
+        try:
+            settings.use_pauli_sum_op = True
+            pauli_sum_op = BravyiKitaevSuperFastMapper().map(h2_fop)
 
-        op1 = _sort_simplify(expected_pauli_op)
-        op2 = _sort_simplify(pauli_sum_op.primitive)
+            op1 = _sort_simplify(expected_pauli_op)
+            op2 = _sort_simplify(pauli_sum_op.primitive)
 
-        with self.subTest("Map H2 frome sto3g basis, number of terms"):
-            self.assertEqual(len(op1), len(op2))
+            with self.subTest("Map H2 frome sto3g basis, number of terms"):
+                self.assertEqual(len(op1), len(op2))
 
-        with self.subTest("Map H2 frome sto3g basis result"):
-            self.assertEqual(op1, op2)
+            with self.subTest("Map H2 frome sto3g basis result"):
+                self.assertEqual(op1, op2)
+
+            settings.use_pauli_sum_op = False
+            pauli_sparse_op = BravyiKitaevSuperFastMapper().map(h2_fop)
+
+            op1 = _sort_simplify(expected_pauli_op)
+            op2 = _sort_simplify(pauli_sparse_op)
+
+            with self.subTest("Map H2 frome sto3g basis, number of terms"):
+                self.assertEqual(len(op1), len(op2))
+
+            with self.subTest("Map H2 frome sto3g basis result"):
+                self.assertEqualSparsePauliOp(op1, op2)
+        finally:
+            settings.use_pauli_sum_op = aux
 
         with self.subTest("Sparse FermionicOp input"):
-            h2_fop_sparse = h2_fop.normal_order()
-            pauli_sum_op_from_sparse = BravyiKitaevSuperFastMapper().map(h2_fop_sparse)
-            op2_from_sparse = _sort_simplify(pauli_sum_op_from_sparse.primitive)
-            self.assertEqual(op1, op2_from_sparse)
+            aux = settings.use_pauli_sum_op
+            try:
+                settings.use_pauli_sum_op = True
+                h2_fop_sparse = h2_fop.normal_order()
+                pauli_sum_op_from_sparse = BravyiKitaevSuperFastMapper().map(h2_fop_sparse)
+                op2_from_sparse = _sort_simplify(pauli_sum_op_from_sparse.primitive)
+                self.assertEqual(op1, op2_from_sparse)
+
+                settings.use_pauli_sum_op = False
+                pauli_sum_op_from_sparse = BravyiKitaevSuperFastMapper().map(h2_fop_sparse)
+                op2_from_sparse = _sort_simplify(pauli_sum_op_from_sparse)
+                self.assertEqualSparsePauliOp(op1, op2_from_sparse)
+            finally:
+                settings.use_pauli_sum_op = aux
 
         with self.subTest("Test accepting identity with zero coefficient"):
-            h2_fop_zero_term = h2_fop + FermionicOp({"": 0.0}, num_spin_orbitals=4)
-            pauli_sum_op_extra = BravyiKitaevSuperFastMapper().map(h2_fop_zero_term)
-            op3 = _sort_simplify(pauli_sum_op_extra.primitive)
-            self.assertEqual(op1, op3)
+            aux = settings.use_pauli_sum_op
+            try:
+                settings.use_pauli_sum_op = True
+                h2_fop_zero_term = h2_fop + FermionicOp({"": 0.0}, num_spin_orbitals=4)
+                pauli_sum_op_extra = BravyiKitaevSuperFastMapper().map(h2_fop_zero_term)
+                op3 = _sort_simplify(pauli_sum_op_extra.primitive)
+                self.assertEqual(op1, op3)
+
+                settings.use_pauli_sum_op = False
+                pauli_sum_op_extra = BravyiKitaevSuperFastMapper().map(h2_fop_zero_term)
+                op3 = _sort_simplify(pauli_sum_op_extra)
+                self.assertEqualSparsePauliOp(op1, op3)
+            finally:
+                settings.use_pauli_sum_op = aux
 
         with self.subTest("Test zero FermiOp"):
             fermi_op = FermionicOp.zero()
             fermi_op.num_spin_orbitals = 4
-            pauli_op = BravyiKitaevSuperFastMapper().map(fermi_op).primitive
-            x = np.array([], dtype="bool")
-            z = np.array([], dtype="bool")
-            expected_pauli_op = SparsePauliOp(PauliList.from_symplectic(x, z), coeffs=[0.0])
-            self.assertEqual(pauli_op, expected_pauli_op)
+            aux = settings.use_pauli_sum_op
+            try:
+                settings.use_pauli_sum_op = True
+                pauli_op = BravyiKitaevSuperFastMapper().map(fermi_op).primitive
+                x = np.array([], dtype="bool")
+                z = np.array([], dtype="bool")
+                expected_pauli_op = SparsePauliOp(PauliList.from_symplectic(x, z), coeffs=[0.0])
+                self.assertEqual(pauli_op, expected_pauli_op)
+
+                settings.use_pauli_sum_op = False
+                pauli_op = BravyiKitaevSuperFastMapper().map(fermi_op)
+                x = np.array([], dtype="bool")
+                z = np.array([], dtype="bool")
+                expected_pauli_op = SparsePauliOp(PauliList.from_symplectic(x, z), coeffs=[0.0])
+                self.assertEqualSparsePauliOp(pauli_op, expected_pauli_op)
+            finally:
+                settings.use_pauli_sum_op = aux
 
     def test_LiH(self):
         """Test LiH molecule"""
-        pauli_sum_op = BravyiKitaevSuperFastMapper().map(FERMIONIC_HAMILTONIAN)
-        self.assertEqual(pauli_sum_op._primitive, QUBIT_HAMILTONIAN)
+        aux = settings.use_pauli_sum_op
+        try:
+            settings.use_pauli_sum_op = True
+            pauli_sum_op = BravyiKitaevSuperFastMapper().map(FERMIONIC_HAMILTONIAN)
+            self.assertEqual(pauli_sum_op._primitive, QUBIT_HAMILTONIAN)
+            aux = settings.use_pauli_sum_op
+
+            settings.use_pauli_sum_op = False
+            pauli_sparse_op = BravyiKitaevSuperFastMapper().map(FERMIONIC_HAMILTONIAN)
+            self.assertEqualSparsePauliOp(pauli_sparse_op, QUBIT_HAMILTONIAN)
+        finally:
+            settings.use_pauli_sum_op = aux
 
     def test_mapping_overwrite_reg_len(self):
         """Test overwriting the register length."""

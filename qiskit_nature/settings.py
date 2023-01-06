@@ -23,6 +23,12 @@ class ListAuxOpsDeprecationWarning(DeprecationWarning):
     pass
 
 
+class PauliSumOpDeprecationWarning(DeprecationWarning):
+    """Deprecation Category for PauliSumOp."""
+
+    pass
+
+
 class QiskitNatureSettings:
     """Global settings for Qiskit Nature."""
 
@@ -31,6 +37,44 @@ class QiskitNatureSettings:
         self._optimize_einsum = True
         self._deprecation_shown: set[str] = set()
         self._tensor_unwrapping = True
+        self._use_pauli_sum_op: bool = True
+
+    @property
+    def use_pauli_sum_op(self) -> bool:
+        """Return whether ``PauliSumOp`` or ``SparsePauliOp`` should be returned on methods."""
+        if not self._use_pauli_sum_op and "PauliSumOp" not in self._deprecation_shown:
+            warnings.filterwarnings("default", category=PauliSumOpDeprecationWarning)
+            warnings.warn(
+                PauliSumOpDeprecationWarning(
+                    "PauliSumOp is deprecated as of version 0.6.0 and support for "
+                    "them will be removed no sooner than 3 months after the release. Instead, use "
+                    "SparsePauliOp. You can switch to SparsePauliOp "
+                    "immediately, by setting `qiskit_nature.settings.use_pauli_sum_op` to `False`."
+                ),
+                stacklevel=3,
+            )
+            warnings.filterwarnings("ignore", category=PauliSumOpDeprecationWarning)
+            self._deprecation_shown.add("PauliSumOp")
+
+        return self._use_pauli_sum_op
+
+    @use_pauli_sum_op.setter
+    def use_pauli_sum_op(self, pauli_sum_op: bool) -> None:
+        """Set whether ``PauliSumOp`` or ``SparsePauliOp`` should be returned on methods."""
+        if not pauli_sum_op and "PauliSumOp" not in self._deprecation_shown:
+            warnings.filterwarnings("default", category=PauliSumOpDeprecationWarning)
+            warnings.warn(
+                PauliSumOpDeprecationWarning(
+                    "PauliSumOp is deprecated as of version 0.6.0 and support for "
+                    "them will be removed no sooner than 3 months after the release. Instead, use "
+                    "SparsePauliOp. You can switch to SparsePauliOp "
+                    "immediately, by setting `qiskit_nature.settings.use_pauli_sum_op` to `False`."
+                ),
+                stacklevel=3,
+            )
+            warnings.filterwarnings("ignore", category=PauliSumOpDeprecationWarning)
+            self._deprecation_shown.add("PauliSumOp")
+        self._use_pauli_sum_op = pauli_sum_op
 
     @property
     def dict_aux_operators(self) -> bool:

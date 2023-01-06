@@ -22,8 +22,9 @@ from functools import reduce
 import numpy as np
 
 from qiskit.opflow import PauliSumOp
-from qiskit.quantum_info.operators import Pauli, SparsePauliOp
+from qiskit.quantum_info import Pauli, SparsePauliOp
 
+from qiskit_nature import settings
 from qiskit_nature.second_q.operators import SpinOp
 from .spin_mapper import SpinMapper
 
@@ -31,7 +32,9 @@ from .spin_mapper import SpinMapper
 class LinearMapper(SpinMapper):
     """The Linear spin-to-qubit mapping."""
 
-    def _map_single(self, second_q_op: SpinOp, *, register_length: int | None = None) -> PauliSumOp:
+    def _map_single(
+        self, second_q_op: SpinOp, *, register_length: int | None = None
+    ) -> SparsePauliOp | PauliSumOp:
         if register_length is None:
             register_length = second_q_op.register_length
 
@@ -55,8 +58,7 @@ class LinearMapper(SpinMapper):
             qubit_ops_list.append(coeff * reduce(operator.xor, reversed(operatorlist)))
 
         qubit_op = reduce(operator.add, qubit_ops_list)
-
-        return qubit_op
+        return qubit_op if settings.use_pauli_sum_op else qubit_op.primitive.simplify()
 
     def _linear_encoding(self, spin: Fraction | float) -> list[PauliSumOp]:
         """

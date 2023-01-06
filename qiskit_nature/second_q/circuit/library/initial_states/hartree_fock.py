@@ -17,6 +17,7 @@ import numpy as np
 from qiskit import QuantumRegister
 from qiskit.circuit.library import BlueprintCircuit
 from qiskit.opflow import PauliSumOp
+from qiskit.quantum_info import SparsePauliOp
 from qiskit.utils.validation import validate_min
 
 from qiskit_nature.second_q.mappers import (
@@ -241,7 +242,7 @@ def hartree_fock_bitstring_mapped(
     )
 
     # map the `FermionicOp` to a qubit operator
-    qubit_op: PauliSumOp
+    qubit_op: SparsePauliOp
     if isinstance(qubit_converter, QubitConverter):
         if match_convert:
             qubit_op = qubit_converter.convert_match(bitstr_op, check_commutes=False)
@@ -254,10 +255,13 @@ def hartree_fock_bitstring_mapped(
     else:
         qubit_op = qubit_converter.map(bitstr_op)
 
+    if isinstance(qubit_op, PauliSumOp):
+        qubit_op = qubit_op.primitive
+
     # We check the mapped operator `x` part of the paulis because we want to have particles
     # i.e. True, where the initial state introduced a creation (`+`) operator.
     bits = []
-    for bit in qubit_op.primitive.paulis.x[0]:
+    for bit in qubit_op.paulis.x[0]:
         bits.append(bit)
 
     return bits
