@@ -93,17 +93,20 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         self._assert_energies(results.computed_energies, self.reference_energies)
 
     @named_data(
-        ["JWM", QubitConverter(JordanWignerMapper())],
-        ["JWM_Z2", QubitConverter(JordanWignerMapper(), z2symmetry_reduction="auto")],
-        ["PM", QubitConverter(ParityMapper())],
-        ["PM_TQR", QubitConverter(ParityMapper(), two_qubit_reduction=True)],
-        ["PM_Z2", QubitConverter(ParityMapper(), z2symmetry_reduction="auto")],
+        ["JWM", JordanWignerMapper()],
+        ["PM", ParityMapper()],
+        ["PM_TQR", ParityMapper(two_qubit_reduction=True)],
+        ["QC_JWM", QubitConverter(JordanWignerMapper())],
+        ["QC_JWM_Z2", QubitConverter(JordanWignerMapper(), z2symmetry_reduction="auto")],
+        ["QC_PM", QubitConverter(ParityMapper())],
+        ["QC_PM_TQR", QubitConverter(ParityMapper(), two_qubit_reduction=True)],
+        ["QC_PM_Z2", QubitConverter(ParityMapper(), z2symmetry_reduction="auto")],
         [
-            "PM_TQR_Z2",
+            "QC_PM_TQR_Z2",
             QubitConverter(ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto"),
         ],
-        ["BKM", QubitConverter(BravyiKitaevMapper())],
-        ["BKM_Z2", QubitConverter(BravyiKitaevMapper(), z2symmetry_reduction="auto")],
+        ["QC_BKM", QubitConverter(BravyiKitaevMapper())],
+        ["QC_BKM_Z2", QubitConverter(BravyiKitaevMapper(), z2symmetry_reduction="auto")],
     )
     def test_solve_with_vqe_mes(self, converter: QubitConverter):
         """Test QEOM with VQEUCCFactory and various QubitConverter"""
