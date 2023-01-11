@@ -86,7 +86,7 @@ class TestLowRankTwoBodyDecomposition(QiskitNatureTestCase):
     def test_low_rank_two_body_decomposition_random(self, dim: int):
         """Test low rank two-body decomposition on a random tensor."""
         two_body_tensor = random_two_body_tensor_real(dim, seed=25257)
-        leaf_tensors, core_tensors = low_rank_two_body_decomposition(two_body_tensor)
+        core_tensors, leaf_tensors = low_rank_two_body_decomposition(two_body_tensor)
         reconstructed = np.einsum(
             "tpk,tqk,tkl,trl,tsl->pqrs",
             leaf_tensors,
@@ -106,7 +106,7 @@ class TestLowRankTwoBodyDecomposition(QiskitNatureTestCase):
         two_body_tensor = to_chemist_ordering(electronic_energy.electronic_integrals.alpha["++--"])
 
         max_rank = 20
-        leaf_tensors, core_tensors = low_rank_two_body_decomposition(
+        core_tensors, leaf_tensors = low_rank_two_body_decomposition(
             two_body_tensor, max_rank=max_rank
         )
         reconstructed = np.einsum(
@@ -121,7 +121,7 @@ class TestLowRankTwoBodyDecomposition(QiskitNatureTestCase):
         np.testing.assert_allclose(reconstructed, two_body_tensor, atol=1e-5)
 
         error_threshold = 1e-4
-        leaf_tensors, core_tensors = low_rank_two_body_decomposition(
+        core_tensors, leaf_tensors = low_rank_two_body_decomposition(
             two_body_tensor, error_threshold=error_threshold
         )
         reconstructed = np.einsum(
@@ -135,7 +135,7 @@ class TestLowRankTwoBodyDecomposition(QiskitNatureTestCase):
         self.assertLessEqual(len(leaf_tensors), 18)
         np.testing.assert_allclose(reconstructed, two_body_tensor, atol=error_threshold)
 
-        leaf_tensors, core_tensors = low_rank_two_body_decomposition(
+        core_tensors, leaf_tensors = low_rank_two_body_decomposition(
             two_body_tensor, error_threshold=error_threshold, max_rank=max_rank
         )
         reconstructed = np.einsum(

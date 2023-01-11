@@ -296,8 +296,9 @@ def low_rank_two_body_decomposition(
         atol: Absolute numerical tolerance for input validation.
 
     Returns:
-        The leaf tensors and the core tensors. Each list of tensors is collected into
-        a numpy array, so this method returns a tuple of two numpy arrays.
+        The core tensors and the leaf tensors. Each list of tensors is collected into
+        a numpy array, so this method returns a tuple of two numpy arrays,
+        the first containing the core tensors and the second containing the leaf tensors.
         Each numpy array will have shape (t, n, n) where t is the rank of the
         decomposition and n is the number of orbitals.
 
@@ -315,10 +316,10 @@ def low_rank_two_body_decomposition(
         atol=atol,
     )
     n_modes, _, _, _ = two_body_tensor.shape
-    leaf_tensors = np.zeros((len(cholesky_vecs), n_modes, n_modes))
     core_tensors = np.zeros((len(cholesky_vecs), n_modes, n_modes))
+    leaf_tensors = np.zeros((len(cholesky_vecs), n_modes, n_modes))
     for i, mat in enumerate(cholesky_vecs):
         eigs, vecs = np.linalg.eigh(mat)
-        leaf_tensors[i] = vecs
         core_tensors[i] = np.outer(eigs, eigs)
-    return leaf_tensors, core_tensors
+        leaf_tensors[i] = vecs
+    return core_tensors, leaf_tensors
