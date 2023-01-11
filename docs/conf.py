@@ -127,6 +127,7 @@ nbsphinx_thumbnails = {
     "tutorials/04_excited_states_solvers": "_images/h2_es.png",
     "tutorials/05_problem_transformers": "_static/core-orbitals.png",
     "tutorials/06_qubit_mappers": "_images/jw_mapping.png",
+    "tutorials/07_leveraging_qiskit_runtime": "_static/runtime.png",
 }
 
 spelling_word_list_filename = "../.pylintdict"
