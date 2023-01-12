@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -16,14 +16,14 @@ from __future__ import annotations
 
 from typing import Callable, Dict, List, Tuple
 
-from qiskit.opflow import PauliSumOp
+from qiskit.opflow import PauliSumOp, Z2Symmetries
 from qiskit.tools import parallel_map
 from qiskit.utils import algorithm_globals
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import UCC
 from qiskit_nature.second_q.operators import FermionicOp
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 
 
 def build_electronic_ops(
@@ -36,7 +36,7 @@ def build_electronic_ops(
         [int, tuple[int, int]],
         list[tuple[tuple[int, ...], tuple[int, ...]]],
     ],
-    qubit_converter: QubitConverter,
+    qubit_converter: QubitConverter | QubitMapper,
 ) -> Tuple[
     Dict[str, PauliSumOp],
     Dict[str, List[bool]],
@@ -54,9 +54,10 @@ def build_electronic_ops(
             - and finally a callable which can be used to specify a custom list of excitations.
               For more details on how to write such a function refer to the default method,
               :meth:`generate_fermionic_excitations`.
-        qubit_converter: The ``QubitConverter`` to use for mapping and symmetry reduction. The Z2
-                         symmetries stored in this instance are the basis for the commutativity
-                         information returned by this method.
+        qubit_converter: The ``QubitConverter`` or ``QubitMapper`` to use for mapping and symmetry
+            reduction. The Z2 symmetries stored in this instance are the basis for the commutativity
+            information returned by this method. These symmetries are set to `None` when a
+            ``QubitMapper`` is used.
 
     Returns:
         A tuple containing the hopping operators, the types of commutativities and the excitation
@@ -100,19 +101,22 @@ def build_electronic_ops(
 def _build_single_hopping_operator(
     excitation: Tuple[Tuple[int, ...], Tuple[int, ...]],
     num_spatial_orbitals: int,
-    qubit_converter: QubitConverter,
+    qubit_converter: QubitConverter | QubitMapper,
 ) -> Tuple[PauliSumOp, List[bool]]:
     label = []
     for occ in excitation[0]:
         label.append(f"+_{occ}")
     for unocc in excitation[1]:
         label.append(f"-_{unocc}")
-    fer_op = FermionicOp(
-        {" ".join(label): 4.0 ** len(excitation[0])}, num_spin_orbitals=2 * num_spatial_orbitals
-    )
+    fer_op = FermionicOp({" ".join(label): 1.0}, num_spin_orbitals=2 * num_spatial_orbitals)
 
-    qubit_op = qubit_converter.convert_only(fer_op, qubit_converter.num_particles)
-    z2_symmetries = qubit_converter.z2symmetries
+    if isinstance(qubit_converter, QubitConverter):
+        qubit_op = qubit_converter.convert_only(fer_op, num_particles=qubit_converter.num_particles)
+        z2_symmetries = qubit_converter.z2symmetries
+
+    else:
+        qubit_op = qubit_converter.map(fer_op)
+        z2_symmetries = Z2Symmetries([], [], [])
 
     commutativities = []
     if not z2_symmetries.is_empty():

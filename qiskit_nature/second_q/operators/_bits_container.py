@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -35,7 +35,7 @@ class _BitsContainer(MutableMapping, Generic[T]):
         4. whether the last applied operator was a `+` or `-`.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.data: dict[T, int] = {}
 
     def get_plus(self, index: T) -> int:

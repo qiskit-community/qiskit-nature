@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -56,15 +56,17 @@ class ExcitedStatesSolver(ABC):
         problem: BaseProblem,
         aux_operators: Optional[dict[str, Union[SparseLabelOp, PauliSumOp]]] = None,
     ) -> Tuple[PauliSumOp, Optional[dict[str, PauliSumOp]]]:
-        """Construct qubit operators by getting the second quantized operators from the problem
-        (potentially running a driver in doing so [can be computationally expensive])
-        and using a QubitConverter to map and reduce the operators to qubit operators.
+        """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators
+        using a ``QubitConverter`` or ``QubitMapper``.
+        If the user-provided ``aux_operators`` contain a name which clashes with an internally
+        constructed auxiliary operator, then the corresponding internal operator will be overridden by
+        the user-provided operator.
 
         Args:
-            problem: A class encoding a problem to be solved.
-            aux_operators: Additional auxiliary operators to evaluate.
+            problem:  A class encoding a problem defining the qubit operators.
+            aux_operators: Additional auxiliary operators to transform.
 
         Returns:
-            Qubit operator.
-            Additional auxiliary operators.
+            A tuple with the main operator (hamiltonian) and a dictionary of auxiliary default and
+            custom operators.
         """

@@ -15,6 +15,7 @@
 from abc import abstractmethod
 
 from qiskit.opflow import PauliSumOp
+
 from qiskit_nature.second_q.operators import SpinOp
 
 from .qubit_mapper import QubitMapper
@@ -24,7 +25,7 @@ class SpinMapper(QubitMapper):
     """Mapper of Spin Operator to Qubit Operator"""
 
     @abstractmethod
-    def map(self, second_q_op: SpinOp) -> PauliSumOp:
+    def _map_single(self, second_q_op: SpinOp) -> PauliSumOp:
         """Maps a :class:`~qiskit_nature.second_q.operators.SpinOp` to a `PauliSumOp`.
 
         Args:

@@ -100,6 +100,50 @@ class TestJordanWignerMapper(QiskitNatureTestCase):
             expected = SparsePauliOp.from_list([("X", 0.5 * a), ("Y", -0.5j * a)], dtype=object)
             self.assertEqual(JordanWignerMapper().map(op).primitive, expected)
 
+    def test_mapping_for_list_ops(self):
+        """Test for list of single register operator."""
+        ops = [
+            FermionicOp({"+_0": 1}, num_spin_orbitals=1),
+            FermionicOp({"-_0": 1}, num_spin_orbitals=1),
+            FermionicOp({"+_0 -_0": 1}, num_spin_orbitals=1),
+            FermionicOp({"-_0 +_0": 1}, num_spin_orbitals=1),
+            FermionicOp({"": 1}, num_spin_orbitals=1),
+        ]
+        expected = [
+            PauliSumOp.from_list([("X", 0.5), ("Y", -0.5j)]),
+            PauliSumOp.from_list([("X", 0.5), ("Y", 0.5j)]),
+            PauliSumOp.from_list([("I", 0.5), ("Z", -0.5)]),
+            PauliSumOp.from_list([("I", 0.5), ("Z", 0.5)]),
+            PauliSumOp.from_list([("I", 1)]),
+        ]
+
+        mapped_ops = JordanWignerMapper().map(ops)
+        self.assertEqual(len(mapped_ops), len(expected))
+        for mapped_op, expected_op in zip(mapped_ops, expected):
+            self.assertEqual(mapped_op, expected_op)
+
+    def test_mapping_for_dict_ops(self):
+        """Test for dict of single register operator."""
+        ops = {
+            "+": FermionicOp({"+_0": 1}, num_spin_orbitals=1),
+            "-": FermionicOp({"-_0": 1}, num_spin_orbitals=1),
+            "N": FermionicOp({"+_0 -_0": 1}, num_spin_orbitals=1),
+            "E": FermionicOp({"-_0 +_0": 1}, num_spin_orbitals=1),
+            "I": FermionicOp({"": 1}, num_spin_orbitals=1),
+        }
+        expected = {
+            "+": PauliSumOp.from_list([("X", 0.5), ("Y", -0.5j)]),
+            "-": PauliSumOp.from_list([("X", 0.5), ("Y", 0.5j)]),
+            "N": PauliSumOp.from_list([("I", 0.5), ("Z", -0.5)]),
+            "E": PauliSumOp.from_list([("I", 0.5), ("Z", 0.5)]),
+            "I": PauliSumOp.from_list([("I", 1)]),
+        }
+
+        mapped_ops = JordanWignerMapper().map(ops)
+        self.assertEqual(len(mapped_ops), len(expected))
+        for k in mapped_ops.keys():
+            self.assertEqual(mapped_ops[k], expected[k])
+
 
 if __name__ == "__main__":
     unittest.main()

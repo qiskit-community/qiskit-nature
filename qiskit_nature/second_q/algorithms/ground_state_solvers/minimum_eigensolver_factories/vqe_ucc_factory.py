@@ -16,14 +16,13 @@ from __future__ import annotations
 
 import logging
 import numpy as np
-
 from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolver, VQE
 from qiskit.algorithms.optimizers import Minimizer, Optimizer
 from qiskit.circuit import QuantumCircuit
 from qiskit.primitives import BaseEstimator
 
 from qiskit_nature.second_q.circuit.library import HartreeFock, UCC
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.problems import (
     ElectronicStructureProblem,
 )
@@ -117,7 +116,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
     def get_solver(  # type: ignore[override]
         self,
         problem: ElectronicStructureProblem,
-        qubit_converter: QubitConverter,
+        qubit_converter: QubitConverter | QubitMapper,
     ) -> MinimumEigensolver:
         """Returns a VQE with a UCC wavefunction ansatz, based on ``qubit_converter``.
 

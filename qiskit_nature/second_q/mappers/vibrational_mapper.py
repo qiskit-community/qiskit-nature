@@ -15,6 +15,7 @@
 from abc import abstractmethod
 
 from qiskit.opflow import PauliSumOp
+
 from qiskit_nature.second_q.operators import VibrationalOp
 
 from .qubit_mapper import QubitMapper
@@ -24,7 +25,7 @@ class VibrationalMapper(QubitMapper):
     """Mapper of Vibrational Operator to Qubit Operator"""
 
     @abstractmethod
-    def map(self, second_q_op: VibrationalOp) -> PauliSumOp:
+    def _map_single(self, second_q_op: VibrationalOp) -> PauliSumOp:
         """Maps a :class:`~qiskit_nature.second_q.operators.VibrationalOp`
         to a `PauliSumOp`.
 

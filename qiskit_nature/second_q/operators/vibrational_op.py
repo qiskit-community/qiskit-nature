@@ -460,6 +460,13 @@ class VibrationalOp(SparseLabelOp):
                     terms[j - 1] = right
                     terms[j] = left
 
+                    if right[1] == left[1] and right[2] == left[2]:
+                        # if their indices are identical, we incur an additional term because of:
+                        # a_i a_i^\dagger = 1 + a_i^\dagger a_i
+                        new_terms = terms[: (j - 1)] + terms[(j + 1) :]
+                        # we can do so by recursion on this method
+                        ordered_op += self._normal_order(new_terms, coeff)
+
                 elif right[0] == left[0]:
                     # when we have identical neighboring operators, differentiate two cases:
 
