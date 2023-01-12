@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2023.
+# (C) Copyright IBM 2021, 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -18,9 +18,15 @@ import copy
 import logging
 from typing import (
     Callable,
+    Dict,
+    Generator,
+    Generic,
+    Iterable,
+    List,
     Optional,
     List,
     Tuple,
+    TypeVar,
     Union,
 )
 
@@ -32,8 +38,11 @@ from qiskit.opflow.primitive_ops import Z2Symmetries
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.operators import SparseLabelOp
-from .qubit_mapper import QubitMapper, _ListOrDict
-from .parity_mapper import ParityMapper
+
+from .qubit_mapper import QubitMapper
+
+# pylint: disable=invalid-name
+T = TypeVar("T")
 
 logger = logging.getLogger(__name__)
 
