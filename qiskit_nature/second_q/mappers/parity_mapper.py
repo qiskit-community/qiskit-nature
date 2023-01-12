@@ -54,5 +54,5 @@ class ParityMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
 
         return pauli_table
 
-    def map(self, second_q_op: FermionicOp) -> PauliSumOp:
+    def _map_single(self, second_q_op: FermionicOp) -> PauliSumOp:
         return ParityMapper.mode_based_mapping(second_q_op, second_q_op.register_length)

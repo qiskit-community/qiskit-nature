@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -19,7 +19,7 @@ import logging
 from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolver
 
 from qiskit_nature.second_q.operators import SparseLabelOp
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.second_q.problems import EigenstateResult
 
@@ -34,13 +34,14 @@ class GroundStateEigensolver(GroundStateSolver):
 
     def __init__(
         self,
-        qubit_converter: QubitConverter,
+        qubit_converter: QubitConverter | QubitMapper,
         solver: MinimumEigensolver | MinimumEigensolverFactory,
     ) -> None:
         """
         Args:
-            qubit_converter: A class that converts second quantized operator to qubit operator
-                             according to a mapper it is initialized with.
+            qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` or
+                :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance that converts a second
+                quantized operator to qubit operators and applies subsequent qubit reduction.
             solver: Minimum Eigensolver or MESFactory object, e.g. the VQEUCCSDFactory.
         """
         super().__init__(qubit_converter)
@@ -63,10 +64,6 @@ class GroundStateEigensolver(GroundStateSolver):
         Args:
             problem: A class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
-
-        Raises:
-            ValueError: If the grouped property object returned by the driver does not contain a
-                main property as requested by the problem being solved (`problem.main_property_name`).
 
         Returns:
             An interpreted :class:`~.EigenstateResult`. For more information see also
@@ -92,20 +89,29 @@ class GroundStateEigensolver(GroundStateSolver):
 
         num_particles = getattr(problem, "num_particles", None)
 
-        main_operator = self._qubit_converter.convert(
-            main_second_q_op,
-            num_particles=num_particles,
-            sector_locator=problem.symmetry_sector_locator,
-        )
-        aux_ops = self._qubit_converter.convert_match(aux_second_q_ops)
+        if isinstance(self._qubit_converter, QubitConverter):
+            main_operator = self._qubit_converter.convert(
+                main_second_q_op,
+                num_particles=num_particles,
+                sector_locator=problem.symmetry_sector_locator,
+            )
+            aux_ops = self._qubit_converter.convert_match(aux_second_q_ops)
+        else:
+            main_operator = self._qubit_converter.map(main_second_q_op)
+            aux_ops = self._qubit_converter.map(aux_second_q_ops)
+
         if aux_operators is not None:
             for name_aux, aux_op in aux_operators.items():
                 if isinstance(aux_op, SparseLabelOp):
-                    converted_aux_op = self._qubit_converter.convert_match(
-                        aux_op, suppress_none=True
-                    )
+                    if isinstance(self._qubit_converter, QubitConverter):
+                        converted_aux_op = self._qubit_converter.convert_match(
+                            aux_op, suppress_none=True
+                        )
+                    else:
+                        converted_aux_op = self._qubit_converter.map(aux_op)
                 else:
                     converted_aux_op = aux_op
+
                 if name_aux in aux_ops.keys():
                     LOGGER.warning(
                         "The key '%s' was already taken by an internally constructed auxiliary "

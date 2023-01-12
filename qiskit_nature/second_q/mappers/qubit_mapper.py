@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -16,13 +16,77 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from functools import lru_cache
+from typing import Union, TypeVar, Dict, Iterable, Generic, Tuple, Generator, Optional
 
 import numpy as np
 from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators import Pauli, SparsePauliOp
+from qiskit.algorithms.list_or_dict import ListOrDict as ListOrDictType
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.operators import SparseLabelOp
+
+# pylint: disable=invalid-name
+T = TypeVar("T")
+
+
+class _ListOrDict(Dict, Iterable, Generic[T]):
+    """The ListOrDict utility class.
+
+    This is a utility which allows seamless iteration of a `list` or `dict` object.
+    """
+
+    def __init__(self, values: Optional[ListOrDictType] = None):
+        """
+        Args:
+            values: an optional object of `list` or `dict` type.
+        """
+        if isinstance(values, list):
+            values = dict(enumerate(values))
+        elif values is None:
+            values = {}
+        super().__init__(values)
+
+    def __iter__(self) -> Generator[Tuple[Union[int, str], T], T, None]:
+        """Return the generator-iterator method."""
+        return self._generator()
+
+    def _generator(self) -> Generator[Tuple[Union[int, str], T], T, None]:
+        """Return generator method iterating the contents of this class.
+
+        This generator yields the `(key, value)` pairs of the underlying dictionary. If this object
+        was constructed from a list, the keys in this generator are simply the numeric indices.
+
+        This generator also supports overriding the yielded value upon receiving any value other
+        than `None` from a `send` [1] instruction.
+
+        [1]: https://docs.python.org/3/reference/expressions.html#generator.send
+        """
+        for key, value in self.items():
+            new_value = yield (key, value)
+            if new_value is not None:
+                self[key] = new_value
+
+    def unwrap(self, wrapped_type: type, suppress_none: bool = False) -> Dict | Iterable | T:
+        """Return the content of this class according to the initial type of the data before
+        the creation of the ListOrDict object.
+
+        Args:
+            wrapped_type: Type of the data before the creation of the ListOrDict object.
+            suppress_none: If None values should be suppressed from the output list.
+
+        Returns:
+            Content of the current class instance as a list, a dictionary or a single element.
+        """
+        if wrapped_type == list:
+            if suppress_none:
+                return [op for _, op in iter(self) if op is not None]
+            else:
+                return [op for _, op in iter(self)]
+        if wrapped_type == dict:
+            return dict(iter(self))
+        # only other case left is that it was a single operator to begin with:
+        return list(iter(self))[0][1]
 
 
 class QubitMapper(ABC):
@@ -49,7 +113,7 @@ class QubitMapper(ABC):
         return self._allows_two_qubit_reduction
 
     @abstractmethod
-    def map(self, second_q_op: SparseLabelOp) -> PauliSumOp:
+    def _map_single(self, second_q_op: SparseLabelOp) -> PauliSumOp:
         """Maps a :class:`~qiskit_nature.second_q.operators.SparseLabelOp`
         to a `PauliSumOp`.
 
@@ -60,6 +124,42 @@ class QubitMapper(ABC):
             The `PauliSumOp` corresponding to the problem-Hamiltonian in the qubit space.
         """
         raise NotImplementedError()
+
+    def map(
+        self,
+        second_q_ops: SparseLabelOp | ListOrDictType[SparseLabelOp],
+        suppress_none: bool = None,
+    ) -> PauliSumOp | ListOrDictType[PauliSumOp]:
+        """Maps a second quantized operator or a list, dict of second quantized operators based on
+        the current mapper.
+
+        Args:
+            second_q_ops: A second quantized operator, or list thereof.
+            suppress_none: If None should be placed in the output list where an operator
+                did not commute with symmetry, to maintain order, or whether that should
+                be suppressed where the output list length may then be smaller than the input.
+
+        Returns:
+            A qubit operator in the form of a PauliSumOp, or list (resp. dict) thereof if a list
+            (resp. dict) of second quantized operators was supplied.
+        """
+        wrapped_type = type(second_q_ops)
+
+        if issubclass(wrapped_type, SparseLabelOp):
+            second_q_ops = [second_q_ops]
+            suppress_none = False
+
+        wrapped_second_q_ops: _ListOrDict[SparseLabelOp] = _ListOrDict(second_q_ops)
+
+        qubit_ops: _ListOrDict = _ListOrDict()
+        for name, second_q_op in iter(wrapped_second_q_ops):
+            qubit_ops[name] = self._map_single(second_q_op)
+
+        returned_ops: Union[PauliSumOp, ListOrDictType[PauliSumOp]] = qubit_ops.unwrap(
+            wrapped_type, suppress_none=suppress_none
+        )
+
+        return returned_ops
 
     @classmethod
     @lru_cache(maxsize=32)
