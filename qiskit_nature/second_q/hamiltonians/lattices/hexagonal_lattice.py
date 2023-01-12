@@ -11,17 +11,9 @@
 # that they have been altered from the originals.
 
 """The hexagonal lattice"""
-from dataclasses import asdict
-from itertools import product
-from math import pi
-from typing import Dict, List, Optional, Tuple, Union
+from rustworkx import generators
 
-import numpy as np
-from rustworkx import PyGraph, generators
-
-from .lattice import LatticeDrawStyle, Lattice
-from .boundary_condition import BoundaryCondition
-from rustworkx.visualization import graphviz_draw
+from .lattice import Lattice
 
 
 class HexagonalLattice(Lattice):
@@ -29,64 +21,53 @@ class HexagonalLattice(Lattice):
 
     def __init__(
         self,
-        num_rings: int,
+        rows: int,
+        cols: int,
         edge_parameter: complex = 1.0,
         onsite_parameter: complex = 0.0,
-        # boundary_condition: BoundaryCondition
-        # heavy: bool
     ) -> None:
         """
         Args:
             rows: Length of the x direction.
             cols: Length of the y direction.
-            edge_parameter: Weights on the edges in x, y and diagonal directions.
-                This is specified as a tuple of length 3 or a single value.
-                When it is a single value, it is interpreted as a tuple of length 3
-                consisting of the same values.
-                Defaults to 1.0,
+            edge_parameter: Weight on all the edges, specified as a single value.
+                Defaults to 1.0.
             onsite_parameter: Weight on the self-loops, which are edges connecting a node to itself.
                 Defaults to 0.0.
-
-        Raises:
-            ValueError: Given size or edge parameter are invalid values.
         """
-        self.edge_parameter = edge_parameter
-        if num_rings == 1:
-            self.size = 6
-        elif num_rings == 2:
-            self.size = 10
-        else:
-            raise NotImplementedError("sad")
+        self._rows = rows
+        self._cols = cols
+        self._edge_parameter = edge_parameter
+        self._onsite_parameter = onsite_parameter
 
-        graph = PyGraph(multigraph=False)
-        graph.add_nodes_from(range(self.size))
+        graph = generators.hexagonal_lattice_graph(rows, cols, multigraph=False)
 
-        edges = []
-        for node in range(self.size):
-            edges.append((node, (node+1)%self.size, self.edge_parameter))
+        edges = graph.weighted_edge_list()
 
-        graph.add_edges_from(edges)
+        # Add edge weights
+        for idx, _ in enumerate(edges):
+            graph.update_edge_by_index(idx, self._edge_parameter)
 
-        # G = generators.heavy_hex_graph(5)
-        G = generators.heavy_hex_graph(7)
-# set data payload to index
-        for node in G.node_indices():
-            G[node] = node
+        # Add self loops
+        for node in graph.node_indices():
+            graph.add_edges_from([(node, node, self._onsite_parameter)])
 
-        # # question? what is this and do we need it?
-        # # add edges excluding the boundary edges
-        # bulk_edges = self._bulk_edges()
-        # graph.add_edges_from(bulk_edges)
+        super().__init__(graph)
 
-        # #question - what happening in triangular _self_loops func?
-        # # add self-loops
-        # self_loop_list = self._self_loops()
-        # graph.add_edges_from(self_loop_list)
+    @property
+    def edge_parameter(self) -> complex:
+        """Weights on all edges.
 
-        # # add edges that cross the boundaries
-        # boundary_edge_list = self._boundary_edges()
-        # graph.add_edges_from(boundary_edge_list)
+        Returns:
+            the parameter for the edges.
+        """
+        return self._edge_parameter
 
-        super().__init__(G)
-        # default position
-        # self.pos = self._default_position()
+    @property
+    def onsite_parameter(self) -> complex:
+        """Weight on the self-loops (edges connecting a node to itself).
+
+        Returns:
+            the parameter for the self-loops.
+        """
+        return self._onsite_parameter
