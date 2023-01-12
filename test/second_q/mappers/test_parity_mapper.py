@@ -46,30 +46,9 @@ class TestParityMapper(QiskitNatureTestCase):
         ]
     )
 
-    REF_H2_reduced_list = [
-        PauliSumOp.from_list(
-            [("II", -0.56872272), ("IZ", -0.05356956), ("ZI", -0.05356956), ("ZZ", 0.67586183)]
-        ),
-        PauliSumOp.from_list(
-            [("II", -0.81054798), ("IZ", -0.05356956), ("ZI", 0.39793742), ("ZZ", -0.00571589)]
-        ),
-        PauliSumOp.from_list(
-            [
-                ("II", -1.05237325),
-                ("IZ", 0.39793742),
-                ("ZI", -0.39793742),
-                ("ZZ", -0.0112801),
-                ("XX", 0.1809312),
-            ]
-        ),
-        PauliSumOp.from_list(
-            [("II", -0.81054798), ("IZ", 0.39793742), ("ZI", 0.05356956), ("ZZ", 0.00571589)]
-        ),
-    ]
-
     tapering_values_expected = [-1, 1]
 
-    REF_H2_reduced_tapered = PauliSumOp.from_list(
+    REF_H2_reduced = PauliSumOp.from_list(
         [
             ("II", -1.05237325),
             ("IZ", 0.39793742),
@@ -95,28 +74,21 @@ class TestParityMapper(QiskitNatureTestCase):
 
         self.assertEqual(qubit_op, TestParityMapper.REF_H2)
 
-        mapper.num_particles = [1, 1]
-        # By default two_qubit_reduction is set to False so that setting mapper.num_particles does not
-        # affect the mapping.
-        qubit_op_no_reduction = mapper.map(fermionic_op)
-        self.assertEqual(qubit_op_no_reduction, TestParityMapper.REF_H2)
-
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_mapping_with_two_qubit_reduction(self):
         """Test mapping to qubit operator with two_qubit_reduction set to True."""
         driver = PySCFDriver()
         driver_result = driver.run()
         fermionic_op, _ = driver_result.second_q_ops()
-        mapper = ParityMapper(two_qubit_reduction=True)
+        mapper = ParityMapper(num_particles=(1, 1))
         qubit_op = mapper.map(fermionic_op)
-
-        self.assertEqual(qubit_op, TestParityMapper.REF_H2_reduced_list)
-
-        mapper.num_particles = [1, 1]
+        self.assertEqual(qubit_op, TestParityMapper.REF_H2_reduced)
         self.assertEqual(mapper._tapering_values, TestParityMapper.tapering_values_expected)
 
+        # Test change num particles on the fly
+        mapper.num_particles = None
         qubit_op_reduction = mapper.map(fermionic_op)
-        self.assertEqual(qubit_op_reduction, TestParityMapper.REF_H2_reduced_tapered)
+        self.assertEqual(qubit_op_reduction, TestParityMapper.REF_H2)
 
     def test_allows_two_qubit_reduction(self):
         """Test this returns True for this mapper"""

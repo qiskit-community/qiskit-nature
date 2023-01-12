@@ -95,7 +95,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
     @named_data(
         ["JWM", JordanWignerMapper()],
         ["PM", ParityMapper()],
-        ["PM_TQR", ParityMapper(two_qubit_reduction=True)],
+        ["PM_TQR", ParityMapper(num_particles=(1, 1))],
         ["QC_JWM", QubitConverter(JordanWignerMapper())],
         ["QC_JWM_Z2", QubitConverter(JordanWignerMapper(), z2symmetry_reduction="auto")],
         ["QC_PM", QubitConverter(ParityMapper())],

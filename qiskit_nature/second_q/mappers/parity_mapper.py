@@ -32,9 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 class ParityMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
-    def __init__(
-        self, two_qubit_reduction: bool = False, num_particles: tuple[int, int] | None = None
-    ):
+    def __init__(self, num_particles: tuple[int, int] | None = None):
         """The Parity fermion-to-qubit mapping.
 
         When using this mapper ``two_qubit_reduction`` can optionally be used for the qubit
@@ -42,7 +40,6 @@ class ParityMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
         :class:`~qiskit_nature.second_q.mappers.QubitConverter`.
         """
         super().__init__(allows_two_qubit_reduction=True)
-        self.two_qubit_reduction = two_qubit_reduction
         self._tapering_values: list | None = None
         self.num_particles = num_particles
 
@@ -114,12 +111,12 @@ class ParityMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
 
         return z2_symmetries.taper(operator)
 
-    def _map_single(self, second_q_op: FermionicOp) -> PauliSumOp | list[PauliSumOp]:
+    def _map_single(self, second_q_op: FermionicOp) -> PauliSumOp:
         mapped_op = ParityMapper.mode_based_mapping(
             second_q_op, second_q_op.register_length
         ).primitive
 
-        if self.two_qubit_reduction and mapped_op.num_qubits > 2:
+        if self.num_particles is not None and mapped_op.num_qubits > 2:
             reduced_op = self.convert(mapped_op)
         else:
             if mapped_op.num_qubits <= 2:
@@ -130,10 +127,4 @@ class ParityMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
                 )
             reduced_op = mapped_op
 
-        returned_op: PauliSumOp | list[PauliSumOp]
-        if isinstance(reduced_op, SparsePauliOp):
-            returned_op = PauliSumOp(reduced_op)
-        else:
-            returned_op = [PauliSumOp(op) for op in reduced_op]
-
-        return returned_op
+        return PauliSumOp(reduced_op)

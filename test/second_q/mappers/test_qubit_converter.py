@@ -75,34 +75,6 @@ class TestQubitConverter(QiskitNatureTestCase):
         + 0.18093119996471000 * (X ^ X)
     )
 
-    REF_H2_PARITY_2Q_REDUCED_LIST = [
-        (
-            -0.56872272 * (I ^ I)
-            - 0.05356956 * (I ^ Z)
-            - 0.05356956 * (Z ^ I)
-            + 0.67586183 * (Z ^ Z)
-        ),
-        (
-            -0.81054798 * (I ^ I)
-            - 0.05356956 * (I ^ Z)
-            + 0.39793742 * (Z ^ I)
-            - 0.00571589 * (Z ^ Z)
-        ),
-        (
-            -1.05237325 * (I ^ I)
-            + 0.39793742 * (I ^ Z)
-            - 0.39793742 * (Z ^ I)
-            - 0.0112801 * (Z ^ Z)
-            + 0.1809312 * (X ^ X)
-        ),
-        (
-            -0.81054798 * (I ^ I)
-            + 0.39793742 * (I ^ Z)
-            + 0.05356956 * (Z ^ I)
-            + 0.00571589 * (Z ^ Z)
-        ),
-    ]
-
     REF_H2_JW_TAPERED = -1.04109314222921270 * I - 0.79587484566286240 * Z + 0.18093119996470988 * X
 
     REF_H2_PARITY_2Q_REDUCED_TAPER = (
@@ -113,7 +85,7 @@ class TestQubitConverter(QiskitNatureTestCase):
         super().setUp()
         driver = PySCFDriver()
         self.driver_result = driver.run()
-        self.num_particles = self.driver_result.num_particles
+        self.num_particles = self.driver_result.num_particles  # (1, 1)
         self.h2_op, _ = self.driver_result.second_q_ops()
         self.mapper = ParityMapper()
         self.qubit_conv = QubitConverter(self.mapper)
@@ -143,19 +115,18 @@ class TestQubitConverter(QiskitNatureTestCase):
 
         with self.subTest("Re-use with different mapper"):
             qubit_conv.mapper = ParityMapper()
+            qubit_conv.two_qubit_reduction = True
             qubit_op = qubit_conv.convert(self.h2_op)
             self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY)
-
-        with self.subTest(
-            "Set two qubit reduction - produces a list of operators in each sym sector"
-        ):
-            qubit_conv.two_qubit_reduction = True
-            qubit_op = qubit_conv.convert_match(self.h2_op)
-            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED_LIST)
 
         with self.subTest("Force match set num particles"):
             qubit_conv.force_match(num_particles=self.num_particles)
             qubit_op = qubit_conv.convert_match(self.h2_op)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED)
+
+        with self.subTest("Convert with number of particles"):
+            qubit_conv.force_match(num_particles=None)
+            qubit_op = qubit_conv.convert(self.h2_op, num_particles=self.num_particles)
             self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED)
 
     def test_two_qubit_reduction(self):
@@ -165,7 +136,7 @@ class TestQubitConverter(QiskitNatureTestCase):
 
         with self.subTest("Two qubit reduction produces list as no particle number is given"):
             qubit_op = qubit_conv.convert(self.h2_op)
-            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED_LIST)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY)
             self.assertIsNone(qubit_conv.num_particles)
 
         with self.subTest("Two qubit reduction, num particles given"):
@@ -180,16 +151,29 @@ class TestQubitConverter(QiskitNatureTestCase):
 
         with self.subTest("State is reset (Num particles lost)"):
             qubit_op = qubit_conv.convert(self.h2_op)
-            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED_LIST)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY)
             self.assertIsNone(qubit_conv.num_particles)
 
         with self.subTest("Num particles given again"):
             qubit_op = qubit_conv.convert(self.h2_op, self.num_particles)
             self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED)
 
-        with self.subTest("Set for no two qubit reduction"):
+        with self.subTest("Set two qubit reduction to False"):
             qubit_conv.two_qubit_reduction = False
             self.assertFalse(qubit_conv.two_qubit_reduction)
+            qubit_op = qubit_conv.convert(self.h2_op)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY)
+
+        with self.subTest("Set two qubit reduction to False, set particle number in convert"):
+            qubit_conv.two_qubit_reduction = False
+            self.assertFalse(qubit_conv.two_qubit_reduction)
+            qubit_op = qubit_conv.convert(self.h2_op, num_particles=self.num_particles)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY)
+
+        with self.subTest("Set two qubit reduction to False, set particle numbers in the mapper"):
+            qubit_conv.two_qubit_reduction = False
+            self.assertFalse(qubit_conv.two_qubit_reduction)
+            qubit_conv.force_match(num_particles=self.num_particles)
             qubit_op = qubit_conv.convert(self.h2_op)
             self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY)
 
@@ -213,45 +197,37 @@ class TestQubitConverter(QiskitNatureTestCase):
     def test_paritymapper_two_qubit_reduction(self):
         """Test mapping to qubit operator with two qubit reduction from the parity Mapper."""
 
-        with self.subTest("Two qubit reduction ignored as it is set to false in the parity mapper"):
-            mapper = ParityMapper(two_qubit_reduction=False)
-            qubit_conv = QubitConverter(mapper)
-            qubit_op = qubit_conv.convert(self.h2_op)
-            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY)
-            self.assertIsNone(qubit_conv.num_particles)
-
-        with self.subTest("Two qubit reduction becomes False as qubit converter has priority"):
-            mapper = ParityMapper(two_qubit_reduction=True)
+        with self.subTest("No particle number in the mapper and the convert method"):
+            mapper = ParityMapper()
             qubit_conv = QubitConverter(mapper, two_qubit_reduction=False)
             qubit_op = qubit_conv.convert(self.h2_op)
             self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY)
             self.assertIsNone(qubit_conv.num_particles)
-            self.assertFalse(mapper.two_qubit_reduction)
 
-        with self.subTest("Two qubit reduction becomes True as qubit converter has priority"):
-            mapper = ParityMapper(two_qubit_reduction=False)
-            qubit_conv = QubitConverter(mapper, two_qubit_reduction=True)
-            qubit_op = qubit_conv.convert(self.h2_op)
-            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED_LIST)
-            self.assertIsNone(qubit_conv.num_particles)
-            self.assertTrue(mapper.two_qubit_reduction)
-
-        with self.subTest("Two qubit reduction is False and num particles given = no reduction"):
-            mapper = ParityMapper(two_qubit_reduction=False, num_particles=self.num_particles)
+        with self.subTest("Set particle number in the mapper only"):
+            mapper = ParityMapper(num_particles=(1, 1))
             qubit_conv = QubitConverter(mapper, two_qubit_reduction=False)
-            qubit_op = qubit_conv.convert(self.h2_op)  # num_particles argument None has priority
+            qubit_op = qubit_conv.convert(self.h2_op)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY)
+            self.assertIsNone(qubit_conv.num_particles)
+
+        with self.subTest("Two qubit reduction is False and num particles given"):
+            mapper = ParityMapper(num_particles=(1, 1))
+            qubit_conv = QubitConverter(mapper, two_qubit_reduction=False)
+            qubit_op = qubit_conv.convert(self.h2_op, num_particles=(1, 1))
             self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY)
             self.assertIsNone(mapper.num_particles)
 
-        with self.subTest("Two qubit reduction is True and num particles given in the converter"):
-            mapper = ParityMapper(two_qubit_reduction=True, num_particles=self.num_particles)
+        with self.subTest("Set particle number in the converter only"):
+            mapper = ParityMapper()
             qubit_conv = QubitConverter(mapper, two_qubit_reduction=True)
-            qubit_op = qubit_conv.convert(self.h2_op, num_particles=self.num_particles)
+            qubit_op = qubit_conv.convert(self.h2_op, num_particles=(1, 1))
             self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED)
+            self.assertEqual(qubit_conv.num_particles, self.num_particles)
 
         # Regression test against https://github.com/Qiskit/qiskit-nature/issues/271
         with self.subTest("Two qubit reduction skipped when operator too small"):
-            mapper = ParityMapper(two_qubit_reduction=True, num_particles=self.num_particles)
+            mapper = ParityMapper(num_particles=self.num_particles)
             qubit_conv = QubitConverter(mapper, two_qubit_reduction=False)
             small_op = FermionicOp({"+_0 -_0": 1.0, "-_1 +_1": 1.0}, num_spin_orbitals=2)
             expected_op = 1.0 * (I ^ I) - 0.5 * (I ^ Z) + 0.5 * (Z ^ Z)
