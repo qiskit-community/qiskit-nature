@@ -18,11 +18,6 @@ import copy
 import logging
 from typing import (
     Callable,
-    Dict,
-    Generator,
-    Generic,
-    Iterable,
-    List,
     Optional,
     List,
     Tuple,
@@ -39,7 +34,8 @@ from qiskit.opflow.primitive_ops import Z2Symmetries
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.operators import SparseLabelOp
 
-from .qubit_mapper import QubitMapper
+from .qubit_mapper import QubitMapper, _ListOrDict
+from .parity_mapper import ParityMapper
 
 # pylint: disable=invalid-name
 T = TypeVar("T")
