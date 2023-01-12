@@ -129,6 +129,7 @@ class QubitMapper(ABC):
         self,
         second_q_ops: SparseLabelOp | ListOrDictType[SparseLabelOp],
         suppress_none: bool = None,
+        check_commutes = False
     ) -> PauliSumOp | ListOrDictType[PauliSumOp]:
         """Maps a second quantized operator or a list, dict of second quantized operators based on
         the current mapper.

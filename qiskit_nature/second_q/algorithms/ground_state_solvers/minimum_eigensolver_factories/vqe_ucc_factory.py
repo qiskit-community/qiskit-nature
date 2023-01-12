@@ -142,6 +142,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         self.ansatz.initial_state = initial_state
 
         if isinstance(self.initial_point, InitialPoint):
+            print("$$", self.ansatz)
             self.initial_point.ansatz = self.ansatz
             self.initial_point.problem = driver_result
             initial_point = self.initial_point.to_numpy_array()
@@ -149,6 +150,8 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             initial_point = self.initial_point
 
         self.minimum_eigensolver.initial_point = initial_point
+        
+        print(initial_point, self.ansatz.num_parameters)
         return self.minimum_eigensolver
 
     def supports_aux_operators(self):

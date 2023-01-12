@@ -70,6 +70,7 @@ class GroundStateEigensolver(GroundStateSolver):
             :meth:`~.BaseProblem.interpret`.
         """
         main_operator, aux_ops = self.get_qubit_operators(problem, aux_operators)
+        print("vqe: ", main_operator)
         raw_mes_result = self.solver.compute_minimum_eigenvalue(  # type: ignore
             main_operator, aux_ops
         )
@@ -122,7 +123,6 @@ class GroundStateEigensolver(GroundStateSolver):
                     )
                 # The custom op overrides the default op if the key is already taken.
                 aux_ops[name_aux] = converted_aux_op
-
         if isinstance(self.solver, MinimumEigensolverFactory):
             # this must be called after transformation.transform
             self._solver = self.solver.get_solver(problem, self._qubit_converter)

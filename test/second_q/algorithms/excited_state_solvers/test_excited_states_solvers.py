@@ -33,6 +33,8 @@ from qiskit_nature.second_q.mappers import (
     JordanWignerMapper,
     ParityMapper,
 )
+from qiskit_nature.second_q.mappers.tapered_qubit_mapper import TaperedQubitMapper
+
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.algorithms import (
     GroundStateEigensolver,
@@ -243,6 +245,30 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
             for comp_energy in results_mapper.computed_energies[1:]:
                 if not np.isclose(comp_energy, computed_energies_mapper[-1]):
                     computed_energies_mapper.append(comp_energy)
+            self._assert_energies(computed_energies_mapper, self.reference_energies)
+
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
+    def test_solver_compatibility_with_taperedqubitmappers(self):
+        """Test that solvers can use TaperedQubitMapper"""
+        estimator = Estimator()
+        solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
+        # mapper = ParityMapper(two_qubit_reduction=True, num_particles=None)
+        mapper = JordanWignerMapper()
+
+        with self.subTest("QEOM with Tapered Qubit Mapper"):
+            tapered_qubit_mapper = TaperedQubitMapper.from_problem(
+                mapper, self.electronic_structure_problem
+            )
+            gsc = GroundStateEigensolver(tapered_qubit_mapper, solver)
+            esc = QEOM(gsc, estimator, "sd")
+            results_mapper = esc.solve(self.electronic_structure_problem)
+            # filter duplicates from list
+            computed_energies_mapper = [results_mapper.computed_energies[0]]
+            for comp_energy in results_mapper.computed_energies[1:]:
+                if not np.isclose(comp_energy, computed_energies_mapper[-1]):
+                    computed_energies_mapper.append(comp_energy)
+                    
+            print(computed_energies_mapper)
             self._assert_energies(computed_energies_mapper, self.reference_energies)
 
 

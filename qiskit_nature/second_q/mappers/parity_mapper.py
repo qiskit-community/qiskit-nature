@@ -78,7 +78,7 @@ class ParityMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
 
         return pauli_table
 
-    def convert(self, operator: SparsePauliOp) -> SparsePauliOp:
+    def convert(self, operator: SparsePauliOp) -> SparsePauliOp | list[SparsePauliOp]:
         """
         Converts the Operator to tapered one by Z2 symmetries.
 

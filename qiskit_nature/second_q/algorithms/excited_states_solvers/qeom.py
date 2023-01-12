@@ -48,6 +48,7 @@ from qiskit_nature.second_q.algorithms.excited_states_solvers.excited_states_sol
     ExcitedStatesSolver,
 )
 from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper, ParityMapper
+from qiskit_nature.second_q.mappers.tapered_qubit_mapper import TaperedQubitMapper
 from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.problems import (
     BaseProblem,
@@ -193,14 +194,15 @@ class QEOM(ExcitedStatesSolver):
         num_particles = getattr(problem, "num_particles", None)
 
         # 1. Convert the main operator (hamiltonian) to a Qubit Operator and apply two qubit reduction
-
+        print("Main operators to main_op")
         if isinstance(self.qubit_converter, QubitConverter):
             self.qubit_converter.force_match(num_particles=num_particles)
             main_op = self.qubit_converter.convert_only(main_operator, num_particles=num_particles)
         else:
-            if isinstance(self.qubit_converter, ParityMapper):
+            self.qubit_converter.z2symmetry_reduction = False
+            if isinstance(self.qubit_converter, (ParityMapper, TaperedQubitMapper)):
                 self.qubit_converter.num_particles = num_particles
-            main_op = self.qubit_converter.map(main_operator)
+            main_op = self.qubit_converter.map(main_operator, taper=False)
 
         # 3. Convert the auxiliary operators.
         # aux_ops set to None if the solver does not support auxiliary operators.
@@ -210,7 +212,7 @@ class QEOM(ExcitedStatesSolver):
             if isinstance(self.qubit_converter, QubitConverter):
                 aux_ops = self.qubit_converter.convert_match(aux_second_q_operators)
             else:
-                aux_ops = self.qubit_converter.map(aux_second_q_operators)
+                aux_ops = self.qubit_converter.map(aux_second_q_operators, taper=False)
 
             cast(ListOrDictType[QubitOperator], aux_ops)
             if aux_operators is not None:
@@ -219,7 +221,7 @@ class QEOM(ExcitedStatesSolver):
                         if isinstance(self.qubit_converter, QubitConverter):
                             converted_aux_op = self.qubit_converter.convert_match(op)
                         else:
-                            converted_aux_op = self.qubit_converter.map(op)
+                            converted_aux_op = self.qubit_converter.map(op, taper=False)
 
                     else:
                         converted_aux_op = op
@@ -250,11 +252,13 @@ class QEOM(ExcitedStatesSolver):
             # a similar logic that used above.
             untap_main_op = main_op
             untap_aux_ops = aux_ops
-
+        
+        print("get solver")
         # 5. If a MinimumEigensolverFactory was provided, then an additional call to get_solver() is
         # required.
         if isinstance(self.solver, MinimumEigensolverFactory):
             self._gsc._solver = self.solver.get_solver(problem, self.qubit_converter)  # type: ignore
+        print("end get solver")
 
         return untap_main_op, untap_aux_ops
 
@@ -284,13 +288,19 @@ class QEOM(ExcitedStatesSolver):
 
         # 2. Run ground state calculation with fully tapered custom auxiliary operators
         # Note that the solve() method includes the `second_q' auxiliary operators
+        print("symmetry_reduce_clifford")
         if isinstance(self.qubit_converter, QubitConverter):
             tap_aux_operators = self.qubit_converter.symmetry_reduce_clifford(untap_aux_ops)
         else:
-            tap_aux_operators = untap_aux_ops
-
-        groundstate_result = self._gsc.solve(problem, tap_aux_operators)
+            tap_aux_operators = self.qubit_converter.symmetry_reduce_clifford(untap_aux_ops)
+            # tap_aux_operators = untap_aux_ops
+            
+        print("Solve")
+        print(self.qubit_converter.__dict__)
+        groundstate_result = self._gsc.solve(problem)
         ground_state = groundstate_result.eigenstates[0]
+        print(groundstate_result.eigenvalues)
+        print("End Solve")
 
         # 3. Prepare the expansion operators for the excited state calculation
         expansion_basis_data = self._prepare_expansion_basis(problem)

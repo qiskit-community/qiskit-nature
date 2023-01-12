@@ -19,7 +19,12 @@ from qiskit.circuit.library import BlueprintCircuit
 from qiskit.opflow import PauliSumOp
 from qiskit.utils.validation import validate_min
 
-from qiskit_nature.second_q.mappers import BravyiKitaevSuperFastMapper, QubitConverter, QubitMapper
+from qiskit_nature.second_q.mappers import (
+    BravyiKitaevSuperFastMapper,
+    QubitConverter,
+    QubitMapper,
+    ParityMapper,
+)
 from qiskit_nature.second_q.operators import FermionicOp
 
 
@@ -240,7 +245,15 @@ def hartree_fock_bitstring_mapped(
         else:
             qubit_op = qubit_converter.convert_only(bitstr_op, num_particles)
     else:
-        qubit_op = qubit_converter.map(bitstr_op)
+        try:
+            qubit_converter.num_particles = num_particles
+        except AttributeError:
+            pass
+
+        print(qubit_converter)
+        qubit_op = qubit_converter.map(bitstr_op, check_commutes = False)
+    
+    print("hartree_fock op: ", qubit_op)
 
     # We check the mapped operator `x` part of the paulis because we want to have particles
     # i.e. True, where the initial state introduced a creation (`+`) operator.
