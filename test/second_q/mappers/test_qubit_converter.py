@@ -343,7 +343,7 @@ class TestQubitConverter(QiskitNatureTestCase):
         self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW_TAPERED)
 
     def test_compatibiliy_with_mappers(self):
-        """Test that QubitConverter.convert() is equivalent to QubitMapper.map() without any reduction"""
+        """Test that Qubit converter and mappers produces the same results."""
 
         with self.subTest("JordanWigner Mapper"):
             mapper = JordanWignerMapper()
@@ -359,22 +359,45 @@ class TestQubitConverter(QiskitNatureTestCase):
             qubit_op_mapper = qubit_conv.convert(self.h2_op)
             self.assertEqual(qubit_op_converter, qubit_op_mapper)
 
+        with self.subTest("Parity Mapper and two qubit reduction"):
+            mapper = ParityMapper(num_particles=(1, 1))
+            qubit_conv = QubitConverter(mapper, two_qubit_reduction=True)
+            qubit_op_converter = mapper.map(self.h2_op)
+            qubit_op_mapper = qubit_conv.convert_match(self.h2_op)
+            self.assertEqual(qubit_op_converter, qubit_op_mapper)
+
     def test_compatibility_with_tapered_qubit_mapper(self):
-        with self.subTest("Tapered Qubit Mapper"):
+        """Test that the qubit converter can be used with a Tapered Qubit Mapper"""
+        with self.subTest("Tapered Qubit Mapper and JordanWigner Mapper"):
             mapper = JordanWignerMapper()
             tq_mapper = TaperedQubitMapper.from_problem(mapper, self.driver_result)
             qubit_conv = QubitConverter(tq_mapper)
             qubit_op = qubit_conv.convert(self.h2_op)
             self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW_TAPERED)
 
-        with self.subTest("Tapered Qubit Mapper and symmetry conflict"):
+        with self.subTest("Tapered Qubit Mapper and JordanWigner Mapper and symmetry conflict"):
             mapper = JordanWignerMapper()
             tq_mapper = TaperedQubitMapper.from_problem(mapper, self.driver_result)
             qubit_conv = QubitConverter(tq_mapper, z2symmetry_reduction="auto")
             qubit_op = qubit_conv.convert(self.h2_op)
             self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW_TAPERED)
             # The qubit converter finds no symmetries on the tapered operator.
+            # It is thus ignored when associated with a Tapered Qubit Mapper.
             self.assertTrue(qubit_conv.z2symmetries.is_empty())
+
+        with self.subTest("Tapered Qubit Mapper and Parity Mapper"):
+            mapper = ParityMapper()
+            tq_mapper = TaperedQubitMapper.from_problem(mapper, self.driver_result)
+            qubit_conv = QubitConverter(tq_mapper)
+            qubit_op = qubit_conv.convert(self.h2_op)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW_TAPERED)
+
+        with self.subTest("Tapered Qubit Mapper and Parity Mapper and particle number"):
+            mapper = ParityMapper(num_particles=(1, 1))
+            tq_mapper = TaperedQubitMapper.from_problem(mapper, self.driver_result)
+            qubit_conv = QubitConverter(tq_mapper)
+            qubit_op = qubit_conv.convert_match(self.h2_op)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW_TAPERED)
 
 
 if __name__ == "__main__":
