@@ -24,7 +24,12 @@ import qiskit_nature.optionals as _optionals
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.operators import FermionicOp
-from qiskit_nature.second_q.mappers import JordanWignerMapper, ParityMapper, QubitConverter
+from qiskit_nature.second_q.mappers import (
+    JordanWignerMapper,
+    ParityMapper,
+    QubitConverter,
+    TaperedQubitMapper,
+)
 
 
 @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
@@ -353,6 +358,23 @@ class TestQubitConverter(QiskitNatureTestCase):
             qubit_op_converter = mapper.map(self.h2_op)
             qubit_op_mapper = qubit_conv.convert(self.h2_op)
             self.assertEqual(qubit_op_converter, qubit_op_mapper)
+
+    def test_compatibility_with_tapered_qubit_mapper(self):
+        with self.subTest("Tapered Qubit Mapper"):
+            mapper = JordanWignerMapper()
+            tq_mapper = TaperedQubitMapper.from_problem(mapper, self.driver_result)
+            qubit_conv = QubitConverter(tq_mapper)
+            qubit_op = qubit_conv.convert(self.h2_op)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW_TAPERED)
+
+        with self.subTest("Tapered Qubit Mapper and symmetry conflict"):
+            mapper = JordanWignerMapper()
+            tq_mapper = TaperedQubitMapper.from_problem(mapper, self.driver_result)
+            qubit_conv = QubitConverter(tq_mapper, z2symmetry_reduction="auto")
+            qubit_op = qubit_conv.convert(self.h2_op)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW_TAPERED)
+            # The qubit converter finds no symmetries on the tapered operator.
+            self.assertTrue(qubit_conv.z2symmetries.is_empty())
 
 
 if __name__ == "__main__":
