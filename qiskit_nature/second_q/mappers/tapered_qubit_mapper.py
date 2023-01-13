@@ -17,8 +17,6 @@ from __future__ import annotations
 import logging
 from copy import deepcopy
 from typing import TYPE_CHECKING
-import numpy as np
-
 
 from qiskit.algorithms.list_or_dict import ListOrDict as ListOrDictType
 from qiskit.opflow import PauliSumOp
@@ -27,11 +25,11 @@ from qiskit.quantum_info.operators import SparsePauliOp, PauliList
 
 from qiskit_nature.second_q.operators import SparseLabelOp
 
+from .parity_mapper import ParityMapper
+from .qubit_mapper import QubitMapper, _ListOrDict
+
 if TYPE_CHECKING:
     from qiskit_nature.second_q.problems import ElectronicStructureProblem
-
-from .qubit_mapper import QubitMapper, _ListOrDict
-from .parity_mapper import ParityMapper
 
 logger = logging.getLogger(__name__)
 
@@ -55,18 +53,19 @@ class TaperedQubitMapper(QubitMapper):  # pylint: disable=missing-class-docstrin
         super().__init__()
         self._mapper: QubitMapper = deepcopy(mapper)
         self.z2symmetries = z2symmetries
-        self._num_particles: int | None = None
         self.check_commutes: bool = True
 
     @property
-    def num_particles(self) -> int | None:
+    def num_particles(self) -> tuple[int, int] | None:
         """Gets the number of particles."""
-        return self._num_particles
+        if isinstance(self._mapper, ParityMapper):
+            return self._mapper.num_particles
+        else:
+            return None
 
     @num_particles.setter
-    def num_particles(self, value: int | None) -> None:
-        """Sets the ansatz of future VQEs produced by the factory."""
-        self._num_particles = value
+    def num_particles(self, value: tuple[int, int] | None) -> None:
+        """Sets the numbers of particle."""
         if isinstance(self._mapper, ParityMapper):
             self._mapper.num_particles = value
 
@@ -87,10 +86,6 @@ class TaperedQubitMapper(QubitMapper):  # pylint: disable=missing-class-docstrin
         """
 
         qubit_op, _ = problem.second_q_ops()
-        if isinstance(mapper, ParityMapper):
-            # Priority on the problem's number of particles.
-            # TODO: DROP
-            mapper.num_particles = problem.num_particles
         mapped_op = mapper.map(qubit_op).primitive
         z2_symmetries = Z2Symmetries.find_z2_symmetries(mapped_op)
         tapering_values = problem.symmetry_sector_locator(z2_symmetries, mapper)
@@ -98,12 +93,7 @@ class TaperedQubitMapper(QubitMapper):  # pylint: disable=missing-class-docstrin
         return TaperedQubitMapper(mapper, z2_symmetries)
 
     def _map_clifford_single(self, second_q_op: SparseLabelOp) -> SparsePauliOp:
-        if isinstance(self._mapper, ParityMapper) and self._mapper.num_particles is None:
-            mapped_op = self._mapper.mode_based_mapping(
-                second_q_op, second_q_op.register_length
-            ).primitive
-        else:
-            mapped_op = self._mapper.map(second_q_op).primitive
+        mapped_op = self._mapper.map(second_q_op).primitive
         converted_op = self.z2symmetries.convert_clifford(mapped_op)
         return converted_op
 
@@ -118,29 +108,29 @@ class TaperedQubitMapper(QubitMapper):  # pylint: disable=missing-class-docstrin
         Returns:
             SparsePauliOp | list[SparsePauliOp]: _description_
         """
-        if self.check_commutes:
+        if self.z2symmetries.is_empty():
+            tapered_op = converted_op
+        elif self.check_commutes:
             logger.debug("Checking operators commute with symmetry:")
-            symmetry_ops = []
-            for sq_pauli in self.z2symmetries._sq_paulis:
-                symmetry_ops.append(PauliSumOp.from_list([(sq_pauli.to_label(), 1.0)]))
-            commutes = TaperedQubitMapper._check_commutes(self.z2symmetries._sq_paulis, converted_op)
+
+            commutes = TaperedQubitMapper._check_commutes(
+                self.z2symmetries._sq_paulis, converted_op
+            )
 
             if commutes:
                 tapered_op = self.z2symmetries.taper_clifford(converted_op)
             else:
                 tapered_op = None
-
         else:
             tapered_op = self.z2symmetries.taper_clifford(converted_op)
 
         return tapered_op
 
-    def _map_single(
-        self, second_q_op: SparseLabelOp) -> PauliSumOp | list[PauliSumOp]:
-        converted_op = self._map_clifford_single(second_q_op=second_q_op)
+    def _map_single(self, second_q_op: SparseLabelOp) -> PauliSumOp | list[PauliSumOp]:
+        converted_op = self._map_clifford_single(second_q_op)
         tapered_op = self._symmetry_reduce_clifford_single(converted_op)
 
-        returned_op: PauliSumOp | list[PauliSumOp]
+        returned_op: PauliSumOp | list[PauliSumOp] | None
 
         if tapered_op is None:
             return None
@@ -148,7 +138,6 @@ class TaperedQubitMapper(QubitMapper):  # pylint: disable=missing-class-docstrin
             returned_op = PauliSumOp(tapered_op)
         else:
             returned_op = [PauliSumOp(op) for op in tapered_op]
-
         return returned_op
 
     def map_clifford(
@@ -175,11 +164,11 @@ class TaperedQubitMapper(QubitMapper):  # pylint: disable=missing-class-docstrin
             second_q_ops = [second_q_ops]
             suppress_none = False
 
-        wrapped_second_q_ops: _ListOrDict[SparseLabelOp] = _ListOrDict(second_q_ops)
+        wrapped_second_q_ops: _ListOrDict[SparseLabelOp | None] = _ListOrDict(second_q_ops)
 
         qubit_ops: _ListOrDict = _ListOrDict()
         for name, second_q_op in iter(wrapped_second_q_ops):
-            qubit_ops[name] = PauliSumOp(self.z2symmetries.taper_clifford(second_q_op.primitive))
+            qubit_ops[name] = PauliSumOp(self._map_clifford_single(second_q_op))
 
         returned_ops: PauliSumOp | ListOrDictType[PauliSumOp] = qubit_ops.unwrap(
             wrapped_type, suppress_none=suppress_none
@@ -189,8 +178,8 @@ class TaperedQubitMapper(QubitMapper):  # pylint: disable=missing-class-docstrin
 
     def symmetry_reduce_clifford(
         self,
-        second_q_ops: SparsePauliOp | ListOrDictType[SparsePauliOp],
-        suppress_none: bool = None,
+        second_q_ops: PauliSumOp | ListOrDictType[PauliSumOp],
+        suppress_none: bool = False,
     ) -> PauliSumOp | ListOrDictType[PauliSumOp]:
         """Maps a second quantized operator or a list, dict of second quantized operators based on
         the current mapper.
@@ -207,15 +196,20 @@ class TaperedQubitMapper(QubitMapper):  # pylint: disable=missing-class-docstrin
         """
         wrapped_type = type(second_q_ops)
 
-        if issubclass(wrapped_type, SparsePauliOp):
+        if issubclass(wrapped_type, PauliSumOp):
             second_q_ops = [second_q_ops]
             suppress_none = False
 
-        wrapped_second_q_ops: _ListOrDict[SparsePauliOp] = _ListOrDict(second_q_ops)
+        wrapped_second_q_ops: _ListOrDict[PauliSumOp] = _ListOrDict(second_q_ops)
 
-        qubit_ops: _ListOrDict = _ListOrDict()
+        qubit_ops: _ListOrDict[PauliSumOp] = _ListOrDict()
         for name, second_q_op in iter(wrapped_second_q_ops):
-            qubit_ops[name] = PauliSumOp(self.z2symmetries.taper_clifford(second_q_op.primitive))
+            qubit_op = self._symmetry_reduce_clifford_single(second_q_op.primitive)
+            if self.check_commutes:
+                if qubit_op is not None:
+                    qubit_ops[name] = PauliSumOp(qubit_op)
+            else:
+                qubit_ops[name] = PauliSumOp(qubit_op)
 
         returned_ops: PauliSumOp | ListOrDictType[PauliSumOp] = qubit_ops.unwrap(
             wrapped_type, suppress_none=suppress_none
@@ -225,10 +219,8 @@ class TaperedQubitMapper(QubitMapper):  # pylint: disable=missing-class-docstrin
 
     @staticmethod
     def _check_commutes(sq_paulis: PauliList, qubit_op: SparsePauliOp) -> bool:
-        #commutes = []
+        # commutes = []
         commuting_rows = qubit_op.paulis.commutes_with_all(sq_paulis)
-        commutes = (len(commuting_rows) == qubit_op.size)
-        print("commutes", commutes)
+        commutes = len(commuting_rows) == qubit_op.size
         logger.debug("  '%s' commutes: %s", id(qubit_op), commutes)
-
         return commutes

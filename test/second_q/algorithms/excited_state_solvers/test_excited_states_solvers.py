@@ -267,7 +267,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
             for comp_energy in results_mapper.computed_energies[1:]:
                 if not np.isclose(comp_energy, computed_energies_mapper[-1]):
                     computed_energies_mapper.append(comp_energy)
-                    
+
             print(computed_energies_mapper)
             self._assert_energies(computed_energies_mapper, self.reference_energies)
 

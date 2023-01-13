@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -21,7 +21,6 @@ from typing import (
     Optional,
     List,
     Tuple,
-    TypeVar,
     Union,
 )
 
@@ -36,9 +35,6 @@ from qiskit_nature.second_q.operators import SparseLabelOp
 
 from .qubit_mapper import QubitMapper, _ListOrDict
 from .parity_mapper import ParityMapper
-
-# pylint: disable=invalid-name
-T = TypeVar("T")
 
 logger = logging.getLogger(__name__)
 
@@ -543,7 +539,6 @@ class QubitConverter:
         for clifford in cliffords:
             commuting_rows = qubit_op.primitive.paulis.commutes_with_all(clifford.primitive.paulis)
             commutes.append(len(commuting_rows) == qubit_op.primitive.size)
-        print(commutes)
         does_commute = bool(np.all(commutes))
         logger.debug("  '%s' commutes: %s, %s", id(qubit_op), does_commute, commutes)
 

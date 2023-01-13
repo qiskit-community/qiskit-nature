@@ -168,48 +168,22 @@ class TestTaperedQubitMapper(QiskitNatureTestCase):
             qubit_op = tapered_qubit_mapper.map(self.h2_op).primitive
             self.assertEqual(qubit_op, TestTaperedQubitMapper.REF_H2_PARITY_TAPERED)
 
-        with self.subTest("Two qubit reduction set to True and No particle number"):
-            mapper = ParityMapper(num_particles=None)
-            tapered_qubit_mapper = TaperedQubitMapper.from_problem(mapper, self.driver_result)
-            qubit_op = tapered_qubit_mapper.map(self.h2_op).primitive
-            self.assertEqual(qubit_op, TestTaperedQubitMapper.REF_H2_PARITY_TAPERED)
-
-        with self.subTest("Two qubit reduction set to True and particle number (1, 1)"):
-            mapper = ParityMapper(num_particles=(1, 1))
-            tapered_qubit_mapper = TaperedQubitMapper.from_problem(mapper, self.driver_result)
-            qubit_op = tapered_qubit_mapper.map(self.h2_op).primitive
-            self.assertEqual(qubit_op, TestTaperedQubitMapper.REF_H2_PARITY_TAPERED)
-
     def test_empty_z2_symmetry_two_qubit_reduction(self):
         """Test mapping to qubit operator with empty z2 symmetry tapering and two qubit reduction"""
 
-        with self.subTest("Two qubit reduction set to False and No particle number"):
+        with self.subTest("No particle number"):
             mapper = ParityMapper(num_particles=None)
             z2_sym = Z2Symmetries([], [], [], None)
             tapered_qubit_mapper = TaperedQubitMapper(mapper, z2symmetries=z2_sym)
             qubit_op = tapered_qubit_mapper.map(self.h2_op).primitive
             self.assertTrue(qubit_op.equiv(TestTaperedQubitMapper.REF_H2_PARITY))
 
-        with self.subTest("Two qubit reduction set to False and particle number (1, 1)"):
+        with self.subTest("Particle number (1, 1)"):
             mapper = ParityMapper(num_particles=(1, 1))
             z2_sym = Z2Symmetries([], [], [], None)
             tapered_qubit_mapper = TaperedQubitMapper(mapper, z2symmetries=z2_sym)
             qubit_op = tapered_qubit_mapper.map(self.h2_op).primitive
-            self.assertTrue(qubit_op.equiv(TestTaperedQubitMapper.REF_H2_PARITY))
-
-        with self.subTest("Two qubit reduction set to True and No particle number"):
-            mapper = ParityMapper(num_particles=None)
-            z2_sym = Z2Symmetries([], [], [], None)
-            tapered_qubit_mapper = TaperedQubitMapper(mapper, z2symmetries=z2_sym)
-            qubit_op = tapered_qubit_mapper.map(self.h2_op).primitive
-            self.assertTrue(qubit_op.equiv(TestTaperedQubitMapper.REF_H2_PARITY))
-
-        with self.subTest("Two qubit reduction set to True and particle number (1, 1)"):
-            mapper = ParityMapper(num_particles=(1, 1))
-            z2_sym = Z2Symmetries([], [], [], None)
-            tapered_qubit_mapper = TaperedQubitMapper(mapper, z2symmetries=z2_sym)
-            qubit_op = tapered_qubit_mapper.map(self.h2_op).primitive
-            self.assertEqual(qubit_op, TestTaperedQubitMapper.REF_H2_PARITY_2Q_REDUCED)
+            self.assertTrue(qubit_op.equiv(TestTaperedQubitMapper.REF_H2_PARITY_2Q_REDUCED))
 
     def test_taperedqubitmapper_jw_mapper(self):
         """Test Tapered Qubit Mapper with Jordan Wigner Mapper"""

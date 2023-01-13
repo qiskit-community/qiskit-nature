@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -83,6 +83,7 @@ from .qubit_converter import QubitConverter
 from .fermionic_mapper import FermionicMapper
 from .spin_mapper import SpinMapper
 from .vibrational_mapper import VibrationalMapper
+from .tapered_qubit_mapper import TaperedQubitMapper
 
 __all__ = [
     "BravyiKitaevMapper",

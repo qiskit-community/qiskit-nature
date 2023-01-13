@@ -70,7 +70,6 @@ class GroundStateEigensolver(GroundStateSolver):
             :meth:`~.BaseProblem.interpret`.
         """
         main_operator, aux_ops = self.get_qubit_operators(problem, aux_operators)
-        print("vqe: ", main_operator)
         raw_mes_result = self.solver.compute_minimum_eigenvalue(  # type: ignore
             main_operator, aux_ops
         )
@@ -99,7 +98,7 @@ class GroundStateEigensolver(GroundStateSolver):
             aux_ops = self._qubit_converter.convert_match(aux_second_q_ops)
         else:
             main_operator = self._qubit_converter.map(main_second_q_op)
-            aux_ops = self._qubit_converter.map(aux_second_q_ops)
+            aux_ops = self._qubit_converter.map(aux_second_q_ops, suppress_none=True)
 
         if aux_operators is not None:
             for name_aux, aux_op in aux_operators.items():
@@ -109,7 +108,7 @@ class GroundStateEigensolver(GroundStateSolver):
                             aux_op, suppress_none=True
                         )
                     else:
-                        converted_aux_op = self._qubit_converter.map(aux_op)
+                        converted_aux_op = self._qubit_converter.map(aux_op, suppress_none=True)
                 else:
                     converted_aux_op = aux_op
 

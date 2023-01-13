@@ -84,7 +84,10 @@ class _ListOrDict(Dict, Iterable, Generic[T]):
             else:
                 return [op for _, op in iter(self)]
         if wrapped_type == dict:
-            return dict(iter(self))
+            if suppress_none:
+                return {key: op for key, op in iter(self) if op is not None}
+            else:
+                return dict(iter(self))
         # only other case left is that it was a single operator to begin with:
         return list(iter(self))[0][1]
 
@@ -128,8 +131,7 @@ class QubitMapper(ABC):
     def map(
         self,
         second_q_ops: SparseLabelOp | ListOrDictType[SparseLabelOp],
-        suppress_none: bool = None,
-        check_commutes = False
+        suppress_none: bool = False,
     ) -> PauliSumOp | ListOrDictType[PauliSumOp]:
         """Maps a second quantized operator or a list, dict of second quantized operators based on
         the current mapper.
@@ -155,11 +157,9 @@ class QubitMapper(ABC):
         qubit_ops: _ListOrDict = _ListOrDict()
         for name, second_q_op in iter(wrapped_second_q_ops):
             qubit_ops[name] = self._map_single(second_q_op)
-
         returned_ops: Union[PauliSumOp, ListOrDictType[PauliSumOp]] = qubit_ops.unwrap(
             wrapped_type, suppress_none=suppress_none
         )
-
         return returned_ops
 
     @classmethod

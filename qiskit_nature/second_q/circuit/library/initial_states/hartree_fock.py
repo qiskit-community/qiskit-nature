@@ -23,7 +23,7 @@ from qiskit_nature.second_q.mappers import (
     BravyiKitaevSuperFastMapper,
     QubitConverter,
     QubitMapper,
-    ParityMapper,
+    TaperedQubitMapper,
 )
 from qiskit_nature.second_q.operators import FermionicOp
 
@@ -244,16 +244,12 @@ def hartree_fock_bitstring_mapped(
             qubit_op = qubit_converter.convert_match(bitstr_op, check_commutes=False)
         else:
             qubit_op = qubit_converter.convert_only(bitstr_op, num_particles)
+    elif isinstance(qubit_converter, TaperedQubitMapper):
+        qubit_converter.check_commutes = False
+        qubit_op = qubit_converter.map(bitstr_op)
+        qubit_converter.check_commutes = True
     else:
-        try:
-            qubit_converter.num_particles = num_particles
-        except AttributeError:
-            pass
-
-        print(qubit_converter)
-        qubit_op = qubit_converter.map(bitstr_op, check_commutes = False)
-    
-    print("hartree_fock op: ", qubit_op)
+        qubit_op = qubit_converter.map(bitstr_op)
 
     # We check the mapped operator `x` part of the paulis because we want to have particles
     # i.e. True, where the initial state introduced a creation (`+`) operator.
