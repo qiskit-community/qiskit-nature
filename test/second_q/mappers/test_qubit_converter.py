@@ -82,7 +82,7 @@ class TestQubitConverter(QiskitNatureTestCase):
 
     REF_H2_JW_TAPERED = -1.04109314222921270 * I - 0.79587484566286240 * Z + 0.18093119996470988 * X
 
-    REF_H2_PARITY_2Q_REDUCED_TAPER = (
+    REF_H2_PARITY_TAPERED = (
         -1.04109314222921250 * I - 0.79587484566286300 * Z - 0.18093119996470994 * X
     )
 
@@ -290,30 +290,30 @@ class TestQubitConverter(QiskitNatureTestCase):
         mapper = ParityMapper()
         qubit_conv = QubitConverter(mapper, two_qubit_reduction=True, z2symmetry_reduction="auto")
         qubit_op = qubit_conv.convert(self.h2_op, self.num_particles, sector_locator=cb_finder)
-        self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED_TAPER)
+        self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_TAPERED)
         self.assertEqual(qubit_conv.num_particles, self.num_particles)
         self.assertListEqual(qubit_conv.z2symmetries.tapering_values, z2_sector)
 
         with self.subTest("convert_match()"):
             qubit_op = qubit_conv.convert_match(self.h2_op)
-            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED_TAPER)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_TAPERED)
             self.assertEqual(qubit_conv.num_particles, self.num_particles)
             self.assertListEqual(qubit_conv.z2symmetries.tapering_values, z2_sector)
 
         with self.subTest("Change setting"):
             qubit_conv.z2symmetry_reduction = [1]
             qubit_op = qubit_conv.convert(self.h2_op, self.num_particles)
-            self.assertNotEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED_TAPER)
+            self.assertNotEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_TAPERED)
             qubit_conv.z2symmetry_reduction = [-1]
             qubit_op = qubit_conv.convert(self.h2_op, self.num_particles)
-            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED_TAPER)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_TAPERED)
 
         with self.subTest("Specify sector upfront"):
             qubit_conv = QubitConverter(
                 mapper, two_qubit_reduction=True, z2symmetry_reduction=z2_sector
             )
             qubit_op = qubit_conv.convert(self.h2_op, self.num_particles)
-            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED_TAPER)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_TAPERED)
 
         with self.subTest("Specify sector upfront, but invalid content"):
             with self.assertRaises(ValueError):
@@ -390,14 +390,14 @@ class TestQubitConverter(QiskitNatureTestCase):
             tq_mapper = TaperedQubitMapper.from_problem(mapper, self.driver_result)
             qubit_conv = QubitConverter(tq_mapper)
             qubit_op = qubit_conv.convert(self.h2_op)
-            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW_TAPERED)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_TAPERED)
 
         with self.subTest("Tapered Qubit Mapper and Parity Mapper and particle number"):
             mapper = ParityMapper(num_particles=(1, 1))
             tq_mapper = TaperedQubitMapper.from_problem(mapper, self.driver_result)
             qubit_conv = QubitConverter(tq_mapper)
             qubit_op = qubit_conv.convert_match(self.h2_op)
-            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW_TAPERED)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_TAPERED)
 
 
 if __name__ == "__main__":
