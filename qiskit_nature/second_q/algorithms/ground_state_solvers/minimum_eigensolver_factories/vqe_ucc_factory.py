@@ -149,7 +149,6 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             initial_point = self.initial_point
 
         self.minimum_eigensolver.initial_point = initial_point
-
         return self.minimum_eigensolver
 
     def supports_aux_operators(self):
