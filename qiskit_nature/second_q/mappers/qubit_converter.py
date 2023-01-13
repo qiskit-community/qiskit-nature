@@ -21,7 +21,6 @@ from typing import (
     Optional,
     List,
     Tuple,
-    TypeVar,
     Union,
 )
 
@@ -36,9 +35,6 @@ from qiskit_nature.second_q.operators import SparseLabelOp
 
 from .qubit_mapper import QubitMapper, _ListOrDict
 from .parity_mapper import ParityMapper
-
-# pylint: disable=invalid-name
-T = TypeVar("T")
 
 logger = logging.getLogger(__name__)
 
