@@ -117,8 +117,8 @@ def _build_single_hopping_operator(
     elif isinstance(qubit_converter, TaperedQubitMapper):
         qubit_op = qubit_converter.map_clifford(fer_op)
         z2_symmetries = qubit_converter.z2symmetries
-        # Because the clifford conversion was already done, the commutativities are infered from the
-        # single qubit pauli objects.
+        # Because the clifford conversion was already done, the commutativity information are based
+        # on the single qubit pauli objects.
         symmetries_for_commutativity = z2_symmetries.sq_paulis
     else:
         qubit_op = qubit_converter.map(fer_op)

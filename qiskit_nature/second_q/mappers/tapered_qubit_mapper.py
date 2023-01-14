@@ -47,8 +47,10 @@ class TaperedQubitMapper(QubitMapper):  # pylint: disable=missing-class-docstrin
         """
 
         Args:
-            mapper (QubitMapper): _description_
-            z2symmetries (list[int]): _description_
+            mapper: ``QubitMapper`` object implementing the mapping of second quantized operators to
+                Pauli operators.
+            z2symmetries: ``Z2Symmetries`` object defining the symmetries to use to reduce the Pauli
+                operators.
         """
         super().__init__()
         self._mapper: QubitMapper = deepcopy(mapper)
@@ -75,14 +77,17 @@ class TaperedQubitMapper(QubitMapper):  # pylint: disable=missing-class-docstrin
     ) -> "TaperedQubitMapper":
         # implies the previous z2symmetries == "auto" case
         # extract problem.hamiltonian and problem.symmetry_sector_locator
-        """_summary_
+        """Builds a ``TaperedQubitMapper`` from one of the other mappers and from a specific problem.
+        This simplifies the identification of the Pauli operator symmetries and of the symmetry sector
+        in which lies the solution of the problem.
 
         Args:
-            mapper (QubitMapper): _description_
-            problem (ElectronicStructureProblem): _description_
+            mapper: ``QubitMapper`` object implementing the mapping of second quantized operators to Pauli
+                operators.
+            problem: A class encoding a problem to be solved.
 
         Return:
-            Tapered Qubit Mapper
+            A ``TaperedQubitMapper`` with pre-built symmetry specifications.
         """
 
         qubit_op, _ = problem.second_q_ops()
@@ -100,14 +105,7 @@ class TaperedQubitMapper(QubitMapper):  # pylint: disable=missing-class-docstrin
     def _symmetry_reduce_clifford_single(
         self, converted_op: SparsePauliOp
     ) -> None | SparsePauliOp | list[SparsePauliOp]:
-        """_summary_
-
-        Args:
-            converted_op (SparsePauliOp): _description_
-
-        Returns:
-            SparsePauliOp | list[SparsePauliOp]: _description_
-        """
+        
         if self.z2symmetries.is_empty():
             tapered_op = converted_op
         elif self.check_commutes:
@@ -178,14 +176,15 @@ class TaperedQubitMapper(QubitMapper):  # pylint: disable=missing-class-docstrin
 
     def symmetry_reduce_clifford(
         self,
-        second_q_ops: PauliSumOp | ListOrDictType[PauliSumOp],
+        pauli_ops: PauliSumOp | ListOrDictType[PauliSumOp],
         suppress_none: bool = False,
     ) -> PauliSumOp | ListOrDictType[PauliSumOp]:
-        """Maps a second quantized operator or a list, dict of second quantized operators based on
-        the current mapper.
+        """Applies the symmetry reduction on a ``PauliSumOp`` or a list (resp. dict). This method implies
+        that the second quantized operators were already mapped to Pauli operators and composed with the
+        clifford operations defined in the symmetry, for example using the ``map_clifford`` method.
 
         Args:
-            second_q_ops: A second quantized operator, or list thereof.
+            pauli_ops: A pauli operator already evolved with the symmetry clifford operations.
             suppress_none: If None should be placed in the output list where an operator
                 did not commute with symmetry, to maintain order, or whether that should
                 be suppressed where the output list length may then be smaller than the input.
@@ -194,17 +193,17 @@ class TaperedQubitMapper(QubitMapper):  # pylint: disable=missing-class-docstrin
             A qubit operator in the form of a PauliSumOp, or list (resp. dict) thereof if a list
             (resp. dict) of second quantized operators was supplied.
         """
-        wrapped_type = type(second_q_ops)
+        wrapped_type = type(pauli_ops)
 
         if issubclass(wrapped_type, PauliSumOp):
-            second_q_ops = [second_q_ops]
+            pauli_ops = [pauli_ops]
             suppress_none = False
 
-        wrapped_second_q_ops: _ListOrDict[PauliSumOp] = _ListOrDict(second_q_ops)
+        wrapped_pauli_ops: _ListOrDict[PauliSumOp] = _ListOrDict(pauli_ops)
 
         qubit_ops: _ListOrDict[PauliSumOp] = _ListOrDict()
-        for name, second_q_op in iter(wrapped_second_q_ops):
-            qubit_op = self._symmetry_reduce_clifford_single(second_q_op.primitive)
+        for name, pauli_op in iter(wrapped_pauli_ops):
+            qubit_op = self._symmetry_reduce_clifford_single(pauli_op.primitive)
             if self.check_commutes:
                 if qubit_op is not None:
                     qubit_ops[name] = PauliSumOp(qubit_op)
