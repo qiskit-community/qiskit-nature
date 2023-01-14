@@ -249,7 +249,8 @@ def low_rank_two_body_decomposition(
     :math:`h_{pqrs}` as
 
     .. math::
-        h_{pqrs} = \sum_{t=1}^N \sum_{k\ell} U^{t}_{pk} U^{t}_{qk} Z^{t}_{k\ell} U^{t}_{r\ell} U^{t}_{s\ell}
+        h_{pqrs} = \sum_{t=1}^N \sum_{k\ell} U^{t}_{pk} U^{t}_{qk}
+            Z^{t}_{k\ell} U^{t}_{r\ell} U^{t}_{s\ell}
 
     Here each :math:`U^{t}` is a unitary matrix, referred to as a "leaf tensor,"
     and each :math:`Z^{(t)}` is a Hermitian matrix, referred to as a "core tensor."
