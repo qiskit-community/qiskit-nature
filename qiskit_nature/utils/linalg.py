@@ -182,84 +182,66 @@ def _swap_columns(matrix: np.ndarray, i: int, j: int) -> None:
 
 
 def modified_cholesky(
-    two_body_tensor: np.ndarray,
-    *,
-    error_threshold: float = 1e-8,
-    max_rank: int | None = None,
-    validate: bool = True,
-    atol: float = 1e-8,
+    mat: np.ndarray, *, error_threshold: float = 1e-8, max_vecs: int | None = None
 ) -> np.ndarray:
-    r"""Modified Cholesky decomposition of a two-body tensor.
+    r"""Modified Cholesky decomposition.
 
-    The modified Cholesky decomposition is a representation of a two-body tensor
-    :math:`h_{pqrs}` as
+    The modified Cholesky decomposition of a square matrix :math:`M` has the form
 
     .. math::
-        h_{pqrs} = \sum_{t} L^{(t)}_{pq} L^{(t)}_{rs}
+        M = \sum_{i=1}^N v_i v_i^\dagger
 
-    The number of terms :math:`t` in the decomposition depends on the allowed
-    error threshold. A larger error threshold leads to a smaller number of terms.
-    Furthermore, the `max_rank` parameter specifies an optional upper bound
-    on :math:`t`.
+    where each :math:`v_i` is a vector. `M` must be positive definite.
+    No checking is performed to verify whether `M` is positive definite.
+    The number of terms :math:`N` in the decomposition depends on the allowed
+    error threshold. A larger error threshold may yield a smaller number of terms.
+    Furthermore, the `max_vecs` parameter specifies an optional upper bound
+    on :math:`N`. The `max_vecs` parameter is always respected, so if it is
+    too small, then the error of the decomposition may exceed the specified
+    error threshold.
 
     References:
         - `arXiv:1711.02242`_
 
     Args:
-        two_body_tensor: The two-body tensor to decompose.
+        mat: The matrix to decompose.
         error_threshold: Threshold for allowed error in the decomposition.
             The error is defined as the maximum absolute difference between
             an element of the original tensor and the corresponding element of
             the reconstructed tensor.
-        max_rank: The maximum number of terms to include in the decomposition.
-        validate: Whether to check that the input tensor has the correct symmetries.
-            It should be real and symmetric.
-        atol: Absolute numerical tolerance for input validation.
+        max_vecs: The maximum number of vectors to include in the decomposition.
 
     Returns:
-        The Cholesky terms L^{(t)} as a list of matrices assembled into a Numpy array.
-
-    Raises:
-        ValueError: The input tensor does not have the correct symmetries.
+        The Cholesky vectors v_i assembled into a 2-dimensional Numpy array
+        whose columns are the vectors.
 
     .. _arXiv:1711.02242: https://arxiv.org/abs/1711.02242
     """
-    n_modes, _, _, _ = two_body_tensor.shape
-    reshaped_tensor = np.reshape(two_body_tensor, (n_modes**2, n_modes**2))
+    dim, _ = mat.shape
 
-    if validate:
-        if not np.all(np.isreal(reshaped_tensor)):
-            raise ValueError("Two-body tensor must be real.")
-        if not np.allclose(reshaped_tensor, reshaped_tensor.T, atol=atol):
-            raise ValueError("Two-body tensor must be symmetric.")
+    if max_vecs is None:
+        max_vecs = dim
 
-    if max_rank is None:
-        max_rank = n_modes * (n_modes + 1) // 2
-
-    cholesky_vecs = np.zeros((max_rank + 1, n_modes**2))
-    errors = np.diagonal(reshaped_tensor).copy()
-    for index in range(max_rank + 1):
+    cholesky_vecs = np.zeros((dim, max_vecs + 1), dtype=mat.dtype)
+    errors = np.real(np.diagonal(mat).copy())
+    for index in range(max_vecs + 1):
         max_error_index = np.argmax(errors)
         max_error = errors[max_error_index]
         if max_error < error_threshold:
             break
-        cholesky_vecs[index] = reshaped_tensor[:, max_error_index]
+        cholesky_vecs[:, index] = mat[:, max_error_index]
         if index:
-            cholesky_vecs[index] -= (
-                cholesky_vecs[0:index].T @ cholesky_vecs[0:index, max_error_index]
+            cholesky_vecs[:, index] -= (
+                cholesky_vecs[:, 0:index] @ cholesky_vecs[max_error_index, 0:index].conj()
             )
-        cholesky_vecs[index] /= np.sqrt(max_error)
-        errors -= cholesky_vecs[index] ** 2
-    return cholesky_vecs[:index].reshape((index, n_modes, n_modes))
+        cholesky_vecs[:, index] /= np.sqrt(max_error)
+        errors -= np.abs(cholesky_vecs[:, index]) ** 2
+
+    return cholesky_vecs[:, :index]
 
 
 def low_rank_two_body_decomposition(
-    two_body_tensor: np.ndarray,
-    *,
-    error_threshold: float = 1e-8,
-    max_rank: int | None = None,
-    validate: bool = True,
-    atol: float = 1e-8,
+    two_body_tensor: np.ndarray, *, error_threshold: float = 1e-8, max_rank: int | None = None
 ) -> tuple[np.ndarray, np.ndarray]:
     r"""Low rank decomposition of a two-body tensor.
 
@@ -267,17 +249,17 @@ def low_rank_two_body_decomposition(
     :math:`h_{pqrs}` as
 
     .. math::
-        h_{pqrs} = \sum_{t} \sum_{k\ell} U^{t}_{pk} U^{t}_{qk} Z^{t}_{k\ell} U^{t}_{r\ell} U^{t}_{s\ell}
+        h_{pqrs} = \sum_{t=1}^N \sum_{k\ell} U^{t}_{pk} U^{t}_{qk} Z^{t}_{k\ell} U^{t}_{r\ell} U^{t}_{s\ell}
 
     Here each :math:`U^{t}` is a unitary matrix, referred to as a "leaf tensor,"
-    and each :math:`Z^{(t)}` is a symmetric matrix, referred to as a "core tensor."
+    and each :math:`Z^{(t)}` is a Hermitian matrix, referred to as a "core tensor."
 
-    The number of terms :math:`t` in the decomposition depends on the allowed
-    error threshold. A larger error threshold leads to a smaller number of terms.
-    Furthermore, the `max_rank` parameter specifies an optional upper bound
-    on :math:`t`.
-
-    Note: Currently, only real-valued two-body tensors are supported.
+    The number of terms :math:`N` in the decomposition depends on the allowed
+    error threshold. A larger error threshold may yield a smaller number of terms.
+    Furthermore, the `max_vecs` parameter specifies an optional upper bound
+    on :math:`N`. The `max_vecs` parameter is always respected, so if it is
+    too small, then the error of the decomposition may exceed the specified
+    error threshold.
 
     References:
         - `arXiv:1808.02625`_
@@ -291,9 +273,6 @@ def low_rank_two_body_decomposition(
             the reconstructed tensor.
         max_rank: An optional limit on the number of terms to keep in the decomposition
             of the two-body tensor.
-        validate: Whether to check that the input tensor has the correct symmetries.
-            It should be real and symmetric.
-        atol: Absolute numerical tolerance for input validation.
 
     Returns:
         The core tensors and the leaf tensors. Each list of tensors is collected into
@@ -302,24 +281,26 @@ def low_rank_two_body_decomposition(
         Each numpy array will have shape (t, n, n) where t is the rank of the
         decomposition and n is the number of orbitals.
 
-    Raises:
-        ValueError: The input tensor does not have the correct symmetries.
-
     .. _arXiv:1808.02625: https://arxiv.org/abs/1808.02625
     .. _arXiv:2104.08957: https://arxiv.org/abs/2104.08957
     """
-    cholesky_vecs = modified_cholesky(
-        two_body_tensor,
-        error_threshold=error_threshold,
-        max_rank=max_rank,
-        validate=validate,
-        atol=atol,
-    )
     n_modes, _, _, _ = two_body_tensor.shape
-    core_tensors = np.zeros((len(cholesky_vecs), n_modes, n_modes))
-    leaf_tensors = np.zeros((len(cholesky_vecs), n_modes, n_modes))
-    for i, mat in enumerate(cholesky_vecs):
+
+    if max_rank is None:
+        max_rank = n_modes * (n_modes + 1) // 2
+
+    reshaped_tensor = np.reshape(two_body_tensor, (n_modes**2, n_modes**2))
+    cholesky_vecs = modified_cholesky(
+        reshaped_tensor, error_threshold=error_threshold, max_vecs=max_rank
+    )
+
+    _, rank = cholesky_vecs.shape
+    core_tensors = np.zeros((rank, n_modes, n_modes))
+    leaf_tensors = np.zeros((rank, n_modes, n_modes))
+    for i in range(rank):
+        mat = np.reshape(cholesky_vecs[:, i], (n_modes, n_modes))
         eigs, vecs = np.linalg.eigh(mat)
-        core_tensors[i] = np.outer(eigs, eigs)
+        core_tensors[i] = np.outer(eigs, eigs.conj())
         leaf_tensors[i] = vecs
+
     return core_tensors, leaf_tensors

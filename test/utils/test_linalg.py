@@ -17,6 +17,7 @@ from test import QiskitNatureTestCase
 
 import numpy as np
 from ddt import data, ddt, unpack
+from qiskit.quantum_info import random_unitary
 
 import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.drivers import PySCFDriver
@@ -43,39 +44,16 @@ class TestModifiedCholesky(QiskitNatureTestCase):
     """Tests for modified Cholesky decomposition."""
 
     @data(4, 5)
-    def test_modified_cholesky_random(self, dim: int):
+    def test_modified_cholesky(self, dim: int):
         """Test modified Cholesky decomposition on a random tensor."""
-        two_body_tensor = random_two_body_tensor_real(dim, seed=9766)
-        cholesky_vecs = modified_cholesky(two_body_tensor)
-        reconstructed = np.einsum("ipq,irs->pqrs", cholesky_vecs, cholesky_vecs)
-        np.testing.assert_allclose(reconstructed, two_body_tensor, atol=1e-8)
-
-    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
-    def test_modified_cholesky_error_threshold_max_rank(self):
-        """Test modified Cholesky decomposition error threshold and max rank."""
-        driver = PySCFDriver(atom="Li 0 0 0; H 0 0 1.6")
-        driver_result = driver.run()
-        electronic_energy = driver_result.hamiltonian
-        two_body_tensor = to_chemist_ordering(electronic_energy.electronic_integrals.alpha["++--"])
-
-        max_rank = 20
-        cholesky_vecs = modified_cholesky(two_body_tensor, max_rank=max_rank)
-        reconstructed = np.einsum("ipq,irs->pqrs", cholesky_vecs, cholesky_vecs)
-        self.assertEqual(len(cholesky_vecs), max_rank)
-        np.testing.assert_allclose(reconstructed, two_body_tensor, atol=1e-5)
-
-        error_threshold = 1e-4
-        cholesky_vecs = modified_cholesky(two_body_tensor, error_threshold=error_threshold)
-        reconstructed = np.einsum("ipq,irs->pqrs", cholesky_vecs, cholesky_vecs)
-        self.assertLessEqual(len(cholesky_vecs), 18)
-        np.testing.assert_allclose(reconstructed, two_body_tensor, atol=error_threshold)
-
-        cholesky_vecs = modified_cholesky(
-            two_body_tensor, error_threshold=error_threshold, max_rank=max_rank
-        )
-        reconstructed = np.einsum("ipq,irs->pqrs", cholesky_vecs, cholesky_vecs)
-        self.assertLessEqual(len(cholesky_vecs), 18)
-        np.testing.assert_allclose(reconstructed, two_body_tensor, atol=error_threshold)
+        rng = np.random.default_rng(4640)
+        # construct a random positive definite matrix
+        unitary = np.array(random_unitary(dim, seed=rng))
+        eigs = rng.uniform(size=dim)
+        mat = unitary @ np.diag(eigs) @ unitary.T.conj()
+        cholesky_vecs = modified_cholesky(mat)
+        reconstructed = np.einsum("ji,ki->jk", cholesky_vecs, cholesky_vecs.conj())
+        np.testing.assert_allclose(reconstructed, mat, atol=1e-8)
 
 
 @ddt
@@ -148,10 +126,3 @@ class TestLowRankTwoBodyDecomposition(QiskitNatureTestCase):
         )
         self.assertLessEqual(len(leaf_tensors), 18)
         np.testing.assert_allclose(reconstructed, two_body_tensor, atol=error_threshold)
-
-    def test_low_rank_two_body_decomposition_validation(self):
-        """Test low rank two-body decomposition."""
-        with self.assertRaisesRegex(ValueError, "real"):
-            _ = low_rank_two_body_decomposition(1j * np.ones(16).reshape((2, 2, 2, 2)))
-        with self.assertRaisesRegex(ValueError, "symmetric"):
-            _ = low_rank_two_body_decomposition(np.arange(16).reshape((2, 2, 2, 2)))
