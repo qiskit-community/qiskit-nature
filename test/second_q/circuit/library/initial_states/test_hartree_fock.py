@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -58,6 +58,15 @@ class TestHartreeFock(QiskitNatureTestCase):
             converter = QubitConverter(BravyiKitaevSuperFastMapper())
             state = HartreeFock(
                 num_spatial_orbitals=2, num_particles=(1, 1), qubit_converter=converter
+            )
+            state.draw()
+
+    def test_raises_on_unsupported_mapper_no_converter(self):
+        """Test if an error is raised for an unsupported mapper."""
+        with self.assertRaises(NotImplementedError):
+            mapper = BravyiKitaevSuperFastMapper()
+            state = HartreeFock(
+                num_spatial_orbitals=2, num_particles=(1, 1), qubit_converter=mapper
             )
             state.draw()
 
@@ -169,6 +178,49 @@ class TestHartreeFock(QiskitNatureTestCase):
                 False,
             ]
             self.assertListEqual(bitstr, ref_notaper)
+
+    def test_hf_bitstring_mapped_with_qubitmapper(self):
+        """Mapped bitstring test for water with qubit mapper"""
+
+        num_spatial_orbitals = 7
+        num_particles = (5, 5)
+        mapper = ParityMapper()
+        converter = QubitConverter(mapper)
+
+        ref_notaper_no_red = [
+            True,
+            False,
+            True,
+            False,
+            True,
+            True,
+            True,
+            False,
+            True,
+            False,
+            True,
+            False,
+            False,
+            False,
+        ]
+
+        with self.subTest("Qubit Converter object"):
+            bitstr = hartree_fock_bitstring_mapped(
+                num_spatial_orbitals=num_spatial_orbitals,
+                num_particles=num_particles,
+                qubit_converter=converter,
+            )
+            self.assertListEqual(bitstr, ref_notaper_no_red)
+
+        with self.subTest("Qubit Mapper object"):
+            bitstr = hartree_fock_bitstring_mapped(
+                num_spatial_orbitals=num_spatial_orbitals,
+                num_particles=num_particles,
+                qubit_converter=mapper,
+            )
+            self.assertListEqual(bitstr, ref_notaper_no_red)
+
+        # TODO: #1018 Add tests for the Parity mapper with two qubit reduction
 
 
 if __name__ == "__main__":

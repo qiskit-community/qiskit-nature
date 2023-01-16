@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -54,7 +54,8 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
         self.reference_energy = -1.1373060356951838
 
-        self.qubit_converter = QubitConverter(JordanWignerMapper())
+        self.mapper = JordanWignerMapper()
+        self.qubit_converter = QubitConverter(self.mapper)
         self.electronic_structure_problem = self.driver.run()
 
         self.num_spatial_orbitals = 2
@@ -79,6 +80,13 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         """Test VQE UCCSD case"""
         solver = VQEUCCFactory(Estimator(), UCC(excitations="d"), SLSQP())
         calc = GroundStateEigensolver(self.qubit_converter, solver)
+        res = calc.solve(self.electronic_structure_problem)
+        self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
+
+    def test_vqe_uccsd_mapper(self):
+        """Test VQE UCCSD case with QubitMapper"""
+        solver = VQEUCCFactory(Estimator(), UCC(excitations="d"), SLSQP())
+        calc = GroundStateEigensolver(self.mapper, solver)
         res = calc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 

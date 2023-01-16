@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -27,7 +27,7 @@ from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library.initial_states.hartree_fock import (
     hartree_fock_bitstring_mapped,
 )
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.properties import Interpretable
 
@@ -270,15 +270,15 @@ class ElectronicStructureProblem(BaseProblem):
     def symmetry_sector_locator(
         self,
         z2_symmetries: Z2Symmetries,
-        converter: QubitConverter,
+        converter: QubitConverter | QubitMapper,
     ) -> Optional[List[int]]:
         """Given the detected Z2Symmetries this determines the correct sector of the tapered
         operator that contains the ground state we need and returns that information.
 
         Args:
             z2_symmetries: the z2 symmetries object.
-            converter: the qubit converter instance used for the operator conversion that
-                symmetries are to be determined for.
+            converter: the ``QubitConverter`` or ``QubitMapper`` instance used for the operator
+                conversion that symmetries are to be determined for.
 
         Raises:
             QiskitNatureError: if the :attr:`num_particles` attribute is ``None``.

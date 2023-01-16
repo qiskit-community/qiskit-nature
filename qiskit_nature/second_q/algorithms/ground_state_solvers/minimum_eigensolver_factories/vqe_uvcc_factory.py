@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -23,7 +23,7 @@ from qiskit.circuit import QuantumCircuit
 from qiskit.primitives import BaseEstimator
 
 from qiskit_nature.second_q.circuit.library import UVCC, VSCF
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.problems import (
     VibrationalStructureProblem,
 )
@@ -114,7 +114,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
     def get_solver(  # type: ignore[override]
         self,
         problem: VibrationalStructureProblem,
-        qubit_converter: QubitConverter,
+        qubit_converter: QubitConverter | QubitMapper,
     ) -> MinimumEigensolver:
         """Returns a VQE with a :class:`~.UVCC` wavefunction ansatz, based on ``qubit_converter``.
 

@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018, 2022.
+# (C) Copyright IBM 2018, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -13,14 +13,13 @@
 """Hartree-Fock initial state."""
 
 from __future__ import annotations
-
 import numpy as np
 from qiskit import QuantumRegister
 from qiskit.circuit.library import BlueprintCircuit
 from qiskit.opflow import PauliSumOp
 from qiskit.utils.validation import validate_min
 
-from qiskit_nature.second_q.mappers import BravyiKitaevSuperFastMapper, QubitConverter
+from qiskit_nature.second_q.mappers import BravyiKitaevSuperFastMapper, QubitConverter, QubitMapper
 from qiskit_nature.second_q.operators import FermionicOp
 
 
@@ -31,14 +30,15 @@ class HartreeFock(BlueprintCircuit):
         self,
         num_spatial_orbitals: int | None = None,
         num_particles: tuple[int, int] | None = None,
-        qubit_converter: QubitConverter | None = None,
+        qubit_converter: QubitConverter | QubitMapper | None = None,
     ) -> None:
         """
         Args:
             num_spatial_orbitals: The number of spatial orbitals.
             num_particles: The number of particles as a tuple storing the number of alpha and
                 beta-spin electrons in the first and second number, respectively.
-            qubit_converter: a :class:`~qiskit_nature.second_q.mappers.QubitConverter` instance.
+            qubit_converter: A :class:`~qiskit_nature.second_q.mappers.QubitConverter` or a
+                :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance.
 
         Raises:
             NotImplementedError: If ``qubit_converter`` contains
@@ -55,12 +55,12 @@ class HartreeFock(BlueprintCircuit):
         self._reset_register()
 
     @property
-    def qubit_converter(self) -> QubitConverter:
+    def qubit_converter(self) -> QubitConverter | QubitMapper | None:
         """The qubit converter."""
         return self._qubit_converter
 
     @qubit_converter.setter
-    def qubit_converter(self, conv: QubitConverter) -> None:
+    def qubit_converter(self, conv: QubitConverter | QubitMapper | None) -> None:
         """Sets the qubit converter."""
         self._invalidate()
         self._qubit_converter = conv
@@ -147,11 +147,17 @@ class HartreeFock(BlueprintCircuit):
                 raise ValueError("The qubit converter cannot be `None`.")
             return False
 
-        if isinstance(self.qubit_converter.mapper, BravyiKitaevSuperFastMapper):
+        mapper = (
+            self.qubit_converter
+            if isinstance(self.qubit_converter, QubitMapper)
+            else self.qubit_converter.mapper
+        )
+
+        if isinstance(mapper, BravyiKitaevSuperFastMapper):
             if raise_on_failure:
                 raise NotImplementedError(
                     "Unsupported mapper in qubit converter: ",
-                    type(self.qubit_converter.mapper),
+                    type(mapper),
                     ". See https://github.com/Qiskit/qiskit-nature/issues/537",
                 )
             return False
@@ -197,7 +203,7 @@ class HartreeFock(BlueprintCircuit):
 def hartree_fock_bitstring_mapped(
     num_spatial_orbitals: int,
     num_particles: tuple[int, int],
-    qubit_converter: QubitConverter,
+    qubit_converter: QubitConverter | QubitMapper,
     *,
     match_convert: bool = True,
 ) -> list[bool]:
@@ -207,7 +213,7 @@ def hartree_fock_bitstring_mapped(
         num_spatial_orbitals: The number of spatial orbitals, has a min. value of 1.
         num_particles: The number of particles as a tuple (alpha, beta) containing the number of
             alpha- and  beta-spin electrons, respectively.
-        qubit_converter: A QubitConverter instance.
+        qubit_converter: A QubitConverter or QubitMapper instance.
         match_convert: Whether to use `convert_match` method of the qubit converter (default),
             or just do mapping and possibly two qubit reduction but no tapering. The latter
             is an advanced usage - e.g. if we are trying to auto-select the tapering sector
@@ -227,11 +233,14 @@ def hartree_fock_bitstring_mapped(
     )
 
     # map the `FermionicOp` to a qubit operator
-    qubit_op: PauliSumOp = (
-        qubit_converter.convert_match(bitstr_op, check_commutes=False)
-        if match_convert
-        else qubit_converter.convert_only(bitstr_op, num_particles)
-    )
+    qubit_op: PauliSumOp
+    if isinstance(qubit_converter, QubitConverter):
+        if match_convert:
+            qubit_op = qubit_converter.convert_match(bitstr_op, check_commutes=False)
+        else:
+            qubit_op = qubit_converter.convert_only(bitstr_op, num_particles)
+    else:
+        qubit_op = qubit_converter.map(bitstr_op)
 
     # We check the mapped operator `x` part of the paulis because we want to have particles
     # i.e. True, where the initial state introduced a creation (`+`) operator.

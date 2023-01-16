@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -28,7 +28,8 @@ class TestSlaterDeterminant(QiskitNatureTestCase):
     def test_slater_determinant(self):
         """Test preparing Slater determinants."""
         n_orbitals = 5
-        converter = QubitConverter(JordanWignerMapper())
+        mapper = JordanWignerMapper()
+        converter = QubitConverter(mapper)
         quad_ham = random_quadratic_hamiltonian(n_orbitals, num_conserving=True, seed=8839)
         (
             transformation_matrix,
@@ -36,15 +37,28 @@ class TestSlaterDeterminant(QiskitNatureTestCase):
             transformed_constant,
         ) = quad_ham.diagonalizing_bogoliubov_transform()
         fermionic_op = quad_ham.second_q_op()
-        qubit_op = converter.convert(fermionic_op)
-        matrix = qubit_op.to_matrix()
-        for n_particles in range(n_orbitals + 1):
-            circuit = SlaterDeterminant(
-                transformation_matrix[:n_particles], qubit_converter=converter
-            )
-            final_state = np.array(Statevector(circuit))
-            eig = np.sum(orbital_energies[:n_particles]) + transformed_constant
-            np.testing.assert_allclose(matrix @ final_state, eig * final_state, atol=1e-7)
+
+        with self.subTest("Qubit Converter object"):
+            qubit_op = converter.convert(fermionic_op)
+            matrix = qubit_op.to_matrix()
+            for n_particles in range(n_orbitals + 1):
+                circuit = SlaterDeterminant(
+                    transformation_matrix[:n_particles], qubit_converter=converter
+                )
+                final_state = np.array(Statevector(circuit))
+                eig = np.sum(orbital_energies[:n_particles]) + transformed_constant
+                np.testing.assert_allclose(matrix @ final_state, eig * final_state, atol=1e-7)
+
+        with self.subTest("Qubit Mapper object"):
+            qubit_op = mapper.map(fermionic_op)
+            matrix = qubit_op.to_matrix()
+            for n_particles in range(n_orbitals + 1):
+                circuit = SlaterDeterminant(
+                    transformation_matrix[:n_particles], qubit_converter=mapper
+                )
+                final_state = np.array(Statevector(circuit))
+                eig = np.sum(orbital_energies[:n_particles]) + transformed_constant
+                np.testing.assert_allclose(matrix @ final_state, eig * final_state, atol=1e-7)
 
     def test_no_side_effects(self):
         """Test that the routines don't mutate the input array."""
@@ -74,3 +88,8 @@ class TestSlaterDeterminant(QiskitNatureTestCase):
         """Test passing unsupported mapper fails gracefully."""
         with self.assertRaisesRegex(NotImplementedError, "supported"):
             _ = SlaterDeterminant(np.eye(2), qubit_converter=QubitConverter(BravyiKitaevMapper()))
+
+    def test_unsupported_mapper_no_converter(self):
+        """Test passing unsupported mapper fails gracefully when bypassing the qubit converter."""
+        with self.assertRaisesRegex(NotImplementedError, "supported"):
+            _ = SlaterDeterminant(np.eye(2), qubit_converter=BravyiKitaevMapper())

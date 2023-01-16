@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -22,7 +22,7 @@ from qiskit.utils import algorithm_globals
 
 from qiskit_nature.second_q.circuit.library import UVCC
 from qiskit_nature.second_q.operators import VibrationalOp
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 
 
 def build_vibrational_ops(
@@ -34,7 +34,7 @@ def build_vibrational_ops(
         [int, tuple[int, int]],
         list[tuple[tuple[int, ...], tuple[int, ...]]],
     ],
-    qubit_converter: QubitConverter,
+    qubit_converter: QubitConverter | QubitMapper,
 ) -> Tuple[
     Dict[str, PauliSumOp],
     Dict[str, List[bool]],
@@ -50,9 +50,9 @@ def build_vibrational_ops(
             - and finally a callable which can be used to specify a custom list of excitations.
               For more details on how to write such a function refer to the default method,
               :meth:`generate_vibrational_excitations`.
-        qubit_converter: The ``QubitConverter`` to use for mapping and symmetry reduction. The Z2
-                         symmetries stored in this instance are the basis for the commutativity
-                         information returned by this method.
+        qubit_converter: The ``QubitConverter`` or ``QubitMapper`` to use for mapping and symmetry
+            reduction. Note that the ``QubitConverter`` will use its stored Z2 symmetries as basis for
+            the commutativity information returned by this method.
     Returns:
         Dict of hopping operators, dict of commutativity types and dict of excitation indices.
     """
@@ -91,7 +91,7 @@ def build_vibrational_ops(
 def _build_single_hopping_operator(
     excitation: Tuple[Tuple[int, ...], Tuple[int, ...]],
     num_modals: List[int],
-    qubit_converter: QubitConverter,
+    qubit_converter: QubitConverter | QubitMapper,
 ) -> PauliSumOp:
     label = []
     for occ in excitation[0]:
@@ -100,6 +100,11 @@ def _build_single_hopping_operator(
         label.append(f"-_{VibrationalOp.build_dual_index(num_modals, unocc)}")
 
     vibrational_op = VibrationalOp({" ".join(label): 1}, num_modals)
-    qubit_op: PauliSumOp = qubit_converter.convert_match(vibrational_op)
+
+    qubit_op: PauliSumOp
+    if isinstance(qubit_converter, QubitConverter):
+        qubit_op = qubit_converter.convert_match(vibrational_op)
+    else:
+        qubit_op = qubit_converter.map(vibrational_op)
 
     return qubit_op

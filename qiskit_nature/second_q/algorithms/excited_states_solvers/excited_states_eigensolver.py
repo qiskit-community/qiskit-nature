@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -21,7 +21,7 @@ from typing import Union, Optional, Tuple
 from qiskit.algorithms.eigensolvers import Eigensolver
 from qiskit.opflow import PauliSumOp
 
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.second_q.problems import EigenstateResult
@@ -37,15 +37,14 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
 
     def __init__(
         self,
-        qubit_converter: QubitConverter,
+        qubit_converter: QubitConverter | QubitMapper,
         solver: Union[Eigensolver, EigensolverFactory],
     ) -> None:
         """
 
         Args:
-            qubit_converter: The ``QubitConverter`` to use for mapping and symmetry reduction. The
-                             Z2 symmetries stored in this instance are the basis for the
-                             commutativity information returned by this method.
+            qubit_converter: The ``QubitConverter`` or ``QubitMapper`` to use for mapping and symmetry
+                reduction.
             solver: Minimum Eigensolver or MESFactory object.
         """
         self._qubit_converter = qubit_converter
@@ -72,19 +71,27 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
 
         num_particles = getattr(problem, "num_particles", None)
 
-        main_operator = self._qubit_converter.convert(
-            main_second_q_op,
-            num_particles=num_particles,
-            sector_locator=problem.symmetry_sector_locator,
-        )
-        aux_ops = self._qubit_converter.convert_match(aux_second_q_ops)
+        if isinstance(self._qubit_converter, QubitConverter):
+            main_operator = self._qubit_converter.convert(
+                main_second_q_op,
+                num_particles=num_particles,
+                sector_locator=problem.symmetry_sector_locator,
+            )
+            aux_ops = self._qubit_converter.convert_match(aux_second_q_ops)
+
+        else:
+            main_operator = self._qubit_converter.map(main_second_q_op)
+            aux_ops = self._qubit_converter.map(aux_second_q_ops)
 
         if aux_operators is not None:
             for name_aux, aux_op in aux_operators.items():
                 if isinstance(aux_op, SparseLabelOp):
-                    converted_aux_op = self._qubit_converter.convert_match(
-                        aux_op, suppress_none=True
-                    )
+                    if isinstance(self._qubit_converter, QubitConverter):
+                        converted_aux_op = self._qubit_converter.convert_match(
+                            aux_op, suppress_none=True
+                        )
+                    else:
+                        converted_aux_op = self._qubit_converter.map(aux_op)
                 else:
                     converted_aux_op = aux_op
                 if name_aux in aux_ops.keys():

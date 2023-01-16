@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -23,7 +23,7 @@ from qiskit.circuit.library import EvolvedOperatorAnsatz
 from qiskit.opflow import PauliTrotterEvolution
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.operators import SparseLabelOp, VibrationalOp
 
 from .utils.vibration_excitation_generator import generate_vibration_excitations
@@ -73,7 +73,7 @@ class UVCC(EvolvedOperatorAnsatz):
             list[tuple[tuple[int, ...], tuple[int, ...]]],
         ]
         | None = None,
-        qubit_converter: QubitConverter | None = None,
+        qubit_converter: QubitConverter | QubitMapper | None = None,
         *,
         reps: int = 1,
         initial_state: QuantumCircuit | None = None,
@@ -97,8 +97,9 @@ class UVCC(EvolvedOperatorAnsatz):
                     ``list[tuple[tuple[int, ...], tuple[int, ...]]]``. For more information on
                     how to write such a callable refer to the default method :meth:`~qiskit_nature.\
                     second_q.circuit.library.ansatzes.utils.generate_vibration_excitations`.
-            qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` instance
-                which takes care of mapping to a qubit operator.
+            qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` or
+                :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance which takes care of mapping
+                to a qubit operator.
             reps: The number of repetitions of basic module.
             initial_state: A ``QuantumCircuit`` object to prepend to the circuit. Note that this
                 setting does *not* influence the ``excitations``. When relying on the default
@@ -132,12 +133,12 @@ class UVCC(EvolvedOperatorAnsatz):
         _ = self.operators
 
     @property
-    def qubit_converter(self) -> QubitConverter | None:
+    def qubit_converter(self) -> QubitConverter | QubitMapper | None:
         """The qubit operator converter."""
         return self._qubit_converter
 
     @qubit_converter.setter
-    def qubit_converter(self, conv: QubitConverter) -> None:
+    def qubit_converter(self, conv: QubitConverter | QubitMapper) -> None:
         """Sets the qubit operator converter."""
         self._operators = None
         self._invalidate()
@@ -206,7 +207,13 @@ class UVCC(EvolvedOperatorAnsatz):
                 # inserting ``None`` as the result if an operator did not commute. To ensure that
                 # the ``excitation_list`` is transformed identically to the operators, we retain
                 # ``None`` for non-commuting operators in order to manually remove them in unison.
-                operators = self.qubit_converter.convert_match(excitation_ops, suppress_none=False)
+                if isinstance(self.qubit_converter, QubitConverter):
+                    operators = self.qubit_converter.convert_match(
+                        excitation_ops, suppress_none=False
+                    )
+                else:
+                    operators = self.qubit_converter.map(excitation_ops)
+
                 valid_operators, valid_excitations = [], []
                 for op, ex in zip(operators, self._excitation_list):
                     if op is not None:

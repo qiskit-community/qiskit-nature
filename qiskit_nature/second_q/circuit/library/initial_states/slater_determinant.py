@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,11 +12,13 @@
 
 """Slater determinants."""
 
+from __future__ import annotations
+
 from typing import Optional
 
 import numpy as np
 from qiskit import QuantumCircuit, QuantumRegister
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.mappers import JordanWignerMapper
 
 from .utils.givens_rotations import _prepare_slater_determinant_jw
@@ -74,7 +76,7 @@ class SlaterDeterminant(QuantumCircuit):
     def __init__(
         self,
         transformation_matrix: np.ndarray,
-        qubit_converter: Optional[QubitConverter] = None,
+        qubit_converter: QubitConverter | QubitMapper | None = None,
         *,
         validate: bool = True,
         rtol: float = 1e-5,
@@ -86,7 +88,7 @@ class SlaterDeterminant(QuantumCircuit):
             transformation_matrix: The matrix :math:`Q` that specifies the coefficients of the
                 new creation operators in terms of the original creation operators.
                 The rows of the matrix must be orthonormal.
-            qubit_converter: The qubit converter. The default behavior is to create
+            qubit_converter: The ``QubitConverter`` or ``QubitMapper``. The default behavior is to create
                 one using the call ``QubitConverter(JordanWignerMapper())``.
             validate: Whether to validate the inputs.
             rtol: Relative numerical tolerance for input validation.
@@ -111,7 +113,10 @@ class SlaterDeterminant(QuantumCircuit):
         register = QuantumRegister(n)
         super().__init__(register, **circuit_kwargs)
 
-        if isinstance(qubit_converter.mapper, JordanWignerMapper):
+        if (
+            isinstance(qubit_converter, QubitConverter)
+            and isinstance(qubit_converter.mapper, JordanWignerMapper)
+        ) or (isinstance(qubit_converter, JordanWignerMapper)):
             operations = _prepare_slater_determinant_jw(register, transformation_matrix)
             for gate, qubits in operations:
                 self.append(gate, qubits)

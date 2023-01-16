@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -54,5 +54,5 @@ class ParityMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
 
         return pauli_table
 
-    def map(self, second_q_op: FermionicOp) -> PauliSumOp:
+    def _map_single(self, second_q_op: FermionicOp) -> PauliSumOp:
         return ParityMapper.mode_based_mapping(second_q_op, second_q_op.register_length)

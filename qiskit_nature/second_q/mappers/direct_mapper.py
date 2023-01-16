@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -49,5 +49,5 @@ class DirectMapper(VibrationalMapper):  # pylint: disable=missing-class-docstrin
 
         return pauli_table
 
-    def map(self, second_q_op: VibrationalOp) -> PauliSumOp:
+    def _map_single(self, second_q_op: VibrationalOp) -> PauliSumOp:
         return DirectMapper.mode_based_mapping(second_q_op, sum(second_q_op.num_modals))

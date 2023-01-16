@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -22,7 +22,7 @@ from qiskit.algorithms.eigensolvers import EigensolverResult
 from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
 from qiskit.opflow import Z2Symmetries
 
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.hamiltonians import Hamiltonian
 
@@ -78,7 +78,7 @@ class BaseProblem:
     def symmetry_sector_locator(
         self,
         z2_symmetries: Z2Symmetries,
-        converter: QubitConverter,
+        converter: QubitConverter | QubitMapper,
     ) -> list[int] | None:
         # pylint: disable=unused-argument
         """Given the detected Z2Symmetries, it can determine the correct sector of the tapered
@@ -86,8 +86,8 @@ class BaseProblem:
 
         Args:
             z2_symmetries: the z2 symmetries object.
-            converter: the qubit converter instance used for the operator conversion that
-                symmetries are to be determined for.
+            converter: the ``QubitConverter`` or ``QubitMapper`` instance used for the operator
+                conversion that symmetries are to be determined for.
 
         Returns:
             the sector of the tapered operators with the problem solution

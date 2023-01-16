@@ -47,7 +47,7 @@ from qiskit_nature.second_q.algorithms.ground_state_solvers.minimum_eigensolver_
 from qiskit_nature.second_q.algorithms.excited_states_solvers.excited_states_solver import (
     ExcitedStatesSolver,
 )
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.problems import (
     BaseProblem,
@@ -158,7 +158,7 @@ class QEOM(ExcitedStatesSolver):
         self._untapered_qubit_op_main: QubitOperator | None = None
 
     @property
-    def qubit_converter(self) -> QubitConverter:
+    def qubit_converter(self) -> QubitConverter | QubitMapper:
         """Returns the qubit_converter object defined in the ground state solver."""
         return self._gsc.qubit_converter
 
@@ -193,21 +193,35 @@ class QEOM(ExcitedStatesSolver):
 
         # 1. Convert the main operator (hamiltonian) to QubitOperator and apply two qubit reduction
         num_particles = getattr(problem, "num_particles", None)
-        main_op = self.qubit_converter.convert_only(
-            main_operator,
-            num_particles=num_particles,
-        )
+
+        if isinstance(self.qubit_converter, QubitConverter):
+            main_op = self.qubit_converter.convert_only(
+                main_operator,
+                num_particles=num_particles,
+            )
+        else:
+            main_op = self.qubit_converter.map(main_operator)
+
         # aux_ops set to None if the solver does not support auxiliary operators.
         aux_ops = None
 
         if self.solver.supports_aux_operators():
-            self.qubit_converter.force_match(num_particles=num_particles)
-            aux_ops = self.qubit_converter.convert_match(aux_second_q_operators)
+            if isinstance(self.qubit_converter, QubitConverter):
+                self.qubit_converter.force_match(num_particles=num_particles)
+                aux_ops = self.qubit_converter.convert_match(aux_second_q_operators)
+
+            else:
+                aux_ops = self.qubit_converter.map(aux_second_q_operators)
+
             cast(ListOrDictType[QubitOperator], aux_ops)
             if aux_operators is not None:
                 for name, op in aux_operators.items():
                     if isinstance(op, (SparseLabelOp)):
-                        converted_aux_op = self.qubit_converter.convert_match(op)
+                        if isinstance(self.qubit_converter, QubitConverter):
+                            converted_aux_op = self.qubit_converter.convert_match(op)
+                        else:
+                            converted_aux_op = self.qubit_converter.map(op)
+
                     else:
                         converted_aux_op = op
                     if name in aux_ops.keys():
@@ -224,12 +238,19 @@ class QEOM(ExcitedStatesSolver):
 
         # 2. Find the z2symmetries, set them in the qubit_converter, and apply the first step of the
         # tapering.
-        _, z2symmetries = self.qubit_converter.find_taper_op(
-            main_op, problem.symmetry_sector_locator
-        )
-        self.qubit_converter.force_match(z2symmetries=z2symmetries)
-        untap_main_op = self.qubit_converter.convert_clifford(main_op)
-        untap_aux_ops = self.qubit_converter.convert_clifford(aux_ops)
+        if isinstance(self.qubit_converter, QubitConverter):
+            _, z2symmetries = self.qubit_converter.find_taper_op(
+                main_op, problem.symmetry_sector_locator
+            )
+            self.qubit_converter.force_match(z2symmetries=z2symmetries)
+            untap_main_op = self.qubit_converter.convert_clifford(main_op)
+            untap_aux_ops = self.qubit_converter.convert_clifford(aux_ops)
+        else:
+            # TODO: Issue #974 sketches the construction of a Tapered Qubit Mapper which would implement
+            # the logic of the symmetries. Here, there should be a check for a Tapered Qubit Mapper and
+            # a similar logic that used above.
+            untap_main_op = main_op
+            untap_aux_ops = aux_ops
 
         # 4. If a MinimumEigensolverFactory was provided, then an additional call to get_solver() is
         # required.
@@ -264,7 +285,10 @@ class QEOM(ExcitedStatesSolver):
 
         # 2. Run ground state calculation with fully tapered custom auxiliary operators
         # Note that the solve() method includes the `second_q' auxiliary operators
-        tap_aux_operators = self.qubit_converter.symmetry_reduce_clifford(untap_aux_ops)
+        if isinstance(self.qubit_converter, QubitConverter):
+            tap_aux_operators = self.qubit_converter.symmetry_reduce_clifford(untap_aux_ops)
+        else:
+            tap_aux_operators = untap_aux_ops
 
         groundstate_result = self._gsc.solve(problem, tap_aux_operators)
         ground_state = groundstate_result.eigenstates[0]
@@ -383,9 +407,12 @@ class QEOM(ExcitedStatesSolver):
                 right_op_2 = available_hopping_ops.get(f"Edag_{n_u}")
                 to_be_computed_list.append((m_u, n_u, left_op_1, right_op_1, right_op_2))
 
-        try:
-            z2_symmetries = self._gsc.qubit_converter.z2symmetries
-        except AttributeError:
+        if isinstance(self.qubit_converter, QubitConverter):
+            try:
+                z2_symmetries = self.qubit_converter.z2symmetries
+            except AttributeError:
+                z2_symmetries = Z2Symmetries([], [], [])
+        else:
             z2_symmetries = Z2Symmetries([], [], [])
 
         if not z2_symmetries.is_empty():
@@ -583,11 +610,17 @@ class QEOM(ExcitedStatesSolver):
         size = int(len(list(excitation_indices.keys())) // 2)
 
         # Small workaround to apply two_qubit_reduction to a list with convert_match()
-        z2_symmetries = self.qubit_converter.z2symmetries
-        self.qubit_converter.force_match(z2symmetries=Z2Symmetries([], [], []))
-        reduced_hopping_ops = self.qubit_converter.convert_match(hopping_operators)
-        self.qubit_converter.force_match(z2symmetries=z2_symmetries)
-        untap_hopping_ops = self.qubit_converter.convert_clifford(reduced_hopping_ops)
+        if isinstance(self.qubit_converter, QubitConverter):
+            num_particles = self.qubit_converter.num_particles
+
+            reduced_hopping_ops = {}
+            for hopping_name, hopping_op in hopping_operators.items():
+                reduced_hopping_ops[hopping_name] = self.qubit_converter._two_qubit_reduce(
+                    hopping_op, num_particles
+                )
+            untap_hopping_ops = self.qubit_converter.convert_clifford(reduced_hopping_ops)
+        else:
+            untap_hopping_ops = hopping_operators
 
         return untap_hopping_ops, type_of_commutativities, size
 
@@ -699,7 +732,10 @@ class QEOM(ExcitedStatesSolver):
         """
 
         untap_hopping_ops, _, size = expansion_basis_data
-        tap_hopping_ops = self.qubit_converter.symmetry_reduce_clifford(untap_hopping_ops)
+        if isinstance(self.qubit_converter, QubitConverter):
+            tap_hopping_ops = self.qubit_converter.symmetry_reduce_clifford(untap_hopping_ops)
+        else:
+            tap_hopping_ops = untap_hopping_ops
 
         additionnal_measurements = estimate_observables(
             self._estimator, reference_state[0], tap_hopping_ops, reference_state[1]
@@ -843,7 +879,11 @@ class QEOM(ExcitedStatesSolver):
             )
 
             # 3. Measure observables
-            tap_op_aux_op_dict = self.qubit_converter.symmetry_reduce_clifford(op_aux_op_dict)
+            if isinstance(self.qubit_converter, QubitConverter):
+                tap_op_aux_op_dict = self.qubit_converter.symmetry_reduce_clifford(op_aux_op_dict)
+            else:
+                tap_op_aux_op_dict = op_aux_op_dict
+
             aux_measurements = estimate_observables(
                 self._estimator, reference_state[0], tap_op_aux_op_dict, reference_state[1]
             )
