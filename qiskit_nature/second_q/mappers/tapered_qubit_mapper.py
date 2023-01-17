@@ -35,8 +35,8 @@ logger = logging.getLogger(__name__)
 
 
 class TaperedQubitMapper(QubitMapper):  # pylint: disable=missing-class-docstring
-    """The wrapper around qubit mappers implementing the logic for Z2 symmetry reduction to reduce a
-    problem (operator) size based on mathematical symmetries that can be detected in the operator.
+    """The wrapper around qubit mappers implementing the logic to reduce the size of a problem (operator)
+    based on mathematical `Z2Symmetries` that can be automatically detected in the operator.
     """
 
     def __init__(
