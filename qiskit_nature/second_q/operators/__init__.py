@@ -37,6 +37,7 @@ Modules
    :toctree:
 
    tensor_ordering
+   symmetric_two_body
    commutators
 """
 

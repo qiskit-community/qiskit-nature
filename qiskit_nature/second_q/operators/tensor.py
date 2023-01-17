@@ -14,6 +14,7 @@
 
 from __future__ import annotations
 
+import re
 import string
 from numbers import Number
 from typing import Any, Generator, Sequence, Type, Union, cast
@@ -67,14 +68,17 @@ else:
 ARRAY_TYPE = Union[np.ndarray, SparseArray]
 
 
-def _unpack_args(sequence: Sequence) -> Sequence[ARRAY_TYPE]:
-    """An internal utility to recursively unpack a sequence of array-like objects."""
-    seq: list[ARRAY_TYPE] = []
+def _unpack_args(sequence: Sequence) -> Sequence[ARRAY_TYPE | str]:
+    """An internal utility to recursively unpack a sequence of array-like objects or string
+    arguments used in some numpy function."""
+    seq: list[ARRAY_TYPE | str] = []
     for obj in sequence:
-        if isinstance(obj, Sequence):
-            seq.append(_unpack_args(obj))
-        elif isinstance(obj, Tensor):
+        if isinstance(obj, Tensor):
             seq.append(obj.array)
+        elif isinstance(obj, str):
+            seq.append(obj)
+        elif isinstance(obj, Sequence):
+            seq.append(_unpack_args(obj))
         else:
             seq.append(obj)
     return seq
@@ -149,7 +153,10 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
                     new_inputs.append(i._array)
                 else:
                     new_inputs.append(i)
-            return ufunc(*new_inputs, **kwargs)
+            ret = ufunc(*new_inputs, **kwargs)
+            if isinstance(ret, (np.ndarray, SparseArray)):
+                return self.__array_wrap__(ret)
+            return ret
         else:
             return NotImplemented
 
@@ -161,7 +168,10 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
         https://numpy.org/doc/stable/reference/arrays.classes.html#numpy.class.__array_function__
         """
         new_args = _unpack_args(args)
-        return self.__array_wrap__(func(*new_args, **kwargs))
+        ret = func(*new_args, **kwargs)
+        if isinstance(ret, (np.ndarray, SparseArray)):
+            return self.__array_wrap__(ret)
+        return ret
 
     # pylint: disable=unused-argument
     def __array_wrap__(self, array: ARRAY_TYPE, context=None) -> Tensor:
@@ -329,6 +339,22 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
     @label_template.setter
     def label_template(self, label_template: str | None) -> None:
         self._label_template = label_template
+
+    def _reverse_label_template(self, seq: Sequence) -> list:
+        """Reverses the effect of a possibly custom ordering of operators in ``label_template``.
+
+        Args:
+            seq: a sequence to be re-ordered to reverse the possibly custom ordering.
+
+        Returns:
+            The re-ordered sequence.
+        """
+        formatted = self.label_template.format(*("",) * len(self.shape)).format(*range(len(seq)))
+        ordered_ints = [
+            (int(label), idx) for idx, label in enumerate(re.findall(r"\d+", formatted))
+        ]
+        _, permutation = zip(*sorted(ordered_ints))
+        return list(seq[idx] for idx in permutation)
 
     @_optionals.HAS_SPARSE.require_in_call
     def is_sparse(self) -> bool:

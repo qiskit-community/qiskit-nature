@@ -484,9 +484,13 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         for akey, bkey in product(a, b):
             new_key = akey + bkey
 
+            atensor = a[akey]
+            btensor = b[bkey]
             # TODO: remove these once settings.tensor_unwrapping is removed
-            atensor = Tensor(a[akey])
-            btensor = Tensor(b[bkey])
+            if not isinstance(atensor, Tensor):
+                atensor = Tensor(atensor)
+            if not isinstance(btensor, Tensor):
+                btensor = Tensor(btensor)
 
             outer = atensor.compose(btensor, qargs=qargs, front=True)
 
@@ -545,9 +549,13 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         new_data: dict[str, Tensor] = {}
         for akey, bkey in product(a, b):
 
+            atensor = a[akey]
+            btensor = b[bkey]
             # TODO: remove these once settings.tensor_unwrapping is removed
-            atensor = Tensor(a[akey])
-            btensor = Tensor(b[bkey])
+            if not isinstance(atensor, Tensor):
+                atensor = Tensor(atensor)
+            if not isinstance(btensor, Tensor):
+                btensor = Tensor(btensor)
 
             einsum = atensor.tensor(btensor)
 
@@ -615,8 +623,7 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         common_keys = set.intersection(*(set(op) for op in operands))
         new_data: dict[str, Tensor] = {}
         for key in common_keys:
-            # TODO: remove extra-wrapping of Tensor once settings.tensor_unwrapping is removed
-            new_data[key] = Tensor(function(*(Tensor(op[key]).array for op in operands)))
+            new_data[key] = cast(Tensor, function(*(op[key] for op in operands)))
         return cls(new_data, validate=validate)
 
     @classmethod
@@ -698,15 +705,14 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         for einsum, terms in einsum_map.items():
             *inputs, output = terms
             try:
-                result = einsum_func(
-                    einsum,
-                    # TODO: remove extra-wrapping of Tensor once settings.tensor_unwrapping is removed
-                    *[
-                        Tensor(operand_list[idx]._data[term]).array
-                        for idx, term in enumerate(inputs)
-                    ],
-                    optimize=settings.optimize_einsum,
-                )
+                # TODO: remove extra-wrapping of Tensor once settings.tensor_unwrapping is removed
+                ops = []
+                for idx, term in enumerate(inputs):
+                    op = operand_list[idx]._data[term]
+                    if not isinstance(op, Tensor):
+                        op = Tensor(op)
+                    ops.append(op)
+                result = einsum_func(einsum, *ops, optimize=settings.optimize_einsum)
             except KeyError:
                 continue
             if output in new_data:
