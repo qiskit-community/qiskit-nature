@@ -83,46 +83,49 @@ class TestLowRankTwoBodyDecomposition(QiskitNatureTestCase):
         electronic_energy = driver_result.hamiltonian
         two_body_tensor = to_chemist_ordering(electronic_energy.electronic_integrals.alpha["++--"])
 
-        max_rank = 20
-        core_tensors, leaf_tensors = low_rank_two_body_decomposition(
-            two_body_tensor, max_rank=max_rank
-        )
-        reconstructed = np.einsum(
-            "tpk,tqk,tkl,trl,tsl->pqrs",
-            leaf_tensors,
-            leaf_tensors,
-            core_tensors,
-            leaf_tensors,
-            leaf_tensors,
-        )
-        self.assertEqual(len(leaf_tensors), max_rank)
-        np.testing.assert_allclose(reconstructed, two_body_tensor, atol=1e-5)
+        with self.subTest("max rank"):
+            max_rank = 20
+            core_tensors, leaf_tensors = low_rank_two_body_decomposition(
+                two_body_tensor, max_rank=max_rank
+            )
+            reconstructed = np.einsum(
+                "tpk,tqk,tkl,trl,tsl->pqrs",
+                leaf_tensors,
+                leaf_tensors,
+                core_tensors,
+                leaf_tensors,
+                leaf_tensors,
+            )
+            self.assertEqual(len(leaf_tensors), max_rank)
+            np.testing.assert_allclose(reconstructed, two_body_tensor, atol=1e-5)
 
-        error_threshold = 1e-4
-        core_tensors, leaf_tensors = low_rank_two_body_decomposition(
-            two_body_tensor, error_threshold=error_threshold
-        )
-        reconstructed = np.einsum(
-            "tpk,tqk,tkl,trl,tsl->pqrs",
-            leaf_tensors,
-            leaf_tensors,
-            core_tensors,
-            leaf_tensors,
-            leaf_tensors,
-        )
-        self.assertLessEqual(len(leaf_tensors), 18)
-        np.testing.assert_allclose(reconstructed, two_body_tensor, atol=error_threshold)
+        with self.subTest("error threshold"):
+            error_threshold = 1e-4
+            core_tensors, leaf_tensors = low_rank_two_body_decomposition(
+                two_body_tensor, error_threshold=error_threshold
+            )
+            reconstructed = np.einsum(
+                "tpk,tqk,tkl,trl,tsl->pqrs",
+                leaf_tensors,
+                leaf_tensors,
+                core_tensors,
+                leaf_tensors,
+                leaf_tensors,
+            )
+            self.assertLessEqual(len(leaf_tensors), 18)
+            np.testing.assert_allclose(reconstructed, two_body_tensor, atol=error_threshold)
 
-        core_tensors, leaf_tensors = low_rank_two_body_decomposition(
-            two_body_tensor, error_threshold=error_threshold, max_rank=max_rank
-        )
-        reconstructed = np.einsum(
-            "tpk,tqk,tkl,trl,tsl->pqrs",
-            leaf_tensors,
-            leaf_tensors,
-            core_tensors,
-            leaf_tensors,
-            leaf_tensors,
-        )
-        self.assertLessEqual(len(leaf_tensors), 18)
-        np.testing.assert_allclose(reconstructed, two_body_tensor, atol=error_threshold)
+        with self.subTest("error threshold and max rank"):
+            core_tensors, leaf_tensors = low_rank_two_body_decomposition(
+                two_body_tensor, error_threshold=error_threshold, max_rank=max_rank
+            )
+            reconstructed = np.einsum(
+                "tpk,tqk,tkl,trl,tsl->pqrs",
+                leaf_tensors,
+                leaf_tensors,
+                core_tensors,
+                leaf_tensors,
+                leaf_tensors,
+            )
+            self.assertLessEqual(len(leaf_tensors), 18)
+            np.testing.assert_allclose(reconstructed, two_body_tensor, atol=error_threshold)

@@ -191,17 +191,22 @@ def modified_cholesky(
     .. math::
         M = \sum_{i=1}^N v_i v_i^\dagger
 
-    where each :math:`v_i` is a vector. `M` must be positive definite.
-    No checking is performed to verify whether `M` is positive definite.
+    where each :math:`v_i` is a vector. :math:`M` must be positive definite.
+    No checking is performed to verify whether :math:`M` is positive definite.
     The number of terms :math:`N` in the decomposition depends on the allowed
     error threshold. A larger error threshold may yield a smaller number of terms.
-    Furthermore, the `max_vecs` parameter specifies an optional upper bound
-    on :math:`N`. The `max_vecs` parameter is always respected, so if it is
+    Furthermore, the ``max_vecs`` parameter specifies an optional upper bound
+    on :math:`N`. The ``max_vecs`` parameter is always respected, so if it is
     too small, then the error of the decomposition may exceed the specified
     error threshold.
 
+    .. note::
+        No checking is performed to verify whether the input matrix is positive definite.
+        If the input matrix is not positive definite, then the decomposition returned will be invalid.
+
     References:
         - `arXiv:1711.02242`_
+        - `International Journal of Quantum Chemistry 12, 683 (1977)`_
 
     Args:
         mat: The matrix to decompose.
@@ -212,10 +217,11 @@ def modified_cholesky(
         max_vecs: The maximum number of vectors to include in the decomposition.
 
     Returns:
-        The Cholesky vectors v_i assembled into a 2-dimensional Numpy array
+        The Cholesky vectors ``v_i`` assembled into a 2-dimensional Numpy array
         whose columns are the vectors.
 
     .. _arXiv:1711.02242: https://arxiv.org/abs/1711.02242
+    .. _International Journal of Quantum Chemistry 12, 683 (1977): https://doi.org/10.1002/qua.560120408
     """
     dim, _ = mat.shape
 
@@ -257,10 +263,20 @@ def low_rank_two_body_decomposition(
 
     The number of terms :math:`N` in the decomposition depends on the allowed
     error threshold. A larger error threshold may yield a smaller number of terms.
-    Furthermore, the `max_vecs` parameter specifies an optional upper bound
-    on :math:`N`. The `max_vecs` parameter is always respected, so if it is
+    Furthermore, the ``max_rank`` parameter specifies an optional upper bound
+    on :math:`N`. The ``max_rank`` parameter is always respected, so if it is
     too small, then the error of the decomposition may exceed the specified
     error threshold.
+
+    .. note::
+        The two-body tensor is assumed to be in "chemist" ordering. This can be
+        assured by calling :func:`~.to_chemist_ordering` on it before passing it in.
+
+    .. note::
+        The two-body tensor is assumed to satisfy certain constraints, namely, that
+        when it is reshaped into a square matrix, the resulting matrix is positive definite.
+        No checking is performed to verify whether this is the case. If it is not the case,
+        then the decomposition returned will be invalid.
 
     References:
         - `arXiv:1808.02625`_

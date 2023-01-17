@@ -30,9 +30,8 @@ def random_antisymmetric_matrix(dim: int, seed: Any = None) -> np.ndarray:
 
     Args:
         dim: The width and height of the matrix.
-        seed: The pseudorandom number generator or seed. Should be an
-            instance of `np.random.Generator` or else a valid input to
-            `np.random.default_rng`.
+        seed: The pseudorandom number generator or seed. Should be a valid input to
+            ``np.random.default_rng``.
 
     Returns:
         The sampled antisymmetric matrix.
@@ -50,9 +49,8 @@ def random_quadratic_hamiltonian(
     Args:
         n_orbitals: The number of orbitals.
         num_conserving: Whether the Hamiltonian should conserve particle number.
-        seed: The pseudorandom number generator or seed. Should be an
-            instance of `np.random.Generator` or else a valid input to
-            `np.random.default_rng`.
+        seed: The pseudorandom number generator or seed. Should be a valid input to
+            ``np.random.default_rng``.
 
     Returns:
         The sampled QuadraticHamiltonian.
@@ -73,12 +71,11 @@ def random_two_body_tensor_real(dim: int, rank: int | None = None, seed: Any = N
 
     Args:
         dim: The dimension of the tensor. The shape of the returned tensor will be
-            (dim, dim, dim, dim).
+            ``(dim, dim, dim, dim)``.
         rank: Rank of the sampled tensor. The default behavior is to use
-            the maximum rank, which is `n_orbitals * (n_orbitals + 1) // 2`.
-        seed: The pseudorandom number generator or seed. Should be an
-            instance of `np.random.Generator` or else a valid input to
-            `np.random.default_rng`.
+            the maximum rank, which is ``dim * (dim + 1) // 2``.
+        seed: The pseudorandom number generator or seed. Should be a valid input to
+            ``np.random.default_rng``.
 
     Returns:
         The sampled two-body tensor.
@@ -100,9 +97,8 @@ def random_legacy_quadratic_hamiltonian(
     Args:
         n_orbitals: The number of orbitals.
         num_conserving: Whether the Hamiltonian should conserve particle number.
-        seed: The pseudorandom number generator or seed. Should be an
-            instance of `np.random.Generator` or else a valid input to
-            `np.random.default_rng`.
+        seed: The pseudorandom number generator or seed. Should be a valid input to
+            ``np.random.default_rng``.
 
     Returns:
         The sampled QuadraticHamiltonian.
