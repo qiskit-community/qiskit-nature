@@ -82,8 +82,8 @@ class TaperedQubitMapper(QubitMapper):  # pylint: disable=missing-class-docstrin
         in which lies the solution of the problem.
 
         Args:
-            mapper: ``QubitMapper`` object implementing the mapping of second quantized operators to Pauli
-                operators.
+            mapper: ``QubitMapper`` object implementing the mapping of second quantized operators to
+                Pauli operators.
             problem: A class encoding a problem to be solved.
 
         Return:
@@ -105,7 +105,7 @@ class TaperedQubitMapper(QubitMapper):  # pylint: disable=missing-class-docstrin
     def _symmetry_reduce_clifford_single(
         self, converted_op: SparsePauliOp
     ) -> None | SparsePauliOp | list[SparsePauliOp]:
-        
+
         if self.z2symmetries.is_empty():
             tapered_op = converted_op
         elif self.check_commutes:
