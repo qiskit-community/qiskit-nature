@@ -128,7 +128,7 @@ class ParityMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
                 reduced_op = self._two_qubit_reduce(mapped_op)
             else:
                 logger.warning(
-                    "The original qubit operator only contains %s qubits!"
+                    "The original qubit operator only contains %s qubits! "
                     "Skipping the requested two-qubit reduction!",
                     mapped_op.num_qubits,
                 )
