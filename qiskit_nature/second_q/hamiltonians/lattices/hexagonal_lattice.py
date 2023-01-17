@@ -42,10 +42,8 @@ class HexagonalLattice(Lattice):
 
         graph = generators.hexagonal_lattice_graph(rows, cols, multigraph=False)
 
-        edges = graph.weighted_edge_list()
-
         # Add edge weights
-        for idx, _ in enumerate(edges):
+        for idx in graph.edge_indices():
             graph.update_edge_by_index(idx, self._edge_parameter)
 
         # Add self loops
