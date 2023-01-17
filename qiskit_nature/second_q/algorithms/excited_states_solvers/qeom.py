@@ -250,9 +250,6 @@ class QEOM(ExcitedStatesSolver):
             untap_main_op = self.qubit_converter.convert_clifford(main_op)
             untap_aux_ops = self.qubit_converter.convert_clifford(aux_ops)
         else:
-            # TODO: Issue #974 sketches the construction of a Tapered Qubit Mapper which would implement
-            # the logic of the symmetries. Here, there should be a check for a Tapered Qubit Mapper and
-            # a similar logic that used above.
             untap_main_op = main_op
             untap_aux_ops = aux_ops
 
@@ -296,6 +293,7 @@ class QEOM(ExcitedStatesSolver):
                 untap_aux_ops, suppress_none=True
             )
         else:
+            # TODO Issue #974 Implement symmetry reduce clifford for the tapered qubit mapper
             tap_aux_operators = untap_aux_ops
 
         groundstate_result = self._gsc.solve(problem, tap_aux_operators)
@@ -428,6 +426,7 @@ class QEOM(ExcitedStatesSolver):
                 self.qubit_converter.z2symmetries.tapering_values,
             )
         else:
+            # TODO Issue #974 Manage symmetries of the tapered qubit mapper
             z2_symmetries = Z2Symmetries([], [], [])
 
         if not z2_symmetries.is_empty():
@@ -627,6 +626,8 @@ class QEOM(ExcitedStatesSolver):
         if isinstance(self.qubit_converter, QubitConverter):
             untap_hopping_ops = self.qubit_converter.convert_clifford(hopping_operators)
         else:
+            # TODO Issue #974 Implement convert clifford for the tapered qubit mapper
+
             untap_hopping_ops = hopping_operators
 
         return untap_hopping_ops, type_of_commutativities, size
@@ -746,6 +747,7 @@ class QEOM(ExcitedStatesSolver):
                 untap_hopping_ops, suppress_none=True
             )
         else:
+            # TODO Issue #974 Implement symmetry reduce clifford for the tapered qubit mapper
             tap_hopping_ops = untap_hopping_ops
 
         additionnal_measurements = estimate_observables(
@@ -897,6 +899,7 @@ class QEOM(ExcitedStatesSolver):
                     op_aux_op_dict, suppress_none=True
                 )
             else:
+                # TODO Issue #974 Implement symmetry reduce clifford for the tapered qubit mapper
                 tap_op_aux_op_dict = op_aux_op_dict
 
             aux_measurements = estimate_observables(

@@ -35,9 +35,13 @@ class ParityMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
     def __init__(self, num_particles: tuple[int, int] | None = None):
         """The Parity fermion-to-qubit mapping.
 
-        When using this mapper ``two_qubit_reduction`` can optionally be used for the qubit
-        operator that is created, see converter class
-        :class:`~qiskit_nature.second_q.mappers.QubitConverter`.
+        When using this mapper ``num_particles`` can optionally be used to apply an additional step of
+        reduction after the mapping to pauli operators. The two-qubit reduction eliminates the central
+        and last qubit in a list of Pauli that has diagonal operators (Z,I) at those positions.
+
+        Chemistry specific method:
+        It can be used to taper two qubits when the spin orbitals are ordered in two spin sectors,
+        (block spin order) according to the number of particles in the system.
         """
         super().__init__(allows_two_qubit_reduction=True)
         self._tapering_values: list | None = None
@@ -78,12 +82,14 @@ class ParityMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
 
         return pauli_table
 
-    def convert(self, operator: SparsePauliOp) -> SparsePauliOp | list[SparsePauliOp]:
+    def _two_qubit_reduce(self, operator: SparsePauliOp) -> SparsePauliOp:
         """
-        Converts the Operator to tapered one by Z2 symmetries.
+        Applies the two qubit reduction to the operator. This method hard codes the `Z2Symmetry`
+        corresponding to the spin orbitals ordering. The tapering values required to identify the eigen
+        sector of the problem are calculated when attribute :attr:`num_particles` is set.
 
         Args:
-            operator: the operator
+            operator: To be tapered operator.
         Returns:
             A new operator whose qubit number is reduced by 2.
         """
@@ -116,15 +122,15 @@ class ParityMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
             second_q_op, second_q_op.register_length
         ).primitive
 
-        if self.num_particles is not None and mapped_op.num_qubits > 2:
-            reduced_op = self.convert(mapped_op)
-        else:
-            if mapped_op.num_qubits <= 2:
+        reduced_op = mapped_op
+        if self.num_particles is not None:
+            if mapped_op.num_qubits > 2:
+                reduced_op = self._two_qubit_reduce(mapped_op)
+            else:
                 logger.warning(
-                    "The original qubit operator only contains %s qubits! Skipping the requested "
-                    "two-qubit reduction!",
+                    "The original qubit operator only contains %s qubits! "
+                    "Skipping the requested two-qubit reduction!",
                     mapped_op.num_qubits,
                 )
-            reduced_op = mapped_op
 
         return PauliSumOp(reduced_op)
