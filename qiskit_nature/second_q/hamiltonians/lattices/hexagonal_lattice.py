@@ -43,11 +43,11 @@ class HexagonalLattice(Lattice):
         graph = generators.hexagonal_lattice_graph(rows, cols, multigraph=False)
 
         # Add edge weights
-        for idx in graph.edge_indices():
+        for idx in range(graph.num_edges()):
             graph.update_edge_by_index(idx, self._edge_parameter)
 
         # Add self loops
-        for node in graph.node_indices():
+        for node in range(graph.num_nodes()):
             graph.add_edges_from([(node, node, self._onsite_parameter)])
 
         super().__init__(graph)
