@@ -1,4 +1,4 @@
-git+https://github.com/Qiskit/qiskit-terra@main#egg=qiskit-terra
+qiskit-terra>=0.23.*
 scipy>=1.4
 numpy>=1.17
 psutil>=5
