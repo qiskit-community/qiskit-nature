@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -17,7 +17,8 @@ Commutator Utilities (:mod:`qiskit_nature.second_q.operators.commutators`)
 .. currentmodule:: qiskit_nature.second_q.operators.commutators
 
 Utility functions to compute commutators of
-:class:`qiskit_nature.second_q.operators.SparseLabelOp` instances.
+:class:`qiskit_nature.second_q.operators.SparseLabelOp` and
+:class:`qiskit_nature.second_q.operators.SparsePauliOp` instances.
 
 .. autosummary::
    :toctree: ../stubs/
@@ -28,10 +29,16 @@ Utility functions to compute commutators of
 
 """
 
+from __future__ import annotations
+
+from qiskit.quantum_info import SparsePauliOp
+
 from .sparse_label_op import SparseLabelOp
 
 
-def commutator(op_a: SparseLabelOp, op_b: SparseLabelOp) -> SparseLabelOp:
+def commutator(
+    op_a: SparseLabelOp | SparsePauliOp, op_b: SparseLabelOp | SparsePauliOp
+) -> SparseLabelOp | SparsePauliOp:
     r"""Compute commutator of `op_a` and `op_b`.
 
     .. math::
@@ -48,7 +55,9 @@ def commutator(op_a: SparseLabelOp, op_b: SparseLabelOp) -> SparseLabelOp:
     return (op_a @ op_b - op_b @ op_a).simplify()
 
 
-def anti_commutator(op_a: SparseLabelOp, op_b: SparseLabelOp) -> SparseLabelOp:
+def anti_commutator(
+    op_a: SparseLabelOp | SparsePauliOp, op_b: SparseLabelOp | SparsePauliOp
+) -> SparseLabelOp | SparsePauliOp:
     r"""Compute anti-commutator of `op_a` and `op_b`.
 
     .. math::
@@ -65,9 +74,9 @@ def anti_commutator(op_a: SparseLabelOp, op_b: SparseLabelOp) -> SparseLabelOp:
 
 
 def double_commutator(
-    op_a: SparseLabelOp,
-    op_b: SparseLabelOp,
-    op_c: SparseLabelOp,
+    op_a: SparseLabelOp | SparsePauliOp,
+    op_b: SparseLabelOp | SparsePauliOp,
+    op_c: SparseLabelOp | SparsePauliOp,
     sign: bool = False,
 ) -> SparseLabelOp:
     r"""Compute symmetric double commutator of `op_a`, `op_b` and `op_c`.
