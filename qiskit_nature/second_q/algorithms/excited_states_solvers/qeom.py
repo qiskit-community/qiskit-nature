@@ -198,8 +198,6 @@ class QEOM(ExcitedStatesSolver):
             self.qubit_converter.force_match(num_particles=num_particles)
             main_op = self.qubit_converter.convert_only(main_operator, num_particles=num_particles)
         else:
-            if isinstance(self.qubit_converter, ParityMapper):
-                self.qubit_converter.num_particles = num_particles
             main_op = self.qubit_converter.map(main_operator)
 
         # 3. Convert the auxiliary operators.
