@@ -25,29 +25,29 @@ from .boundary_condition import BoundaryCondition
 class KagomeLattice(Lattice):
     r"""
         Kagome lattice
-        #           .           .
-        #           .           .
-        #           .           .
-        #   \   /       \   /       \   /
-        #    \ /         \ /         \ /
-        #     2           2           2        ...
-        #    / \         / \         / \
-        #   / 4 \       / 5 \       / 6 \
-        #  0-----1-----0-----1-----0-----1-----
-        #   \   /       \   /       \   /
-        #    \ /         \ /         \ /
-        #     2           2           2        ...
-        #    / \         / \         / \
-        #   / 1 \       / 2 \       / 3 \
-        #  0-----1-----0-----1-----0-----1-----
+                 .           .
+                 .           .
+                 .           .
+         \   /       \   /       \   /
+          \ /         \ /         \ /
+           2           2           2        ...
+          / \         / \         / \
+         / 3 \       / 4 \       / 5 \
+        0-----1-----0-----1-----0-----1-----
+         \   /       \   /       \   /
+          \ /         \ /         \ /
+           2           2           2        ...
+          / \         / \         / \
+         / 0 \       / 1 \       / 2 \
+        0-----1-----0-----1-----0-----1-----
     """
 
     def _coordinate_to_cell_index(self, coord: np.ndarray) -> int:
-        """Convert the coordinate of a cell (left most lattice point) to an integer for labeling.
-            When self.size=(l0, l1), then a coordinate (x0, x1) is converted as
-            x0 + x1*l0.
+        """Convert the coordinate of a cell (coordinate of the left most lattice site in a cell)
+            to an integer. The cells are labeled from left to right, bottom to top.
+            When self.size=(l0, l1), then a coordinate (x0, x1) is converted as x0 + x1*l0.
         Args:
-            coord: Input coordinate to be converted.
+            coord: Input cell coordinate to be converted.
 
         Returns:
             int: Return x0 + x1*l0 when coord=np.array([x0, x1]) and self.size=(l0, l1).
@@ -67,7 +67,7 @@ class KagomeLattice(Lattice):
         return [(node_a, node_a, onsite_parameter) for node_a in range(num_nodes)]
 
     def _bulk_edges(self) -> List[Tuple[int, int, complex]]:
-        """Return a list consisting of the edges in th bulk, which don't cross the boundaries.
+        """Return a list consisting of the edges in the bulk, which don't cross the boundaries.
 
         Returns:
             List[Tuple[int, int, complex]] : List of weighted edges that don't cross the boundaries.
@@ -80,7 +80,7 @@ class KagomeLattice(Lattice):
         unit_cell_coordinates = list(product(*map(range, size)))
 
         for x, y in unit_cell_coordinates:
-            # each cell is indexed by its leftmost site
+            # each cell is indexed by its leftmost lattice site
             cell_a_idx = self._coordinate_to_cell_index(np.array([x, y]))
 
             # indices of sites within unit cell
@@ -207,9 +207,7 @@ class KagomeLattice(Lattice):
             # to visualizing depict boundary conditions
             pass
         for cell_idx in range(np.prod(size)):
-            # maps an index to two-dimensional coordinate
-            # the positions are shifted so that the edges between boundaries can be seen
-            # for the periodic cases.
+            # maps an cell index to two-dimensional coordinate
             cell_coord = np.array(divmod(cell_idx, size[0])[::-1])
 
             for i in range(3):
@@ -301,9 +299,6 @@ class KagomeLattice(Lattice):
         if style.pos is None:
             style.pos = {}
             for cell_idx in range(np.prod(size)):
-                # maps an index to two-dimensional coordinate
-                # the positions are shifted so that the edges between boundaries can be seen
-                # for the periodic cases.
                 cell_coord = np.array(divmod(cell_idx, size[0])[::-1])
 
                 for i in range(3):
