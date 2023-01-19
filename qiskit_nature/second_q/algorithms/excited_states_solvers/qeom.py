@@ -374,7 +374,7 @@ class QEOM(ExcitedStatesSolver):
             )
         else:
             raise NotImplementedError(
-                "The building of QEOM hopping operators is not yet implemented for a problem of "
+                "The building of qEOM hopping operators is not yet implemented for a problem of "
                 f"type {type(problem)}"
             )
 
@@ -651,7 +651,7 @@ class QEOM(ExcitedStatesSolver):
             deviation errors.
         """
 
-        logger.debug("Build QEOM pseudoeigenvalue problem...")
+        logger.debug("Build qEOM pseudoeigenvalue problem...")
 
         # 1. Build all EOM operators to evaluate on the ground state
         tap_eom_matrix_ops = self._build_all_eom_operators(
@@ -968,23 +968,24 @@ class QEOM(ExcitedStatesSolver):
 
 
 class QEOMResult(EigensolverResult):
-    """The results class for the QEOM algorithm.
+    """The results class for the qEOM algorithm.
 
     Attributes:
         ground_state_raw_result: The raw results of the ground state eigensolver.
-        excitation_energies: The excitation energies approximated by qEOM.
-        expansion_coefficients: The expansion coefficients matrix of the excition operator onto the
-            set of excitation operators.
-        eigenstates: Excited state. These cannot be provided as a circuit by qEOM but are required for
-            the layout of results so they are set to None.
-        h_matrix: Matrix representing the Hamiltonian in the qEOm subspace.
-        s_matrix: Matrix representing the geometry of the qEOm subspace.
-        h_matrix_std: 2 by 2 matrix of the summed standard deviation of the matrices M, Q and their
-            conjugates.
-        s_matrix_std: 2 by 2 matrix of the summed standard deviation of the matrices V, W and their
-            conjugates.
+        excitation_energies: The excitation energies approximated by the qEOM algorithm.
+        expansion_coefficients: The expansion coefficients matrix of the excitation operators onto the
+            set of basis operators spanning the linear subspace.
+        eigenstates: Approximated excited state of the hamiltonian. Note that these cannot be provided as
+            a circuit by the qEOM algorithm but are required for the results so they are set to
+            an empty list.
+        h_matrix: Matrix representing the Hamiltonian in the qEOM subspace.
+        s_matrix: Matrix representing the geometry of the qEOM subspace.
+        h_matrix_std: 2 by 2 matrix of the summed standard deviation of all elements of the matrices 
+            M, Q and their conjugates.
+        s_matrix_std: 2 by 2 matrix of the summed standard deviation of all elements of the matrices 
+            V, W and their conjugates.
         transition_amplitudes: Transition amplitudes of the auxiliary operators evaluated from the
-            evaluation rules specified when the qEOM class was instanciated.
+            evaluation rules specified when the qEOM class was created.
     """
 
     def __init__(self) -> None:
