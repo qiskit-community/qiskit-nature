@@ -43,18 +43,19 @@ class KagomeLattice(Lattice):
         0-----1-----0-----1-----0-----1-----
     """
 
-    def _coordinate_to_cell_index(self, coord: np.ndarray) -> int:
-        """Convert the coordinate of a cell (coordinate of the left most lattice site in a cell)
-            to an integer. Cells are labeled from left to right, bottom to top.
-            When self.size=(l0, l1), then a coordinate (x0, x1) is converted as x0 + x1*l0.
+    def _coordinate_to_index(self, coord: np.ndarray) -> int:
+        """Convert the coordinate of a lattice point to an integer for labeling.
+            When self.size=(l0, l1), then a coordinate (x0, x1) is converted as
+            x0 + x1*l0.
         Args:
-            coord: Input cell coordinate to be converted.
+            coord: Input coordinate to be converted.
 
         Returns:
             int: Return x0 + x1*l0 when coord=np.array([x0, x1]) and self.size=(l0, l1).
         """
+        dim = self.dim
         size = self.size
-        base = np.array([np.prod(size[:i]) for i in range(self.dim)], dtype=int)
+        base = np.array([np.prod(size[:i]) for i in range(dim)], dtype=int)
         return np.dot(coord, base).item()
 
     def _self_loops(self) -> List[Tuple[int, int, complex]]:
@@ -82,7 +83,7 @@ class KagomeLattice(Lattice):
 
         for x, y in unit_cell_coordinates:
             # each cell is indexed by its leftmost lattice site
-            cell_a_idx = self._coordinate_to_cell_index(np.array([x, y]))
+            cell_a_idx = self._coordinate_to_index(np.array([x, y]))
 
             # indices of sites within unit cell
             cell_a_0 = num_sites_per_cell * cell_a_idx
@@ -96,19 +97,19 @@ class KagomeLattice(Lattice):
 
             # one cell east if not at the east boundary
             if x != rows - 1:
-                cell_b_idx = self._coordinate_to_cell_index(np.array([x, y]) + np.array([1, 0]))
+                cell_b_idx = self._coordinate_to_index(np.array([x, y]) + np.array([1, 0]))
                 cell_b_0 = num_sites_per_cell * cell_b_idx
                 list_of_edges.append((cell_a_1, cell_b_0, edge_parameter))
 
             # one cell north f not at the north boundary
             if y != cols - 1:
-                cell_b_idx = self._coordinate_to_cell_index(np.array([x, y]) + np.array([0, 1]))
+                cell_b_idx = self._coordinate_to_index(np.array([x, y]) + np.array([0, 1]))
                 cell_b_0 = num_sites_per_cell * cell_b_idx
                 list_of_edges.append((cell_a_2, cell_b_0, edge_parameter))
 
             # one cell west and north if not at west north boundary
             if x != 0 and y != cols - 1:
-                cell_b_idx = self._coordinate_to_cell_index(np.array([x, y]) + np.array([-1, 1]))
+                cell_b_idx = self._coordinate_to_index(np.array([x, y]) + np.array([-1, 1]))
                 cell_b_1 = num_sites_per_cell * cell_b_idx + 1
                 list_of_edges.append((cell_a_2, cell_b_1, edge_parameter))
 
@@ -135,10 +136,10 @@ class KagomeLattice(Lattice):
             # It makes sense only when rows is greater than 1.
             if rows > 1:
                 for y in range(cols):
-                    cell_a_idx = self._coordinate_to_cell_index(np.array([rows - 1, y]))
+                    cell_a_idx = self._coordinate_to_index(np.array([rows - 1, y]))
                     cell_a_1 = num_sites_per_cell * cell_a_idx + 1
 
-                    cell_b_idx = self._coordinate_to_cell_index(np.array([0, y]))
+                    cell_b_idx = self._coordinate_to_index(np.array([0, y]))
                     cell_b_0 = num_sites_per_cell * cell_b_idx
 
                     list_of_edges.append((cell_a_1, cell_b_0, edge_parameter.conjugate()))
@@ -146,38 +147,38 @@ class KagomeLattice(Lattice):
             # It makes sense only when cols is greater than 1.
             if cols > 1:
                 for x in range(rows):
-                    cell_a_idx = self._coordinate_to_cell_index(np.array([x, cols - 1]))
+                    cell_a_idx = self._coordinate_to_index(np.array([x, cols - 1]))
                     cell_a_2 = num_sites_per_cell * cell_a_idx + 2
 
-                    cell_b_idx = self._coordinate_to_cell_index(np.array([x, 0]))
+                    cell_b_idx = self._coordinate_to_index(np.array([x, 0]))
                     cell_b_0 = num_sites_per_cell * cell_b_idx
 
                     list_of_edges.append((cell_a_2, cell_b_0, edge_parameter.conjugate()))
 
             # The periodic boundary condition in the diagonal directions.
             for x in range(1, rows):
-                cell_a_idx = self._coordinate_to_cell_index(np.array([x, cols - 1]))
+                cell_a_idx = self._coordinate_to_index(np.array([x, cols - 1]))
                 cell_a_2 = num_sites_per_cell * cell_a_idx + 2
 
-                cell_b_idx = self._coordinate_to_cell_index(np.array([(x - 1) % rows, 0]))
+                cell_b_idx = self._coordinate_to_index(np.array([(x - 1) % rows, 0]))
                 cell_b_1 = num_sites_per_cell * cell_b_idx + 1
 
                 list_of_edges.append((cell_a_2, cell_b_1, edge_parameter.conjugate()))
 
             for y in range(cols - 1):
-                cell_a_idx = self._coordinate_to_cell_index(np.array([0, y]))
+                cell_a_idx = self._coordinate_to_index(np.array([0, y]))
                 cell_a_2 = num_sites_per_cell * cell_a_idx + 2
 
-                cell_b_idx = self._coordinate_to_cell_index(np.array([rows - 1, (y + 1) % cols]))
+                cell_b_idx = self._coordinate_to_index(np.array([rows - 1, (y + 1) % cols]))
                 cell_b_1 = num_sites_per_cell * cell_b_idx + 1
 
                 list_of_edges.append((cell_a_2, cell_b_1, edge_parameter.conjugate()))
 
             # isolating x = 0, y = cols - 1 to prevent duplicating edges
-            cell_a_idx = self._coordinate_to_cell_index(np.array([0, cols - 1]))
+            cell_a_idx = self._coordinate_to_index(np.array([0, cols - 1]))
             cell_a_2 = num_sites_per_cell * cell_a_idx + 2
 
-            cell_b_idx = self._coordinate_to_cell_index(np.array([rows - 1, 0]))
+            cell_b_idx = self._coordinate_to_index(np.array([rows - 1, 0]))
             cell_b_1 = num_sites_per_cell * cell_b_idx + 1
 
             list_of_edges.append((cell_a_2, cell_b_1, edge_parameter.conjugate()))
