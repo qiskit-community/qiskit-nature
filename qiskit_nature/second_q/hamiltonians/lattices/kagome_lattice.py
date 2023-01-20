@@ -23,24 +23,7 @@ from .boundary_condition import BoundaryCondition
 
 
 class KagomeLattice(Lattice):
-    r"""
-        Kagome lattice
-                 .           .
-                 .           .
-                 .           .
-         \   /       \   /       \   /
-          \ /         \ /         \ /
-           2           2           2        ...
-          / \         / \         / \
-         / 3 \       / 4 \       / 5 \
-        0-----1-----0-----1-----0-----1-----
-         \   /       \   /       \   /
-          \ /         \ /         \ /
-           2           2           2        ...
-          / \         / \         / \
-         / 0 \       / 1 \       / 2 \
-        0-----1-----0-----1-----0-----1-----
-    """
+    """Kagome lattice"""
 
     def _coordinate_to_index(self, coord: np.ndarray) -> int:
         """Convert the coordinate of a lattice point to an integer for labeling.
