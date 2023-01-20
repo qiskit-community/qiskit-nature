@@ -3,14 +3,6 @@ features:
   - |
     Completed the missing docstrings for the new attributes of the
     :class:`~qiskit_nature.second_q.algorithms.excited_state_solvers.qeom.QEOMResult`.
-  - |
-    Extended the input type of 
-    :meth:`~qiskit_nature.second_q.operators.commutators.commutator` and
-    :meth:`~qiskit_nature.second_q.operators.commutators.anti_commutator` and 
-    :meth:`~qiskit_nature.second_q.operators.commutators.double_commutator` to
-    :class:`~qiskit.quantum_info.SparsePauliOp`. They are now used in 
-    :class:`~qiskit_nature.second_q.algorithms.excited_state_solvers.qeom.QEOM`. 
-
 
 deprecations:
   - |

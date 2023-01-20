@@ -960,17 +960,17 @@ class QEOMResult(EigensolverResult):
         ground_state_raw_result: The raw results of the ground state eigensolver.
         excitation_energies: The excitation energies approximated by the qEOM algorithm.
         expansion_coefficients: The expansion coefficients matrix of the excitation operators onto the
-            set of basis operators spanning the linear subspace.
-        eigenstates: Approximated excited state of the hamiltonian. Note that these cannot be provided as
-            a circuit by the qEOM algorithm but are required for the results so they are set to
-            an empty list.
+            set of basis operators spanning the linear qEOM subspace.
+        eigenstates: Approximated excited states of the hamiltonian. Note that these are set to an empty
+            list as they cannot be provided as circuits by the qEOM algorithm but are required for the
+            results.
         h_matrix: Matrix representing the Hamiltonian in the qEOM subspace.
         s_matrix: Matrix representing the geometry of the qEOM subspace.
-        h_matrix_std: 2 by 2 matrix of the summed standard deviation of all elements of the matrices 
+        h_matrix_std: 2 by 2 matrix of the summed standard deviation of all elements of the matrices
             M, Q and their conjugates.
-        s_matrix_std: 2 by 2 matrix of the summed standard deviation of all elements of the matrices 
+        s_matrix_std: 2 by 2 matrix of the summed standard deviation of all elements of the matrices
             V, W and their conjugates.
-        transition_amplitudes: Transition amplitudes of the auxiliary operators evaluated from the
+        transition_amplitudes: Transition amplitudes of the auxiliary operators computed following thep
             evaluation rules specified when the qEOM class was created.
     """
 
