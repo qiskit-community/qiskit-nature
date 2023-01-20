@@ -13,7 +13,6 @@
 """The kagome lattice"""
 from dataclasses import asdict
 from itertools import product
-from math import pi
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
@@ -214,7 +213,7 @@ class KagomeLattice(Lattice):
             # the positions are shifted so that the edges between boundaries can be seen
             # for the periodic cases.
             cell_coord = np.array(divmod(cell_idx, size[0])[::-1]) + width * np.cos(
-                pi * (np.array(divmod(cell_idx, size[0]))) / (np.array(size)[::-1] - 1)
+                np.pi * (np.array(divmod(cell_idx, size[0]))) / (np.array(size)[::-1] - 1)
             )
 
             for i in range(3):
