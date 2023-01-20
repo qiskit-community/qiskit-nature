@@ -1,0 +1,17 @@
+---
+features:
+  - |
+    Adds the new argument ``num_particles`` to the
+    :class:`~qiskit_nature.second_q.mappers.ParityMapper` which will implement the two qubit reduction
+    without requiring an instance of:class:`~qiskit_nature.second_q.mappers.QubitConverter`.
+
+    .. code-block:: python
+
+      from qiskit_nature.second_q.drivers import PySCFDriver
+      from qiskit_nature.second_q.mappers import ParityMapper
+
+      driver = PySCFDriver()
+      driver_result = driver.run()
+      fermionic_op, _ = driver_result.second_q_ops()
+      mapper = ParityMapper(num_particles=(1, 1))
+      qubit_op = mapper.map(fermionic_op)

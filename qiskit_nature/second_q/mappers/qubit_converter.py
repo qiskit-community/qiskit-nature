@@ -17,10 +17,9 @@ from __future__ import annotations
 import copy
 import logging
 from typing import (
-    cast,
     Callable,
-    List,
     Optional,
+    List,
     Tuple,
     Union,
 )
@@ -29,12 +28,13 @@ import numpy as np
 
 from qiskit.algorithms.list_or_dict import ListOrDict as ListOrDictType
 from qiskit.opflow import PauliSumOp
-from qiskit.opflow.converters import TwoQubitReduction
 from qiskit.opflow.primitive_ops import Z2Symmetries
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.operators import SparseLabelOp
+
 from .qubit_mapper import QubitMapper, _ListOrDict
+from .parity_mapper import ParityMapper
 
 logger = logging.getLogger(__name__)
 
@@ -90,12 +90,12 @@ class QubitConverter:
         """
 
         self._mapper: QubitMapper = mapper
-        self._two_qubit_reduction: bool = two_qubit_reduction
+        self._two_qubit_reduction: bool = (
+            two_qubit_reduction  # Setter does reset on particle number
+        )
         self._z2symmetry_reduction: Optional[Union[str, List[int]]] = None
         self.z2symmetry_reduction = z2symmetry_reduction  # Setter does validation
 
-        self._did_two_qubit_reduction: bool = False
-        self._num_particles: Optional[Tuple[int, int]] = None
         self._z2symmetries: Z2Symmetries = self._no_symmetries
 
         self._sort_operators: bool = sort_operators
@@ -155,7 +155,10 @@ class QubitConverter:
 
         This can also be set, for advanced usage, using :meth:`force_match`
         """
-        return self._num_particles
+        if isinstance(self._mapper, ParityMapper):
+            return self._mapper.num_particles
+        else:
+            return None
 
     @property
     def z2symmetries(self) -> Z2Symmetries:
@@ -166,6 +169,15 @@ class QubitConverter:
         This can also be set, for advanced usage, using :meth:`force_match`
         """
         return copy.deepcopy(self._z2symmetries)
+
+    def _check_reset_mapper(self) -> None:
+        """Resets the ``ParityMapper`` if the attribute :attr:`two_qubit_reduction` is set to False. This
+        makes the behavior of the QubitConverter compatible with the new ParityMapper class which only
+        has one attribute :attr:`num_particles`. This must be called right before any mapping method of
+        the mappers.
+        """
+        if isinstance(self._mapper, ParityMapper) and not self.two_qubit_reduction:
+            self._mapper.num_particles = None
 
     def convert(
         self,
@@ -193,11 +205,14 @@ class QubitConverter:
         Returns:
             PauliSumOp qubit operator
         """
-        qubit_op = self._mapper.map(second_q_op)
-        reduced_op = self._two_qubit_reduce(qubit_op, num_particles)
+        if isinstance(self._mapper, ParityMapper):
+            self._mapper.num_particles = num_particles
+
+        self._check_reset_mapper()
+
+        reduced_op = self._mapper.map(second_q_op)
         tapered_op, z2symmetries = self.find_taper_op(reduced_op, sector_locator)
 
-        self._num_particles = num_particles
         self._z2symmetries = z2symmetries
 
         return tapered_op
@@ -221,8 +236,12 @@ class QubitConverter:
         Returns:
             PauliSumOp qubit operator
         """
-        qubit_op = self._mapper.map(second_q_op)
-        reduced_op = self._two_qubit_reduce(qubit_op, num_particles)
+        if isinstance(self._mapper, ParityMapper) and num_particles is not None:
+            self._mapper.num_particles = num_particles
+
+        self._check_reset_mapper()
+
+        reduced_op = self._mapper.map(second_q_op)
 
         return reduced_op
 
@@ -244,8 +263,8 @@ class QubitConverter:
         Raises:
             ValueError: If format of Z2Symmetry tapering values is invalid
         """
-        if num_particles is not None:
-            self._num_particles = num_particles
+        if isinstance(self._mapper, ParityMapper) and num_particles is not None:
+            self._mapper.num_particles = num_particles
 
         if z2symmetries is not None:
             if not z2symmetries.is_empty():
@@ -291,6 +310,9 @@ class QubitConverter:
             be directly returned in the case when a single operator is provided (that cannot be
             suppressed as it's a single value)
         """
+
+        self._check_reset_mapper()
+
         # To allow a single operator to be converted, but use the same logic that does the
         # actual conversions, we make a single entry list of it here and unwrap to return.
         wrapped_type = type(second_q_ops)
@@ -303,8 +325,7 @@ class QubitConverter:
 
         reduced_ops: _ListOrDict[PauliSumOp] = _ListOrDict()
         for name, second_q_op in iter(wrapped_second_q_ops):
-            qubit_op: PauliSumOp = self._mapper.map(second_q_op)
-            reduced_op: PauliSumOp = self._two_qubit_reduce(qubit_op, self._num_particles)
+            reduced_op: PauliSumOp = self._mapper.map(second_q_op)
             reduced_ops[name] = reduced_op
 
         tapered_ops: _ListOrDict[PauliSumOp] = self._symmetry_reduce(reduced_ops, check_commutes)
@@ -314,30 +335,6 @@ class QubitConverter:
         )
 
         return returned_ops
-
-    def _two_qubit_reduce(
-        self, qubit_op: PauliSumOp, num_particles: Optional[Tuple[int, int]]
-    ) -> PauliSumOp:
-        reduced_op = qubit_op
-
-        if (
-            num_particles is not None
-            and self._two_qubit_reduction
-            and self._mapper.allows_two_qubit_reduction
-        ):
-
-            two_q_reducer = TwoQubitReduction(num_particles)
-
-            if qubit_op.num_qubits <= 2:
-                logger.warning(
-                    "The original qubit operator only contains %s qubits! Skipping the requested "
-                    "two-qubit reduction!",
-                    qubit_op.num_qubits,
-                )
-            else:
-                reduced_op = cast(PauliSumOp, two_q_reducer.convert(qubit_op))
-
-        return reduced_op
 
     def find_taper_op(
         self,
