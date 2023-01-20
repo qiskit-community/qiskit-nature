@@ -171,7 +171,7 @@ class QubitConverter:
         return copy.deepcopy(self._z2symmetries)
 
     def _check_reset_mapper(self) -> None:
-        """Resets the `ParityMapper` if the attribute :attr:`two_qubit_reduction` is set to False. This
+        """Resets the ``ParityMapper`` if the attribute :attr:`two_qubit_reduction` is set to False. This
         makes the behavior of the QubitConverter compatible with the new ParityMapper class which only
         has one attribute :attr:`num_particles`. This must be called right before any mapping method of
         the mappers.
