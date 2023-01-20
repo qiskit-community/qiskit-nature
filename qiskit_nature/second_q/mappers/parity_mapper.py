@@ -37,8 +37,9 @@ class ParityMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
 
         When using this mapper, :attr:`num_particles` can optionally be used to apply an additional step
         of reduction after the mapping to pauli operators. The two-qubit reduction tapers two qubits
-        (middle and last qubit) when the spin orbitals are ordered in two spin sectors (block spin order)
-        and selects the symmetry sector corresponding to the provided number of particles.
+        (middle and last qubit) because the spin orbitals are ordered in two spin sectors
+        (block spin order). Based on the provided number of particles this allows the automatic selection
+        of the correct symmetry sector.
         """
         super().__init__(allows_two_qubit_reduction=True)
         self._tapering_values: list | None = None
