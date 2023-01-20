@@ -13,6 +13,7 @@
 """The kagome lattice"""
 from dataclasses import asdict
 from itertools import product
+from math import pi
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
@@ -44,7 +45,7 @@ class KagomeLattice(Lattice):
 
     def _coordinate_to_cell_index(self, coord: np.ndarray) -> int:
         """Convert the coordinate of a cell (coordinate of the left most lattice site in a cell)
-            to an integer. The cells are labeled from left to right, bottom to top.
+            to an integer. Cells are labeled from left to right, bottom to top.
             When self.size=(l0, l1), then a coordinate (x0, x1) is converted as x0 + x1*l0.
         Args:
             coord: Input cell coordinate to be converted.
@@ -201,14 +202,19 @@ class KagomeLattice(Lattice):
         boundary_condition = self.boundary_condition
         num_sites_per_cell = self.num_sites_per_cell
         pos = {}
+        width = 0.0
         if boundary_condition == BoundaryCondition.PERIODIC:
-            # TODO
-            # maybe add extra invisible ghost nodes to the right and top boundary
-            # to visualizing depict boundary conditions
-            pass
+            # the positions are shifted along the x- and y-direction
+            # when the boundary condition is periodic.
+            # The width of the shift is fixed to 0.2.
+            width = 0.2
         for cell_idx in range(np.prod(size)):
             # maps an cell index to two-dimensional coordinate
-            cell_coord = np.array(divmod(cell_idx, size[0])[::-1])
+            # the positions are shifted so that the edges between boundaries can be seen
+            # for the periodic cases.
+            cell_coord = np.array(divmod(cell_idx, size[0])[::-1]) + width * np.cos(
+                pi * (np.array(divmod(cell_idx, size[0]))) / (np.array(size)[::-1] - 1)
+            )
 
             for i in range(3):
                 node_i = num_sites_per_cell * cell_idx + i
