@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -425,6 +425,10 @@ class TestSparseLabelOp(QiskitNatureTestCase):
         op = DummySparseLabelOp({"+_0 -_1": a + 1}) + DummySparseLabelOp({"+_1 -_0": b})
         assigned_op = op.assign_parameters({a: 1})
         self.assertEqual(assigned_op, DummySparseLabelOp({"+_0 -_1": 2, "+_1 -_0": b}))
+
+        op = DummySparseLabelOp({"+_0 -_1": a + 1})
+        assigned_op = op.assign_parameters({b: 1})
+        self.assertEqual(assigned_op, op)
 
     def test_round(self):
         """test round function"""
