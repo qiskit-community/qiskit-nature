@@ -970,7 +970,7 @@ class QEOMResult(EigensolverResult):
             M, Q and their conjugates.
         s_matrix_std: 2 by 2 matrix of the summed standard deviation of all elements of the matrices
             V, W and their conjugates.
-        transition_amplitudes: Transition amplitudes of the auxiliary operators computed following thep
+        transition_amplitudes: Transition amplitudes of the auxiliary operators computed following the
             evaluation rules specified when the qEOM class was created.
     """
 
@@ -1198,5 +1198,5 @@ class QEOMResult(EigensolverResult):
             "This setter for the W standard deviation matrix will not "
             "update the S standard deviation matrix to match. "
             "Using this setter will make this result object bypass the S "
-            "standard deviation matrix values for Q."
+            "standard deviation matrix values for W."
         )
