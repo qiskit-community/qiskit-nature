@@ -1,11 +1,11 @@
 ---
 features:
   - |
-    Completed the missing docstrings for the new attributes of the
+    Completed the missing docstrings for the new attributes of the class
     :class:`~qiskit_nature.second_q.algorithms.excited_state_solvers.qeom.QEOMResult`.
 
 deprecations:
   - |
-    The M, Q, W, V matrix standard deviation setters from
+    The M, Q, W, V matrix standard deviation setters from the class 
     :class:`~qiskit_nature.second_q.algorithms.excited_state_solvers.qeom.QEOMResult`
     were pending deprecated and remain computable from the H and S matrices.
