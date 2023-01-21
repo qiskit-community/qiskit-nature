@@ -259,7 +259,7 @@ def low_rank_two_body_decomposition(
             Z^{t}_{k\ell} U^{t}_{r\ell} U^{t}_{s\ell}
 
     Here each :math:`U^{t}` is a unitary matrix, referred to as a "leaf tensor,"
-    and each :math:`Z^{(t)}` is a Hermitian matrix, referred to as a "core tensor."
+    and each :math:`Z^{(t)}` is a real symmetric matrix, referred to as a "core tensor."
 
     The number of terms :math:`N` in the decomposition depends on the allowed
     error threshold. A larger error threshold may yield a smaller number of terms.
@@ -317,7 +317,7 @@ def low_rank_two_body_decomposition(
     for i in range(rank):
         mat = np.reshape(cholesky_vecs[:, i], (n_modes, n_modes))
         eigs, vecs = np.linalg.eigh(mat)
-        core_tensors[i] = np.outer(eigs, eigs.conj())
+        core_tensors[i] = np.outer(eigs, eigs)
         leaf_tensors[i] = vecs
 
     return core_tensors, leaf_tensors
