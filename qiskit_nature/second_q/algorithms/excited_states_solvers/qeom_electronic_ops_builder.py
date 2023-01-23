@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from typing import Callable, Dict, List, Tuple
 
-from qiskit.opflow import PauliSumOp, Z2Symmetries
+from qiskit.opflow import PauliSumOp
 from qiskit.tools import parallel_map
 from qiskit.utils import algorithm_globals
 
@@ -112,21 +112,18 @@ def _build_single_hopping_operator(
 
     if isinstance(qubit_converter, QubitConverter):
         qubit_op = qubit_converter.convert_only(fer_op, num_particles=qubit_converter.num_particles)
-        z2_symmetries = qubit_converter.z2symmetries
-        symmetries_for_commutativity = z2_symmetries.symmetries
+        symmetries_for_commutativity = qubit_converter.z2_symmetries.symmetries
     elif isinstance(qubit_converter, TaperedQubitMapper):
         qubit_op = qubit_converter.map_clifford(fer_op)
-        z2_symmetries = qubit_converter.z2symmetries
         # Because the clifford conversion was already done, the commutativity information are based
         # on the single qubit pauli objects.
-        symmetries_for_commutativity = z2_symmetries.sq_paulis
+        symmetries_for_commutativity = qubit_converter.z2_symmetries.sq_paulis
     else:
         qubit_op = qubit_converter.map(fer_op)
-        z2_symmetries = Z2Symmetries([], [], [])
-        symmetries_for_commutativity = z2_symmetries.symmetries
+        symmetries_for_commutativity = []
 
     commutativities = []
-    if not z2_symmetries.is_empty():
+    if not len(symmetries_for_commutativity):
         for symmetry in symmetries_for_commutativity:
             symmetry_op = PauliSumOp.from_list([(symmetry.to_label(), 1.0)])
             paulis = qubit_op.primitive.paulis
