@@ -48,6 +48,7 @@ from qiskit_nature.second_q.algorithms.excited_states_solvers.excited_states_sol
 from qiskit_nature.second_q.mappers import (
     QubitConverter,
     QubitMapper,
+    ParityMapper,
     TaperedQubitMapper,
 )
 from qiskit_nature.second_q.operators import SparseLabelOp
@@ -201,6 +202,8 @@ class QEOM(ExcitedStatesSolver):
         elif isinstance(self.qubit_converter, TaperedQubitMapper):
             main_op = self.qubit_converter.map_clifford(main_operator)
         else:
+            if isinstance(self.qubit_converter, ParityMapper):
+                self.qubit_converter.num_particles = num_particles
             main_op = self.qubit_converter.map(main_operator)
 
         # 3. Convert the auxiliary operators.

@@ -35,13 +35,11 @@ class ParityMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
     def __init__(self, num_particles: tuple[int, int] | None = None):
         """The Parity fermion-to-qubit mapping.
 
-        When using this mapper ``num_particles`` can optionally be used to apply an additional step of
-        reduction after the mapping to pauli operators. The two-qubit reduction eliminates the central
-        and last qubit in a list of Pauli that has diagonal operators (Z,I) at those positions.
-
-        Chemistry specific method:
-        It can be used to taper two qubits when the spin orbitals are ordered in two spin sectors,
-        (block spin order) according to the number of particles in the system.
+        When using this mapper, :attr:`num_particles` can optionally be used to apply an additional step
+        of reduction after the mapping to pauli operators. The two-qubit reduction tapers two qubits
+        (middle and last qubit) because the spin orbitals are ordered in two spin sectors
+        (block spin order). Based on the provided number of particles this allows the automatic selection
+        of the correct symmetry sector.
         """
         super().__init__(allows_two_qubit_reduction=True)
         self._tapering_values: list | None = None
@@ -84,9 +82,9 @@ class ParityMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
 
     def _two_qubit_reduce(self, operator: SparsePauliOp) -> SparsePauliOp:
         """
-        Applies the two qubit reduction to the operator. This method hard codes the `Z2Symmetry`
+        Applies the two qubit reduction to the operator. This method hard codes the ``Z2Symmetries``
         corresponding to the spin orbitals ordering. The tapering values required to identify the eigen
-        sector of the problem are calculated when attribute :attr:`num_particles` is set.
+        sector of the problem are calculated when :attr:`num_particles` is set.
 
         Args:
             operator: To be tapered operator.
