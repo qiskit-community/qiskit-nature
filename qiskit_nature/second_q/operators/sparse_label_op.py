@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -511,11 +511,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
             A new operator with the parameters assigned.
         """
         data = {
-            # TODO use this line once
-            # https://github.com/Qiskit/qiskit-terra/pull/9304
-            # is merged:
-            # key: value.bind(parameters, allow_unknown_parameters=True)
-            key: value.bind({k: v for k, v in parameters.items() if k in value.parameters})
+            key: value.bind(parameters, allow_unknown_parameters=True)
             if isinstance(value, ParameterExpression)
             else value
             for key, value in self._data.items()
