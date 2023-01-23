@@ -1,7 +1,7 @@
 ---
 features:
   - |
-    Completed the missing docstrings for the new attributes of the class
+    Completed the missing documentation for the new attributes of the class
     :class:`~qiskit_nature.second_q.algorithms.excited_state_solvers.qeom.QEOMResult`.
 
 deprecations:
