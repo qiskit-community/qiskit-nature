@@ -222,8 +222,8 @@ class KagomeLattice(Lattice):
                 Defaults to 0.0.
             boundary_condition: Boundary condition for the lattice.
                 The available boundary conditions are:
-                BoundaryCondition.OPEN, BoundaryCondition.PERIODIC.
-                Defaults to BoundaryCondition.OPEN.
+                ``BoundaryCondition.OPEN``, ``BoundaryCondition.PERIODIC``.
+                Defaults to ``BoundaryCondition.OPEN``.
 
         Raises:
             ValueError: Given size, edge parameter or boundary condition are invalid values.
