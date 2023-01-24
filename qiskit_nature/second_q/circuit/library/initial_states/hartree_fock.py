@@ -245,9 +245,9 @@ def hartree_fock_bitstring_mapped(
         else:
             qubit_op = qubit_converter.convert_only(bitstr_op, num_particles)
     elif isinstance(qubit_converter, TaperedQubitMapper):
-        qubit_converter.check_commutes = False
-        qubit_op = qubit_converter.map(bitstr_op)
-        qubit_converter.check_commutes = True
+        # For not checking commutativity, we need the two methods
+        qubit_op = qubit_converter.map_clifford(bitstr_op)
+        qubit_op = qubit_converter.symmetry_reduce_clifford(qubit_op, check_commutes=False)
     else:
         qubit_op = qubit_converter.map(bitstr_op)
 

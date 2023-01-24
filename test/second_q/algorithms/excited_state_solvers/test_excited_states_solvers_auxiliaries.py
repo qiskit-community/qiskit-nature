@@ -127,17 +127,20 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
                     self.assertAlmostEqual(trans_amp, trans_amp_expected, places=places)
 
     @named_data(
-        ["JWM", QubitConverter(JordanWignerMapper())],
-        ["JWM_Z2", QubitConverter(JordanWignerMapper(), z2symmetry_reduction="auto")],
-        ["PM", QubitConverter(ParityMapper())],
-        ["PM_TQR", QubitConverter(ParityMapper(), two_qubit_reduction=True)],
-        ["PM_Z2", QubitConverter(ParityMapper(), z2symmetry_reduction="auto")],
+        ["JWM", JordanWignerMapper()],
+        ["PM", ParityMapper()],
+        ["PM_TQR", ParityMapper(num_particles=(1, 1))],
+        ["QC_JWM", QubitConverter(JordanWignerMapper())],
+        ["QC_JWM_Z2", QubitConverter(JordanWignerMapper(), z2symmetry_reduction="auto")],
+        ["QC_PM", QubitConverter(ParityMapper())],
+        ["QC_PM_TQR", QubitConverter(ParityMapper(), two_qubit_reduction=True)],
+        ["QC_PM_Z2", QubitConverter(ParityMapper(), z2symmetry_reduction="auto")],
         [
-            "PM_TQR_Z2",
+            "QC_PM_TQR_Z2",
             QubitConverter(ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto"),
         ],
-        ["BKM", QubitConverter(BravyiKitaevMapper())],
-        ["BKM_Z2", QubitConverter(BravyiKitaevMapper(), z2symmetry_reduction="auto")],
+        ["QC_BKM", QubitConverter(BravyiKitaevMapper())],
+        ["QC_BKM_Z2", QubitConverter(BravyiKitaevMapper(), z2symmetry_reduction="auto")],
     )
     def test_aux_ops_qeom(self, converter: QubitConverter):
         """Test QEOM evaluation of excited state properties"""

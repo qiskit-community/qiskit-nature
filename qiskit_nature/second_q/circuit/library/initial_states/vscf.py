@@ -22,7 +22,7 @@ from qiskit import QuantumRegister
 from qiskit.circuit.library import BlueprintCircuit
 from qiskit.opflow import PauliSumOp
 from qiskit_nature.second_q.mappers import DirectMapper
-from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper, TaperedQubitMapper
 from qiskit_nature.second_q.operators import VibrationalOp
 
 logger = logging.getLogger(__name__)
@@ -190,6 +190,9 @@ def vscf_bitstring_mapped(
     qubit_op: PauliSumOp
     if isinstance(qubit_converter, QubitConverter):
         qubit_op = qubit_converter.convert_match(bitstr_op, check_commutes=False)
+    elif isinstance(qubit_converter, TaperedQubitMapper):
+        qubit_op = qubit_converter.map_clifford(bitstr_op)
+        qubit_op = qubit_converter.symmetry_reduce_clifford(qubit_op, check_commutes=False)
     else:
         qubit_op = qubit_converter.map(bitstr_op)
 

@@ -48,6 +48,26 @@ class TestTaperedQubitMapper(QiskitNatureTestCase):
         ]
     )
 
+    REF_H2_JW_CLIFFORD = SparsePauliOp.from_list(
+        [
+            ("IIII", -0.8105479805373267),
+            ("ZIIX", +0.1721839326191554),
+            ("ZIXI", -0.2257534922240235),
+            ("ZXII", +0.17218393261915513),
+            ("ZIII", -0.22575349222402355),
+            ("IIXX", +0.12091263261776627),
+            ("IXIX", +0.16892753870087898),
+            ("XIII", +0.0452327999460578),
+            ("XXII", -0.0452327999460578),
+            ("XIXX", -0.0452327999460578),
+            ("XXXX", +0.0452327999460578),
+            ("IIIX", +0.16614543256382402),
+            ("IXXI", +0.166145432563824),
+            ("IIXI", +0.17464343068300442),
+            ("IXII", +0.12091263261776627),
+        ]
+    )
+
     REF_H2_JW_TAPERED = SparsePauliOp.from_list(
         [("I", -1.04109314), ("Z", -0.79587485), ("X", 0.1809312)]
     )
@@ -128,19 +148,22 @@ class TestTaperedQubitMapper(QiskitNatureTestCase):
         with self.subTest("From Z2Symmetry object no tapering values"):
             z2_sym = Z2Symmetries(
                 symmetries=[Pauli("ZIIZ"), Pauli("ZIZI"), Pauli("ZZII")],
-                sq_paulis=[Pauli("ZIIZ"), Pauli("ZIZI"), Pauli("ZZII")],
+                sq_paulis=[Pauli("IIIX"), Pauli("IIXI"), Pauli("IXII")],
                 sq_list=[0, 1, 2],
             )
             tapered_qubit_mapper = TaperedQubitMapper(mapper, z2symmetries=z2_sym)
-            qubit_op = tapered_qubit_mapper.map(self.h2_op).primitive
-            self.assertTrue(qubit_op.equiv(TestTaperedQubitMapper.REF_H2_JW))
+            qubit_op = tapered_qubit_mapper.map(self.h2_op)
+            self.assertTrue(qubit_op.primitive.equiv(TestTaperedQubitMapper.REF_H2_JW_CLIFFORD))
+            tapered_qubit_mapper.z2symmetries.tapering_values = [-1, 1, -1]
+            qubit_op = tapered_qubit_mapper.symmetry_reduce_clifford(qubit_op).primitive
+            self.assertTrue(qubit_op.equiv(TestTaperedQubitMapper.REF_H2_JW_TAPERED))
 
-        with self.subTest("From Z2Symmetry object automatic"):
+        with self.subTest("From Z2Symmetry object automatic but no sector locator"):
             qubit_op = mapper.map(self.h2_op).primitive
             z2_sym = Z2Symmetries.find_z2_symmetries(qubit_op)
             tapered_qubit_mapper = TaperedQubitMapper(mapper, z2_sym)
             qubit_op = tapered_qubit_mapper.map(self.h2_op).primitive
-            self.assertTrue(qubit_op.equiv(TestTaperedQubitMapper.REF_H2_JW))
+            self.assertTrue(qubit_op.equiv(TestTaperedQubitMapper.REF_H2_JW_CLIFFORD))
 
     def test_z2_symmetry_two_qubit_reduction(self):
         """Test mapping to qubit operator with z2 symmetry tapering and two qubit reduction"""

@@ -112,18 +112,18 @@ def _build_single_hopping_operator(
 
     if isinstance(qubit_converter, QubitConverter):
         qubit_op = qubit_converter.convert_only(fer_op, num_particles=qubit_converter.num_particles)
-        symmetries_for_commutativity = qubit_converter.z2_symmetries.symmetries
+        symmetries_for_commutativity = qubit_converter.z2symmetries.symmetries
     elif isinstance(qubit_converter, TaperedQubitMapper):
         qubit_op = qubit_converter.map_clifford(fer_op)
         # Because the clifford conversion was already done, the commutativity information are based
         # on the single qubit pauli objects.
-        symmetries_for_commutativity = qubit_converter.z2_symmetries.sq_paulis
+        symmetries_for_commutativity = qubit_converter.z2symmetries.sq_paulis
     else:
         qubit_op = qubit_converter.map(fer_op)
         symmetries_for_commutativity = []
 
     commutativities = []
-    if not len(symmetries_for_commutativity):
+    if not len(symmetries_for_commutativity) == 0:
         for symmetry in symmetries_for_commutativity:
             symmetry_op = PauliSumOp.from_list([(symmetry.to_label(), 1.0)])
             paulis = qubit_op.primitive.paulis
