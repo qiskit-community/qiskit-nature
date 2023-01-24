@@ -1,5 +1,5 @@
 ---
 features:
   - |
-    Adds a new lattice class, :class:`qiskit_nature.problems.second_q.hamiltonians.lattices.KagomeLattice`
+    Adds a new lattice class, :class:`qiskit_nature.second_q.hamiltonians.lattices.KagomeLattice`
     for the generation of Kagome lattices.
