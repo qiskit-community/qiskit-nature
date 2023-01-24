@@ -423,8 +423,8 @@ class QEOM(ExcitedStatesSolver):
                 z2_symmetries = Z2Symmetries([], [], [])
         elif isinstance(self.qubit_converter, TaperedQubitMapper):
             z2_symmetries = Z2Symmetries(
-                list(self.qubit_converter.z2symmetries.symmetries),
-                list(self.qubit_converter.z2symmetries.sq_paulis),
+                self.qubit_converter.z2symmetries.symmetries,
+                self.qubit_converter.z2symmetries.sq_paulis,
                 self.qubit_converter.z2symmetries.sq_list,
                 self.qubit_converter.z2symmetries.tapering_values,
             )

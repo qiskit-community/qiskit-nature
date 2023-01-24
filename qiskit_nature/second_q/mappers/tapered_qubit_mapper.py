@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import logging
 from copy import deepcopy
-from typing import TYPE_CHECKING
+from typing import cast, TYPE_CHECKING
 
 from qiskit.algorithms.list_or_dict import ListOrDict as ListOrDictType
 from qiskit.opflow import PauliSumOp
@@ -99,15 +99,17 @@ class TaperedQubitMapper(QubitMapper):  # pylint: disable=missing-class-docstrin
 
     def _map_clifford_single(self, second_q_op: SparseLabelOp) -> SparsePauliOp:
         mapped_op = self._mapper.map(second_q_op).primitive
-        converted_op = self.z2symmetries.convert_clifford(mapped_op)
+        if self.z2symmetries.tapering_values is None:
+            converted_op = mapped_op
+        else:
+            converted_op = self.z2symmetries.convert_clifford(mapped_op)
         return converted_op
 
     def _symmetry_reduce_clifford_single(
-        self, converted_op: SparsePauliOp
-    ) -> None | SparsePauliOp | list[SparsePauliOp]:
+        self, converted_op: SparsePauliOp) -> None | SparsePauliOp:
 
-        if self.z2symmetries.is_empty():
-            tapered_op = converted_op
+        if self.z2symmetries.is_empty() or self.z2symmetries.tapering_values is None:
+            return converted_op
         elif self.check_commutes:
             logger.debug("Checking operators commute with symmetry:")
 
@@ -115,27 +117,21 @@ class TaperedQubitMapper(QubitMapper):  # pylint: disable=missing-class-docstrin
                 self.z2symmetries._sq_paulis, converted_op
             )
 
-            if commutes:
-                tapered_op = self.z2symmetries.taper_clifford(converted_op)
-            else:
-                tapered_op = None
-        else:
-            tapered_op = self.z2symmetries.taper_clifford(converted_op)
+            if not commutes:
+                return None
 
+        tapered_op = self.z2symmetries.taper_clifford(converted_op)
+        cast(tapered_op, SparsePauliOp)
         return tapered_op
 
     def _map_single(self, second_q_op: SparseLabelOp) -> PauliSumOp | list[PauliSumOp]:
         converted_op = self._map_clifford_single(second_q_op)
         tapered_op = self._symmetry_reduce_clifford_single(converted_op)
 
-        returned_op: PauliSumOp | list[PauliSumOp] | None
+        returned_op: PauliSumOp | None = None
 
-        if tapered_op is None:
-            return None
-        elif isinstance(tapered_op, SparsePauliOp):
+        if isinstance(tapered_op, SparsePauliOp):
             returned_op = PauliSumOp(tapered_op)
-        else:
-            returned_op = [PauliSumOp(op) for op in tapered_op]
         return returned_op
 
     def map_clifford(
