@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -15,7 +15,6 @@
 from __future__ import annotations
 
 import logging
-
 from copy import deepcopy
 from typing import cast
 
@@ -76,11 +75,19 @@ class ActiveSpaceTransformer(BaseTransformer):
         #. the length of `active_orbitals` must be equal to ``num_spatial_orbitals``. Note, that
            we do **not** infer the number of active orbitals from this list of indices!
 
-        #. the sum of electrons present in ``active_orbitals`` must be equal to ``num_electrons``.
+        #. the largest orbital index may **not** exceed the available ``num_spatial_orbitals``.
 
     References:
         - *M. Rossmannek, P. Barkoutsos, P. Ollitrault, and I. Tavernelli, arXiv:2009.01872
           (2020).*
+
+    Attributes:
+        active_basis: the :class:`.BasisTransformer` mapping from the total to the active space.
+        active_density: the active electronic density.
+        reference_inactive_fock: the inactive Fock operator. Setting this attribute allows you to
+            enforce a custom reference operator to be used during :meth:`transform_hamiltonian`.
+        reference_inactive_energy: the inactive energy. Setting this attribute allows you to enforce
+            a custom reference energy to be used during :meth:`transform_hamiltonian`.
     """
 
     def __init__(
@@ -112,11 +119,13 @@ class ActiveSpaceTransformer(BaseTransformer):
         except QiskitNatureError as exc:
             raise QiskitNatureError("Incorrect Active-Space configuration.") from exc
 
-        self._mo_occ_total: np.ndarray = None
         self._active_orbs_indices: list[int] = None
-        self._transform_active: BasisTransformer = None
-        self._density_active: ElectronicIntegrals = None
+        self.active_basis: BasisTransformer = None
+        self.active_density: ElectronicIntegrals = None
         self._density_total: ElectronicIntegrals = None
+
+        self.reference_inactive_fock: ElectronicIntegrals | None = None
+        self.reference_inactive_energy: float | None = None
 
     def _check_configuration(self):
         if isinstance(self._num_electrons, (int, np.integer)):
@@ -195,49 +204,28 @@ class ActiveSpaceTransformer(BaseTransformer):
                 " basis first, for example by using a BasisTransformer."
             )
 
-        if problem.num_spatial_orbitals is None:
-            raise QiskitNatureError(
-                "Using the ActiveSpaceTransformer requires the number of orbitals to be set on the "
-                "problem instance. Please set ElectronicStructureProblem.num_spatial_orbitals to "
-                "use this transformer."
+        if self._active_orbs_indices is None:
+            if problem.num_spatial_orbitals is None:
+                raise QiskitNatureError(
+                    "Using the ActiveSpaceTransformer requires the number of orbitals to be set on the "
+                    "problem instance. Please set ElectronicStructureProblem.num_spatial_orbitals to "
+                    "use this transformer."
+                )
+
+            if problem.num_particles is None:
+                raise QiskitNatureError(
+                    "Using the ActiveSpaceTransformer requires the number of particles to be set on the "
+                    "problem instance. Please set ElectronicStructureProblem.num_particles to use this "
+                    "transformer."
+                )
+
+            # prepare the active space
+            self.prepare_active_space(
+                problem.num_particles,
+                problem.num_spatial_orbitals,
+                occupation_alpha=problem.orbital_occupations,
+                occupation_beta=problem.orbital_occupations_b,
             )
-        num_spatial_orbitals = problem.num_spatial_orbitals
-
-        # get spatial orbital occupation numbers
-        occupation_alpha = problem.orbital_occupations
-        occupation_beta = problem.orbital_occupations_b
-        if occupation_alpha is None or occupation_beta is None:
-            # simply disable the validation done against self._mo_occ_total
-            self._mo_occ_total = None
-        else:
-            self._mo_occ_total = occupation_alpha + occupation_beta
-
-        # determine the active space
-        self._active_orbs_indices = self._determine_active_space(problem)
-
-        # initialize size-reducing basis transformation
-        coeff_alpha = np.zeros((num_spatial_orbitals, self._num_spatial_orbitals))
-        coeff_alpha[self._active_orbs_indices, range(self._num_spatial_orbitals)] = 1.0
-        coeff_beta = np.zeros((num_spatial_orbitals, self._num_spatial_orbitals))
-        coeff_beta[self._active_orbs_indices, range(self._num_spatial_orbitals)] = 1.0
-        self._transform_active = BasisTransformer(
-            ElectronicBasis.MO,
-            ElectronicBasis.MO,
-            ElectronicIntegrals.from_raw_integrals(coeff_alpha, h1_b=coeff_beta, validate=False),
-        )
-
-        self._density_total = ElectronicIntegrals.from_raw_integrals(
-            np.diag(occupation_alpha), h1_b=np.diag(occupation_beta)
-        )
-
-        self._density_active = self._transform_active.transform_electronic_integrals(
-            self._density_total
-        )
-        self._density_active.beta_alpha = None
-        self._density_active = self._transform_active.invert().transform_electronic_integrals(
-            self._density_active
-        )
-        self._density_active.beta_alpha = None
 
         electronic_energy = cast(ElectronicEnergy, self.transform_hamiltonian(problem.hamiltonian))
 
@@ -246,13 +234,18 @@ class ActiveSpaceTransformer(BaseTransformer):
         new_problem.basis = ElectronicBasis.MO
         new_problem.molecule = problem.molecule
         new_problem.reference_energy = problem.reference_energy
-        new_problem.num_spatial_orbitals = len(self._active_orbs_indices)
+        new_problem.num_spatial_orbitals = self._num_spatial_orbitals
 
-        active_occ_alpha = occupation_alpha[self._active_orbs_indices]
-        active_occ_beta = occupation_beta[self._active_orbs_indices]
-        new_problem.num_particles = (int(sum(active_occ_alpha)), int(sum(active_occ_beta)))
-        new_problem.orbital_occupations = active_occ_alpha
-        new_problem.orbital_occupations_b = active_occ_beta
+        new_problem.orbital_occupations = np.diag(self.active_density.alpha["+-"])[
+            self._active_orbs_indices
+        ]
+        new_problem.orbital_occupations_b = np.diag(self.active_density.beta["+-"])[
+            self._active_orbs_indices
+        ]
+        new_problem.num_particles = (
+            int(sum(new_problem.orbital_occupations)),
+            int(sum(new_problem.orbital_occupations_b)),
+        )
 
         if problem.orbital_energies is not None:
             new_problem.orbital_energies = problem.orbital_energies[self._active_orbs_indices]
@@ -265,47 +258,144 @@ class ActiveSpaceTransformer(BaseTransformer):
                     self._transform_electronic_dipole_moment(prop)
                 )
             elif isinstance(prop, ElectronicDensity):
-                transformed = self._transform_active.transform_electronic_integrals(prop)
+                transformed = self.active_basis.transform_electronic_integrals(prop)
                 new_problem.properties.electronic_density = ElectronicDensity(
                     transformed.alpha, transformed.beta, transformed.beta_alpha
                 )
             elif isinstance(prop, (AngularMomentum, Magnetization, ParticleNumber)):
-                new_problem.properties.add(prop.__class__(len(self._active_orbs_indices)))
+                new_problem.properties.add(prop.__class__(self._num_spatial_orbitals))
             else:
                 LOGGER.warning("Encountered an unsupported property of type '%s'.", type(prop))
 
         return new_problem
 
-    def _determine_active_space(self, problem: ElectronicStructureProblem) -> list[int]:
+    def prepare_active_space(
+        self,
+        total_num_electrons: int | tuple[int, int],
+        total_num_spatial_orbitals: int,
+        *,
+        occupation_alpha: list[float] | np.ndarray | None = None,
+        occupation_beta: list[float] | np.ndarray | None = None,
+    ) -> None:
+        """Prepares the active space.
+
+        This method must be called manually when using this transformer on a hamiltonian outside of
+        a problem instance. In all other cases, the information required here is extracted from the
+        problem automatically.
+
+        Args:
+            total_num_electrons: the total number of electrons in the system represented by the
+                hamiltonian which is to be transformed. If this is a tuple of integers, it encodes
+                the number of alpha- and beta-spin electrons separately. Otherwise the integer value
+                is assumed to indicate the sum of these two numbers.
+            total_num_spatial_orbitals: the total number of spatial orbitals in the system
+                represented by the hamiltonian which is to be transformed.
+            occupation_alpha: the occupation of the alpha-spin orbitals. If omitted, this
+                information is inferred from ``total_num_electrons`` and
+                ``total_num_spatial_orbitals``.
+            occupation_beta: the occupation of the beta-spin orbitals. If omitted, this
+                information is inferred from ``total_num_electrons`` and
+                ``total_num_spatial_orbitals``.
+
+        Raises:
+            QiskitNatureError: if any of the requirements for a valid active space configuration
+                (documented in the class docstring) are not met.
+        """
+        if isinstance(total_num_electrons, tuple):
+            num_alpha, num_beta = total_num_electrons
+            sum_electrons = num_alpha + num_beta
+        else:
+            num_beta = total_num_electrons // 2
+            num_alpha = total_num_electrons - num_beta
+            sum_electrons = total_num_electrons
+
+        if occupation_alpha is None:
+            occupation_alpha = np.asarray(
+                [1.0] * num_alpha + [0.0] * (total_num_spatial_orbitals - num_alpha)
+            )
+
+        if occupation_beta is None:
+            occupation_beta = np.asarray(
+                [1.0] * num_beta + [0.0] * (total_num_spatial_orbitals - num_beta)
+            )
+
+        self._active_orbs_indices = self._determine_active_space(
+            sum_electrons, total_num_spatial_orbitals
+        )
+
+        # initialize size-reducing basis transformation
+        if self.active_basis is None:
+            coeff_alpha = np.zeros((total_num_spatial_orbitals, self._num_spatial_orbitals))
+            coeff_alpha[self._active_orbs_indices, range(self._num_spatial_orbitals)] = 1.0
+            coeff_beta = np.zeros((total_num_spatial_orbitals, self._num_spatial_orbitals))
+            coeff_beta[self._active_orbs_indices, range(self._num_spatial_orbitals)] = 1.0
+
+            self.active_basis = BasisTransformer(
+                ElectronicBasis.MO,
+                ElectronicBasis.MO,
+                ElectronicIntegrals.from_raw_integrals(
+                    coeff_alpha, h1_b=coeff_beta, validate=False
+                ),
+            )
+
+        self._density_total = ElectronicIntegrals.from_raw_integrals(
+            np.diag(occupation_alpha), h1_b=np.diag(occupation_beta)
+        )
+
+        if self.active_density is None:
+            self.active_density = self.get_active_density_component(self._density_total)
+
+    def get_active_density_component(
+        self, total_density: ElectronicIntegrals
+    ) -> ElectronicIntegrals:
+        """Gets the active space density-component of the provided :class:`.ElectronicIntegrals`.
+
+        Args:
+            total_density: the density in the total orbital space.
+
+        Returns:
+            The active space component density obtained via :attr:`active_space`.
+        """
+        density_active = self.active_basis.transform_electronic_integrals(total_density)
+        density_active.beta_alpha = None
+        density_active = self.active_basis.invert().transform_electronic_integrals(density_active)
+        density_active.beta_alpha = None
+
+        return density_active
+
+    def _determine_active_space(
+        self, total_num_electrons: int, total_num_spatial_orbitals: int
+    ) -> list[int]:
         """Determines the active and inactive orbital indices.
 
         Args:
-            problem: the ElectronicStructureProblem to be transformed.
+            total_num_electrons: the total number of electrons in the system represented by the
+                hamiltonian which is to be transformed. If this is a tuple of integers, it encodes
+                the number of alpha- and beta-spin electrons separately. Otherwise the integer value
+                is assumed to indicate the sum of these two numbers.
+            total_num_spatial_orbitals: the total number of spatial orbitals in the system
+                represented by the hamiltonian which is to be transformed.
 
         Returns:
             The list of active and inactive orbital indices.
         """
+        if self._active_orbitals is not None:
+            return self._active_orbitals
+
         if isinstance(self._num_electrons, tuple):
             num_alpha, num_beta = self._num_electrons
         elif isinstance(self._num_electrons, (int, np.integer)):
             num_alpha = num_beta = self._num_electrons // 2
 
         # compute number of inactive electrons
-        nelec_total = problem.num_alpha + problem.num_beta
-        nelec_inactive = nelec_total - num_alpha - num_beta
+        nelec_inactive = total_num_electrons - num_alpha - num_beta
 
         self._validate_num_electrons(nelec_inactive)
-        self._validate_num_orbitals(nelec_inactive, problem.num_spatial_orbitals)
+        self._validate_num_orbitals(nelec_inactive, total_num_spatial_orbitals)
 
-        # determine active and inactive orbital indices
-        if self._active_orbitals is None:
-            norbs_inactive = nelec_inactive // 2
-            active_orbs_idxs = list(
-                range(norbs_inactive, norbs_inactive + self._num_spatial_orbitals)
-            )
-            return active_orbs_idxs
-
-        return self._active_orbitals
+        norbs_inactive = nelec_inactive // 2
+        active_orbs_idxs = list(range(norbs_inactive, norbs_inactive + self._num_spatial_orbitals))
+        return active_orbs_idxs
 
     def _validate_num_electrons(self, nelec_inactive: int) -> None:
         """Validates the number of electrons.
@@ -345,16 +435,6 @@ class ActiveSpaceTransformer(BaseTransformer):
                 )
             if max(self._active_orbitals) >= num_spatial_orbitals:
                 raise QiskitNatureError("More orbitals requested than available.")
-            expected_num_electrons = (
-                self._num_electrons
-                if isinstance(self._num_electrons, (int, np.integer))
-                else sum(self._num_electrons)
-            )
-            if sum(self._mo_occ_total[self._active_orbitals]) != expected_num_electrons:
-                raise QiskitNatureError(
-                    "The number of electrons in the selected active orbitals "
-                    "does not match the specified number of active electrons."
-                )
 
     def transform_hamiltonian(self, hamiltonian: Hamiltonian) -> Hamiltonian:
         """Transforms one :class:`~qiskit_nature.second_q.hamiltonians.Hamiltonian` into another.
@@ -364,19 +444,17 @@ class ActiveSpaceTransformer(BaseTransformer):
 
         Raises:
             NotImplementedError: when an unsupported hamiltonian type is provided.
-            NotImplementedError: when called standalone.
+            QiskitNatureError: when :meth:`prepare_active_space` was not called prior to calling
+                this method.
 
         Returns:
             A new `Hamiltonian` instance.
         """
         if isinstance(hamiltonian, ElectronicEnergy):
-            # TODO: implement the standalone usage of this method
-            # See also: https://github.com/Qiskit/qiskit-nature/issues/847
-            if self._transform_active is None:
-                raise NotImplementedError(
-                    "This transformer does not yet support the standalone use of the "
-                    "transform_hamiltonian method. See also "
-                    "https://github.com/Qiskit/qiskit-nature/issues/847"
+            if self.active_basis is None:
+                raise QiskitNatureError(
+                    "In order to transform a standalone hamiltonian, you must first prepare the "
+                    "active space by calling the 'prepare_active_space' method of this transformer."
                 )
             return self._transform_electronic_energy(hamiltonian)
         else:
@@ -386,41 +464,46 @@ class ActiveSpaceTransformer(BaseTransformer):
             )
 
     def _transform_electronic_energy(self, hamiltonian: ElectronicEnergy) -> ElectronicEnergy:
-        total_fock_operator = hamiltonian.fock(self._density_total)
+        if self.reference_inactive_fock is None:
+            self.reference_inactive_fock = hamiltonian.fock(self._density_total)
 
         active_fock_operator = (
-            hamiltonian.fock(self._density_active) - hamiltonian.electronic_integrals.one_body
+            hamiltonian.fock(self.active_density) - hamiltonian.electronic_integrals.one_body
         )
 
-        inactive_fock_operator = total_fock_operator - active_fock_operator
+        inactive_fock_operator = self.reference_inactive_fock - active_fock_operator
 
-        e_inactive: ElectronicIntegrals = cast(
-            ElectronicIntegrals,
-            0.5
-            * ElectronicIntegrals.einsum(
+        if self.reference_inactive_energy is None:
+            reference_inactive_energy = 0.5 * ElectronicIntegrals.einsum(
                 {"ij,ji": ("+-", "+-", "")},
-                total_fock_operator + hamiltonian.electronic_integrals.one_body,
+                self.reference_inactive_fock + hamiltonian.electronic_integrals.one_body,
                 self._density_total,
-            ),
-        )
-        e_inactive -= ElectronicIntegrals.einsum(
-            {"ij,ji": ("+-", "+-", "")}, total_fock_operator, self._density_active
+            )
+            self.reference_inactive_energy = (
+                reference_inactive_energy.alpha.get("", 0.0)
+                + reference_inactive_energy.beta.get("", 0.0)
+                + reference_inactive_energy.beta_alpha.get("", 0.0)
+            )
+
+        e_inactive = -1.0 * ElectronicIntegrals.einsum(
+            {"ij,ji": ("+-", "+-", "")}, self.reference_inactive_fock, self.active_density
         )
         e_inactive += cast(
             ElectronicIntegrals,
             0.5
             * ElectronicIntegrals.einsum(
-                {"ij,ji": ("+-", "+-", "")}, active_fock_operator, self._density_active
+                {"ij,ji": ("+-", "+-", "")}, active_fock_operator, self.active_density
             ),
         )
         e_inactive_sum = (
-            e_inactive.alpha.get("", 0.0)
+            self.reference_inactive_energy
+            + e_inactive.alpha.get("", 0.0)
             + e_inactive.beta.get("", 0.0)
             + e_inactive.beta_alpha.get("", 0.0)
         )
 
         new_hamil = ElectronicEnergy(
-            self._transform_active.transform_electronic_integrals(
+            self.active_basis.transform_electronic_integrals(
                 inactive_fock_operator + hamiltonian.electronic_integrals.two_body
             )
         )
@@ -443,9 +526,9 @@ class ActiveSpaceTransformer(BaseTransformer):
                 {"ij,ji": ("+-", "+-", "")}, one_body, self._density_total
             )
             e_inactive -= ElectronicIntegrals.einsum(
-                {"ij,ji": ("+-", "+-", "")}, one_body, self._density_active
+                {"ij,ji": ("+-", "+-", "")}, one_body, self.active_density
             )
-            dipoles.append(self._transform_active.transform_electronic_integrals(one_body))
+            dipoles.append(self.active_basis.transform_electronic_integrals(one_body))
             dip_inactive.append(
                 e_inactive.alpha.get("", 0.0)
                 + e_inactive.beta.get("", 0.0)

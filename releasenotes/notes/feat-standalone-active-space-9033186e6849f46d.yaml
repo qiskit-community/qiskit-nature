@@ -1,0 +1,19 @@
+---
+features:
+  - |
+    Calling the :meth:`~qiskit_nature.second_q.transformers.ActiveSpaceTransformer.transform_hamiltonian`
+    is now supported, provided that the active space has been prepared properly.
+
+    .. code-block:: python
+
+      # assuming we have the total Hamiltonian of our system available:
+      total_hamiltonian = ElectronicEnergy(...)
+
+      # now we want to reduce it to an active space of 2 electrons in 2 orbitals
+      transformer = ActiveSpaceTransformer(2, 2)
+
+      # assuming that our total system size is 10 electrons in 10 orbitals:
+      transformer.prepare_active_space(10, 10)
+
+      # after preparation, this now works as intended
+      reduced_hamiltonian = transformer.transform_hamiltonian(total_hamiltonian)
