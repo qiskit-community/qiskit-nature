@@ -17,3 +17,30 @@ features:
 
       # after preparation, this now works as intended
       reduced_hamiltonian = transformer.transform_hamiltonian(total_hamiltonian)
+  - |
+    Calling the :meth:`~qiskit_nature.second_q.transformers.FreezeCoreTransformer.transform_hamiltonian`
+    is now supported, provided that the active space has been prepared properly.
+
+    .. code-block:: python
+
+      # assuming we have the total Hamiltonian of our system available:
+      total_hamiltonian = ElectronicEnergy(...)
+
+      # now we want to apply the freeze-core reduction
+      transformer = FreezeCoreTransformer()
+
+      # since the FreezeCoreTransformer requires molecular system information,
+      # we need to create that datastructure like so:
+      molecule = MoleculeInfo(
+          symbols=["Li", "H"],
+          coords=[(0.0, 0.0, 0.0), (0.0, 0.0, 1.6)],
+      )
+      # and since the system size depends on the basis set, we need to provide
+      # the total number of spatial orbitals separately:
+      total_num_spatial_orbitals = 11  # e.g. the 6-31g basis
+
+      # this allows us to prepare the active space correctly like so:
+      transformer.prepare_active_space(molecule, total_num_spatial_orbitals)
+
+      # after preparation, this now works as intended
+      reduced_hamiltonian = transformer.transform_hamiltonian(total_hamiltonian)
