@@ -67,7 +67,7 @@ class _ListOrDict(Dict, Iterable, Generic[T]):
             if new_value is not None:
                 self[key] = new_value
 
-    def unwrap(self, wrapped_type: type, suppress_none: bool = True) -> Dict | Iterable | T:
+    def unwrap(self, wrapped_type: type, *, suppress_none: bool = True) -> Dict | Iterable | T:
         """Return the content of this class according to the initial type of the data before
         the creation of the ListOrDict object.
 
