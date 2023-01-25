@@ -14,11 +14,9 @@
 
 from __future__ import annotations
 
-import math
 import unittest
 from abc import ABC, abstractmethod
 from copy import deepcopy
-from numbers import Complex, Number
 
 import numpy as np
 
@@ -30,7 +28,7 @@ class ScalarTensorTestCase(ABC):
     """Tests for Tensor class wrapping a single numeric value."""
 
     tensor: Tensor
-    expected: Number
+    expected: np.ndarray
 
     @abstractmethod
     def subTest(self, msg, **kwargs):
@@ -55,7 +53,7 @@ class ScalarTensorTestCase(ABC):
 
     def test_array(self):
         """Test array property."""
-        self.assertTrue(isinstance(self.tensor.array, Number))
+        self.assertTrue(isinstance(self.tensor.array, type(self.expected)))
 
     def test_shape(self):
         """Test shape property."""
@@ -64,40 +62,6 @@ class ScalarTensorTestCase(ABC):
     def test_ndim(self):
         """Test ndim property."""
         self.assertEqual(self.tensor.ndim, 0)
-
-    def test_int(self):
-        """Test conversion to int."""
-        if not isinstance(self.expected, Complex):
-            self.assertEqual(int(self.tensor), int(self.expected))
-
-    def test_float(self):
-        """Test conversion to float."""
-        if not isinstance(self.expected, Complex):
-            self.assertEqual(float(self.tensor), float(self.expected))
-
-    def test_complex(self):
-        """Test conversion to complex."""
-        self.assertEqual(complex(self.tensor), complex(self.expected))
-
-    def test_round(self):
-        """Test rounding."""
-        if not isinstance(self.expected, Complex):
-            self.assertEqual(round(self.tensor), round(self.expected))
-
-    def test_trunc(self):
-        """Test truncating."""
-        if not isinstance(self.expected, Complex):
-            self.assertEqual(math.trunc(self.tensor), math.trunc(self.expected))
-
-    def test_floor(self):
-        """Test flooring."""
-        if not isinstance(self.expected, Complex):
-            self.assertEqual(math.floor(self.tensor), math.floor(self.expected))
-
-    def test_ceil(self):
-        """Test ceiling."""
-        if not isinstance(self.expected, Complex):
-            self.assertEqual(math.ceil(self.tensor), math.ceil(self.expected))
 
     def test_equality(self):
         """Test equality check."""

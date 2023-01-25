@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -255,5 +255,5 @@ class TestQuadraticHamiltonian(QiskitNatureTestCase):
             "QuadraticHamiltonian("
             "hermitian_part=array([[ 1.+0.j,  0.+2.j],\n       [-0.-2.j,  3.+0.j]]), "
             "antisymmetric_part=array([[ 0.,  4.],\n       [-4.,  0.]]), "
-            "constant=5.0, num_modes=2)",
+            "constant=array(5.), num_modes=2)",
         )

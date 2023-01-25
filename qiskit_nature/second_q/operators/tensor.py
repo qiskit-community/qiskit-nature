@@ -14,7 +14,6 @@
 
 from __future__ import annotations
 
-import math
 import string
 from numbers import Number
 from typing import Any, Sequence, Type, Union, cast
@@ -68,16 +67,6 @@ else:
 ARRAY_TYPE = Union[np.ndarray, SparseArray]
 
 
-def _scalar_dunder(ufunc):
-    def func(self, *args, **kwargs):
-        if isinstance(self._array, Number):
-            return ufunc(self._array, *args, **kwargs)
-        raise TypeError()
-
-    func.__name__ = f"__{ufunc.__name__}__"
-    return func
-
-
 def _unpack_args(sequence: Sequence) -> Sequence[ARRAY_TYPE]:
     """An internal utility to recursively unpack a sequence of array-like objects."""
     seq: list[ARRAY_TYPE] = []
@@ -114,11 +103,13 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
         """
         if isinstance(array, Tensor):
             array = array._array
+        elif isinstance(array, Number):
+            array = np.array(array)
 
-        self._array: Number | ARRAY_TYPE = array
+        self._array: ARRAY_TYPE = array
 
     @property
-    def array(self) -> Number | ARRAY_TYPE:
+    def array(self) -> ARRAY_TYPE:
         """Returns the wrapped array object."""
         return self._array
 
@@ -130,9 +121,6 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
 
         See also https://numpy.org/doc/stable/reference/arrays.classes.html#numpy.class.__array__
         """
-        if isinstance(self._array, Number):
-            return np.asarray(self._array, dtype=dtype)
-
         if dtype is None:
             return self._array
 
@@ -194,46 +182,24 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
             # expose any item setting of the internally wrapped array object
             array.__setitem__(key, value)
 
-    __int__ = _scalar_dunder(int)
-    __float__ = _scalar_dunder(float)
-    __complex__ = _scalar_dunder(complex)
-    __round__ = _scalar_dunder(round)
-    __trunc__ = _scalar_dunder(math.trunc)
-    __floor__ = _scalar_dunder(math.floor)
-    __ceil__ = _scalar_dunder(math.ceil)
-
     @property
     def shape(self) -> tuple[int, ...]:
-        """Returns the shape of the wrapped array object.
-
-        If the internal object is a ``Number``, an empty tuple is returned (which is equivalent to
-        the result of ``numpy.asarray(number).shape``).
-        """
-        if isinstance(self._array, Number):
-            return ()
-
+        """Returns the shape of the wrapped array object."""
         return self._array.shape
 
     @property
     def ndim(self) -> int:
-        """Returns the number of dimensions of the wrapped array object.
-
-        If the internal object is a ``Number``, 0 is returned (which is equivalent to the result of
-        ``numpy.asarray(number).ndim``).
-        """
-        if isinstance(self._array, Number):
-            return 0
-
+        """Returns the number of dimensions of the wrapped array object."""
         return len(self._array.shape)
 
     @_optionals.HAS_SPARSE.require_in_call
     def is_sparse(self) -> bool:
         """Returns whether this tensor is sparse."""
-        return isinstance(self._array, (SparseArray, Number))
+        return isinstance(self._array, SparseArray) or self._array.ndim == 0
 
     def is_dense(self) -> bool:
         """Returns whether this tensor is dense."""
-        return isinstance(self._array, (np.ndarray, Number))
+        return isinstance(self._array, np.ndarray)
 
     # TODO: change the following type-hint if/when SparseArray dictates the existence of from_numpy
     @_optionals.HAS_SPARSE.require_in_call
@@ -294,13 +260,13 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
 
         if self_is_sparse:
             if other_is_sparse:
-                if value.ndim != other_value.ndim:  # type: ignore[union-attr]
+                if value.ndim != other_value.ndim:
                     return False
                 if value.nnz != other_value.nnz:  # type: ignore[union-attr]
                     return False
-                if value.size != other_value.size:  # type: ignore[union-attr]
+                if value.size != other_value.size:
                     return False
-                diff = value - other_value  # type: ignore[operator]
+                diff = value - other_value
                 if diff.nnz != 0:
                     return False
                 return True
@@ -308,7 +274,7 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
         elif other_is_sparse:
             other_value = cast(SparseArray, other_value).todense()
 
-        if not np.array_equal(value, other_value):  # type: ignore[arg-type]
+        if not np.array_equal(value, other_value):
             return False
 
         return True
@@ -342,9 +308,9 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
 
         if self_is_sparse:
             if other_is_sparse:
-                if value.ndim != other_value.ndim:  # type: ignore[union-attr]
+                if value.ndim != other_value.ndim:
                     return False
-                diff = (value - other_value).todense()  # type: ignore[operator]
+                diff = (value - other_value).todense()
                 if not np.allclose(
                     diff,
                     zeros_like(diff).todense(),
@@ -357,7 +323,7 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
         elif other_is_sparse:
             other_value = cast(SparseArray, other_value).todense()
 
-        if not np.allclose(value, other_value, atol=self.atol, rtol=self.rtol):  # type: ignore[arg-type]
+        if not np.allclose(value, other_value, atol=self.atol, rtol=self.rtol):
             return False
 
         return True
@@ -377,22 +343,7 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
         a = self if front else other
         b = other if front else self
 
-        a_is_number = isinstance(a._array, Number)
-        b_is_number = isinstance(b._array, Number)
-
-        if a_is_number:
-            if b_is_number:
-                return a.__class__(a._array * b._array)  # type: ignore[operator]
-
-            result = cast(ARRAY_TYPE, (a._array * b._array)).reshape(b.shape)  # type: ignore[operator]
-            return a.__class__(result)
-        elif b_is_number:
-            result = cast(ARRAY_TYPE, (b._array * a._array)).reshape(a.shape)  # type: ignore[operator]
-            return a.__class__(result)
-
-        return a.__class__(
-            np.outer(a._array, b._array).reshape(a.shape + b.shape)  # type: ignore[arg-type]
-        )
+        return a.__class__(np.outer(a._array, b._array).reshape(a.shape + b.shape))
 
     def tensor(self, other: Tensor) -> Tensor:
         r"""Returns the tensor product with another ``Tensor``.

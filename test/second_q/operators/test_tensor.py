@@ -29,42 +29,42 @@ class TestIntTensor(QiskitNatureTestCase, ScalarTensorTestCase):
     """Test numeric Tensor with integer value."""
 
     tensor = Tensor(1)
-    expected = 1  # type: ignore
+    expected = np.array(1)
 
 
 class TestFloatTensor(QiskitNatureTestCase, ScalarTensorTestCase):
     """Test numeric Tensor with float value."""
 
     tensor = Tensor(1.0)
-    expected = 1.0  # type: ignore
+    expected = np.array(1.0)
 
 
 class TestComplexTensor(QiskitNatureTestCase, ScalarTensorTestCase):
     """Test numeric Tensor with complex value."""
 
     tensor = Tensor(1.0j)
-    expected = 1.0j  # type: ignore
+    expected = np.array(1.0j)
 
 
 class TestNumpyIntTensor(QiskitNatureTestCase, ScalarTensorTestCase):
     """Test numeric Tensor with numpy integer value."""
 
     tensor = Tensor(np.int64(1))
-    expected = np.int64(1)  # type: ignore
+    expected = np.array(np.int64(1))
 
 
 class TestNumpyFloatTensor(QiskitNatureTestCase, ScalarTensorTestCase):
     """Test numeric Tensor with numpy float value."""
 
     tensor = Tensor(np.float64(1.0))
-    expected = np.float64(1.0)  # type: ignore
+    expected = np.array(np.float64(1.0))
 
 
 class TestNumpyComplexTensor(QiskitNatureTestCase, ScalarTensorTestCase):
     """Test numeric Tensor with numpy complex value."""
 
     tensor = Tensor(np.complex128(1.0j))
-    expected = np.complex128(1.0j)  # type: ignore
+    expected = np.array(np.complex128(1.0j))
 
 
 class TestNumpyTensor(QiskitNatureTestCase, MatrixTensorTestCase):
