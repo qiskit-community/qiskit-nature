@@ -25,7 +25,7 @@ from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.analysis.z2_symmetries import Z2Symmetries
 from qiskit.quantum_info.operators import Pauli, PauliList, SparsePauliOp
 
-from qiskit_nature.deprecation import deprecate_property
+from qiskit_nature.deprecation import deprecate_arguments, deprecate_property
 from qiskit_nature.second_q.operators import FermionicOp
 from .fermionic_mapper import FermionicMapper
 
@@ -73,19 +73,23 @@ class ParityMapper(FermionicMapper):
             self._tapering_values = [par_2, par_1]
 
     @classmethod
+    @deprecate_arguments("0.6.0", {"nmodes": "register_length"})
     @lru_cache(maxsize=32)
-    def pauli_table(cls, nmodes: int) -> list[tuple[Pauli, Pauli]]:
+    def pauli_table(
+        cls, register_length: int, *, nmodes: int | None = None
+    ) -> list[tuple[Pauli, Pauli]]:
+        # pylint: disable=unused-argument
         pauli_table = []
 
-        for i in range(nmodes):
+        for i in range(register_length):
             a_z: Union[List[int], np.ndarray] = [0] * (i - 1) + [1] if i > 0 else []
             a_x: Union[List[int], np.ndarray] = [0] * (i - 1) + [0] if i > 0 else []
             b_z: Union[List[int], np.ndarray] = [0] * (i - 1) + [0] if i > 0 else []
             b_x: Union[List[int], np.ndarray] = [0] * (i - 1) + [0] if i > 0 else []
-            a_z = np.asarray(a_z + [0] + [0] * (nmodes - i - 1), dtype=bool)
-            a_x = np.asarray(a_x + [1] + [1] * (nmodes - i - 1), dtype=bool)
-            b_z = np.asarray(b_z + [1] + [0] * (nmodes - i - 1), dtype=bool)
-            b_x = np.asarray(b_x + [1] + [1] * (nmodes - i - 1), dtype=bool)
+            a_z = np.asarray(a_z + [0] + [0] * (register_length - i - 1), dtype=bool)
+            a_x = np.asarray(a_x + [1] + [1] * (register_length - i - 1), dtype=bool)
+            b_z = np.asarray(b_z + [1] + [0] * (register_length - i - 1), dtype=bool)
+            b_x = np.asarray(b_x + [1] + [1] * (register_length - i - 1), dtype=bool)
             pauli_table.append((Pauli((a_z, a_x)), Pauli((b_z, b_x))))
 
         return pauli_table
@@ -126,9 +130,7 @@ class ParityMapper(FermionicMapper):
         return z2_symmetries.taper(operator)
 
     def _map_single(self, second_q_op: FermionicOp) -> PauliSumOp:
-        mapped_op = ParityMapper.mode_based_mapping(
-            second_q_op, second_q_op.register_length
-        ).primitive
+        mapped_op = ParityMapper.mode_based_mapping(second_q_op).primitive
 
         reduced_op = mapped_op
         if self.num_particles is not None:
