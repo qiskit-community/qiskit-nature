@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -69,11 +69,6 @@ class TestDirectMapper(QiskitNatureTestCase):
         qubit_op = mapper.map(vibration_op)
 
         self.assertEqual(qubit_op, _num_modals_3_q_op)
-
-    def test_allows_two_qubit_reduction(self):
-        """Test this returns False for this mapper"""
-        mapper = DirectMapper()
-        self.assertFalse(mapper.allows_two_qubit_reduction)
 
 
 if __name__ == "__main__":

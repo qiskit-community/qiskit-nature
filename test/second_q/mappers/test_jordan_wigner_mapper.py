@@ -62,11 +62,6 @@ class TestJordanWignerMapper(QiskitNatureTestCase):
 
         self.assertEqual(qubit_op, TestJordanWignerMapper.REF_H2)
 
-    def test_allows_two_qubit_reduction(self):
-        """Test this returns False for this mapper"""
-        mapper = JordanWignerMapper()
-        self.assertFalse(mapper.allows_two_qubit_reduction)
-
     def test_mapping_for_single_op(self):
         """Test for single register operator."""
         with self.subTest("test +"):

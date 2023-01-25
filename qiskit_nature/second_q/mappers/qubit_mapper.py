@@ -24,6 +24,7 @@ from qiskit.quantum_info.operators import Pauli, SparsePauliOp
 from qiskit.algorithms.list_or_dict import ListOrDict as ListOrDictType
 
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.deprecation import deprecate_property
 from qiskit_nature.second_q.operators import SparseLabelOp
 
 # pylint: disable=invalid-name
@@ -97,23 +98,16 @@ class QubitMapper(ABC):
     qubit operator in the form of a `PauliSumOp`.
     """
 
-    def __init__(self, allows_two_qubit_reduction: bool = False):
-        """
-        Args:
-            allows_two_qubit_reduction: Set if mapper will create known symmetry such that the
-                number of qubits in the mapped operator can be reduced accordingly.
-        """
-        self._allows_two_qubit_reduction = allows_two_qubit_reduction
-
     @property
+    @deprecate_property("0.6.0")
     def allows_two_qubit_reduction(self) -> bool:
         """
-        Getter for symmetry information for two qubit reduction
+        DEPRECATED: Getter for symmetry information for two qubit reduction
 
         Returns: If mapping generates the known symmetry that allows two qubit reduction.
 
         """
-        return self._allows_two_qubit_reduction
+        return False
 
     @abstractmethod
     def _map_single(self, second_q_op: SparseLabelOp) -> PauliSumOp:

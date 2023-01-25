@@ -36,10 +36,6 @@ class BravyiKitaevSuperFastMapper(FermionicMapper):
         Phys. 148, 164104 (2018). https://doi.org/10.1063/1.5019371
     """
 
-    def __init__(self):
-        """The BKSF mapping."""
-        super().__init__(allows_two_qubit_reduction=False)
-
     def _map_single(self, second_q_op: FermionicOp) -> PauliSumOp:
         if not isinstance(second_q_op, FermionicOp):
             raise TypeError("Type ", type(second_q_op), " not supported.")

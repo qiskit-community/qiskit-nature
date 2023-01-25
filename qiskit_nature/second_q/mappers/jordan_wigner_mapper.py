@@ -25,10 +25,8 @@ from qiskit_nature.second_q.operators import FermionicOp
 from .fermionic_mapper import FermionicMapper
 
 
-class JordanWignerMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
-    def __init__(self):
-        """The Jordan-Wigner fermion-to-qubit mapping."""
-        super().__init__(allows_two_qubit_reduction=False)
+class JordanWignerMapper(FermionicMapper):
+    """The Jordan-Wigner fermion-to-qubit mapping."""
 
     @classmethod
     @lru_cache(maxsize=32)

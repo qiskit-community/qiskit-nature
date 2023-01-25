@@ -25,10 +25,8 @@ from qiskit_nature.second_q.operators import FermionicOp
 from .fermionic_mapper import FermionicMapper
 
 
-class BravyiKitaevMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
-    def __init__(self):
-        """The Bravyi-Kitaev fermion-to-qubit mapping."""
-        super().__init__(allows_two_qubit_reduction=False)
+class BravyiKitaevMapper(FermionicMapper):
+    """The Bravyi-Kitaev fermion-to-qubit mapping."""
 
     @classmethod
     @lru_cache(maxsize=32)

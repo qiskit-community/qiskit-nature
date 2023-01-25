@@ -68,7 +68,6 @@ class LogarithmicMapper(SpinMapper):
                     \end{pmatrix}
 
         """
-        super().__init__(allows_two_qubit_reduction=False)
         self._padding = padding
         self._embed_upper = embed_upper
 

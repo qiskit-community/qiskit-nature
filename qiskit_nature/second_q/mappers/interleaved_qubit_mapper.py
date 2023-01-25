@@ -90,7 +90,6 @@ class InterleavedQubitMapper(FermionicMapper):
         Args:
             mapper: the actual ``FermionicMapper`` mapping :class:`.FermionicOp` to qubit operators.
         """
-        super().__init__(allows_two_qubit_reduction=mapper.allows_two_qubit_reduction)
         self.mapper = mapper
 
     def _map_single(self, second_q_op: FermionicOp) -> PauliSumOp:

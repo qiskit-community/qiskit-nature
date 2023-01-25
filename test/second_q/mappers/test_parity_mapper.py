@@ -90,11 +90,6 @@ class TestParityMapper(QiskitNatureTestCase):
         qubit_op_reduction = mapper.map(fermionic_op)
         self.assertEqual(qubit_op_reduction, TestParityMapper.REF_H2)
 
-    def test_allows_two_qubit_reduction(self):
-        """Test this returns True for this mapper"""
-        mapper = ParityMapper()
-        self.assertTrue(mapper.allows_two_qubit_reduction)
-
     def test_mapping_for_single_op(self):
         """Test for single register operator."""
         with self.subTest("test +"):

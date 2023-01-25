@@ -28,10 +28,8 @@ from qiskit_nature.second_q.operators import SpinOp
 from .spin_mapper import SpinMapper
 
 
-class LinearMapper(SpinMapper):  # pylint: disable=missing-class-docstring
-    def __init__(self):
-        """The Linear spin-to-qubit mapping."""
-        super().__init__(allows_two_qubit_reduction=False)
+class LinearMapper(SpinMapper):
+    """The Linear spin-to-qubit mapping."""
 
     def _map_single(self, second_q_op: SpinOp) -> PauliSumOp:
 

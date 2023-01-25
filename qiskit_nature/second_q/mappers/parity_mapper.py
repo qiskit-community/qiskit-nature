@@ -25,25 +25,35 @@ from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.analysis.z2_symmetries import Z2Symmetries
 from qiskit.quantum_info.operators import Pauli, PauliList, SparsePauliOp
 
+from qiskit_nature.deprecation import deprecate_property
 from qiskit_nature.second_q.operators import FermionicOp
 from .fermionic_mapper import FermionicMapper
 
 logger = logging.getLogger(__name__)
 
 
-class ParityMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
-    def __init__(self, num_particles: tuple[int, int] | None = None):
-        """The Parity fermion-to-qubit mapping.
+class ParityMapper(FermionicMapper):
+    """The Parity fermion-to-qubit mapping.
 
-        When using this mapper, :attr:`num_particles` can optionally be used to apply an additional step
-        of reduction after the mapping to pauli operators. The two-qubit reduction tapers two qubits
-        (middle and last qubit) because the spin orbitals are ordered in two spin sectors
-        (block spin order). Based on the provided number of particles this allows the automatic selection
-        of the correct symmetry sector.
+    When using this mapper, :attr:`num_particles` can optionally be used to apply an additional step
+    of reduction after the mapping to pauli operators. The two-qubit reduction tapers two qubits
+    (middle and last qubit) because the spin orbitals are ordered in two spin sectors
+    (block spin order). Based on the provided number of particles this allows the automatic selection
+    of the correct symmetry sector.
+    """
+
+    def __init__(self, num_particles: tuple[int, int] | None = None):
         """
-        super().__init__(allows_two_qubit_reduction=True)
+        Args:
+            num_particles: the number of particles. For more details refer to the class docstring.
+        """
         self._tapering_values: list | None = None
         self.num_particles = num_particles
+
+    @property
+    @deprecate_property("0.6.0")
+    def allows_two_qubit_reduction(self) -> bool:
+        return True
 
     @property
     def num_particles(self) -> tuple[int, int] | None:
