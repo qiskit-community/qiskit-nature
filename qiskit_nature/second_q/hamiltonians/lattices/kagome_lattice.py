@@ -25,6 +25,18 @@ from .boundary_condition import BoundaryCondition
 class KagomeLattice(Lattice):
     """Kagome lattice"""
 
+    # Dimension of lattice
+    _dim = 2
+
+    # Number of sites in a unit cell
+    _num_sites_per_cell = 3
+
+    # Relative positions (relative to site 0) of sites in a unit cell
+    _cell_positions = np.array([[0, 0], [1, 0], [1 / 2, np.sqrt(3) / 2]])
+
+    # Translation vectors in each direction
+    _basis = np.array([[2, 0], [1, np.sqrt(3)]])
+
     def _coordinate_to_index(self, coord: np.ndarray) -> int:
         """Convert the coordinate of a lattice point to an integer for labeling.
             When self.size=(l0, l1), then a coordinate (x0, x1) is converted as
@@ -231,12 +243,7 @@ class KagomeLattice(Lattice):
         self._rows = rows
         self._cols = cols
         self._size = (rows, cols)
-        self._dim = 2
         self._boundary_condition = boundary_condition
-        self._num_sites_per_cell = 3
-        self._cell_positions = np.array([[0, 0], [1, 0], [1 / 2, np.sqrt(3) / 2]])
-        self._basis = np.array([[2, 0], [1, np.sqrt(3)]])
-
         self._edge_parameter = edge_parameter
         self._onsite_parameter = onsite_parameter
 
