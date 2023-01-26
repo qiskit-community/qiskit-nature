@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -21,6 +21,7 @@ import numpy as np
 
 import qiskit_nature  # pylint: disable=unused-import
 from qiskit_nature.second_q.operators import ElectronicIntegrals, FermionicOp
+from qiskit_nature.utils import get_einsum
 
 
 class ElectronicDensity(ElectronicIntegrals):
@@ -34,7 +35,112 @@ class ElectronicDensity(ElectronicIntegrals):
     """
 
     @staticmethod
+    def _rdm2_from_rdm1s(
+        rdm1_a: np.ndarray, rdm1_b: np.ndarray, *, mixed_spin: bool = False
+    ) -> np.ndarray:
+        einsum_func, _ = get_einsum()
+        rdm2 = einsum_func("ij,kl->ijkl", rdm1_a, rdm1_b)
+        if not mixed_spin:
+            rdm2 -= einsum_func("ij,kl->ikjl", rdm1_a, rdm1_b)
+
+        return rdm2
+
+    @classmethod
+    def empty(cls, num_spatial_orbitals: int, *, include_rdm2: bool = True) -> ElectronicDensity:
+        """Initializes an empty (all-zero) ``ElectronicDensity``.
+
+        Args:
+            num_spatial_orbitals: the number of spatial orbitals.
+            include_rdm2: whether to include the 2-body RDMs.
+
+        Returns:
+            The resulting ``ElectronicDensity``.
+        """
+        rdm1 = np.zeros((num_spatial_orbitals, num_spatial_orbitals), dtype=float)
+        rdm2 = (
+            np.zeros(
+                (
+                    num_spatial_orbitals,
+                    num_spatial_orbitals,
+                    num_spatial_orbitals,
+                    num_spatial_orbitals,
+                ),
+                dtype=float,
+            )
+            if include_rdm2
+            else None
+        )
+
+        return ElectronicDensity.from_raw_integrals(
+            rdm1, rdm2, rdm1, rdm2, rdm2, auto_index_order=False
+        )
+
+    @classmethod
+    def identity(cls, num_spatial_orbitals: int, *, include_rdm2: bool = True) -> ElectronicDensity:
+        """Initializes an identity ``ElectronicDensity``.
+
+        Args:
+            num_spatial_orbitals: the number of spatial orbitals.
+            include_rdm2: whether to include the 2-body RDMs.
+
+        Returns:
+            The resulting ``ElectronicDensity``.
+        """
+        rdm1 = np.eye(num_spatial_orbitals, dtype=float)
+        rdm2: np.ndarray | None = None
+        rdm2_ba: np.ndarray | None = None
+        if include_rdm2:
+            rdm2 = ElectronicDensity._rdm2_from_rdm1s(rdm1, rdm1)
+            rdm2_ba = ElectronicDensity._rdm2_from_rdm1s(rdm1, rdm1, mixed_spin=True)
+
+        return ElectronicDensity.from_raw_integrals(
+            rdm1, rdm2, rdm1, rdm2, rdm2_ba, auto_index_order=False
+        )
+
+    @classmethod
+    def from_particle_number(
+        cls,
+        num_spatial_orbitals: int,
+        num_particles: int | tuple[int, int],
+        *,
+        include_rdm2: bool = True,
+    ) -> ElectronicDensity:
+        """Initializes an ``ElectronicDensity`` from the provided number of particles.
+
+        Args:
+            num_spatial_orbitals: the number of spatial orbitals.
+            num_particles: the number of particles. If this is an integer it is interpreted as the
+                total number of particles. If it is a tuple of two integers, these are treated as
+                the number of alpha- and beta-spin particles, respectively.
+            include_rdm2: whether to include the 2-body RDMs.
+
+        Returns:
+            The resulting ``ElectronicDensity``.
+        """
+        if isinstance(num_particles, int):
+            num_beta = num_particles // 2
+            num_alpha = num_particles - num_beta
+        else:
+            num_alpha, num_beta = num_particles
+
+        rdm1_a = np.diag([1.0 if i < num_alpha else 0.0 for i in range(num_spatial_orbitals)])
+        rdm1_b = np.diag([1.0 if i < num_beta else 0.0 for i in range(num_spatial_orbitals)])
+
+        rdm2_aa: np.ndarray | None = None
+        rdm2_bb: np.ndarray | None = None
+        rdm2_ba: np.ndarray | None = None
+        if include_rdm2:
+            rdm2_aa = ElectronicDensity._rdm2_from_rdm1s(rdm1_a, rdm1_a)
+            rdm2_bb = ElectronicDensity._rdm2_from_rdm1s(rdm1_b, rdm1_b)
+            rdm2_ba = ElectronicDensity._rdm2_from_rdm1s(rdm1_b, rdm1_a, mixed_spin=True)
+
+        return cls.from_raw_integrals(
+            rdm1_a, rdm2_aa, rdm1_b, rdm2_bb, rdm2_ba, auto_index_order=False
+        )
+
+    @classmethod
     def from_orbital_occupation(
+        cls,
         alpha_occupation: Sequence[float],
         beta_occupation: Sequence[float],
         *,
@@ -60,15 +166,11 @@ class ElectronicDensity(ElectronicIntegrals):
         rdm2_bb: np.ndarray | None = None
         rdm2_ba: np.ndarray | None = None
         if include_rdm2:
-            rdm2_aa = np.einsum("ij,kl->ijkl", rdm1_a, rdm1_a) - np.einsum(
-                "ij,kl->iklj", rdm1_a, rdm1_a
-            )
-            rdm2_bb = np.einsum("ij,kl->ijkl", rdm1_b, rdm1_b) - np.einsum(
-                "ij,kl->iklj", rdm1_b, rdm1_b
-            )
-            rdm2_ba = np.einsum("ij,kl->ijkl", rdm1_a, rdm1_b)
+            rdm2_aa = ElectronicDensity._rdm2_from_rdm1s(rdm1_a, rdm1_a)
+            rdm2_bb = ElectronicDensity._rdm2_from_rdm1s(rdm1_b, rdm1_b)
+            rdm2_ba = ElectronicDensity._rdm2_from_rdm1s(rdm1_b, rdm1_a, mixed_spin=True)
 
-        return ElectronicDensity.from_raw_integrals(
+        return cls.from_raw_integrals(
             rdm1_a, rdm2_aa, rdm1_b, rdm2_bb, rdm2_ba, auto_index_order=False
         )
 

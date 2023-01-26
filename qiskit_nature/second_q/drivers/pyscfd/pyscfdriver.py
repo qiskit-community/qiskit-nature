@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018, 2022.
+# (C) Copyright IBM 2018, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -512,9 +512,11 @@ class PySCFDriver(ElectronicStructureDriver):
         einsum_func, _ = get_einsum()
         data = _QCSchemaData()
 
-        data.mo_coeff, data.mo_coeff_b = self._extract_mo_data("mo_coeff", array_dimension=3)
-        data.mo_energy, data.mo_energy_b = self._extract_mo_data("mo_energy")
-        data.mo_occ, data.mo_occ_b = self._extract_mo_data("mo_occ")
+        data.mo_coeff, data.mo_coeff_b = self._expand_mo_object(
+            self._calc.mo_coeff, array_dimension=3
+        )
+        data.mo_energy, data.mo_energy_b = self._expand_mo_object(self._calc.mo_energy)
+        data.mo_occ, data.mo_occ_b = self._expand_mo_object(self._calc.mo_occ)
 
         if logger.isEnabledFor(logging.DEBUG):
             # Add some more to PySCF output...
@@ -629,36 +631,32 @@ class PySCFDriver(ElectronicStructureDriver):
 
         return problem
 
-    def _extract_mo_data(
-        self, name: str, array_dimension: int = 2
+    def _expand_mo_object(
+        self,
+        mo_object: tuple[np.ndarray | None, np.ndarray | None] | np.ndarray,
+        array_dimension: int = 2,
     ) -> tuple[np.ndarray, np.ndarray]:
-        """Extract molecular orbital data from a PySCF calculation object.
+        """Expands the molecular orbital object into alpha- and beta-spin components.
+
+        Since PySCF 1.6.2, the alpha and beta components are no longer stored as a tuple but as a
+        multi-dimensional numpy array. This utility takes care of differentiating these cases.
 
         Args:
-            name: the name of the molecular orbital data field to extract.
-            array_dimension: since PySCF 1.6.2, the alpha and beta components are no longer stored
-                as a tuple but as a multi-dimensional numpy array. This argument specifies the
-                dimension of that array in such a case. Making this configurable permits this
-                function to be used to extract both, MO coefficients (3D array) and MO energies (2D
-                array).
+            mo_object: the molecular orbital object to expand.
+            array_dimension:  This argument specifies the dimension of the numpy array (if a tuple
+                is not encountered). Making this configurable permits this function to be used to
+                expand both, MO coefficients (3D array) and MO energies (2D array).
 
         Returns:
             The (alpha, beta) tuple of MO data.
         """
-        attr = getattr(self._calc, name)
-        if isinstance(attr, tuple):
-            attr_alpha = attr[0]
-            attr_beta = attr[1]
-        else:
-            # Since PySCF 1.6.2, instead of a tuple it could be a multi-dimensional array with the
-            # first dimension indexing the arrays for alpha and beta
-            if len(attr.shape) == array_dimension:
-                attr_alpha = attr[0]
-                attr_beta = attr[1]
-            else:
-                attr_alpha = attr
-                attr_beta = None
-        return attr_alpha, attr_beta
+        if isinstance(mo_object, tuple):
+            return mo_object
+
+        if len(mo_object.shape) == array_dimension:
+            return mo_object[0], mo_object[1]
+
+        return mo_object, None
 
     def _process_pyscf_log(self, logfile: str) -> None:
         """Processes a PySCF logfile.
