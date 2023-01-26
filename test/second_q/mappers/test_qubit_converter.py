@@ -18,6 +18,7 @@ import unittest
 from test import QiskitNatureTestCase
 from typing import List, Optional
 
+from qiskit import QiskitError
 from qiskit.opflow import I, PauliSumOp, X, Y, Z, Z2Symmetries
 
 import qiskit_nature.optionals as _optionals
@@ -385,17 +386,32 @@ class TestQubitConverter(QiskitNatureTestCase):
             # It is thus ignored when associated with a Tapered Qubit Mapper.
             self.assertTrue(qubit_conv.z2symmetries.is_empty())
 
-        with self.subTest("Tapered Qubit Mapper and Parity Mapper"):
+        with self.subTest("Empty Parity Mapper and no two qubit reduction"):
             mapper = ParityMapper()
             tq_mapper = TaperedQubitMapper.from_problem(mapper, self.driver_result)
             qubit_conv = QubitConverter(tq_mapper)
-            qubit_op = qubit_conv.convert(self.h2_op)
+            qubit_op = qubit_conv.convert_match(self.h2_op)
             self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_TAPERED)
 
-        with self.subTest("Tapered Qubit Mapper and Parity Mapper and particle number"):
+        with self.subTest("Parity Mapper and two qubit reduction"):
+            mapper = ParityMapper(num_particles=(1, 1))
+            tq_mapper = TaperedQubitMapper.from_problem(mapper, self.driver_result)
+            qubit_conv = QubitConverter(tq_mapper, two_qubit_reduction=True)
+            qubit_op = qubit_conv.convert_match(self.h2_op)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_TAPERED)
+
+        with self.subTest("Parity Mapper and no two qubit reduction"):
             mapper = ParityMapper(num_particles=(1, 1))
             tq_mapper = TaperedQubitMapper.from_problem(mapper, self.driver_result)
             qubit_conv = QubitConverter(tq_mapper)
+            # Symmetries were build with the two qubit reduction. It cannot be later switched off.
+            with self.assertRaises(QiskitError):
+                qubit_op = qubit_conv.convert_match(self.h2_op)
+
+        with self.subTest("Empty Parity Mapper and two qubit reduction"):
+            mapper = ParityMapper()
+            tq_mapper = TaperedQubitMapper.from_problem(mapper, self.driver_result)
+            qubit_conv = QubitConverter(tq_mapper, two_qubit_reduction=True)
             qubit_op = qubit_conv.convert_match(self.h2_op)
             self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_TAPERED)
 

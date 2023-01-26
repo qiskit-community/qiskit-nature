@@ -35,6 +35,7 @@ from qiskit_nature.second_q.operators import SparseLabelOp
 
 from .qubit_mapper import QubitMapper, _ListOrDict
 from .parity_mapper import ParityMapper
+from .tapered_qubit_mapper import TaperedQubitMapper
 
 logger = logging.getLogger(__name__)
 
@@ -89,12 +90,15 @@ class QubitConverter:
                 later on anyways.
         """
 
-        self._mapper: QubitMapper = mapper
-        self._two_qubit_reduction: bool = (
-            two_qubit_reduction  # Setter does reset on particle number
-        )
+        self._mapper: QubitMapper = None
+        self._inner_mapper: QubitMapper = None
+        self.mapper: QubitMapper = mapper
+        # Setter also sets inner mapper
+        self._two_qubit_reduction: bool = two_qubit_reduction
+        # Setter does reset on particle number
         self._z2symmetry_reduction: Optional[Union[str, List[int]]] = None
-        self.z2symmetry_reduction = z2symmetry_reduction  # Setter does validation
+        self.z2symmetry_reduction = z2symmetry_reduction
+        # Setter does validation
 
         self._z2symmetries: Z2Symmetries = self._no_symmetries
 
@@ -113,6 +117,9 @@ class QubitConverter:
     def mapper(self, value: QubitMapper) -> None:
         """Set mapper"""
         self._mapper = value
+        self._inner_mapper = (
+            self._mapper.mapper if isinstance(self._mapper, TaperedQubitMapper) else self._mapper
+        )
         self._z2symmetries = None  # Reset as symmetries my change due to mapper change
 
     @property
@@ -155,8 +162,8 @@ class QubitConverter:
 
         This can also be set, for advanced usage, using :meth:`force_match`
         """
-        if isinstance(self._mapper, ParityMapper):
-            return self._mapper.num_particles
+        if isinstance(self._inner_mapper, ParityMapper):
+            return self._inner_mapper.num_particles
         else:
             return None
 
@@ -176,8 +183,8 @@ class QubitConverter:
         has one attribute :attr:`num_particles`. This must be called right before any mapping method of
         the mappers.
         """
-        if isinstance(self._mapper, ParityMapper) and not self.two_qubit_reduction:
-            self._mapper.num_particles = None
+        if isinstance(self._inner_mapper, ParityMapper) and not self.two_qubit_reduction:
+            self._inner_mapper.num_particles = None
 
     def convert(
         self,
@@ -205,8 +212,8 @@ class QubitConverter:
         Returns:
             PauliSumOp qubit operator
         """
-        if isinstance(self._mapper, ParityMapper):
-            self._mapper.num_particles = num_particles
+        if isinstance(self._inner_mapper, ParityMapper):
+            self._mapper.num_particles = num_particles  # type: ignore[attr-defined]
 
         self._check_reset_mapper()
 
@@ -236,8 +243,8 @@ class QubitConverter:
         Returns:
             PauliSumOp qubit operator
         """
-        if isinstance(self._mapper, ParityMapper) and num_particles is not None:
-            self._mapper.num_particles = num_particles
+        if isinstance(self._inner_mapper, ParityMapper) and num_particles is not None:
+            self._mapper.num_particles = num_particles  # type: ignore[attr-defined]
 
         self._check_reset_mapper()
 
@@ -263,8 +270,8 @@ class QubitConverter:
         Raises:
             ValueError: If format of Z2Symmetry tapering values is invalid
         """
-        if isinstance(self._mapper, ParityMapper) and num_particles is not None:
-            self._mapper.num_particles = num_particles
+        if isinstance(self._inner_mapper, ParityMapper) and num_particles is not None:
+            self._mapper.num_particles = num_particles  # type: ignore[attr-defined]
 
         if z2symmetries is not None:
             if not z2symmetries.is_empty():

@@ -152,10 +152,8 @@ class HartreeFock(BlueprintCircuit):
                 raise ValueError("The qubit converter cannot be `None`.")
             return False
 
-        if isinstance(self.qubit_converter, QubitConverter):
+        if isinstance(self.qubit_converter, (QubitConverter, TaperedQubitMapper)):
             mapper = self.qubit_converter.mapper
-        elif isinstance(self.qubit_converter, TaperedQubitMapper):
-            mapper = self.qubit_converter._mapper
         else:
             mapper = self.qubit_converter
 

@@ -72,10 +72,8 @@ class VSCF(BlueprintCircuit):
         """Sets the qubit converter."""
         self._invalidate()
 
-        if isinstance(conv, QubitConverter):
+        if isinstance(conv, (QubitConverter, TaperedQubitMapper)):
             mapper = conv.mapper
-        elif isinstance(conv, TaperedQubitMapper):
-            mapper = conv._mapper
         else:
             mapper = conv
 

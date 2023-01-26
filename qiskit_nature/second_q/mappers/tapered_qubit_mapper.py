@@ -15,7 +15,6 @@
 from __future__ import annotations
 
 import logging
-from copy import deepcopy
 from typing import cast, TYPE_CHECKING
 
 from qiskit.algorithms.list_or_dict import ListOrDict as ListOrDictType
@@ -25,7 +24,6 @@ from qiskit.quantum_info.operators import SparsePauliOp, Pauli
 
 from qiskit_nature.second_q.operators import SparseLabelOp
 
-from .parity_mapper import ParityMapper
 from .qubit_mapper import QubitMapper, _ListOrDict
 
 if TYPE_CHECKING:
@@ -37,6 +35,13 @@ logger = logging.getLogger(__name__)
 class TaperedQubitMapper(QubitMapper):  # pylint: disable=missing-class-docstring
     """The wrapper around qubit mappers implementing the logic to reduce the size of a problem (operator)
     based on mathematical `Z2Symmetries` that can be automatically detected in the operator.
+
+    The following attributes can be read and updated once the ``TaperedQubitMapper`` object has been
+    constructed.
+
+    Attributes:
+        mapper: Object defining the mapping of second quantized operators to Pauli operators.
+        z2symmetries: Symmetries to use to reduce the Pauli operators.
     """
 
     def __init__(
@@ -53,22 +58,8 @@ class TaperedQubitMapper(QubitMapper):  # pylint: disable=missing-class-docstrin
                 operators.
         """
         super().__init__()
-        self._mapper: QubitMapper = deepcopy(mapper)
+        self.mapper: QubitMapper = mapper
         self.z2symmetries = z2symmetries
-
-    @property
-    def num_particles(self) -> tuple[int, int] | None:
-        """Gets the number of particles."""
-        if isinstance(self._mapper, ParityMapper):
-            return self._mapper.num_particles
-        else:
-            return None
-
-    @num_particles.setter
-    def num_particles(self, value: tuple[int, int] | None) -> None:
-        """Sets the numbers of particle."""
-        if isinstance(self._mapper, ParityMapper):
-            self._mapper.num_particles = value
 
     @classmethod
     def from_problem(
@@ -97,7 +88,7 @@ class TaperedQubitMapper(QubitMapper):  # pylint: disable=missing-class-docstrin
         return TaperedQubitMapper(mapper, z2_symmetries)
 
     def _map_clifford_single(self, second_q_op: SparseLabelOp) -> SparsePauliOp:
-        mapped_op = self._mapper.map(second_q_op).primitive
+        mapped_op = self.mapper.map(second_q_op).primitive
         converted_op = self.z2symmetries.convert_clifford(mapped_op)
         return converted_op
 
