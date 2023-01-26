@@ -87,7 +87,7 @@ class QEOM(ExcitedStatesSolver):
     The excited-state energies are calculated by default in this algorithm for all excited states.
     Auxiliary observables can be specified to the ``solve`` method along with auxiliary evaluation
     rules of the ``QEOM`` object.
-    
+
     For more details, please refer to https://arxiv.org/abs/1910.12890.
 
     The following attributes can be read and updated once the ``QEOM`` object has been
@@ -950,7 +950,7 @@ class QEOM(ExcitedStatesSolver):
 
 class QEOMResult(EigensolverResult):
     """The results class for the qEOM algorithm.
-    
+
     For more details about the definitions, please refer to https://arxiv.org/abs/1910.12890.
 
     Attributes:
