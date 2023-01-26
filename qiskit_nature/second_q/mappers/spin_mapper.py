@@ -12,8 +12,22 @@
 
 """Spin Mapper."""
 
-from .qubit_mapper import QubitMapper
+from __future__ import annotations
+
+from qiskit.opflow.primitive_ops import PauliSumOp
+
+from qiskit_nature.second_q.operators import SpinOp
+
+from .qubit_mapper import ListOrDictType, QubitMapper
 
 
 class SpinMapper(QubitMapper):
     """Mapper of Spin Operator to Qubit Operator"""
+
+    def map(
+        self,
+        second_q_ops: SpinOp | ListOrDictType[SpinOp],
+        *,
+        register_length: int | None = None,
+    ) -> PauliSumOp | ListOrDictType[PauliSumOp]:
+        return super().map(second_q_ops, register_length=register_length)

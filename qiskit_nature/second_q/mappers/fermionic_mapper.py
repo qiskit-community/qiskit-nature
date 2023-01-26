@@ -12,8 +12,22 @@
 
 """Fermionic Mapper."""
 
-from .qubit_mapper import QubitMapper
+from __future__ import annotations
+
+from qiskit.opflow.primitive_ops import PauliSumOp
+
+from qiskit_nature.second_q.operators import FermionicOp
+
+from .qubit_mapper import ListOrDictType, QubitMapper
 
 
 class FermionicMapper(QubitMapper):
     """Mapper of Fermionic Operator to Qubit Operator"""
+
+    def map(
+        self,
+        second_q_ops: FermionicOp | ListOrDictType[FermionicOp],
+        *,
+        register_length: int | None = None,
+    ) -> PauliSumOp | ListOrDictType[PauliSumOp]:
+        return super().map(second_q_ops, register_length=register_length)

@@ -32,7 +32,6 @@ FermionicOp Mappers
    :toctree: ../stubs/
    :nosignatures:
 
-   FermionicMapper
    BravyiKitaevMapper
    BravyiKitaevSuperFastMapper
    JordanWignerMapper
@@ -55,7 +54,6 @@ VibrationalOp Mappers
    :toctree: ../stubs/
    :nosignatures:
 
-   VibrationalMapper
    DirectMapper
 
 
@@ -66,7 +64,6 @@ SpinOp Mappers
    :toctree: ../stubs/
    :nosignatures:
 
-   SpinMapper
    LinearMapper
    LogarithmicMapper
 
@@ -102,9 +99,6 @@ from .logarithmic_mapper import LogarithmicMapper
 from .direct_mapper import DirectMapper
 from .qubit_mapper import QubitMapper
 from .qubit_converter import QubitConverter
-from .fermionic_mapper import FermionicMapper
-from .spin_mapper import SpinMapper
-from .vibrational_mapper import VibrationalMapper
 from .interleaved_qubit_mapper import InterleavedQubitMapper
 from .tapered_qubit_mapper import TaperedQubitMapper
 
