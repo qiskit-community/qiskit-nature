@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The kagome lattice"""
+"""The Kagome lattice"""
 from dataclasses import asdict
 from itertools import product
 from typing import Dict, List, Optional, Tuple
@@ -236,9 +236,6 @@ class KagomeLattice(Lattice):
                 The available boundary conditions are:
                 ``BoundaryCondition.OPEN``, ``BoundaryCondition.PERIODIC``.
                 Defaults to ``BoundaryCondition.OPEN``.
-
-        Raises:
-            ValueError: Given size, edge parameter or boundary condition are invalid values.
         """
         self._rows = rows
         self._cols = cols
