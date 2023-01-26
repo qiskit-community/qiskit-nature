@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The Kagome lattice"""
+"""The kagome lattice"""
 from dataclasses import asdict
 from itertools import product
 from typing import Dict, List, Optional, Tuple
@@ -18,12 +18,45 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 from rustworkx import PyGraph
 
-from .lattice import LatticeDrawStyle, Lattice
 from .boundary_condition import BoundaryCondition
+from .lattice import Lattice, LatticeDrawStyle
 
 
 class KagomeLattice(Lattice):
-    """Kagome lattice"""
+    r"""The two-dimensional kagome lattice.
+
+    The kagome lattice is a two-dimensional Bravais lattice formed by tiling together
+    equilateral triangles and regular hexagons in an alternating pattern. The lattice is
+    spanned by the primitive lattice vectors :math:`\vec{a}_{1} = (1, 0)^{\top}` and
+    :math:`\vec{a}_{2} = (1/2, \sqrt{3}/2)^{\top}` with each unit cell consisting of three
+    lattice sites located at :math:`\vec{r}_0 = \mathbf{0}`, :math:`\vec{r}_1 = 2\vec{a}_{1}`
+    and :math:`\vec{r}_2 = 2 \vec{a}_{2}`, respectively.
+
+    This class allows for the simple construction of kagome lattices. For example,
+
+    .. code-block:: python
+
+        from qiskit_nature.second_q.hamiltonians.lattices import (
+            BoundaryCondition,
+            KagomeLattice,
+        )
+
+        kagome = KagomeLattice(
+            5,
+            4,
+            edge_parameter = 1.0,
+            onsite_parameter = 2.0,
+            boundary_condition = BoundaryCondition.PERIODIC
+        )
+
+    instantiate a kagome lattice with 5 and 4 unit cells in the x and y direction,
+    respectively, which has weights 1.0 on all edges and weights 2.0 on self-loops.
+    The boundary conditions are periodic for the entire lattice.
+
+     References:
+        - `Kagome Lattice @ wikipedia <https://en.wikipedia.org/wiki/Trihexagonal_tiling>`_
+        - `Bravais Lattice @ wikipedia <https://en.wikipedia.org/wiki/Bravais_lattice>`_
+    """
 
     # Dimension of lattice
     _dim = 2
@@ -34,8 +67,8 @@ class KagomeLattice(Lattice):
     # Relative positions (relative to site 0) of sites in a unit cell
     _cell_positions = np.array([[0, 0], [1, 0], [1 / 2, np.sqrt(3) / 2]])
 
-    # Translation vectors in each direction
-    _basis = np.array([[2, 0], [1, np.sqrt(3)]])
+    # Primitive translation vectors in each direction
+    _basis = np.array([[1, 0], [1, np.sqrt(3)]])
 
     def _coordinate_to_index(self, coord: np.ndarray) -> int:
         """Convert the coordinate of a lattice point to an integer for labeling.
@@ -186,7 +219,7 @@ class KagomeLattice(Lattice):
             )
         return list_of_edges
 
-    def _default_position(self) -> Dict[int, List[float]]:
+    def _default_position(self, with_boundaries: bool = True) -> Dict[int, List[float]]:
         """Return a dictionary of default positions for visualization of a two-dimensional lattice.
 
         Returns:
@@ -198,7 +231,7 @@ class KagomeLattice(Lattice):
         num_sites_per_cell = self._num_sites_per_cell
         pos = {}
         width = 0.0
-        if boundary_condition == BoundaryCondition.PERIODIC:
+        if with_boundaries and boundary_condition == BoundaryCondition.PERIODIC:
             # the positions are shifted along the x- and y-direction
             # when the boundary condition is periodic.
             # The width of the shift is fixed to 0.2.
@@ -211,9 +244,34 @@ class KagomeLattice(Lattice):
                 np.pi * (np.array(divmod(cell_idx, size[0]))) / (np.array(size)[::-1] - 1)
             )
 
-            for i in range(3):
+            for i in range(num_sites_per_cell):
                 node_i = num_sites_per_cell * cell_idx + i
                 pos[node_i] = (np.dot(cell_coord, self._basis) + self._cell_positions[i]).tolist()
+        return pos
+
+    def _style_pos(self) -> Dict[int, List[float]]:
+        """Return a dictionary of positions for visualization of a two-dimensional lattice without
+            boundaries.
+
+        Returns:
+            Dict[int, List[float]] : The keys are the labels of lattice points,
+                and the values are two-dimensional coordinates.
+        """
+        size = self._size
+        num_sites_per_cell = self._num_sites_per_cell
+        basis = self._basis
+        cell_positions = self._cell_positions
+        pos = {}
+
+        for cell_idx in range(np.prod(size)):
+            # maps an cell index to two-dimensional coordinate
+            # the positions are shifted so that the edges between boundaries can be seen
+            # for the periodic cases.
+            cell_coord = np.array(divmod(cell_idx, size[0])[::-1])
+
+            for i in range(num_sites_per_cell):
+                node_i = num_sites_per_cell * cell_idx + i
+                pos[node_i] = (np.dot(cell_coord, basis) + cell_positions[i]).tolist()
         return pos
 
     def __init__(
@@ -312,7 +370,7 @@ class KagomeLattice(Lattice):
 
     @property
     def boundary_condition(self) -> BoundaryCondition:
-        """Boundary condition for entire lattice.
+        """Boundary condition for the entire lattice.
 
         Returns:
             the boundary condition.
@@ -335,8 +393,6 @@ class KagomeLattice(Lattice):
                 for details.
         """
         graph = self.graph
-        num_sites_per_cell = self._num_sites_per_cell
-        size = self._size
 
         if style is None:
             style = LatticeDrawStyle()
@@ -344,15 +400,7 @@ class KagomeLattice(Lattice):
             style = LatticeDrawStyle(**style)
 
         if style.pos is None:
-            style.pos = {}
-            for cell_idx in range(np.prod(size)):
-                cell_coord = np.array(divmod(cell_idx, size[0])[::-1])
-
-                for i in range(3):
-                    node_i = num_sites_per_cell * cell_idx + i
-                    style.pos[node_i] = (
-                        np.dot(cell_coord, self._basis) + self._cell_positions[i]
-                    ).tolist()
+            style.pos = self._default_position(with_boundaries=False)
 
         graph.remove_edges_from(self.boundary_edges)
 
