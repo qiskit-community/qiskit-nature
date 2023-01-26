@@ -87,6 +87,8 @@ class QEOM(ExcitedStatesSolver):
     The excited-state energies are calculated by default in this algorithm for all excited states.
     Auxiliary observables can be specified to the ``solve`` method along with auxiliary evaluation
     rules of the ``QEOM`` object.
+    
+    For more details, please refer to https://arxiv.org/abs/1910.12890.
 
     The following attributes can be read and updated once the ``QEOM`` object has been
     constructed.
@@ -268,6 +270,7 @@ class QEOM(ExcitedStatesSolver):
         Args:
             problem: A class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
+
         Returns:
             An interpreted :class:`~.EigenstateResult`. For more information see also
             :meth:`~.BaseProblem.interpret`.
@@ -839,7 +842,7 @@ class QEOM(ExcitedStatesSolver):
     ) -> tuple[dict[tuple[int, int], dict[str, Any]], dict[tuple[int, int], dict[str, Any]]]:
         """Evaluate the expectation values and transition amplitudes of the auxiliary operators on the
         excited states. Custom rules can be used to define which expectation values and transition
-        amplitudes to compute. A typical rule is specified in the form of a nary
+        amplitudes to compute. A typical rule is specified in the form of a dictionary
         {'hamiltonian':[(1,1)]}
 
         Args:
@@ -947,6 +950,8 @@ class QEOM(ExcitedStatesSolver):
 
 class QEOMResult(EigensolverResult):
     """The results class for the qEOM algorithm.
+    
+    For more details about the definitions, please refer to https://arxiv.org/abs/1910.12890.
 
     Attributes:
         ground_state_raw_result: The raw results of the ground state eigensolver.
