@@ -248,7 +248,7 @@ class TestTaperedQubitMapper(QiskitNatureTestCase):
             jw_tqm = TaperedQubitMapper.from_problem(self.jw_mapper, self.driver_result)
             jw_op_h2 = jw_tqm.map_clifford(self.h2_op)
             self.assertTrue(jw_op_h2.primitive.equiv(TestTaperedQubitMapper.REF_H2_JW_CLIF))
-            # Go to Clif if z2 not empty even if Num_particles is empty
+            # Compose with symmetry cliffords if z2 not empty even if Num_particles is empty
             jw_tqm.tapering_values = None
             self.assertTrue(jw_op_h2.primitive.equiv(TestTaperedQubitMapper.REF_H2_JW_CLIF))
 
@@ -260,7 +260,7 @@ class TestTaperedQubitMapper(QiskitNatureTestCase):
             pt_tqm = TaperedQubitMapper.from_problem(self.pt_mapper, self.driver_result)
             pt_op_h2 = pt_tqm.map_clifford(self.h2_op)
             self.assertTrue(pt_op_h2.primitive.equiv(TestTaperedQubitMapper.REF_H2_PT_CLIF))
-            # Go to Clif if z2 not empty even if Num_particles is empty
+            # Compose with symmetry cliffords if z2 not empty even if Num_particles is empty
             pt_tqm.tapering_values = None
             self.assertTrue(pt_op_h2.primitive.equiv(TestTaperedQubitMapper.REF_H2_PT_CLIF))
 
