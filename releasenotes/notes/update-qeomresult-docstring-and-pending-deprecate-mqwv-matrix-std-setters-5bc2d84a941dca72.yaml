@@ -1,9 +1,4 @@
 ---
-features:
-  - |
-    Completed the missing documentation for the new attributes of the class
-    :class:`~qiskit_nature.second_q.algorithms.excited_state_solvers.qeom.QEOMResult`.
-
 deprecations:
   - |
     The M, Q, W, V matrix standard deviation setters from the class 

@@ -939,8 +939,6 @@ class QEOM(ExcitedStatesSolver):
             groundstate_result.eigenvalues[0], excited_eigenenergies
         )
 
-        qeom_result.eigenstates = np.array([])
-
         eigenstate_result = EigenstateResult.from_result(qeom_result)
         result = problem.interpret(eigenstate_result)
 
@@ -955,15 +953,16 @@ class QEOMResult(EigensolverResult):
         excitation_energies: The excitation energies approximated by the qEOM algorithm.
         expansion_coefficients: The expansion coefficients matrix of the excitation operators onto the
             set of basis operators spanning the linear qEOM subspace.
-        eigenstates: Approximated excited states of the hamiltonian. Note that these are set to an empty
-            list as they cannot be provided as circuits by the qEOM algorithm but are required for the
-            results.
-        h_matrix: Matrix representing the Hamiltonian in the qEOM subspace.
-        s_matrix: Matrix representing the geometry of the qEOM subspace.
-        h_matrix_std: 2 by 2 matrix of the summed standard deviation of all elements of the matrices
-            M, Q and their conjugates.
-        s_matrix_std: 2 by 2 matrix of the summed standard deviation of all elements of the matrices
-            V, W and their conjugates.
+        h_matrix: Matrix representing the Hamiltonian in the qEOM subspace. Because of our choice for the
+            expansion basis, the two square sub-matrices on the diagonal are related by a transposition
+            and the two submatrices on the anti diagonal are hermitian conjugates.
+        s_matrix: Matrix representing the geometry of the qEOM subspace. Because of our choice for the
+            expansion basis, the two square submatrices on the diagonal are related by a transposition
+            (with a sign) and the two submatrices on the anti diagonal are hermitian conjugates.
+        h_matrix_std: 2 by 2 matrix representing the sums of standard deviations in the four square
+            submatrices of H.
+        s_matrix_std: 2 by 2 matrix representing the sums of standard deviations in the four square
+            submatrices of S.
         transition_amplitudes: Transition amplitudes of the auxiliary operators computed following the
             evaluation rules specified when the qEOM class was created.
     """
@@ -973,7 +972,6 @@ class QEOMResult(EigensolverResult):
         self.ground_state_raw_result = None
         self.excitation_energies: np.ndarray | None = None
         self.expansion_coefficients: np.ndarray | None = None
-        self.eigenstates: np.ndarray | None = None
         self.h_matrix: np.ndarray | None = None
         self.s_matrix: np.ndarray | None = None
         self.h_matrix_std: np.ndarray = np.zeros((2, 2))
