@@ -48,7 +48,6 @@ from qiskit_nature.second_q.algorithms.excited_states_solvers.excited_states_sol
 from qiskit_nature.second_q.mappers import (
     QubitConverter,
     QubitMapper,
-    ParityMapper,
     TaperedQubitMapper,
 )
 from qiskit_nature.second_q.operators import SparseLabelOp
@@ -276,8 +275,6 @@ class QEOM(ExcitedStatesSolver):
         elif isinstance(self.qubit_converter, TaperedQubitMapper):
             main_op = self.qubit_converter.map_clifford(main_operator)
         else:
-            if isinstance(self.qubit_converter, ParityMapper):
-                self.qubit_converter.num_particles = num_particles
             main_op = self.qubit_converter.map(main_operator)
 
         # 3. Convert the auxiliary operators.
@@ -693,7 +690,6 @@ class QEOM(ExcitedStatesSolver):
         if isinstance(self.qubit_converter, QubitConverter):
             untap_hopping_ops = self.qubit_converter.convert_clifford(hopping_operators)
         else:
-            # TODO Issue #974 Implement convert clifford for the tapered qubit mapper
             untap_hopping_ops = hopping_operators
 
         untap_hopping_ops_sparse = {key: op.primitive for key, op in untap_hopping_ops.items()}
@@ -834,7 +830,6 @@ class QEOM(ExcitedStatesSolver):
                 untap_hopping_ops_sumop, suppress_none=True
             )
         else:
-            # TODO Issue #974 Implement symmetry reduce clifford for the tapered qubit mapper
             tap_hopping_ops_sumop = untap_hopping_ops_sumop
 
         additionnal_measurements = estimate_observables(
@@ -991,7 +986,6 @@ class QEOM(ExcitedStatesSolver):
                     op_aux_op_dict_sumop, suppress_none=True
                 )
             else:
-                # TODO Issue #974 Implement symmetry reduce clifford for the tapered qubit mapper
                 tap_op_aux_op_dict_sumop = op_aux_op_dict_sumop
 
             aux_measurements = estimate_observables(
@@ -1054,9 +1048,6 @@ class QEOM(ExcitedStatesSolver):
         qeom_result.eigenvalues = np.append(
             groundstate_result.eigenvalues[0], excited_eigenenergies
         )
-
-        qeom_result.eigenstates = np.array([])
-
         eigenstate_result = EigenstateResult.from_result(qeom_result)
         result = problem.interpret(eigenstate_result)
 
@@ -1072,7 +1063,6 @@ class QEOMResult(EigensolverResult):
         self.excitation_energies: np.ndarray | None = None
         self.expansion_coefficients: np.ndarray | None = None
         self.eigenvalues: np.ndarray | None = None
-        self.eigenstates: np.ndarray | None = None
         self.h_matrix: np.ndarray | None = None
         self.s_matrix: np.ndarray | None = None
         self.h_matrix_std: np.ndarray = np.zeros((2, 2))

@@ -152,11 +152,12 @@ class HartreeFock(BlueprintCircuit):
                 raise ValueError("The qubit converter cannot be `None`.")
             return False
 
-        mapper = (
-            self.qubit_converter
-            if isinstance(self.qubit_converter, QubitMapper)
-            else self.qubit_converter.mapper
-        )
+        if isinstance(self.qubit_converter, QubitConverter):
+            mapper = self.qubit_converter.mapper
+        elif isinstance(self.qubit_converter, TaperedQubitMapper):
+            mapper = self.qubit_converter._mapper
+        else:
+            mapper = self.qubit_converter
 
         if isinstance(mapper, BravyiKitaevSuperFastMapper):
             if raise_on_failure:
@@ -227,6 +228,7 @@ def hartree_fock_bitstring_mapped(
     Returns:
         The bitstring representing the mapped state of the Hartree-Fock state as array of bools.
     """
+    # TODO: Remove match convert argument
 
     # get the bitstring encoding the Hartree Fock state
     bitstr = hartree_fock_bitstring(num_spatial_orbitals, num_particles)

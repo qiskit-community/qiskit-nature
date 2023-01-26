@@ -71,7 +71,14 @@ class VSCF(BlueprintCircuit):
     def qubit_converter(self, conv: QubitConverter | QubitMapper | None) -> None:
         """Sets the qubit converter."""
         self._invalidate()
-        mapper = conv if isinstance(conv, QubitMapper) else conv.mapper
+
+        if isinstance(conv, QubitConverter):
+            mapper = conv.mapper
+        elif isinstance(conv, TaperedQubitMapper):
+            mapper = conv._mapper
+        else:
+            mapper = conv
+
         if not isinstance(mapper, DirectMapper):
             logger.warning(
                 "The only supported `QubitConverter` is one with a `DirectMapper` as the mapper "

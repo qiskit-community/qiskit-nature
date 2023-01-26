@@ -32,6 +32,7 @@ from qiskit_nature.second_q.mappers import (
     BravyiKitaevMapper,
     JordanWignerMapper,
     ParityMapper,
+    QubitMapper,
 )
 from qiskit_nature.second_q.mappers.tapered_qubit_mapper import TaperedQubitMapper
 
@@ -71,6 +72,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         self.mapper = JordanWignerMapper()
         self.qubit_converter = QubitConverter(self.mapper)
         self.electronic_structure_problem = self.driver.run()
+        self.num_particles = self.electronic_structure_problem.num_particles
 
         solver = NumPyEigensolver()
         self.ref = solver
@@ -95,20 +97,17 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         self._assert_energies(results.computed_energies, self.reference_energies)
 
     @named_data(
-        ["JWM", JordanWignerMapper()],
-        ["PM", ParityMapper()],
-        ["PM_TQR", ParityMapper(num_particles=(1, 1))],
-        ["QC_JWM", QubitConverter(JordanWignerMapper())],
-        ["QC_JWM_Z2", QubitConverter(JordanWignerMapper(), z2symmetry_reduction="auto")],
-        ["QC_PM", QubitConverter(ParityMapper())],
-        ["QC_PM_TQR", QubitConverter(ParityMapper(), two_qubit_reduction=True)],
-        ["QC_PM_Z2", QubitConverter(ParityMapper(), z2symmetry_reduction="auto")],
+        ["JWM", QubitConverter(JordanWignerMapper())],
+        ["JWM_Z2", QubitConverter(JordanWignerMapper(), z2symmetry_reduction="auto")],
+        ["PM", QubitConverter(ParityMapper())],
+        ["PM_TQR", QubitConverter(ParityMapper(), two_qubit_reduction=True)],
+        ["PM_Z2", QubitConverter(ParityMapper(), z2symmetry_reduction="auto")],
         [
-            "QC_PM_TQR_Z2",
+            "PM_TQR_Z2",
             QubitConverter(ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto"),
         ],
-        ["QC_BKM", QubitConverter(BravyiKitaevMapper())],
-        ["QC_BKM_Z2", QubitConverter(BravyiKitaevMapper(), z2symmetry_reduction="auto")],
+        ["BKM", QubitConverter(BravyiKitaevMapper())],
+        ["BKM_Z2", QubitConverter(BravyiKitaevMapper(), z2symmetry_reduction="auto")],
     )
     def test_solve_with_vqe_mes(self, converter: QubitConverter):
         """Test QEOM with VQEUCCFactory and various QubitConverter"""
@@ -116,6 +115,20 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         estimator = Estimator()
         solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
         gsc = GroundStateEigensolver(converter, solver)
+        esc = QEOM(gsc, estimator, "sd")
+        results = esc.solve(self.electronic_structure_problem)
+        self._assert_energies(results.computed_energies, self.reference_energies)
+
+    @named_data(
+        ["JWM", JordanWignerMapper()],
+        ["PM", ParityMapper()],
+        ["PM_TQR", ParityMapper(num_particles=(1, 1))],
+    )
+    def test_solve_with_vqe_mes_mapper(self, mapper: QubitMapper):
+        """Test QEOM with VQEUCCFactory and various QubitMapper"""
+        estimator = Estimator()
+        solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
+        gsc = GroundStateEigensolver(mapper, solver)
         esc = QEOM(gsc, estimator, "sd")
         results = esc.solve(self.electronic_structure_problem)
         self._assert_energies(results.computed_energies, self.reference_energies)
@@ -247,27 +260,25 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
                     computed_energies_mapper.append(comp_energy)
             self._assert_energies(computed_energies_mapper, self.reference_energies)
 
-    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
-    def test_solver_compatibility_with_taperedqubitmappers(self):
-        """Test that solvers can use TaperedQubitMapper"""
+    @named_data(
+        ["JW", lambda n, esp: TaperedQubitMapper(JordanWignerMapper())],
+        ["JW_Z2", lambda n, esp: TaperedQubitMapper.from_problem(JordanWignerMapper(), esp)],
+        ["PM", lambda n, esp: TaperedQubitMapper(ParityMapper())],
+        ["PM_Z2", lambda n, esp: TaperedQubitMapper.from_problem(ParityMapper(), esp)],
+        ["PM_TQR", lambda n, esp: TaperedQubitMapper(ParityMapper(n))],
+        ["PM_TQR_Z2", lambda n, esp: TaperedQubitMapper.from_problem(ParityMapper(n), esp)],
+    )
+    def test_solve_with_vqe_mes_taperedmapper(self, tapered_mapper_creator):
+        """Test QEOM with VQEUCCFactory and various QubitMapper"""
+        tapered_mapper = tapered_mapper_creator(
+            self.num_particles, self.electronic_structure_problem
+        )
         estimator = Estimator()
         solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
-        # mapper = ParityMapper(two_qubit_reduction=True, num_particles=None)
-        mapper = JordanWignerMapper()
-
-        with self.subTest("QEOM with Tapered Qubit Mapper"):
-            tapered_qubit_mapper = TaperedQubitMapper.from_problem(
-                mapper, self.electronic_structure_problem
-            )
-            gsc = GroundStateEigensolver(tapered_qubit_mapper, solver)
-            esc = QEOM(gsc, estimator, "sd")
-            results_mapper = esc.solve(self.electronic_structure_problem)
-            # filter duplicates from list
-            computed_energies_mapper = [results_mapper.computed_energies[0]]
-            for comp_energy in results_mapper.computed_energies[1:]:
-                if not np.isclose(comp_energy, computed_energies_mapper[-1]):
-                    computed_energies_mapper.append(comp_energy)
-            self._assert_energies(computed_energies_mapper, self.reference_energies)
+        gsc = GroundStateEigensolver(tapered_mapper, solver)
+        esc = QEOM(gsc, estimator, "sd")
+        results = esc.solve(self.electronic_structure_problem)
+        self._assert_energies(results.computed_energies, self.reference_energies)
 
 
 if __name__ == "__main__":
