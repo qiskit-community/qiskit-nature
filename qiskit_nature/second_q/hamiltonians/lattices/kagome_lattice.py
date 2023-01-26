@@ -35,8 +35,8 @@ class KagomeLattice(Lattice):
         Returns:
             int: Return x0 + x1*l0 when coord=np.array([x0, x1]) and self.size=(l0, l1).
         """
-        dim = self.dim
-        size = self.size
+        dim = self._dim
+        size = self._size
         base = np.array([np.prod(size[:i]) for i in range(dim)], dtype=int)
         return np.dot(coord, base).item()
 
@@ -45,9 +45,9 @@ class KagomeLattice(Lattice):
         Returns:
             List[Tuple[int, int, complex]] : List of the self-loops.
         """
-        size = self.size
-        onsite_parameter = self.onsite_parameter
-        num_nodes = self.num_sites_per_cell * np.prod(size)
+        size = self._size
+        onsite_parameter = self._onsite_parameter
+        num_nodes = self._num_sites_per_cell * np.prod(size)
         return [(node_a, node_a, onsite_parameter) for node_a in range(num_nodes)]
 
     def _bulk_edges(self) -> List[Tuple[int, int, complex]]:
@@ -56,9 +56,9 @@ class KagomeLattice(Lattice):
         Returns:
             List[Tuple[int, int, complex]] : List of weighted edges that don't cross the boundaries.
         """
-        size = self.size
-        edge_parameter = self.edge_parameter
-        num_sites_per_cell = self.num_sites_per_cell
+        size = self._size
+        edge_parameter = self._edge_parameter
+        num_sites_per_cell = self._num_sites_per_cell
         list_of_edges = []
         rows, cols = size
         unit_cell_coordinates = list(product(*map(range, size)))
@@ -107,10 +107,10 @@ class KagomeLattice(Lattice):
             List[Tuple[int, int, complex]]: List of weighted edges that cross the boundaries.
         """
         list_of_edges = []
-        size = self.size
-        edge_parameter = self.edge_parameter
-        num_sites_per_cell = self.num_sites_per_cell
-        boundary_condition = self.boundary_condition
+        size = self._size
+        edge_parameter = self._edge_parameter
+        num_sites_per_cell = self._num_sites_per_cell
+        boundary_condition = self._boundary_condition
         rows, cols = size
         # add edges when the boundary condition is periodic.
         if boundary_condition == BoundaryCondition.PERIODIC:
@@ -181,9 +181,9 @@ class KagomeLattice(Lattice):
             Dict[int, List[float]] : The keys are the labels of lattice points,
                 and the values are two-dimensional coordinates.
         """
-        size = self.size
-        boundary_condition = self.boundary_condition
-        num_sites_per_cell = self.num_sites_per_cell
+        size = self._size
+        boundary_condition = self._boundary_condition
+        num_sites_per_cell = self._num_sites_per_cell
         pos = {}
         width = 0.0
         if boundary_condition == BoundaryCondition.PERIODIC:
@@ -201,7 +201,7 @@ class KagomeLattice(Lattice):
 
             for i in range(3):
                 node_i = num_sites_per_cell * cell_idx + i
-                pos[node_i] = (np.dot(cell_coord, self.basis) + self.cell_positions[i]).tolist()
+                pos[node_i] = (np.dot(cell_coord, self._basis) + self._cell_positions[i]).tolist()
         return pos
 
     def __init__(
@@ -228,20 +228,20 @@ class KagomeLattice(Lattice):
         Raises:
             ValueError: Given size, edge parameter or boundary condition are invalid values.
         """
-        self.rows = rows
-        self.cols = cols
-        self.size = (rows, cols)
-        self.dim = 2
-        self.boundary_condition = boundary_condition
-        self.num_sites_per_cell = 3
-        self.cell_positions = np.array([[0, 0], [1, 0], [1 / 2, np.sqrt(3) / 2]])
-        self.basis = np.array([[2, 0], [1, np.sqrt(3)]])
+        self._rows = rows
+        self._cols = cols
+        self._size = (rows, cols)
+        self._dim = 2
+        self._boundary_condition = boundary_condition
+        self._num_sites_per_cell = 3
+        self._cell_positions = np.array([[0, 0], [1, 0], [1 / 2, np.sqrt(3) / 2]])
+        self._basis = np.array([[2, 0], [1, np.sqrt(3)]])
 
-        self.edge_parameter = edge_parameter
-        self.onsite_parameter = onsite_parameter
+        self._edge_parameter = edge_parameter
+        self._onsite_parameter = onsite_parameter
 
         graph = PyGraph(multigraph=False)
-        graph.add_nodes_from(range(self.num_sites_per_cell * np.prod(self.size)))
+        graph.add_nodes_from(range(self._num_sites_per_cell * np.prod(self._size)))
 
         # add edges excluding the boundary edges
         bulk_edges = self._bulk_edges()
@@ -261,6 +261,60 @@ class KagomeLattice(Lattice):
         # default position
         self.pos = self._default_position()
 
+    @property
+    def rows(self) -> int:
+        """Number of unit cells in the x direction.
+
+        Returns:
+            the number.
+        """
+        return self._rows
+
+    @property
+    def cols(self) -> int:
+        """Number of unit cells in the y direction.
+
+        Returns:
+            the number
+        """
+        return self._cols
+
+    @property
+    def size(self) -> Tuple[int, int]:
+        """Number of unit cells in the x and y direction, respectively.
+
+        Returns:
+            the size.
+        """
+        return self._size
+
+    @property
+    def edge_parameter(self) -> complex:
+        """Weights on all edges.
+
+        Returns:
+            the parameter for the edges.
+        """
+        return self._edge_parameter
+
+    @property
+    def onsite_parameter(self) -> complex:
+        """Weight on the self-loops.
+
+        Returns:
+            the parameter for the self-loops.
+        """
+        return self._onsite_parameter
+
+    @property
+    def boundary_condition(self) -> BoundaryCondition:
+        """Boundary condition for entire lattice.
+
+        Returns:
+            the boundary condition.
+        """
+        return self._boundary_condition
+
     def draw_without_boundary(
         self,
         *,
@@ -277,8 +331,8 @@ class KagomeLattice(Lattice):
                 for details.
         """
         graph = self.graph
-        num_sites_per_cell = self.num_sites_per_cell
-        size = self.size
+        num_sites_per_cell = self._num_sites_per_cell
+        size = self._size
 
         if style is None:
             style = LatticeDrawStyle()
@@ -293,7 +347,7 @@ class KagomeLattice(Lattice):
                 for i in range(3):
                     node_i = num_sites_per_cell * cell_idx + i
                     style.pos[node_i] = (
-                        np.dot(cell_coord, self.basis) + self.cell_positions[i]
+                        np.dot(cell_coord, self._basis) + self._cell_positions[i]
                     ).tolist()
 
         graph.remove_edges_from(self.boundary_edges)
