@@ -139,6 +139,13 @@ class TestJordanWignerMapper(QiskitNatureTestCase):
         for k in mapped_ops.keys():
             self.assertEqual(mapped_ops[k], expected[k])
 
+    def test_mapping_overwrite_reg_len(self):
+        """Test overwriting the register length."""
+        op = FermionicOp({"+_0 -_0": 1}, num_spin_orbitals=1)
+        expected = FermionicOp({"+_0 -_0": 1}, num_spin_orbitals=3)
+        mapper = JordanWignerMapper()
+        self.assertEqual(mapper.map(op, register_length=3), mapper.map(expected))
+
 
 if __name__ == "__main__":
     unittest.main()

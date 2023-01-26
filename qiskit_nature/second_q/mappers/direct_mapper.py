@@ -18,11 +18,9 @@ from functools import lru_cache
 
 import numpy as np
 
-from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators import Pauli
 
 from qiskit_nature.deprecation import deprecate_arguments
-from qiskit_nature.second_q.operators import VibrationalOp
 from .vibrational_mapper import VibrationalMapper
 
 
@@ -51,6 +49,3 @@ class DirectMapper(VibrationalMapper):
             pauli_table.append((Pauli((a_z, a_x)), Pauli((b_z, b_x))))
 
         return pauli_table
-
-    def _map_single(self, second_q_op: VibrationalOp) -> PauliSumOp:
-        return DirectMapper.mode_based_mapping(second_q_op)

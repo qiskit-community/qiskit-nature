@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
+from abc import ABC
 from functools import lru_cache
 from typing import Union, TypeVar, Dict, Iterable, Generic, Tuple, Generator, Optional
 
@@ -109,28 +109,37 @@ class QubitMapper(ABC):
         """
         return False
 
-    @abstractmethod
-    def _map_single(self, second_q_op: SparseLabelOp) -> PauliSumOp:
+    def _map_single(
+        self, second_q_op: SparseLabelOp, *, register_length: int | None = None
+    ) -> PauliSumOp:
         """Maps a :class:`~qiskit_nature.second_q.operators.SparseLabelOp`
         to a `PauliSumOp`.
 
         Args:
             second_q_op: the `SparseLabelOp` to be mapped.
+            register_length: when provided, this will be used to overwrite the ``register_length``
+                attribute of the operator being mapped. This is possible because the
+                ``register_length`` is considered a lower bound in a ``SparseLabelOp``.
 
         Returns:
             The `PauliSumOp` corresponding to the problem-Hamiltonian in the qubit space.
         """
-        raise NotImplementedError()
+        return self.mode_based_mapping(second_q_op, register_length=register_length)
 
     def map(
         self,
         second_q_ops: SparseLabelOp | ListOrDictType[SparseLabelOp],
+        *,
+        register_length: int | None = None,
     ) -> PauliSumOp | ListOrDictType[PauliSumOp]:
         """Maps a second quantized operator or a list, dict of second quantized operators based on
         the current mapper.
 
         Args:
             second_q_ops: A second quantized operator, or list thereof.
+            register_length: when provided, this will be used to overwrite the ``register_length``
+                attribute of the ``SparseLabelOp`` being mapped. This is possible because the
+                ``register_length`` is considered a lower bound in a ``SparseLabelOp``.
 
         Returns:
             A qubit operator in the form of a PauliSumOp, or list (resp. dict) thereof if a list
@@ -145,7 +154,8 @@ class QubitMapper(ABC):
 
         qubit_ops: _ListOrDict = _ListOrDict()
         for name, second_q_op in iter(wrapped_second_q_ops):
-            qubit_ops[name] = self._map_single(second_q_op)
+            qubit_ops[name] = self._map_single(second_q_op, register_length=register_length)
+
         returned_ops: Union[PauliSumOp, ListOrDictType[PauliSumOp]] = qubit_ops.unwrap(wrapped_type)
         # Note the output of the mapping will never be None for standard mappers other than the
         # TaperedQubitMapper.
@@ -208,9 +218,13 @@ class QubitMapper(ABC):
         return (times_creation_op, times_annihilation_op)
 
     @classmethod
-    @deprecate_arguments("0.6.0", {"nmodes": ""})
+    @deprecate_arguments("0.6.0", {"nmodes": "register_length"})
     def mode_based_mapping(
-        cls, second_q_op: SparseLabelOp, nmodes: int | None = None
+        cls,
+        second_q_op: SparseLabelOp,
+        nmodes: int | None = None,
+        *,
+        register_length: int | None = None,
     ) -> PauliSumOp:
         # pylint: disable=unused-argument
         """Utility method to map a `SparseLabelOp` to a `PauliSumOp` using a pauli table.
@@ -219,6 +233,9 @@ class QubitMapper(ABC):
             second_q_op: the `SparseLabelOp` to be mapped.
             nmodes: (DEPRECATED) the number of modes for which to generate the operators. This
                 argument is ignored in favor of :attr:`.SparseLabelOp.register_length`.
+            register_length: when provided, this will be used to overwrite the ``register_length``
+                attribute of the operator being mapped. This is possible because the
+                ``register_length`` is considered a lower bound.
 
         Returns:
             The `PauliSumOp` corresponding to the problem-Hamiltonian in the qubit space.
@@ -227,7 +244,9 @@ class QubitMapper(ABC):
             QiskitNatureError: If number length of pauli table does not match the number
                 of operator modes, or if the operator has unexpected label content
         """
-        register_length = second_q_op.register_length
+        if register_length is None:
+            register_length = second_q_op.register_length
+
         times_creation_op, times_annihilation_op = cls.sparse_pauli_operators(register_length)
 
         # make sure ret_op_list is not empty by including a zero op

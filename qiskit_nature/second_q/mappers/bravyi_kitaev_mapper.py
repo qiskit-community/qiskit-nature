@@ -18,11 +18,9 @@ from functools import lru_cache
 
 import numpy as np
 
-from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators import Pauli
 
 from qiskit_nature.deprecation import deprecate_arguments
-from qiskit_nature.second_q.operators import FermionicOp
 from .fermionic_mapper import FermionicMapper
 
 
@@ -178,6 +176,3 @@ class BravyiKitaevMapper(FermionicMapper):
             pauli2.phase = 0
 
         return pauli_table
-
-    def _map_single(self, second_q_op: FermionicOp) -> PauliSumOp:
-        return BravyiKitaevMapper.mode_based_mapping(second_q_op)

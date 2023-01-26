@@ -22,6 +22,7 @@ from test.second_q.mappers.resources.reference_direct_mapper import (
 
 from qiskit_nature.second_q.drivers import GaussianForcesDriver
 from qiskit_nature.second_q.mappers import DirectMapper
+from qiskit_nature.second_q.operators import VibrationalOp
 from qiskit_nature.second_q.problems import HarmonicBasis
 import qiskit_nature.optionals as _optionals
 
@@ -69,6 +70,13 @@ class TestDirectMapper(QiskitNatureTestCase):
         qubit_op = mapper.map(vibration_op)
 
         self.assertEqual(qubit_op, _num_modals_3_q_op)
+
+    def test_mapping_overwrite_reg_len(self):
+        """Test overwriting the register length."""
+        op = VibrationalOp({"+_0_0 -_0_0": 1}, num_modals=[1])
+        expected = VibrationalOp({"+_0_0 -_0_0": 1}, num_modals=[1, 1, 1])
+        mapper = DirectMapper()
+        self.assertEqual(mapper.map(op, register_length=3), mapper.map(expected))
 
 
 if __name__ == "__main__":

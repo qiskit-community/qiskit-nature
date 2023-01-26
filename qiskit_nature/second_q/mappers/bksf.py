@@ -36,11 +36,16 @@ class BravyiKitaevSuperFastMapper(FermionicMapper):
         Phys. 148, 164104 (2018). https://doi.org/10.1063/1.5019371
     """
 
-    def _map_single(self, second_q_op: FermionicOp) -> PauliSumOp:
+    def _map_single(
+        self, second_q_op: FermionicOp, *, register_length: int | None = None
+    ) -> PauliSumOp:
+        if register_length is None:
+            register_length = second_q_op.register_length
+
         if not isinstance(second_q_op, FermionicOp):
             raise TypeError("Type ", type(second_q_op), " not supported.")
 
-        edge_list = _bksf_edge_list_fermionic_op(second_q_op)
+        edge_list = _bksf_edge_list_fermionic_op(second_q_op, register_length)
         sparse_pauli = _convert_operator(second_q_op, edge_list)
 
         ## Simplify and sort the result
@@ -442,7 +447,7 @@ def _interaction_type(n_number: int, n_raise: int, n_lower: int) -> TermType:
         raise ValueError(f"n_raise ({n_raise}) not equal to n_lower ({n_lower})")
 
 
-def _get_adjacency_matrix(fer_op: FermionicOp) -> np.ndarray:
+def _get_adjacency_matrix(fer_op: FermionicOp, register_length: int) -> np.ndarray:
     """Return an adjacency matrix specifying the edges in the BKSF graph for the
     operator `fer_op`.
 
@@ -451,12 +456,12 @@ def _get_adjacency_matrix(fer_op: FermionicOp) -> np.ndarray:
 
     Args:
       fer_op: The Fermionic operator.
+      register_length: the register length of the operator.
 
     Returns:
       numpy.ndarray(dtype=bool): edge_matrix the adjacency matrix.
     """
-    n_modes = fer_op.register_length
-    edge_matrix = np.zeros((n_modes, n_modes), dtype=bool)
+    edge_matrix = np.zeros((register_length, register_length), dtype=bool)
     for term in fer_op.terms():
         if _operator_coefficient(term) != 0:
             _add_edges_for_term(edge_matrix, _operator_string(term))
@@ -501,11 +506,12 @@ def _add_edges_for_term(edge_matrix: np.ndarray, terms: list[tuple[str, int]]) -
         _add_one_edge(edge_matrix, *lower_inds)
 
 
-def _bksf_edge_list_fermionic_op(ferm_op: FermionicOp) -> np.ndarray:
+def _bksf_edge_list_fermionic_op(ferm_op: FermionicOp, register_length: int) -> np.ndarray:
     """Construct edge list required for the BKSF algorithm.
 
     Args:
         ferm_op: the fermionic operator in the second quantized form
+        register_length: the register length of the operator.
 
     Returns:
         numpy.ndarray: edge_list, a 2xE matrix, where E is total number of edges.
@@ -513,7 +519,7 @@ def _bksf_edge_list_fermionic_op(ferm_op: FermionicOp) -> np.ndarray:
                        where the index `i` starts at zero.
 
     """
-    edge_matrix = _get_adjacency_matrix(ferm_op)
+    edge_matrix = _get_adjacency_matrix(ferm_op, register_length)
     edge_list_as_2d_array = np.asarray(np.nonzero(edge_matrix))
     return edge_list_as_2d_array
 

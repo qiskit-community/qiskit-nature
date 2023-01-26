@@ -117,6 +117,13 @@ class TestParityMapper(QiskitNatureTestCase):
             expected = PauliSumOp.from_list([("I", 1)])
             self.assertEqual(ParityMapper().map(op), expected)
 
+    def test_mapping_overwrite_reg_len(self):
+        """Test overwriting the register length."""
+        op = FermionicOp({"+_0 -_0": 1}, num_spin_orbitals=1)
+        expected = FermionicOp({"+_0 -_0": 1}, num_spin_orbitals=3)
+        mapper = ParityMapper()
+        self.assertEqual(mapper.map(op, register_length=3), mapper.map(expected))
+
 
 if __name__ == "__main__":
     unittest.main()

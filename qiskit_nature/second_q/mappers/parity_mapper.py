@@ -129,8 +129,12 @@ class ParityMapper(FermionicMapper):
 
         return z2_symmetries.taper(operator)
 
-    def _map_single(self, second_q_op: FermionicOp) -> PauliSumOp:
-        mapped_op = ParityMapper.mode_based_mapping(second_q_op).primitive
+    def _map_single(
+        self, second_q_op: FermionicOp, *, register_length: int | None = None
+    ) -> PauliSumOp:
+        mapped_op = ParityMapper.mode_based_mapping(
+            second_q_op, register_length=register_length
+        ).primitive
 
         reduced_op = mapped_op
         if self.num_particles is not None:
