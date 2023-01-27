@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -16,12 +16,13 @@ from __future__ import annotations
 
 import unittest
 from test import QiskitNatureTestCase
-from ddt import ddt, data, unpack
+
+from ddt import data, ddt, unpack
 
 from qiskit_nature.second_q.operators import FermionicOp
 from qiskit_nature.second_q.operators.commutators import (
-    commutator,
     anti_commutator,
+    commutator,
     double_commutator,
 )
 
@@ -45,6 +46,12 @@ class TestCommutators(QiskitNatureTestCase):
         """Test commutator method"""
         self.assertEqual(commutator(op_a, op_b), FermionicOp(expected, num_spin_orbitals=1))
 
+        with self.subTest("test simplfication tolerance"):
+            modified_op = op_a + FermionicOp({"+_0": 1e-10}, num_spin_orbitals=1)
+            self.assertNotEqual(
+                commutator(modified_op, op_b), FermionicOp(expected, num_spin_orbitals=1)
+            )
+
     @unpack
     @data(
         (op1, op2, {}),
@@ -53,6 +60,12 @@ class TestCommutators(QiskitNatureTestCase):
     def test_anti_commutator(self, op_a: FermionicOp, op_b: FermionicOp, expected: dict):
         """Test anti commutator method"""
         self.assertEqual(anti_commutator(op_a, op_b), FermionicOp(expected, num_spin_orbitals=1))
+
+        with self.subTest("test simplfication tolerance"):
+            modified_op = op_a + FermionicOp({"-_0": 1e-10}, num_spin_orbitals=1)
+            self.assertNotEqual(
+                anti_commutator(modified_op, op_b), FermionicOp(expected, num_spin_orbitals=1)
+            )
 
     @unpack
     @data(
@@ -72,6 +85,13 @@ class TestCommutators(QiskitNatureTestCase):
         self.assertEqual(
             double_commutator(op_a, op_b, op_c, sign), FermionicOp(expected, num_spin_orbitals=1)
         )
+
+        with self.subTest("test simplfication tolerance"):
+            modified_op = op_a + FermionicOp({"-_0": 1e-10}, num_spin_orbitals=1)
+            self.assertNotEqual(
+                double_commutator(modified_op, op_b, op_c, sign),
+                FermionicOp(expected, num_spin_orbitals=1),
+            )
 
 
 if __name__ == "__main__":
