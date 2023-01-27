@@ -1,0 +1,28 @@
+---
+features:
+  - |
+    Added the :class:`~qiskit_nature.second_q.mappers.InterleavedQubitMapper`
+    which allows wrapping of another ``FermionicMapper`` to produce qubit operators
+    where the alpha- and beta-spin components are arranged in the qubit register
+    in an interleaved rather than blocked order.
+
+    .. code-block:: python
+
+       from qiskit_nature.second_q.mappers import JordanWignerMapper, InterleavedQubitMapper
+       from qiskit_nature.second_q.operators import FermionicOp
+
+       blocked_mapper = JordanWignerMapper()
+       interleaved_mapper = InterleavedQubitMapper(blocked_mapper)
+
+       ferm_op = FermionicOp({"+_0 -_1": 1}, num_spin_orbitals=4)
+
+       blocked_op = blocked_mapper.map(ferm_op)
+       # SparsePauliOp(['IIXY', 'IIYY', 'IIXX', 'IIYX'], coeffs=[-0.25j, 0.25, 0.25, 0.25j])
+
+       print(interleaved_mapper.map(ferm_op))
+       # SparsePauliOp(['IXIY', 'IYIY', 'IXIX', 'IYIX'], coeffs=[-0.25j, 0.25, 0.25, 0.25j])
+
+    The example above extends naturally to work with any scenario in which a
+    ``FermionicMapper`` may be used like the construction of a
+    :class:`~qiskit_nature.second_q.circuit.library.HartreeFock` initial state
+    or :class:`~qiskit_nature.second_q.circuit.library.UCC` ansatz, for example.
