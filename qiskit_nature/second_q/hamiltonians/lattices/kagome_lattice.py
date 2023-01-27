@@ -49,7 +49,7 @@ class KagomeLattice(Lattice):
             boundary_condition = BoundaryCondition.PERIODIC
         )
 
-    instantiate a kagome lattice with 5 and 4 unit cells in the x and y direction,
+    instantiates a kagome lattice with 5 and 4 unit cells in the x and y direction,
     respectively, which has weights 1.0 on all edges and weights 2.0 on self-loops.
     The boundary conditions are periodic for the entire lattice.
 

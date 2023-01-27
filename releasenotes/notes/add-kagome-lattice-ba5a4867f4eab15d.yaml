@@ -2,4 +2,4 @@
 features:
   - |
     Adds a new lattice class, :class:`qiskit_nature.second_q.hamiltonians.lattices.KagomeLattice`
-    for the generation of Kagome lattices.
+    for the generation of kagome lattices.
