@@ -68,7 +68,7 @@ class KagomeLattice(Lattice):
     _cell_positions = np.array([[0, 0], [1, 0], [1 / 2, np.sqrt(3) / 2]])
 
     # Primitive translation vectors in each direction
-    _basis = np.array([[1, 0], [1, np.sqrt(3)]])
+    _basis = np.array([[2, 0], [1, np.sqrt(3)]])
 
     def _coordinate_to_index(self, coord: np.ndarray) -> int:
         """Convert the coordinate of a lattice point to an integer for labeling.
