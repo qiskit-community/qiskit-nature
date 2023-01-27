@@ -152,7 +152,10 @@ class HartreeFock(BlueprintCircuit):
                 raise ValueError("The qubit converter cannot be `None`.")
             return False
 
-        if isinstance(self.qubit_converter, (QubitConverter, TaperedQubitMapper)):
+        if isinstance(self.qubit_converter, QubitConverter):
+            mapper = self.qubit_converter.mapper
+        elif isinstance(self.qubit_converter, TaperedQubitMapper):
+            # we also include the TaperedQubitMapper here, purely for the check done below
             mapper = self.qubit_converter.mapper
         else:
             mapper = self.qubit_converter
@@ -160,7 +163,7 @@ class HartreeFock(BlueprintCircuit):
         if isinstance(mapper, BravyiKitaevSuperFastMapper):
             if raise_on_failure:
                 raise NotImplementedError(
-                    "Unsupported mapper in qubit converter: ",
+                    "Unsupported mapper: ",
                     type(mapper),
                     ". See https://github.com/Qiskit/qiskit-nature/issues/537",
                 )
@@ -245,9 +248,9 @@ def hartree_fock_bitstring_mapped(
         else:
             qubit_op = qubit_converter.convert_only(bitstr_op, num_particles)
     elif isinstance(qubit_converter, TaperedQubitMapper):
-        # For not checking commutativity, we need the two methods
+        # To avoid checking commutativity, we call the two methods separately.
         qubit_op = qubit_converter.map_clifford(bitstr_op)
-        qubit_op = qubit_converter.symmetry_reduce_clifford(qubit_op, check_commutes=False)
+        qubit_op = qubit_converter.taper_clifford(qubit_op, check_commutes=False)
     else:
         qubit_op = qubit_converter.map(bitstr_op)
 

@@ -32,9 +32,9 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class TaperedQubitMapper(QubitMapper):  # pylint: disable=missing-class-docstring
+class TaperedQubitMapper(QubitMapper):
     """The wrapper around qubit mappers implementing the logic to reduce the size of a problem (operator)
-    based on mathematical `Z2Symmetries` that can be automatically detected in the operator.
+    based on mathematical ``Z2Symmetries`` that can be automatically detected in the operator.
 
     The following attributes can be read and updated once the ``TaperedQubitMapper`` object has been
     constructed.
@@ -50,7 +50,6 @@ class TaperedQubitMapper(QubitMapper):  # pylint: disable=missing-class-docstrin
         z2symmetries: Z2Symmetries = Z2Symmetries([], [], []),
     ):
         """
-
         Args:
             mapper: ``QubitMapper`` object implementing the mapping of second quantized operators to
                 Pauli operators.
@@ -79,7 +78,6 @@ class TaperedQubitMapper(QubitMapper):  # pylint: disable=missing-class-docstrin
         Return:
             A ``TaperedQubitMapper`` with pre-built symmetry specifications.
         """
-
         qubit_op, _ = problem.second_q_ops()
         mapped_op = mapper.map(qubit_op).primitive
         z2_symmetries = Z2Symmetries.find_z2_symmetries(mapped_op)
@@ -92,13 +90,13 @@ class TaperedQubitMapper(QubitMapper):  # pylint: disable=missing-class-docstrin
         converted_op = self.z2symmetries.convert_clifford(mapped_op)
         return converted_op
 
-    def _symmetry_reduce_clifford_single(
-        self, converted_op: SparsePauliOp, check_commutes: bool = True
+    def _taper_clifford_single(
+        self, converted_op: SparsePauliOp, *, check_commutes: bool = True
     ) -> None | SparsePauliOp:
 
         if self.z2symmetries.is_empty() or self.z2symmetries.tapering_values is None:
             return converted_op
-        elif check_commutes:
+        if check_commutes:
             logger.debug("Checking operator commute with symmetries:")
             converted_symmetries = self.z2symmetries._sq_paulis
             commutes = TaperedQubitMapper._check_commutes(converted_symmetries, converted_op)
@@ -112,7 +110,7 @@ class TaperedQubitMapper(QubitMapper):  # pylint: disable=missing-class-docstrin
 
     def _map_single(self, second_q_op: SparseLabelOp) -> PauliSumOp | None:
         converted_op = self._map_clifford_single(second_q_op)
-        tapered_op = self._symmetry_reduce_clifford_single(converted_op)
+        tapered_op = self._taper_clifford_single(converted_op)
 
         returned_op = PauliSumOp(tapered_op) if isinstance(tapered_op, SparsePauliOp) else None
         return returned_op
@@ -122,7 +120,9 @@ class TaperedQubitMapper(QubitMapper):  # pylint: disable=missing-class-docstrin
         second_q_ops: SparseLabelOp | ListOrDictType[SparseLabelOp],
     ) -> PauliSumOp | ListOrDictType[PauliSumOp]:
         """Maps a second quantized operator or a list, dict of second quantized operators based on
-        the current mapper.
+        the internal mapper. Then, composes all mapped pauli operators with the clifford operations
+        defined by the internal ``Z2Symmetries`` to prepare for the symmetry reduction.
+        This composition gives isospectral operators and exposes redundant qubits for later tapering.
 
         Args:
             second_q_ops: A second quantized operator, or list (resp. dict) thereof.
@@ -147,9 +147,10 @@ class TaperedQubitMapper(QubitMapper):  # pylint: disable=missing-class-docstrin
 
         return returned_ops
 
-    def symmetry_reduce_clifford(
+    def taper_clifford(
         self,
         pauli_ops: PauliSumOp | ListOrDictType[PauliSumOp],
+        *,
         check_commutes: bool = True,
         suppress_none: bool = False,
     ) -> PauliSumOp | ListOrDictType[PauliSumOp]:
@@ -179,8 +180,13 @@ class TaperedQubitMapper(QubitMapper):  # pylint: disable=missing-class-docstrin
 
         qubit_ops: _ListOrDict[PauliSumOp] = _ListOrDict()
         for name, pauli_op in iter(wrapped_pauli_ops):
-            qubit_op = self._symmetry_reduce_clifford_single(pauli_op.primitive, check_commutes)
-            qubit_ops[name] = PauliSumOp(qubit_op) if qubit_op is not None else qubit_op
+            qubit_op = self._taper_clifford_single(
+                pauli_op.primitive, check_commutes=check_commutes
+            )
+            if qubit_op is not None:
+                qubit_ops[name] = PauliSumOp(qubit_op)
+            elif not suppress_none:
+                qubit_ops[name] = None
 
         returned_ops: PauliSumOp | ListOrDictType[PauliSumOp] = qubit_ops.unwrap(
             wrapped_type, suppress_none=suppress_none
@@ -190,7 +196,6 @@ class TaperedQubitMapper(QubitMapper):  # pylint: disable=missing-class-docstrin
 
     @staticmethod
     def _check_commutes(sq_paulis: list[Pauli], qubit_op: SparsePauliOp) -> bool:
-        # commutes = []
         commuting_rows = qubit_op.paulis.commutes_with_all(sq_paulis)
         commutes = len(commuting_rows) == qubit_op.size
         logger.debug("  '%s' commutes: %s", id(qubit_op), commutes)

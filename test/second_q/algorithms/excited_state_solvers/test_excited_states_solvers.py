@@ -12,6 +12,8 @@
 
 """ Test Numerical qEOM excited states calculation """
 
+from __future__ import annotations
+
 import unittest
 
 from test import QiskitNatureTestCase
@@ -33,8 +35,8 @@ from qiskit_nature.second_q.mappers import (
     JordanWignerMapper,
     ParityMapper,
     QubitMapper,
+    TaperedQubitMapper,
 )
-from qiskit_nature.second_q.mappers.tapered_qubit_mapper import TaperedQubitMapper
 
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.algorithms import (
@@ -88,6 +90,14 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
             with self.subTest(f"{i}. excited state"):
                 self.assertAlmostEqual(computed[i], references[i], places=places)
 
+    def _compute_and_assert_qeom_energies(self, converter: QubitConverter | QubitMapper):
+        estimator = Estimator()
+        solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
+        gsc = GroundStateEigensolver(converter, solver)
+        esc = QEOM(gsc, estimator, "sd")
+        results = esc.solve(self.electronic_structure_problem)
+        self._assert_energies(results.computed_energies, self.reference_energies)
+
     def test_numpy_mes(self):
         """Test NumPyMinimumEigenSolver with QEOM"""
         solver = NumPyMinimumEigensolver()
@@ -111,13 +121,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
     )
     def test_solve_with_vqe_mes(self, converter: QubitConverter):
         """Test QEOM with VQEUCCFactory and various QubitConverter"""
-
-        estimator = Estimator()
-        solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
-        gsc = GroundStateEigensolver(converter, solver)
-        esc = QEOM(gsc, estimator, "sd")
-        results = esc.solve(self.electronic_structure_problem)
-        self._assert_energies(results.computed_energies, self.reference_energies)
+        self._compute_and_assert_qeom_energies(converter)
 
     @named_data(
         ["JWM", JordanWignerMapper()],
@@ -126,12 +130,22 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
     )
     def test_solve_with_vqe_mes_mapper(self, mapper: QubitMapper):
         """Test QEOM with VQEUCCFactory and various QubitMapper"""
-        estimator = Estimator()
-        solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
-        gsc = GroundStateEigensolver(mapper, solver)
-        esc = QEOM(gsc, estimator, "sd")
-        results = esc.solve(self.electronic_structure_problem)
-        self._assert_energies(results.computed_energies, self.reference_energies)
+        self._compute_and_assert_qeom_energies(mapper)
+
+    @named_data(
+        ["JW", lambda n, esp: TaperedQubitMapper(JordanWignerMapper())],
+        ["JW_Z2", lambda n, esp: TaperedQubitMapper.from_problem(JordanWignerMapper(), esp)],
+        ["PM", lambda n, esp: TaperedQubitMapper(ParityMapper())],
+        ["PM_Z2", lambda n, esp: TaperedQubitMapper.from_problem(ParityMapper(), esp)],
+        ["PM_TQR", lambda n, esp: TaperedQubitMapper(ParityMapper(n))],
+        ["PM_TQR_Z2", lambda n, esp: TaperedQubitMapper.from_problem(ParityMapper(n), esp)],
+    )
+    def test_solve_with_vqe_mes_taperedmapper(self, tapered_mapper_creator):
+        """Test QEOM with VQEUCCFactory and various QubitMapper"""
+        tapered_mapper: TaperedQubitMapper = tapered_mapper_creator(
+            self.num_particles, self.electronic_structure_problem
+        )
+        self._compute_and_assert_qeom_energies(tapered_mapper)
 
     def test_numpy_factory(self):
         """Test NumPyEigenSolverFactory with ExcitedStatesEigensolver"""
@@ -259,26 +273,6 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
                 if not np.isclose(comp_energy, computed_energies_mapper[-1]):
                     computed_energies_mapper.append(comp_energy)
             self._assert_energies(computed_energies_mapper, self.reference_energies)
-
-    @named_data(
-        ["JW", lambda n, esp: TaperedQubitMapper(JordanWignerMapper())],
-        ["JW_Z2", lambda n, esp: TaperedQubitMapper.from_problem(JordanWignerMapper(), esp)],
-        ["PM", lambda n, esp: TaperedQubitMapper(ParityMapper())],
-        ["PM_Z2", lambda n, esp: TaperedQubitMapper.from_problem(ParityMapper(), esp)],
-        ["PM_TQR", lambda n, esp: TaperedQubitMapper(ParityMapper(n))],
-        ["PM_TQR_Z2", lambda n, esp: TaperedQubitMapper.from_problem(ParityMapper(n), esp)],
-    )
-    def test_solve_with_vqe_mes_taperedmapper(self, tapered_mapper_creator):
-        """Test QEOM with VQEUCCFactory and various QubitMapper"""
-        tapered_mapper = tapered_mapper_creator(
-            self.num_particles, self.electronic_structure_problem
-        )
-        estimator = Estimator()
-        solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
-        gsc = GroundStateEigensolver(tapered_mapper, solver)
-        esc = QEOM(gsc, estimator, "sd")
-        results = esc.solve(self.electronic_structure_problem)
-        self._assert_energies(results.computed_energies, self.reference_energies)
 
 
 if __name__ == "__main__":

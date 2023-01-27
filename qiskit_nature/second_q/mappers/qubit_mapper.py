@@ -73,7 +73,7 @@ class _ListOrDict(Dict, Iterable, Generic[T]):
 
         Args:
             wrapped_type: Type of the data before the creation of the ListOrDict object.
-            suppress_none: If None values should be suppressed from the output list.
+            suppress_none: If None values should be suppressed from the output.
 
         Returns:
             Content of the current class instance as a list, a dictionary or a single element.

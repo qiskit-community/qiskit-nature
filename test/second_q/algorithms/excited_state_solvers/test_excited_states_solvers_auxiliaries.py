@@ -12,6 +12,8 @@
 
 """ Test Numerical qEOM excited states calculation."""
 
+from __future__ import annotations
+
 import unittest
 
 from test import QiskitNatureTestCase
@@ -127,19 +129,12 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
                     trans_amp_expected = np.abs(references[key][opkey][0])
                     self.assertAlmostEqual(trans_amp, trans_amp_expected, places=places)
 
-    @named_data(
-        ["JWM", JordanWignerMapper()],
-        ["PM", ParityMapper()],
-        ["PM_TQR", ParityMapper(num_particles=(1, 1))],
-    )
-    def test_aux_ops_qeom_mapper(self, mapper: QubitMapper):
-        """Test QEOM evaluation of excited state properties"""
-
+    def _compute_and_assert_qeom_aux_eigenvalues(self, converter: QubitConverter | QubitMapper):
         hamiltonian_op, _ = self.electronic_structure_problem.second_q_ops()
         aux_ops = {"hamiltonian": hamiltonian_op}
         estimator = Estimator()
         solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
-        gsc = GroundStateEigensolver(mapper, solver)
+        gsc = GroundStateEigensolver(converter, solver)
         esc = QEOM(gsc, estimator, "sd", aux_eval_rules=EvaluationRule.DIAG)
         results = esc.solve(self.electronic_structure_problem, aux_operators=aux_ops)
 
@@ -149,6 +144,33 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
 
         self._assert_energies(results.computed_energies, self.reference_energies)
         self._assert_energies(energies_recalculated, self.reference_energies)
+
+    def _compute_and_assert_qeom_trans_amp(self, converter: QubitConverter | QubitMapper):
+        aux_eval_rules = {
+            "hamiltonian_derivative": [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)]
+        }
+        aux_ops = {"hamiltonian_derivative": self._hamiltonian_derivative()}
+
+        estimator = Estimator()
+        solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
+        gsc = GroundStateEigensolver(converter, solver)
+        esc = QEOM(gsc, estimator, excitations="sd", aux_eval_rules=aux_eval_rules)
+        results = esc.solve(self.electronic_structure_problem, aux_operators=aux_ops)
+
+        transition_amplitudes = results.raw_result.transition_amplitudes
+
+        self._assert_transition_amplitudes(
+            transition_amplitudes, self.reference_trans_amps, places=3
+        )
+
+    @named_data(
+        ["JWM", JordanWignerMapper()],
+        ["PM", ParityMapper()],
+        ["PM_TQR", ParityMapper(num_particles=(1, 1))],
+    )
+    def test_aux_ops_qeom_mapper(self, mapper: QubitMapper):
+        """Test QEOM evaluation of excited state properties"""
+        self._compute_and_assert_qeom_aux_eigenvalues(mapper)
 
     @named_data(
         ["JW", lambda n, esp: TaperedQubitMapper(JordanWignerMapper())],
@@ -163,20 +185,7 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
         tapered_mapper = tapered_mapper_creator(
             self.num_particles, self.electronic_structure_problem
         )
-        hamiltonian_op, _ = self.electronic_structure_problem.second_q_ops()
-        aux_ops = {"hamiltonian": hamiltonian_op}
-        estimator = Estimator()
-        solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
-        gsc = GroundStateEigensolver(tapered_mapper, solver)
-        esc = QEOM(gsc, estimator, "sd", aux_eval_rules=EvaluationRule.DIAG)
-        results = esc.solve(self.electronic_structure_problem, aux_operators=aux_ops)
-
-        energies_recalculated = np.zeros_like(results.computed_energies)
-        for estate, aux_op in enumerate(results.aux_operators_evaluated):
-            energies_recalculated[estate] = aux_op["hamiltonian"]
-
-        self._assert_energies(results.computed_energies, self.reference_energies)
-        self._assert_energies(energies_recalculated, self.reference_energies)
+        self._compute_and_assert_qeom_aux_eigenvalues(tapered_mapper)
 
     @named_data(
         ["JWM", QubitConverter(JordanWignerMapper())],
@@ -193,21 +202,7 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
     )
     def test_aux_ops_qeom(self, converter: QubitConverter):
         """Test QEOM evaluation of excited state properties"""
-
-        hamiltonian_op, _ = self.electronic_structure_problem.second_q_ops()
-        aux_ops = {"hamiltonian": hamiltonian_op}
-        estimator = Estimator()
-        solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
-        gsc = GroundStateEigensolver(converter, solver)
-        esc = QEOM(gsc, estimator, "sd", aux_eval_rules=EvaluationRule.DIAG)
-        results = esc.solve(self.electronic_structure_problem, aux_operators=aux_ops)
-
-        energies_recalculated = np.zeros_like(results.computed_energies)
-        for estate, aux_op in enumerate(results.aux_operators_evaluated):
-            energies_recalculated[estate] = aux_op["hamiltonian"]
-
-        self._assert_energies(results.computed_energies, self.reference_energies)
-        self._assert_energies(energies_recalculated, self.reference_energies)
+        self._compute_and_assert_qeom_aux_eigenvalues(converter)
 
     @named_data(
         ["JWM", JordanWignerMapper()],
@@ -216,23 +211,7 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
     )
     def test_trans_amps_qeom_mapper(self, mapper: QubitMapper):
         """Test QEOM evaluation of transition amplitudes"""
-
-        aux_eval_rules = {
-            "hamiltonian_derivative": [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)]
-        }
-        aux_ops = {"hamiltonian_derivative": self._hamiltonian_derivative()}
-
-        estimator = Estimator()
-        solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
-        gsc = GroundStateEigensolver(mapper, solver)
-        esc = QEOM(gsc, estimator, excitations="sd", aux_eval_rules=aux_eval_rules)
-        results = esc.solve(self.electronic_structure_problem, aux_operators=aux_ops)
-
-        transition_amplitudes = results.raw_result.transition_amplitudes
-
-        self._assert_transition_amplitudes(
-            transition_amplitudes, self.reference_trans_amps, places=3
-        )
+        self._compute_and_assert_qeom_trans_amp(mapper)
 
     @named_data(
         ["JW", lambda n, esp: TaperedQubitMapper(JordanWignerMapper())],
@@ -247,22 +226,7 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
         tapered_mapper = tapered_mapper_creator(
             self.num_particles, self.electronic_structure_problem
         )
-        aux_eval_rules = {
-            "hamiltonian_derivative": [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)]
-        }
-        aux_ops = {"hamiltonian_derivative": self._hamiltonian_derivative()}
-
-        estimator = Estimator()
-        solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
-        gsc = GroundStateEigensolver(tapered_mapper, solver)
-        esc = QEOM(gsc, estimator, excitations="sd", aux_eval_rules=aux_eval_rules)
-        results = esc.solve(self.electronic_structure_problem, aux_operators=aux_ops)
-
-        transition_amplitudes = results.raw_result.transition_amplitudes
-
-        self._assert_transition_amplitudes(
-            transition_amplitudes, self.reference_trans_amps, places=3
-        )
+        self._compute_and_assert_qeom_trans_amp(tapered_mapper)
 
     @named_data(
         ["JWM", QubitConverter(JordanWignerMapper())],
@@ -279,23 +243,7 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
     )
     def test_trans_amps_qeom(self, converter: QubitConverter):
         """Test QEOM evaluation of transition amplitudes"""
-
-        aux_eval_rules = {
-            "hamiltonian_derivative": [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)]
-        }
-        aux_ops = {"hamiltonian_derivative": self._hamiltonian_derivative()}
-
-        estimator = Estimator()
-        solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
-        gsc = GroundStateEigensolver(converter, solver)
-        esc = QEOM(gsc, estimator, excitations="sd", aux_eval_rules=aux_eval_rules)
-        results = esc.solve(self.electronic_structure_problem, aux_operators=aux_ops)
-
-        transition_amplitudes = results.raw_result.transition_amplitudes
-
-        self._assert_transition_amplitudes(
-            transition_amplitudes, self.reference_trans_amps, places=3
-        )
+        self._compute_and_assert_qeom_trans_amp(converter)
 
 
 if __name__ == "__main__":

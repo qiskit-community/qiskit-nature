@@ -72,15 +72,19 @@ class VSCF(BlueprintCircuit):
         """Sets the qubit converter."""
         self._invalidate()
 
-        if isinstance(conv, (QubitConverter, TaperedQubitMapper)):
+        if isinstance(conv, QubitConverter):
+            mapper = conv.mapper
+        elif isinstance(conv, TaperedQubitMapper):
+            # we also include the TaperedQubitMapper here, purely for the check done below
             mapper = conv.mapper
         else:
             mapper = conv
 
         if not isinstance(mapper, DirectMapper):
             logger.warning(
-                "The only supported `QubitConverter` is one with a `DirectMapper` as the mapper "
-                "instance. However you specified %s as an input, which will be ignored until more "
+                "The only supported `QubitConverter` or `QubitMapper` for this application are those "
+                "based on the `DirectMapper`. "
+                "However you specified %s as an input, which will be ignored until more "
                 "variants will be supported.",
                 type(mapper),
             )
@@ -196,8 +200,9 @@ def vscf_bitstring_mapped(
     if isinstance(qubit_converter, QubitConverter):
         qubit_op = qubit_converter.convert_match(bitstr_op, check_commutes=False)
     elif isinstance(qubit_converter, TaperedQubitMapper):
+        # To avoid checking commutativity, we call the two methods separately.
         qubit_op = qubit_converter.map_clifford(bitstr_op)
-        qubit_op = qubit_converter.symmetry_reduce_clifford(qubit_op, check_commutes=False)
+        qubit_op = qubit_converter.taper_clifford(qubit_op, check_commutes=False)
     else:
         qubit_op = qubit_converter.map(bitstr_op)
 

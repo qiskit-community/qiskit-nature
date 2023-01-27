@@ -90,7 +90,7 @@ def _commutator(op_a: SparsePauliOp, op_b: SparsePauliOp) -> SparsePauliOp:
     Returns:
         The computed commutator.
     """
-    return (op_a @ op_b - op_b @ op_a).simplify()
+    return (op_a @ op_b - op_b @ op_a).simplify(atol=0)
 
 
 def _double_commutator(
@@ -149,7 +149,7 @@ def _double_commutator(
         + 0.5 * (-op_bac + sign_num * op_cab - op_acb + sign_num * op_bca)
     )
 
-    return res.simplify()
+    return res.simplify(atol=0)
 
 
 class QEOM(ExcitedStatesSolver):
@@ -368,7 +368,7 @@ class QEOM(ExcitedStatesSolver):
                 untap_aux_ops_sumop
             )
         elif isinstance(self.qubit_converter, TaperedQubitMapper):
-            tap_aux_operators_sumop = self.qubit_converter.symmetry_reduce_clifford(
+            tap_aux_operators_sumop = self.qubit_converter.taper_clifford(
                 untap_aux_ops_sumop, suppress_none=True
             )
         else:
@@ -733,7 +733,7 @@ class QEOM(ExcitedStatesSolver):
                 untap_eom_matrix_ops_sumop
             )
         elif isinstance(self.qubit_converter, TaperedQubitMapper):
-            tap_eom_matrix_ops_sumop = self.qubit_converter.symmetry_reduce_clifford(
+            tap_eom_matrix_ops_sumop = self.qubit_converter.taper_clifford(
                 untap_eom_matrix_ops_sumop, suppress_none=True
             )
         else:
@@ -826,7 +826,7 @@ class QEOM(ExcitedStatesSolver):
                 untap_hopping_ops_sumop
             )
         elif isinstance(self.qubit_converter, TaperedQubitMapper):
-            tap_hopping_ops_sumop = self.qubit_converter.symmetry_reduce_clifford(
+            tap_hopping_ops_sumop = self.qubit_converter.taper_clifford(
                 untap_hopping_ops_sumop, suppress_none=True
             )
         else:
@@ -982,7 +982,7 @@ class QEOM(ExcitedStatesSolver):
                     op_aux_op_dict_sumop
                 )
             elif isinstance(self.qubit_converter, TaperedQubitMapper):
-                tap_op_aux_op_dict_sumop = self.qubit_converter.symmetry_reduce_clifford(
+                tap_op_aux_op_dict_sumop = self.qubit_converter.taper_clifford(
                     op_aux_op_dict_sumop, suppress_none=True
                 )
             else:
