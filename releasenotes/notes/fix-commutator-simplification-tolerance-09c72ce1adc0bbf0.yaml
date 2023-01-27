@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    The commutator methods like :meth:`~qiskit_nature.second_q.operators.commutators.commutator`,
+    :meth:`~qiskit_nature.second_q.operators.commutators.anti_commutator`, and
+    :meth:`~qiskit_nature.second_q.operators.commutators.double_commutator` no longer faultily
+    simplify the returned operator (i.e. the absolute tolerance during simplification is set to zero
+    instead of defaulting to ``SparseLabelOp.atol``).
