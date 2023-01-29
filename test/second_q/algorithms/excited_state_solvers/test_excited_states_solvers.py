@@ -134,11 +134,11 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
 
     @named_data(
         ["JW", lambda n, esp: TaperedQubitMapper(JordanWignerMapper())],
-        ["JW_Z2", lambda n, esp: TaperedQubitMapper.from_problem(JordanWignerMapper(), esp)],
+        ["JW_Z2", lambda n, esp: esp.get_tapered_mapper(JordanWignerMapper())],
         ["PM", lambda n, esp: TaperedQubitMapper(ParityMapper())],
-        ["PM_Z2", lambda n, esp: TaperedQubitMapper.from_problem(ParityMapper(), esp)],
+        ["PM_Z2", lambda n, esp: esp.get_tapered_mapper(ParityMapper())],
         ["PM_TQR", lambda n, esp: TaperedQubitMapper(ParityMapper(n))],
-        ["PM_TQR_Z2", lambda n, esp: TaperedQubitMapper.from_problem(ParityMapper(n), esp)],
+        ["PM_TQR_Z2", lambda n, esp: esp.get_tapered_mapper(ParityMapper(n))],
     )
     def test_solve_with_vqe_mes_taperedmapper(self, tapered_mapper_creator):
         """Test QEOM with VQEUCCFactory and various QubitMapper"""

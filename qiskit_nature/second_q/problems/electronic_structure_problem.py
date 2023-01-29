@@ -22,12 +22,12 @@ import numpy as np
 from qiskit.algorithms.eigensolvers import EigensolverResult
 from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
 from qiskit.opflow.primitive_ops import Z2Symmetries
-
+from qiskit.quantum_info.analysis.z2_symmetries import Z2Symmetries as Z2SparseSymmetries
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library.initial_states.hartree_fock import (
     hartree_fock_bitstring_mapped,
 )
-from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper, TaperedQubitMapper
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.properties import Interpretable
 
@@ -269,7 +269,7 @@ class ElectronicStructureProblem(BaseProblem):
 
     def symmetry_sector_locator(
         self,
-        z2_symmetries: Z2Symmetries,
+        z2_symmetries: Z2Symmetries | Z2SparseSymmetries,
         converter: QubitConverter | QubitMapper,
     ) -> Optional[List[int]]:
         """Given the detected Z2Symmetries this determines the correct sector of the tapered
@@ -312,7 +312,9 @@ class ElectronicStructureProblem(BaseProblem):
         return sector
 
     @staticmethod
-    def _pick_sector(z2_symmetries: Z2Symmetries, hf_str: List[bool]) -> List[int]:
+    def _pick_sector(
+        z2_symmetries: Z2Symmetries | Z2SparseSymmetries, hf_str: List[bool]
+    ) -> List[int]:
         # Finding all the symmetries using the find_Z2_symmetries:
         taper_coeff: List[int] = []
         for sym in z2_symmetries.symmetries:
@@ -320,3 +322,22 @@ class ElectronicStructureProblem(BaseProblem):
             taper_coeff.append(coeff)
 
         return taper_coeff
+
+    def get_tapered_mapper(self, mapper: QubitMapper) -> TaperedQubitMapper:
+        """Builds a ``TaperedQubitMapper`` from one of the mappers.
+        This simplifies the identification of the Pauli operator symmetries and of the symmetry sector
+        in which lies the solution of the problem.
+
+        Args:
+            mapper: ``QubitMapper`` object implementing the mapping of second quantized operators to
+                Pauli operators.
+
+        Returns:
+            A ``TaperedQubitMapper`` with pre-built symmetry specifications.
+        """
+        qubit_op, _ = self.second_q_ops()
+        mapped_op = mapper.map(qubit_op).primitive
+        z2_symmetries = Z2SparseSymmetries.find_z2_symmetries(mapped_op)
+        tapering_values = self.symmetry_sector_locator(z2_symmetries, mapper)
+        z2_symmetries.tapering_values = tapering_values
+        return TaperedQubitMapper(mapper, z2_symmetries)

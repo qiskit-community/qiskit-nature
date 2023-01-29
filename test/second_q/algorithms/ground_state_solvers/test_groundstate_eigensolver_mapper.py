@@ -202,9 +202,7 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
         )
         problem = FreezeCoreTransformer().transform(driver.run())
         num_particles = problem.num_particles
-        tapered_mapper = TaperedQubitMapper.from_problem(
-            ParityMapper(num_particles), problem=problem
-        )
+        tapered_mapper = problem.get_tapered_mapper(ParityMapper(num_particles))
 
         solver = NumPyMinimumEigensolverFactory()
         gsc = GroundStateEigensolver(tapered_mapper, solver)

@@ -60,31 +60,6 @@ class TaperedQubitMapper(QubitMapper):
         self.mapper: QubitMapper = mapper
         self.z2symmetries = z2symmetries
 
-    @classmethod
-    def from_problem(
-        cls, mapper: QubitMapper, problem: "ElectronicStructureProblem"
-    ) -> "TaperedQubitMapper":
-        # implies the previous z2symmetries == "auto" case
-        # extract problem.hamiltonian and problem.symmetry_sector_locator
-        """Builds a ``TaperedQubitMapper`` from one of the other mappers and from a specific problem.
-        This simplifies the identification of the Pauli operator symmetries and of the symmetry sector
-        in which lies the solution of the problem.
-
-        Args:
-            mapper: ``QubitMapper`` object implementing the mapping of second quantized operators to
-                Pauli operators.
-            problem: A class encoding a problem to be solved.
-
-        Return:
-            A ``TaperedQubitMapper`` with pre-built symmetry specifications.
-        """
-        qubit_op, _ = problem.second_q_ops()
-        mapped_op = mapper.map(qubit_op).primitive
-        z2_symmetries = Z2Symmetries.find_z2_symmetries(mapped_op)
-        tapering_values = problem.symmetry_sector_locator(z2_symmetries, mapper)
-        z2_symmetries.tapering_values = tapering_values
-        return TaperedQubitMapper(mapper, z2_symmetries)
-
     def _map_clifford_single(self, second_q_op: SparseLabelOp) -> SparsePauliOp:
         mapped_op = self.mapper.map(second_q_op).primitive
         converted_op = self.z2symmetries.convert_clifford(mapped_op)
