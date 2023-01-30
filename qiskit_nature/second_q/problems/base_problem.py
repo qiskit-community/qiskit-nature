@@ -20,7 +20,9 @@ from typing import Callable
 import numpy as np
 from qiskit.algorithms.eigensolvers import EigensolverResult
 from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
-from qiskit.opflow import Z2Symmetries
+from qiskit.opflow.primitive_ops import Z2Symmetries
+from qiskit.quantum_info.analysis.z2_symmetries import Z2Symmetries as Z2SparseSymmetries
+
 
 from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.operators import SparseLabelOp
@@ -77,7 +79,7 @@ class BaseProblem:
 
     def symmetry_sector_locator(
         self,
-        z2_symmetries: Z2Symmetries,
+        z2_symmetries: Z2Symmetries | Z2SparseSymmetries,
         converter: QubitConverter | QubitMapper,
     ) -> list[int] | None:
         # pylint: disable=unused-argument
