@@ -138,9 +138,9 @@ class QubitMapper(ABC):
 
         Args:
             second_q_ops: A second quantized operator, or list thereof.
-            suppress_none: If None should be placed in the output list where an operator
+            suppress_none: If the output list or dict should contain None at positions where an operator
                 did not commute with symmetry, to maintain order, or whether that should
-                be suppressed where the output list length may then be smaller than the input.
+                be suppressed. If True the output list or dict length may then be smaller than the input.
 
         Returns:
             A qubit operator in the form of a PauliSumOp, or list (resp. dict) thereof if a list

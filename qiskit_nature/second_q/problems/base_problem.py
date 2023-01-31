@@ -20,11 +20,11 @@ from typing import Callable
 import numpy as np
 from qiskit.algorithms.eigensolvers import EigensolverResult
 from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
-from qiskit.opflow.primitive_ops import Z2Symmetries
-from qiskit.quantum_info.analysis.z2_symmetries import Z2Symmetries as Z2SparseSymmetries
+from qiskit.opflow.primitive_ops import Z2Symmetries as OpflowZ2Symmetries
+from qiskit.quantum_info.analysis.z2_symmetries import Z2Symmetries
 
 
-from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper, TaperedQubitMapper
 from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.hamiltonians import Hamiltonian
 
@@ -79,7 +79,7 @@ class BaseProblem:
 
     def symmetry_sector_locator(
         self,
-        z2_symmetries: Z2Symmetries | Z2SparseSymmetries,
+        z2_symmetries: OpflowZ2Symmetries | Z2Symmetries,
         converter: QubitConverter | QubitMapper,
     ) -> list[int] | None:
         # pylint: disable=unused-argument
@@ -95,6 +95,27 @@ class BaseProblem:
             the sector of the tapered operators with the problem solution
         """
         return None
+
+    def get_tapered_mapper(self, mapper: QubitMapper) -> TaperedQubitMapper:
+        """Builds a ``TaperedQubitMapper`` from one of the mappers.
+        This simplifies the identification of the Pauli operator symmetries and of the symmetry sector
+        in which lies the solution of the problem.
+
+        Args:
+            mapper: ``QubitMapper`` object implementing the mapping of second quantized operators to
+                Pauli operators.
+
+        Returns:
+            A ``TaperedQubitMapper`` with pre-built symmetry specifications.
+        """
+        qubit_op, _ = self.second_q_ops()
+        mapped_op = mapper.map(qubit_op).primitive
+        z2_symmetries = Z2Symmetries.find_z2_symmetries(mapped_op)
+        # pylint: disable=assignment-from-none
+        # Known issue for abstract class methods https://github.com/PyCQA/pylint/issues/2559
+        tapering_values = self.symmetry_sector_locator(z2_symmetries, mapper)
+        z2_symmetries.tapering_values = tapering_values
+        return TaperedQubitMapper(mapper, z2_symmetries)
 
     def interpret(
         self,

@@ -2,12 +2,12 @@
 features:
   - |
     Adds the method 
-    :meth:`~qiskit_nature.second_q.problems.electronic_structure_problem.get_tapered_mapper()` to
+    :meth:`~qiskit_nature.second_q.problems.BaseProblem.get_tapered_mapper()` to
     transform a :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance into a 
     :class:`~qiskit_nature.second_q.mappers.TaperedQubitMapper` based on the properties of the current
     problem.
   - |
     Update API for the method
-    :meth:`~qiskit_nature.second_q.problems.electronic_structure_problem.symmetry_sector_locator()`
+    :meth:`~qiskit_nature.second_q.problems.BaseProblem.symmetry_sector_locator()`
     to accept ``Z2Symmetries`` as defined in the quantum_info module as well as the ``Z2Symmetries``
     defined in the opflow module.

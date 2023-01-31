@@ -243,6 +243,28 @@ class QEOM(ExcitedStatesSolver):
         """Returns the solver object defined in the ground state solver."""
         return self._gsc.solver
 
+    def _map_operators(
+        self, operators: SparseLabelOp | ListOrDictType[SparseLabelOp]
+    ) -> PauliSumOp | ListOrDictType[PauliSumOp]:
+        if isinstance(self.qubit_converter, QubitConverter):
+            mapped_ops = self.qubit_converter.convert_match(operators)
+        elif isinstance(self.qubit_converter, TaperedQubitMapper):
+            mapped_ops = self.qubit_converter.map_clifford(operators)
+        else:
+            mapped_ops = self.qubit_converter.map(operators)
+        return mapped_ops
+
+    def _taper_operators(
+        self, operators: PauliSumOp | ListOrDictType[PauliSumOp]
+    ) -> PauliSumOp | ListOrDictType[PauliSumOp]:
+        if isinstance(self.qubit_converter, QubitConverter):
+            tapered_ops = self.qubit_converter.symmetry_reduce_clifford(operators)
+        elif isinstance(self.qubit_converter, TaperedQubitMapper):
+            tapered_ops = self.qubit_converter.taper_clifford(operators, suppress_none=True)
+        else:
+            tapered_ops = operators
+        return tapered_ops
+
     def get_qubit_operators(
         self,
         problem: BaseProblem,
@@ -282,24 +304,13 @@ class QEOM(ExcitedStatesSolver):
         aux_ops = None
 
         if self.solver.supports_aux_operators():
-            if isinstance(self.qubit_converter, QubitConverter):
-                aux_ops = self.qubit_converter.convert_match(aux_second_q_operators)
-            elif isinstance(self.qubit_converter, TaperedQubitMapper):
-                aux_ops = self.qubit_converter.map_clifford(aux_second_q_operators)
-            else:
-                aux_ops = self.qubit_converter.map(aux_second_q_operators)
+            aux_ops = self._map_operators(aux_second_q_operators)
 
             cast(ListOrDictType[QubitOperator], aux_ops)
             if aux_operators is not None:
                 for name, op in aux_operators.items():
                     if isinstance(op, (SparseLabelOp)):
-                        if isinstance(self.qubit_converter, QubitConverter):
-                            converted_aux_op = self.qubit_converter.convert_match(op)
-                        elif isinstance(self.qubit_converter, TaperedQubitMapper):
-                            converted_aux_op = self.qubit_converter.map_clifford(op)
-                        else:
-                            converted_aux_op = self.qubit_converter.map(op)
-
+                        converted_aux_op = self._map_operators(op)
                     else:
                         converted_aux_op = op
                     if name in aux_ops.keys():
@@ -363,16 +374,7 @@ class QEOM(ExcitedStatesSolver):
 
         # 2. Run ground state calculation with fully tapered custom auxiliary operators
         # Note that the solve() method includes the `second_q' auxiliary operators
-        if isinstance(self.qubit_converter, QubitConverter):
-            tap_aux_operators_sumop = self.qubit_converter.symmetry_reduce_clifford(
-                untap_aux_ops_sumop
-            )
-        elif isinstance(self.qubit_converter, TaperedQubitMapper):
-            tap_aux_operators_sumop = self.qubit_converter.taper_clifford(
-                untap_aux_ops_sumop, suppress_none=True
-            )
-        else:
-            tap_aux_operators_sumop = untap_aux_ops_sumop
+        tap_aux_operators_sumop = self._taper_operators(untap_aux_ops_sumop)
 
         groundstate_result = self._gsc.solve(problem, tap_aux_operators_sumop)
         ground_state = groundstate_result.eigenstates[0]
@@ -728,16 +730,7 @@ class QEOM(ExcitedStatesSolver):
             key: PauliSumOp(op) for key, op in untap_eom_matrix_ops.items()
         }
 
-        if isinstance(self.qubit_converter, QubitConverter):
-            tap_eom_matrix_ops_sumop = self.qubit_converter.symmetry_reduce_clifford(
-                untap_eom_matrix_ops_sumop
-            )
-        elif isinstance(self.qubit_converter, TaperedQubitMapper):
-            tap_eom_matrix_ops_sumop = self.qubit_converter.taper_clifford(
-                untap_eom_matrix_ops_sumop, suppress_none=True
-            )
-        else:
-            tap_eom_matrix_ops_sumop = untap_eom_matrix_ops_sumop
+        tap_eom_matrix_ops_sumop = self._taper_operators(untap_eom_matrix_ops_sumop)
 
         # 2. Evaluate all EOM operators on the ground state
         measurement_results = estimate_observables(
@@ -821,16 +814,7 @@ class QEOM(ExcitedStatesSolver):
         untap_hopping_ops, _, size = expansion_basis_data
         untap_hopping_ops_sumop = {key: PauliSumOp(op) for key, op in untap_hopping_ops.items()}
 
-        if isinstance(self.qubit_converter, QubitConverter):
-            tap_hopping_ops_sumop = self.qubit_converter.symmetry_reduce_clifford(
-                untap_hopping_ops_sumop
-            )
-        elif isinstance(self.qubit_converter, TaperedQubitMapper):
-            tap_hopping_ops_sumop = self.qubit_converter.taper_clifford(
-                untap_hopping_ops_sumop, suppress_none=True
-            )
-        else:
-            tap_hopping_ops_sumop = untap_hopping_ops_sumop
+        tap_hopping_ops_sumop = self._taper_operators(untap_hopping_ops_sumop)
 
         additionnal_measurements = estimate_observables(
             self._estimator, reference_state[0], tap_hopping_ops_sumop, reference_state[1]
@@ -977,16 +961,7 @@ class QEOM(ExcitedStatesSolver):
             op_aux_op_dict_sumop = {key: PauliSumOp(op) for key, op in op_aux_op_dict.items()}
 
             # 3. Measure observables
-            if isinstance(self.qubit_converter, QubitConverter):
-                tap_op_aux_op_dict_sumop = self.qubit_converter.symmetry_reduce_clifford(
-                    op_aux_op_dict_sumop
-                )
-            elif isinstance(self.qubit_converter, TaperedQubitMapper):
-                tap_op_aux_op_dict_sumop = self.qubit_converter.taper_clifford(
-                    op_aux_op_dict_sumop, suppress_none=True
-                )
-            else:
-                tap_op_aux_op_dict_sumop = op_aux_op_dict_sumop
+            tap_op_aux_op_dict_sumop = self._taper_operators(op_aux_op_dict_sumop)
 
             aux_measurements = estimate_observables(
                 self._estimator, reference_state[0], tap_op_aux_op_dict_sumop, reference_state[1]

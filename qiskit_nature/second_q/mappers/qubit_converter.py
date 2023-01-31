@@ -88,15 +88,18 @@ class QubitConverter:
                 results which can occur when operator terms are not consistently ordered.
                 This is disabled by default, because in practice the Pauli-terms will be grouped
                 later on anyways.
+
+        Raises:
+            ValueError: If the mapper is a ``TaperedQubitMapper``.
         """
-
+        if isinstance(mapper, TaperedQubitMapper):
+            raise ValueError(f"{type(mapper)} is not supported by the converter.")
         self._mapper: QubitMapper = mapper
-        self._two_qubit_reduction: bool = two_qubit_reduction
-        # Setter does reset on particle number
-        self._z2symmetry_reduction: Optional[Union[str, List[int]]] = None
-        self.z2symmetry_reduction = z2symmetry_reduction
-        # Setter does validation
 
+        self._two_qubit_reduction: bool = two_qubit_reduction
+        self._z2symmetry_reduction: Optional[Union[str, List[int]]] = None
+        # We use the setter for the additional validation
+        self.z2symmetry_reduction = z2symmetry_reduction
         self._z2symmetries: Z2Symmetries = self._no_symmetries
 
         self._sort_operators: bool = sort_operators
@@ -158,10 +161,6 @@ class QubitConverter:
         """
         if isinstance(self._mapper, ParityMapper):
             return self._mapper.num_particles
-        elif isinstance(self._mapper, TaperedQubitMapper) and isinstance(
-            self._mapper.mapper, ParityMapper
-        ):
-            return self._mapper.mapper.num_particles
         else:
             return None
 
@@ -181,13 +180,8 @@ class QubitConverter:
         has one attribute :attr:`num_particles`. This must be called right before any mapping method of
         the mappers.
         """
-        if not self.two_qubit_reduction:
-            if isinstance(self._mapper, ParityMapper):
-                self._mapper.num_particles = None
-            elif isinstance(self._mapper, TaperedQubitMapper) and isinstance(
-                self._mapper.mapper, ParityMapper
-            ):
-                self._mapper.mapper.num_particles = None
+        if not self.two_qubit_reduction and isinstance(self._mapper, ParityMapper):
+            self._mapper.num_particles = None
 
     def convert(
         self,
@@ -217,10 +211,6 @@ class QubitConverter:
         """
         if isinstance(self._mapper, ParityMapper):
             self._mapper.num_particles = num_particles
-        elif isinstance(self._mapper, TaperedQubitMapper) and isinstance(
-            self._mapper.mapper, ParityMapper
-        ):
-            self._mapper.mapper.num_particles = num_particles
 
         self._check_reset_mapper()
 
@@ -253,10 +243,6 @@ class QubitConverter:
         if num_particles is not None:
             if isinstance(self._mapper, ParityMapper):
                 self._mapper.num_particles = num_particles
-            elif isinstance(self._mapper, TaperedQubitMapper) and isinstance(
-                self._mapper.mapper, ParityMapper
-            ):
-                self._mapper.mapper.num_particles = num_particles
 
         self._check_reset_mapper()
 
@@ -285,10 +271,6 @@ class QubitConverter:
         if num_particles is not None:
             if isinstance(self._mapper, ParityMapper):
                 self._mapper.num_particles = num_particles
-            elif isinstance(self._mapper, TaperedQubitMapper) and isinstance(
-                self._mapper.mapper, ParityMapper
-            ):
-                self._mapper.mapper.num_particles = num_particles
 
         if z2symmetries is not None:
             if not z2symmetries.is_empty():
