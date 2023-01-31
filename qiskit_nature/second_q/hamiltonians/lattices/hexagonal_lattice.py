@@ -28,8 +28,8 @@ class HexagonalLattice(Lattice):
     ) -> None:
         """
         Args:
-            rows: Length of the x direction.
-            cols: Length of the y direction.
+            rows: Number of hexagons in the x direction.
+            cols: Number of hexagons in the y direction.
             edge_parameter: Weight on all the edges, specified as a single value.
                 Defaults to 1.0.
             onsite_parameter: Weight on the self-loops, which are edges connecting a node to itself.
