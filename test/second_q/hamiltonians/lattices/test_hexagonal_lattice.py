@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Test for HyperCubicLattice."""
+"""Test for HexgonalLattice."""
 from test import QiskitNatureTestCase
 import numpy as np
 from numpy.testing import assert_array_equal
@@ -95,22 +95,8 @@ class TestHexagonalLattice(QiskitNatureTestCase):
 
         with self.subTest("Check the adjacency matrix."):
             target_matrix = np.zeros((10, 10), dtype=complex)
-            np.fill_diagonal(target_matrix, 1.0)
 
-            neg_indices = [
-                (1, 0),
-                (2, 1),
-                (3, 0),
-                (4, 3),
-                (5, 2),
-                (5, 4),
-                (6, 5),
-                (7, 4),
-                (8, 7),
-                (9, 6),
-                (9, 8),
-            ]
-            pos_indices = [
+            indices = [
                 (0, 1),
                 (0, 3),
                 (1, 2),
@@ -124,10 +110,11 @@ class TestHexagonalLattice(QiskitNatureTestCase):
                 (8, 9),
             ]
 
-            for idx1, idx2 in neg_indices:
-                target_matrix[idx1, idx2] = 0 - 1.42j
+            for idx1, idx2 in indices:
+                target_matrix[idx1, idx2] = 0 + 1.42j
 
-            for idx3, idx4 in pos_indices:
-                target_matrix[idx3, idx4] = 0 + 1.42j
+            target_matrix -= target_matrix.T
+
+            np.fill_diagonal(target_matrix, 1.0)
 
             assert_array_equal(hexa.to_adjacency_matrix(weighted=True), target_matrix)
