@@ -93,7 +93,12 @@ class QubitConverter:
             ValueError: If the mapper is a ``TaperedQubitMapper``.
         """
         if isinstance(mapper, TaperedQubitMapper):
-            raise ValueError(f"{type(mapper)} is not supported by the converter.")
+            raise ValueError(
+                "The TaperedQubitMapper is not supported by the QubitConverter. "
+                "If you want to use tapering please either use the tapering built "
+                "directly into the QubitConverter (see its documentation) "
+                "or use the TaperedQubitMapper standalone (recommended)."
+            )
         self._mapper: QubitMapper = mapper
 
         self._two_qubit_reduction: bool = two_qubit_reduction
@@ -240,9 +245,8 @@ class QubitConverter:
         Returns:
             PauliSumOp qubit operator
         """
-        if num_particles is not None:
-            if isinstance(self._mapper, ParityMapper):
-                self._mapper.num_particles = num_particles
+        if num_particles is not None and isinstance(self._mapper, ParityMapper):
+            self._mapper.num_particles = num_particles
 
         self._check_reset_mapper()
 
@@ -268,9 +272,8 @@ class QubitConverter:
         Raises:
             ValueError: If format of Z2Symmetry tapering values is invalid
         """
-        if num_particles is not None:
-            if isinstance(self._mapper, ParityMapper):
-                self._mapper.num_particles = num_particles
+        if num_particles is not None and isinstance(self._mapper, ParityMapper):
+            self._mapper.num_particles = num_particles
 
         if z2symmetries is not None:
             if not z2symmetries.is_empty():

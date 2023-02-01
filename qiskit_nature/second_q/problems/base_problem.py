@@ -105,9 +105,19 @@ class BaseProblem:
             mapper: ``QubitMapper`` object implementing the mapping of second quantized operators to
                 Pauli operators.
 
+        Raises:
+            ValueError: If the mapper is a ``TaperedQubitMapper``.
+
         Returns:
             A ``TaperedQubitMapper`` with pre-built symmetry specifications.
         """
+        if isinstance(mapper, TaperedQubitMapper):
+            raise ValueError(
+                "TaperedQubitMapper instance cannot be built from another "
+                "TaperedQubitMapper.  If you want to update your TaperedQubitMapper "
+                "instance please build a new one starting from the standard mappers."
+            )
+
         qubit_op, _ = self.second_q_ops()
         mapped_op = mapper.map(qubit_op).primitive
         z2_symmetries = Z2Symmetries.find_z2_symmetries(mapped_op)

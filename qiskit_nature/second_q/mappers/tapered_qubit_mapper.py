@@ -55,8 +55,17 @@ class TaperedQubitMapper(QubitMapper):
                 Pauli operators.
             z2symmetries: ``Z2Symmetries`` object defining the symmetries to use to reduce the Pauli
                 operators.
+
+        Raises:
+            ValueError: If the input mapper is also a ``TaperedQubitMapper``.
         """
         super().__init__()
+        if isinstance(mapper, TaperedQubitMapper):
+            raise ValueError(
+                "TaperedQubitMapper cannot be nested in another TaperedQubitMapper. "
+                "If you want to update your TaperedQubitMapper instance please "
+                "build a new one starting from the standard mappers."
+            )
         self.mapper: QubitMapper = mapper
         self.z2symmetries = z2symmetries
 

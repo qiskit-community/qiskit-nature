@@ -78,6 +78,16 @@ Qubit Converter
    :nosignatures:
 
    QubitConverter
+
+Tapered Qubit Mapper
+++++++++++++++++++++
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   TaperedQubitMapper
+
 """
 
 from .bksf import BravyiKitaevSuperFastMapper

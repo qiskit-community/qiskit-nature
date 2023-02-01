@@ -1,11 +1,46 @@
 ---
 features:
   - |
+    Add a Tapered Qubit Mapper class. :class:`~qiskit_nature.second_q.mappers.TaperedQubitMapper` is to
+    be used as a wrapper of standard :class:`~qiskit_nature.second_q.mappers.QubitMapper` that can
+    apply symmetry reduction techniques to operators at the end of the mapping.
+
+    The following example shows how this class can be constructed from a mapper and a symmetry object.
+
+    .. code-block:: python
+
+      driver = PySCFDriver()
+      electronic_structure_problem = driver.run()
+      h2_op, _ = electronic_structure_problem.second_q_ops()
+      mapper = JordanWignerMapper()
+      z2_sym = Z2Symmetries(
+          symmetries=[Pauli("ZIIZ"), Pauli("ZIZI"), Pauli("ZZII")],
+          sq_paulis=[Pauli("IIIX"), Pauli("IIXI"), Pauli("IXII")],
+          sq_list=[0, 1, 2],
+          tapering_values=[-1, 1, -1],
+      )
+      tapered_qubit_mapper = TaperedQubitMapper(mapper, z2symmetries=z2_sym)
+      qubit_op = tapered_qubit_mapper.map(h2_op)
+
+  - |
     Adds the method 
     :meth:`~qiskit_nature.second_q.problems.BaseProblem.get_tapered_mapper()` to
     transform a :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance into a 
     :class:`~qiskit_nature.second_q.mappers.TaperedQubitMapper` based on the properties of the current
     problem.
+
+    The following example shows how this method can be used to find the symmetries of a problem and
+    create the associate Tapered Qubit Mapper.
+
+    .. code-block:: python
+
+      driver = PySCFDriver()
+      electronic_structure_problem = driver.run()
+      h2_op, _ = electronic_structure_problem.second_q_ops()
+      mapper = JordanWignerMapper()
+      tapered_qubit_mapper = electronic_structure_problem.get_tapered_mapper(mapper)
+      qubit_op = tapered_qubit_mapper.map(h2_op)
+
   - |
     Update API for the method
     :meth:`~qiskit_nature.second_q.problems.BaseProblem.symmetry_sector_locator()`
