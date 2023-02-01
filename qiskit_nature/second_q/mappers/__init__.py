@@ -38,6 +38,15 @@ FermionicOp Mappers
    JordanWignerMapper
    ParityMapper
 
+**Interleaved Qubit-Ordering:** If you want to generate qubit operators where the alpha-spin and
+beta-spin components are mapped to the qubit register in an interleaved (rather than the default
+blocked) order, you can use the following wrapper:
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   InterleavedQubitMapper
 
 VibrationalOp Mappers
 +++++++++++++++++++++
@@ -83,6 +92,7 @@ from .qubit_converter import QubitConverter
 from .fermionic_mapper import FermionicMapper
 from .spin_mapper import SpinMapper
 from .vibrational_mapper import VibrationalMapper
+from .interleaved_qubit_mapper import InterleavedQubitMapper
 from .tapered_qubit_mapper import TaperedQubitMapper
 
 __all__ = [
@@ -95,5 +105,6 @@ __all__ = [
     "LogarithmicMapper",
     "QubitConverter",
     "QubitMapper",
+    "InterleavedQubitMapper",
     "TaperedQubitMapper",
 ]
