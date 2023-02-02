@@ -81,7 +81,7 @@ class TaperedQubitMapper(QubitMapper):
         if self.z2symmetries.is_empty() or self.z2symmetries.tapering_values is None:
             return converted_op
         if check_commutes:
-            logger.debug("Checking operator commute with symmetries:")
+            logger.debug("Checking operator commutes with symmetries:")
             converted_symmetries = self.z2symmetries._sq_paulis
             commutes = TaperedQubitMapper._check_commutes(converted_symmetries, converted_op)
 
@@ -158,7 +158,6 @@ class TaperedQubitMapper(QubitMapper):
 
         if issubclass(wrapped_type, PauliSumOp):
             pauli_ops = [pauli_ops]
-            suppress_none = False
 
         wrapped_pauli_ops: _ListOrDict[PauliSumOp] = _ListOrDict(pauli_ops)
 
@@ -169,7 +168,7 @@ class TaperedQubitMapper(QubitMapper):
             )
             if qubit_op is not None:
                 qubit_ops[name] = PauliSumOp(qubit_op)
-            elif not suppress_none:
+            else:
                 qubit_ops[name] = None
 
         returned_ops: PauliSumOp | ListOrDictType[PauliSumOp] = qubit_ops.unwrap(

@@ -1,7 +1,7 @@
 ---
 features:
   - |
-    Add a Tapered Qubit Mapper class. :class:`~qiskit_nature.second_q.mappers.TaperedQubitMapper` is to
+    Adds a Tapered Qubit Mapper class. :class:`~qiskit_nature.second_q.mappers.TaperedQubitMapper` is to
     be used as a wrapper of standard :class:`~qiskit_nature.second_q.mappers.QubitMapper` that can
     apply symmetry reduction techniques to operators at the end of the mapping.
 
@@ -21,6 +21,7 @@ features:
       )
       tapered_qubit_mapper = TaperedQubitMapper(mapper, z2symmetries=z2_sym)
       qubit_op = tapered_qubit_mapper.map(h2_op)
+
 
   - |
     Adds the method 
@@ -42,7 +43,7 @@ features:
       qubit_op = tapered_qubit_mapper.map(h2_op)
 
   - |
-    Update API for the method
+    Updates API for the method
     :meth:`~qiskit_nature.second_q.problems.BaseProblem.symmetry_sector_locator()`
     to accept ``Z2Symmetries`` as defined in the quantum_info module as well as the ``Z2Symmetries``
     defined in the opflow module.

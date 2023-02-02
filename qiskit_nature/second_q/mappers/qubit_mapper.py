@@ -150,7 +150,6 @@ class QubitMapper(ABC):
 
         if issubclass(wrapped_type, SparseLabelOp):
             second_q_ops = [second_q_ops]
-            suppress_none = False
 
         wrapped_second_q_ops: _ListOrDict[SparseLabelOp] = _ListOrDict(second_q_ops)
 

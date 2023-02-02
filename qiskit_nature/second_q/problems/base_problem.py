@@ -114,7 +114,7 @@ class BaseProblem:
         if isinstance(mapper, TaperedQubitMapper):
             raise ValueError(
                 "TaperedQubitMapper instance cannot be built from another "
-                "TaperedQubitMapper.  If you want to update your TaperedQubitMapper "
+                "TaperedQubitMapper. If you want to update your TaperedQubitMapper "
                 "instance please build a new one starting from the standard mappers."
             )
 
