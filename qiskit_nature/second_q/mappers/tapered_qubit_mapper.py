@@ -15,12 +15,12 @@
 from __future__ import annotations
 
 import logging
-from typing import cast, TYPE_CHECKING
+from typing import cast, Union, TYPE_CHECKING
 
 from qiskit.algorithms.list_or_dict import ListOrDict as ListOrDictType
 from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.analysis.z2_symmetries import Z2Symmetries
-from qiskit.quantum_info.operators import SparsePauliOp, Pauli
+from qiskit.quantum_info.operators import SparsePauliOp
 
 from qiskit_nature.second_q.operators import SparseLabelOp
 
@@ -57,7 +57,7 @@ class TaperedQubitMapper(QubitMapper):
                 operators.
 
         Raises:
-            ValueError: If the input mapper is also a ``TaperedQubitMapper``.
+            ValueError: If the input mapper is already a ``TaperedQubitMapper``.
         """
         super().__init__()
         if isinstance(mapper, TaperedQubitMapper):
@@ -74,29 +74,20 @@ class TaperedQubitMapper(QubitMapper):
         converted_op = self.z2symmetries.convert_clifford(mapped_op)
         return converted_op
 
-    def _taper_clifford_single(
-        self, converted_op: SparsePauliOp, *, check_commutes: bool = True
-    ) -> None | SparsePauliOp:
-
-        if self.z2symmetries.is_empty() or self.z2symmetries.tapering_values is None:
+    def _taper_clifford_single(self, converted_op: SparsePauliOp) -> SparsePauliOp:
+        # Mappers do not apply symmetry reduction if the tapering values were not set to specify the
+        # eigen-sector in which lies the solution.
+        if self.z2symmetries.tapering_values is None:
             return converted_op
-        if check_commutes:
-            logger.debug("Checking operator commutes with symmetries:")
-            converted_symmetries = self.z2symmetries._sq_paulis
-            commutes = TaperedQubitMapper._check_commutes(converted_symmetries, converted_op)
+        else:
+            tapered_op = self.z2symmetries.taper_clifford(converted_op)
+            cast(SparsePauliOp, tapered_op)
+            return tapered_op
 
-            if not commutes:
-                return None
-
-        tapered_op = self.z2symmetries.taper_clifford(converted_op)
-        cast(SparsePauliOp, tapered_op)
-        return tapered_op
-
-    def _map_single(self, second_q_op: SparseLabelOp) -> PauliSumOp | None:
+    def _map_single(self, second_q_op: SparseLabelOp) -> PauliSumOp:
         converted_op = self._map_clifford_single(second_q_op)
         tapered_op = self._taper_clifford_single(converted_op)
-
-        returned_op = PauliSumOp(tapered_op) if isinstance(tapered_op, SparsePauliOp) else None
+        returned_op = PauliSumOp(tapered_op)
         return returned_op
 
     def map_clifford(
@@ -137,7 +128,7 @@ class TaperedQubitMapper(QubitMapper):
         *,
         check_commutes: bool = True,
         suppress_none: bool = False,
-    ) -> PauliSumOp | ListOrDictType[PauliSumOp]:
+    ) -> PauliSumOp | None | ListOrDictType[PauliSumOp | None]:
         """Applies the symmetry reduction on a ``PauliSumOp`` or a list (resp. dict). This method implies
         that the second quantized operators were already mapped to Pauli operators and composed with the
         clifford operations defined in the symmetry, for example using the ``map_clifford`` method.
@@ -161,15 +152,16 @@ class TaperedQubitMapper(QubitMapper):
 
         wrapped_pauli_ops: _ListOrDict[PauliSumOp] = _ListOrDict(pauli_ops)
 
-        qubit_ops: _ListOrDict[PauliSumOp] = _ListOrDict()
-        for name, pauli_op in iter(wrapped_pauli_ops):
-            qubit_op = self._taper_clifford_single(
-                pauli_op.primitive, check_commutes=check_commutes
-            )
-            if qubit_op is not None:
-                qubit_ops[name] = PauliSumOp(qubit_op)
-            else:
-                qubit_ops[name] = None
+        qubit_ops: _ListOrDict[PauliSumOp]
+        if self.z2symmetries.is_empty():
+            qubit_ops = wrapped_pauli_ops
+        else:
+            qubit_ops = _ListOrDict()
+            for name, pauli_op in iter(wrapped_pauli_ops):
+                if check_commutes and not self._check_commutes(pauli_op.primitive):
+                    qubit_ops[name] = None
+                else:
+                    qubit_ops[name] = PauliSumOp(self._taper_clifford_single(pauli_op.primitive))
 
         returned_ops: PauliSumOp | ListOrDictType[PauliSumOp] = qubit_ops.unwrap(
             wrapped_type, suppress_none=suppress_none
@@ -177,9 +169,32 @@ class TaperedQubitMapper(QubitMapper):
 
         return returned_ops
 
-    @staticmethod
-    def _check_commutes(sq_paulis: list[Pauli], qubit_op: SparsePauliOp) -> bool:
-        commuting_rows = qubit_op.paulis.commutes_with_all(sq_paulis)
+    def map(
+        self,
+        second_q_ops: SparseLabelOp | ListOrDictType[SparseLabelOp],
+    ) -> None | PauliSumOp | ListOrDictType[PauliSumOp]:
+        """Maps a second quantized operator or a list, dict of second quantized operators based on
+        the current mapper.
+
+        Args:
+            second_q_ops: A second quantized operator, or list thereof.
+
+        Returns:
+            A qubit operator in the form of a PauliSumOp, or list (resp. dict) thereof if a list
+            (resp. dict) of second quantized operators was supplied.
+        """
+        pauli_ops = self.map_clifford(second_q_ops)
+        tapered_ops = self.taper_clifford(pauli_ops, check_commutes=True, suppress_none=True)
+        # These choice of keyword arguments ensures that the output list or dict does not contain None.
+        cast(Union[None, PauliSumOp, ListOrDictType[PauliSumOp]], tapered_ops)
+        return tapered_ops
+
+    def _check_commutes(self, qubit_op: SparsePauliOp) -> bool:
+        logger.debug("Checking operator commutes with symmetries:")
+        # We use sq_paulis instead of symmetries because the qubit operator was already composed with the
+        # cliffords defined in the symmetry.
+        converted_symmetries = self.z2symmetries._sq_paulis
+        commuting_rows = qubit_op.paulis.commutes_with_all(converted_symmetries)
         commutes = len(commuting_rows) == qubit_op.size
         logger.debug("  '%s' commutes: %s", id(qubit_op), commutes)
         return commutes

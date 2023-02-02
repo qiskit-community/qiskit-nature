@@ -70,6 +70,18 @@ SpinOp Mappers
    LinearMapper
    LogarithmicMapper
 
+Tapered Qubit Mapper
+++++++++++++++++++++
+
+If you want to make use of the symmetries of your problem and add a step of tapering
+after the mapping to qubit operators, you can use the following wrapper for symmetry reduction:
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   TaperedQubitMapper
+
 Qubit Converter
 +++++++++++++++
 
@@ -78,15 +90,6 @@ Qubit Converter
    :nosignatures:
 
    QubitConverter
-
-Tapered Qubit Mapper
-++++++++++++++++++++
-
-.. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
-
-   TaperedQubitMapper
 
 """
 

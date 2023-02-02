@@ -67,7 +67,7 @@ class _ListOrDict(Dict, Iterable, Generic[T]):
             if new_value is not None:
                 self[key] = new_value
 
-    def unwrap(self, wrapped_type: type, suppress_none: bool = False) -> Dict | Iterable | T:
+    def unwrap(self, wrapped_type: type, suppress_none: bool = True) -> Dict | Iterable | T:
         """Return the content of this class according to the initial type of the data before
         the creation of the ListOrDict object.
 
@@ -131,16 +131,12 @@ class QubitMapper(ABC):
     def map(
         self,
         second_q_ops: SparseLabelOp | ListOrDictType[SparseLabelOp],
-        suppress_none: bool = False,
     ) -> PauliSumOp | ListOrDictType[PauliSumOp]:
         """Maps a second quantized operator or a list, dict of second quantized operators based on
         the current mapper.
 
         Args:
             second_q_ops: A second quantized operator, or list thereof.
-            suppress_none: If the output list or dict should contain None at positions where an operator
-                did not commute with symmetry, to maintain order, or whether that should
-                be suppressed. If True the output list or dict length may then be smaller than the input.
 
         Returns:
             A qubit operator in the form of a PauliSumOp, or list (resp. dict) thereof if a list
@@ -156,9 +152,9 @@ class QubitMapper(ABC):
         qubit_ops: _ListOrDict = _ListOrDict()
         for name, second_q_op in iter(wrapped_second_q_ops):
             qubit_ops[name] = self._map_single(second_q_op)
-        returned_ops: Union[PauliSumOp, ListOrDictType[PauliSumOp]] = qubit_ops.unwrap(
-            wrapped_type, suppress_none=suppress_none
-        )
+        returned_ops: Union[PauliSumOp, ListOrDictType[PauliSumOp]] = qubit_ops.unwrap(wrapped_type)
+        # Note the output of the mapping will never be None for standard mappers other than the
+        # TaperedQubitMapper.
         return returned_ops
 
     @classmethod

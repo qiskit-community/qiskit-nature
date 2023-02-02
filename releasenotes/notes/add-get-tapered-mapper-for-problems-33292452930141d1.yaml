@@ -2,8 +2,8 @@
 features:
   - |
     Adds a Tapered Qubit Mapper class. :class:`~qiskit_nature.second_q.mappers.TaperedQubitMapper` is to
-    be used as a wrapper of standard :class:`~qiskit_nature.second_q.mappers.QubitMapper` that can
-    apply symmetry reduction techniques to operators at the end of the mapping.
+    be used as a wrapper of another standard :class:`~qiskit_nature.second_q.mappers.QubitMapper` that
+    can apply symmetry reduction techniques to operators at the end of the mapping.
 
     The following example shows how this class can be constructed from a mapper and a symmetry object.
 
@@ -44,6 +44,6 @@ features:
 
   - |
     Updates API for the method
-    :meth:`~qiskit_nature.second_q.problems.BaseProblem.symmetry_sector_locator()`
-    to accept ``Z2Symmetries`` as defined in the quantum_info module as well as the ``Z2Symmetries``
-    defined in the opflow module.
+    :meth:`~qiskit_nature.second_q.problems.BaseProblem.symmetry_sector_locator()` to accept the new
+    :class:`~qiskit.quantum_info.analysis.z2_symmetries.Z2Symmetries` from ``quantum_info``
+    as well as the legacy :class:`~qiskit.opflow.Z2Symmetries` from the ``opflow`` module.

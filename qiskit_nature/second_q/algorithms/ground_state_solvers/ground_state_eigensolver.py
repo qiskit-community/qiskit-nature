@@ -98,17 +98,15 @@ class GroundStateEigensolver(GroundStateSolver):
             aux_ops = self._qubit_converter.convert_match(aux_second_q_ops)
         else:
             main_operator = self._qubit_converter.map(main_second_q_op)
-            aux_ops = self._qubit_converter.map(aux_second_q_ops, suppress_none=True)
+            aux_ops = self._qubit_converter.map(aux_second_q_ops)
 
         if aux_operators is not None:
             for name_aux, aux_op in aux_operators.items():
                 if isinstance(aux_op, SparseLabelOp):
                     if isinstance(self._qubit_converter, QubitConverter):
-                        converted_aux_op = self._qubit_converter.convert_match(
-                            aux_op, suppress_none=True
-                        )
+                        converted_aux_op = self._qubit_converter.convert_match(aux_op)
                     else:
-                        converted_aux_op = self._qubit_converter.map(aux_op, suppress_none=True)
+                        converted_aux_op = self._qubit_converter.map(aux_op)
                 else:
                     converted_aux_op = aux_op
 
@@ -121,7 +119,8 @@ class GroundStateEigensolver(GroundStateSolver):
                         name_aux,
                     )
                 # The custom op overrides the default op if the key is already taken.
-                aux_ops[name_aux] = converted_aux_op
+                if converted_aux_op is not None:
+                    aux_ops[name_aux] = converted_aux_op
         if isinstance(self.solver, MinimumEigensolverFactory):
             # this must be called after transformation.transform
             self._solver = self.solver.get_solver(problem, self._qubit_converter)
