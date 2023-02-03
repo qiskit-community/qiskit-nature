@@ -15,7 +15,7 @@
 from __future__ import annotations
 
 import logging
-from typing import cast, Union, TYPE_CHECKING
+from typing import cast
 
 from qiskit.algorithms.list_or_dict import ListOrDict as ListOrDictType
 from qiskit.opflow import PauliSumOp
@@ -25,9 +25,6 @@ from qiskit.quantum_info.operators import SparsePauliOp
 from qiskit_nature.second_q.operators import SparseLabelOp
 
 from .qubit_mapper import QubitMapper, _ListOrDict
-
-if TYPE_CHECKING:
-    from qiskit_nature.second_q.problems import ElectronicStructureProblem
 
 logger = logging.getLogger(__name__)
 
@@ -80,8 +77,7 @@ class TaperedQubitMapper(QubitMapper):
         if self.z2symmetries.tapering_values is None:
             return converted_op
         else:
-            tapered_op = self.z2symmetries.taper_clifford(converted_op)
-            cast(SparsePauliOp, tapered_op)
+            tapered_op = cast(SparsePauliOp, self.z2symmetries.taper_clifford(converted_op))
             return tapered_op
 
     def _map_single(self, second_q_op: SparseLabelOp) -> PauliSumOp:
@@ -127,7 +123,7 @@ class TaperedQubitMapper(QubitMapper):
         pauli_ops: PauliSumOp | ListOrDictType[PauliSumOp],
         *,
         check_commutes: bool = True,
-        suppress_none: bool = False,
+        suppress_none: bool = True,
     ) -> PauliSumOp | None | ListOrDictType[PauliSumOp | None]:
         """Applies the symmetry reduction on a ``PauliSumOp`` or a list (resp. dict). This method implies
         that the second quantized operators were already mapped to Pauli operators and composed with the
@@ -168,26 +164,6 @@ class TaperedQubitMapper(QubitMapper):
         )
 
         return returned_ops
-
-    def map(
-        self,
-        second_q_ops: SparseLabelOp | ListOrDictType[SparseLabelOp],
-    ) -> None | PauliSumOp | ListOrDictType[PauliSumOp]:
-        """Maps a second quantized operator or a list, dict of second quantized operators based on
-        the current mapper.
-
-        Args:
-            second_q_ops: A second quantized operator, or list thereof.
-
-        Returns:
-            A qubit operator in the form of a PauliSumOp, or list (resp. dict) thereof if a list
-            (resp. dict) of second quantized operators was supplied.
-        """
-        pauli_ops = self.map_clifford(second_q_ops)
-        tapered_ops = self.taper_clifford(pauli_ops, check_commutes=True, suppress_none=True)
-        # These choice of keyword arguments ensures that the output list or dict does not contain None.
-        cast(Union[None, PauliSumOp, ListOrDictType[PauliSumOp]], tapered_ops)
-        return tapered_ops
 
     def _check_commutes(self, qubit_op: SparsePauliOp) -> bool:
         logger.debug("Checking operator commutes with symmetries:")
