@@ -17,7 +17,7 @@ from test import QiskitNatureTestCase
 from qiskit.utils import algorithm_globals
 
 from qiskit_nature.units import DistanceUnit
-from qiskit_nature.second_q.mappers import QubitConverter, JordanWignerMapper
+from qiskit_nature.second_q.mappers import QubitConverter, JordanWignerMapper, TaperedQubitMapper
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.algorithms.excited_states_solvers.qeom_electronic_ops_builder import (
     build_electronic_ops,
@@ -46,6 +46,7 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
         )
 
         self.mapper = JordanWignerMapper()
+        self.tapered_mapper = TaperedQubitMapper(JordanWignerMapper())
         self.qubit_converter = QubitConverter(self.mapper)
         self.electronic_structure_problem = self.driver.run()
         self.electronic_structure_problem.second_q_ops()
@@ -87,6 +88,35 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
             self.electronic_structure_problem.num_particles,
             "sd",
             self.mapper,
+        )
+
+        with self.subTest("hopping operators"):
+            self.assertEqual(hopping_operators.keys(), expected_hopping_operators_electronic.keys())
+            for key, exp_key in zip(
+                hopping_operators.keys(), expected_hopping_operators_electronic.keys()
+            ):
+                self.assertEqual(key, exp_key)
+                val = hopping_operators[key].primitive
+                exp_val = expected_hopping_operators_electronic[exp_key]
+                if not val.equiv(exp_val):
+                    print(val)
+                    print(exp_val)
+                self.assertTrue(val.equiv(exp_val), msg=(val, exp_val))
+
+        with self.subTest("commutativities"):
+            self.assertEqual(commutativities, expected_commutativies_electronic)
+
+        with self.subTest("excitation indices"):
+            self.assertEqual(indices, expected_indices_electronic)
+
+    def test_build_hopping_operators_taperedmapper(self):
+        """Tests that the correct hopping operator is built with a tapered qubit mapper."""
+
+        hopping_operators, commutativities, indices = build_electronic_ops(
+            self.electronic_structure_problem.num_spatial_orbitals,
+            self.electronic_structure_problem.num_particles,
+            "sd",
+            self.tapered_mapper,
         )
 
         with self.subTest("hopping operators"):

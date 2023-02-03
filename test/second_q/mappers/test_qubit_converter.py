@@ -24,7 +24,11 @@ import qiskit_nature.optionals as _optionals
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.operators import FermionicOp
-from qiskit_nature.second_q.mappers import JordanWignerMapper, ParityMapper, QubitConverter
+from qiskit_nature.second_q.mappers import (
+    JordanWignerMapper,
+    ParityMapper,
+    QubitConverter,
+)
 
 
 @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
@@ -134,7 +138,7 @@ class TestQubitConverter(QiskitNatureTestCase):
         mapper = ParityMapper()
         qubit_conv = QubitConverter(mapper, two_qubit_reduction=True)
 
-        with self.subTest("Two qubit reduction ignored as no num particles given"):
+        with self.subTest("Two qubit reduction produces list as no particle number is given"):
             qubit_op = qubit_conv.convert(self.h2_op)
             self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY)
             self.assertIsNone(qubit_conv.num_particles)
@@ -338,7 +342,7 @@ class TestQubitConverter(QiskitNatureTestCase):
         self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW_TAPERED)
 
     def test_compatibiliy_with_mappers(self):
-        """Test that QubitConverter.convert() is equivalent to QubitMapper.map() without any reduction"""
+        """Test that Qubit converter and mappers produces the same results."""
 
         with self.subTest("JordanWigner Mapper"):
             mapper = JordanWignerMapper()
@@ -353,6 +357,21 @@ class TestQubitConverter(QiskitNatureTestCase):
             qubit_op_converter = mapper.map(self.h2_op)
             qubit_op_mapper = qubit_conv.convert(self.h2_op)
             self.assertEqual(qubit_op_converter, qubit_op_mapper)
+
+        with self.subTest("Parity Mapper and two qubit reduction"):
+            mapper = ParityMapper(num_particles=(1, 1))
+            qubit_conv = QubitConverter(mapper, two_qubit_reduction=True)
+            qubit_op_converter = mapper.map(self.h2_op)
+            qubit_op_mapper = qubit_conv.convert_match(self.h2_op)
+            self.assertEqual(qubit_op_converter, qubit_op_mapper)
+
+    def test_error_with_tapered_qubit_mapper(self):
+        """Test that the qubit converter cannot be used with a Tapered Qubit Mapper"""
+
+        mapper = JordanWignerMapper()
+        tq_mapper = self.driver_result.get_tapered_mapper(mapper)
+        with self.assertRaises(ValueError):
+            _ = QubitConverter(tq_mapper)
 
 
 if __name__ == "__main__":

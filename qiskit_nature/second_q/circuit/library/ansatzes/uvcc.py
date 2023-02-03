@@ -23,7 +23,7 @@ from qiskit.circuit.library import EvolvedOperatorAnsatz
 from qiskit.opflow import PauliTrotterEvolution
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper, TaperedQubitMapper
 from qiskit_nature.second_q.operators import SparseLabelOp, VibrationalOp
 
 from .utils.vibration_excitation_generator import generate_vibration_excitations
@@ -211,6 +211,9 @@ class UVCC(EvolvedOperatorAnsatz):
                     operators = self.qubit_converter.convert_match(
                         excitation_ops, suppress_none=False
                     )
+                elif isinstance(self.qubit_converter, TaperedQubitMapper):
+                    operators = self.qubit_converter.map_clifford(excitation_ops)
+                    operators = self.qubit_converter.taper_clifford(operators, suppress_none=False)
                 else:
                     operators = self.qubit_converter.map(excitation_ops)
 

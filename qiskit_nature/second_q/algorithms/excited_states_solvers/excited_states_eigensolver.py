@@ -94,6 +94,7 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
                         converted_aux_op = self._qubit_converter.map(aux_op)
                 else:
                     converted_aux_op = aux_op
+
                 if name_aux in aux_ops.keys():
                     LOGGER.warning(
                         "The key '%s' was already taken by an internally constructed auxiliary "
@@ -102,7 +103,17 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
                         "this operator.",
                         name_aux,
                     )
-                aux_ops[name_aux] = converted_aux_op
+                if converted_aux_op is not None:
+                    # The custom op overrides the default op if the key is already taken.
+                    aux_ops[name_aux] = converted_aux_op
+                else:
+                    LOGGER.warning(
+                        "The manually provided operator '%s' got reduced to `None` in the mapping "
+                        "process. This can occur for example when it does not commute with the "
+                        "hamiltonian after applying the determined symmetry reductions. Thus, this "
+                        "operator will not be used!",
+                        name_aux,
+                    )
 
         if isinstance(self._solver, EigensolverFactory):
             # this must be called after transformation.transform

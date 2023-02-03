@@ -70,6 +70,18 @@ SpinOp Mappers
    LinearMapper
    LogarithmicMapper
 
+Tapered Qubit Mapper
+++++++++++++++++++++
+
+If you want to make use of the symmetries of your problem and add a step of tapering
+after the mapping to qubit operators, you can use the following wrapper for symmetry reduction:
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   TaperedQubitMapper
+
 Qubit Converter
 +++++++++++++++
 
@@ -78,6 +90,7 @@ Qubit Converter
    :nosignatures:
 
    QubitConverter
+
 """
 
 from .bksf import BravyiKitaevSuperFastMapper
@@ -93,6 +106,7 @@ from .fermionic_mapper import FermionicMapper
 from .spin_mapper import SpinMapper
 from .vibrational_mapper import VibrationalMapper
 from .interleaved_qubit_mapper import InterleavedQubitMapper
+from .tapered_qubit_mapper import TaperedQubitMapper
 
 __all__ = [
     "BravyiKitaevMapper",
@@ -105,4 +119,5 @@ __all__ = [
     "QubitConverter",
     "QubitMapper",
     "InterleavedQubitMapper",
+    "TaperedQubitMapper",
 ]
