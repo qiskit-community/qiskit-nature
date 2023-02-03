@@ -118,9 +118,18 @@ class GroundStateEigensolver(GroundStateSolver):
                         "this operator.",
                         name_aux,
                     )
-                # The custom op overrides the default op if the key is already taken.
                 if converted_aux_op is not None:
+                    # The custom op overrides the default op if the key is already taken.
                     aux_ops[name_aux] = converted_aux_op
+                else:
+                    LOGGER.warning(
+                        "The manually provided operator '%s' got reduced to `None` in the mapping "
+                        "process. This can occur for example when it does not commute with the "
+                        "hamiltonian after applying the determined symmetry reductions. Thus, this "
+                        "operator will not be used!",
+                        name_aux,
+                    )
+
         if isinstance(self.solver, MinimumEigensolverFactory):
             # this must be called after transformation.transform
             self._solver = self.solver.get_solver(problem, self._qubit_converter)
