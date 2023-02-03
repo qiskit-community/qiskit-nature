@@ -165,6 +165,28 @@ class TaperedQubitMapper(QubitMapper):
 
         return returned_ops
 
+    def map(
+        self,
+        second_q_ops: SparseLabelOp | ListOrDictType[SparseLabelOp],
+    ) -> None | PauliSumOp | ListOrDictType[PauliSumOp]:
+        """Maps a second quantized operator or a list, dict of second quantized operators based on
+        the current mapper.
+
+        Args:
+            second_q_ops: A second quantized operator, or list thereof.
+
+        Returns:
+            A qubit operator in the form of a PauliSumOp, or list (resp. dict) thereof if a list
+            (resp. dict) of second quantized operators was supplied.
+        """
+        # NOTE: we do not rely on the `_map_single` method here because we want to ensure that
+        # `check_commutes=True` is set. This is not done via `_map_single` because the correct
+        # filtering of `None` values can only be done on the level of `taper_clifford`
+        pauli_ops = self.map_clifford(second_q_ops)
+        # This choice of keyword arguments ensures that the output does not contain None.
+        tapered_ops = self.taper_clifford(pauli_ops, check_commutes=True, suppress_none=True)
+        return tapered_ops
+
     def _check_commutes(self, qubit_op: SparsePauliOp) -> bool:
         logger.debug("Checking operator commutes with symmetries:")
         # We use sq_paulis instead of symmetries because the qubit operator was already composed with the
