@@ -79,7 +79,7 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
     made about the *contents* of the keys. However, the length of each key determines the dimension
     of the matrix which it maps, too. For example:
 
-    .. jupyter-execute::
+    .. code-block:: python
 
         import numpy as np
 
@@ -96,7 +96,7 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
     axis of the matrix, when an operator gets built from the tensor. This means, that the previous
     example would expand for example like so:
 
-    .. jupyter-execute::
+    .. code-block:: python
 
         from qiskit_nature.second_q.operators import FermionicOp, PolynomialTensor
 
@@ -113,28 +113,28 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
 
     Addition
 
-    .. jupyter-execute::
+    .. code-block:: python
 
       matrix = np.array([[0, 1], [2, 3]], dtype=float)
       0.5 * PolynomialTensor({"+-": matrix}) + PolynomialTensor({"+-": matrix})
 
     Operator multiplication
 
-    .. jupyter-execute::
+    .. code-block:: python
 
       tensor = PolynomialTensor({"+-": matrix})
       print(tensor @ tensor)
 
     Tensor multiplication
 
-    .. jupyter-execute::
+    .. code-block:: python
 
       print(tensor ^ tensor)
 
     You can also implement more advanced arithmetic via the :meth:`apply` and :meth:`einsum`
     methods.
 
-    .. jupyter-execute::
+    .. code-block:: python
 
       print(PolynomialTensor.apply(np.transpose, tensor))
       print(PolynomialTensor.apply(np.conjugate, 1j * tensor))
@@ -148,7 +148,7 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
     it needs to support more than 2-dimensional arrays, we rely on the
     `sparse <https://sparse.pydata.org/en/stable/index.html>`_ library.
 
-    .. jupyter-execute::
+    .. code-block:: python
 
         import sparse as sp
 
