@@ -17,7 +17,7 @@ from __future__ import annotations
 from collections.abc import Callable, Mapping
 from itertools import product
 from numbers import Number
-from typing import Iterator, Type
+from typing import Iterator, Type, Union, cast
 
 import numpy as np
 
@@ -218,7 +218,8 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         for key in self._data:
             if key == "":
                 continue
-            return self[key].shape[0]
+            # TODO: remove unnecessary cast once settings.tensor_wrapping is removed
+            return cast(Union[np.ndarray, SparseArray, Tensor], self[key]).shape[0]
         return None
 
     def __repr__(self) -> str:
@@ -247,21 +248,28 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
     @_optionals.HAS_SPARSE.require_in_call
     def is_sparse(self) -> bool:
         """Returns whether all matrices in this tensor are sparse."""
-        return all(self[key].is_sparse() for key in self if key != "")
+        # TODO: remove extra-wrapping of Tensor once settings.tensor_wrapping is removed
+        return all(Tensor(self[key]).is_sparse() for key in self if key != "")
 
     def is_dense(self) -> bool:
         """Returns whether all matrices in this tensor are dense."""
-        return all(self[key].is_dense() for key in self if key != "")
+        # TODO: remove extra-wrapping of Tensor once settings.tensor_wrapping is removed
+        return all(Tensor(self[key]).is_dense() for key in self if key != "")
 
-    def __getitem__(self, __k: str) -> Tensor:
+    def __getitem__(self, __k: str) -> np.ndarray | SparseArray | Number | Tensor:
         """Gets the value from the ``PolynomialTensor``.
 
         Args:
             __k: operator key string in the ``PolynomialTensor``.
 
         Returns:
-            Value corresponding to the operator key ``__k``.
+            Value corresponding to the operator key ``__k``. If
+            :attr:`~qiskit_nature.settings.tensor_wrapping` is ``True``, the returned is guaranteed
+            to be of type :class:`~qiskit_nature.second_q.operators.Tensor`.
         """
+        if not settings.tensor_wrapping:
+            return self._data.__getitem__(__k).array
+
         return self._data.__getitem__(__k)
 
     def __len__(self) -> int:
@@ -454,7 +462,11 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         for akey, bkey in product(a, b):
             new_key = akey + bkey
 
-            outer = a[akey].compose(b[bkey], qargs=qargs, front=True)
+            # TODO: remove these once settings.tensor_wrapping is removed
+            atensor = Tensor(a[akey])
+            btensor = Tensor(b[bkey])
+
+            outer = atensor.compose(btensor, qargs=qargs, front=True)
 
             if new_key in new_data:
                 new_data[new_key] = new_data[new_key] + outer
@@ -510,7 +522,12 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
 
         new_data: dict[str, Tensor] = {}
         for akey, bkey in product(a, b):
-            einsum = a[akey].tensor(b[bkey])
+
+            # TODO: remove these once settings.tensor_wrapping is removed
+            atensor = Tensor(a[akey])
+            btensor = Tensor(b[bkey])
+
+            einsum = atensor.tensor(btensor)
 
             new_key = akey + bkey
             if new_key in new_data:
@@ -576,7 +593,8 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         common_keys = set.intersection(*(set(op) for op in operands))
         new_data: dict[str, Tensor] = {}
         for key in common_keys:
-            new_data[key] = Tensor(function(*(op[key].array for op in operands)))
+            # TODO: remove extra-wrapping of Tensor once settings.tensor_wrapping is removed
+            new_data[key] = Tensor(function(*(Tensor(op[key]).array for op in operands)))
         return cls(new_data, validate=validate)
 
     @classmethod
@@ -660,7 +678,11 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
             try:
                 result = einsum_func(
                     einsum,
-                    *[operand_list[idx]._data[term].array for idx, term in enumerate(inputs)],
+                    # TODO: remove extra-wrapping of Tensor once settings.tensor_wrapping is removed
+                    *[
+                        Tensor(operand_list[idx]._data[term]).array
+                        for idx, term in enumerate(inputs)
+                    ],
                     optimize=settings.optimize_einsum,
                 )
             except KeyError:

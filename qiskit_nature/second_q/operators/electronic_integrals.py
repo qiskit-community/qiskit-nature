@@ -257,7 +257,8 @@ class ElectronicIntegrals(LinearMixin):
         if self.beta_alpha.is_empty():
             return self.beta_alpha
 
-        alpha_beta = Tensor(np.moveaxis(self.beta_alpha["++--"], (0, 1), (2, 3)))
+        # TODO: remove extra-wrapping of Tensor once settings.tensor_wrapping is removed
+        alpha_beta = Tensor(np.moveaxis(Tensor(self.beta_alpha["++--"]), (0, 1), (2, 3)))
         return PolynomialTensor({"++--": alpha_beta}, validate=False)
 
     @property

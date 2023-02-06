@@ -264,7 +264,7 @@ class FermionicOp(SparseLabelOp):
             # PERF: the following matrix unpacking is a performance bottleneck!
             # We could consider using Rust in the future to improve upon this.
 
-            mat = tensor[key].array
+            mat = tensor[key]
             if isinstance(mat, np.ndarray):
                 for index in np.ndindex(*mat.shape):
                     data[label_template.format(*index)] = mat[index]

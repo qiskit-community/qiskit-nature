@@ -302,7 +302,7 @@ class VibrationalOp(SparseLabelOp):
             # TODO: extract label_template into Tensor class
             label_template = " ".join(f"{op}_{{}}_{{}}" for op in key.replace("_", ""))
 
-            mat = tensor[key].array
+            mat = tensor[key]
             if isinstance(mat, np.ndarray):
                 for index in np.ndindex(*mat.shape):
                     data[label_template.format(*_reshape_index(index))] = mat[index]
