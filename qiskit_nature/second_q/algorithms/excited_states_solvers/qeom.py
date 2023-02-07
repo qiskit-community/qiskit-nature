@@ -492,12 +492,11 @@ class QEOM(ExcitedStatesSolver):
                 right_op_2 = available_hopping_ops.get(f"Edag_{n_u}")
                 to_be_computed_list.append((m_u, n_u, left_op_1, right_op_1, right_op_2))
 
-        if isinstance(self.qubit_converter, (QubitConverter, TaperedQubitMapper)):
-            is_empty = self.qubit_converter.z2symmetries.is_empty()
-        else:
-            is_empty = True
+        if (
+            isinstance(self.qubit_converter, (QubitConverter, TaperedQubitMapper))
+            and not self.qubit_converter.z2symmetries.is_empty()
+        ):
 
-        if not is_empty:
             combinations = itertools.product(
                 [1, -1], repeat=len(self.qubit_converter.z2symmetries.symmetries)
             )
