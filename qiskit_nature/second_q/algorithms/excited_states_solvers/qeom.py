@@ -354,7 +354,7 @@ class QEOM(ExcitedStatesSolver):
     ) -> EigenstateResult:
         """Run the excited-states calculation.
 
-        Construct and solves the EOM pseudo-eigenvalue problem to obtain the excitation energies
+        Construct and solve the EOM pseudo-eigenvalue problem to obtain the excitation energies
         and the excitation operators expansion coefficients.
 
         Args:
@@ -363,7 +363,9 @@ class QEOM(ExcitedStatesSolver):
 
         Returns:
             An interpreted :class:`~.EigenstateResult`. For more information see also
-            :meth:`~.BaseProblem.interpret`.
+            :meth:`~.BaseProblem.interpret`. The :class:`~.EigenstateResult` is constructed
+            from a :class:`~qiskit_nature.second_q.algorithms.excited_states_solvers.qeom.QEOMResult`
+            instance which holds additional information specific to the qEOM problem.
         """
 
         # 1. Prepare all operators and set the particle number in the qubit converter
@@ -1038,22 +1040,24 @@ class QEOMResult(EigensolverResult):
     For more details about the definitions, please refer to https://arxiv.org/abs/1910.12890.
 
     Attributes:
-        ground_state_raw_result: The raw results of the ground state eigensolver.
-        excitation_energies: The excitation energies approximated by the qEOM algorithm.
-        expansion_coefficients: The expansion coefficients matrix of the excitation operators onto the
-            set of basis operators spanning the linear qEOM subspace.
-        h_matrix: Matrix representing the Hamiltonian in the qEOM subspace. Because of our choice for the
-            expansion basis, the two square sub-matrices on the diagonal are related by a transposition
-            and the two submatrices on the anti diagonal are hermitian conjugates.
-        s_matrix: Matrix representing the geometry of the qEOM subspace. Because of our choice for the
-            expansion basis, the two square submatrices on the diagonal are related by a transposition
-            (with a sign) and the two submatrices on the anti diagonal are hermitian conjugates.
-        h_matrix_std: 2 by 2 matrix representing the sums of standard deviations in the four square
-            submatrices of H.
-        s_matrix_std: 2 by 2 matrix representing the sums of standard deviations in the four square
-            submatrices of S.
-        transition_amplitudes: Transition amplitudes of the auxiliary operators computed following the
-            evaluation rules specified when the qEOM class was created.
+        ground_state_raw_result (EigenstateResult): The raw results of the ground state eigensolver.
+        excitation_energies (np.ndarray): The excitation energies approximated by the qEOM algorithm.
+        expansion_coefficients (np.ndarray): The expansion coefficients matrix of the excitation
+            operators onto the set of basis operators spanning the linear qEOM subspace.
+        h_matrix (np.ndarray): Matrix representing the Hamiltonian in the qEOM subspace. Because of our
+            choice for the expansion basis, the two square sub-matrices on the diagonal are related by
+            a transposition and the two submatrices on the anti diagonal are hermitian conjugates.
+        s_matrix (np.ndarray): Matrix representing the geometry of the qEOM subspace. Because of our
+            choice for the expansion basis, the two square submatrices on the diagonal are related by
+            a transposition (with a sign) and the two submatrices on the anti diagonal are hermitian
+            conjugates.
+        h_matrix_std (np.ndarray): 2 by 2 matrix representing the sums of standard deviations in the four
+            square submatrices of H.
+        s_matrix_std (np.ndarray): 2 by 2 matrix representing the sums of standard deviations in the four
+            square submatrices of S.
+        transition_amplitudes (list[ListOrDictType[tuple[complex, dict[str, Any]]]): Transition
+            amplitudes of the auxiliary operators computed following the evaluation rules specified when
+            the qEOM class was created.
     """
 
     def __init__(self) -> None:
