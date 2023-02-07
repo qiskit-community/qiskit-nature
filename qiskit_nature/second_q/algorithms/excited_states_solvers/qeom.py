@@ -28,14 +28,12 @@ from qiskit.algorithms.eigensolvers import EigensolverResult
 from qiskit.algorithms.list_or_dict import ListOrDict as ListOrDictType
 from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolver
 from qiskit.algorithms.observables_evaluator import estimate_observables
-
 from qiskit.circuit import QuantumCircuit
-from qiskit.opflow import Z2Symmetries, commutator, double_commutator, PauliSumOp
+from qiskit.opflow import PauliSumOp
 from qiskit.tools import parallel_map
 from qiskit.tools.events import TextProgressBar
 from qiskit.utils import algorithm_globals
 from qiskit.utils.deprecation import deprecate_function
-
 from qiskit.quantum_info import SparsePauliOp
 from qiskit.primitives import BaseEstimator
 
@@ -47,7 +45,11 @@ from qiskit_nature.second_q.algorithms.ground_state_solvers.minimum_eigensolver_
 from qiskit_nature.second_q.algorithms.excited_states_solvers.excited_states_solver import (
     ExcitedStatesSolver,
 )
-from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper, ParityMapper
+from qiskit_nature.second_q.mappers import (
+    QubitConverter,
+    QubitMapper,
+    TaperedQubitMapper,
+)
 from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.problems import (
     BaseProblem,
@@ -72,6 +74,82 @@ class EvaluationRule(Enum):
 
     ALL = "all"
     DIAG = "diag"
+
+
+def _commutator(op_a: SparsePauliOp, op_b: SparsePauliOp) -> SparsePauliOp:
+    r"""Compute commutator of `op_a` and `op_b`.
+
+    .. math::
+
+        AB - BA.
+
+    Args:
+        op_a: Operator A.
+        op_b: Operator B.
+
+    Returns:
+        The computed commutator.
+    """
+    return (op_a @ op_b - op_b @ op_a).simplify(atol=0)
+
+
+def _double_commutator(
+    op_a: SparsePauliOp,
+    op_b: SparsePauliOp,
+    op_c: SparsePauliOp,
+    sign: bool = False,
+) -> SparsePauliOp:
+    r"""Compute symmetric double commutator of `op_a`, `op_b` and `op_c`.
+
+    See also Equation (13.6.18) in [1].
+    If `sign` is `False`, it returns
+
+    .. math::
+         [[A, B], C]/2 + [A, [B, C]]/2
+         = (2ABC + 2CBA - BAC - CAB - ACB - BCA)/2.
+
+    If `sign` is `True`, it returns
+
+    .. math::
+         \lbrace[A, B], C\rbrace/2 + \lbrace A, [B, C]\rbrace/2
+         = (2ABC - 2CBA - BAC + CAB - ACB + BCA)/2.
+
+    Args:
+        op_a: Operator A.
+        op_b: Operator B.
+        op_c: Operator C.
+        sign: False anti-commutes, True commutes.
+
+    Returns:
+        The computed double commutator.
+
+    References:
+        [1]: R. McWeeny.
+            Methods of Molecular Quantum Mechanics.
+            2nd Edition, Academic Press, 1992.
+            ISBN 0-12-486552-6.
+    """
+    sign_num = 1 if sign else -1
+
+    op_ab = op_a @ op_b
+    op_ba = op_b @ op_a
+    op_ac = op_a @ op_c
+    op_ca = op_c @ op_a
+
+    op_abc = op_ab @ op_c
+    op_cba = op_c @ op_ba
+    op_bac = op_ba @ op_c
+    op_cab = op_c @ op_ab
+    op_acb = op_ac @ op_b
+    op_bca = op_b @ op_ca
+
+    res = (
+        op_abc
+        - sign_num * op_cba
+        + 0.5 * (-op_bac + sign_num * op_cab - op_acb + sign_num * op_bca)
+    )
+
+    return res.simplify(atol=0)
 
 
 class QEOM(ExcitedStatesSolver):
@@ -157,8 +235,6 @@ class QEOM(ExcitedStatesSolver):
         self.aux_eval_rules = aux_eval_rules
         self.tol = tol
 
-        self._untapered_qubit_op_main: QubitOperator | None = None
-
     @property
     def qubit_converter(self) -> QubitConverter | QubitMapper:
         """Returns the qubit_converter object defined in the ground state solver."""
@@ -168,6 +244,28 @@ class QEOM(ExcitedStatesSolver):
     def solver(self) -> MinimumEigensolver | MinimumEigensolverFactory:
         """Returns the solver object defined in the ground state solver."""
         return self._gsc.solver
+
+    def _map_operators(
+        self, operators: SparseLabelOp | ListOrDictType[SparseLabelOp]
+    ) -> PauliSumOp | ListOrDictType[PauliSumOp]:
+        if isinstance(self.qubit_converter, QubitConverter):
+            mapped_ops = self.qubit_converter.convert_match(operators)
+        elif isinstance(self.qubit_converter, TaperedQubitMapper):
+            mapped_ops = self.qubit_converter.map_clifford(operators)
+        else:
+            mapped_ops = self.qubit_converter.map(operators)
+        return mapped_ops
+
+    def _taper_operators(
+        self, operators: PauliSumOp | ListOrDictType[PauliSumOp]
+    ) -> PauliSumOp | ListOrDictType[PauliSumOp]:
+        if isinstance(self.qubit_converter, QubitConverter):
+            tapered_ops = self.qubit_converter.symmetry_reduce_clifford(operators)
+        elif isinstance(self.qubit_converter, TaperedQubitMapper):
+            tapered_ops = self.qubit_converter.taper_clifford(operators, suppress_none=True)
+        else:
+            tapered_ops = operators
+        return tapered_ops
 
     def get_qubit_operators(
         self,
@@ -195,13 +293,12 @@ class QEOM(ExcitedStatesSolver):
         num_particles = getattr(problem, "num_particles", None)
 
         # 1. Convert the main operator (hamiltonian) to a Qubit Operator and apply two qubit reduction
-
         if isinstance(self.qubit_converter, QubitConverter):
             self.qubit_converter.force_match(num_particles=num_particles)
             main_op = self.qubit_converter.convert_only(main_operator, num_particles=num_particles)
+        elif isinstance(self.qubit_converter, TaperedQubitMapper):
+            main_op = self.qubit_converter.map_clifford(main_operator)
         else:
-            if isinstance(self.qubit_converter, ParityMapper):
-                self.qubit_converter.num_particles = num_particles
             main_op = self.qubit_converter.map(main_operator)
 
         # 3. Convert the auxiliary operators.
@@ -209,20 +306,13 @@ class QEOM(ExcitedStatesSolver):
         aux_ops = None
 
         if self.solver.supports_aux_operators():
-            if isinstance(self.qubit_converter, QubitConverter):
-                aux_ops = self.qubit_converter.convert_match(aux_second_q_operators)
-            else:
-                aux_ops = self.qubit_converter.map(aux_second_q_operators)
+            aux_ops = self._map_operators(aux_second_q_operators)
 
             cast(ListOrDictType[QubitOperator], aux_ops)
             if aux_operators is not None:
                 for name, op in aux_operators.items():
                     if isinstance(op, (SparseLabelOp)):
-                        if isinstance(self.qubit_converter, QubitConverter):
-                            converted_aux_op = self.qubit_converter.convert_match(op)
-                        else:
-                            converted_aux_op = self.qubit_converter.map(op)
-
+                        converted_aux_op = self._map_operators(op)
                     else:
                         converted_aux_op = op
                     if name in aux_ops.keys():
@@ -278,19 +368,18 @@ class QEOM(ExcitedStatesSolver):
 
         # 1. Prepare all operators and set the particle number in the qubit converter
         (
-            untap_main_op,  # Hamiltonian
-            untap_aux_ops,  # Auxiliary observables
+            untap_main_op_sumop,  # Hamiltonian
+            untap_aux_ops_sumop,  # Auxiliary observables
         ) = self.get_qubit_operators(problem, aux_operators)
+
+        untap_main_op = untap_main_op_sumop.primitive
+        untap_aux_ops = {key: op.primitive for key, op in untap_aux_ops_sumop.items()}
 
         # 2. Run ground state calculation with fully tapered custom auxiliary operators
         # Note that the solve() method includes the `second_q' auxiliary operators
-        if isinstance(self.qubit_converter, QubitConverter):
-            tap_aux_operators = self.qubit_converter.symmetry_reduce_clifford(untap_aux_ops)
-        else:
-            # TODO Issue #974 Implement symmetry reduce clifford for the tapered qubit mapper
-            tap_aux_operators = untap_aux_ops
+        tap_aux_operators_sumop = self._taper_operators(untap_aux_ops_sumop)
 
-        groundstate_result = self._gsc.solve(problem, tap_aux_operators)
+        groundstate_result = self._gsc.solve(problem, tap_aux_operators_sumop)
         ground_state = groundstate_result.eigenstates[0]
 
         # 3. Prepare the expansion operators for the excited state calculation
@@ -378,9 +467,9 @@ class QEOM(ExcitedStatesSolver):
 
     def _build_all_eom_operators(
         self,
-        untap_operator: QubitOperator,
-        expansion_basis_data: tuple[dict[str, QubitOperator], dict[str, list[bool]], int],
-    ) -> dict:
+        untap_operator: SparsePauliOp,
+        expansion_basis_data: tuple[dict[str, SparsePauliOp], dict[str, list[bool]], int],
+    ) -> dict[str, SparsePauliOp]:
         """Building all commutators for Q, W, M, V matrices.
 
         Args:
@@ -395,7 +484,6 @@ class QEOM(ExcitedStatesSolver):
 
         untap_hopping_ops, type_of_commutativities, size = expansion_basis_data
         to_be_computed_list = []
-        all_matrix_operators = {}
 
         mus, nus = np.triu_indices(size)
 
@@ -407,17 +495,15 @@ class QEOM(ExcitedStatesSolver):
                 right_op_2 = available_hopping_ops.get(f"Edag_{n_u}")
                 to_be_computed_list.append((m_u, n_u, left_op_1, right_op_1, right_op_2))
 
-        if isinstance(self.qubit_converter, QubitConverter):
-            try:
-                z2_symmetries = self.qubit_converter.z2symmetries
-            except AttributeError:
-                z2_symmetries = Z2Symmetries([], [], [])
+        if isinstance(self.qubit_converter, (QubitConverter, TaperedQubitMapper)):
+            is_empty = self.qubit_converter.z2symmetries.is_empty()
         else:
-            # TODO Issue #974 Manage symmetries of the tapered qubit mapper
-            z2_symmetries = Z2Symmetries([], [], [])
+            is_empty = True
 
-        if not z2_symmetries.is_empty():
-            combinations = itertools.product([1, -1], repeat=len(z2_symmetries.symmetries))
+        if not is_empty:
+            combinations = itertools.product(
+                [1, -1], repeat=len(self.qubit_converter.z2symmetries.symmetries)
+            )
             for targeted_tapering_values in combinations:
                 logger.info(
                     "In sector: (%s)",
@@ -438,12 +524,14 @@ class QEOM(ExcitedStatesSolver):
         if logger.isEnabledFor(logging.INFO):
             logger.info("Building all commutators:")
             TextProgressBar(sys.stderr)
+
         results = parallel_map(
             self._build_commutator_routine,
             to_be_computed_list,
-            task_args=(untap_operator, z2_symmetries),
+            task_args=(untap_operator,),
             num_processes=algorithm_globals.num_processes,
         )
+        all_matrix_operators = {}
         for result in results:
             m_u, n_u, eom_operators = result
 
@@ -455,15 +543,14 @@ class QEOM(ExcitedStatesSolver):
 
     @staticmethod
     def _build_commutator_routine(
-        params: list, operator: QubitOperator, z2_symmetries: Z2Symmetries
-    ) -> tuple[int, int, dict[str, QubitOperator]]:
+        params: list, operator: SparsePauliOp
+    ) -> tuple[int, int, dict[str, SparsePauliOp]]:
         """Numerically computes the commutator / double commutator between operators.
 
         Args:
             params: list containing the indices of matrix element and the corresponding
                 excitation operators.
             operator: The hamiltonian.
-            z2_symmetries: z2_symmetries in case of tapering.
 
         Returns:
             The indices of the matrix element and the corresponding qubit
@@ -482,11 +569,11 @@ class QEOM(ExcitedStatesSolver):
                 # theory, one would choose this according to the nature of the problem (i.e.
                 # whether it is fermionic or bosonic), but in practice, always choosing the
                 # anti-commutator has proven to be more robust.
-                q_mat_op = -double_commutator(left_op_1, operator, right_op_1, sign=False)
+                q_mat_op = -_double_commutator(left_op_1, operator, right_op_1, sign=False)
                 # In the case of the single commutator, we are always interested in the energy
                 # difference of two states. Thus, regardless of the problem's nature, we will
                 # always use the commutator.
-                w_mat_op = -commutator(left_op_1, right_op_1)
+                w_mat_op = -_commutator(left_op_1, right_op_1)
                 q_mat_op = None if len(q_mat_op) == 0 else q_mat_op
                 w_mat_op = None if len(w_mat_op) == 0 else w_mat_op
             else:
@@ -496,8 +583,8 @@ class QEOM(ExcitedStatesSolver):
             if right_op_2 is not None:
                 # For explanations on the choice of commutation relation, please refer to the
                 # comments above.
-                m_mat_op = double_commutator(left_op_1, operator, right_op_2, sign=False)
-                v_mat_op = commutator(left_op_1, right_op_2)
+                m_mat_op = _double_commutator(left_op_1, operator, right_op_2, sign=False)
+                v_mat_op = _commutator(left_op_1, right_op_2)
                 m_mat_op = None if len(m_mat_op) == 0 else m_mat_op
                 v_mat_op = None if len(v_mat_op) == 0 else v_mat_op
             else:
@@ -505,11 +592,6 @@ class QEOM(ExcitedStatesSolver):
                 v_mat_op = None
 
         eom_operators = {"q": q_mat_op, "w": w_mat_op, "m": m_mat_op, "v": v_mat_op}
-
-        if not z2_symmetries.is_empty():
-            for index_op, eom_op in eom_operators.items():
-                if eom_op is not None and len(eom_op) > 0:
-                    eom_operators[index_op] = z2_symmetries.taper_clifford(eom_op)
 
         return m_u, n_u, eom_operators
 
@@ -593,7 +675,7 @@ class QEOM(ExcitedStatesSolver):
 
     def _prepare_expansion_basis(
         self, problem: BaseProblem
-    ) -> tuple[dict[str, QubitOperator], dict[str, list[bool]], int]:
+    ) -> tuple[dict[str, SparsePauliOp], dict[str, list[bool]], int]:
         """Prepares the basis expansion operators by calling the builder for second quantized operator
         and applying transformations (Mapping, Reduction, First step of the tapering).
 
@@ -613,16 +695,16 @@ class QEOM(ExcitedStatesSolver):
         if isinstance(self.qubit_converter, QubitConverter):
             untap_hopping_ops = self.qubit_converter.convert_clifford(hopping_operators)
         else:
-            # TODO Issue #974 Implement convert clifford for the tapered qubit mapper
-
             untap_hopping_ops = hopping_operators
 
-        return untap_hopping_ops, type_of_commutativities, size
+        untap_hopping_ops_sparse = {key: op.primitive for key, op in untap_hopping_ops.items()}
+
+        return untap_hopping_ops_sparse, type_of_commutativities, size
 
     def _build_qeom_pseudoeigenvalue_problem(
         self,
-        untap_operator: QubitOperator,
-        expansion_basis_data: tuple[dict[str, QubitOperator], dict[str, list[bool]], int],
+        untap_operator: SparsePauliOp,
+        expansion_basis_data: tuple[dict[str, SparsePauliOp], dict[str, list[bool]], int],
         reference_state: tuple[QuantumCircuit, Sequence[float]],
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """Builds the matrices for the qEOM pseudo-eigenvalue problem
@@ -642,16 +724,22 @@ class QEOM(ExcitedStatesSolver):
         logger.debug("Build qEOM pseudoeigenvalue problem...")
 
         # 1. Build all EOM operators to evaluate on the ground state
-        tap_eom_matrix_ops = self._build_all_eom_operators(
+        untap_eom_matrix_ops = self._build_all_eom_operators(
             untap_operator,
             expansion_basis_data,
         )
+
+        untap_eom_matrix_ops_sumop = {
+            key: PauliSumOp(op) for key, op in untap_eom_matrix_ops.items()
+        }
+
+        tap_eom_matrix_ops_sumop = self._taper_operators(untap_eom_matrix_ops_sumop)
 
         # 2. Evaluate all EOM operators on the ground state
         measurement_results = estimate_observables(
             self._estimator,
             reference_state[0],
-            tap_eom_matrix_ops,
+            tap_eom_matrix_ops_sumop,
             reference_state[1],
         )
 
@@ -705,13 +793,13 @@ class QEOM(ExcitedStatesSolver):
     def _build_excitation_operators(
         self,
         expansion_basis_data: tuple[
-            dict[str, QubitOperator],
+            dict[str, SparsePauliOp],
             dict[str, list[bool]],
             int,
         ],
         reference_state: tuple[QuantumCircuit, Sequence[float]],
         expansion_coefs_rescaled: np.ndarray,
-    ) -> list[QubitOperator]:
+    ) -> list[SparsePauliOp]:
         """Build the excitation operators O_k such that O_k applied on the reference ground state gives
         the k-th excited state.
 
@@ -727,18 +815,16 @@ class QEOM(ExcitedStatesSolver):
         """
 
         untap_hopping_ops, _, size = expansion_basis_data
-        if isinstance(self.qubit_converter, QubitConverter):
-            tap_hopping_ops = self.qubit_converter.symmetry_reduce_clifford(untap_hopping_ops)
-        else:
-            # TODO Issue #974 Implement symmetry reduce clifford for the tapered qubit mapper
-            tap_hopping_ops = untap_hopping_ops
+        untap_hopping_ops_sumop = {key: PauliSumOp(op) for key, op in untap_hopping_ops.items()}
+
+        tap_hopping_ops_sumop = self._taper_operators(untap_hopping_ops_sumop)
 
         additionnal_measurements = estimate_observables(
-            self._estimator, reference_state[0], tap_hopping_ops, reference_state[1]
+            self._estimator, reference_state[0], tap_hopping_ops_sumop, reference_state[1]
         )
 
         num_qubits = list(untap_hopping_ops.values())[0].num_qubits
-        identity_op = PauliSumOp(SparsePauliOp(["I" * num_qubits], [1.0]))
+        identity_op = SparsePauliOp(["I" * num_qubits], [1.0])
 
         ordered_keys = [f"E_{k}" for k in range(size)] + [f"Edag_{k}" for k in range(size)]
         ordered_signs = [1 for k in range(size)] + [-1 for k in range(size)]
@@ -755,29 +841,29 @@ class QEOM(ExcitedStatesSolver):
             )
 
         # From the matrix of coefficients and the vector of basis operators, we create the vector of
-        # excitation operators. An alternative with list comprehension is provided below as reference.
-        #
-        # excitations_ops = [
-        #     SparsePauliOp.sum(
-        #         [
-        #             expansion_coefs_rescaled[k, i] * hopping_ops_vector[i]
-        #             for i in range(expansion_coefs_rescaled.shape[1])
-        #         ]
-        #     )
-        #     for k in range(expansion_coefs_rescaled.shape[0])
-        # ]
+        # excitation operators.
+
         hopping_ops_vector = list(translated_hopping_ops.values())
-        excitations_ops = np.array(hopping_ops_vector, dtype=object) @ expansion_coefs_rescaled
-        excitations_ops_reduced = [identity_op] + [op.reduce() for op in excitations_ops]
+        excitations_ops = [
+            SparsePauliOp.sum(
+                [
+                    expansion_coefs_rescaled[k, i] * hopping_ops_vector[k]
+                    for k in range(expansion_coefs_rescaled.shape[0])
+                ]
+            ).simplify()
+            for i in range(expansion_coefs_rescaled.shape[1])
+        ]
+
+        excitations_ops_reduced = [identity_op] + excitations_ops
 
         return excitations_ops_reduced
 
     def _prepare_excited_states_observables(
         self,
-        untap_aux_ops: dict[str, QubitOperator],
-        operators_reduced: list[QubitOperator],
+        untap_aux_ops: dict[str, SparsePauliOp],
+        operators_reduced: list[SparsePauliOp],
         size: int,
-    ) -> dict[tuple[str, int, int], QubitOperator]:
+    ) -> dict[tuple[str, int, int], SparsePauliOp]:
         """Prepare the operators O_k^dag @ Aux @ O_l associated to properties of the excited states k,l
         defined in the aux_eval_rules. By default, the expectation value of all observables on all
         excited states are evaluated while no transition amplitudes are computed.
@@ -817,7 +903,7 @@ class QEOM(ExcitedStatesSolver):
         else:
             raise ValueError("Aux evaluation rules are ill-defined")
 
-        op_aux_op_dict: dict[tuple[str, int, int], QubitOperator] = {}
+        op_aux_op_dict: dict[tuple[str, int, int], SparsePauliOp] = {}
 
         for op_name, indices_constraint in eval_rules.items():
             if op_name not in untap_aux_ops.keys():
@@ -829,14 +915,14 @@ class QEOM(ExcitedStatesSolver):
                     raise ValueError("Evaluation constrains cannot be satisfied")
 
                 opi, opj = operators_reduced[i], operators_reduced[j]
-                op_aux_op_dict[(op_name, i, j)] = (opi.adjoint() @ aux_op @ opj).reduce()
+                op_aux_op_dict[(op_name, i, j)] = (opi.adjoint() @ aux_op @ opj).simplify()
 
         return op_aux_op_dict
 
     def _evaluate_observables_excited_states(
         self,
-        untap_aux_ops: dict[str, QubitOperator],
-        expansion_basis_data: tuple[dict[str, QubitOperator], dict[str, list[bool]], int],
+        untap_aux_ops: dict[str, SparsePauliOp],
+        expansion_basis_data: tuple[dict[str, SparsePauliOp], dict[str, list[bool]], int],
         reference_state: tuple[QuantumCircuit, Sequence[float]],
         expansion_coefs_rescaled: np.ndarray,
     ) -> tuple[dict[tuple[int, int], dict[str, Any]], dict[tuple[int, int], dict[str, Any]]]:
@@ -854,7 +940,8 @@ class QEOM(ExcitedStatesSolver):
             X^dag @ S @ X is the identity.
 
         Returns:
-            list of excitation operators [Identity, O_1, O_2, ...]
+            Auxiliary operators eigenvalues and transition amplitudes, following the evaluation rules
+            defined as attributes of the qEOM class.
         """
 
         aux_operators_eigenvalues: dict[tuple[int, int], dict[str, Any]] = {}
@@ -874,15 +961,13 @@ class QEOM(ExcitedStatesSolver):
                 untap_aux_ops, excitations_ops_reduced, size
             )
 
+            op_aux_op_dict_sumop = {key: PauliSumOp(op) for key, op in op_aux_op_dict.items()}
+
             # 3. Measure observables
-            if isinstance(self.qubit_converter, QubitConverter):
-                tap_op_aux_op_dict = self.qubit_converter.symmetry_reduce_clifford(op_aux_op_dict)
-            else:
-                # TODO Issue #974 Implement symmetry reduce clifford for the tapered qubit mapper
-                tap_op_aux_op_dict = op_aux_op_dict
+            tap_op_aux_op_dict_sumop = self._taper_operators(op_aux_op_dict_sumop)
 
             aux_measurements = estimate_observables(
-                self._estimator, reference_state[0], tap_op_aux_op_dict, reference_state[1]
+                self._estimator, reference_state[0], tap_op_aux_op_dict_sumop, reference_state[1]
             )
 
             # 4. Format aux_operators_eigenvalues
@@ -941,7 +1026,6 @@ class QEOM(ExcitedStatesSolver):
         qeom_result.eigenvalues = np.append(
             groundstate_result.eigenvalues[0], excited_eigenenergies
         )
-
         eigenstate_result = EigenstateResult.from_result(qeom_result)
         result = problem.interpret(eigenstate_result)
 
@@ -977,6 +1061,7 @@ class QEOMResult(EigensolverResult):
         self.ground_state_raw_result = None
         self.excitation_energies: np.ndarray | None = None
         self.expansion_coefficients: np.ndarray | None = None
+        self.eigenvalues: np.ndarray | None = None
         self.h_matrix: np.ndarray | None = None
         self.s_matrix: np.ndarray | None = None
         self.h_matrix_std: np.ndarray = np.zeros((2, 2))

@@ -23,7 +23,7 @@ from qiskit_nature.second_q.algorithms.excited_states_solvers.qeom_vibrational_o
 )
 from qiskit_nature.second_q.formats.watson import WatsonHamiltonian
 from qiskit_nature.second_q.formats.watson_translator import watson_to_problem
-from qiskit_nature.second_q.mappers import DirectMapper, QubitConverter
+from qiskit_nature.second_q.mappers import DirectMapper, QubitConverter, TaperedQubitMapper
 from qiskit_nature.second_q.problems import HarmonicBasis
 import qiskit_nature.optionals as _optionals
 
@@ -43,6 +43,7 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
         algorithm_globals.random_seed = 8
 
         self.mapper = DirectMapper()
+        self.tapered_mapper = TaperedQubitMapper(self.mapper)
         self.qubit_converter = QubitConverter(self.mapper)
 
         import sparse as sp  # pylint: disable=import-error
@@ -115,6 +116,34 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
 
         hopping_operators, commutativities, indices = build_vibrational_ops(
             self.basis.num_modals, "sd", self.mapper
+        )
+
+        with self.subTest("hopping operators"):
+            self.assertEqual(
+                hopping_operators.keys(), expected_hopping_operators_vibrational.keys()
+            )
+            for key, exp_key in zip(
+                hopping_operators.keys(), expected_hopping_operators_vibrational.keys()
+            ):
+                self.assertEqual(key, exp_key)
+                val = hopping_operators[key].primitive
+                exp_val = expected_hopping_operators_vibrational[exp_key]
+                if not val.equiv(exp_val):
+                    print(val)
+                    print(exp_val)
+                self.assertTrue(val.equiv(exp_val), msg=(val, exp_val))
+
+        with self.subTest("commutativities"):
+            self.assertEqual(commutativities, expected_commutativies_vibrational)
+
+        with self.subTest("excitation indices"):
+            self.assertEqual(indices, expected_indices_vibrational)
+
+    def test_build_hopping_operators_taperedmapper(self):
+        """Tests that the correct hopping operator is built with a qubit mapper."""
+
+        hopping_operators, commutativities, indices = build_vibrational_ops(
+            self.basis.num_modals, "sd", self.tapered_mapper
         )
 
         with self.subTest("hopping operators"):

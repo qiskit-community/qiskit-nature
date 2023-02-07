@@ -22,7 +22,7 @@ from qiskit.utils import algorithm_globals
 
 from qiskit_nature.second_q.circuit.library import UVCC
 from qiskit_nature.second_q.operators import VibrationalOp
-from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper, TaperedQubitMapper
 
 
 def build_vibrational_ops(
@@ -104,6 +104,8 @@ def _build_single_hopping_operator(
     qubit_op: PauliSumOp
     if isinstance(qubit_converter, QubitConverter):
         qubit_op = qubit_converter.convert_match(vibrational_op)
+    elif isinstance(qubit_converter, TaperedQubitMapper):
+        qubit_op = qubit_converter.map_clifford(vibrational_op)
     else:
         qubit_op = qubit_converter.map(vibrational_op)
 
