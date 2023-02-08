@@ -1,7 +1,6 @@
 ---
 deprecations:
   - |
-    The M, Q, W, V matrix setters from
+    The M, Q, W, V matrix setters and M, Q, W, V matrix standard deviation setters from
     :class:`~qiskit_nature.second_q.algorithms.excited_state_solvers.qeom.QEOMResult`
     were pending deprecated and remain computable from the H and S matrices.
-
