@@ -166,6 +166,8 @@ class QEOM(ExcitedStatesSolver):
     Auxiliary observables can be specified to the ``solve`` method along with auxiliary evaluation
     rules of the ``QEOM`` object.
 
+    For more details, please refer to https://arxiv.org/abs/1910.12890.
+
     The following attributes can be read and updated once the ``QEOM`` object has been
     constructed.
 
@@ -352,15 +354,18 @@ class QEOM(ExcitedStatesSolver):
     ) -> EigenstateResult:
         """Run the excited-states calculation.
 
-        Construct and solves the EOM pseudo-eigenvalue problem to obtain the excitation energies
+        Construct and solve the EOM pseudo-eigenvalue problem to obtain the excitation energies
         and the excitation operators expansion coefficients.
 
         Args:
             problem: A class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
+
         Returns:
             An interpreted :class:`~.EigenstateResult`. For more information see also
-            :meth:`~.BaseProblem.interpret`.
+            :meth:`~.BaseProblem.interpret`. The :class:`~.EigenstateResult` is constructed
+            from a :class:`~qiskit_nature.second_q.algorithms.excited_states_solvers.qeom.QEOMResult`
+            instance which holds additional information specific to the qEOM problem.
         """
 
         # 1. Prepare all operators and set the particle number in the qubit converter
@@ -458,7 +463,7 @@ class QEOM(ExcitedStatesSolver):
             )
         else:
             raise NotImplementedError(
-                "The building of QEOM hopping operators is not yet implemented for a problem of "
+                "The building of qEOM hopping operators is not yet implemented for a problem of "
                 f"type {type(problem)}"
             )
 
@@ -717,7 +722,7 @@ class QEOM(ExcitedStatesSolver):
             deviation errors.
         """
 
-        logger.debug("Build QEOM pseudoeigenvalue problem...")
+        logger.debug("Build qEOM pseudoeigenvalue problem...")
 
         # 1. Build all EOM operators to evaluate on the ground state
         untap_eom_matrix_ops = self._build_all_eom_operators(
@@ -924,7 +929,7 @@ class QEOM(ExcitedStatesSolver):
     ) -> tuple[dict[tuple[int, int], dict[str, Any]], dict[tuple[int, int], dict[str, Any]]]:
         """Evaluate the expectation values and transition amplitudes of the auxiliary operators on the
         excited states. Custom rules can be used to define which expectation values and transition
-        amplitudes to compute. A typical rule is specified in the form of a nary
+        amplitudes to compute. A typical rule is specified in the form of a dictionary
         {'hamiltonian':[(1,1)]}
 
         Args:
@@ -1029,7 +1034,30 @@ class QEOM(ExcitedStatesSolver):
 
 
 class QEOMResult(EigensolverResult):
-    """The results class for the QEOM algorithm."""
+    """The results class for the qEOM algorithm.
+
+    For more details about the definitions, please refer to https://arxiv.org/abs/1910.12890.
+
+    Attributes:
+        ground_state_raw_result (EigenstateResult): The raw results of the ground state eigensolver.
+        excitation_energies (np.ndarray): The excitation energies approximated by the qEOM algorithm.
+        expansion_coefficients (np.ndarray): The expansion coefficients matrix of the excitation
+            operators onto the set of basis operators spanning the linear qEOM subspace.
+        h_matrix (np.ndarray): Matrix representing the Hamiltonian in the qEOM subspace. Because of our
+            choice for the expansion basis, the two square sub-matrices on the diagonal are related by
+            a transposition and the two submatrices on the anti diagonal are hermitian conjugates.
+        s_matrix (np.ndarray): Matrix representing the geometry of the qEOM subspace. Because of our
+            choice for the expansion basis, the two square submatrices on the diagonal are related by
+            a transposition (with a sign) and the two submatrices on the anti diagonal are hermitian
+            conjugates.
+        h_matrix_std (np.ndarray): 2 by 2 matrix representing the sums of standard deviations in the four
+            square submatrices of H.
+        s_matrix_std (np.ndarray): 2 by 2 matrix representing the sums of standard deviations in the four
+            square submatrices of S.
+        transition_amplitudes (list[ListOrDictType[tuple[complex, dict[str, Any]]]): Transition
+            amplitudes of the auxiliary operators computed following the evaluation rules specified when
+            the qEOM class was created.
+    """
 
     def __init__(self) -> None:
         super().__init__()
@@ -1051,9 +1079,6 @@ class QEOMResult(EigensolverResult):
         self._q_matrix_std: float = 0.0
         self._w_matrix_std: float = 0.0
 
-        self.aux_operators_evaluated: list[
-            ListOrDictType[tuple[complex, dict[str, Any]]]
-        ] | None = None
         self.transition_amplitudes: list[
             ListOrDictType[tuple[complex, dict[str, Any]]]
         ] | None = None
@@ -1069,7 +1094,7 @@ class QEOMResult(EigensolverResult):
 
     @m_matrix.setter
     @deprecate_function(
-        "The M matrix is now computed from the H matrix. "
+        "You should now set the H matrix from which the M matrix will be extracted. "
         "This setter will be deprecated in a future release and subsequently "
         "removed after that.",
         category=PendingDeprecationWarning,
@@ -1077,6 +1102,11 @@ class QEOMResult(EigensolverResult):
     def m_matrix(self, value: np.ndarray) -> None:
         """sets the M matrix"""
         self._m_matrix = value
+        logger.warning(
+            "This setter for the M matrix will not update the H matrix to match. "
+            "Using this setter will make this result object bypass the H matrix "
+            "values for M."
+        )
 
     @property
     def v_matrix(self) -> np.ndarray | None:
@@ -1088,7 +1118,7 @@ class QEOMResult(EigensolverResult):
 
     @v_matrix.setter
     @deprecate_function(
-        "The V matrix is now computed from the S matrix. "
+        "You should now set the S matrix from which the V matrix will be extracted. "
         "This setter will be deprecated in a future release and subsequently "
         "removed after that.",
         category=PendingDeprecationWarning,
@@ -1096,6 +1126,11 @@ class QEOMResult(EigensolverResult):
     def v_matrix(self, value: np.ndarray) -> None:
         """sets the V matrix"""
         self._v_matrix = value
+        logger.warning(
+            "This setter for the V matrix will not update the S matrix to match. "
+            "Using this setter will make this result object bypass the S matrix "
+            "values for V."
+        )
 
     @property
     def q_matrix(self) -> np.ndarray | None:
@@ -1109,7 +1144,7 @@ class QEOMResult(EigensolverResult):
 
     @q_matrix.setter
     @deprecate_function(
-        "The Q matrix is now computed from the H matrix. "
+        "You should now set the H matrix from which the Q matrix will be extracted. "
         "This setter will be deprecated in a future release and subsequently "
         "removed after that.",
         category=PendingDeprecationWarning,
@@ -1117,6 +1152,11 @@ class QEOMResult(EigensolverResult):
     def q_matrix(self, value: np.ndarray) -> None:
         """sets the Q matrix"""
         self._q_matrix = value
+        logger.warning(
+            "This setter for the Q matrix will not update the H matrix to match. "
+            "Using this setter will make this result object bypass the H matrix "
+            "values for Q."
+        )
 
     @property
     def w_matrix(self) -> np.ndarray | None:
@@ -1128,7 +1168,7 @@ class QEOMResult(EigensolverResult):
 
     @w_matrix.setter
     @deprecate_function(
-        "The W matrix is now computed from the S matrix. "
+        "You should now set the S matrix from which the W matrix will be extracted. "
         "This setter will be deprecated in a future release and subsequently "
         "removed after that.",
         category=PendingDeprecationWarning,
@@ -1136,6 +1176,11 @@ class QEOMResult(EigensolverResult):
     def w_matrix(self, value: np.ndarray) -> None:
         """sets the W matrix"""
         self._w_matrix = value
+        logger.warning(
+            "This setter for the W matrix will not update the S matrix to match. "
+            "Using this setter will make this result object bypass the S matrix "
+            "values for W."
+        )
 
     @property
     def m_matrix_std(self) -> float:
@@ -1146,9 +1191,22 @@ class QEOMResult(EigensolverResult):
             return self._m_matrix_std
 
     @m_matrix_std.setter
+    @deprecate_function(
+        "You should now set the H matrix standard deviation from which the M matrix "
+        "standard deviation will be extracted. "
+        "This setter will be deprecated in a future release and subsequently "
+        "removed after that.",
+        category=PendingDeprecationWarning,
+    )
     def m_matrix_std(self, value: float) -> None:
         """sets the M matrix standard deviation"""
         self._m_matrix_std = value
+        logger.warning(
+            "This setter for the M standard deviation matrix will not "
+            "update the H standard deviation matrix to match. "
+            "Using this setter will make this result object bypass the H "
+            "standard deviation matrix values for M."
+        )
 
     @property
     def v_matrix_std(self) -> float:
@@ -1159,9 +1217,22 @@ class QEOMResult(EigensolverResult):
             return self._v_matrix_std
 
     @v_matrix_std.setter
+    @deprecate_function(
+        "You should now set the S matrix standard deviation from which the V matrix "
+        "standard deviation will be extracted. "
+        "This setter will be deprecated in a future release and subsequently "
+        "removed after that.",
+        category=PendingDeprecationWarning,
+    )
     def v_matrix_std(self, value: float) -> None:
         """sets the V matrix standard deviation"""
         self._v_matrix_std = value
+        logger.warning(
+            "This setter for the V standard deviation matrix will not "
+            "update the S standard deviation matrix to match. "
+            "Using this setter will make this result object bypass the S "
+            "standard deviation matrix values for V."
+        )
 
     @property
     def q_matrix_std(self) -> float:
@@ -1172,9 +1243,22 @@ class QEOMResult(EigensolverResult):
             return self._q_matrix_std
 
     @q_matrix_std.setter
+    @deprecate_function(
+        "You should now set the H matrix standard deviation from which the Q matrix "
+        "standard deviation will be extracted. "
+        "This setter will be deprecated in a future release and subsequently "
+        "removed after that.",
+        category=PendingDeprecationWarning,
+    )
     def q_matrix_std(self, value: float) -> None:
         """sets the Q matrix standard deviation"""
         self._q_matrix_std = value
+        logger.warning(
+            "This setter for the Q standard deviation matrix will not "
+            "update the H standard deviation matrix to match. "
+            "Using this setter will make this result object bypass the H "
+            "standard deviation matrix values for Q."
+        )
 
     @property
     def w_matrix_std(self) -> float:
@@ -1185,6 +1269,19 @@ class QEOMResult(EigensolverResult):
             return self._w_matrix_std
 
     @w_matrix_std.setter
+    @deprecate_function(
+        "You should now set the S matrix standard deviation from which the W matrix "
+        "standard deviation will be extracted. "
+        "This setter will be deprecated in a future release and subsequently "
+        "removed after that.",
+        category=PendingDeprecationWarning,
+    )
     def w_matrix_std(self, value: float) -> None:
         """sets the W matrix standard deviation"""
         self._w_matrix_std = value
+        logger.warning(
+            "This setter for the W standard deviation matrix will not "
+            "update the S standard deviation matrix to match. "
+            "Using this setter will make this result object bypass the S "
+            "standard deviation matrix values for W."
+        )

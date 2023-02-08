@@ -302,6 +302,7 @@ lijh
 linewidths
 linux
 listordict
+listordicttype
 ljik
 lk
 logfile
@@ -531,6 +532,8 @@ str
 stylesheet
 subcircuits
 subclasses
+submatrix
+submatrices
 submodule
 submodules
 subtest

@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2019, 2022.
+# (C) Copyright IBM 2019, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -39,6 +39,14 @@ the solvers themselves
 
    ExcitedStatesEigensolver
    QEOM
+
+the specific raw result for the qEOM solver
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   QEOMResult
 
 and factories to provision quantum and/or classical algorithms upon which the above solvers may
 depend
@@ -97,6 +105,7 @@ from .excited_states_solvers import (
     ExcitedStatesEigensolver,
     ExcitedStatesSolver,
     QEOM,
+    QEOMResult,
     EigensolverFactory,
     NumPyEigensolverFactory,
 )
@@ -113,6 +122,7 @@ __all__ = [
     "ExcitedStatesEigensolver",
     "ExcitedStatesSolver",
     "QEOM",
+    "QEOMResult",
     "EigensolverFactory",
     "NumPyEigensolverFactory",
     "GroundStateEigensolver",
