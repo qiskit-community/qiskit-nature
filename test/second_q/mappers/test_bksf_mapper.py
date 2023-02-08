@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -102,7 +102,8 @@ class TestBravyiKitaevSuperFastMapper(QiskitNatureTestCase):
         with self.subTest("Excitation edges 1"):
             assert np.alltrue(
                 _bksf_edge_list_fermionic_op(
-                    FermionicOp({"+_0 -_1 +_2 -_3": 1}, num_spin_orbitals=4)
+                    FermionicOp({"+_0 -_1 +_2 -_3": 1}, num_spin_orbitals=4),
+                    4,
                 )
                 == np.array([[0, 1], [2, 3]])
             )
@@ -110,7 +111,8 @@ class TestBravyiKitaevSuperFastMapper(QiskitNatureTestCase):
         with self.subTest("Excitation edges 2"):
             assert np.alltrue(
                 _bksf_edge_list_fermionic_op(
-                    FermionicOp({"+_0 -_1 -_2 +_3": 1}, num_spin_orbitals=4)
+                    FermionicOp({"+_0 -_1 -_2 +_3": 1}, num_spin_orbitals=4),
+                    4,
                 )
                 == np.array([[0, 1], [3, 2]])
             )
@@ -192,6 +194,13 @@ class TestBravyiKitaevSuperFastMapper(QiskitNatureTestCase):
         """Test LiH molecule"""
         pauli_sum_op = BravyiKitaevSuperFastMapper().map(FERMIONIC_HAMILTONIAN)
         self.assertEqual(pauli_sum_op._primitive, QUBIT_HAMILTONIAN)
+
+    def test_mapping_overwrite_reg_len(self):
+        """Test overwriting the register length."""
+        op = FermionicOp({"+_0 -_0": 1}, num_spin_orbitals=1)
+        expected = FermionicOp({"+_0 -_0": 1}, num_spin_orbitals=3)
+        mapper = BravyiKitaevSuperFastMapper()
+        self.assertEqual(mapper.map(op, register_length=3), mapper.map(expected))
 
 
 if __name__ == "__main__":

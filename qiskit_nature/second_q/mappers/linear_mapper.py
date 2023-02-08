@@ -28,12 +28,12 @@ from qiskit_nature.second_q.operators import SpinOp
 from .spin_mapper import SpinMapper
 
 
-class LinearMapper(SpinMapper):  # pylint: disable=missing-class-docstring
-    def __init__(self):
-        """The Linear spin-to-qubit mapping."""
-        super().__init__(allows_two_qubit_reduction=False)
+class LinearMapper(SpinMapper):
+    """The Linear spin-to-qubit mapping."""
 
-    def _map_single(self, second_q_op: SpinOp) -> PauliSumOp:
+    def _map_single(self, second_q_op: SpinOp, *, register_length: int | None = None) -> PauliSumOp:
+        if register_length is None:
+            register_length = second_q_op.register_length
 
         qubit_ops_list: list[PauliSumOp] = []
 
@@ -50,7 +50,7 @@ class LinearMapper(SpinMapper):  # pylint: disable=missing-class-docstring
                     mat[idx] = identity
                 mat[idx] = mat[idx] @ char_map[op]
 
-            operatorlist = [mat[i] if i in mat else identity for i in range(ordered_op.num_spins)]
+            operatorlist = [mat[i] if i in mat else identity for i in range(register_length)]
             # Now, we can tensor all operators in this list
             qubit_ops_list.append(coeff * reduce(operator.xor, reversed(operatorlist)))
 

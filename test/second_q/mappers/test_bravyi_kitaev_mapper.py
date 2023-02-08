@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -60,11 +60,6 @@ class TestBravyiKitaevMapper(QiskitNatureTestCase):
 
         self.assertEqual(qubit_op, TestBravyiKitaevMapper.REF_H2)
 
-    def test_allows_two_qubit_reduction(self):
-        """Test this returns False for this mapper"""
-        mapper = BravyiKitaevMapper()
-        self.assertFalse(mapper.allows_two_qubit_reduction)
-
     def test_mapping_for_single_op(self):
         """Test for single register operator."""
         with self.subTest("test +"):
@@ -91,6 +86,13 @@ class TestBravyiKitaevMapper(QiskitNatureTestCase):
             op = FermionicOp({"": 1}, num_spin_orbitals=1)
             expected = PauliSumOp.from_list([("I", 1)])
             self.assertEqual(BravyiKitaevMapper().map(op), expected)
+
+    def test_mapping_overwrite_reg_len(self):
+        """Test overwriting the register length."""
+        op = FermionicOp({"+_0 -_0": 1}, num_spin_orbitals=1)
+        expected = FermionicOp({"+_0 -_0": 1}, num_spin_orbitals=3)
+        mapper = BravyiKitaevMapper()
+        self.assertEqual(mapper.map(op, register_length=3), mapper.map(expected))
 
 
 if __name__ == "__main__":

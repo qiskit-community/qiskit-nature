@@ -66,8 +66,10 @@ class TaperedQubitMapper(QubitMapper):
         self.mapper: QubitMapper = mapper
         self.z2symmetries = z2symmetries
 
-    def _map_clifford_single(self, second_q_op: SparseLabelOp) -> SparsePauliOp:
-        mapped_op = self.mapper.map(second_q_op).primitive
+    def _map_clifford_single(
+        self, second_q_op: SparseLabelOp, *, register_length: int | None = None
+    ) -> SparsePauliOp:
+        mapped_op = self.mapper.map(second_q_op, register_length=register_length).primitive
         converted_op = self.z2symmetries.convert_clifford(mapped_op)
         return converted_op
 
@@ -80,8 +82,10 @@ class TaperedQubitMapper(QubitMapper):
             tapered_op = cast(SparsePauliOp, self.z2symmetries.taper_clifford(converted_op))
             return tapered_op
 
-    def _map_single(self, second_q_op: SparseLabelOp) -> PauliSumOp:
-        converted_op = self._map_clifford_single(second_q_op)
+    def _map_single(
+        self, second_q_op: SparseLabelOp, *, register_length: int | None = None
+    ) -> PauliSumOp:
+        converted_op = self._map_clifford_single(second_q_op, register_length=register_length)
         tapered_op = self._taper_clifford_single(converted_op)
         returned_op = PauliSumOp(tapered_op)
         return returned_op
@@ -89,6 +93,8 @@ class TaperedQubitMapper(QubitMapper):
     def map_clifford(
         self,
         second_q_ops: SparseLabelOp | ListOrDictType[SparseLabelOp],
+        *,
+        register_length: int | None = None,
     ) -> PauliSumOp | ListOrDictType[PauliSumOp]:
         """Maps a second quantized operator or a list, dict of second quantized operators based on
         the internal mapper. Then, composes all mapped pauli operators with the clifford operations
@@ -97,6 +103,9 @@ class TaperedQubitMapper(QubitMapper):
 
         Args:
             second_q_ops: A second quantized operator, or list (resp. dict) thereof.
+            register_length: when provided, this will be used to overwrite the ``register_length``
+                attribute of the operator being mapped. This is possible because the
+                ``register_length`` is considered a lower bound in a ``SparseLabelOp``.
 
         Returns:
             A qubit operator in the form of a PauliSumOp, or list (resp. dict) thereof if a list
@@ -111,7 +120,9 @@ class TaperedQubitMapper(QubitMapper):
 
         qubit_ops: _ListOrDict = _ListOrDict()
         for name, second_q_op in iter(wrapped_second_q_ops):
-            qubit_ops[name] = PauliSumOp(self._map_clifford_single(second_q_op))
+            qubit_ops[name] = PauliSumOp(
+                self._map_clifford_single(second_q_op, register_length=register_length)
+            )
 
         returned_ops: PauliSumOp | ListOrDictType[PauliSumOp]
         returned_ops = qubit_ops.unwrap(wrapped_type)
@@ -168,12 +179,17 @@ class TaperedQubitMapper(QubitMapper):
     def map(
         self,
         second_q_ops: SparseLabelOp | ListOrDictType[SparseLabelOp],
+        *,
+        register_length: int | None = None,
     ) -> None | PauliSumOp | ListOrDictType[PauliSumOp]:
         """Maps a second quantized operator or a list, dict of second quantized operators based on
         the current mapper.
 
         Args:
             second_q_ops: A second quantized operator, or list thereof.
+            register_length: when provided, this will be used to overwrite the ``register_length``
+                attribute of the ``SparseLabelOp`` being mapped. This is possible because the
+                ``register_length`` is considered a lower bound in a ``SparseLabelOp``.
 
         Returns:
             A qubit operator in the form of a PauliSumOp, or list (resp. dict) thereof if a list
@@ -182,7 +198,7 @@ class TaperedQubitMapper(QubitMapper):
         # NOTE: we do not rely on the `_map_single` method here because we want to ensure that
         # `check_commutes=True` is set. This is not done via `_map_single` because the correct
         # filtering of `None` values can only be done on the level of `taper_clifford`
-        pauli_ops = self.map_clifford(second_q_ops)
+        pauli_ops = self.map_clifford(second_q_ops, register_length=register_length)
         # This choice of keyword arguments ensures that the output does not contain None.
         tapered_ops = self.taper_clifford(pauli_ops, check_commutes=True, suppress_none=True)
         return tapered_ops

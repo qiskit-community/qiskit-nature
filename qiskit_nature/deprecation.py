@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021,2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -199,14 +199,19 @@ def _rename_kwargs(version, qualname, func_name, kwargs, kwarg_map, additional_m
                 msg = (
                     f"{func_name}: the {old_arg} {DeprecatedType.ARGUMENT.value} is deprecated "
                     f"as of version {version} and will be removed no sooner "
-                    "than 3 months after the release. Instead use the "
-                    f"{new_arg} {DeprecatedType.ARGUMENT.value}"
+                    "than 3 months after the release"
                 )
+                if new_arg:
+                    msg += f". Instead use the {new_arg} {DeprecatedType.ARGUMENT.value}"
                 if additional_msg:
                     msg += f" {additional_msg}"
                 msg += "."
                 warnings.warn(msg, DeprecationWarning, stacklevel=stack_level)
-            kwargs[new_arg] = kwargs.pop(old_arg)
+
+            if new_arg:
+                kwargs[new_arg] = kwargs.pop(old_arg)
+            else:
+                kwargs.pop(old_arg)
 
 
 def deprecate_arguments(
@@ -216,6 +221,9 @@ def deprecate_arguments(
     stack_level: int = 3,
 ) -> Callable:
     """Decorator to alias deprecated argument names and warn upon use.
+
+    When the new argument name is an empty string, this deprecates the argument without replacement.
+
     Args:
         version: Version to be used
         kwarg_map: Args dictionary with old, new arguments
