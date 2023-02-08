@@ -142,7 +142,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
     )
     def test_solve_with_vqe_mes_taperedmapper(self, tapered_mapper_creator):
         """Test QEOM with VQEUCCFactory and various QubitMapper"""
-        tapered_mapper: TaperedQubitMapper = tapered_mapper_creator(
+        tapered_mapper = tapered_mapper_creator(
             self.num_particles, self.electronic_structure_problem
         )
         self._compute_and_assert_qeom_energies(tapered_mapper)

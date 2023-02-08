@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -66,6 +66,13 @@ class TestLogarithmicMapper(QiskitNatureTestCase):
         mapper = LogarithmicMapper(padding=padding, embed_upper=embed_upper)
         qubit_op = mapper.map(spin_op)
         self.assertEqual(qubit_op, PauliSumOp(ref_qubit_op))
+
+    def test_mapping_overwrite_reg_len(self):
+        """Test overwriting the register length."""
+        op = SpinOp({"Y_0": -0.432 + 1.32j}, 0.5, 1)
+        expected = SpinOp({"Y_0": -0.432 + 1.32j}, 0.5, 3)
+        mapper = LogarithmicMapper()
+        self.assertEqual(mapper.map(op, register_length=3), mapper.map(expected))
 
 
 if __name__ == "__main__":
