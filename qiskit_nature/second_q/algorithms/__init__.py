@@ -40,6 +40,14 @@ the solvers themselves
    ExcitedStatesEigensolver
    QEOM
 
+the specific raw result for the qEOM solver
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   QEOMResult
+
 and factories to provision quantum and/or classical algorithms upon which the above solvers may
 depend
 
@@ -97,6 +105,7 @@ from .excited_states_solvers import (
     ExcitedStatesEigensolver,
     ExcitedStatesSolver,
     QEOM,
+    QEOMResult,
     EigensolverFactory,
     NumPyEigensolverFactory,
 )
@@ -113,6 +122,7 @@ __all__ = [
     "ExcitedStatesEigensolver",
     "ExcitedStatesSolver",
     "QEOM",
+    "QEOMResult",
     "EigensolverFactory",
     "NumPyEigensolverFactory",
     "GroundStateEigensolver",
