@@ -183,6 +183,9 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         for key, value in data.items():
             if not isinstance(value, Tensor):
                 value = Tensor(value)
+                # NOTE: the following monkey patch attribute is used only for the deprecation period
+                # during which this Tensor class is being introduced into the stack
+                value._monkey_patched_unwrap_toggle = True
 
             if validate and len(value.shape) != len(key):
                 raise ValueError(
@@ -218,7 +221,7 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         for key in self._data:
             if key == "":
                 continue
-            # TODO: remove unnecessary cast once settings.tensor_wrapping is removed
+            # TODO: remove unnecessary cast once settings.tensor_unwrapping is removed
             return cast(Union[np.ndarray, SparseArray, Tensor], self[key]).shape[0]
         return None
 
@@ -248,12 +251,12 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
     @_optionals.HAS_SPARSE.require_in_call
     def is_sparse(self) -> bool:
         """Returns whether all matrices in this tensor are sparse."""
-        # TODO: remove extra-wrapping of Tensor once settings.tensor_wrapping is removed
+        # TODO: remove extra-wrapping of Tensor once settings.tensor_unwrapping is removed
         return all(Tensor(self[key]).is_sparse() for key in self if key != "")
 
     def is_dense(self) -> bool:
         """Returns whether all matrices in this tensor are dense."""
-        # TODO: remove extra-wrapping of Tensor once settings.tensor_wrapping is removed
+        # TODO: remove extra-wrapping of Tensor once settings.tensor_unwrapping is removed
         return all(Tensor(self[key]).is_dense() for key in self if key != "")
 
     def __getitem__(self, __k: str) -> np.ndarray | SparseArray | Number | Tensor:
@@ -264,13 +267,15 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
 
         Returns:
             Value corresponding to the operator key ``__k``. If
-            :attr:`~qiskit_nature.settings.tensor_wrapping` is ``True``, the returned is guaranteed
-            to be of type :class:`~qiskit_nature.second_q.operators.Tensor`.
+            :attr:`~qiskit_nature.settings.tensor_unwrapping` is ``False``, the returned is
+            guaranteed to be of type :class:`~qiskit_nature.second_q.operators.Tensor`.
         """
-        if not settings.tensor_wrapping:
-            return self._data.__getitem__(__k).array
+        item = self._data.__getitem__(__k)
 
-        return self._data.__getitem__(__k)
+        if settings.tensor_unwrapping and hasattr(item, "_monkey_patched_unwrap_toggle"):
+            return item.array
+
+        return item
 
     def __len__(self) -> int:
         """Returns the length of the ``PolynomialTensor``."""
@@ -462,7 +467,7 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         for akey, bkey in product(a, b):
             new_key = akey + bkey
 
-            # TODO: remove these once settings.tensor_wrapping is removed
+            # TODO: remove these once settings.tensor_unwrapping is removed
             atensor = Tensor(a[akey])
             btensor = Tensor(b[bkey])
 
@@ -523,7 +528,7 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         new_data: dict[str, Tensor] = {}
         for akey, bkey in product(a, b):
 
-            # TODO: remove these once settings.tensor_wrapping is removed
+            # TODO: remove these once settings.tensor_unwrapping is removed
             atensor = Tensor(a[akey])
             btensor = Tensor(b[bkey])
 
@@ -593,7 +598,7 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         common_keys = set.intersection(*(set(op) for op in operands))
         new_data: dict[str, Tensor] = {}
         for key in common_keys:
-            # TODO: remove extra-wrapping of Tensor once settings.tensor_wrapping is removed
+            # TODO: remove extra-wrapping of Tensor once settings.tensor_unwrapping is removed
             new_data[key] = Tensor(function(*(Tensor(op[key]).array for op in operands)))
         return cls(new_data, validate=validate)
 
@@ -678,7 +683,7 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
             try:
                 result = einsum_func(
                     einsum,
-                    # TODO: remove extra-wrapping of Tensor once settings.tensor_wrapping is removed
+                    # TODO: remove extra-wrapping of Tensor once settings.tensor_unwrapping is removed
                     *[
                         Tensor(operand_list[idx]._data[term]).array
                         for idx, term in enumerate(inputs)

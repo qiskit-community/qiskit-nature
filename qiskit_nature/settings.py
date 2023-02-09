@@ -30,7 +30,7 @@ class QiskitNatureSettings:
         self._dict_aux_operators = True
         self._optimize_einsum = True
         self._deprecation_shown: set[str] = set()
-        self._tensor_wrapping = False
+        self._tensor_unwrapping = True
 
     @property
     def dict_aux_operators(self) -> bool:
@@ -89,54 +89,58 @@ class QiskitNatureSettings:
         self._optimize_einsum = optimize_einsum
 
     @property
-    def tensor_wrapping(self) -> bool:
-        """Returns whether tensors in Nature should be wrapped.
+    def tensor_unwrapping(self) -> bool:
+        """Returns whether tensors inside the :class:`~.PolynomialTensor` should be unwrapped.
 
-        More specifically, if this setting is enabled, tensors stored in a
-        :class:`~qiskit_nature.second_q.operators.PolynomialTensor` will be wrapped into instances
-        of :class:`~qiskit_nature.second_q.operators.Tensor`.
+        More specifically, if this setting is disabled, the tensor objects stored in a
+        :class:`~qiskit_nature.second_q.operators.PolynomialTensor` will be of type
+        :class:`~qiskit_nature.second_q.operators.Tensor` when accessed via ``__getitem__``.
+        Otherwise, they will appear as the nested array object which may be of type
+        ``numpy.ndarray``, ``sparse.SparseArray`` or a plain ``Number``.
         """
-        if not self._tensor_wrapping and "Tensor" not in self._deprecation_shown:
+        if self._tensor_unwrapping and "Tensor" not in self._deprecation_shown:
             warnings.filterwarnings("default", category=DeprecationWarning)
             warnings.warn(
                 DeprecationWarning(
-                    "As of version 0.6.0 the use of unwrapped arrays in the `PolynomialTensor` is "
-                    "deprecated. No sooner that 3 months after this release, arrays will "
-                    "automatically be wrapped into `Tensor` classes if not already done so by the "
-                    "user. You can switch to the wrapping immediately, by setting "
-                    "`qiskit_nature.settings.tensor_wrapping` to `True`."
+                    "As of version 0.6.0 the return of unwrapped tensors in the "
+                    "`PolynomialTensor.__getitem__` method is deprecated. No sooner that 3 months "
+                    "after this release, arrays will always be returned as `Tensor` objects. You "
+                    "can switch to the new objects immediately, by setting "
+                    "`qiskit_nature.settings.tensor_unwrapping` to `False`."
                 ),
                 stacklevel=3,
             )
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             self._deprecation_shown.add("Tensor")
 
-        return self._tensor_wrapping
+        return self._tensor_unwrapping
 
-    @tensor_wrapping.setter
-    def tensor_wrapping(self, tensor_wrapping: bool) -> None:
-        """Returns whether tensors in Nature should be wrapped.
+    @tensor_unwrapping.setter
+    def tensor_unwrapping(self, tensor_unwrapping: bool) -> None:
+        """Returns whether tensors inside the :class:`~.PolynomialTensor` should be unwrapped.
 
-        More specifically, if this setting is enabled, tensors stored in a
-        :class:`~qiskit_nature.second_q.operators.PolynomialTensor` will be wrapped into instances
-        of :class:`~qiskit_nature.second_q.operators.Tensor`.
+        More specifically, if this setting is disabled, the tensor objects stored in a
+        :class:`~qiskit_nature.second_q.operators.PolynomialTensor` will be of type
+        :class:`~qiskit_nature.second_q.operators.Tensor` when accessed via ``__getitem__``.
+        Otherwise, they will appear as the nested array object which may be of type
+        ``numpy.ndarray``, ``sparse.SparseArray`` or a plain ``Number``.
         """
-        if not tensor_wrapping and "Tensor" not in self._deprecation_shown:
+        if tensor_unwrapping and "Tensor" not in self._deprecation_shown:
             warnings.filterwarnings("default", category=DeprecationWarning)
             warnings.warn(
                 DeprecationWarning(
-                    "As of version 0.6.0 the use of unwrapped arrays in the `PolynomialTensor` is "
-                    "deprecated. No sooner that 3 months after this release, arrays will "
-                    "automatically be wrapped into `Tensor` classes if not already done so by the "
-                    "user. You can switch to the wrapping immediately, by setting "
-                    "`qiskit_nature.settings.tensor_wrapping` to `True`."
+                    "As of version 0.6.0 the return of unwrapped tensors in the "
+                    "`PolynomialTensor.__getitem__` method is deprecated. No sooner that 3 months "
+                    "after this release, arrays will always be returned as `Tensor` objects. You "
+                    "can switch to the new objects immediately, by setting "
+                    "`qiskit_nature.settings.tensor_unwrapping` to `False`."
                 ),
                 stacklevel=3,
             )
             warnings.filterwarnings("ignore", category=DeprecationWarning)
             self._deprecation_shown.add("Tensor")
 
-        self._tensor_wrapping = tensor_wrapping
+        self._tensor_unwrapping = tensor_unwrapping
 
 
 settings = QiskitNatureSettings()

@@ -247,16 +247,16 @@ class TestQuadraticHamiltonian(QiskitNatureTestCase):
         self.assertEqual(quad_ham_scaled, expected)
 
     @data(True, False)
-    def test_repr(self, tensor_wrapping):
+    def test_repr(self, tensor_unwrapping):
         """Test repr"""
-        aux = settings.tensor_wrapping
+        aux = settings.tensor_unwrapping
         try:
-            settings.tensor_wrapping = tensor_wrapping
+            settings.tensor_unwrapping = tensor_unwrapping
             quad_ham = QuadraticHamiltonian(
                 np.array([[1, 2j], [-2j, 3]]), np.array([[0, 4.0], [-4.0, 0]]), 5.0
             )
 
-            if tensor_wrapping:
+            if not tensor_unwrapping:
                 self.assertEqual(
                     repr(quad_ham),
                     "QuadraticHamiltonian("
@@ -273,4 +273,4 @@ class TestQuadraticHamiltonian(QiskitNatureTestCase):
                     "constant=5.0, num_modes=2)",
                 )
         finally:
-            settings.tensor_wrapping = aux
+            settings.tensor_unwrapping = aux

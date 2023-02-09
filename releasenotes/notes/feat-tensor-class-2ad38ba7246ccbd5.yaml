@@ -5,14 +5,14 @@ features:
     internally to consistently deal with n-dimensional tensors throughout the
     stack.
   - |
-    Adds the new :attr:`~qiskit_nature.settings.tensor_wrapping` setting which
-    may be set to ``True`` to enable automatic wrapping of any n-dimensional
-    tensor stored inside a
-    :class:`~qiskit_nature.second_q.operators.PolynomialTensor` into a
-    :class:`~qiskit_nature.second_q.operators.Tensor` instance.
+    Adds the new :attr:`~qiskit_nature.settings.tensor_unwrapping` setting which
+    may be set to ``False`` to disable the unwrapping of internally created
+    :class:`~qiskit_nature.second_q.operators.Tensor` objects stored inside of a
+    :class:`~qiskit_nature.second_q.operators.PolynomialTensor`. See also
+    :attr:`~qiskit_nature.settings.tensor_unwrapping` for more details.
 deprecations:
   - |
-    Deprecated the default value (``False``) of
-    :attr:`~qiskit_nature.settings.tensor_wrapping` meaning that in the future
+    Deprecated the default value (``True``) of
+    :attr:`~qiskit_nature.settings.tensor_unwrapping` meaning that in the future
     :meth:`~qiskit_nature.second_q.operators.PolynomialTensor.__getitem__` will
     return objects of type :class:`~qiskit_nature.second_q.operators.Tensor`.
