@@ -247,7 +247,7 @@ def modified_cholesky(
 
 
 def double_factorized(
-    two_body_tensor: np.ndarray, *, error_threshold: float = 1e-8, max_rank: int | None = None
+    two_body_tensor: np.ndarray, *, error_threshold: float = 1e-8, max_vecs: int | None = None
 ) -> tuple[np.ndarray, np.ndarray]:
     r"""Double factorized decomposition of a two-body tensor.
 
@@ -263,8 +263,8 @@ def double_factorized(
 
     The number of terms :math:`N` in the decomposition depends on the allowed
     error threshold. A larger error threshold may yield a smaller number of terms.
-    Furthermore, the ``max_rank`` parameter specifies an optional upper bound
-    on :math:`N`. The ``max_rank`` parameter is always respected, so if it is
+    Furthermore, the ``max_vecs`` parameter specifies an optional upper bound
+    on :math:`N`. The ``max_vecs`` parameter is always respected, so if it is
     too small, then the error of the decomposition may exceed the specified
     error threshold.
 
@@ -288,7 +288,7 @@ def double_factorized(
             The error is defined as the maximum absolute difference between
             an element of the original tensor and the corresponding element of
             the reconstructed tensor.
-        max_rank: An optional limit on the number of terms to keep in the decomposition
+        max_vecs: An optional limit on the number of terms to keep in the decomposition
             of the two-body tensor.
 
     Returns:
@@ -303,12 +303,12 @@ def double_factorized(
     """
     n_modes, _, _, _ = two_body_tensor.shape
 
-    if max_rank is None:
-        max_rank = n_modes * (n_modes + 1) // 2
+    if max_vecs is None:
+        max_vecs = n_modes * (n_modes + 1) // 2
 
     reshaped_tensor = np.reshape(two_body_tensor, (n_modes**2, n_modes**2))
     cholesky_vecs = modified_cholesky(
-        reshaped_tensor, error_threshold=error_threshold, max_vecs=max_rank
+        reshaped_tensor, error_threshold=error_threshold, max_vecs=max_vecs
     )
 
     _, rank = cholesky_vecs.shape
