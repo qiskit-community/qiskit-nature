@@ -12,9 +12,9 @@
 
 """Tests for the ElectronicStructureResult."""
 
-import unittest
 import contextlib
 import io
+import unittest
 from itertools import zip_longest
 from test import QiskitNatureTestCase
 
@@ -79,6 +79,12 @@ class TestElectronicStructureResult(QiskitNatureTestCase):
                              (debye): [0.0  0.0  2.54174623+2.54174623j]  Total: 2.54174623+2.54174623j
         """
         self._assert_printed_result(res)
+
+    def test_print_debye_dipole(self):
+        """Test printing debye dipoles."""
+        res = ElectronicStructureResult()
+        res.computed_dipole_moment = None
+        self.assertIsNone(res.total_dipole_moment_in_debye)
 
 
 if __name__ == "__main__":

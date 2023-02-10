@@ -162,7 +162,13 @@ class ElectronicStructureResult(EigenstateResult):
     def total_dipole_moment_in_debye(self) -> Optional[List[float]]:
         """Returns total dipole of moment in Debye"""
         tdm = self.total_dipole_moment
-        return [dip / DEBYE if dip is not None else None for dip in tdm]
+        if tdm is None:
+            return None
+        tdmd = []
+        for dip in tdm:
+            dipmd = dip / DEBYE
+            tdmd.append(dipmd)
+        return tdmd
 
     @property
     def dipole_moment(self) -> Optional[List[DipoleTuple]]:
