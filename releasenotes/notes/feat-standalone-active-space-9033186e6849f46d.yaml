@@ -30,7 +30,7 @@ features:
       transformer = FreezeCoreTransformer()
 
       # since the FreezeCoreTransformer requires molecular system information,
-      # we need to create that datastructure like so:
+      # we need to create that data structure like so:
       molecule = MoleculeInfo(
           symbols=["Li", "H"],
           coords=[(0.0, 0.0, 0.0), (0.0, 0.0, 1.6)],

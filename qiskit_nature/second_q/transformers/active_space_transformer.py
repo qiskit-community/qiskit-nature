@@ -77,6 +77,24 @@ class ActiveSpaceTransformer(BaseTransformer):
 
         #. the largest orbital index may **not** exceed the available ``num_spatial_orbitals``.
 
+    If you want to apply this transformer to a Hamiltonian outside of a Problem instance, you need
+    to prepare the active space by providing the total system size information which would normally
+    be extracted from the Problem object. You can do this like so:
+
+    .. code-block:: python
+
+      # assuming you have the total Hamiltonian of your system available:
+      total_hamiltonian = ElectronicEnergy(...)
+
+      # now you want to reduce it to an active space of 2 electrons in 2 orbitals
+      transformer = ActiveSpaceTransformer(2, 2)
+
+      # assuming that your total system size is 10 electrons in 10 orbitals:
+      transformer.prepare_active_space(10, 10)
+
+      # after preparation, you can now transform only your Hamiltonian like so
+      reduced_hamiltonian = transformer.transform_hamiltonian(total_hamiltonian)
+
     References:
         - *M. Rossmannek, P. Barkoutsos, P. Ollitrault, and I. Tavernelli, arXiv:2009.01872
           (2020).*

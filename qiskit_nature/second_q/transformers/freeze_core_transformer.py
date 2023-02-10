@@ -35,7 +35,45 @@ LOGGER = logging.getLogger(__name__)
 
 
 class FreezeCoreTransformer(BaseTransformer):
-    """The Freeze-Core reduction."""
+    """The Freeze-Core reduction.
+
+    This transformation is mathematically identical to the
+    :class:`~qiskit_nature.second_q.transformers.ActiveSpaceTransformer`. The difference arises in
+    the user interface: while you configure the _active_ components in the other transformer, here
+    you configure the _inactive_ components. For more information on the configuration options
+    please refer to the input argument description further below and for more information on the
+    mathematical transformation refer to the documentation of the
+    :class:`~qiskit_nature.second_q.transformers.ActiveSpaceTransformer`.
+
+    If you want to apply this transformer to a Hamiltonian outside of a Problem instance, you need
+    to prepare the active space by providing the molecular system information which your Hamiltonian
+    corresponds to which would normally be extracted from the Problem object. You can do this like
+    so:
+
+    .. code-block:: python
+
+      # assuming you have the total Hamiltonian of your system available:
+      total_hamiltonian = ElectronicEnergy(...)
+
+      # now you want to apply the freeze-core reduction
+      transformer = FreezeCoreTransformer()
+
+      # since the FreezeCoreTransformer requires molecular system information,
+      # you need to create that data structure like so:
+      molecule = MoleculeInfo(
+          symbols=["Li", "H"],
+          coords=[(0.0, 0.0, 0.0), (0.0, 0.0, 1.6)],
+      )
+      # and since the system size depends on the basis set, you need to provide
+      # the total number of spatial orbitals separately:
+      total_num_spatial_orbitals = 11  # e.g. the 6-31g basis
+
+      # this allows you to prepare the active space correctly like so:
+      transformer.prepare_active_space(molecule, total_num_spatial_orbitals)
+
+      # after preparation, you can now transform only your Hamiltonian like so
+      reduced_hamiltonian = transformer.transform_hamiltonian(total_hamiltonian)
+    """
 
     def __init__(
         self,
