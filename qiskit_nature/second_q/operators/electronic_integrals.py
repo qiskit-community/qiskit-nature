@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -25,7 +25,8 @@ from qiskit.quantum_info.operators.mixins import LinearMixin
 from qiskit_nature.exceptions import QiskitNatureError
 import qiskit_nature.optionals as _optionals
 
-from .polynomial_tensor import ARRAY_TYPE, PolynomialTensor
+from .polynomial_tensor import PolynomialTensor
+from .tensor import Tensor
 from .tensor_ordering import (
     IndexType,
     find_index_order,
@@ -256,8 +257,8 @@ class ElectronicIntegrals(LinearMixin):
         if self.beta_alpha.is_empty():
             return self.beta_alpha
 
-        beta_alpha = cast(ARRAY_TYPE, self.beta_alpha["++--"])
-        alpha_beta = np.moveaxis(beta_alpha, (0, 1), (2, 3))
+        # TODO: remove extra-wrapping of Tensor once settings.tensor_unwrapping is removed
+        alpha_beta = Tensor(np.moveaxis(Tensor(self.beta_alpha["++--"]), (0, 1), (2, 3)))
         return PolynomialTensor({"++--": alpha_beta}, validate=False)
 
     @property
@@ -378,7 +379,7 @@ class ElectronicIntegrals(LinearMixin):
     @classmethod
     def apply(
         cls,
-        function: Callable[..., np.ndarray | SparseArray | Number],
+        function: Callable[..., np.ndarray | SparseArray | complex],
         *operands: ElectronicIntegrals,
         validate: bool = True,
     ) -> ElectronicIntegrals:
@@ -568,9 +569,7 @@ class ElectronicIntegrals(LinearMixin):
 
         kron_one_body = np.zeros((2, 2))
         kron_two_body = np.zeros((2, 2, 2, 2))
-        kron_tensor = PolynomialTensor(
-            {"": cast(Number, 1.0), "+-": kron_one_body, "++--": kron_two_body}
-        )
+        kron_tensor = PolynomialTensor({"": 1.0, "+-": kron_one_body, "++--": kron_two_body})
 
         if beta_empty and beta_alpha_empty:
             kron_one_body[(0, 0)] = 1

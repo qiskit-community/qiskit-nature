@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -46,7 +46,7 @@ class FermionicOp(SparseLabelOp):
     A ``FermionicOp`` is initialized with a dictionary, mapping terms to their respective
     coefficients:
 
-    .. jupyter-execute::
+    .. code-block:: python
 
         from qiskit_nature.second_q.operators import FermionicOp
 
@@ -62,7 +62,7 @@ class FermionicOp(SparseLabelOp):
     If you have very restricted memory resources available, or would like to avoid the additional
     copy, the dictionary will be stored by reference if you disable ``copy`` like so:
 
-    .. jupyter-execute::
+    .. code-block:: python
 
         some_big_data = {
             "+_0 -_0": 1.0,
@@ -91,25 +91,25 @@ class FermionicOp(SparseLabelOp):
 
     Addition
 
-    .. jupyter-execute::
+    .. code-block:: python
 
       FermionicOp({"+_1": 1}, num_spin_orbitals=2) + FermionicOp({"+_0": 1}, num_spin_orbitals=2)
 
     Sum
 
-    .. jupyter-execute::
+    .. code-block:: python
 
       sum(FermionicOp({label: 1}, num_spin_orbitals=3) for label in ["+_0", "-_1", "+_2 -_2"])
 
     Scalar multiplication
 
-    .. jupyter-execute::
+    .. code-block:: python
 
       0.5 * FermionicOp({"+_1": 1}, num_spin_orbitals=2)
 
     Operator multiplication
 
-    .. jupyter-execute::
+    .. code-block:: python
 
       op1 = FermionicOp({"+_0 -_1": 1}, num_spin_orbitals=2)
       op2 = FermionicOp({"-_0 +_0 +_1": 1}, num_spin_orbitals=2)
@@ -117,14 +117,14 @@ class FermionicOp(SparseLabelOp):
 
     Tensor multiplication
 
-    .. jupyter-execute::
+    .. code-block:: python
 
       op = FermionicOp({"+_0 -_1": 1}, num_spin_orbitals=2)
       print(op ^ op)
 
     Adjoint
 
-    .. jupyter-execute::
+    .. code-block:: python
 
       FermionicOp({"+_0 -_1": 1j}, num_spin_orbitals=2).adjoint()
 
@@ -258,6 +258,7 @@ class FermionicOp(SparseLabelOp):
                 data[""] = cast(float, tensor[key])
                 continue
 
+            # TODO: extract label_template into Tensor class
             label_template = " ".join(f"{op}_{{}}" for op in key)
 
             # PERF: the following matrix unpacking is a performance bottleneck!

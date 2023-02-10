@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -21,6 +21,7 @@ from qiskit.quantum_info import random_hermitian
 from qiskit_nature.second_q.hamiltonians import QuadraticHamiltonian
 from qiskit_nature.second_q.mappers import JordanWignerMapper, QubitConverter
 from qiskit_nature.second_q.operators import FermionicOp
+from qiskit_nature.settings import settings
 from qiskit_nature.testing import random_antisymmetric_matrix
 
 
@@ -245,15 +246,31 @@ class TestQuadraticHamiltonian(QiskitNatureTestCase):
         )
         self.assertEqual(quad_ham_scaled, expected)
 
-    def test_repr(self):
+    @data(True, False)
+    def test_repr(self, tensor_unwrapping):
         """Test repr"""
-        quad_ham = QuadraticHamiltonian(
-            np.array([[1, 2j], [-2j, 3]]), np.array([[0, 4.0], [-4.0, 0]]), 5.0
-        )
-        self.assertEqual(
-            repr(quad_ham),
-            "QuadraticHamiltonian("
-            "hermitian_part=array([[ 1.+0.j,  0.+2.j],\n       [-0.-2.j,  3.+0.j]]), "
-            "antisymmetric_part=array([[ 0.,  4.],\n       [-4.,  0.]]), "
-            "constant=5.0, num_modes=2)",
-        )
+        aux = settings.tensor_unwrapping
+        try:
+            settings.tensor_unwrapping = tensor_unwrapping
+            quad_ham = QuadraticHamiltonian(
+                np.array([[1, 2j], [-2j, 3]]), np.array([[0, 4.0], [-4.0, 0]]), 5.0
+            )
+
+            if not tensor_unwrapping:
+                self.assertEqual(
+                    repr(quad_ham),
+                    "QuadraticHamiltonian("
+                    "hermitian_part=array([[ 1.+0.j,  0.+2.j],\n       [-0.-2.j,  3.+0.j]]), "
+                    "antisymmetric_part=array([[ 0.,  4.],\n       [-4.,  0.]]), "
+                    "constant=array(5.), num_modes=2)",
+                )
+            else:
+                self.assertEqual(
+                    repr(quad_ham),
+                    "QuadraticHamiltonian("
+                    "hermitian_part=array([[ 1.+0.j,  0.+2.j],\n       [-0.-2.j,  3.+0.j]]), "
+                    "antisymmetric_part=array([[ 0.,  4.],\n       [-4.,  0.]]), "
+                    "constant=5.0, num_modes=2)",
+                )
+        finally:
+            settings.tensor_unwrapping = aux
