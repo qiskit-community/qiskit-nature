@@ -23,7 +23,7 @@ import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.operators.tensor_ordering import to_chemist_ordering
 from qiskit_nature.testing import random_two_body_tensor_real
-from qiskit_nature.utils import givens_matrix, low_rank_two_body_decomposition, modified_cholesky
+from qiskit_nature.utils import double_factorized, givens_matrix, modified_cholesky
 
 
 @ddt
@@ -61,10 +61,10 @@ class TestLowRankTwoBodyDecomposition(QiskitNatureTestCase):
     """Tests for low rank two-body decomposition."""
 
     @data(4, 5)
-    def test_low_rank_two_body_decomposition_random(self, dim: int):
+    def test_double_factorized_random(self, dim: int):
         """Test low rank two-body decomposition on a random tensor."""
         two_body_tensor = random_two_body_tensor_real(dim, seed=25257)
-        core_tensors, leaf_tensors = low_rank_two_body_decomposition(two_body_tensor)
+        core_tensors, leaf_tensors = double_factorized(two_body_tensor)
         reconstructed = np.einsum(
             "tpk,tqk,tkl,trl,tsl->pqrs",
             leaf_tensors,
@@ -76,7 +76,7 @@ class TestLowRankTwoBodyDecomposition(QiskitNatureTestCase):
         np.testing.assert_allclose(reconstructed, two_body_tensor, atol=1e-8)
 
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
-    def test_low_rank_two_body_decomposition_error_threshold_max_rank(self):
+    def test_double_factorized_error_threshold_max_rank(self):
         """Test low rank decomposition error threshold and max rank."""
         driver = PySCFDriver(atom="Li 0 0 0; H 0 0 1.6")
         driver_result = driver.run()
@@ -85,9 +85,7 @@ class TestLowRankTwoBodyDecomposition(QiskitNatureTestCase):
 
         with self.subTest("max rank"):
             max_rank = 20
-            core_tensors, leaf_tensors = low_rank_two_body_decomposition(
-                two_body_tensor, max_rank=max_rank
-            )
+            core_tensors, leaf_tensors = double_factorized(two_body_tensor, max_rank=max_rank)
             reconstructed = np.einsum(
                 "tpk,tqk,tkl,trl,tsl->pqrs",
                 leaf_tensors,
@@ -101,7 +99,7 @@ class TestLowRankTwoBodyDecomposition(QiskitNatureTestCase):
 
         with self.subTest("error threshold"):
             error_threshold = 1e-4
-            core_tensors, leaf_tensors = low_rank_two_body_decomposition(
+            core_tensors, leaf_tensors = double_factorized(
                 two_body_tensor, error_threshold=error_threshold
             )
             reconstructed = np.einsum(
@@ -116,7 +114,7 @@ class TestLowRankTwoBodyDecomposition(QiskitNatureTestCase):
             np.testing.assert_allclose(reconstructed, two_body_tensor, atol=error_threshold)
 
         with self.subTest("error threshold and max rank"):
-            core_tensors, leaf_tensors = low_rank_two_body_decomposition(
+            core_tensors, leaf_tensors = double_factorized(
                 two_body_tensor, error_threshold=error_threshold, max_rank=max_rank
             )
             reconstructed = np.einsum(

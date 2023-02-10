@@ -25,22 +25,22 @@ Linear algebra utilities
 
    apply_matrix_to_slices
    givens_matrix
-   low_rank_two_body_decomposition
+   double_factorized
    modified_cholesky
 """
 
 from .linalg import (
     apply_matrix_to_slices,
+    double_factorized,
     givens_matrix,
-    low_rank_two_body_decomposition,
     modified_cholesky,
 )
 from .opt_einsum import get_einsum
 
 __all__ = [
     "apply_matrix_to_slices",
+    "double_factorized",
     "givens_matrix",
     "get_einsum",
-    "low_rank_two_body_decomposition",
     "modified_cholesky",
 ]

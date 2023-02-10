@@ -246,12 +246,12 @@ def modified_cholesky(
     return cholesky_vecs[:, :index]
 
 
-def low_rank_two_body_decomposition(
+def double_factorized(
     two_body_tensor: np.ndarray, *, error_threshold: float = 1e-8, max_rank: int | None = None
 ) -> tuple[np.ndarray, np.ndarray]:
-    r"""Low rank decomposition of a two-body tensor.
+    r"""Double factorized decomposition of a two-body tensor.
 
-    The low rank decomposition is a representation of a two-body tensor
+    The double factorized decomposition is a representation of a two-body tensor
     :math:`h_{pqrs}` as
 
     .. math::
