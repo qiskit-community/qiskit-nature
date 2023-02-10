@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -162,6 +162,8 @@ class ElectronicStructureResult(EigenstateResult):
     def total_dipole_moment_in_debye(self) -> Optional[List[float]]:
         """Returns total dipole of moment in Debye"""
         tdm = self.total_dipole_moment
+        if tdm is None:
+            return None
         return [dip / DEBYE if dip is not None else None for dip in tdm]
 
     @property
