@@ -70,14 +70,17 @@ else:
 class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
     """A container class to store arbitrary operator coefficients.
 
-    This class generalizes the storing of operator coefficients in matrix format. Actual operators
+    This class generalizes the storing of operator coefficients in tensor format. Actual operators
     can be extracted from it using the
     :meth:`qiskit_nature.second_q.operators.SparseLabelOp.from_polynomial_tensor` method on the
     respective subclasses of the ``SparseLabelOp``.
 
-    The storage format maps from string keys to matrix values. By design, **no** assumptions are
-    made about the *contents* of the keys. However, the length of each key determines the dimension
-    of the matrix which it maps, too. For example:
+    Internally, this class stores tensors as instances of
+    :class:`~qiskit_nature.second_q.operators.Tensor`. Refer to its documentation for more details.
+    The storage format maps from string keys to these ``Tensor`` objects. By design, **no**
+    assumptions are made about the *contents* of the keys. However, the length of each key
+    determines the dimension of the tensor which it maps, too. For example (using numpy arrays for
+    the sake of simplicity):
 
     .. code-block:: python
 
@@ -93,8 +96,8 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         # ... and so on
 
     In general, the idea is that each character in a key will be associated with the corresponding
-    axis of the matrix, when an operator gets built from the tensor. This means, that the previous
-    example would expand for example like so:
+    axis of the tensor, when an operator gets built from the ``PolynomialTensor`` instance. This
+    means, that the previous example would expand for example like so:
 
     .. code-block:: python
 
@@ -104,6 +107,15 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         operator = FermionicOp.from_polynomial_tensor(tensor)
 
         print(operator)
+        # Fermionic Operator
+        # number spin orbitals=2, number terms=7
+        #   1.0
+        # + 1 * ( +_0 )
+        # + 2 * ( +_1 )
+        # + 1 * ( +_0 -_0 )
+        # + 2 * ( +_0 -_1 )
+        # + 3 * ( +_1 -_0 )
+        # + 4 * ( +_1 -_1 )
 
     **Algebra**
 
@@ -144,8 +156,9 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
 
     **Sparse Arrays**
 
-    Furthermore, the ``PolynomialTensor`` supports both, dense numpy arrays and sparse arrays. Since
-    it needs to support more than 2-dimensional arrays, we rely on the
+    Furthermore, since the ``PolynomialTensor`` is building on top of the
+    :class:`~qiskit_nature.second_q.operators.Tensor` class it supports both, dense numpy arrays and
+    sparse arrays. Since it needs to support more than 2-dimensional arrays, we rely on the
     `sparse <https://sparse.pydata.org/en/stable/index.html>`_ library.
 
     .. code-block:: python
@@ -167,7 +180,11 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
     ) -> None:
         """
         Args:
-            data: mapping of string-based operator keys to coefficient matrix values.
+            data: mapping of string-based operator keys to coefficient tensor values. If the values
+                are not already of type :class:`~qiskit_nature.second_q.operators.Tensor`, they will
+                automatically be wrapped into one. Upon retrieval via item access (``__getitem__``)
+                automatically wrapped objects will be unwrapped again depending on the value of
+                :attr:`~qiskit_nature.settings.tensor_unwrapping`.
             validate: when set to False the ``data`` will not be validated. Disable this setting with
                 care!
 
@@ -286,7 +303,7 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         return self._data.__iter__()
 
     def to_dense(self) -> PolynomialTensor:
-        """Returns a new instance where all matrices are now dense numpy arrays.
+        """Returns a new instance where all matrices are now dense tensors.
 
         If the instance on which this method was called already fulfilled this requirement, it is
         returned unchanged.
@@ -305,15 +322,15 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
     def to_sparse(
         self, *, sparse_type: Type[COO] | Type[DOK] | Type[GCXS] = COO
     ) -> PolynomialTensor:
-        """Returns a new instance where all matrices are now sparse arrays.
+        """Returns a new instance where all matrices are now sparse tensors.
 
         If the instance on which this method was called already fulfilled this requirement, it is
         returned unchanged.
 
         Args:
             sparse_type: the type to use for the conversion to sparse matrices. Note, that this will
-                only be applied to matrices which were previously dense numpy arrays. Sparse arrays
-                of another type will not be explicitly converted.
+                only be applied to matrices which were previously dense tensors. Sparse arrays of
+                another type will not be explicitly converted.
 
         Returns:
             A new ``PolynomialTensor`` with all its matrices converted to the requested sparse array
