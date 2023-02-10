@@ -1,0 +1,13 @@
+---
+features:
+  - |
+    The new keyword argument ``register_length`` has been added to the
+    :meth:`.QubitMapper.map` method. This allows the user to set the length of a
+    :class:`.SparseLabelOp` before mapping it (since this length is a lower bound).
+deprecations:
+  - |
+    :attr:`.QubitMapper.allows_two_qubit_reduction` has been deprecated. There
+    is no replacement because it is no longer needed in the new design.
+  - |
+    All arguments in the :class:`.QubitMapper` API (and its subclasses) which
+    were previously called ``nmodes`` have been renamed to ``register_length``.

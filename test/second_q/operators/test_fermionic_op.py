@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -573,7 +573,9 @@ class TestFermionicOp(QiskitNatureTestCase):
             )
             op = FermionicOp.from_polynomial_tensor(p_t)
 
-            self.assertEqual(op @ op, FermionicOp.from_polynomial_tensor(p_t @ p_t))
+            a = op @ op
+            b = FermionicOp.from_polynomial_tensor(p_t @ p_t)
+            self.assertEqual(a, b)
 
         with self.subTest("tensor operation order"):
             r_l = 2

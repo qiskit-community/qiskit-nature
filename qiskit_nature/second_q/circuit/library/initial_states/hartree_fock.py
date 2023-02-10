@@ -19,7 +19,12 @@ from qiskit.circuit.library import BlueprintCircuit
 from qiskit.opflow import PauliSumOp
 from qiskit.utils.validation import validate_min
 
-from qiskit_nature.second_q.mappers import BravyiKitaevSuperFastMapper, QubitConverter, QubitMapper
+from qiskit_nature.second_q.mappers import (
+    BravyiKitaevSuperFastMapper,
+    QubitConverter,
+    QubitMapper,
+    TaperedQubitMapper,
+)
 from qiskit_nature.second_q.operators import FermionicOp
 
 
@@ -147,16 +152,18 @@ class HartreeFock(BlueprintCircuit):
                 raise ValueError("The qubit converter cannot be `None`.")
             return False
 
-        mapper = (
-            self.qubit_converter
-            if isinstance(self.qubit_converter, QubitMapper)
-            else self.qubit_converter.mapper
-        )
+        if isinstance(self.qubit_converter, QubitConverter):
+            mapper = self.qubit_converter.mapper
+        elif isinstance(self.qubit_converter, TaperedQubitMapper):
+            # we also include the TaperedQubitMapper here, purely for the check done below
+            mapper = self.qubit_converter.mapper
+        else:
+            mapper = self.qubit_converter
 
         if isinstance(mapper, BravyiKitaevSuperFastMapper):
             if raise_on_failure:
                 raise NotImplementedError(
-                    "Unsupported mapper in qubit converter: ",
+                    "Unsupported mapper: ",
                     type(mapper),
                     ". See https://github.com/Qiskit/qiskit-nature/issues/537",
                 )
@@ -222,6 +229,7 @@ def hartree_fock_bitstring_mapped(
     Returns:
         The bitstring representing the mapped state of the Hartree-Fock state as array of bools.
     """
+    # TODO: Remove match convert argument
 
     # get the bitstring encoding the Hartree Fock state
     bitstr = hartree_fock_bitstring(num_spatial_orbitals, num_particles)
@@ -239,6 +247,10 @@ def hartree_fock_bitstring_mapped(
             qubit_op = qubit_converter.convert_match(bitstr_op, check_commutes=False)
         else:
             qubit_op = qubit_converter.convert_only(bitstr_op, num_particles)
+    elif isinstance(qubit_converter, TaperedQubitMapper):
+        # To avoid checking commutativity, we call the two methods separately.
+        qubit_op = qubit_converter.map_clifford(bitstr_op)
+        qubit_op = qubit_converter.taper_clifford(qubit_op, check_commutes=False)
     else:
         qubit_op = qubit_converter.map(bitstr_op)
 

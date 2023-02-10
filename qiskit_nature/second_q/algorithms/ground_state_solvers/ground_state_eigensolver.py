@@ -104,9 +104,7 @@ class GroundStateEigensolver(GroundStateSolver):
             for name_aux, aux_op in aux_operators.items():
                 if isinstance(aux_op, SparseLabelOp):
                     if isinstance(self._qubit_converter, QubitConverter):
-                        converted_aux_op = self._qubit_converter.convert_match(
-                            aux_op, suppress_none=True
-                        )
+                        converted_aux_op = self._qubit_converter.convert_match(aux_op)
                     else:
                         converted_aux_op = self._qubit_converter.map(aux_op)
                 else:
@@ -120,8 +118,17 @@ class GroundStateEigensolver(GroundStateSolver):
                         "this operator.",
                         name_aux,
                     )
-                # The custom op overrides the default op if the key is already taken.
-                aux_ops[name_aux] = converted_aux_op
+                if converted_aux_op is not None:
+                    # The custom op overrides the default op if the key is already taken.
+                    aux_ops[name_aux] = converted_aux_op
+                else:
+                    LOGGER.warning(
+                        "The manually provided operator '%s' got reduced to `None` in the mapping "
+                        "process. This can occur for example when it does not commute with the "
+                        "hamiltonian after applying the determined symmetry reductions. Thus, this "
+                        "operator will not be used!",
+                        name_aux,
+                    )
 
         if isinstance(self.solver, MinimumEigensolverFactory):
             # this must be called after transformation.transform

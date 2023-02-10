@@ -1,0 +1,4 @@
+---
+fixes:
+  - |
+    Fixes a bug when printing the :attr:`~qiskit_nature.second_q.problems.ElectronicStructureResult.total_dipole_moment_in_debye` 

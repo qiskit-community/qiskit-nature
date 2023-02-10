@@ -242,6 +242,7 @@ intel
 intelvem
 interatomic
 internuclear
+interoperability
 interpretable
 ints
 io
@@ -251,6 +252,7 @@ ising
 iso
 isoleucine
 isometry
+isospectral
 iswap
 isym
 iten
@@ -301,6 +303,7 @@ lijh
 linewidths
 linux
 listordict
+listordicttype
 ljik
 lk
 logfile
@@ -352,6 +355,7 @@ natom
 nbasis
 nd
 ndarray
+ndim
 nelec
 neq
 networkx
@@ -460,6 +464,7 @@ radians
 rangle
 rcccx
 rccx
+rdm
 readme
 readthedocs
 realise
@@ -529,6 +534,8 @@ str
 stylesheet
 subcircuits
 subclasses
+submatrix
+submatrices
 submodule
 submodules
 subtest
@@ -578,6 +585,7 @@ uccsd
 ucrx
 ucry
 ucrz
+ufuncs
 uhf
 ulimit
 un

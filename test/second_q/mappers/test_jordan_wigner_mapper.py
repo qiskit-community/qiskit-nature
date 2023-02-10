@@ -62,11 +62,6 @@ class TestJordanWignerMapper(QiskitNatureTestCase):
 
         self.assertEqual(qubit_op, TestJordanWignerMapper.REF_H2)
 
-    def test_allows_two_qubit_reduction(self):
-        """Test this returns False for this mapper"""
-        mapper = JordanWignerMapper()
-        self.assertFalse(mapper.allows_two_qubit_reduction)
-
     def test_mapping_for_single_op(self):
         """Test for single register operator."""
         with self.subTest("test +"):
@@ -143,6 +138,13 @@ class TestJordanWignerMapper(QiskitNatureTestCase):
         self.assertEqual(len(mapped_ops), len(expected))
         for k in mapped_ops.keys():
             self.assertEqual(mapped_ops[k], expected[k])
+
+    def test_mapping_overwrite_reg_len(self):
+        """Test overwriting the register length."""
+        op = FermionicOp({"+_0 -_0": 1}, num_spin_orbitals=1)
+        expected = FermionicOp({"+_0 -_0": 1}, num_spin_orbitals=3)
+        mapper = JordanWignerMapper()
+        self.assertEqual(mapper.map(op, register_length=3), mapper.map(expected))
 
 
 if __name__ == "__main__":

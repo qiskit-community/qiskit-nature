@@ -12,6 +12,8 @@
 
 """ Test Numerical qEOM excited states calculation."""
 
+from __future__ import annotations
+
 import unittest
 
 from test import QiskitNatureTestCase
@@ -30,7 +32,7 @@ from qiskit_nature.second_q.mappers import (
     JordanWignerMapper,
     ParityMapper,
 )
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper, TaperedQubitMapper
 from qiskit_nature.second_q.operators.fermionic_op import FermionicOp
 from qiskit_nature.second_q.algorithms import (
     GroundStateEigensolver,
@@ -67,6 +69,7 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
 
         self.reference_trans_amps = reference_trans_amps
         self.electronic_structure_problem = self.driver.run()
+        self.num_particles = self.electronic_structure_problem.num_particles
 
     def _hamiltonian_derivative(self):
 
@@ -126,22 +129,7 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
                     trans_amp_expected = np.abs(references[key][opkey][0])
                     self.assertAlmostEqual(trans_amp, trans_amp_expected, places=places)
 
-    @named_data(
-        ["JWM", QubitConverter(JordanWignerMapper())],
-        ["JWM_Z2", QubitConverter(JordanWignerMapper(), z2symmetry_reduction="auto")],
-        ["PM", QubitConverter(ParityMapper())],
-        ["PM_TQR", QubitConverter(ParityMapper(), two_qubit_reduction=True)],
-        ["PM_Z2", QubitConverter(ParityMapper(), z2symmetry_reduction="auto")],
-        [
-            "PM_TQR_Z2",
-            QubitConverter(ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto"),
-        ],
-        ["BKM", QubitConverter(BravyiKitaevMapper())],
-        ["BKM_Z2", QubitConverter(BravyiKitaevMapper(), z2symmetry_reduction="auto")],
-    )
-    def test_aux_ops_qeom(self, converter: QubitConverter):
-        """Test QEOM evaluation of excited state properties"""
-
+    def _compute_and_assert_qeom_aux_eigenvalues(self, converter: QubitConverter | QubitMapper):
         hamiltonian_op, _ = self.electronic_structure_problem.second_q_ops()
         aux_ops = {"hamiltonian": hamiltonian_op}
         estimator = Estimator()
@@ -157,22 +145,7 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
         self._assert_energies(results.computed_energies, self.reference_energies)
         self._assert_energies(energies_recalculated, self.reference_energies)
 
-    @named_data(
-        ["JWM", QubitConverter(JordanWignerMapper())],
-        ["JWM_Z2", QubitConverter(JordanWignerMapper(), z2symmetry_reduction="auto")],
-        ["PM", QubitConverter(ParityMapper())],
-        ["PM_TQR", QubitConverter(ParityMapper(), two_qubit_reduction=True)],
-        ["PM_Z2", QubitConverter(ParityMapper(), z2symmetry_reduction="auto")],
-        [
-            "PM_TQR_Z2",
-            QubitConverter(ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto"),
-        ],
-        ["BKM", QubitConverter(BravyiKitaevMapper())],
-        ["BKM_Z2", QubitConverter(BravyiKitaevMapper(), z2symmetry_reduction="auto")],
-    )
-    def _test_trans_amps_qeom(self, converter: QubitConverter):
-        """Test QEOM evaluation of transition amplitudes"""
-
+    def _compute_and_assert_qeom_trans_amp(self, converter: QubitConverter | QubitMapper):
         aux_eval_rules = {
             "hamiltonian_derivative": [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)]
         }
@@ -189,6 +162,88 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
         self._assert_transition_amplitudes(
             transition_amplitudes, self.reference_trans_amps, places=3
         )
+
+    @named_data(
+        ["JWM", JordanWignerMapper()],
+        ["PM", ParityMapper()],
+        ["PM_TQR", ParityMapper(num_particles=(1, 1))],
+    )
+    def test_aux_ops_qeom_mapper(self, mapper: QubitMapper):
+        """Test QEOM evaluation of excited state properties"""
+        self._compute_and_assert_qeom_aux_eigenvalues(mapper)
+
+    @named_data(
+        ["JW", lambda n, esp: TaperedQubitMapper(JordanWignerMapper())],
+        ["JW_Z2", lambda n, esp: esp.get_tapered_mapper(JordanWignerMapper())],
+        ["PM", lambda n, esp: TaperedQubitMapper(ParityMapper())],
+        ["PM_Z2", lambda n, esp: esp.get_tapered_mapper(ParityMapper())],
+        ["PM_TQR", lambda n, esp: TaperedQubitMapper(ParityMapper(n))],
+        ["PM_TQR_Z2", lambda n, esp: esp.get_tapered_mapper(ParityMapper(n))],
+    )
+    def test_aux_ops_qeom_taperedmapper(self, tapered_mapper_creator):
+        """Test QEOM evaluation of excited state properties"""
+        tapered_mapper = tapered_mapper_creator(
+            self.num_particles, self.electronic_structure_problem
+        )
+        self._compute_and_assert_qeom_aux_eigenvalues(tapered_mapper)
+
+    @named_data(
+        ["JWM", QubitConverter(JordanWignerMapper())],
+        ["JWM_Z2", QubitConverter(JordanWignerMapper(), z2symmetry_reduction="auto")],
+        ["PM", QubitConverter(ParityMapper())],
+        ["PM_TQR", QubitConverter(ParityMapper(), two_qubit_reduction=True)],
+        ["PM_Z2", QubitConverter(ParityMapper(), z2symmetry_reduction="auto")],
+        [
+            "PM_TQR_Z2",
+            QubitConverter(ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto"),
+        ],
+        ["BKM", QubitConverter(BravyiKitaevMapper())],
+        ["BKM_Z2", QubitConverter(BravyiKitaevMapper(), z2symmetry_reduction="auto")],
+    )
+    def test_aux_ops_qeom(self, converter: QubitConverter):
+        """Test QEOM evaluation of excited state properties"""
+        self._compute_and_assert_qeom_aux_eigenvalues(converter)
+
+    @named_data(
+        ["JWM", JordanWignerMapper()],
+        ["PM", ParityMapper()],
+        ["PM_TQR", ParityMapper(num_particles=(1, 1))],
+    )
+    def test_trans_amps_qeom_mapper(self, mapper: QubitMapper):
+        """Test QEOM evaluation of transition amplitudes"""
+        self._compute_and_assert_qeom_trans_amp(mapper)
+
+    @named_data(
+        ["JW", lambda n, esp: TaperedQubitMapper(JordanWignerMapper())],
+        ["JW_Z2", lambda n, esp: esp.get_tapered_mapper(JordanWignerMapper())],
+        ["PM", lambda n, esp: TaperedQubitMapper(ParityMapper())],
+        ["PM_Z2", lambda n, esp: esp.get_tapered_mapper(ParityMapper())],
+        ["PM_TQR", lambda n, esp: TaperedQubitMapper(ParityMapper(n))],
+        ["PM_TQR_Z2", lambda n, esp: esp.get_tapered_mapper(ParityMapper(n))],
+    )
+    def test_trans_amps_qeom_taperedmapper(self, tapered_mapper_creator):
+        """Test QEOM evaluation of transition amplitudes"""
+        tapered_mapper = tapered_mapper_creator(
+            self.num_particles, self.electronic_structure_problem
+        )
+        self._compute_and_assert_qeom_trans_amp(tapered_mapper)
+
+    @named_data(
+        ["JWM", QubitConverter(JordanWignerMapper())],
+        ["JWM_Z2", QubitConverter(JordanWignerMapper(), z2symmetry_reduction="auto")],
+        ["PM", QubitConverter(ParityMapper())],
+        ["PM_TQR", QubitConverter(ParityMapper(), two_qubit_reduction=True)],
+        ["PM_Z2", QubitConverter(ParityMapper(), z2symmetry_reduction="auto")],
+        [
+            "PM_TQR_Z2",
+            QubitConverter(ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto"),
+        ],
+        ["BKM", QubitConverter(BravyiKitaevMapper())],
+        ["BKM_Z2", QubitConverter(BravyiKitaevMapper(), z2symmetry_reduction="auto")],
+    )
+    def test_trans_amps_qeom(self, converter: QubitConverter):
+        """Test QEOM evaluation of transition amplitudes"""
+        self._compute_and_assert_qeom_trans_amp(converter)
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -49,7 +49,7 @@ class VibrationalOp(SparseLabelOp):
     A ``VibrationalOp`` is initialized with a dictionary, mapping terms to their respective
     coefficients:
 
-    .. jupyter-execute::
+    .. code-block:: python
 
         from qiskit_nature.second_q.operators import VibrationalOp
 
@@ -67,7 +67,7 @@ class VibrationalOp(SparseLabelOp):
     If you have very restricted memory resources available, or would like to avoid the additional
     copy, the dictionary will be stored by reference if you disable ``copy`` like so:
 
-    .. jupyter-execute::
+    .. code-block:: python
 
         some_big_data = {
             "+_0_0 -_0_0": 1.0,
@@ -90,7 +90,7 @@ class VibrationalOp(SparseLabelOp):
     If :code:`num_modals` is not provided then the maximum :code:`modal_index` per
     mode will determine the :code:`num_modals` for that mode.
 
-    .. jupyter-execute::
+    .. code-block:: python
 
         from qiskit_nature.second_q.operators import VibrationalOp
 
@@ -112,25 +112,25 @@ class VibrationalOp(SparseLabelOp):
 
     Addition
 
-    .. jupyter-execute::
+    .. code-block:: python
 
       VibrationalOp({"+_1_0": 1}, num_modals=[2, 2]) + VibrationalOp({"+_0_0": 1}, num_modals=[2, 2])
 
     Sum
 
-    .. jupyter-execute::
+    .. code-block:: python
 
       sum(VibrationalOp({label: 1}, num_modals=[1, 1, 1]) for label in ["+_0_0", "-_1_0", "+_2_0 -_2_0"])
 
     Scalar multiplication
 
-    .. jupyter-execute::
+    .. code-block:: python
 
       0.5 * VibrationalOp({"+_1_0": 1}, num_modals=[1, 1])
 
     Operator multiplication
 
-    .. jupyter-execute::
+    .. code-block:: python
 
       op1 = VibrationalOp({"+_0_0 -_1_0": 1}, num_modals=[1, 1])
       op2 = VibrationalOp({"-_0_0 +_0_0 +_1_0": 1}, num_modals=[1, 1])
@@ -138,14 +138,14 @@ class VibrationalOp(SparseLabelOp):
 
     Tensor multiplication
 
-    .. jupyter-execute::
+    .. code-block:: python
 
       op = VibrationalOp({"+_0_0 -_1_0": 1}, num_modals=[1, 1])
       print(op ^ op)
 
     Adjoint
 
-    .. jupyter-execute::
+    .. code-block:: python
 
       VibrationalOp({"+_0_0 -_1_0": 1j}, num_modals=[1, 1]).adjoint()
 
@@ -299,6 +299,7 @@ class VibrationalOp(SparseLabelOp):
                 data[""] = cast(float, tensor[key])
                 continue
 
+            # TODO: extract label_template into Tensor class
             label_template = " ".join(f"{op}_{{}}_{{}}" for op in key.replace("_", ""))
 
             mat = tensor[key]

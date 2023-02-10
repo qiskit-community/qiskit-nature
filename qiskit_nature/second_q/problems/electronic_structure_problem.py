@@ -21,8 +21,8 @@ import numpy as np
 
 from qiskit.algorithms.eigensolvers import EigensolverResult
 from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
-from qiskit.opflow.primitive_ops import Z2Symmetries
-
+from qiskit.opflow.primitive_ops import Z2Symmetries as OpflowZ2Symmetries
+from qiskit.quantum_info.analysis.z2_symmetries import Z2Symmetries
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library.initial_states.hartree_fock import (
     hartree_fock_bitstring_mapped,
@@ -270,7 +270,7 @@ class ElectronicStructureProblem(BaseProblem):
 
     def symmetry_sector_locator(
         self,
-        z2_symmetries: Z2Symmetries,
+        z2_symmetries: OpflowZ2Symmetries | Z2Symmetries,
         converter: QubitConverter | QubitMapper,
     ) -> Optional[List[int]]:
         """Given the detected Z2Symmetries this determines the correct sector of the tapered
@@ -313,7 +313,9 @@ class ElectronicStructureProblem(BaseProblem):
         return sector
 
     @staticmethod
-    def _pick_sector(z2_symmetries: Z2Symmetries, hf_str: List[bool]) -> List[int]:
+    def _pick_sector(
+        z2_symmetries: OpflowZ2Symmetries | Z2Symmetries, hf_str: List[bool]
+    ) -> List[int]:
         # Finding all the symmetries using the find_Z2_symmetries:
         taper_coeff: List[int] = []
         for sym in z2_symmetries.symmetries:

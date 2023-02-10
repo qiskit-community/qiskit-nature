@@ -12,6 +12,8 @@
 
 """ Test Numerical qEOM excited states calculation """
 
+from __future__ import annotations
+
 import unittest
 
 from test import QiskitNatureTestCase
@@ -32,7 +34,10 @@ from qiskit_nature.second_q.mappers import (
     BravyiKitaevMapper,
     JordanWignerMapper,
     ParityMapper,
+    QubitMapper,
+    TaperedQubitMapper,
 )
+
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.algorithms import (
     GroundStateEigensolver,
@@ -69,6 +74,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         self.mapper = JordanWignerMapper()
         self.qubit_converter = QubitConverter(self.mapper)
         self.electronic_structure_problem = self.driver.run()
+        self.num_particles = self.electronic_structure_problem.num_particles
 
         solver = NumPyEigensolver()
         self.ref = solver
@@ -84,6 +90,14 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
             with self.subTest(f"{i}. excited state"):
                 self.assertAlmostEqual(computed[i], references[i], places=places)
 
+    def _compute_and_assert_qeom_energies(self, converter: QubitConverter | QubitMapper):
+        estimator = Estimator()
+        solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
+        gsc = GroundStateEigensolver(converter, solver)
+        esc = QEOM(gsc, estimator, "sd")
+        results = esc.solve(self.electronic_structure_problem)
+        self._assert_energies(results.computed_energies, self.reference_energies)
+
     def test_numpy_mes(self):
         """Test NumPyMinimumEigenSolver with QEOM"""
         solver = NumPyMinimumEigensolver()
@@ -93,30 +107,45 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         self._assert_energies(results.computed_energies, self.reference_energies)
 
     @named_data(
-        ["JWM", JordanWignerMapper()],
-        ["PM", ParityMapper()],
-        ["PM_TQR", ParityMapper(num_particles=(1, 1))],
-        ["QC_JWM", QubitConverter(JordanWignerMapper())],
-        ["QC_JWM_Z2", QubitConverter(JordanWignerMapper(), z2symmetry_reduction="auto")],
-        ["QC_PM", QubitConverter(ParityMapper())],
-        ["QC_PM_TQR", QubitConverter(ParityMapper(), two_qubit_reduction=True)],
-        ["QC_PM_Z2", QubitConverter(ParityMapper(), z2symmetry_reduction="auto")],
+        ["JWM", QubitConverter(JordanWignerMapper())],
+        ["JWM_Z2", QubitConverter(JordanWignerMapper(), z2symmetry_reduction="auto")],
+        ["PM", QubitConverter(ParityMapper())],
+        ["PM_TQR", QubitConverter(ParityMapper(), two_qubit_reduction=True)],
+        ["PM_Z2", QubitConverter(ParityMapper(), z2symmetry_reduction="auto")],
         [
-            "QC_PM_TQR_Z2",
+            "PM_TQR_Z2",
             QubitConverter(ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto"),
         ],
-        ["QC_BKM", QubitConverter(BravyiKitaevMapper())],
-        ["QC_BKM_Z2", QubitConverter(BravyiKitaevMapper(), z2symmetry_reduction="auto")],
+        ["BKM", QubitConverter(BravyiKitaevMapper())],
+        ["BKM_Z2", QubitConverter(BravyiKitaevMapper(), z2symmetry_reduction="auto")],
     )
     def test_solve_with_vqe_mes(self, converter: QubitConverter):
         """Test QEOM with VQEUCCFactory and various QubitConverter"""
+        self._compute_and_assert_qeom_energies(converter)
 
-        estimator = Estimator()
-        solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
-        gsc = GroundStateEigensolver(converter, solver)
-        esc = QEOM(gsc, estimator, "sd")
-        results = esc.solve(self.electronic_structure_problem)
-        self._assert_energies(results.computed_energies, self.reference_energies)
+    @named_data(
+        ["JWM", JordanWignerMapper()],
+        ["PM", ParityMapper()],
+        ["PM_TQR", ParityMapper(num_particles=(1, 1))],
+    )
+    def test_solve_with_vqe_mes_mapper(self, mapper: QubitMapper):
+        """Test QEOM with VQEUCCFactory and various QubitMapper"""
+        self._compute_and_assert_qeom_energies(mapper)
+
+    @named_data(
+        ["JW", lambda n, esp: TaperedQubitMapper(JordanWignerMapper())],
+        ["JW_Z2", lambda n, esp: esp.get_tapered_mapper(JordanWignerMapper())],
+        ["PM", lambda n, esp: TaperedQubitMapper(ParityMapper())],
+        ["PM_Z2", lambda n, esp: esp.get_tapered_mapper(ParityMapper())],
+        ["PM_TQR", lambda n, esp: TaperedQubitMapper(ParityMapper(n))],
+        ["PM_TQR_Z2", lambda n, esp: esp.get_tapered_mapper(ParityMapper(n))],
+    )
+    def test_solve_with_vqe_mes_taperedmapper(self, tapered_mapper_creator):
+        """Test QEOM with VQEUCCFactory and various QubitMapper"""
+        tapered_mapper = tapered_mapper_creator(
+            self.num_particles, self.electronic_structure_problem
+        )
+        self._compute_and_assert_qeom_energies(tapered_mapper)
 
     def test_numpy_factory(self):
         """Test NumPyEigenSolverFactory with ExcitedStatesEigensolver"""

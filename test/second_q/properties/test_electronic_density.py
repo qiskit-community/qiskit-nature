@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -19,7 +19,7 @@ from itertools import product
 from test import QiskitNatureTestCase
 
 import numpy as np
-from ddt import ddt, data
+from ddt import ddt, data, unpack
 
 import qiskit_nature.optionals as _optionals
 
@@ -38,6 +38,124 @@ from qiskit_nature.second_q.properties import ElectronicDensity
 @ddt
 class TestElectronicDensity(QiskitNatureTestCase):
     """Test ElectronicDensity Property"""
+
+    @unpack
+    @data(
+        (1, True),
+        (1, False),
+        (2, True),
+        (2, False),
+        (3, True),
+        (3, False),
+    )
+    def test_empty(self, size: int, include_rdm2: bool):
+        """Test ElectronicDensity.empty."""
+        expected = ElectronicIntegrals.from_raw_integrals(
+            np.zeros((size, size)),
+            np.zeros((size, size, size, size)) if include_rdm2 else None,
+            np.zeros((size, size)),
+            np.zeros((size, size, size, size)) if include_rdm2 else None,
+            np.zeros((size, size, size, size)) if include_rdm2 else None,
+            auto_index_order=False,
+        )
+        density = ElectronicDensity.empty(size, include_rdm2=include_rdm2)
+        self.assertTrue(density.equiv(expected))
+
+    @unpack
+    @data(
+        (1, True),
+        (1, False),
+        (2, True),
+        (2, False),
+        (3, True),
+        (3, False),
+    )
+    def test_identity(self, size: int, include_rdm2: bool):
+        """Test ElectronicDensity.identity."""
+        rdm2: np.ndarray | None = None
+        rdm2_ba: np.ndarray | None = None
+        if include_rdm2:
+            rdm2 = np.zeros((size, size, size, size))
+            rdm2_ba = np.zeros((size, size, size, size))
+            if size == 1:
+                rdm2_ba[0, 0, 0, 0] = 1.0
+            elif size == 2:
+                rdm2[0, 0, 1, 1] = 1.0
+                rdm2[0, 1, 0, 1] = -1.0
+                rdm2[1, 0, 1, 0] = -1.0
+                rdm2[1, 1, 0, 0] = 1.0
+                rdm2_ba[0, 0, 0, 0] = 1.0
+                rdm2_ba[0, 0, 1, 1] = 1.0
+                rdm2_ba[1, 1, 0, 0] = 1.0
+                rdm2_ba[1, 1, 1, 1] = 1.0
+            elif size == 3:
+                rdm2[
+                    np.asarray([0, 0, 1, 1, 2, 2]),
+                    np.asarray([0, 0, 1, 1, 2, 2]),
+                    np.asarray([1, 2, 0, 2, 0, 1]),
+                    np.asarray([1, 2, 0, 2, 0, 1]),
+                ] = 1.0
+                rdm2[
+                    np.asarray([0, 0, 1, 1, 2, 2]),
+                    np.asarray([1, 2, 0, 2, 0, 1]),
+                    np.asarray([0, 0, 1, 1, 2, 2]),
+                    np.asarray([1, 2, 0, 2, 0, 1]),
+                ] = -1.0
+                rdm2_ba[
+                    np.asarray([0, 0, 0, 1, 1, 1, 2, 2, 2]),
+                    np.asarray([0, 0, 0, 1, 1, 1, 2, 2, 2]),
+                    np.asarray([0, 1, 2, 0, 1, 2, 0, 1, 2]),
+                    np.asarray([0, 1, 2, 0, 1, 2, 0, 1, 2]),
+                ] = 1.0
+        expected = ElectronicIntegrals.from_raw_integrals(
+            np.eye(size), rdm2, np.eye(size), rdm2, rdm2_ba, auto_index_order=False
+        )
+        density = ElectronicDensity.identity(size, include_rdm2=include_rdm2)
+        self.assertTrue(density.equiv(expected))
+
+    @unpack
+    @data(
+        (2, 2, True),
+        (2, 2, False),
+        (2, (1, 1), True),
+        (2, (1, 1), False),
+        (2, 3, True),
+        (2, 3, False),
+        (2, (2, 1), True),
+        (2, (2, 1), False),
+    )
+    def test_from_particle_number(
+        self, size: int, num_particles: int | tuple[int, int], include_rdm2: bool
+    ):
+        """Test ElectronicDensity.from_particle_number."""
+        if isinstance(num_particles, int):
+            num_beta = num_particles // 2
+            num_alpha = num_particles - num_beta
+        else:
+            num_alpha, num_beta = num_particles
+        rdm1_a = np.asarray([[1, 0], [0, 1 if num_alpha == 2 else 0]])
+        rdm1_b = np.asarray([[1, 0], [0, 0]])
+        rdm2_aa: np.ndarray | None = None
+        rdm2_bb: np.ndarray | None = None
+        rdm2_ba: np.ndarray | None = None
+        if include_rdm2:
+            rdm2_aa = np.zeros((size, size, size, size))
+            rdm2_bb = np.zeros((size, size, size, size))
+            rdm2_ba = np.zeros((size, size, size, size))
+            rdm2_ba[0, 0, 0, 0] = 1.0
+            if num_alpha == 2:
+                rdm2_aa[0, 0, 1, 1] = 1.0
+                rdm2_aa[0, 1, 0, 1] = -1.0
+                rdm2_aa[1, 0, 1, 0] = -1.0
+                rdm2_aa[1, 1, 0, 0] = 1.0
+                rdm2_ba[0, 0, 1, 1] = 1.0
+        expected = ElectronicIntegrals.from_raw_integrals(
+            rdm1_a, rdm2_aa, rdm1_b, rdm2_bb, rdm2_ba, auto_index_order=False
+        )
+        density = ElectronicDensity.from_particle_number(
+            size, num_particles, include_rdm2=include_rdm2
+        )
+        self.assertTrue(density.equiv(expected))
 
     @data(True, False)
     def test_from_orbital_occupation(self, include_rdm2: bool):
