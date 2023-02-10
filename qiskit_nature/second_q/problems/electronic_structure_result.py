@@ -164,11 +164,7 @@ class ElectronicStructureResult(EigenstateResult):
         tdm = self.total_dipole_moment
         if tdm is None:
             return None
-        tdmd = []
-        for dip in tdm:
-            dipmd = dip / DEBYE
-            tdmd.append(dipmd)
-        return tdmd
+        return [dip / DEBYE if dip is not None else None for dip in tdm]
 
     @property
     def dipole_moment(self) -> Optional[List[DipoleTuple]]:
