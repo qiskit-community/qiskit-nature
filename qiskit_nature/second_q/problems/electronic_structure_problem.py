@@ -188,6 +188,7 @@ class ElectronicStructureProblem(BaseProblem):
         num_alpha = self.num_alpha
         if num_alpha is None:
             return None
+
         return np.asarray([1.0] * num_alpha + [0.0] * (num_orbs - num_alpha))
 
     @orbital_occupations.setter
