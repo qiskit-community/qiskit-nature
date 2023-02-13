@@ -133,7 +133,7 @@ class KagomeLattice(Lattice):
                 cell_b_0 = num_sites_per_cell * cell_b_idx
                 list_of_edges.append((cell_a_1, cell_b_0, edge_parameter))
 
-            # one cell north f not at the north boundary
+            # one cell north if not at the north boundary
             if y != cols - 1:
                 cell_b_idx = self._coordinate_to_index(np.array([x, y]) + np.array([0, 1]))
                 cell_b_0 = num_sites_per_cell * cell_b_idx
