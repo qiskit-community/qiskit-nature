@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 
 """Test KagomeLattice."""
+import unittest
 from test import QiskitNatureTestCase
 from numpy.testing import assert_array_equal
 import numpy as np
@@ -165,3 +166,6 @@ class TestKagomeLattice(QiskitNatureTestCase):
                     target_matrix[i][i] = weight
 
             assert_array_equal(kagome.to_adjacency_matrix(weighted=True), target_matrix)
+
+if __name__ == "__main__":
+    unittest.main()
