@@ -11,9 +11,11 @@
 # that they have been altered from the originals.
 
 """The kagome lattice"""
+
+from __future__ import annotations
+
 from dataclasses import asdict
 from itertools import product
-from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 from rustworkx import PyGraph
@@ -72,8 +74,10 @@ class KagomeLattice(Lattice):
 
     def _coordinate_to_index(self, coord: np.ndarray) -> int:
         """Convert the coordinate of a lattice point to an integer for labeling.
+
             When self.size=(l0, l1), then a coordinate (x0, x1) is converted as
             x0 + x1*l0.
+
         Args:
             coord: Input coordinate to be converted.
 
@@ -85,21 +89,22 @@ class KagomeLattice(Lattice):
         base = np.array([np.prod(size[:i]) for i in range(dim)], dtype=int)
         return np.dot(coord, base).item()
 
-    def _self_loops(self) -> List[Tuple[int, int, complex]]:
+    def _self_loops(self) -> list[tuple[int, int, complex]]:
         """Return a list consisting of the self-loops on all the nodes.
+
         Returns:
-            List[Tuple[int, int, complex]] : List of the self-loops.
+            list[tuple[int, int, complex]] : list of the self-loops.
         """
         size = self._size
         onsite_parameter = self._onsite_parameter
         num_nodes = self._num_sites_per_cell * np.prod(size)
         return [(node_a, node_a, onsite_parameter) for node_a in range(num_nodes)]
 
-    def _bulk_edges(self) -> List[Tuple[int, int, complex]]:
+    def _bulk_edges(self) -> list[tuple[int, int, complex]]:
         """Return a list consisting of the edges in the bulk, which don't cross the boundaries.
 
         Returns:
-            List[Tuple[int, int, complex]] : List of weighted edges that don't cross the boundaries.
+            list[tuple[int, int, complex]] : list of weighted edges that don't cross the boundaries.
         """
         size = self._size
         edge_parameter = self._edge_parameter
@@ -142,14 +147,15 @@ class KagomeLattice(Lattice):
 
         return list_of_edges
 
-    def _boundary_edges(self) -> List[Tuple[int, int, complex]]:
+    def _boundary_edges(self) -> list[tuple[int, int, complex]]:
         """Return a list consisting of the edges that cross the boundaries
             depending on the boundary conditions.
 
         Raises:
             ValueError: Given boundary condition is invalid values.
+
         Returns:
-            List[Tuple[int, int, complex]]: List of weighted edges that cross the boundaries.
+            list[tuple[int, int, complex]]: list of weighted edges that cross the boundaries.
         """
         list_of_edges = []
         size = self._size
@@ -219,11 +225,11 @@ class KagomeLattice(Lattice):
             )
         return list_of_edges
 
-    def _default_position(self, with_boundaries: bool = True) -> Dict[int, List[float]]:
+    def _default_position(self, with_boundaries: bool = True) -> dict[int, list[float]]:
         """Return a dictionary of default positions for visualization of a two-dimensional lattice.
 
         Returns:
-            Dict[int, List[float]] : The keys are the labels of lattice points,
+            dict[int, list[float]] : The keys are the labels of lattice points,
                 and the values are two-dimensional coordinates.
         """
         size = self._size
@@ -249,12 +255,12 @@ class KagomeLattice(Lattice):
                 pos[node_i] = (np.dot(cell_coord, self._basis) + self._cell_positions[i]).tolist()
         return pos
 
-    def _style_pos(self) -> Dict[int, List[float]]:
+    def _style_pos(self) -> dict[int, list[float]]:
         """Return a dictionary of positions for visualization of a two-dimensional lattice without
             boundaries.
 
         Returns:
-            Dict[int, List[float]] : The keys are the labels of lattice points,
+            dict[int, list[float]] : The keys are the labels of lattice points,
                 and the values are two-dimensional coordinates.
         """
         size = self._size
@@ -342,7 +348,7 @@ class KagomeLattice(Lattice):
         return self._cols
 
     @property
-    def size(self) -> Tuple[int, int]:
+    def size(self) -> tuple[int, int]:
         """Number of unit cells in the x and y direction, respectively.
 
         Returns:
@@ -381,7 +387,7 @@ class KagomeLattice(Lattice):
         self,
         *,
         self_loop: bool = False,
-        style: Optional[LatticeDrawStyle] = None,
+        style: LatticeDrawStyle | None = None,
     ):
         r"""Draw the lattice with no edges between the boundaries.
 
