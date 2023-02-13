@@ -167,5 +167,6 @@ class TestKagomeLattice(QiskitNatureTestCase):
 
             assert_array_equal(kagome.to_adjacency_matrix(weighted=True), target_matrix)
 
+
 if __name__ == "__main__":
     unittest.main()
