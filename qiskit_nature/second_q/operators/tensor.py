@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import string
 from numbers import Number
-from typing import Any, Sequence, Type, Union, cast
+from typing import Any, Generator, Sequence, Type, Union, cast
 
 import numpy as np
 from qiskit.quantum_info.operators.mixins import TolerancesMixin
@@ -91,7 +91,12 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
     interface).
     """
 
-    def __init__(self, array: Number | ARRAY_TYPE | Tensor) -> None:
+    def __init__(
+        self,
+        array: Number | ARRAY_TYPE | Tensor,
+        *,
+        label_template: str | None = None,
+    ) -> None:
         """
         Args:
             array: the wrapped array object. This can be any of the following objects:
@@ -100,6 +105,9 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
                 :`sparse.SparseArray`: a sparse matrix
                 :`numbers.Number`: any numeric singular value
                 :`Tensor`: another Tensor whose ``array`` attribute will be extracted
+            label_template: the template string used during the translation procedure implemented in
+                :meth:`.SparseLabelOp.from_polynomial_tensor`. When ``None``, this will fall back to
+                the default template string documented separately for the :attr:`label_template`.
         """
         if isinstance(array, Tensor):
             array = array._array
@@ -107,6 +115,7 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
             array = np.array(array)
 
         self._array: ARRAY_TYPE = array
+        self._label_template = label_template
 
     @property
     def array(self) -> ARRAY_TYPE:
@@ -160,14 +169,14 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
         See also
         https://numpy.org/doc/stable/reference/arrays.classes.html#numpy.class.__array_wrap__
         """
-        return self.__class__(array)
+        return self.__class__(array, label_template=self._label_template)
 
     def __getattr__(self, name: str) -> Any:
         array = self.__array__()
         if hasattr(array, name):
             # expose any attribute of the internally wrapped array object
             return getattr(array, name)
-        return None
+        raise AttributeError
 
     def __getitem__(self, key: Any) -> Any:
         array = self.__array__()
@@ -191,6 +200,116 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
     def ndim(self) -> int:
         """Returns the number of dimensions of the wrapped array object."""
         return len(self._array.shape)
+
+    @property
+    def label_template(self) -> str:
+        """The template string used during the translation implemented in
+        :meth:`.SparseLabelOp.from_polynomial_tensor`.
+
+        By default, any ``Tensor`` instance will return the same string here. This returned template
+        depends on the dimension of the wrapped matrix. It will repeat ``{}_{{}}`` for every
+        dimension. This is explained best with an example:
+
+        .. code-block:: python
+
+            print(Tensor(np.eye(2)).label_template)
+            # "{}_{{}} {}_{{}}"
+
+            print(Tensor(np.ones((2, 2, 2, 2)).label_template)
+            # "{}_{{}} {}_{{}} {}_{{}} {}_{{}}"
+
+        The format of this template only makes sense in the context of what is done inside of
+        :meth:`.SparseLabelOp.from_polynomial_tensor`. There, the template is processed in two
+        steps:
+
+        1. First, the template is formatted using the key under which the ``Tensor`` object was
+           stored inside of the :class:`.PolynomialTensor` object. For example:
+
+           .. code-block:: python
+
+               poly = PolynomialTensor(
+                  {
+                      "+-": Tensor(np.eye(2)),
+                      "++--": Tensor(np.ones((2, 2, 2, 2))),
+                  }
+              )
+
+               # the label_template will get expanded like so:
+               for key, tensor in poly.items():
+                  sparse_label_template = tensor.label_template.format(*key)
+                  print(key, "->", sparse_label_template)
+
+              # "+-" -> "+_{} -_{}"
+              # "++--" -> "+_{} +_{} -_{} -_{}"
+
+        2. Next, these templates are used to build the actual labels of the :class:`.SparseLabelOp`
+           being constructed. For that, the indices encountered during :meth:`coord_iter` are used
+           for example like so:
+
+           .. code-block:: python
+
+              sparse_label_template = "+_{} -_{}"
+              for value, index in Tensor(np.eye(2)).coord_iter():
+                  sparse_label = sparse_label_template.format(*index)
+                  print(sparse_label, value)
+
+              # "+_0 -_0", 1
+              # "+_0 -_1", 0
+              # "+_1 -_1", 1
+              # "+_1 -_0", 0
+
+        Given that you now understand how the ``label_template`` attribute is being used, this
+        allows you to modify how the ``Tensor`` objects stored inside a :class:`.PolynomialTensor`
+        are processed when they are being translated into a :class:`.SparseLabelOp`.
+
+        .. note::
+
+           The string formatting in Python is a very powerful tool `[1]`_. Note, that in the use
+           case here, we only ever supply positional arguments in the ``.format(...)`` calls which
+           means that you cannot use names to identify replacement fields in your label templates.
+           However, you can modify their replacement order using numeric values (like shown below).
+
+           Another detail to keep in mind, is that the number of replacement fields may _not_ exceed
+           the number of arguments provided to the ``.format(...)`` call. However, the number of
+           arguments _can_ exceed the number of replacement fields in your template (this will not
+           cause any errors).
+
+        Here is a concrete example which enables you to use chemistry-ordered two-body terms:
+
+        .. code-block:: python
+
+           eri_chem = ...  # chemistry-ordered 2-body integrals (a 4-dimensional array)
+           tensor = Tensor(eri_chem)
+           tensor.label_template = "+_{{0}}} +_{{2}} -_{{3}} -_{{1}}"
+           poly = PolynomialTensor({"++--": tensor})
+           ferm_op_chem = FermionicOp.from_polynomial_tensor(poly)
+
+           # ferm_op_chem is now identical to the following:
+           from qiskit_nature.second_q.operators.tensor_ordering import to_physicist_ordering
+
+           eri_phys = to_physicist_ordering(eri_chem)
+           poly = PolynomialTensor({"++--": eri_phys})
+           ferm_op_phys = FermionicOp.from_polynomial_tensor(poly)
+
+           print(ferm_op_chem.equiv(ferm_op_phys))  # True
+
+        Note, that in the example above we made use of both previously noted features:
+
+        1. a custom ordering of the replacement fields in our template string
+        2. a smaller number of replacement fields than arguments (because we already hard-coded the
+           ``+`` and ``-`` operator strings such that the first expansion to the
+           ``sparse_label_template`` only unpacks one set of curly braces but does not actually
+           inject anything into the template)
+
+        .. _[1]: https://docs.python.org/3/library/string.html#formatstrings
+        """
+        if self._label_template is None:
+            return " ".join(["{}_{{}}"] * self.ndim)
+        return self._label_template
+
+    @label_template.setter
+    def label_template(self, label_template: str | None) -> None:
+        self._label_template = label_template
 
     @_optionals.HAS_SPARSE.require_in_call
     def is_sparse(self) -> bool:
@@ -252,6 +371,9 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
         if not isinstance(other, (Tensor, Number, np.ndarray, SparseArray)):
             return False
 
+        if isinstance(other, Tensor) and self._label_template != other._label_template:
+            return False
+
         value = Tensor(self)._array
         other_value = Tensor(other)._array
 
@@ -300,6 +422,9 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
         if not isinstance(other, (Tensor, Number, np.ndarray, SparseArray)):
             return False
 
+        if isinstance(other, Tensor) and self._label_template != other._label_template:
+            return False
+
         value = Tensor(self)._array
         other_value = Tensor(other)._array
 
@@ -332,14 +457,25 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
         r"""Returns the matrix multiplication with another ``Tensor``.
 
         Args:
-            other: the other Tensor.
+            other: the other ``Tensor``.
             qargs: UNUSED.
             front: If ``True``, composition uses right matrix multiplication, otherwise left
                 multiplication is used (the default).
 
         Returns:
             The tensor resulting from the composition.
+
+        Raises:
+            NotImplementedError: when composing ``Tensor`` instances whose :attr:`label_template`
+                attributes are not falling back to the default.
         """
+        if self._label_template is not None or other._label_template is not None:
+            raise NotImplementedError(
+                "Composing Tensor objects with label_template attributes other than None is not "
+                "implemented. Instead, construct the desired matrix manually and wrap it into a "
+                "new Tensor instance with the desired label_template."
+            )
+
         a = self if front else other
         b = other if front else self
 
@@ -354,10 +490,21 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
         Returns:
             The tensor resulting from the tensor product, :math:`self \otimes other`.
 
+        Raises:
+            NotImplementedError: when tensoring ``Tensor`` instances whose :attr:`label_template`
+                attributes are not falling back to the default.
+
         .. note::
             Tensor uses reversed operator ordering to :meth:`expand`.
             For two tensors of the same type ``a.tensor(b) = b.expand(a)``.
         """
+        if self._label_template is not None or other._label_template is not None:
+            raise NotImplementedError(
+                "Tensoring Tensor objects with label_template attributes other than None is not "
+                "implemented. Instead, construct the desired matrix manually and wrap it into a "
+                "new Tensor instance with the desired label_template."
+            )
+
         return self._tensor(self, other)
 
     def expand(self, other: Tensor) -> Tensor:
@@ -369,10 +516,21 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
         Returns:
             The tensor resulting from the tensor product, :math:`other \otimes self`.
 
+        Raises:
+            NotImplementedError: when expanding ``Tensor`` instances whose :attr:`label_template`
+                attributes are not falling back to the default.
+
         .. note::
             Expand uses reversed operator ordering to :meth:`tensor`.
             For two tensors of the same type ``a.expand(b) = b.tensor(a)``.
         """
+        if self._label_template is not None or other._label_template is not None:
+            raise NotImplementedError(
+                "Expanding Tensor objects with label_template attributes other than None is not "
+                "implemented. Instead, construct the desired matrix manually and wrap it into a "
+                "new Tensor instance with the desired label_template."
+            )
+
         return self._tensor(other, self)
 
     @classmethod
@@ -407,3 +565,36 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
             einsum = COO(einsum)
 
         return cls(einsum)
+
+    def coord_iter(self) -> Generator[tuple[Number, tuple[int, ...]], None, None]:
+        """Iterates a matrix yielding pairs of values and their coordinates.
+
+        This is best explained with a simple example:
+
+        .. code-block:: python
+
+            for value, index in Tensor(np.arange(4).reshape((2, 2))).coord_iter():
+                print(value, index)
+
+            # 0 (0, 0)
+            # 1 (0, 1)
+            # 2 (1, 0)
+            # 3 (1, 1)
+
+        Yields:
+            A tuple containing the matrix value and another tuple of integers indicating the
+            "coordinate" (or multi-dimensional index) under which said value can be found.
+        """
+        # PERF: the following matrix unpacking is a performance bottleneck!
+        # We could consider using Rust in the future to improve upon this.
+        if isinstance(self._array, np.ndarray):
+            for index in np.ndindex(*self._array.shape):
+                yield self._array[index], index
+        else:
+            _optionals.HAS_SPARSE.require_now("SparseArray")
+            import sparse as sp  # pylint: disable=import-error
+
+            if isinstance(self._array, sp.SparseArray):
+                coo = sp.as_coo(self._array)
+                for value, *index in zip(coo.data, *coo.coords):
+                    yield value, tuple(index)

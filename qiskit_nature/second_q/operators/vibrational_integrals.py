@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -19,6 +19,7 @@ from typing import Mapping
 import qiskit_nature.optionals as _optionals
 
 from .polynomial_tensor import PolynomialTensor
+from .tensor import Tensor
 
 if _optionals.HAS_SPARSE:
     # pylint: disable=import-error
@@ -64,8 +65,9 @@ class VibrationalIntegrals(PolynomialTensor):
         max_n_body = max(len(key) for key in integrals) // 3
         ret = cls(
             {
-                ("_+-" * n_body): as_coo(
-                    {k: v for k, v in integrals.items() if len(k) == 3 * n_body}
+                ("_+-" * n_body): Tensor(
+                    as_coo({k: v for k, v in integrals.items() if len(k) == 3 * n_body}),
+                    label_template=" ".join(["{}_{{}}_{{}}"] * n_body * 2),
                 )
                 for n_body in range(1, max_n_body + 1)
             },
