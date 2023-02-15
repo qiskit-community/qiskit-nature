@@ -206,7 +206,7 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
         """The template string used during the translation implemented in
         :meth:`.SparseLabelOp.from_polynomial_tensor`.
 
-        By default, any ``Tensor`` instance will return the same string here. This returned template
+        If no custom template is provided, all instances of``Tensor``will resort to the default template. This template
         depends on the dimension of the wrapped matrix. It will repeat ``{}_{{}}`` for every
         dimension. This is explained best with an example:
 
@@ -218,7 +218,8 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
             print(Tensor(np.ones((2, 2, 2, 2)).label_template)
             # "{}_{{}} {}_{{}} {}_{{}} {}_{{}}"
 
-        The format of this template only makes sense in the context of what is done inside of
+        The format of this template allows to construct a :class:`.SparseLabelOp` from the``Tensor``\s stored  
+        in a :class:`.PolynomialTensor`. This operation is performed when calling
         :meth:`.SparseLabelOp.from_polynomial_tensor`. There, the template is processed in two
         steps:
 
