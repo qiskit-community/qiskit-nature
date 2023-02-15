@@ -203,12 +203,12 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
 
     @property
     def label_template(self) -> str:
-        """The template string used during the translation implemented in
+        r"""The template string used during the translation implemented in
         :meth:`.SparseLabelOp.from_polynomial_tensor`.
 
-        If no custom template is provided, all instances of``Tensor``will resort to the default template. This template
-        depends on the dimension of the wrapped matrix. It will repeat ``{}_{{}}`` for every
-        dimension. This is explained best with an example:
+        If no custom template is provided, all instances of ``Tensor`` will resort to the default
+        template. This template depends on the dimension of the wrapped matrix. It will repeat
+        ``{}_{{}}`` for every dimension. This is explained best with an example:
 
         .. code-block:: python
 
@@ -218,10 +218,10 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
             print(Tensor(np.ones((2, 2, 2, 2)).label_template)
             # "{}_{{}} {}_{{}} {}_{{}} {}_{{}}"
 
-        The format of this template allows to construct a :class:`.SparseLabelOp` from the``Tensor``\s stored  
-        in a :class:`.PolynomialTensor`. This operation is performed when calling
-        :meth:`.SparseLabelOp.from_polynomial_tensor`. There, the template is processed in two
-        steps:
+        The format of this template allows to construct a :class:`.SparseLabelOp` from the
+        ``Tensor``\s stored in a :class:`.PolynomialTensor`. This operation is performed when
+        calling :meth:`.SparseLabelOp.from_polynomial_tensor`. There, the template is processed in
+        two steps:
 
         1. First, the template is formatted using the key under which the ``Tensor`` object was
            stored inside of the :class:`.PolynomialTensor` object. For example:
@@ -263,18 +263,6 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
         allows you to modify how the ``Tensor`` objects stored inside a :class:`.PolynomialTensor`
         are processed when they are being translated into a :class:`.SparseLabelOp`.
 
-        .. note::
-
-           The string formatting in Python is a very powerful tool `[1]`_. Note, that in the use
-           case here, we only ever supply positional arguments in the ``.format(...)`` calls which
-           means that you cannot use names to identify replacement fields in your label templates.
-           However, you can modify their replacement order using numeric values (like shown below).
-
-           Another detail to keep in mind, is that the number of replacement fields may _not_ exceed
-           the number of arguments provided to the ``.format(...)`` call. However, the number of
-           arguments _can_ exceed the number of replacement fields in your template (this will not
-           cause any errors).
-
         Here is a concrete example which enables you to use chemistry-ordered two-body terms:
 
         .. code-block:: python
@@ -294,7 +282,19 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
 
            print(ferm_op_chem.equiv(ferm_op_phys))  # True
 
-        Note, that in the example above we made use of both previously noted features:
+        .. note::
+
+           The string formatting in Python is a very powerful tool `[1]`_. Note, that in the use
+           case here, we only ever supply positional arguments in the ``.format(...)`` calls which
+           means that you cannot use names to identify replacement fields in your label templates.
+           However, you can modify their replacement order using numeric values (like shown below).
+
+           Another detail to keep in mind, is that the number of replacement fields may _not_ exceed
+           the number of arguments provided to the ``.format(...)`` call. However, the number of
+           arguments _can_ exceed the number of replacement fields in your template (this will not
+           cause any errors).
+
+        Both of those noted features were actually used in the example provided above:
 
         1. a custom ordering of the replacement fields in our template string
         2. a smaller number of replacement fields than arguments (because we already hard-coded the
