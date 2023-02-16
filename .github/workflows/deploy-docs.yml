@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   docs_publish:
-    if: ${{ startsWith(github.ref, 'refs/heads/stable') && contains('["manoelmarques","mtreinish","stefan-woerner","woodsp-ibm"]', github.actor) }}
+    if: ${{ startsWith(github.ref, 'refs/heads/stable') && contains('["manoelmarques","mtreinish","stefan-woerner","woodsp-ibm","mrossinek"]', github.actor) }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
