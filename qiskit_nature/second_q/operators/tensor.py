@@ -269,7 +269,7 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
 
            eri_chem = ...  # chemistry-ordered 2-body integrals (a 4-dimensional array)
            tensor = Tensor(eri_chem)
-           tensor.label_template = "+_{{0}}} +_{{2}} -_{{3}} -_{{1}}"
+           tensor.label_template = "+_{{0}} +_{{2}} -_{{3}} -_{{1}}"
            poly = PolynomialTensor({"++--": tensor})
            ferm_op_chem = FermionicOp.from_polynomial_tensor(poly)
 
