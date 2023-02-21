@@ -225,8 +225,8 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
 
         The format of this template allows to construct a :class:`.SparseLabelOp` from the
         ``Tensor``\s stored in a :class:`.PolynomialTensor`. This operation is performed when
-        calling :meth:`.SparseLabelOp.from_polynomial_tensor`. There, the template is processed in
-        two steps:
+        calling :meth:`.SparseLabelOp.from_polynomial_tensor`. There, the template is processed
+        using the Python string formatter in two steps:
 
         1. First, the template is formatted using the key under which the ``Tensor`` object was
            stored inside of the :class:`.PolynomialTensor` object. For example:
