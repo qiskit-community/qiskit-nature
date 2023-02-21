@@ -107,7 +107,8 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
                 :`Tensor`: another Tensor whose ``array`` attribute will be extracted
             label_template: the template string used during the translation procedure implemented in
                 :meth:`.SparseLabelOp.from_polynomial_tensor`. When ``None``, this will fall back to
-                the default template string documented separately for the :attr:`label_template`.
+                the default template string - see the :attr:`label_template` property for more
+                information.
         """
         if isinstance(array, Tensor):
             array = array._array
@@ -206,14 +207,18 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
         r"""The template string used during the translation implemented in
         :meth:`.SparseLabelOp.from_polynomial_tensor`.
 
-        If no custom template is provided, all instances of ``Tensor`` will resort to the default
-        template. This template depends on the dimension of the wrapped matrix. It will repeat
-        ``{}_{{}}`` for every dimension. This is explained best with an example:
+        If the ``label_template`` is set to ``None`` (the default value) during initialization of a
+        ``Tensor`` instance, this value will be substituted by the internal default template. Its
+        value depends on the dimension of the wrapped matrix: it will repeat ``{}_{{}}`` for every
+        dimension (independent of its size). This is explained best with an example:
 
         .. code-block:: python
 
-            print(Tensor(np.eye(2)).label_template)
+            print(Tensor(np.eye(4)).label_template)
             # "{}_{{}} {}_{{}}"
+
+            print(Tensor(np.ones((3, 1, 2)).label_template)
+            # "{}_{{}} {}_{{}} {}_{{}}"
 
             print(Tensor(np.ones((2, 2, 2, 2)).label_template)
             # "{}_{{}} {}_{{}} {}_{{}} {}_{{}}"
@@ -472,9 +477,9 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
         """
         if self._label_template is not None or other._label_template is not None:
             raise NotImplementedError(
-                "Composing Tensor objects with label_template attributes other than None is not "
-                "implemented. Instead, construct the desired matrix manually and wrap it into a "
-                "new Tensor instance with the desired label_template."
+                "Composing Tensor objects with label_template attributes other than the default "
+                "value of None is not implemented. Instead, construct the desired matrix manually "
+                "and wrap it into a new Tensor instance with the desired label_template."
             )
 
         a = self if front else other
@@ -501,9 +506,9 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
         """
         if self._label_template is not None or other._label_template is not None:
             raise NotImplementedError(
-                "Tensoring Tensor objects with label_template attributes other than None is not "
-                "implemented. Instead, construct the desired matrix manually and wrap it into a "
-                "new Tensor instance with the desired label_template."
+                "Tensoring Tensor objects with label_template attributes other than the default "
+                "value of None is not implemented. Instead, construct the desired matrix manually "
+                "and wrap it into a new Tensor instance with the desired label_template."
             )
 
         return self._tensor(self, other)
@@ -527,9 +532,9 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
         """
         if self._label_template is not None or other._label_template is not None:
             raise NotImplementedError(
-                "Expanding Tensor objects with label_template attributes other than None is not "
-                "implemented. Instead, construct the desired matrix manually and wrap it into a "
-                "new Tensor instance with the desired label_template."
+                "Expanding Tensor objects with label_template attributes other than the default "
+                "value of None is not implemented. Instead, construct the desired matrix manually "
+                "and wrap it into a new Tensor instance with the desired label_template."
             )
 
         return self._tensor(other, self)
