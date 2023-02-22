@@ -16,15 +16,15 @@ from __future__ import annotations
 
 import logging
 
-from typing import Union, Optional, Tuple
-
 from qiskit.algorithms.eigensolvers import Eigensolver
 from qiskit.opflow import PauliSumOp
+from qiskit.quantum_info import SparsePauliOp
 
 from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.second_q.problems import EigenstateResult
+from qiskit_nature.deprecation import warn_deprecated_type
 
 from .excited_states_solver import ExcitedStatesSolver
 from .eigensolver_factories import EigensolverFactory
@@ -38,7 +38,7 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
     def __init__(
         self,
         qubit_converter: QubitConverter | QubitMapper,
-        solver: Union[Eigensolver, EigensolverFactory],
+        solver: Eigensolver | EigensolverFactory,
     ) -> None:
         """
 
@@ -51,20 +51,20 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         self._solver = solver
 
     @property
-    def solver(self) -> Union[Eigensolver, EigensolverFactory]:
+    def solver(self) -> Eigensolver | EigensolverFactory:
         """Returns the minimum eigensolver or factory."""
         return self._solver
 
     @solver.setter
-    def solver(self, solver: Union[Eigensolver, EigensolverFactory]) -> None:
+    def solver(self, solver: Eigensolver | EigensolverFactory) -> None:
         """Sets the minimum eigensolver or factory."""
         self._solver = solver
 
     def get_qubit_operators(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[dict[str, Union[SparseLabelOp, PauliSumOp]]] = None,
-    ) -> Tuple[PauliSumOp, Optional[dict[str, PauliSumOp]]]:
+        aux_operators: dict[str, SparseLabelOp | PauliSumOp | SparsePauliOp] | None = None,
+    ) -> tuple[PauliSumOp | SparsePauliOp, dict[str, PauliSumOp | SparsePauliOp] | None]:
         # Note that ``aux_ops`` contains not only the transformed ``aux_operators`` passed by the
         # user but also additional ones from the transformation
         main_second_q_op, aux_second_q_ops = problem.second_q_ops()
@@ -85,6 +85,13 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
 
         if aux_operators is not None:
             for name_aux, aux_op in aux_operators.items():
+                if isinstance(aux_op, PauliSumOp):
+                    warn_deprecated_type(
+                        "0.6.0",
+                        argument_name="aux_operators",
+                        old_type="PauliSumOp",
+                        new_type="SparsePauliOp",
+                    )
                 if isinstance(aux_op, SparseLabelOp):
                     if isinstance(self._qubit_converter, QubitConverter):
                         converted_aux_op = self._qubit_converter.convert_match(
@@ -127,7 +134,7 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[dict[str, Union[SparseLabelOp, PauliSumOp]]] = None,
+        aux_operators: dict[str, SparseLabelOp | PauliSumOp | SparsePauliOp] | None = None,
     ) -> EigenstateResult:
         """Compute Ground and Excited States properties.
 

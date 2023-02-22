@@ -15,17 +15,14 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Union
 
 from qiskit.opflow import PauliSumOp
-from qiskit.quantum_info.operators.base_operator import BaseOperator
+from qiskit.quantum_info import SparsePauliOp
 
 from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.second_q.problems import EigenstateResult
-
-QubitOperator = Union[BaseOperator, PauliSumOp]
 
 
 class GroundStateSolver(ABC):
@@ -44,7 +41,7 @@ class GroundStateSolver(ABC):
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: dict[str, SparseLabelOp | QubitOperator] | None = None,
+        aux_operators: dict[str, SparseLabelOp | SparsePauliOp | PauliSumOp] | None = None,
     ) -> EigenstateResult:
         """Compute the ground state energy of the molecule that was supplied via the driver.
 
@@ -62,8 +59,8 @@ class GroundStateSolver(ABC):
     def get_qubit_operators(
         self,
         problem: BaseProblem,
-        aux_operators: dict[str, SparseLabelOp | QubitOperator] | None = None,
-    ) -> tuple[QubitOperator, dict[str, QubitOperator] | None]:
+        aux_operators: dict[str, SparseLabelOp | SparsePauliOp | PauliSumOp] | None = None,
+    ) -> tuple[SparsePauliOp | PauliSumOp, dict[str, SparsePauliOp | PauliSumOp] | None]:
         """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators
         using a ``QubitConverter`` or ``QubitMapper``.
         If the user-provided ``aux_operators`` contain a name which clashes with an internally

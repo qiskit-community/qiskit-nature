@@ -17,13 +17,16 @@ from __future__ import annotations
 import logging
 
 from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolver
+from qiskit.opflow import PauliSumOp
+from qiskit.quantum_info import SparsePauliOp
 
 from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.second_q.problems import EigenstateResult
+from qiskit_nature.deprecation import warn_deprecated_type
 
-from .ground_state_solver import GroundStateSolver, QubitOperator
+from .ground_state_solver import GroundStateSolver
 from .minimum_eigensolver_factories import MinimumEigensolverFactory
 
 LOGGER = logging.getLogger(__name__)
@@ -57,7 +60,7 @@ class GroundStateEigensolver(GroundStateSolver):
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: dict[str, SparseLabelOp | QubitOperator] | None = None,
+        aux_operators: dict[str, SparseLabelOp | SparsePauliOp | PauliSumOp] | None = None,
     ) -> EigenstateResult:
         """Compute Ground State properties.
 
@@ -81,8 +84,8 @@ class GroundStateEigensolver(GroundStateSolver):
     def get_qubit_operators(
         self,
         problem: BaseProblem,
-        aux_operators: dict[str, SparseLabelOp | QubitOperator] | None = None,
-    ) -> tuple[QubitOperator, dict[str, QubitOperator] | None]:
+        aux_operators: dict[str, SparseLabelOp | SparsePauliOp | PauliSumOp] | None = None,
+    ) -> tuple[SparsePauliOp | PauliSumOp, dict[str, SparsePauliOp | PauliSumOp] | None]:
         # Note that ``aux_ops`` contains not only the transformed ``aux_operators`` passed by the
         # user but also additional ones from the transformation
         main_second_q_op, aux_second_q_ops = problem.second_q_ops()
@@ -102,6 +105,13 @@ class GroundStateEigensolver(GroundStateSolver):
 
         if aux_operators is not None:
             for name_aux, aux_op in aux_operators.items():
+                if isinstance(aux_op, PauliSumOp):
+                    warn_deprecated_type(
+                        "0.6.0",
+                        argument_name="aux_operators",
+                        old_type="PauliSumOp",
+                        new_type="SparsePauliOp",
+                    )
                 if isinstance(aux_op, SparseLabelOp):
                     if isinstance(self._qubit_converter, QubitConverter):
                         converted_aux_op = self._qubit_converter.convert_match(aux_op)

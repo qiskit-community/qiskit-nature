@@ -14,9 +14,10 @@
 
 from __future__ import annotations
 
-from typing import Callable, Dict, List, Tuple
+from typing import Callable
 
 from qiskit.opflow import PauliSumOp
+from qiskit.quantum_info import SparsePauliOp
 from qiskit.tools import parallel_map
 from qiskit.utils import algorithm_globals
 
@@ -26,7 +27,7 @@ from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper, TaperedQ
 
 
 def build_vibrational_ops(
-    num_modals: List[int],
+    num_modals: list[int],
     excitations: str
     | int
     | list[int]
@@ -35,10 +36,10 @@ def build_vibrational_ops(
         list[tuple[tuple[int, ...], tuple[int, ...]]],
     ],
     qubit_converter: QubitConverter | QubitMapper,
-) -> Tuple[
-    Dict[str, PauliSumOp],
-    Dict[str, List[bool]],
-    Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]],
+) -> tuple[
+    dict[str, PauliSumOp | SparsePauliOp],
+    dict[str, list[bool]],
+    dict[str, tuple[tuple[int, ...], tuple[int, ...]]],
 ]:
     """
     Args:
@@ -61,8 +62,8 @@ def build_vibrational_ops(
     excitations_list = ansatz._get_excitation_list()
     size = len(excitations_list)
 
-    hopping_operators: Dict[str, PauliSumOp] = {}
-    excitation_indices: Dict[str, Tuple[Tuple[int, ...], Tuple[int, ...]]] = {}
+    hopping_operators: dict[str, PauliSumOp | SparsePauliOp] = {}
+    excitation_indices: dict[str, tuple[tuple[int, ...], tuple[int, ...]]] = {}
     to_be_executed_list = []
     for idx in range(size):
         to_be_executed_list += [excitations_list[idx], excitations_list[idx][::-1]]
@@ -83,14 +84,14 @@ def build_vibrational_ops(
 
     # This variable is required for compatibility with the ElectronicStructureProblem
     # at the moment we do not have any type of commutativity in the bosonic case.
-    type_of_commutativities: Dict[str, List[bool]] = {}
+    type_of_commutativities: dict[str, list[bool]] = {}
 
     return hopping_operators, type_of_commutativities, excitation_indices
 
 
 def _build_single_hopping_operator(
-    excitation: Tuple[Tuple[int, ...], Tuple[int, ...]],
-    num_modals: List[int],
+    excitation: tuple[tuple[int, ...], tuple[int, ...]],
+    num_modals: list[int],
     qubit_converter: QubitConverter | QubitMapper,
 ) -> PauliSumOp:
     label = []

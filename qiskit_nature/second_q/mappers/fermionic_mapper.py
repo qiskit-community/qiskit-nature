@@ -14,7 +14,8 @@
 
 from __future__ import annotations
 
-from qiskit.opflow.primitive_ops import PauliSumOp
+from qiskit.opflow import PauliSumOp
+from qiskit.quantum_info import SparsePauliOp
 
 from qiskit_nature.second_q.operators import FermionicOp
 
@@ -29,5 +30,5 @@ class FermionicMapper(QubitMapper):
         second_q_ops: FermionicOp | ListOrDictType[FermionicOp],
         *,
         register_length: int | None = None,
-    ) -> PauliSumOp | ListOrDictType[PauliSumOp]:
+    ) -> SparsePauliOp | PauliSumOp | ListOrDictType[SparsePauliOp | PauliSumOp]:
         return super().map(second_q_ops, register_length=register_length)

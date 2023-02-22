@@ -17,6 +17,7 @@ from __future__ import annotations
 from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info import SparsePauliOp
 
+from qiskit_nature import settings
 from qiskit_nature.second_q.operators import FermionicOp
 
 from .fermionic_mapper import FermionicMapper
@@ -94,7 +95,7 @@ class InterleavedQubitMapper(FermionicMapper):
 
     def _map_single(
         self, second_q_op: FermionicOp, *, register_length: int | None = None
-    ) -> PauliSumOp:
+    ) -> SparsePauliOp | PauliSumOp:
         blocked_op = self.mapper._map_single(second_q_op, register_length=register_length).primitive
 
         def blocked_to_interleaved(label: str) -> str:
@@ -104,4 +105,4 @@ class InterleavedQubitMapper(FermionicMapper):
             [(blocked_to_interleaved(label), coeff) for label, coeff in blocked_op.to_list()]
         )
 
-        return PauliSumOp(interleaved_op)
+        return PauliSumOp(interleaved_op) if settings.use_pauli_sum_op else interleaved_op

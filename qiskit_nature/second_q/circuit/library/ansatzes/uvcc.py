@@ -199,7 +199,7 @@ class UVCC(EvolvedOperatorAnsatz):
                 # by algorithms such as `AdaptVQE`.
                 excitation_ops = self.excitation_ops()
 
-                logger.debug("Converting SparseLabelOps into PauliSumOps...")
+                logger.debug("Converting second-quantized into qubit operators...")
                 # Convert operators according to saved state in converter from the conversion of the
                 # main operator since these need to be compatible. If Z2 Symmetry tapering was done
                 # it may be that one or more excitation operators do not commute with the symmetry.

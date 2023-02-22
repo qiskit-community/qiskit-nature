@@ -22,8 +22,10 @@ from functools import reduce
 import numpy as np
 
 from qiskit.opflow import PauliSumOp
-from qiskit.quantum_info.operators import SparsePauliOp, Operator
+from qiskit.quantum_info import SparsePauliOp
+from qiskit.quantum_info.operators import Operator
 
+from qiskit_nature import settings
 from qiskit_nature.second_q.operators import SpinOp
 from .spin_mapper import SpinMapper
 
@@ -71,7 +73,9 @@ class LogarithmicMapper(SpinMapper):
         self._padding = padding
         self._embed_upper = embed_upper
 
-    def _map_single(self, second_q_op: SpinOp, *, register_length: int | None = None) -> PauliSumOp:
+    def _map_single(
+        self, second_q_op: SpinOp, *, register_length: int | None = None
+    ) -> SparsePauliOp | PauliSumOp:
         """Map spins to qubits using the Logarithmic encoding.
 
         Args:
@@ -104,7 +108,7 @@ class LogarithmicMapper(SpinMapper):
 
         qubit_op = reduce(operator.add, qubit_ops_list)
 
-        return qubit_op
+        return qubit_op if settings.use_pauli_sum_op else qubit_op.primitive
 
     def _logarithmic_encoding(
         self, spin: Fraction | int

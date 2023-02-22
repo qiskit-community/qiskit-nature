@@ -16,14 +16,14 @@ from __future__ import annotations
 
 from abc import ABC
 from functools import lru_cache
-from typing import Union, TypeVar, Dict, Iterable, Generic, Tuple, Generator, Optional
+from typing import TypeVar, Dict, Iterable, Generic, Generator
 
 import numpy as np
 from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators import Pauli, SparsePauliOp
 from qiskit.algorithms.list_or_dict import ListOrDict as ListOrDictType
 
-from qiskit_nature import QiskitNatureError
+from qiskit_nature import QiskitNatureError, settings
 from qiskit_nature.deprecation import deprecate_arguments, deprecate_property
 from qiskit_nature.second_q.operators import SparseLabelOp
 
@@ -37,7 +37,7 @@ class _ListOrDict(Dict, Iterable, Generic[T]):
     This is a utility which allows seamless iteration of a `list` or `dict` object.
     """
 
-    def __init__(self, values: Optional[ListOrDictType] = None):
+    def __init__(self, values: ListOrDictType | None = None):
         """
         Args:
             values: an optional object of `list` or `dict` type.
@@ -48,11 +48,11 @@ class _ListOrDict(Dict, Iterable, Generic[T]):
             values = {}
         super().__init__(values)
 
-    def __iter__(self) -> Generator[Tuple[Union[int, str], T], T, None]:
+    def __iter__(self) -> Generator[tuple[int | str, T], T, None]:
         """Return the generator-iterator method."""
         return self._generator()
 
-    def _generator(self) -> Generator[Tuple[Union[int, str], T], T, None]:
+    def _generator(self) -> Generator[tuple[int | str, T], T, None]:
         """Return generator method iterating the contents of this class.
 
         This generator yields the `(key, value)` pairs of the underlying dictionary. If this object
@@ -68,7 +68,7 @@ class _ListOrDict(Dict, Iterable, Generic[T]):
             if new_value is not None:
                 self[key] = new_value
 
-    def unwrap(self, wrapped_type: type, *, suppress_none: bool = True) -> Dict | Iterable | T:
+    def unwrap(self, wrapped_type: type, *, suppress_none: bool = True) -> dict | Iterable | T:
         """Return the content of this class according to the initial type of the data before
         the creation of the ListOrDict object.
 
@@ -79,23 +79,37 @@ class _ListOrDict(Dict, Iterable, Generic[T]):
         Returns:
             Content of the current class instance as a list, a dictionary or a single element.
         """
+
+        def _qubit_op_type_wrapper(qubit_op: SparsePauliOp | PauliSumOp | None):
+            if qubit_op is None:
+                return None
+            current_type = type(qubit_op)
+            if settings.use_pauli_sum_op:
+                if issubclass(current_type, PauliSumOp):
+                    return qubit_op
+                return PauliSumOp(qubit_op)
+            if issubclass(current_type, PauliSumOp):
+                return qubit_op.primitive
+            return qubit_op
+
         if wrapped_type == list:
             if suppress_none:
-                return [op for _, op in iter(self) if op is not None]
+                return [_qubit_op_type_wrapper(op) for _, op in iter(self) if op is not None]
             else:
-                return [op for _, op in iter(self)]
+                return [_qubit_op_type_wrapper(op) for _, op in iter(self)]
         if wrapped_type == dict:
             if suppress_none:
-                return {key: op for key, op in iter(self) if op is not None}
+                return {key: _qubit_op_type_wrapper(op) for key, op in iter(self) if op is not None}
             else:
-                return dict(iter(self))
+                return {key: _qubit_op_type_wrapper(op) for key, op in iter(self)}
         # only other case left is that it was a single operator to begin with:
-        return list(iter(self))[0][1]
+        return _qubit_op_type_wrapper(list(iter(self))[0][1])
 
 
 class QubitMapper(ABC):
-    """The interface for implementing methods which map from a `SparseLabelOp` to a
-    qubit operator in the form of a `PauliSumOp`.
+    """The interface for implementing methods which map from a ``SparseLabelOp`` to a
+    qubit operator in the form of a ``PauliSumOp`` or ``SparsePauliOp`` (depending on
+    :attr:`~qiskit_nature.settings.use_pauli_sum_op`).
     """
 
     @property
@@ -111,18 +125,19 @@ class QubitMapper(ABC):
 
     def _map_single(
         self, second_q_op: SparseLabelOp, *, register_length: int | None = None
-    ) -> PauliSumOp:
+    ) -> SparsePauliOp | PauliSumOp:
         """Maps a :class:`~qiskit_nature.second_q.operators.SparseLabelOp`
-        to a `PauliSumOp`.
+        to a ``PauliSumOp`` or ``SparsePauliOp`` (depending on
+        :attr:`~qiskit_nature.settings.use_pauli_sum_op`).
 
         Args:
-            second_q_op: the `SparseLabelOp` to be mapped.
+            second_q_op: the ``SparseLabelOp`` to be mapped.
             register_length: when provided, this will be used to overwrite the ``register_length``
                 attribute of the operator being mapped. This is possible because the
                 ``register_length`` is considered a lower bound in a ``SparseLabelOp``.
 
         Returns:
-            The `PauliSumOp` corresponding to the problem-Hamiltonian in the qubit space.
+            The qubit operator corresponding to the problem-Hamiltonian in the qubit space.
         """
         return self.mode_based_mapping(second_q_op, register_length=register_length)
 
@@ -131,7 +146,7 @@ class QubitMapper(ABC):
         second_q_ops: SparseLabelOp | ListOrDictType[SparseLabelOp],
         *,
         register_length: int | None = None,
-    ) -> PauliSumOp | ListOrDictType[PauliSumOp]:
+    ) -> SparsePauliOp | PauliSumOp | ListOrDictType[SparsePauliOp | PauliSumOp]:
         """Maps a second quantized operator or a list, dict of second quantized operators based on
         the current mapper.
 
@@ -142,21 +157,22 @@ class QubitMapper(ABC):
                 ``register_length`` is considered a lower bound in a ``SparseLabelOp``.
 
         Returns:
-            A qubit operator in the form of a PauliSumOp, or list (resp. dict) thereof if a list
-            (resp. dict) of second quantized operators was supplied.
+            A qubit operator in the form of a ``PauliSumOp`` or ``SparsePauliOp`` (depending on
+            :attr:`~qiskit_nature.settings.use_pauli_sum_op`), or list (resp. dict) thereof if a
+            list (resp. dict) of second quantized operators was supplied.
         """
         wrapped_type = type(second_q_ops)
 
         if issubclass(wrapped_type, SparseLabelOp):
             second_q_ops = [second_q_ops]
 
-        wrapped_second_q_ops: _ListOrDict[SparseLabelOp] = _ListOrDict(second_q_ops)
+        wrapped_second_q_ops: _ListOrDict[SparsePauliOp | PauliSumOp] = _ListOrDict(second_q_ops)
 
         qubit_ops: _ListOrDict = _ListOrDict()
         for name, second_q_op in iter(wrapped_second_q_ops):
             qubit_ops[name] = self._map_single(second_q_op, register_length=register_length)
 
-        returned_ops: Union[PauliSumOp, ListOrDictType[PauliSumOp]] = qubit_ops.unwrap(wrapped_type)
+        returned_ops = qubit_ops.unwrap(wrapped_type)
         # Note the output of the mapping will never be None for standard mappers other than the
         # TaperedQubitMapper.
         return returned_ops
@@ -225,9 +241,9 @@ class QubitMapper(ABC):
         nmodes: int | None = None,
         *,
         register_length: int | None = None,
-    ) -> PauliSumOp:
+    ) -> SparsePauliOp | PauliSumOp:
         # pylint: disable=unused-argument
-        """Utility method to map a `SparseLabelOp` to a `PauliSumOp` using a pauli table.
+        """Utility method to map a ``SparseLabelOp`` to a qubit operator using a pauli table.
 
         Args:
             second_q_op: the `SparseLabelOp` to be mapped.
@@ -238,7 +254,7 @@ class QubitMapper(ABC):
                 ``register_length`` is considered a lower bound.
 
         Returns:
-            The `PauliSumOp` corresponding to the problem-Hamiltonian in the qubit space.
+            The qubit operator corresponding to the problem-Hamiltonian in the qubit space.
 
         Raises:
             QiskitNatureError: If number length of pauli table does not match the number
@@ -274,4 +290,5 @@ class QubitMapper(ABC):
                     )
             ret_op_list.append(ret_op)
 
-        return PauliSumOp(SparsePauliOp.sum(ret_op_list).simplify())
+        sparse_op = SparsePauliOp.sum(ret_op_list).simplify()
+        return PauliSumOp(sparse_op) if settings.use_pauli_sum_op else sparse_op

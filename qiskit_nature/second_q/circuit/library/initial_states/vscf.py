@@ -21,6 +21,7 @@ import numpy as np
 from qiskit import QuantumRegister
 from qiskit.circuit.library import BlueprintCircuit
 from qiskit.opflow import PauliSumOp
+from qiskit.quantum_info import SparsePauliOp
 from qiskit_nature.second_q.mappers import DirectMapper
 from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper, TaperedQubitMapper
 from qiskit_nature.second_q.operators import VibrationalOp
@@ -196,7 +197,7 @@ def vscf_bitstring_mapped(
         num_modals=num_modals,
     )
     # map the `VibrationalOp` to a qubit operator
-    qubit_op: PauliSumOp
+    qubit_op: SparsePauliOp
     if isinstance(qubit_converter, QubitConverter):
         qubit_op = qubit_converter.convert_match(bitstr_op, check_commutes=False)
     elif isinstance(qubit_converter, TaperedQubitMapper):
@@ -206,10 +207,13 @@ def vscf_bitstring_mapped(
     else:
         qubit_op = qubit_converter.map(bitstr_op)
 
+    if isinstance(qubit_op, PauliSumOp):
+        qubit_op = qubit_op.primitive
+
     # We check the mapped operator `x` part of the paulis because we want to have particles
     # i.e. True, where the initial state introduced a creation (`+`) operator.
     bits = []
-    for bit in qubit_op.primitive.paulis.x[0]:
+    for bit in qubit_op.paulis.x[0]:
         bits.append(bit)
 
     return bits
