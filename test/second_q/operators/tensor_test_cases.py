@@ -132,6 +132,10 @@ class ScalarTensorTestCase(ABC):
 
         self.assertEqual(a.expand(b), 6 * self.expected**2)
 
+    def test_coord_iter(self):
+        """Test iterating."""
+        self.assertEqual(list(self.tensor.coord_iter()), [(self.expected.item(), tuple())])
+
 
 class MatrixTensorTestCase(ABC):
     """Tests for Tensor class wrapping a dense or sparse array."""
@@ -289,3 +293,8 @@ class MatrixTensorTestCase(ABC):
             )
 
         self.assertTrue(a.tensor(b).equiv(Tensor(expected)))
+
+    def test_coord_iter(self):
+        """Test iterating."""
+        for value, index in self.tensor.coord_iter():
+            self.assertEqual(value, self.expected[index])

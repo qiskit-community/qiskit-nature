@@ -25,11 +25,11 @@ import itertools
 import numpy as np
 
 from qiskit_nature.exceptions import QiskitNatureError
-import qiskit_nature.optionals as _optionals
 
 from ._bits_container import _BitsContainer
 from .polynomial_tensor import PolynomialTensor
 from .sparse_label_op import _TCoeff, SparseLabelOp, _to_number
+from .tensor import Tensor
 
 logger = logging.getLogger(__name__)
 
@@ -299,21 +299,17 @@ class VibrationalOp(SparseLabelOp):
                 data[""] = cast(float, tensor[key])
                 continue
 
-            # TODO: extract label_template into Tensor class
-            label_template = " ".join(f"{op}_{{}}_{{}}" for op in key.replace("_", ""))
-
             mat = tensor[key]
-            if isinstance(mat, np.ndarray):
-                for index in np.ndindex(*mat.shape):
-                    data[label_template.format(*_reshape_index(index))] = mat[index]
-            else:
-                _optionals.HAS_SPARSE.require_now("SparseArray")
-                import sparse as sp  # pylint: disable=import-error
 
-                if isinstance(mat, sp.SparseArray):
-                    coo = sp.as_coo(mat)
-                    for value, *index in zip(coo.data, *coo.coords):
-                        data[label_template.format(*_reshape_index(index))] = value
+            if not isinstance(mat, Tensor):
+                # TODO: this case is to be removed once qiskit_nature.settings.tensor_unwrapping is
+                # deprecated and the PolynomialTensor item is guaranteed to be of type Tensor
+                mat = Tensor(mat)
+
+            label_template = mat.label_template.format(*key.replace("_", ""))
+
+            for value, index in mat.coord_iter():
+                data[label_template.format(*_reshape_index(index))] = value
 
         return cls(data)
 
