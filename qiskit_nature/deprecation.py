@@ -92,6 +92,14 @@ class _DeprecatedTypeName(NamedTuple):
     additional_msg: str
 
 
+class _DeprecatedArgumentType(NamedTuple):
+    version: str
+    func_qualname: str
+    old_type: str
+    new_type: str
+    additional_msg: str
+
+
 class _DeprecatedArgument(NamedTuple):
     version: str
     func_qualname: str
@@ -183,6 +191,46 @@ def warn_deprecated_same_type_name(
         stack_level=stack_level + 1,
         category=category,
     )
+
+
+def warn_deprecated_type(
+    version: str,
+    argument_name: str,
+    old_type: str,
+    new_type: str,
+    additional_msg: Optional[str] = None,
+    stack_level: int = 2,
+    category: Type[Warning] = DeprecationWarning,
+) -> None:
+    """Emits deprecation warning the first time only
+       Used when only a specific supported type of an argument is to be deprecated.
+
+    Args:
+        version: Version to be used
+        argument_name: The name of the argument whose type gets deprecated.
+        old_type: Old type to be used
+        new_type: New type to be used.
+        additional_msg: any additional message
+        stack_level: stack level
+        category: warning category
+    """
+    # skip if it was already added
+    obj = _DeprecatedArgumentType(version, argument_name, old_type, new_type, additional_msg)
+    if obj in _DEPRECATED_OBJECTS:
+        return
+
+    _DEPRECATED_OBJECTS.add(cast(NamedTuple, obj))
+
+    msg = (
+        f"The {old_type} type in the '{argument_name}' argument is deprecated as of version "
+        f"{version} and will be removed no sooner than 3 months after the release. "
+        f"Instead use the {new_type} type"
+    )
+    if additional_msg:
+        msg += f" {additional_msg}"
+    msg += "."
+
+    warnings.warn(msg, category=category, stacklevel=stack_level + 1)
 
 
 def _rename_kwargs(version, qualname, func_name, kwargs, kwarg_map, additional_msg, stack_level):

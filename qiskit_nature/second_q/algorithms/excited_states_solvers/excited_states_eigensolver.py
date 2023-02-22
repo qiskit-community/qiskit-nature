@@ -24,7 +24,7 @@ from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.second_q.problems import EigenstateResult
-from qiskit_nature.deprecation import warn_deprecated, DeprecatedType
+from qiskit_nature.deprecation import warn_deprecated_type
 
 from .excited_states_solver import ExcitedStatesSolver
 from .eigensolver_factories import EigensolverFactory
@@ -86,11 +86,11 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
         if aux_operators is not None:
             for name_aux, aux_op in aux_operators.items():
                 if isinstance(aux_op, PauliSumOp):
-                    warn_deprecated(
+                    warn_deprecated_type(
                         "0.6.0",
-                        old_type=DeprecatedType.ARGUMENT,
-                        old_name="PauliSumOp",
-                        new_name="SparsePauliOp",
+                        argument_name="aux_operators",
+                        old_type="PauliSumOp",
+                        new_type="SparsePauliOp",
                     )
                 if isinstance(aux_op, SparseLabelOp):
                     if isinstance(self._qubit_converter, QubitConverter):

@@ -57,7 +57,7 @@ from qiskit_nature.second_q.problems import (
     EigenstateResult,
     ElectronicStructureResult,
 )
-from qiskit_nature.deprecation import warn_deprecated, DeprecatedType
+from qiskit_nature.deprecation import warn_deprecated_type
 
 from .qeom_electronic_ops_builder import build_electronic_ops
 from .qeom_vibrational_ops_builder import build_vibrational_ops
@@ -311,11 +311,11 @@ class QEOM(ExcitedStatesSolver):
             if aux_operators is not None:
                 for name, op in aux_operators.items():
                     if isinstance(op, PauliSumOp):
-                        warn_deprecated(
+                        warn_deprecated_type(
                             "0.6.0",
-                            old_type=DeprecatedType.ARGUMENT,
-                            old_name="PauliSumOp",
-                            new_name="SparsePauliOp",
+                            argument_name="aux_operators",
+                            old_type="PauliSumOp",
+                            new_type="SparsePauliOp",
                         )
                     if isinstance(op, (SparseLabelOp)):
                         converted_aux_op = self._map_operators(op)

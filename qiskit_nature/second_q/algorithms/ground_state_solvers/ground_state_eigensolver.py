@@ -24,6 +24,7 @@ from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.second_q.problems import EigenstateResult
+from qiskit_nature.deprecation import warn_deprecated_type
 
 from .ground_state_solver import GroundStateSolver
 from .minimum_eigensolver_factories import MinimumEigensolverFactory
@@ -104,6 +105,13 @@ class GroundStateEigensolver(GroundStateSolver):
 
         if aux_operators is not None:
             for name_aux, aux_op in aux_operators.items():
+                if isinstance(aux_op, PauliSumOp):
+                    warn_deprecated_type(
+                        "0.6.0",
+                        argument_name="aux_operators",
+                        old_type="PauliSumOp",
+                        new_type="SparsePauliOp",
+                    )
                 if isinstance(aux_op, SparseLabelOp):
                     if isinstance(self._qubit_converter, QubitConverter):
                         converted_aux_op = self._qubit_converter.convert_match(aux_op)
