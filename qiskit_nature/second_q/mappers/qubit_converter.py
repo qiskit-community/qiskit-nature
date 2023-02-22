@@ -26,6 +26,7 @@ from qiskit.quantum_info import SparsePauliOp
 from qiskit.opflow.primitive_ops import Z2Symmetries
 
 from qiskit_nature import QiskitNatureError, settings
+from qiskit_nature.deprecation import warn_deprecated, DeprecatedType
 from qiskit_nature.second_q.operators import SparseLabelOp
 
 from .qubit_mapper import QubitMapper, _ListOrDict
@@ -36,7 +37,7 @@ logger = logging.getLogger(__name__)
 
 
 class QubitConverter:
-    """A converter from Second-Quantized to Qubit Operators.
+    """DEPRECATED A converter from Second-Quantized to Qubit Operators.
 
     This converter can be configured with a mapper instance which will later be used
     when 2nd quantized operators are requested to be converted (mapped) to qubit operators.
@@ -87,6 +88,16 @@ class QubitConverter:
         Raises:
             ValueError: If the mapper is a ``TaperedQubitMapper``.
         """
+        warn_deprecated(
+            "0.6.0",
+            DeprecatedType.CLASS,
+            "QubitConverter",
+            additional_msg=(
+                ". Instead you should directly use the QubitMapper instance which you used to pass "
+                "into the QubitConverter as the first argument. Refer to the documentation of the "
+                "qiskit_nature.second_q.mappers module for more information"
+            ),
+        )
         if isinstance(mapper, TaperedQubitMapper):
             raise ValueError(
                 "The TaperedQubitMapper is not supported by the QubitConverter. "
