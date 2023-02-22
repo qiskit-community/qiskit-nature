@@ -307,6 +307,19 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
            ``sparse_label_template`` only unpacks one set of curly braces but does not actually
            inject anything into the template)
 
+        .. note::
+
+           You could have also used the following template: ``{}_{{0}} {}_{{2}} {}_{{3}} {}_{{1}}``.
+           This will work in the same way if the key under which your ``Tensor`` is stored inside of
+           the ``PolynomialTensor`` is ``++--``. We did not do this in the example above to show
+           that the number of replacement fields can be smaller than the number of arguments
+           provided during the formatting step, and to simplify the example a little bit.
+
+           However, if you were to try to use ``+_{0} +_{2} -_{3} -_{1}`` instead, this will **not**
+           work as intended because the both string formatting steps are applied unconditionally!
+           Thus, this wrong use case would in fact get expanded to ``+_+ +_- -_- -_+`` in the first
+           step of the processing leaving no replacement fields to be processed in the second step.
+
         .. _[1]: https://docs.python.org/3/library/string.html#formatstrings
         """
         if self._label_template is None:
