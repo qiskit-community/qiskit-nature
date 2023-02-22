@@ -23,6 +23,8 @@ from qiskit.algorithms.eigensolvers import EigensolverResult
 from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
 from qiskit.opflow.primitive_ops import Z2Symmetries as OpflowZ2Symmetries
 from qiskit.quantum_info.analysis.z2_symmetries import Z2Symmetries
+
+from qiskit_nature.deprecation import deprecate_function
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library.initial_states.hartree_fock import (
     hartree_fock_bitstring_mapped,
@@ -268,6 +270,16 @@ class ElectronicStructureProblem(BaseProblem):
 
         return partial(filter_criterion, self)
 
+    # pylint: disable=bad-docstring-quotes
+    @deprecate_function(
+        "0.6.0",
+        additional_msg=(
+            ". This function is deprecated because it has been removed from the public API. It is "
+            "no longer necessary to be used when working directly with QubitMapper objects outside "
+            "a QubitConverter because a TaperedQubitMapper can now be obtained using the new "
+            "get_tapered_mapper function provided by the problem classes."
+        ),
+    )
     def symmetry_sector_locator(
         self,
         z2_symmetries: OpflowZ2Symmetries | Z2Symmetries,
@@ -307,6 +319,49 @@ class ElectronicStructureProblem(BaseProblem):
             num_particles=num_particles,
             qubit_converter=converter,
             match_convert=False,
+        )
+        sector = ElectronicStructureProblem._pick_sector(z2_symmetries, hf_bitstr)
+
+        return sector
+
+    def _symmetry_sector_locator(
+        self,
+        z2_symmetries: OpflowZ2Symmetries | Z2Symmetries,
+        converter: QubitConverter | QubitMapper,
+    ) -> Optional[List[int]]:
+        """Given the detected Z2Symmetries this determines the correct sector of the tapered
+        operator that contains the ground state we need and returns that information.
+
+        Args:
+            z2_symmetries: the z2 symmetries object.
+            converter: the ``QubitConverter`` or ``QubitMapper`` instance used for the operator
+                conversion that symmetries are to be determined for.
+
+        Raises:
+            QiskitNatureError: if the :attr:`num_particles` attribute is ``None``.
+
+        Returns:
+            The sector of the tapered operators with the problem solution.
+        """
+        if self.num_particles is None:
+            raise QiskitNatureError(
+                "Determining the correct symmetry sector for Z2 symmetry reduction requires the "
+                "number of particles to be set on the problem instance. Please set "
+                "ElectronicStructureProblem.num_particles or disable the use of Z2Symmetries to "
+                "fix this."
+            )
+
+        num_particles = self.num_particles
+        if not isinstance(num_particles, tuple):
+            num_particles = (self.num_alpha, self.num_beta)
+
+        # We need the HF bitstring mapped to the qubit space but without any tapering done
+        # by the converter (just qubit mapping and any two qubit reduction) since we are
+        # going to determine the tapering sector
+        hf_bitstr = hartree_fock_bitstring_mapped(
+            num_spatial_orbitals=self.num_spatial_orbitals,
+            num_particles=num_particles,
+            qubit_converter=converter,
         )
         sector = ElectronicStructureProblem._pick_sector(z2_symmetries, hf_bitstr)
 

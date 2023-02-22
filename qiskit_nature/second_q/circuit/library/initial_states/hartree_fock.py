@@ -27,6 +27,7 @@ from qiskit_nature.second_q.mappers import (
     TaperedQubitMapper,
 )
 from qiskit_nature.second_q.operators import FermionicOp
+from qiskit_nature.deprecation import deprecate_arguments
 
 
 class HartreeFock(BlueprintCircuit):
@@ -208,6 +209,14 @@ class HartreeFock(BlueprintCircuit):
                     self.x(i)
 
 
+@deprecate_arguments(
+    "0.6.0",
+    {"match_convert": ""},
+    additional_msg=(
+        ". This argument is no longer necessary when working directly with QubitMapper objects "
+        "outside of a QubitConverter because TaperedQubitMapper instances are now built differently"
+    ),
+)
 def hartree_fock_bitstring_mapped(
     num_spatial_orbitals: int,
     num_particles: tuple[int, int],
@@ -230,8 +239,6 @@ def hartree_fock_bitstring_mapped(
     Returns:
         The bitstring representing the mapped state of the Hartree-Fock state as array of bools.
     """
-    # TODO: Remove match convert argument
-
     # get the bitstring encoding the Hartree Fock state
     bitstr = hartree_fock_bitstring(num_spatial_orbitals, num_particles)
 
