@@ -3,7 +3,7 @@ features:
   - |
     Adds the new argument ``num_particles`` to the
     :class:`~qiskit_nature.second_q.mappers.ParityMapper` which will implement the two qubit reduction
-    without requiring an instance of:class:`~qiskit_nature.second_q.mappers.QubitConverter`.
+    without requiring an instance of :class:`~qiskit_nature.second_q.mappers.QubitConverter`.
 
     .. code-block:: python
 
