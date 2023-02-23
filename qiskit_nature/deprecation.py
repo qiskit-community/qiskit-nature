@@ -258,8 +258,6 @@ def _rename_kwargs(version, qualname, func_name, kwargs, kwarg_map, additional_m
 
             if new_arg:
                 kwargs[new_arg] = kwargs.pop(old_arg)
-            else:
-                kwargs.pop(old_arg)
 
 
 def deprecate_arguments(
