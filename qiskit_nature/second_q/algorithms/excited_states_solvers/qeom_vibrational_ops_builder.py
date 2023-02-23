@@ -24,8 +24,17 @@ from qiskit.utils import algorithm_globals
 from qiskit_nature.second_q.circuit.library import UVCC
 from qiskit_nature.second_q.operators import VibrationalOp
 from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper, TaperedQubitMapper
+from qiskit_nature.deprecation import deprecate_arguments
 
 
+@deprecate_arguments(
+    "0.6.0",
+    {"qubit_converter": "qubit_mapper"},
+    additional_msg=(
+        ". Additionally, the QubitConverter type in the qubit_mapper argument is deprecated "
+        "and support for it will be removed together with the qubit_converter argument."
+    ),
+)
 def build_vibrational_ops(
     num_modals: list[int],
     excitations: str
@@ -35,12 +44,15 @@ def build_vibrational_ops(
         [int, tuple[int, int]],
         list[tuple[tuple[int, ...], tuple[int, ...]]],
     ],
-    qubit_converter: QubitConverter | QubitMapper,
+    qubit_mapper: QubitConverter | QubitMapper,
+    *,
+    qubit_converter: QubitConverter | QubitMapper | None = None,
 ) -> tuple[
     dict[str, PauliSumOp | SparsePauliOp],
     dict[str, list[bool]],
     dict[str, tuple[tuple[int, ...], tuple[int, ...]]],
 ]:
+    # pylint: disable=unused-argument
     """
     Args:
         num_modals: The number of modals per mode.
@@ -51,14 +63,16 @@ def build_vibrational_ops(
             - and finally a callable which can be used to specify a custom list of excitations.
               For more details on how to write such a function refer to the default method,
               :meth:`generate_vibrational_excitations`.
-        qubit_converter: The ``QubitConverter`` or ``QubitMapper`` to use for mapping and symmetry
-            reduction. Note that the ``QubitConverter`` will use its stored Z2 symmetries as basis for
-            the commutativity information returned by this method.
+        qubit_mapper: The ``QubitMapper`` or ``QubitConverter`` (use of the latter is deprecated) to
+            use for mapping.
+        qubit_converter: DEPRECATED The ``QubitConverter`` or ``QubitMapper`` to use for mapping and
+            symmetry reduction. Note that the ``QubitConverter`` will use its stored Z2 symmetries
+            as basis for the commutativity information returned by this method.
     Returns:
         Dict of hopping operators, dict of commutativity types and dict of excitation indices.
     """
 
-    ansatz = UVCC(num_modals, excitations, qubit_converter)
+    ansatz = UVCC(num_modals, excitations, qubit_mapper)
     excitations_list = ansatz._get_excitation_list()
     size = len(excitations_list)
 
@@ -75,7 +89,7 @@ def build_vibrational_ops(
     result = parallel_map(
         _build_single_hopping_operator,
         to_be_executed_list,
-        task_args=(num_modals, qubit_converter),
+        task_args=(num_modals, qubit_mapper),
         num_processes=algorithm_globals.num_processes,
     )
 
@@ -92,7 +106,7 @@ def build_vibrational_ops(
 def _build_single_hopping_operator(
     excitation: tuple[tuple[int, ...], tuple[int, ...]],
     num_modals: list[int],
-    qubit_converter: QubitConverter | QubitMapper,
+    qubit_mapper: QubitConverter | QubitMapper,
 ) -> PauliSumOp:
     label = []
     for occ in excitation[0]:
@@ -103,11 +117,11 @@ def _build_single_hopping_operator(
     vibrational_op = VibrationalOp({" ".join(label): 1}, num_modals)
 
     qubit_op: PauliSumOp
-    if isinstance(qubit_converter, QubitConverter):
-        qubit_op = qubit_converter.convert_match(vibrational_op)
-    elif isinstance(qubit_converter, TaperedQubitMapper):
-        qubit_op = qubit_converter.map_clifford(vibrational_op)
+    if isinstance(qubit_mapper, QubitConverter):
+        qubit_op = qubit_mapper.convert_match(vibrational_op)
+    elif isinstance(qubit_mapper, TaperedQubitMapper):
+        qubit_op = qubit_mapper.map_clifford(vibrational_op)
     else:
-        qubit_op = qubit_converter.map(vibrational_op)
+        qubit_op = qubit_mapper.map(vibrational_op)
 
     return qubit_op

@@ -24,7 +24,7 @@ from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.second_q.problems import EigenstateResult
-from qiskit_nature.deprecation import warn_deprecated_type
+from qiskit_nature.deprecation import deprecate_arguments, warn_deprecated_type
 
 from .ground_state_solver import GroundStateSolver
 from .minimum_eigensolver_factories import MinimumEigensolverFactory
@@ -35,19 +35,33 @@ LOGGER = logging.getLogger(__name__)
 class GroundStateEigensolver(GroundStateSolver):
     """Ground state computation using a minimum eigensolver."""
 
+    @deprecate_arguments(
+        "0.6.0",
+        {"qubit_converter": "qubit_mapper"},
+        additional_msg=(
+            ". Additionally, the QubitConverter type in the qubit_mapper argument is deprecated "
+            "and support for it will be removed together with the qubit_converter argument."
+        ),
+    )
     def __init__(
         self,
-        qubit_converter: QubitConverter | QubitMapper,
+        qubit_mapper: QubitConverter | QubitMapper,
         solver: MinimumEigensolver | MinimumEigensolverFactory,
+        *,
+        qubit_converter: QubitConverter | QubitMapper | None = None,
     ) -> None:
+        # pylint: disable=unused-argument
         """
         Args:
-            qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` or
-                :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance that converts a second
-                quantized operator to qubit operators and applies subsequent qubit reduction.
+            qubit_mapper: The :class:`~qiskit_nature.second_q.mappers.QubitMapper`
+                or :class:`~qiskit_nature.second_q.mappers.QubitConverter` (use of the latter is
+                deprecated) instance that converts a second quantized operator to qubit operators.
+            qubit_converter: DEPRECATED The :class:`~qiskit_nature.second_q.mappers.QubitConverter`
+                or :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance that converts a
+                second quantized operator to qubit operators and applies subsequent qubit reduction.
             solver: Minimum Eigensolver or MESFactory object, e.g. the VQEUCCSDFactory.
         """
-        super().__init__(qubit_converter)
+        super().__init__(qubit_mapper)
         self._solver = solver
 
     @property
@@ -92,16 +106,16 @@ class GroundStateEigensolver(GroundStateSolver):
 
         num_particles = getattr(problem, "num_particles", None)
 
-        if isinstance(self._qubit_converter, QubitConverter):
-            main_operator = self._qubit_converter.convert(
+        if isinstance(self._qubit_mapper, QubitConverter):
+            main_operator = self._qubit_mapper.convert(
                 main_second_q_op,
                 num_particles=num_particles,
                 sector_locator=problem.symmetry_sector_locator,
             )
-            aux_ops = self._qubit_converter.convert_match(aux_second_q_ops)
+            aux_ops = self._qubit_mapper.convert_match(aux_second_q_ops)
         else:
-            main_operator = self._qubit_converter.map(main_second_q_op)
-            aux_ops = self._qubit_converter.map(aux_second_q_ops)
+            main_operator = self._qubit_mapper.map(main_second_q_op)
+            aux_ops = self._qubit_mapper.map(aux_second_q_ops)
 
         if aux_operators is not None:
             for name_aux, aux_op in aux_operators.items():
@@ -113,10 +127,10 @@ class GroundStateEigensolver(GroundStateSolver):
                         new_type="SparsePauliOp",
                     )
                 if isinstance(aux_op, SparseLabelOp):
-                    if isinstance(self._qubit_converter, QubitConverter):
-                        converted_aux_op = self._qubit_converter.convert_match(aux_op)
+                    if isinstance(self._qubit_mapper, QubitConverter):
+                        converted_aux_op = self._qubit_mapper.convert_match(aux_op)
                     else:
-                        converted_aux_op = self._qubit_converter.map(aux_op)
+                        converted_aux_op = self._qubit_mapper.map(aux_op)
                 else:
                     converted_aux_op = aux_op
 
@@ -142,7 +156,7 @@ class GroundStateEigensolver(GroundStateSolver):
 
         if isinstance(self.solver, MinimumEigensolverFactory):
             # this must be called after transformation.transform
-            self._solver = self.solver.get_solver(problem, self._qubit_converter)
+            self._solver = self.solver.get_solver(problem, self._qubit_mapper)
         # if the eigensolver does not support auxiliary operators, reset them
         if not self.solver.supports_aux_operators():
             aux_ops = None

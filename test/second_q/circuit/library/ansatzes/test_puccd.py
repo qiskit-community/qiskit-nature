@@ -50,10 +50,10 @@ class TestPUCC(QiskitNatureTestCase):
     )
     def test_puccd_ansatz(self, num_spatial_orbitals, num_particles, expect):
         """Tests the PUCCD Ansatz."""
-        converter = QubitConverter(JordanWignerMapper())
+        mapper = QubitConverter(JordanWignerMapper())
 
         ansatz = PUCCD(
-            qubit_converter=converter,
+            qubit_mapper=mapper,
             num_particles=num_particles,
             num_spatial_orbitals=num_spatial_orbitals,
         )
@@ -95,10 +95,10 @@ class TestPUCC(QiskitNatureTestCase):
         self, num_spatial_orbitals, num_particles, include_singles, expect
     ):
         """Tests the PUCCD Ansatz with included single excitations."""
-        converter = QubitConverter(JordanWignerMapper())
+        mapper = QubitConverter(JordanWignerMapper())
 
         ansatz = PUCCD(
-            qubit_converter=converter,
+            qubit_mapper=mapper,
             num_particles=num_particles,
             num_spatial_orbitals=num_spatial_orbitals,
             include_singles=include_singles,
@@ -139,7 +139,7 @@ class TestPUCC(QiskitNatureTestCase):
 
         with self.subTest("Qubit Converter object"):
             ansatz = PUCCD(
-                qubit_converter=converter,
+                qubit_mapper=converter,
                 num_particles=num_particles,
                 num_spatial_orbitals=num_spatial_orbitals,
                 generalized=True,
@@ -148,7 +148,7 @@ class TestPUCC(QiskitNatureTestCase):
 
         with self.subTest("Qubit Mapper object"):
             ansatz = PUCCD(
-                qubit_converter=mapper,
+                qubit_mapper=mapper,
                 num_particles=num_particles,
                 num_spatial_orbitals=num_spatial_orbitals,
                 generalized=True,

@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -33,7 +33,7 @@ class TestVQEUVCCFactory(QiskitNatureTestCase):
 
     def setUp(self):
         super().setUp()
-        self.converter = QubitConverter(JordanWignerMapper())
+        self.mapper = QubitConverter(JordanWignerMapper())
         self._vqe_uvcc_factory = VQEUVCCFactory(Estimator(), UVCCSD(), SLSQP())
 
     def auxiliary_tester(self, title: str, prop: str, cases: tuple):
@@ -107,7 +107,7 @@ class TestVQEUVCCFactory(QiskitNatureTestCase):
 
         with self.subTest("Initial State"):
             self.assertEqual(self._vqe_uvcc_factory.initial_state, None)
-            initial_state = HartreeFock(4, (1, 1), self.converter)
+            initial_state = HartreeFock(4, (1, 1), self.mapper)
             self._vqe_uvcc_factory.initial_state = initial_state
             self.assertEqual(self._vqe_uvcc_factory.initial_state, initial_state)
 

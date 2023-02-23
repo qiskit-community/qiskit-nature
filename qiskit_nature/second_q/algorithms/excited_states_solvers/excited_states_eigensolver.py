@@ -24,7 +24,7 @@ from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.second_q.problems import EigenstateResult
-from qiskit_nature.deprecation import warn_deprecated_type
+from qiskit_nature.deprecation import deprecate_arguments, warn_deprecated_type
 
 from .excited_states_solver import ExcitedStatesSolver
 from .eigensolver_factories import EigensolverFactory
@@ -35,19 +35,32 @@ LOGGER = logging.getLogger(__name__)
 class ExcitedStatesEigensolver(ExcitedStatesSolver):
     """The calculation of excited states via an Eigensolver algorithm."""
 
+    @deprecate_arguments(
+        "0.6.0",
+        {"qubit_converter": "qubit_mapper"},
+        additional_msg=(
+            ". Additionally, the QubitConverter type in the qubit_mapper argument is deprecated "
+            "and support for it will be removed together with the qubit_converter argument."
+        ),
+    )
     def __init__(
         self,
-        qubit_converter: QubitConverter | QubitMapper,
+        qubit_mapper: QubitConverter | QubitMapper,
         solver: Eigensolver | EigensolverFactory,
+        *,
+        qubit_converter: QubitConverter | QubitMapper | None = None,
     ) -> None:
+        # pylint: disable=unused-argument
         """
 
         Args:
-            qubit_converter: The ``QubitConverter`` or ``QubitMapper`` to use for mapping and symmetry
-                reduction.
+            qubit_mapper: The ``QubitMapper`` or ``QubitConverter`` (use of the latter is
+                deprecated) to use for mapping.
             solver: Minimum Eigensolver or MESFactory object.
+            qubit_converter: DEPRECATED The ``QubitConverter`` or ``QubitMapper`` to use for mapping
+                and symmetry reduction.
         """
-        self._qubit_converter = qubit_converter
+        self._qubit_mapper = qubit_mapper
         self._solver = solver
 
     @property
@@ -71,17 +84,17 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
 
         num_particles = getattr(problem, "num_particles", None)
 
-        if isinstance(self._qubit_converter, QubitConverter):
-            main_operator = self._qubit_converter.convert(
+        if isinstance(self._qubit_mapper, QubitConverter):
+            main_operator = self._qubit_mapper.convert(
                 main_second_q_op,
                 num_particles=num_particles,
                 sector_locator=problem.symmetry_sector_locator,
             )
-            aux_ops = self._qubit_converter.convert_match(aux_second_q_ops)
+            aux_ops = self._qubit_mapper.convert_match(aux_second_q_ops)
 
         else:
-            main_operator = self._qubit_converter.map(main_second_q_op)
-            aux_ops = self._qubit_converter.map(aux_second_q_ops)
+            main_operator = self._qubit_mapper.map(main_second_q_op)
+            aux_ops = self._qubit_mapper.map(aux_second_q_ops)
 
         if aux_operators is not None:
             for name_aux, aux_op in aux_operators.items():
@@ -93,12 +106,12 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
                         new_type="SparsePauliOp",
                     )
                 if isinstance(aux_op, SparseLabelOp):
-                    if isinstance(self._qubit_converter, QubitConverter):
-                        converted_aux_op = self._qubit_converter.convert_match(
+                    if isinstance(self._qubit_mapper, QubitConverter):
+                        converted_aux_op = self._qubit_mapper.convert_match(
                             aux_op, suppress_none=True
                         )
                     else:
-                        converted_aux_op = self._qubit_converter.map(aux_op)
+                        converted_aux_op = self._qubit_mapper.map(aux_op)
                 else:
                     converted_aux_op = aux_op
 

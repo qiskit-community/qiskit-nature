@@ -25,8 +25,17 @@ from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import UCC
 from qiskit_nature.second_q.operators import FermionicOp
 from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper, TaperedQubitMapper
+from qiskit_nature.deprecation import deprecate_arguments
 
 
+@deprecate_arguments(
+    "0.6.0",
+    {"qubit_converter": "qubit_mapper"},
+    additional_msg=(
+        ". Additionally, the QubitConverter type in the qubit_mapper argument is deprecated "
+        "and support for it will be removed together with the qubit_converter argument."
+    ),
+)
 def build_electronic_ops(
     num_spatial_orbitals: int,
     num_particles: tuple[int, int],
@@ -37,12 +46,15 @@ def build_electronic_ops(
         [int, tuple[int, int]],
         list[tuple[tuple[int, ...], tuple[int, ...]]],
     ],
-    qubit_converter: QubitConverter | QubitMapper,
+    qubit_mapper: QubitConverter | QubitMapper,
+    *,
+    qubit_converter: QubitConverter | QubitMapper | None = None,
 ) -> tuple[
     dict[str, PauliSumOp | SparsePauliOp],
     dict[str, list[bool]],
     dict[str, tuple[tuple[int, ...], tuple[int, ...]]],
 ]:
+    # pylint: disable=unused-argument
     """Builds the product of raising and lowering operators (basic excitation operators)
 
     Args:
@@ -55,10 +67,12 @@ def build_electronic_ops(
             - and finally a callable which can be used to specify a custom list of excitations.
               For more details on how to write such a function refer to the default method,
               :meth:`generate_fermionic_excitations`.
-        qubit_converter: The ``QubitConverter`` or ``QubitMapper`` to use for mapping and symmetry
-            reduction. The Z2 symmetries stored in this instance are the basis for the commutativity
-            information returned by this method. These symmetries are set to `None` when a
-            ``QubitMapper`` is used.
+        qubit_mapper: The ``QubitMapper`` or ``QubitConverter`` (use of the latter is deprecated) to
+            use for mapping.
+        qubit_converter: DEPRECATED The ``QubitConverter`` or ``QubitMapper`` to use for mapping and
+            symmetry reduction. The Z2 symmetries stored in this instance are the basis for the
+            commutativity information returned by this method. These symmetries are set to ``None``
+            when a ``QubitMapper`` is used.
 
     Returns:
         A tuple containing the hopping operators, the types of commutativities and the excitation
@@ -67,7 +81,7 @@ def build_electronic_ops(
 
     num_alpha, num_beta = num_particles
 
-    ansatz = UCC(num_spatial_orbitals, (num_alpha, num_beta), excitations, qubit_converter)
+    ansatz = UCC(num_spatial_orbitals, (num_alpha, num_beta), excitations, qubit_mapper)
     excitations_list = ansatz._get_excitation_list()
     size = len(excitations_list)
 
@@ -88,7 +102,7 @@ def build_electronic_ops(
     result = parallel_map(
         _build_single_hopping_operator,
         to_be_executed_list,
-        task_args=(num_spatial_orbitals, qubit_converter),
+        task_args=(num_spatial_orbitals, qubit_mapper),
         num_processes=algorithm_globals.num_processes,
     )
 
@@ -102,7 +116,7 @@ def build_electronic_ops(
 def _build_single_hopping_operator(
     excitation: tuple[tuple[int, ...], tuple[int, ...]],
     num_spatial_orbitals: int,
-    qubit_converter: QubitConverter | QubitMapper,
+    qubit_mapper: QubitConverter | QubitMapper,
 ) -> tuple[PauliSumOp | SparsePauliOp, list[bool]]:
     label = []
     for occ in excitation[0]:
@@ -111,16 +125,16 @@ def _build_single_hopping_operator(
         label.append(f"-_{unocc}")
     fer_op = FermionicOp({" ".join(label): 1.0}, num_spin_orbitals=2 * num_spatial_orbitals)
 
-    if isinstance(qubit_converter, QubitConverter):
-        qubit_op = qubit_converter.convert_only(fer_op, num_particles=qubit_converter.num_particles)
-        symmetries_for_commutativity = qubit_converter.z2symmetries.symmetries
-    elif isinstance(qubit_converter, TaperedQubitMapper):
-        qubit_op = qubit_converter.map_clifford(fer_op)
+    if isinstance(qubit_mapper, QubitConverter):
+        qubit_op = qubit_mapper.convert_only(fer_op, num_particles=qubit_mapper.num_particles)
+        symmetries_for_commutativity = qubit_mapper.z2symmetries.symmetries
+    elif isinstance(qubit_mapper, TaperedQubitMapper):
+        qubit_op = qubit_mapper.map_clifford(fer_op)
         # Because the clifford conversion was already done, the commutativity information are based
         # on the single qubit pauli objects.
-        symmetries_for_commutativity = qubit_converter.z2symmetries.sq_paulis
+        symmetries_for_commutativity = qubit_mapper.z2symmetries.sq_paulis
     else:
-        qubit_op = qubit_converter.map(fer_op)
+        qubit_op = qubit_mapper.map(fer_op)
         symmetries_for_commutativity = []
 
     commutativities = []

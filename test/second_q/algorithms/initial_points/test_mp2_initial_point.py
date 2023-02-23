@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -72,18 +72,18 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         num_particles = (problem.num_alpha, problem.num_beta)
         num_spatial_orbitals = problem.num_spatial_orbitals
 
-        qubit_converter = QubitConverter(mapper=JordanWignerMapper())
+        mapper = QubitConverter(mapper=JordanWignerMapper())
 
         initial_state = HartreeFock(
             num_spatial_orbitals=num_spatial_orbitals,
             num_particles=num_particles,
-            qubit_converter=qubit_converter,
+            qubit_mapper=mapper,
         )
         ansatz = UCC(
             num_spatial_orbitals=num_spatial_orbitals,
             num_particles=num_particles,
             excitations="sd",
-            qubit_converter=qubit_converter,
+            qubit_mapper=mapper,
             initial_state=initial_state,
         )
 

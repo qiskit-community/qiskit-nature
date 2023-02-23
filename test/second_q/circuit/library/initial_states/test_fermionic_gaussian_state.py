@@ -53,7 +53,7 @@ class TestFermionicGaussianState(QiskitNatureTestCase):
             matrix = qubit_op.to_matrix()
             for occupied_orbitals in occupied_orbitals_lists:
                 circuit = FermionicGaussianState(
-                    transformation_matrix, occupied_orbitals, qubit_converter=converter
+                    transformation_matrix, occupied_orbitals, qubit_mapper=converter
                 )
                 final_state = np.array(Statevector(circuit))
                 eig = np.sum(orbital_energies[occupied_orbitals]) + transformed_constant
@@ -64,7 +64,7 @@ class TestFermionicGaussianState(QiskitNatureTestCase):
             matrix = qubit_op.to_matrix()
             for occupied_orbitals in occupied_orbitals_lists:
                 circuit = FermionicGaussianState(
-                    transformation_matrix, occupied_orbitals, qubit_converter=mapper
+                    transformation_matrix, occupied_orbitals, qubit_mapper=mapper
                 )
                 final_state = np.array(Statevector(circuit))
                 eig = np.sum(orbital_energies[occupied_orbitals]) + transformed_constant
@@ -100,7 +100,7 @@ class TestFermionicGaussianState(QiskitNatureTestCase):
         with self.assertRaisesRegex(NotImplementedError, "supported"):
             _ = FermionicGaussianState(
                 np.block([np.eye(2), np.zeros((2, 2))]),
-                qubit_converter=QubitConverter(BravyiKitaevMapper()),
+                qubit_mapper=QubitConverter(BravyiKitaevMapper()),
             )
 
     def test_unsupported_mapper_no_converter(self):
@@ -108,5 +108,5 @@ class TestFermionicGaussianState(QiskitNatureTestCase):
         with self.assertRaisesRegex(NotImplementedError, "supported"):
             _ = FermionicGaussianState(
                 np.block([np.eye(2), np.zeros((2, 2))]),
-                qubit_converter=BravyiKitaevMapper(),
+                qubit_mapper=BravyiKitaevMapper(),
             )

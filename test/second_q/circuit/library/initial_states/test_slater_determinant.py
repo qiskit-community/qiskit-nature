@@ -43,7 +43,7 @@ class TestSlaterDeterminant(QiskitNatureTestCase):
             matrix = qubit_op.to_matrix()
             for n_particles in range(n_orbitals + 1):
                 circuit = SlaterDeterminant(
-                    transformation_matrix[:n_particles], qubit_converter=converter
+                    transformation_matrix[:n_particles], qubit_mapper=converter
                 )
                 final_state = np.array(Statevector(circuit))
                 eig = np.sum(orbital_energies[:n_particles]) + transformed_constant
@@ -54,7 +54,7 @@ class TestSlaterDeterminant(QiskitNatureTestCase):
             matrix = qubit_op.to_matrix()
             for n_particles in range(n_orbitals + 1):
                 circuit = SlaterDeterminant(
-                    transformation_matrix[:n_particles], qubit_converter=mapper
+                    transformation_matrix[:n_particles], qubit_mapper=mapper
                 )
                 final_state = np.array(Statevector(circuit))
                 eig = np.sum(orbital_energies[:n_particles]) + transformed_constant
@@ -87,9 +87,9 @@ class TestSlaterDeterminant(QiskitNatureTestCase):
     def test_unsupported_mapper(self):
         """Test passing unsupported mapper fails gracefully."""
         with self.assertRaisesRegex(NotImplementedError, "supported"):
-            _ = SlaterDeterminant(np.eye(2), qubit_converter=QubitConverter(BravyiKitaevMapper()))
+            _ = SlaterDeterminant(np.eye(2), qubit_mapper=QubitConverter(BravyiKitaevMapper()))
 
     def test_unsupported_mapper_no_converter(self):
         """Test passing unsupported mapper fails gracefully when bypassing the qubit converter."""
         with self.assertRaisesRegex(NotImplementedError, "supported"):
-            _ = SlaterDeterminant(np.eye(2), qubit_converter=BravyiKitaevMapper())
+            _ = SlaterDeterminant(np.eye(2), qubit_mapper=BravyiKitaevMapper())
