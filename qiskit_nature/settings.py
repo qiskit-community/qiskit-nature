@@ -42,7 +42,7 @@ class QiskitNatureSettings:
     @property
     def use_pauli_sum_op(self) -> bool:
         """Return whether ``PauliSumOp`` or ``SparsePauliOp`` should be returned on methods."""
-        if not self._use_pauli_sum_op and "PauliSumOp" not in self._deprecation_shown:
+        if self._use_pauli_sum_op and "PauliSumOp" not in self._deprecation_shown:
             warnings.filterwarnings("default", category=PauliSumOpDeprecationWarning)
             warnings.warn(
                 PauliSumOpDeprecationWarning(
@@ -61,7 +61,7 @@ class QiskitNatureSettings:
     @use_pauli_sum_op.setter
     def use_pauli_sum_op(self, pauli_sum_op: bool) -> None:
         """Set whether ``PauliSumOp`` or ``SparsePauliOp`` should be returned on methods."""
-        if not pauli_sum_op and "PauliSumOp" not in self._deprecation_shown:
+        if pauli_sum_op and "PauliSumOp" not in self._deprecation_shown:
             warnings.filterwarnings("default", category=PauliSumOpDeprecationWarning)
             warnings.warn(
                 PauliSumOpDeprecationWarning(
