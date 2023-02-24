@@ -196,31 +196,39 @@ def generate_fermionic_excitations(
                 )
             )
         else:
-            # We can reuse our existing implementation for the scenario involving spin flips by
-            # generating the single excitations of an _interleaved_ spin orbital system.
-            # For this, we can reuse the alpha single excitation generator in a system of double the
-            # actual size.
+            # preserve_spin=False doesn't distinguish between alpha and beta spin species. This is
+            # effectively the same scenario as a single spin species for a system of double the
+            # actual size up to a reordering of the orbitals. We can reuse single spin species
+            # excitation generator if we reorder the orbitals afterwards. The first num_particles[0]
+            # orbitals in the output are fine, but the next num_particles[1] orbitals have to be
+            # reordered to start at index num_spatial_orbitals
+
             single_excitations = get_alpha_excitations(
                 num_spin_orbitals, sum(num_particles), generalized=False
             )
 
-            def interleaved2blocked(index: int, total: int) -> int:
-                if index % 2 == 0:
-                    return index // 2
-
-                return (index - 1 + total) // 2
-
-            # we now split the generated single excitations into separate spin species
-            for (occ_interleaved, unocc_interleaved) in single_excitations:
-                # we map from interleaved to blocked spin orbital indices
-                occ_blocked = interleaved2blocked(occ_interleaved, num_spin_orbitals)
-                unocc_blocked = interleaved2blocked(unocc_interleaved, num_spin_orbitals)
-
-                if occ_interleaved % 2 == 0:
-                    # the originally occupied orbital was of alpha-spin character
-                    alpha_excitations.append((occ_blocked, unocc_blocked))
+            def reorder_index(index: int) -> int:
+                # Alpha spins already at correct index
+                if index < num_particles[0]:
+                    return index
+                # Cyclically permute remaining (num_spin_orbitals - num_particles[0]) orbitals to
+                # get Beta spins at correct index
                 else:
-                    beta_excitations.append((occ_blocked, unocc_blocked))
+                    offset = num_particles[0]
+                    period = num_spin_orbitals - offset
+                    shift = num_spatial_orbitals - offset
+                    return (index - offset + shift) % period + offset
+
+            for (occ_idx, unocc_idx) in single_excitations:
+                # we map from interleaved to blocked spin orbital indices
+                reordered_occ_idx = reorder_index(occ_idx)
+                reordered_unocc_idx = reorder_index(unocc_idx)
+                reordered_excitation = (reordered_occ_idx, reordered_unocc_idx)
+
+                if reordered_occ_idx < num_spatial_orbitals:
+                    alpha_excitations.append(reordered_excitation)
+                else:
+                    beta_excitations.append(reordered_excitation)
 
             # NOTE: we sort the lists to ensure that non-spin flipped variants take higher precedence
             alpha_excitations = sorted(alpha_excitations)
