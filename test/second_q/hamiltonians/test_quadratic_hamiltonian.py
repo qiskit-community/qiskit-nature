@@ -17,6 +17,7 @@ from test import QiskitNatureTestCase
 import numpy as np
 from ddt import data, ddt
 from qiskit.quantum_info import random_hermitian
+from qiskit.opflow import PauliSumOp
 
 from qiskit_nature.second_q.hamiltonians import QuadraticHamiltonian
 from qiskit_nature.second_q.mappers import JordanWignerMapper, QubitConverter
@@ -105,11 +106,10 @@ class TestQuadraticHamiltonian(QiskitNatureTestCase):
         )
 
         # confirm eigenvalues match with Jordan-Wigner transformed Hamiltonian
-        hamiltonian_jw = (
-            QubitConverter(mapper=JordanWignerMapper())
-            .convert(quad_ham.second_q_op())
-            .primitive.to_matrix()
-        )
+        qubit_op = QubitConverter(mapper=JordanWignerMapper()).convert(quad_ham.second_q_op())
+        if isinstance(qubit_op, PauliSumOp):
+            qubit_op = qubit_op.primitive
+        hamiltonian_jw = qubit_op.to_matrix()
         eigs, _ = np.linalg.eigh(hamiltonian_jw)
         expected_eigs = np.array(
             [

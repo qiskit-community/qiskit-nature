@@ -142,7 +142,10 @@ class TestJordanWignerMapper(QiskitNatureTestCase):
             a = Parameter("a")
             op = FermionicOp({"+_0": a})
             expected = SparsePauliOp.from_list([("X", 0.5 * a), ("Y", -0.5j * a)], dtype=object)
-            self.assertEqual(JordanWignerMapper().map(op).primitive, expected)
+            qubit_op = JordanWignerMapper().map(op)
+            if isinstance(qubit_op, PauliSumOp):
+                qubit_op = qubit_op.primitive
+            self.assertEqual(qubit_op, expected)
 
     def test_mapping_for_list_ops(self):
         """Test for list of single register operator."""
@@ -164,6 +167,8 @@ class TestJordanWignerMapper(QiskitNatureTestCase):
         mapped_ops = JordanWignerMapper().map(ops)
         self.assertEqual(len(mapped_ops), len(expected))
         for mapped_op, expected_op in zip(mapped_ops, expected):
+            if not isinstance(mapped_op, PauliSumOp):
+                mapped_op = PauliSumOp(mapped_op)
             self.assertEqual(mapped_op, expected_op)
 
     def test_mapping_for_dict_ops(self):
@@ -186,6 +191,8 @@ class TestJordanWignerMapper(QiskitNatureTestCase):
         mapped_ops = JordanWignerMapper().map(ops)
         self.assertEqual(len(mapped_ops), len(expected))
         for k in mapped_ops.keys():
+            if not isinstance(mapped_ops[k], PauliSumOp):
+                mapped_ops[k] = PauliSumOp(mapped_ops[k])
             self.assertEqual(mapped_ops[k], expected[k])
 
     def test_mapping_overwrite_reg_len(self):

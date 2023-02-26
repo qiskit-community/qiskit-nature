@@ -68,6 +68,8 @@ class TestParityMapper(QiskitNatureTestCase):
         fermionic_op, _ = driver_result.second_q_ops()
         mapper = ParityMapper()
         qubit_op = mapper.map(fermionic_op)
+        if not isinstance(qubit_op, PauliSumOp):
+            qubit_op = PauliSumOp(qubit_op)
 
         # Note: The PauliSumOp equals, as used in the test below, use the equals of the
         #       SparsePauliOp which in turn uses np.allclose() to determine equality of
@@ -84,12 +86,16 @@ class TestParityMapper(QiskitNatureTestCase):
         fermionic_op, _ = driver_result.second_q_ops()
         mapper = ParityMapper(num_particles=(1, 1))
         qubit_op = mapper.map(fermionic_op)
+        if not isinstance(qubit_op, PauliSumOp):
+            qubit_op = PauliSumOp(qubit_op)
         self.assertEqual(qubit_op, TestParityMapper.REF_H2_reduced)
         self.assertEqual(mapper._tapering_values, TestParityMapper.tapering_values_expected)
 
         # Test change num particles on the fly
         mapper.num_particles = None
         qubit_op_reduction = mapper.map(fermionic_op)
+        if not isinstance(qubit_op_reduction, PauliSumOp):
+            qubit_op_reduction = PauliSumOp(qubit_op_reduction)
         self.assertEqual(qubit_op_reduction, TestParityMapper.REF_H2)
 
     def test_mapping_for_single_op(self):

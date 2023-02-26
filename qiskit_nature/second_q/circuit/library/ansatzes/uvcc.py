@@ -20,7 +20,7 @@ from typing import Callable, Sequence
 
 from qiskit.circuit import QuantumCircuit
 from qiskit.circuit.library import EvolvedOperatorAnsatz
-from qiskit.opflow import PauliTrotterEvolution
+from qiskit.opflow import PauliSumOp
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.deprecation import deprecate_arguments, deprecate_property, warn_deprecated_type
@@ -129,7 +129,7 @@ class UVCC(EvolvedOperatorAnsatz):
         self._num_modals = num_modals
         self._excitations = excitations
 
-        super().__init__(reps=reps, evolution=PauliTrotterEvolution(), initial_state=initial_state)
+        super().__init__(reps=reps, initial_state=initial_state)
 
         # To give read access to the actual excitation list that UVCC is using.
         self._excitation_list: list[tuple[tuple[int, ...], tuple[int, ...]]] | None = None
@@ -247,16 +247,23 @@ class UVCC(EvolvedOperatorAnsatz):
                 else:
                     operators = self.qubit_mapper.map(excitation_ops)
 
-                valid_operators, valid_excitations = [], []
-                for op, ex in zip(operators, self._excitation_list):
-                    if op is not None:
-                        valid_operators.append(op)
-                        valid_excitations.append(ex)
-
-                self._excitation_list = valid_excitations
-                self.operators = valid_operators
+                self._filter_operators(operators=operators)
 
         return super(UVCC, self.__class__).operators.__get__(self)
+
+    def _filter_operators(self, operators):
+        valid_operators, valid_excitations = [], []
+        for op, ex in zip(operators, self._excitation_list):
+            if op is not None:
+                # TODO: remove wrapping into PauliSumOp after the EvolvedOperatorAnsatz supports
+                # SparsePauliOp instances, too: https://github.com/Qiskit/qiskit-terra/pull/9537
+                if not isinstance(op, PauliSumOp):
+                    op = PauliSumOp(op)
+                valid_operators.append(op)
+                valid_excitations.append(ex)
+
+        self._excitation_list = valid_excitations
+        self.operators = valid_operators
 
     def _invalidate(self):
         self._excitation_ops = None
@@ -388,8 +395,8 @@ class UVCC(EvolvedOperatorAnsatz):
                 label.append(f"-_{VibrationalOp.build_dual_index(self.num_modals, unocc)}")
             op = VibrationalOp({" ".join(label): 1}, self.num_modals)
             op -= op.adjoint()
-            # we need to account for an additional imaginary phase in the exponent (see also
-            # `PauliTrotterEvolution.convert`)
+            # we need to account for an additional imaginary phase in the exponent accumulated from
+            # the first-order trotterization routine implemented in Qiskit Terra
             op *= 1j  # type: ignore
             operators.append(op)
 

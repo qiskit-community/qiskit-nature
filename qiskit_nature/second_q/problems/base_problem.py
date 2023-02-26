@@ -20,6 +20,7 @@ from typing import Callable
 import numpy as np
 from qiskit.algorithms.eigensolvers import EigensolverResult
 from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
+from qiskit.opflow import PauliSumOp
 from qiskit.opflow.primitive_ops import Z2Symmetries as OpflowZ2Symmetries
 from qiskit.quantum_info.analysis.z2_symmetries import Z2Symmetries
 
@@ -149,7 +150,9 @@ class BaseProblem:
             )
 
         qubit_op, _ = self.second_q_ops()
-        mapped_op = mapper.map(qubit_op).primitive
+        mapped_op = mapper.map(qubit_op)
+        if isinstance(mapped_op, PauliSumOp):
+            mapped_op = mapped_op.primitive
         z2_symmetries = Z2Symmetries.find_z2_symmetries(mapped_op)
         # pylint: disable=assignment-from-none
         # Known issue for abstract class methods https://github.com/PyCQA/pylint/issues/2559

@@ -386,8 +386,13 @@ class QEOM(ExcitedStatesSolver):
             untap_aux_ops_sumop,  # Auxiliary observables
         ) = self.get_qubit_operators(problem, aux_operators)
 
-        untap_main_op = untap_main_op_sumop.primitive
-        untap_aux_ops = {key: op.primitive for key, op in untap_aux_ops_sumop.items()}
+        untap_main_op = untap_main_op_sumop
+        if isinstance(untap_main_op, PauliSumOp):
+            untap_main_op = untap_main_op.primitive
+        untap_aux_ops = {
+            key: op.primitive if isinstance(op, PauliSumOp) else op
+            for key, op in untap_aux_ops_sumop.items()
+        }
 
         # 2. Run ground state calculation with fully tapered custom auxiliary operators
         # Note that the solve() method includes the `second_q' auxiliary operators
@@ -710,7 +715,10 @@ class QEOM(ExcitedStatesSolver):
         else:
             untap_hopping_ops = hopping_operators
 
-        untap_hopping_ops_sparse = {key: op.primitive for key, op in untap_hopping_ops.items()}
+        untap_hopping_ops_sparse = {
+            key: op.primitive if isinstance(op, PauliSumOp) else op
+            for key, op in untap_hopping_ops.items()
+        }
 
         return untap_hopping_ops_sparse, type_of_commutativities, size
 

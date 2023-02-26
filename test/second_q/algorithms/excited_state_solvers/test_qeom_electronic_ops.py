@@ -15,6 +15,7 @@ import unittest
 from test import QiskitNatureTestCase
 
 from qiskit.utils import algorithm_globals
+from qiskit.opflow import PauliSumOp
 
 from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.mappers import QubitConverter, JordanWignerMapper, TaperedQubitMapper
@@ -67,7 +68,9 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
                 hopping_operators.keys(), expected_hopping_operators_electronic.keys()
             ):
                 self.assertEqual(key, exp_key)
-                val = hopping_operators[key].primitive
+                val = hopping_operators[key]
+                if isinstance(val, PauliSumOp):
+                    val = val.primitive
                 exp_val = expected_hopping_operators_electronic[exp_key]
                 if not val.equiv(exp_val):
                     print(val)
@@ -96,7 +99,9 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
                 hopping_operators.keys(), expected_hopping_operators_electronic.keys()
             ):
                 self.assertEqual(key, exp_key)
-                val = hopping_operators[key].primitive
+                val = hopping_operators[key]
+                if isinstance(val, PauliSumOp):
+                    val = val.primitive
                 exp_val = expected_hopping_operators_electronic[exp_key]
                 if not val.equiv(exp_val):
                     print(val)
@@ -125,7 +130,9 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
                 hopping_operators.keys(), expected_hopping_operators_electronic.keys()
             ):
                 self.assertEqual(key, exp_key)
-                val = hopping_operators[key].primitive
+                val = hopping_operators[key]
+                if isinstance(val, PauliSumOp):
+                    val = val.primitive
                 exp_val = expected_hopping_operators_electronic[exp_key]
                 if not val.equiv(exp_val):
                     print(val)

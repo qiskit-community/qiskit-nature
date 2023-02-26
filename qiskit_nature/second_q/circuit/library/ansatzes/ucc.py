@@ -21,7 +21,7 @@ from typing import Callable, Sequence
 
 from qiskit.circuit import QuantumCircuit
 from qiskit.circuit.library import EvolvedOperatorAnsatz
-from qiskit.opflow import PauliTrotterEvolution
+from qiskit.opflow import PauliSumOp
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.deprecation import deprecate_arguments, deprecate_property, warn_deprecated_type
@@ -216,7 +216,7 @@ class UCC(EvolvedOperatorAnsatz):
         self._generalized = generalized
         self._preserve_spin = preserve_spin
 
-        super().__init__(reps=reps, evolution=PauliTrotterEvolution(), initial_state=initial_state)
+        super().__init__(reps=reps, initial_state=initial_state)
 
         # To give read access to the actual excitation list that UCC is using.
         self._excitation_list: list[tuple[tuple[int, ...], tuple[int, ...]]] | None = None
@@ -359,6 +359,10 @@ class UCC(EvolvedOperatorAnsatz):
         valid_operators, valid_excitations = [], []
         for op, ex in zip(operators, self._excitation_list):
             if op is not None:
+                # TODO: remove wrapping into PauliSumOp after the EvolvedOperatorAnsatz supports
+                # SparsePauliOp instances, too: https://github.com/Qiskit/qiskit-terra/pull/9537
+                if not isinstance(op, PauliSumOp):
+                    op = PauliSumOp(op)
                 valid_operators.append(op)
                 valid_excitations.append(ex)
 
@@ -565,8 +569,8 @@ class UCC(EvolvedOperatorAnsatz):
                 label.append(f"-_{unocc}")
             op = FermionicOp({" ".join(label): 1}, num_spin_orbitals=num_spin_orbitals)
             op -= op.adjoint()
-            # we need to account for an additional imaginary phase in the exponent (see also
-            # `PauliTrotterEvolution.convert`)
+            # we need to account for an additional imaginary phase in the exponent accumulated from
+            # the first-order trotterization routine implemented in Qiskit Terra
             op *= 1j  # type: ignore
             operators.append(op)
 
