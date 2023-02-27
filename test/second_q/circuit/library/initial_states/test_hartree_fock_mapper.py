@@ -37,19 +37,15 @@ class TestHartreeFock(QiskitNatureTestCase):
     def test_raises_on_unsupported_tapered_mapper(self):
         """Test if an error is raised for an unsupported mapper."""
         with self.assertRaises(NotImplementedError):
-            converter = TaperedQubitMapper(BravyiKitaevSuperFastMapper())
-            state = HartreeFock(
-                num_spatial_orbitals=2, num_particles=(1, 1), qubit_converter=converter
-            )
+            mapper = TaperedQubitMapper(BravyiKitaevSuperFastMapper())
+            state = HartreeFock(num_spatial_orbitals=2, num_particles=(1, 1), qubit_mapper=mapper)
             state.draw()
 
-    def test_raises_on_unsupported_mapper_no_converter(self):
+    def test_raises_on_unsupported_mapper_no_mapper(self):
         """Test if an error is raised for an unsupported mapper."""
         with self.assertRaises(NotImplementedError):
             mapper = BravyiKitaevSuperFastMapper()
-            state = HartreeFock(
-                num_spatial_orbitals=2, num_particles=(1, 1), qubit_converter=mapper
-            )
+            state = HartreeFock(num_spatial_orbitals=2, num_particles=(1, 1), qubit_mapper=mapper)
             state.draw()
 
     def test_qubits_4_jw_h2(self):
@@ -64,7 +60,7 @@ class TestHartreeFock(QiskitNatureTestCase):
         state = HartreeFock()
         state.num_spatial_orbitals = 2
         state.num_particles = (1, 1)
-        state.qubit_converter = TaperedQubitMapper(JordanWignerMapper())
+        state.qubit_mapper = TaperedQubitMapper(JordanWignerMapper())
         ref = QuantumCircuit(4)
         ref.x([0, 2])
         self.assertEqual(state, ref)
@@ -86,8 +82,8 @@ class TestHartreeFock(QiskitNatureTestCase):
     def test_qubits_2_py_h2(self):
         """qubits 2 py h2 test"""
         num_particles = (1, 1)
-        converter = TaperedQubitMapper(ParityMapper(num_particles))
-        state = HartreeFock(2, num_particles, converter)
+        mapper = TaperedQubitMapper(ParityMapper(num_particles))
+        state = HartreeFock(2, num_particles, mapper)
         ref = QuantumCircuit(2)
         ref.x(0)
         self.assertEqual(state, ref)
@@ -101,10 +97,10 @@ class TestHartreeFock(QiskitNatureTestCase):
             sq_list=[2, 3],
             tapering_values=[1, 1],
         )
-        converter = TaperedQubitMapper(
+        mapper = TaperedQubitMapper(
             ParityMapper(num_particles=num_particles), z2symmetries=z2symmetries
         )
-        state = HartreeFock(5, num_particles, converter)
+        state = HartreeFock(5, num_particles, mapper)
         ref = QuantumCircuit(6)
         ref.x([0, 1])
         self.assertEqual(state, ref)
@@ -120,14 +116,14 @@ class TestHartreeFock(QiskitNatureTestCase):
             sq_list=[3, 2],
             tapering_values=[1, -1],
         )
-        converter = TaperedQubitMapper(
+        mapper = TaperedQubitMapper(
             ParityMapper(num_particles=num_particles), z2symmetries=z2symmetries
         )
 
         bitstr = hartree_fock_bitstring_mapped(
             num_spatial_orbitals=num_spatial_orbitals,
             num_particles=num_particles,
-            qubit_converter=converter,
+            qubit_mapper=mapper,
         )
 
         ref_matched = [True, False, True, True, False, True, False, True, False, False]

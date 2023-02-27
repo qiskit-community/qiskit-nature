@@ -57,7 +57,7 @@ from qiskit_nature.second_q.problems import (
     EigenstateResult,
     ElectronicStructureResult,
 )
-from qiskit_nature.deprecation import warn_deprecated_type
+from qiskit_nature.deprecation import deprecate_property, warn_deprecated_type
 
 from .qeom_electronic_ops_builder import build_electronic_ops
 from .qeom_vibrational_ops_builder import build_vibrational_ops
@@ -236,9 +236,15 @@ class QEOM(ExcitedStatesSolver):
         self.tol = tol
 
     @property
+    @deprecate_property("0.6.0", new_name="qubit_mapper")
     def qubit_converter(self) -> QubitConverter | QubitMapper:
-        """Returns the qubit_converter object defined in the ground state solver."""
-        return self._gsc.qubit_converter
+        """DEPRECATED Returns the qubit_converter object defined in the ground state solver."""
+        return self._gsc.qubit_mapper
+
+    @property
+    def qubit_mapper(self) -> QubitConverter | QubitMapper:
+        """Returns the qubit_mapper object defined in the ground state solver."""
+        return self._gsc.qubit_mapper
 
     @property
     def solver(self) -> MinimumEigensolver | MinimumEigensolverFactory:
@@ -248,21 +254,21 @@ class QEOM(ExcitedStatesSolver):
     def _map_operators(
         self, operators: SparseLabelOp | ListOrDictType[SparseLabelOp]
     ) -> PauliSumOp | ListOrDictType[PauliSumOp]:
-        if isinstance(self.qubit_converter, QubitConverter):
-            mapped_ops = self.qubit_converter.convert_match(operators)
-        elif isinstance(self.qubit_converter, TaperedQubitMapper):
-            mapped_ops = self.qubit_converter.map_clifford(operators)
+        if isinstance(self.qubit_mapper, QubitConverter):
+            mapped_ops = self.qubit_mapper.convert_match(operators)
+        elif isinstance(self.qubit_mapper, TaperedQubitMapper):
+            mapped_ops = self.qubit_mapper.map_clifford(operators)
         else:
-            mapped_ops = self.qubit_converter.map(operators)
+            mapped_ops = self.qubit_mapper.map(operators)
         return mapped_ops
 
     def _taper_operators(
         self, operators: PauliSumOp | ListOrDictType[PauliSumOp]
     ) -> PauliSumOp | ListOrDictType[PauliSumOp]:
-        if isinstance(self.qubit_converter, QubitConverter):
-            tapered_ops = self.qubit_converter.symmetry_reduce_clifford(operators)
-        elif isinstance(self.qubit_converter, TaperedQubitMapper):
-            tapered_ops = self.qubit_converter.taper_clifford(operators, suppress_none=True)
+        if isinstance(self.qubit_mapper, QubitConverter):
+            tapered_ops = self.qubit_mapper.symmetry_reduce_clifford(operators)
+        elif isinstance(self.qubit_mapper, TaperedQubitMapper):
+            tapered_ops = self.qubit_mapper.taper_clifford(operators, suppress_none=True)
         else:
             tapered_ops = operators
         return tapered_ops
@@ -293,13 +299,13 @@ class QEOM(ExcitedStatesSolver):
         num_particles = getattr(problem, "num_particles", None)
 
         # 1. Convert the main operator (hamiltonian) to a Qubit Operator and apply two qubit reduction
-        if isinstance(self.qubit_converter, QubitConverter):
-            self.qubit_converter.force_match(num_particles=num_particles)
-            main_op = self.qubit_converter.convert_only(main_operator, num_particles=num_particles)
-        elif isinstance(self.qubit_converter, TaperedQubitMapper):
-            main_op = self.qubit_converter.map_clifford(main_operator)
+        if isinstance(self.qubit_mapper, QubitConverter):
+            self.qubit_mapper.force_match(num_particles=num_particles)
+            main_op = self.qubit_mapper.convert_only(main_operator, num_particles=num_particles)
+        elif isinstance(self.qubit_mapper, TaperedQubitMapper):
+            main_op = self.qubit_mapper.map_clifford(main_operator)
         else:
-            main_op = self.qubit_converter.map(main_operator)
+            main_op = self.qubit_mapper.map(main_operator)
 
         # 3. Convert the auxiliary operators.
         # aux_ops set to None if the solver does not support auxiliary operators.
@@ -333,15 +339,15 @@ class QEOM(ExcitedStatesSolver):
                     # The custom op overrides the default op if the key is already taken.
                     aux_ops[name] = converted_aux_op
 
-        # 4. Find the z2symmetries, set them in the qubit_converter, and apply the first step of the
-        # tapering.
-        if isinstance(self.qubit_converter, QubitConverter):
-            _, z2symmetries = self.qubit_converter.find_taper_op(
+        if isinstance(self.qubit_mapper, QubitConverter):
+            # 4. Find the z2symmetries, set them in the QubitConverter, and apply the first step of
+            # the tapering.
+            _, z2symmetries = self.qubit_mapper.find_taper_op(
                 main_op, problem.symmetry_sector_locator
             )
-            self.qubit_converter.force_match(z2symmetries=z2symmetries)
-            untap_main_op = self.qubit_converter.convert_clifford(main_op)
-            untap_aux_ops = self.qubit_converter.convert_clifford(aux_ops)
+            self.qubit_mapper.force_match(z2symmetries=z2symmetries)
+            untap_main_op = self.qubit_mapper.convert_clifford(main_op)
+            untap_aux_ops = self.qubit_mapper.convert_clifford(aux_ops)
         else:
             untap_main_op = main_op
             untap_aux_ops = aux_ops
@@ -349,7 +355,7 @@ class QEOM(ExcitedStatesSolver):
         # 5. If a MinimumEigensolverFactory was provided, then an additional call to get_solver() is
         # required.
         if isinstance(self.solver, MinimumEigensolverFactory):
-            self._gsc._solver = self.solver.get_solver(problem, self.qubit_converter)  # type: ignore
+            self._gsc._solver = self.solver.get_solver(problem, self.qubit_mapper)  # type: ignore
 
         return untap_main_op, untap_aux_ops
 
@@ -380,8 +386,13 @@ class QEOM(ExcitedStatesSolver):
             untap_aux_ops_sumop,  # Auxiliary observables
         ) = self.get_qubit_operators(problem, aux_operators)
 
-        untap_main_op = untap_main_op_sumop.primitive
-        untap_aux_ops = {key: op.primitive for key, op in untap_aux_ops_sumop.items()}
+        untap_main_op = untap_main_op_sumop
+        if isinstance(untap_main_op, PauliSumOp):
+            untap_main_op = untap_main_op.primitive
+        untap_aux_ops = {
+            key: op.primitive if isinstance(op, PauliSumOp) else op
+            for key, op in untap_aux_ops_sumop.items()
+        }
 
         # 2. Run ground state calculation with fully tapered custom auxiliary operators
         # Note that the solve() method includes the `second_q' auxiliary operators
@@ -459,13 +470,13 @@ class QEOM(ExcitedStatesSolver):
                 problem.num_spatial_orbitals,
                 (problem.num_alpha, problem.num_beta),
                 self.excitations,
-                self.qubit_converter,
+                self.qubit_mapper,
             )
         elif isinstance(problem, VibrationalStructureProblem):
             return build_vibrational_ops(
                 problem.num_modals,
                 self.excitations,
-                self.qubit_converter,
+                self.qubit_mapper,
             )
         else:
             raise NotImplementedError(
@@ -504,12 +515,12 @@ class QEOM(ExcitedStatesSolver):
                 to_be_computed_list.append((m_u, n_u, left_op_1, right_op_1, right_op_2))
 
         if (
-            isinstance(self.qubit_converter, (QubitConverter, TaperedQubitMapper))
-            and not self.qubit_converter.z2symmetries.is_empty()
+            isinstance(self.qubit_mapper, (QubitConverter, TaperedQubitMapper))
+            and not self.qubit_mapper.z2symmetries.is_empty()
         ):
 
             combinations = itertools.product(
-                [1, -1], repeat=len(self.qubit_converter.z2symmetries.symmetries)
+                [1, -1], repeat=len(self.qubit_mapper.z2symmetries.symmetries)
             )
             for targeted_tapering_values in combinations:
                 logger.info(
@@ -699,12 +710,15 @@ class QEOM(ExcitedStatesSolver):
         hopping_operators, type_of_commutativities, excitation_indices = data
         size = int(len(list(excitation_indices.keys())) // 2)
 
-        if isinstance(self.qubit_converter, QubitConverter):
-            untap_hopping_ops = self.qubit_converter.convert_clifford(hopping_operators)
+        if isinstance(self.qubit_mapper, QubitConverter):
+            untap_hopping_ops = self.qubit_mapper.convert_clifford(hopping_operators)
         else:
             untap_hopping_ops = hopping_operators
 
-        untap_hopping_ops_sparse = {key: op.primitive for key, op in untap_hopping_ops.items()}
+        untap_hopping_ops_sparse = {
+            key: op.primitive if isinstance(op, PauliSumOp) else op
+            for key, op in untap_hopping_ops.items()
+        }
 
         return untap_hopping_ops_sparse, type_of_commutativities, size
 

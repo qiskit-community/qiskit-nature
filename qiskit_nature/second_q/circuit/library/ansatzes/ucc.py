@@ -21,9 +21,10 @@ from typing import Callable, Sequence
 
 from qiskit.circuit import QuantumCircuit
 from qiskit.circuit.library import EvolvedOperatorAnsatz
-from qiskit.opflow import PauliTrotterEvolution
+from qiskit.opflow import PauliSumOp
 
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.deprecation import deprecate_arguments, deprecate_property, warn_deprecated_type
 from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper, TaperedQubitMapper
 from qiskit_nature.second_q.operators import FermionicOp, SparseLabelOp
 
@@ -50,8 +51,8 @@ class UCC(EvolvedOperatorAnsatz):
 
     .. code-block:: python
 
-        qubit_converter = QubitConverter(JordanWignerMapper())
-        ucc = UCC(4, (2, 2), 'sd', qubit_converter)
+        qubit_mapper = JordanWignerMapper()
+        ucc = UCC(4, (2, 2), 'sd', qubit_mapper)
         hf_initial_point = HFInitialPoint()
         hf_initial_point.ansatz = ucc
         initial_point = hf_initial_point.to_numpy_array()
@@ -105,7 +106,7 @@ class UCC(EvolvedOperatorAnsatz):
     Keep in mind, that in all of the examples above we have not set any of the following keyword
     arguments, which must be specified before the ansatz becomes usable:
 
-    - ``qubit_converter``
+    - ``qubit_mapper``
     - ``num_particles``
     - ``num_spatial_orbitals``
 
@@ -125,6 +126,14 @@ class UCC(EvolvedOperatorAnsatz):
         "q": 4,
     }
 
+    @deprecate_arguments(
+        "0.6.0",
+        {"qubit_converter": "qubit_mapper"},
+        additional_msg=(
+            ". Additionally, the QubitConverter type in the qubit_mapper argument is deprecated "
+            "and support for it will be removed together with the qubit_converter argument."
+        ),
+    )
     def __init__(
         self,
         num_spatial_orbitals: int | None = None,
@@ -137,7 +146,7 @@ class UCC(EvolvedOperatorAnsatz):
             list[tuple[tuple[int, ...], tuple[int, ...]]],
         ]
         | None = None,
-        qubit_converter: QubitConverter | QubitMapper | None = None,
+        qubit_mapper: QubitConverter | QubitMapper | None = None,
         *,
         alpha_spin: bool = True,
         beta_spin: bool = True,
@@ -146,7 +155,9 @@ class UCC(EvolvedOperatorAnsatz):
         preserve_spin: bool = True,
         reps: int = 1,
         initial_state: QuantumCircuit | None = None,
-    ):
+        qubit_converter: QubitConverter | QubitMapper | None = None,
+    ) -> None:
+        # pylint: disable=unused-argument
         """
 
         Args:
@@ -167,9 +178,9 @@ class UCC(EvolvedOperatorAnsatz):
                     to write such a callable refer to the default method
                     :meth:`~qiskit_nature.second_q.circuit.library.ansatzes.utils.\
                     generate_fermionic_excitations`.
-            qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` or
-                :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance which takes care of mapping
-                to a qubit operator.
+            qubit_mapper: The :class:`~qiskit_nature.second_q.mappers.QubitMapper` or
+                :class:`~qiskit_nature.second_q.mappers.QubitConverter` instance (use of the latter
+                is deprecated) which takes care of mapping to a qubit operator.
             alpha_spin: Boolean flag whether to include alpha-spin excitations.
             beta_spin: Boolean flag whether to include beta-spin excitations.
             max_spin_excitation: The largest number of excitations within a spin. E.g. you can set
@@ -191,8 +202,11 @@ class UCC(EvolvedOperatorAnsatz):
                 likely you will also want to use a
                 :class:`~qiskit_nature.second_q.algorithms.initial_points.HFInitialPoint` that has
                 been configured using the corresponding ansatz parameters.
+            qubit_converter: DEPRECATED The :class:`~qiskit_nature.second_q.mappers.QubitConverter`
+                or :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance which takes care of
+                mapping to a qubit operator.
         """
-        self._qubit_converter = qubit_converter
+        self._qubit_mapper = qubit_mapper
         self._num_particles = num_particles
         self._num_spatial_orbitals = num_spatial_orbitals
         self._excitations = excitations
@@ -202,7 +216,7 @@ class UCC(EvolvedOperatorAnsatz):
         self._generalized = generalized
         self._preserve_spin = preserve_spin
 
-        super().__init__(reps=reps, evolution=PauliTrotterEvolution(), initial_state=initial_state)
+        super().__init__(reps=reps, initial_state=initial_state)
 
         # To give read access to the actual excitation list that UCC is using.
         self._excitation_list: list[tuple[tuple[int, ...], tuple[int, ...]]] | None = None
@@ -220,16 +234,34 @@ class UCC(EvolvedOperatorAnsatz):
         _ = self.operators
 
     @property
+    @deprecate_property("0.6.0", new_name="qubit_mapper")
     def qubit_converter(self) -> QubitConverter | QubitMapper | None:
-        """The qubit operator converter."""
-        return self._qubit_converter
+        """DEPRECATED The qubit operator converter."""
+        return self._qubit_mapper
 
     @qubit_converter.setter
     def qubit_converter(self, conv: QubitConverter | QubitMapper | None) -> None:
         """Sets the qubit operator converter."""
+        self.qubit_mapper = conv
+
+    @property
+    def qubit_mapper(self) -> QubitConverter | QubitMapper | None:
+        """The qubit operator mapper."""
+        return self._qubit_mapper
+
+    @qubit_mapper.setter
+    def qubit_mapper(self, mapper: QubitConverter | QubitMapper | None) -> None:
+        """Sets the qubit operator mapper."""
+        if isinstance(mapper, QubitConverter):
+            warn_deprecated_type(
+                "0.6.0",
+                argument_name="mapper",
+                old_type="QubitConverter",
+                new_type="QubitMapper",
+            )
         self._operators = None
         self._invalidate()
-        self._qubit_converter = conv
+        self._qubit_mapper = mapper
 
     @property
     def num_spatial_orbitals(self) -> int:
@@ -311,15 +343,13 @@ class UCC(EvolvedOperatorAnsatz):
                 # inserting ``None`` as the result if an operator did not commute. To ensure that
                 # the ``excitation_list`` is transformed identically to the operators, we retain
                 # ``None`` for non-commuting operators in order to manually remove them in unison.
-                if isinstance(self.qubit_converter, QubitConverter):
-                    operators = self.qubit_converter.convert_match(
-                        excitation_ops, suppress_none=False
-                    )
-                elif isinstance(self.qubit_converter, TaperedQubitMapper):
-                    operators = self.qubit_converter.map_clifford(excitation_ops)
-                    operators = self.qubit_converter.taper_clifford(operators, suppress_none=False)
+                if isinstance(self.qubit_mapper, QubitConverter):
+                    operators = self.qubit_mapper.convert_match(excitation_ops, suppress_none=False)
+                elif isinstance(self.qubit_mapper, TaperedQubitMapper):
+                    operators = self.qubit_mapper.map_clifford(excitation_ops)
+                    operators = self.qubit_mapper.taper_clifford(operators, suppress_none=False)
                 else:
-                    operators = self.qubit_converter.map(excitation_ops)
+                    operators = self.qubit_mapper.map(excitation_ops)
 
                 self._filter_operators(operators=operators)
 
@@ -329,6 +359,10 @@ class UCC(EvolvedOperatorAnsatz):
         valid_operators, valid_excitations = [], []
         for op, ex in zip(operators, self._excitation_list):
             if op is not None:
+                # TODO: remove wrapping into PauliSumOp after the EvolvedOperatorAnsatz supports
+                # SparsePauliOp instances, too: https://github.com/Qiskit/qiskit-terra/pull/9537
+                if not isinstance(op, PauliSumOp):
+                    op = PauliSumOp(op)
                 valid_operators.append(op)
                 valid_excitations.append(ex)
 
@@ -390,9 +424,9 @@ class UCC(EvolvedOperatorAnsatz):
                 raise ValueError("The excitations cannot be `None`.")
             return False
 
-        if self.qubit_converter is None:
+        if self.qubit_mapper is None:
             if raise_on_failure:
-                raise ValueError("The qubit_converter cannot be `None`.")
+                raise ValueError("The qubit_mapper cannot be `None`.")
             return False
 
         return True
@@ -535,8 +569,8 @@ class UCC(EvolvedOperatorAnsatz):
                 label.append(f"-_{unocc}")
             op = FermionicOp({" ".join(label): 1}, num_spin_orbitals=num_spin_orbitals)
             op -= op.adjoint()
-            # we need to account for an additional imaginary phase in the exponent (see also
-            # `PauliTrotterEvolution.convert`)
+            # we need to account for an additional imaginary phase in the exponent accumulated from
+            # the first-order trotterization routine implemented in Qiskit Terra
             op *= 1j  # type: ignore
             operators.append(op)
 

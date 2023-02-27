@@ -15,8 +15,11 @@
 from __future__ import annotations
 
 from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolver, NumPyMinimumEigensolver
+
 from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.problems import BaseProblem
+from qiskit_nature.deprecation import deprecate_arguments
+
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
 
@@ -38,16 +41,31 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
         self._use_default_filter_criterion = use_default_filter_criterion
         self._minimum_eigensolver = NumPyMinimumEigensolver(**kwargs)
 
+    @deprecate_arguments(
+        "0.6.0",
+        {"qubit_converter": "qubit_mapper"},
+        additional_msg=(
+            ". Additionally, the QubitConverter type in the qubit_mapper argument is deprecated "
+            "and support for it will be removed together with the qubit_converter argument."
+        ),
+    )
     def get_solver(
-        self, problem: BaseProblem, qubit_converter: QubitConverter | QubitMapper
+        self,
+        problem: BaseProblem,
+        qubit_mapper: QubitConverter | QubitMapper,
+        *,
+        qubit_converter: QubitConverter | QubitMapper | None = None,
     ) -> MinimumEigensolver:
+        # pylint: disable=unused-argument
         """Returns a NumPyMinimumEigensolver which possibly uses the default filter criterion
         provided by the ``problem``.
 
         Args:
             problem: A class encoding a problem to be solved.
-            qubit_converter: A class that converts second quantized operator to qubit operator
-                             according to a mapper it is initialized with.
+            qubit_mapper: A class that converts second quantized operator to qubit operator.
+                Providing a ``QubitConverter`` instance here is deprecated.
+            qubit_converter: DEPRECATED A class that converts second quantized operator to qubit
+                operator according to a mapper it is initialized with.
         Returns:
             A NumPyMinimumEigensolver suitable to compute the ground state of the molecule.
         """

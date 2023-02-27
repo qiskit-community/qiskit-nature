@@ -23,19 +23,37 @@ from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.second_q.problems import EigenstateResult
+from qiskit_nature.deprecation import deprecate_arguments, deprecate_property
 
 
 class GroundStateSolver(ABC):
     """The ground state calculation interface."""
 
-    def __init__(self, qubit_converter: QubitConverter | QubitMapper) -> None:
+    @deprecate_arguments(
+        "0.6.0",
+        {"qubit_converter": "qubit_mapper"},
+        additional_msg=(
+            ". Additionally, the QubitConverter type in the qubit_mapper argument is deprecated "
+            "and support for it will be removed together with the qubit_converter argument."
+        ),
+    )
+    def __init__(
+        self,
+        qubit_mapper: QubitConverter | QubitMapper,
+        *,
+        qubit_converter: QubitConverter | QubitMapper | None = None,
+    ) -> None:
+        # pylint: disable=unused-argument
         """
         Args:
-            qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` or
-                :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance that converts a second
-                quantized operator to qubit operators and applies subsequent qubit reduction.
+            qubit_mapper: The :class:`~qiskit_nature.second_q.mappers.QubitMapper`
+                or :class:`~qiskit_nature.second_q.mappers.QubitConverter` (use of the latter is
+                deprecated) instance that converts a second quantized operator to qubit operators.
+            qubit_converter: DEPRECATED The :class:`~qiskit_nature.second_q.mappers.QubitConverter`
+                or :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance that converts a
+                second quantized operator to qubit operators and applies subsequent qubit reduction.
         """
-        self._qubit_converter = qubit_converter
+        self._qubit_mapper = qubit_mapper
 
     @abstractmethod
     def solve(
@@ -82,9 +100,15 @@ class GroundStateSolver(ABC):
         raise NotImplementedError
 
     @property
+    @deprecate_property("0.6.0", new_name="qubit_mapper")
     def qubit_converter(self):
-        """Returns the qubit converter."""
-        return self._qubit_converter
+        """DEPRECATED Returns the qubit converter."""
+        return self._qubit_mapper
+
+    @property
+    def qubit_mapper(self):
+        """Returns the qubit mapper."""
+        return self._qubit_mapper
 
     @property
     @abstractmethod

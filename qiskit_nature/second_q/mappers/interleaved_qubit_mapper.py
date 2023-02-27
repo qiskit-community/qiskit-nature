@@ -96,7 +96,9 @@ class InterleavedQubitMapper(FermionicMapper):
     def _map_single(
         self, second_q_op: FermionicOp, *, register_length: int | None = None
     ) -> SparsePauliOp | PauliSumOp:
-        blocked_op = self.mapper._map_single(second_q_op, register_length=register_length).primitive
+        blocked_op = self.mapper._map_single(second_q_op, register_length=register_length)
+        if isinstance(blocked_op, PauliSumOp):
+            blocked_op = blocked_op.primitive
 
         def blocked_to_interleaved(label: str) -> str:
             return label[::2] + label[1::2]

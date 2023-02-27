@@ -114,12 +114,7 @@ class TaperedQubitMapper(QubitMapper):
             :attr:`~qiskit_nature.settings.use_pauli_sum_op`), or list (resp. dict) thereof if a
             list (resp. dict) of second quantized operators was supplied.
         """
-        wrapped_type = type(second_q_ops)
-
-        if issubclass(wrapped_type, SparseLabelOp):
-            second_q_ops = [second_q_ops]
-
-        wrapped_second_q_ops: _ListOrDict[SparseLabelOp] = _ListOrDict(second_q_ops)
+        wrapped_second_q_ops, wrapped_type = _ListOrDict.wrap(second_q_ops)
 
         qubit_ops: _ListOrDict[SparsePauliOp] = _ListOrDict()
         for name, second_q_op in iter(wrapped_second_q_ops):
@@ -157,12 +152,7 @@ class TaperedQubitMapper(QubitMapper):
             :attr:`~qiskit_nature.settings.use_pauli_sum_op`), or list (resp. dict) thereof if a
             list (resp. dict) of second quantized operators was supplied.
         """
-        wrapped_type = type(pauli_ops)
-
-        if issubclass(wrapped_type, (PauliSumOp, SparsePauliOp)):
-            pauli_ops = [pauli_ops]
-
-        wrapped_pauli_ops: _ListOrDict[SparsePauliOp | PauliSumOp] = _ListOrDict(pauli_ops)
+        wrapped_pauli_ops, wrapped_type = _ListOrDict.wrap(pauli_ops)
 
         qubit_ops: _ListOrDict[SparsePauliOp | PauliSumOp]
         if self.z2symmetries.is_empty():

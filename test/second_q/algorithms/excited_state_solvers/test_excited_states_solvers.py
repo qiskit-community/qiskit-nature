@@ -90,10 +90,10 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
             with self.subTest(f"{i}. excited state"):
                 self.assertAlmostEqual(computed[i], references[i], places=places)
 
-    def _compute_and_assert_qeom_energies(self, converter: QubitConverter | QubitMapper):
+    def _compute_and_assert_qeom_energies(self, mapper: QubitConverter | QubitMapper):
         estimator = Estimator()
         solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
-        gsc = GroundStateEigensolver(converter, solver)
+        gsc = GroundStateEigensolver(mapper, solver)
         esc = QEOM(gsc, estimator, "sd")
         results = esc.solve(self.electronic_structure_problem)
         self._assert_energies(results.computed_energies, self.reference_energies)

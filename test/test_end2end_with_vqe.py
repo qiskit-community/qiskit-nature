@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018, 2022.
+# (C) Copyright IBM 2018, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -16,11 +16,11 @@ import unittest
 
 from test import QiskitNatureDeprecatedTestCase
 
-from qiskit import BasicAer
-from qiskit.algorithms import VQE
+from qiskit.algorithms.minimum_eigensolvers import VQE
 from qiskit.algorithms.optimizers import COBYLA
 from qiskit.circuit.library import TwoLocal
-from qiskit.utils import algorithm_globals, QuantumInstance
+from qiskit.primitives import Estimator
+from qiskit.utils import algorithm_globals
 import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import ParityMapper, QubitConverter
@@ -45,12 +45,9 @@ class TestEnd2End(QiskitNatureDeprecatedTestCase):
 
     def test_end2end_h2(self):
         """end to end h2"""
-        backend = BasicAer.get_backend("statevector_simulator")
-        shots = 1
         optimizer = COBYLA(maxiter=1000)
         ryrz = TwoLocal(rotation_blocks=["ry", "rz"], entanglement_blocks="cz")
-        quantum_instance = QuantumInstance(backend, shots=shots)
-        vqe = VQE(ryrz, optimizer=optimizer, quantum_instance=quantum_instance)
+        vqe = VQE(Estimator(), ryrz, optimizer)
         result = vqe.compute_minimum_eigenvalue(self.qubit_op, aux_operators=self.aux_ops)
         self.assertAlmostEqual(result.eigenvalue.real, self.reference_energy, places=4)
 

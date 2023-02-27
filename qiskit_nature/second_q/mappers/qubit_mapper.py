@@ -68,6 +68,26 @@ class _ListOrDict(Dict, Iterable, Generic[T]):
             if new_value is not None:
                 self[key] = new_value
 
+    @classmethod
+    def wrap(cls, objects: dict | list | T) -> tuple[_ListOrDict, type]:
+        """Wraps the provided objects into a ``_ListOrDict`` instance.
+
+        Args:
+            objects: a dict, list or single object instance to be wrapped.
+
+        Returns:
+            A tuple consisting of the constructed ``_ListOrDict`` and the original type that was
+            wrapped.
+        """
+        wrapped_type = type(objects)
+
+        if not issubclass(wrapped_type, (dict, list)):
+            objects = [objects]
+
+        wrapped_objects = cls(objects)
+
+        return wrapped_objects, wrapped_type
+
     def unwrap(self, wrapped_type: type, *, suppress_none: bool = True) -> dict | Iterable | T:
         """Return the content of this class according to the initial type of the data before
         the creation of the ListOrDict object.
@@ -161,12 +181,7 @@ class QubitMapper(ABC):
             :attr:`~qiskit_nature.settings.use_pauli_sum_op`), or list (resp. dict) thereof if a
             list (resp. dict) of second quantized operators was supplied.
         """
-        wrapped_type = type(second_q_ops)
-
-        if issubclass(wrapped_type, SparseLabelOp):
-            second_q_ops = [second_q_ops]
-
-        wrapped_second_q_ops: _ListOrDict[SparsePauliOp | PauliSumOp] = _ListOrDict(second_q_ops)
+        wrapped_second_q_ops, wrapped_type = _ListOrDict.wrap(second_q_ops)
 
         qubit_ops: _ListOrDict = _ListOrDict()
         for name, second_q_op in iter(wrapped_second_q_ops):

@@ -15,22 +15,36 @@
 import unittest
 from test import QiskitNatureTestCase
 
+from ddt import data, ddt
+
+from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info import SparsePauliOp
 
 from qiskit_nature.second_q.mappers import InterleavedQubitMapper, JordanWignerMapper
 from qiskit_nature.second_q.operators import FermionicOp
+from qiskit_nature.settings import settings
 
 
+@ddt
 class TestInterleavedQubitMapper(QiskitNatureTestCase):
     """Test InterleavedQubitMapper"""
 
-    def test_mapping(self) -> None:
+    def tearDown(self) -> None:
+        super().tearDown()
+        settings.use_pauli_sum_op = True
+
+    @data(True, False)
+    def test_mapping(self, use_pauli_sum_op: bool) -> None:
         """Test the actual mapping procedure."""
+        settings.use_pauli_sum_op = use_pauli_sum_op
+
         ferm_op = FermionicOp({"+_0 -_1": 1}, num_spin_orbitals=4)
 
         interleaved_mapper = InterleavedQubitMapper(JordanWignerMapper())
 
-        qubit_op = interleaved_mapper.map(ferm_op).primitive
+        qubit_op = interleaved_mapper.map(ferm_op)
+        if isinstance(qubit_op, PauliSumOp):
+            qubit_op = qubit_op.primitive
 
         self.assertEqual(
             qubit_op,

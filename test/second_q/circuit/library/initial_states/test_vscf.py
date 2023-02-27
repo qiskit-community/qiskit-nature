@@ -52,10 +52,10 @@ class TestVSCF(QiskitNatureTestCase):
         """Test 2 modes 2 modal for the first mode and 4 modals for the second
         with lazy attribute setting."""
         num_modals = [2, 4]
-        qubit_converter = QubitConverter(ParityMapper())
+        mapper = QubitConverter(ParityMapper())
         vscf = VSCF()
         vscf.num_modals = num_modals
-        vscf.qubit_converter = qubit_converter
+        vscf.qubit_mapper = mapper
         ref = QuantumCircuit(6)
         ref.x([0, 2])
 
@@ -68,7 +68,7 @@ class TestVSCF(QiskitNatureTestCase):
         mapper = ParityMapper()
         vscf = VSCF()
         vscf.num_modals = num_modals
-        vscf.qubit_converter = mapper
+        vscf.qubit_mapper = mapper
         ref = QuantumCircuit(6)
         ref.x([0, 2])
 
@@ -78,10 +78,10 @@ class TestVSCF(QiskitNatureTestCase):
         """Test 2 modes 2 modal for the first mode and 4 modals for the second
         with lazy attribute setting and the Tapered Qubit."""
         num_modals = [2, 4]
-        qubit_converter = TaperedQubitMapper(ParityMapper())
+        mapper = TaperedQubitMapper(ParityMapper())
         vscf = VSCF()
         vscf.num_modals = num_modals
-        vscf.qubit_converter = qubit_converter
+        vscf.qubit_mapper = mapper
         ref = QuantumCircuit(6)
         ref.x([0, 2])
 

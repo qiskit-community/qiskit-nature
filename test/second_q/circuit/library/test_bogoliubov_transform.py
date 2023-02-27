@@ -53,7 +53,7 @@ class TestBogoliubovTransform(QiskitNatureTestCase):
 
         with self.subTest("Qubit Converter object"):
             matrix = converter.convert_only(hamiltonian.second_q_op()).to_matrix()
-            bog_circuit = BogoliubovTransform(transformation_matrix, qubit_converter=converter)
+            bog_circuit = BogoliubovTransform(transformation_matrix, qubit_mapper=converter)
             for initial_state in range(2**n_orbitals):
                 state = Statevector.from_int(initial_state, dims=2**n_orbitals)
                 final_state = np.array(state.evolve(bog_circuit))
@@ -63,7 +63,7 @@ class TestBogoliubovTransform(QiskitNatureTestCase):
 
         with self.subTest("Qubit Mapper object"):
             matrix = mapper.map(hamiltonian.second_q_op()).to_matrix()
-            bog_circuit = BogoliubovTransform(transformation_matrix, qubit_converter=mapper)
+            bog_circuit = BogoliubovTransform(transformation_matrix, qubit_mapper=mapper)
             for initial_state in range(2**n_orbitals):
                 state = Statevector.from_int(initial_state, dims=2**n_orbitals)
                 final_state = np.array(state.evolve(bog_circuit))
@@ -153,9 +153,9 @@ class TestBogoliubovTransform(QiskitNatureTestCase):
     def test_unsupported_mapper(self):
         """Test passing unsupported mapper fails gracefully."""
         with self.assertRaisesRegex(NotImplementedError, "supported"):
-            _ = BogoliubovTransform(np.eye(2), qubit_converter=QubitConverter(BravyiKitaevMapper()))
+            _ = BogoliubovTransform(np.eye(2), qubit_mapper=QubitConverter(BravyiKitaevMapper()))
 
     def test_unsupported_mapper_no_converter(self):
         """Test passing unsupported mapper fails gracefully when bypassing the qubit converter."""
         with self.assertRaisesRegex(NotImplementedError, "supported"):
-            _ = BogoliubovTransform(np.eye(2), qubit_converter=BravyiKitaevMapper())
+            _ = BogoliubovTransform(np.eye(2), qubit_mapper=BravyiKitaevMapper())

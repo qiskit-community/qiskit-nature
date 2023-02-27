@@ -27,6 +27,7 @@ from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.problems import (
     VibrationalStructureProblem,
 )
+from qiskit_nature.deprecation import deprecate_arguments
 
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
 from ...initial_points import InitialPoint, VSCFInitialPoint
@@ -53,7 +54,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         Args:
             estimator: The ``BaseEstimator`` class to use for the internal
                 :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`.
-            ansatz: The ``UVCC`` ansatz. Its attributes ``qubit_converter``, ``num_modals``, and
+            ansatz: The ``UVCC`` ansatz. Its attributes ``qubit_mapper``, ``num_modals``, and
                 ``initial_point`` will be completed at runtime based on the problem being solved.
             optimizer: The ``Optimizer`` or ``Minimizer`` to use for the internal
                 :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`.
@@ -111,17 +112,30 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         """Sets the initial point of future VQEs produced by the factory."""
         self._initial_point = initial_point
 
-    def get_solver(  # type: ignore[override]
+    @deprecate_arguments(
+        "0.6.0",
+        {"qubit_converter": "qubit_mapper"},
+        additional_msg=(
+            ". Additionally, the QubitConverter type in the qubit_mapper argument is deprecated "
+            "and support for it will be removed together with the qubit_converter argument."
+        ),
+    )
+    def get_solver(
         self,
         problem: VibrationalStructureProblem,
-        qubit_converter: QubitConverter | QubitMapper,
+        qubit_mapper: QubitConverter | QubitMapper,
+        *,
+        qubit_converter: QubitConverter | QubitMapper | None = None,
     ) -> MinimumEigensolver:
-        """Returns a VQE with a :class:`~.UVCC` wavefunction ansatz, based on ``qubit_converter``.
+        # pylint: disable=unused-argument
+        """Returns a VQE with a :class:`~.UVCC` wavefunction ansatz, based on ``qubit_mapper``.
 
         Args:
             problem: A class encoding a problem to be solved.
-            qubit_converter: A class that converts second quantized operator to qubit operator
-                             according to a mapper it is initialized with.
+            qubit_mapper: A class that converts second quantized operator to qubit operator.
+                Providing a ``QubitConverter`` instance here is deprecated.
+            qubit_converter: DEPRECATED A class that converts second quantized operator to qubit
+                operator according to a mapper it is initialized with.
 
         Returns:
             A VQE suitable to compute the ground state of the molecule.
@@ -130,7 +144,7 @@ class VQEUVCCFactory(MinimumEigensolverFactory):
         if initial_state is None:
             initial_state = VSCF(problem.num_modals)
 
-        self.ansatz.qubit_converter = qubit_converter
+        self.ansatz.qubit_mapper = qubit_mapper
         self.ansatz.num_modals = problem.num_modals
         self.ansatz.initial_state = initial_state
 

@@ -21,6 +21,7 @@ from test.second_q.mappers.resources.bksf_lih import (
 
 import numpy as np
 from qiskit.quantum_info import SparsePauliOp, PauliList
+from qiskit.opflow import PauliSumOp
 
 from qiskit_nature.second_q.operators import FermionicOp
 from qiskit_nature.second_q.mappers import BravyiKitaevSuperFastMapper
@@ -162,10 +163,12 @@ class TestBravyiKitaevSuperFastMapper(QiskitNatureTestCase):
         aux = settings.use_pauli_sum_op
         try:
             settings.use_pauli_sum_op = True
-            pauli_sum_op = BravyiKitaevSuperFastMapper().map(h2_fop)
+            qubit_op = BravyiKitaevSuperFastMapper().map(h2_fop)
+            if isinstance(qubit_op, PauliSumOp):
+                qubit_op = qubit_op.primitive
 
             op1 = _sort_simplify(expected_pauli_op)
-            op2 = _sort_simplify(pauli_sum_op.primitive)
+            op2 = _sort_simplify(qubit_op)
 
             with self.subTest("Map H2 frome sto3g basis, number of terms"):
                 self.assertEqual(len(op1), len(op2))
@@ -245,8 +248,10 @@ class TestBravyiKitaevSuperFastMapper(QiskitNatureTestCase):
         aux = settings.use_pauli_sum_op
         try:
             settings.use_pauli_sum_op = True
-            pauli_sum_op = BravyiKitaevSuperFastMapper().map(FERMIONIC_HAMILTONIAN)
-            self.assertEqual(pauli_sum_op._primitive, QUBIT_HAMILTONIAN)
+            qubit_op = BravyiKitaevSuperFastMapper().map(FERMIONIC_HAMILTONIAN)
+            if isinstance(qubit_op, PauliSumOp):
+                qubit_op = qubit_op.primitive
+            self.assertEqual(qubit_op, QUBIT_HAMILTONIAN)
             aux = settings.use_pauli_sum_op
 
             settings.use_pauli_sum_op = False
