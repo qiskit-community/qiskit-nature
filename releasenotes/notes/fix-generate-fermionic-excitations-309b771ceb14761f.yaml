@@ -1,5 +1,5 @@
 ---
 fixes:
   - |
-    Fixes output of :func:`generate_fermionic_excitations` when called with ``perserve_spin=False``
+    Fixes output of :func:`.generate_fermionic_excitations` when called with ``perserve_spin=False``
     and unequal number of alpha and beta particles
