@@ -180,8 +180,6 @@ class TestHartreeFock(QiskitNatureTestCase):
 
         num_spatial_orbitals = 7
         num_particles = (5, 5)
-        mapper = ParityMapper()
-        mapper = QubitConverter(mapper)
 
         ref_notaper_no_red = [
             True,
@@ -201,6 +199,7 @@ class TestHartreeFock(QiskitNatureTestCase):
         ]
 
         with self.subTest("Qubit Converter object"):
+            mapper = QubitConverter(ParityMapper())
             bitstr = hartree_fock_bitstring_mapped(
                 num_spatial_orbitals=num_spatial_orbitals,
                 num_particles=num_particles,
@@ -209,6 +208,7 @@ class TestHartreeFock(QiskitNatureTestCase):
             self.assertListEqual(bitstr, ref_notaper_no_red)
 
         with self.subTest("Qubit Mapper object"):
+            mapper = ParityMapper()
             bitstr = hartree_fock_bitstring_mapped(
                 num_spatial_orbitals=num_spatial_orbitals,
                 num_particles=num_particles,
@@ -216,7 +216,14 @@ class TestHartreeFock(QiskitNatureTestCase):
             )
             self.assertListEqual(bitstr, ref_notaper_no_red)
 
-        # TODO: #1018 Add tests for the Parity mapper with two qubit reduction
+        with self.subTest("ParityMapper with builtin two-qubit reduction"):
+            mapper = ParityMapper(num_particles=num_particles)
+            bitstr = hartree_fock_bitstring_mapped(
+                num_spatial_orbitals=num_spatial_orbitals,
+                num_particles=num_particles,
+                qubit_mapper=mapper,
+            )
+            self.assertListEqual(bitstr, ref_notaper_no_red[:5] + ref_notaper_no_red[6:-1])
 
 
 if __name__ == "__main__":
