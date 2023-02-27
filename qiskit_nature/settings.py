@@ -38,6 +38,7 @@ class QiskitNatureSettings:
         self._deprecation_shown: set[str] = set()
         self._tensor_unwrapping = True
         self._use_pauli_sum_op: bool = True
+        self._use_symmetry_reduced_integrals: bool = False
 
     @property
     def use_pauli_sum_op(self) -> bool:
@@ -133,6 +134,54 @@ class QiskitNatureSettings:
         self._optimize_einsum = optimize_einsum
 
     @property
+    def use_symmetry_reduced_integrals(self) -> bool:
+        """Whether or not to use symmetry-reduced integrals whenever possible.
+
+        This setting affects whether the drivers and formats should attempt to use the utilities
+        provided by the :mod:`~qiskit_nature.second_q.operators.symmetric_two_body` module.
+        Setting this to ``True`` will very likely result in lower memory consumptions at runtime.
+        """
+        if (
+            not self._use_symmetry_reduced_integrals
+            and "SymmetricTwoBodyIntegrals" not in self._deprecation_shown
+        ):
+            warnings.filterwarnings("default", category=DeprecationWarning)
+            warnings.warn(
+                DeprecationWarning(
+                    "As of version 0.6.0 the current default-value `False` of "
+                    "`qiskit_nature.settings.use_symmetry_reduced_integrals` is deprecated. "
+                    "No sooner than 3 months after this release, this default value will be "
+                    "switched to `True`. You can change the value of this setting yourself already."
+                ),
+                stacklevel=3,
+            )
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            self._deprecation_shown.add("SymmetricTwoBodyIntegrals")
+
+        return self._use_symmetry_reduced_integrals
+
+    @use_symmetry_reduced_integrals.setter
+    def use_symmetry_reduced_integrals(self, use_symmetry_reduced_integrals: bool) -> None:
+        if (
+            not use_symmetry_reduced_integrals
+            and "SymmetricTwoBodyIntegrals" not in self._deprecation_shown
+        ):
+            warnings.filterwarnings("default", category=DeprecationWarning)
+            warnings.warn(
+                DeprecationWarning(
+                    "As of version 0.6.0 the current default-value `False` of "
+                    "`qiskit_nature.settings.use_symmetry_reduced_integrals` is deprecated. "
+                    "No sooner than 3 months after this release, this default value will be "
+                    "switched to `True`. You can change the value of this setting yourself already."
+                ),
+                stacklevel=3,
+            )
+            warnings.filterwarnings("ignore", category=DeprecationWarning)
+            self._deprecation_shown.add("SymmetricTwoBodyIntegrals")
+
+        self._use_symmetry_reduced_integrals = use_symmetry_reduced_integrals
+
+    @property
     def tensor_unwrapping(self) -> bool:
         """Returns whether tensors inside the :class:`~.PolynomialTensor` should be unwrapped.
 
@@ -147,7 +196,7 @@ class QiskitNatureSettings:
             warnings.warn(
                 DeprecationWarning(
                     "As of version 0.6.0 the return of unwrapped tensors in the "
-                    "`PolynomialTensor.__getitem__` method is deprecated. No sooner that 3 months "
+                    "`PolynomialTensor.__getitem__` method is deprecated. No sooner than 3 months "
                     "after this release, arrays will always be returned as `Tensor` objects. You "
                     "can switch to the new objects immediately, by setting "
                     "`qiskit_nature.settings.tensor_unwrapping` to `False`."
@@ -174,7 +223,7 @@ class QiskitNatureSettings:
             warnings.warn(
                 DeprecationWarning(
                     "As of version 0.6.0 the return of unwrapped tensors in the "
-                    "`PolynomialTensor.__getitem__` method is deprecated. No sooner that 3 months "
+                    "`PolynomialTensor.__getitem__` method is deprecated. No sooner than 3 months "
                     "after this release, arrays will always be returned as `Tensor` objects. You "
                     "can switch to the new objects immediately, by setting "
                     "`qiskit_nature.settings.tensor_unwrapping` to `False`."

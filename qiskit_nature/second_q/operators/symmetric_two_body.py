@@ -81,7 +81,7 @@ These methods can be used to fold lower symmetries to higher ones.
 from __future__ import annotations
 
 import logging
-from abc import ABC
+from abc import ABC, abstractmethod
 from itertools import takewhile
 from numbers import Number
 from typing import Any, Generator, Tuple, cast
@@ -130,6 +130,20 @@ class SymmetricTwoBodyIntegrals(Tensor, ABC):
         """
         super().__init__(eri, label_template="+_{{0}} +_{{2}} -_{{3}} -_{{1}}")
 
+    @classmethod
+    @abstractmethod
+    def zero(cls, norb: int) -> SymmetricTwoBodyIntegrals:
+        """Constructs an all-zero integral container of the requested size.
+
+        Args:
+            norb: the number of orbitals indicating the dimension of the integral container to be
+                returned.
+
+        Returns:
+            An integral container of the requested size with all-zero terms.
+        """
+        raise NotImplementedError()
+
     def __array_wrap__(self, array: ARRAY_TYPE, context=None) -> SymmetricTwoBodyIntegrals:
         try:
             return self.__class__(array)
@@ -166,6 +180,7 @@ class SymmetricTwoBodyIntegrals(Tensor, ABC):
                 new_types.append(S1Integrals)
             else:
                 new_types.append(t)
+        kwargs["context"] = "_numpy_function_via_s1"
         return super().__array_function__(func, tuple(new_types), tuple(new_args), kwargs)
 
     def conjugate(self) -> SymmetricTwoBodyIntegrals:
@@ -199,6 +214,19 @@ class S1Integrals(SymmetricTwoBodyIntegrals):
                 "Expected a 4-dimensional array but obtained one with shape: ", eri.shape
             )
         super().__init__(eri)
+
+    @classmethod
+    def zero(cls, norb: int) -> S1Integrals:
+        eri: ARRAY_TYPE
+        if _optionals.HAS_SPARSE:
+            _optionals.HAS_SPARSE.require_now("DOK")
+            import sparse as sp  # pylint: disable=import-error
+
+            eri = sp.DOK((norb, norb, norb, norb))
+        else:
+            eri = np.zeros((norb, norb, norb, norb))
+
+        return cls(eri)
 
 
 class S4Integrals(SymmetricTwoBodyIntegrals):
@@ -234,10 +262,18 @@ class S4Integrals(SymmetricTwoBodyIntegrals):
     def shape(self) -> tuple[int, ...]:
         return (self._norb,) * 4
 
+    @classmethod
+    def zero(cls, norb: int) -> S4Integrals:
+        npair = norb * (norb + 1) // 2
+        eri = np.zeros((npair, npair))
+        return cls(eri)
+
     def __array_wrap__(self, array: ARRAY_TYPE, context=None) -> SymmetricTwoBodyIntegrals:
         if len(array.shape) == 4:
             # NOTE: some operations may require implicit unfolding to S1Integrals
             return S1Integrals(array)
+        if context is not None and context == "_numpy_function_via_s1":
+            return Tensor(array)
         try:
             return self.__class__(array)
         except ValueError:
@@ -260,6 +296,13 @@ class S4Integrals(SymmetricTwoBodyIntegrals):
             key = cast(Tuple[int, int, int, int], key)
             return self.__array__().__getitem__(self._reduced_dim_index(key))
         return super().__getitem__(key)
+
+    def __setitem__(self, key: Any, value: Number) -> Any:
+        if isinstance(key, tuple) and len(key) == 4:
+            key = cast(Tuple[int, int, int, int], key)
+            self.array[self._reduced_dim_index(key)] = value
+        else:
+            self.array[key] = value
 
     def _full_index(self, idx: tuple[int, int]) -> Generator[tuple[int, int, int, int], None, None]:
         i, j = _inflate_index(idx[0], self._norb)
@@ -326,10 +369,18 @@ class S8Integrals(SymmetricTwoBodyIntegrals):
     def shape(self) -> tuple[int, ...]:
         return (self._norb,) * 4
 
+    @classmethod
+    def zero(cls, norb: int) -> S8Integrals:
+        npair = norb * (norb + 1) // 2
+        eri = np.zeros(npair * (npair + 1) // 2)
+        return cls(eri)
+
     def __array_wrap__(self, array: ARRAY_TYPE, context=None) -> SymmetricTwoBodyIntegrals:
         if len(array.shape) == 4:
             # NOTE: some operations may require implicit unfolding to S1Integrals
             return S1Integrals(array)
+        if context is not None and context == "_numpy_function_via_s1":
+            return Tensor(array)
         try:
             return self.__class__(array)
         except ValueError:
@@ -355,6 +406,13 @@ class S8Integrals(SymmetricTwoBodyIntegrals):
             key = cast(Tuple[int, int, int, int], key)
             return self.__array__().__getitem__(self._reduced_dim_index(key))
         return super().__getitem__(key)
+
+    def __setitem__(self, key: Any, value: Number) -> Any:
+        if isinstance(key, tuple) and len(key) == 4:
+            key = cast(Tuple[int, int, int, int], key)
+            self.array[self._reduced_dim_index(key)] = value
+        else:
+            self.array[key] = value
 
     def _full_index(self, idx: int) -> Generator[tuple[int, int, int, int], None, None]:
         ij, kl = _inflate_index(idx, self._npair)
