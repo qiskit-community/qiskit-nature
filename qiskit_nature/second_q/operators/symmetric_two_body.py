@@ -299,7 +299,7 @@ class S8Integrals(SymmetricTwoBodyIntegrals):
     This class is a utility subclass of the central :class:`.Tensor` used for storing n-dimensional
     arrays. This particular one holds 2-body electronic integrals when contracted to 8-fold
     symmetry. This means, that the full 4-dimensional integrals are contracted to a 1-dimensional
-    representation of length :math:`M * (M + 1) / 2` where math:`M` is the number of orbital pairs
+    representation of length :math:`M * (M + 1) / 2` where :math:`M` is the number of orbital pairs
     given by :math:`M = N * (N + 1) / 2` where :math:`N` is the number of orbitals.
     """
 
