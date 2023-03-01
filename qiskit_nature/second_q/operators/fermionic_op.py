@@ -22,6 +22,7 @@ from typing import cast, Iterator
 import numpy as np
 from scipy.sparse import csc_matrix
 
+from qiskit_nature.deprecation import deprecate_method
 from qiskit_nature.exceptions import QiskitNatureError
 
 from ._bits_container import _BitsContainer
@@ -342,10 +343,20 @@ class FermionicOp(SparseLabelOp):
             new_op.num_spin_orbitals = a.num_spin_orbitals + b.num_spin_orbitals
         return new_op
 
-    # TODO: do we want to change the returned type to be non-scipy sparse matrix?
+    # pylint: disable=bad-docstring-quotes
+    @deprecate_method(
+        "0.6.0",
+        additional_msg=(
+            ". This method has no direct replacement. Instead, use the "
+            "`qiskit_nature.second_q.mappers.JordanWignerMapper` to create a qubit operator and "
+            "subsequently use its `to_matrix()` method. Be advised, that the basis state ordering "
+            "of that output will differ due to the bitstring endianness. For more information "
+            "refer to https://github.com/Qiskit/qiskit-nature/issues/875."
+        ),
+    )
     def to_matrix(self, sparse: bool | None = True) -> csc_matrix | np.ndarray:
-        """Convert to a matrix representation over the full fermionic Fock space in the occupation
-        number basis.
+        """DEPRECATED Convert to a matrix representation over the full fermionic Fock space in the
+        occupation number basis.
 
         The basis states are ordered in increasing bitstring order as 0000, 0001, ..., 1111.
 
