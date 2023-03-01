@@ -1,0 +1,39 @@
+---
+features:
+  - |
+    Adds the :mod:`~qiskit_nature.second_q.operators.symmetric_two_body` module.
+    This module provides utilities to exploit the inherent symmetries of
+    chemistry-ordered two-body electronic integrals. You may use these to reduce
+    memory consumption of your code, for example like so:
+
+    .. code-block:: python
+
+       from pyscf import gto
+       from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
+       from qiskit_nature.second_q.operators import (
+            ElectronicIntegrals,
+            PolynomialTensor,
+       )
+       from qiskit_nature.second_q.operators.symmetric_two_body import S8Integrals
+
+       mol = gto.M(atom="H 0 0 0; H 0 0 0.735", basis="631g*")
+
+       hamiltonian = ElectronicEnergy(
+           ElectronicIntegrals(
+               PolynomialTensor(
+                   {
+                       "+-": mol.get_hcore(),
+                       "++--": S8Integrals(mol.intor("int2e", aosym=8)),
+                   },
+                   validate=False,
+               )
+           )
+       )
+
+       print(hamiltonian.second_q_op())
+
+    Since these integral containers are integrated into the stack, you can
+    continue to use existing tools such as the
+    :class:`~qiskit_nature.second_q.transformers.BasisTransformer` or even the
+    :class:`~qiskit_nature.second_q.transformers.ActiveSpaceTransformer` as if
+    you had stored your integrals in standard arrays.
