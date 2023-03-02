@@ -157,6 +157,7 @@ einsum
 electronicintegrals
 electronicstructureproblem
 endian
+endianness
 endif
 enum
 eom
