@@ -582,59 +582,35 @@ class BosonicOp(SparseLabelOp):
     def _simplify_label(self, label: str, coeff: _TCoeff) -> tuple[str, _TCoeff]:
         # We can probably use a defaultDict as we only need to store th number of +/- operations that we applied
         # i.e. if we have +_1 -_1 +_1 -> we store 1
-        bits = _BitsContainer[int]()
+        new_label: str = ""
 
         # Since Python 3.7, dictionaries are guaranteed to be insert-order preserving. We use this
         # to our advantage, to implement an ordered set, which allows us to preserve the label order
         # and only remove canceling terms.
-        new_label: dict[str, None] = {}
+        operator_mapper = defaultdict(int)
 
+        # first, we compute how many creation/annihilation op are applied to each state
         for lbl in label.split():
-            char, index = lbl.split("_")
+            # Each lbl has the following format: [\+\-]_<index>
+            operator, index = lbl.split("_")
             idx = int(index)
-            char_b = char == "+"
+            print("label: ", label, "; index: ", idx, "; operator: ", operator)
+            # Creation operator (+) creates a new particle at that index, so we increase the value in the dict by one
+            # Annihilaion operator (-) doe the opposite
+            operator_mapper[idx] += 1 if operator == "+" else -1
 
-            if idx not in bits:
-                # we store all relevant information for each register index in 4 bits:
-                #   1. True if a `+` has been applied on this index
-                #   2. True if a `-` has been applied on this index
-                #   3. True if a `+` was applied first, False if a `-` was applied first
-                #   4. True if the last added operation on this index was `+`, False if `-`
-                bits[idx] = int(f"{char_b:b}{not char_b:b}{char_b:b}{char_b:b}", base=2)
-                # and we insert the encountered label into our ordered set
-                new_label[lbl] = None
-
-            elif bits.get_last(idx) == char_b:
-                # we bail, if we apply the same operator as the last one
-                return "", 0
-
-            elif bits.get_plus(idx) and bits.get_minus(idx):
-                # If both, `+` and `-`, have already been applied, we cancel the opposite to the
-                # current one (i.e. `+` will cancel `-` and vice versa).
-                # 1. we construct the reversed label which is the key we need to pop
-                pop_lbl = f"{'-' if char_b else '+'}_{idx}"
-                # 2. we find its index in the insertion order of the new label
-                pop_idx = list(new_label).index(pop_lbl)
-                # 3. we use this index plus the current length of the new label to determine the
-                #    number of exchange operations necessary to move the current term next to the
-                #    one being popped
-                num_exchange = len(new_label) - pop_idx - 1
-                # 4. we perform the information update by:
-                #  a) updating the coefficient sign
-                coeff *= -1 if num_exchange % 2 else 1
-                #  b) popping the key we just canceled out
-                new_label.pop(pop_lbl)
-                #  c) updating the bits container
-                bits.set_plus_or_minus(idx, not char_b, False)
-                #  d) and updating the last bit to the current char
-                bits.set_last(idx, char_b)
-
+        # Remark: count can be >=< 0. If "> 0", we are adding particles (creation op) to that state. 
+        # If "< 0" we are removing particles (annihilation op) to that state
+        # If "== 0", we applied the same number of creation and annihilitation op to a certain index:
+        #      it's a density operator
+        # If the key is not existing, that state was not influenced by the operation
+        for state, count in operator_mapper.items():
+            if count == 0:
+                # density operator, therefore the new label will be: b_i^\dagger b_i
+                new_label += f" +_{state} -_{state}"
             else:
-                # else, we simply set the bit of the currently applied char
-                bits.set_plus_or_minus(idx, char_b, True)
-                # and track it in our ordered set
-                new_label[lbl] = None
-                # we also update the last bit to the current char
-                bits.set_last(idx, char_b)
+                # In this case, we need to print as many creation/annihilitation operators as the count says
+                for i in range(0, abs(count)):
+                    new_label += f' {"+" if count > 0 else "-"}_{state}'
 
-        return " ".join(new_label), coeff
+        return new_label, coeff
