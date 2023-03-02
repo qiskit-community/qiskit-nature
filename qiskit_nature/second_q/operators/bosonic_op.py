@@ -343,9 +343,6 @@ class BosonicOp(SparseLabelOp):
         if offset:
             new_op.num_spin_orbitals = a.num_spin_orbitals + b.num_spin_orbitals
         return new_op
-
-    # TODO: do we want to change the returned type to be non-scipy sparse matrix?
-    def to_matrix(self, sparse: bool | None = True) -> csc_matrix | np.ndarray:
         """Convert to a matrix representation over the full fermionic Fock space in the occupation
         number basis.
 
@@ -432,6 +429,11 @@ class BosonicOp(SparseLabelOp):
 
         Returns a new operator (the original operator is not modified).
 
+        .. reminder: 
+
+            The commutation relation between two bosonic operator is:
+            [b_i, b_j^\dagger]_- = \delta_ij => b_i * b_j^\dagger = b_j^\dagger * b_i + \delta_ij
+
         .. note::
 
             This method implements the transformation of an operator to the normal ordered operator.
@@ -475,29 +477,21 @@ class BosonicOp(SparseLabelOp):
                     # swap terms where an annihilation operator is left of a creation operator
                     terms[j - 1] = right
                     terms[j] = left
-                    coeff *= -1.0
+                    # No need to multiply the coefficient by -1 due to commutation relations
 
                     if right[1] == left[1]:
                         # if their indices are identical, we incur an additional term because of:
-                        # a_i a_i^\dagger = 1 - a_i^\dagger a_i
+                        # b_i b_i^\dagger = 1 + b_i^\dagger b_i
                         new_terms = terms[: (j - 1)] + terms[(j + 1) :]
                         # we can do so by recursion on this method
-                        ordered_op += self._normal_order(new_terms, -1.0 * coeff)
+                        ordered_op += self._normal_order(new_terms, coeff)
 
-                elif right[0] == left[0]:
-                    # when we have identical neighboring operators, differentiate two cases:
-
-                    # on identical index, this is an invalid Fermionic operation which evaluates to
-                    # zero: e.g. +_0 +_0 = 0
-                    if right[1] == left[1]:
-                        # thus, we bail on this recursion call
-                        return ordered_op
-
-                    # otherwise, if the left index is higher than the right one, swap the terms
-                    elif left[1] > right[1]:
-                        terms[j - 1] = right
-                        terms[j] = left
-                        coeff *= -1.0
+                elif right[0] == left[0] and left[1] > right[1]:
+                    # when we have identical neighboring operators. 
+                    # If the left index is higher than the right one, swap the terms. Otherwise, nothing to do
+                    terms[j - 1] = right
+                    terms[j] = left
+                    # No need to multiply the coefficient by -1 due to commutation relations
 
         new_label = " ".join(f"{term[0]}_{term[1]}" for term in terms)
         ordered_op += self._new_instance({new_label: coeff})
@@ -547,7 +541,7 @@ class BosonicOp(SparseLabelOp):
                 if left[1] > right[1]:
                     terms[j - 1] = right
                     terms[j] = left
-                    coeff *= -1.0
+                    # No need to multiply the coefficient by -1 due to commutation relations
 
         new_label = " ".join(f"{term[0]}_{term[1]}" for term in terms)
         return new_label, coeff
@@ -586,6 +580,8 @@ class BosonicOp(SparseLabelOp):
         return self._new_instance(simplified_data)
 
     def _simplify_label(self, label: str, coeff: _TCoeff) -> tuple[str, _TCoeff]:
+        # We can probably use a defaultDict as we only need to store th number of +/- operations that we applied
+        # i.e. if we have +_1 -_1 +_1 -> we store 1
         bits = _BitsContainer[int]()
 
         # Since Python 3.7, dictionaries are guaranteed to be insert-order preserving. We use this
