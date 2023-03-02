@@ -2,7 +2,7 @@
 
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018, 2021.
+# (C) Copyright IBM 2018, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -75,6 +75,7 @@ cp -r $SOURCE_DIR/$DOC_DIR_PO/ nature/docs
 cp $SOURCE_DIR/setup.py nature/.
 cp $SOURCE_DIR/requirements-dev.txt nature/.
 cp $SOURCE_DIR/requirements.txt nature/.
+cp $SOURCE_DIR/constraints.txt nature/.
 cp $SOURCE_DIR/README.md nature/.
 cp $SOURCE_DIR/qiskit_nature/VERSION.txt nature/qiskit_nature/.
 
