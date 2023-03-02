@@ -67,12 +67,10 @@ driver = PySCFDriver(
 )
 problem = driver.run()
 
-# setup the mapper and qubit converter
+# setup the qubit mapper
 from qiskit_nature.second_q.mappers import ParityMapper
-from qiskit_nature.second_q.mappers import QubitConverter
 
-mapper = ParityMapper()
-converter = QubitConverter(mapper=mapper, two_qubit_reduction=True)
+mapper = ParityMapper(num_particles=problem.num_particles)
 
 # setup the classical optimizer for the VQE
 from qiskit.algorithms.optimizers import L_BFGS_B
@@ -85,19 +83,27 @@ from qiskit.primitives import Estimator
 estimator = Estimator()
 
 # setup the ansatz for VQE
-from qiskit_nature.second_q.circuit.library import UCCSD
+from qiskit_nature.second_q.circuit.library import HartreeFock, UCCSD
 
 ansatz = UCCSD()
+ansatz.num_particles = problem.num_particles
+ansatz.num_spatial_orbitals = problem.num_spatial_orbitals
+ansatz.qubit_mapper = mapper
+initial_state = HartreeFock()
+initial_state.num_particles = problem.num_particles
+initial_state.num_spatial_orbitals = problem.num_spatial_orbitals
+initial_state.qubit_mapper = mapper
+ansatz.initial_state = initial_state
 
-# use a factory to complement the VQE and its components at runtime
-from qiskit_nature.second_q.algorithms import VQEUCCFactory
+# set up our actual VQE instance
+from qiskit.algorithms.minimum_eigensolvers import VQE
 
-vqe_factory = VQEUCCFactory(estimator, ansatz, optimizer)
+vqe = VQE(estimator, ansatz, optimizer)
 
 # prepare the ground-state solver and run it
 from qiskit_nature.second_q.algorithms import GroundStateEigensolver
 
-algorithm = GroundStateEigensolver(converter, vqe_factory)
+algorithm = GroundStateEigensolver(mapper, vqe)
 
 electronic_structure_result = algorithm.solve(problem)
 print(electronic_structure_result)
