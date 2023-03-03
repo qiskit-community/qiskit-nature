@@ -281,7 +281,7 @@ class BosonicOp(SparseLabelOp):
 # Clearly it's the same
     def __str__(self) -> str:
         pre = (
-            "Fermionic Operator\n"
+            "Bosonic Operator\n"
             f"number spin orbitals={self.num_spin_orbitals}, number terms={len(self)}\n"
         )
         ret = "  " + "\n+ ".join(
@@ -295,7 +295,7 @@ class BosonicOp(SparseLabelOp):
 
         Yields:
             A tuple with two items; the first one being a list of pairs of the form (char, int)
-            where char is either `+` or `-` and the integer corresponds to the fermionic mode index
+            where char is either `+` or `-` and the integer corresponds to the bosonic mode index
             on which the operator gets applied; the second item of the returned tuple is the
             coefficient of this term.
         """
@@ -343,7 +343,7 @@ class BosonicOp(SparseLabelOp):
         if offset:
             new_op.num_spin_orbitals = a.num_spin_orbitals + b.num_spin_orbitals
         return new_op
-        """Convert to a matrix representation over the full fermionic Fock space in the occupation
+        """Convert to a matrix representation over the full bosonic Fock space in the occupation
         number basis.
 
         The basis states are ordered in increasing bitstring order as 0000, 0001, ..., 1111.
