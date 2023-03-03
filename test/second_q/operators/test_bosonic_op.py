@@ -104,6 +104,153 @@ class TestBosonicOp(QiskitNatureTestCase):
         targ = BosonicOp({"+_0 -_0": self.a - 1})
         self.assertEqual(bos_op, targ)
 
+    def test_normal_order(self):
+        """test normal_order method
+            This test method tries to normal order an BosonicOp, meaning that the resulting label will have first all creation operators
+            and then all annihilation operators 
+        """
+        with self.subTest("Test for creation operator"):
+            orig = BosonicOp({"+_0": 1}, num_spin_orbitals=1)
+            bos_op = orig.normal_order()
+            self.assertEqual(bos_op, orig)
+
+        with self.subTest("Test for annihilation operator"):
+            orig = BosonicOp({"-_0": 1}, num_spin_orbitals=1)
+            bos_op = orig.normal_order()
+            self.assertEqual(bos_op, orig)
+
+        with self.subTest("Test for number operator"):
+            orig = BosonicOp({"+_0 -_0": 1}, num_spin_orbitals=1)
+            bos_op = orig.normal_order()
+            self.assertEqual(bos_op, orig)
+
+        with self.subTest("Test for empty operator"):
+            orig = BosonicOp({"-_0 +_0": 1}, num_spin_orbitals=1)
+            bos_op = orig.normal_order()
+            targ = BosonicOp({"": 1, "+_0 -_0": 1}, num_spin_orbitals=1)
+            self.assertEqual(bos_op, targ)
+
+        with self.subTest("Test for multiple operators 1"):
+            orig = BosonicOp({"-_0 +_1": 1}, num_spin_orbitals=2)
+            bos_op = orig.normal_order()
+            targ = BosonicOp({"+_1 -_0": 1}, num_spin_orbitals=2)
+            self.assertEqual(bos_op, targ)
+
+        with self.subTest("Test for multiple operators 2"):
+            orig = BosonicOp({"-_0 +_0 +_1 -_2": 1}, num_spin_orbitals=3)
+            bos_op = orig.normal_order()
+            targ = BosonicOp({"+_1 -_2": 1, "+_0 +_1 -_0 -_2": 1}, num_spin_orbitals=3)
+            self.assertEqual(bos_op, targ)
+
+        with self.subTest("Test normal ordering simplifies"):
+            orig = BosonicOp({"-_0 +_1": 2, "+_1 -_0": -1, "+_0": 0.0}, num_spin_orbitals=2)
+            bos_op = orig.normal_order()
+            targ = BosonicOp({"+_1 -_0": 1}, num_spin_orbitals=2)
+            self.assertEqual(bos_op, targ)
+
+        with self.subTest("Test parameters"):
+            orig = BosonicOp({"-_0 +_0 +_1 -_2": self.a})
+            bos_op = orig.normal_order()
+            targ = BosonicOp({"+_1 -_2": self.a, "+_0 +_1 -_0 -_2": self.a})
+            self.assertEqual(bos_op, targ)
+
+    def test_index_order(self):
+        """test index_order method
+            This test method tries to index order an BosonicOp, meaning that the resulting label will have first all 
+            operators acting of the lowest index, and then all operators acting on the second lowest index and so on
+        """
+        with self.subTest("Test for creation operator"):
+            orig = BosonicOp({"+_0": 1})
+            bos_op = orig.index_order()
+            self.assertEqual(bos_op, orig)
+
+        with self.subTest("Test for annihilation operator"):
+            orig = BosonicOp({"-_0": 1})
+            bos_op = orig.index_order()
+            self.assertEqual(bos_op, orig)
+
+        with self.subTest("Test for number operator"):
+            orig = BosonicOp({"+_0 -_0": 1})
+            bos_op = orig.index_order()
+            self.assertEqual(bos_op, orig)
+
+        with self.subTest("Test for empty operator"):
+            orig = BosonicOp({"-_0 +_0": 1})
+            bos_op = orig.index_order()
+            self.assertEqual(bos_op, orig)
+
+        with self.subTest("Test for multiple operators 1"):
+            orig = BosonicOp({"+_1 -_0": 1})
+            bos_op = orig.index_order()
+            targ = BosonicOp({"-_0 +_1": 1})
+            self.assertEqual(bos_op, targ)
+
+        with self.subTest("Test for multiple operators 2"):
+            orig = BosonicOp({"+_2 -_0 +_1 -_0": 1, "-_0 +_1": 2})
+            bos_op = orig.index_order()
+            targ = BosonicOp({"-_0 -_0 +_1 +_2": 1, "-_0 +_1": 2})
+            self.assertEqual(bos_op, targ)
+
+        with self.subTest("Test index ordering simplifies"):
+            orig = BosonicOp({"-_0 +_1": 2, "+_1 -_0": -1, "+_0": 0.0})
+            bos_op = orig.index_order()
+            targ = BosonicOp({"-_0 +_1": 1})
+            self.assertEqual(bos_op, targ)
+
+        # TODO: It's the same of the one at line 248
+        with self.subTest("index order + simplify"):
+            orig = BosonicOp({"+_1 -_0 +_0 -_0": 1, "-_0 +_1": 2})
+            bos_op = orig.index_order().simplify()
+            targ = BosonicOp({"-_0 +_1": 1})
+            self.assertEqual(bos_op, targ)
+    
+    def test_simplify(self):
+        """Test simplify
+            This test method tries to simplify the operator label
+        """
+        with self.subTest("simplify integer"):
+            bos_op = BosonicOp({"+_0 -_0": 1, "+_0 -_0 +_0 -_0": 1}, num_spin_orbitals=1)
+            simplified_op = bos_op.simplify()
+            targ = BosonicOp({"+_0 -_0": 2}, num_spin_orbitals=1)
+            self.assertEqual(simplified_op, targ)
+
+        with self.subTest("simplify complex"):
+            bos_op = BosonicOp({"+_0 -_0": 1, "+_0 -_0 +_0 -_0": 1j}, num_spin_orbitals=1)
+            simplified_op = bos_op.simplify()
+            targ = BosonicOp({"+_0 -_0": 1 + 1j}, num_spin_orbitals=1)
+            self.assertEqual(simplified_op, targ)
+
+        with self.subTest("simplify doesn't reorder"):
+            bos_op = BosonicOp({"-_0 +_1": 1 + 0j}, num_spin_orbitals=2)
+            simplified_op = bos_op.simplify()
+            self.assertEqual(simplified_op, bos_op)
+
+            bos_op = BosonicOp({"-_1 +_0": 1 + 0j}, num_spin_orbitals=2)
+            simplified_op = bos_op.simplify()
+            self.assertEqual(simplified_op, bos_op)
+
+        with self.subTest("simplify zero"):
+            bos_op = self.op1 - self.op1
+            simplified_op = bos_op.simplify()
+            targ = BosonicOp.zero()
+            self.assertEqual(simplified_op, targ)
+
+        with self.subTest("simplify parameters"):
+            bos_op = BosonicOp({"+_0 -_0": self.a, "+_0 -_0 +_0 -_0": 1j})
+            simplified_op = bos_op.simplify()
+            targ = BosonicOp({"+_0 -_0": self.a + 1j})
+            self.assertEqual(simplified_op, targ)
+
+        with self.subTest("simplify commutes with normal_order"):
+            bos_op = BosonicOp({"-_0 +_1": 1}, num_spin_orbitals=2)
+            self.assertEqual(bos_op.simplify().normal_order(), bos_op.normal_order().simplify())
+
+        with self.subTest("simplify + index order"):
+            orig = BosonicOp({"+_1 -_0 +_0 -_0": 1, "-_0 +_1": 2})
+            bos_op = orig.simplify().index_order()
+            targ = BosonicOp({"-_0 +_1": 3}) # Boson don't change sign after commutation
+            self.assertEqual(bos_op, targ)
+
     def test_compose(self):
         """Test operator composition
             This test method compares two identical operators. 
@@ -215,53 +362,6 @@ class TestBosonicOp(QiskitNatureTestCase):
             {"": -1j, "+_1 -_1 -_0": 3, "+_1 +_0 -_0": self.a.conjugate(), "+_1 +_0": 2 - 4j}
         )
         self.assertEqual(bos_op, targ)
-
-    def test_simplify(self):
-        """Test simplify
-            This test method tries to simplify the operator label
-        """
-        with self.subTest("simplify integer"):
-            bos_op = BosonicOp({"+_0 -_0": 1, "+_0 -_0 +_0 -_0": 1}, num_spin_orbitals=1)
-            simplified_op = bos_op.simplify()
-            targ = BosonicOp({"+_0 -_0": 2}, num_spin_orbitals=1)
-            self.assertEqual(simplified_op, targ)
-
-        with self.subTest("simplify complex"):
-            bos_op = BosonicOp({"+_0 -_0": 1, "+_0 -_0 +_0 -_0": 1j}, num_spin_orbitals=1)
-            simplified_op = bos_op.simplify()
-            targ = BosonicOp({"+_0 -_0": 1 + 1j}, num_spin_orbitals=1)
-            self.assertEqual(simplified_op, targ)
-
-        with self.subTest("simplify doesn't reorder"):
-            bos_op = BosonicOp({"-_0 +_1": 1 + 0j}, num_spin_orbitals=2)
-            simplified_op = bos_op.simplify()
-            self.assertEqual(simplified_op, bos_op)
-
-            bos_op = BosonicOp({"-_1 +_0": 1 + 0j}, num_spin_orbitals=2)
-            simplified_op = bos_op.simplify()
-            self.assertEqual(simplified_op, bos_op)
-
-        with self.subTest("simplify zero"):
-            bos_op = self.op1 - self.op1
-            simplified_op = bos_op.simplify()
-            targ = BosonicOp.zero()
-            self.assertEqual(simplified_op, targ)
-
-        with self.subTest("simplify parameters"):
-            bos_op = BosonicOp({"+_0 -_0": self.a, "+_0 -_0 +_0 -_0": 1j})
-            simplified_op = bos_op.simplify()
-            targ = BosonicOp({"+_0 -_0": self.a + 1j})
-            self.assertEqual(simplified_op, targ)
-
-        with self.subTest("simplify commutes with normal_order"):
-            bos_op = BosonicOp({"-_0 +_1": 1}, num_spin_orbitals=2)
-            self.assertEqual(bos_op.simplify().normal_order(), bos_op.normal_order().simplify())
-
-        with self.subTest("simplify + index order"):
-            orig = BosonicOp({"+_1 -_0 +_0 -_0": 1, "-_0 +_1": 2})
-            bos_op = orig.simplify().index_order()
-            targ = BosonicOp({"-_0 +_1": 1})
-            self.assertEqual(bos_op, targ)
 
     def test_hermiticity(self):
         """test is_hermitian"""
@@ -385,99 +485,6 @@ class TestBosonicOp(QiskitNatureTestCase):
             bos_op = BosonicOp({"+_0": self.a})
             with self.assertRaisesRegex(ValueError, "parameter"):
                 _ = bos_op.to_matrix()
-
-    def test_normal_order(self):
-        """test normal_order method"""
-        with self.subTest("Test for creation operator"):
-            orig = BosonicOp({"+_0": 1}, num_spin_orbitals=1)
-            bos_op = orig.normal_order()
-            self.assertEqual(bos_op, orig)
-
-        with self.subTest("Test for annihilation operator"):
-            orig = BosonicOp({"-_0": 1}, num_spin_orbitals=1)
-            bos_op = orig.normal_order()
-            self.assertEqual(bos_op, orig)
-
-        with self.subTest("Test for number operator"):
-            orig = BosonicOp({"+_0 -_0": 1}, num_spin_orbitals=1)
-            bos_op = orig.normal_order()
-            self.assertEqual(bos_op, orig)
-
-        with self.subTest("Test for empty operator"):
-            orig = BosonicOp({"-_0 +_0": 1}, num_spin_orbitals=1)
-            bos_op = orig.normal_order()
-            targ = BosonicOp({"": 1, "+_0 -_0": -1}, num_spin_orbitals=1)
-            self.assertEqual(bos_op, targ)
-
-        with self.subTest("Test for multiple operators 1"):
-            orig = BosonicOp({"-_0 +_1": 1}, num_spin_orbitals=2)
-            bos_op = orig.normal_order()
-            targ = BosonicOp({"+_1 -_0": -1}, num_spin_orbitals=2)
-            self.assertEqual(bos_op, targ)
-
-        with self.subTest("Test for multiple operators 2"):
-            orig = BosonicOp({"-_0 +_0 +_1 -_2": 1}, num_spin_orbitals=3)
-            bos_op = orig.normal_order()
-            targ = BosonicOp({"+_1 -_2": 1, "+_0 +_1 -_0 -_2": 1}, num_spin_orbitals=3)
-            self.assertEqual(bos_op, targ)
-
-        with self.subTest("Test normal ordering simplifies"):
-            orig = BosonicOp({"-_0 +_1": 1, "+_1 -_0": -1, "+_0": 0.0}, num_spin_orbitals=2)
-            bos_op = orig.normal_order()
-            targ = BosonicOp({"+_1 -_0": -2}, num_spin_orbitals=2)
-            self.assertEqual(bos_op, targ)
-
-        with self.subTest("Test parameters"):
-            orig = BosonicOp({"-_0 +_0 +_1 -_2": self.a})
-            bos_op = orig.normal_order()
-            targ = BosonicOp({"+_1 -_2": self.a, "+_0 +_1 -_0 -_2": self.a})
-            self.assertEqual(bos_op, targ)
-
-    def test_index_order(self):
-        """test index_order method"""
-        with self.subTest("Test for creation operator"):
-            orig = BosonicOp({"+_0": 1})
-            bos_op = orig.index_order()
-            self.assertEqual(bos_op, orig)
-
-        with self.subTest("Test for annihilation operator"):
-            orig = BosonicOp({"-_0": 1})
-            bos_op = orig.index_order()
-            self.assertEqual(bos_op, orig)
-
-        with self.subTest("Test for number operator"):
-            orig = BosonicOp({"+_0 -_0": 1})
-            bos_op = orig.index_order()
-            self.assertEqual(bos_op, orig)
-
-        with self.subTest("Test for empty operator"):
-            orig = BosonicOp({"-_0 +_0": 1})
-            bos_op = orig.index_order()
-            self.assertEqual(bos_op, orig)
-
-        with self.subTest("Test for multiple operators 1"):
-            orig = BosonicOp({"+_1 -_0": 1})
-            bos_op = orig.index_order()
-            targ = BosonicOp({"-_0 +_1": -1})
-            self.assertEqual(bos_op, targ)
-
-        with self.subTest("Test for multiple operators 2"):
-            orig = BosonicOp({"+_2 -_0 +_1 -_0": 1, "-_0 +_1": 2})
-            bos_op = orig.index_order()
-            targ = BosonicOp({"-_0 -_0 +_1 +_2": 1, "-_0 +_1": 2})
-            self.assertEqual(bos_op, targ)
-
-        with self.subTest("Test index ordering simplifies"):
-            orig = BosonicOp({"-_0 +_1": 1, "+_1 -_0": -1, "+_0": 0.0})
-            bos_op = orig.index_order()
-            targ = BosonicOp({"-_0 +_1": 2})
-            self.assertEqual(bos_op, targ)
-
-        with self.subTest("index order + simplify"):
-            orig = BosonicOp({"+_1 -_0 +_0 -_0": 1, "-_0 +_1": 2})
-            bos_op = orig.index_order().simplify()
-            targ = BosonicOp({"-_0 +_1": 1})
-            self.assertEqual(bos_op, targ)
 
     def test_induced_norm(self):
         """Test induced norm."""
