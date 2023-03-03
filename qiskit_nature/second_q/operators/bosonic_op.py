@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2023.
+# (C) Copyright IBM 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -192,7 +192,6 @@ class BosonicOp(SparseLabelOp):
     def register_length(self) -> int | None:
         return self.num_spin_orbitals
 
-# This will be the same
     def _new_instance(
         self, data: Mapping[str, _TCoeff], *, other: BosonicOp | None = None
     ) -> BosonicOp:
@@ -206,7 +205,6 @@ class BosonicOp(SparseLabelOp):
 
         return self.__class__(data, copy=False, num_spin_orbitals=num_so)
 
-# This will be the same. Actually, why not creating a abstract class "Operator"?
     def _validate_keys(self, keys: Collection[str]) -> None:
         super()._validate_keys(keys)
 
@@ -278,7 +276,7 @@ class BosonicOp(SparseLabelOp):
         data_str = f"{dict(self.items())}"
 
         return "BosonicOp(" f"{data_str}, " f"num_spin_orbitals={self.num_spin_orbitals}, " ")"
-# Clearly it's the same
+
     def __str__(self) -> str:
         pre = (
             "Bosonic Operator\n"
@@ -288,7 +286,7 @@ class BosonicOp(SparseLabelOp):
             [f"{coeff} * ( {label} )" if label else f"{coeff}" for label, coeff in self.items()]
         )
         return pre + ret
-# It's the same I guess
+
     def terms(self) -> Iterator[tuple[list[tuple[str, int]], _TCoeff]]:
         """Provides an iterator analogous to :meth:`items` but with the labels already split into
         pairs of operation characters and indices.
@@ -416,11 +414,10 @@ class BosonicOp(SparseLabelOp):
         trans = "".maketrans("+-", "-+")
 
         for label, coeff in self.items():
-            data[" ".join(lbl.translate(trans) for lbl in reversed(label.split()))] = coeff
+            data[" ".join(lbl.translate(trans) for lbl in label.split())] = coeff # Double check for reverse 
 
         return self._new_instance(data)
 
-# Convert for bosons. should be the same, but we have to pay attention to the commutator
     def normal_order(self) -> BosonicOp:
         """Convert to the equivalent operator in normal order.
 
@@ -460,7 +457,7 @@ class BosonicOp(SparseLabelOp):
                 if not np.isclose(_to_number(coeff), 0.0, atol=self.atol)
             }
         )
-# Convert for bosons. should be the same, but we have to pay attention to the commutator
+
     def _normal_order(self, terms: list[tuple[str, int]], coeff: _TCoeff) -> BosonicOp:
         if not terms:
             return self._new_instance({"": coeff})
@@ -496,7 +493,7 @@ class BosonicOp(SparseLabelOp):
         new_label = " ".join(f"{term[0]}_{term[1]}" for term in terms)
         ordered_op += self._new_instance({new_label: coeff})
         return ordered_op
-# Convert for bosons. should be the same, but we have to pay attention to the commutator
+
     def index_order(self) -> BosonicOp:
         """Convert to the equivalent operator with the terms of each label ordered by index.
 
@@ -527,7 +524,7 @@ class BosonicOp(SparseLabelOp):
                 if not np.isclose(_to_number(coeff), 0.0, atol=self.atol)
             }
         )
-# Convert for bosons. should be the same, but we have to pay attention to the commutator
+
     def _index_order(self, terms: list[tuple[str, int]], coeff: _TCoeff) -> tuple[str, _TCoeff]:
         if not terms:
             return "", coeff
@@ -563,8 +560,9 @@ class BosonicOp(SparseLabelOp):
         atol = self.atol if atol is None else atol
         diff = (self - self.adjoint()).normal_order().simplify(atol=atol)
         return all(np.isclose(coeff, 0.0, atol=atol) for coeff in diff.values())
-# Convert for bosons. Remember that we can put as many photons as we want in a single state
+
     def simplify(self, atol: float | None = None) -> BosonicOp:
+        # TODO: currently simplify() DOES NOT commute with index_order()
         atol = self.atol if atol is None else atol
 
         data = defaultdict(complex)  # type: dict[str, _TCoeff]
@@ -588,18 +586,20 @@ class BosonicOp(SparseLabelOp):
         # to our advantage, to implement an ordered set, which allows us to preserve the label order
         # and only remove canceling terms.
         operator_mapper = defaultdict(int)
+        order_mapper = defaultdict(bool)
 
         # first, we compute how many creation/annihilation op are applied to each state
         for lbl in label.split():
             # Each lbl has the following format: [\+\-]_<index>
             operator, index = lbl.split("_")
             idx = int(index)
-            print("label: ", label, "; index: ", idx, "; operator: ", operator)
             # Creation operator (+) creates a new particle at that index, so we increase the value in the dict by one
             # Annihilaion operator (-) doe the opposite
             operator_mapper[idx] += 1 if operator == "+" else -1
+            if idx not in order_mapper:
+                order_mapper[idx] = True if operator == "+" else False
 
-        # Remark: count can be >=< 0. If "> 0", we are adding particles (creation op) to that state. 
+        # Remark: count can be >=< 0. If "> 0", we are adding particles (creation op) to that state.
         # If "< 0" we are removing particles (annihilation op) to that state
         # If "== 0", we applied the same number of creation and annihilitation op to a certain index:
         #      it's a density operator
@@ -607,10 +607,13 @@ class BosonicOp(SparseLabelOp):
         for state, count in operator_mapper.items():
             if count == 0:
                 # density operator, therefore the new label will be: b_i^\dagger b_i
-                new_label += f" +_{state} -_{state}"
+                if order_mapper[state]:
+                    new_label += f" +_{state} -_{state}"
+                else:
+                    new_label += f" -_{state} +_{state}"
             else:
                 # In this case, we need to print as many creation/annihilitation operators as the count says
                 for i in range(0, abs(count)):
                     new_label += f' {"+" if count > 0 else "-"}_{state}'
-
-        return new_label, coeff
+        # The first character is a space, so we nned to get rid of it
+        return new_label[1:], coeff

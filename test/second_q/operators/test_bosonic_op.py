@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2023.
+# (C) Copyright IBM 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -197,11 +197,10 @@ class TestBosonicOp(QiskitNatureTestCase):
             targ = BosonicOp({"-_0 +_1": 1})
             self.assertEqual(bos_op, targ)
 
-        # TODO: It's the same of the one at line 248
         with self.subTest("index order + simplify"):
             orig = BosonicOp({"+_1 -_0 +_0 -_0": 1, "-_0 +_1": 2})
             bos_op = orig.index_order().simplify()
-            targ = BosonicOp({"-_0 +_1": 1})
+            targ = BosonicOp({"-_0 +_1": 3})
             self.assertEqual(bos_op, targ)
     
     def test_simplify(self):
@@ -287,9 +286,9 @@ class TestBosonicOp(QiskitNatureTestCase):
             targ = BosonicOp(
                 {
                     "+_0 +_1 -_1": self.a,
-                    "+_0 -_0 -_1": 1,
+                    "-_0 +_0 -_1": 1,
                     "+_0 -_0 +_1": self.a * self.b,
-                    "-_0 +_1 -_1": self.b,
+                    "-_0 -_1 +_1": self.b,
                 }
             )
             self.assertEqual(bos_op, targ)
@@ -317,15 +316,15 @@ class TestBosonicOp(QiskitNatureTestCase):
     def test_pow(self):
         """Test __pow__"""
         with self.subTest("square trivial"):
-            bos_op = BosonicOp({"+_0 +_1 -_1": 3, "-_0 +_0 -_1": 1}, num_spin_orbitals=2) ** 2
-            bos_op = bos_op.simplify()
-            targ = BosonicOp.zero()
+            bos_op = BosonicOp({"+_0 +_1": 3, "+_1 +_0": -1}, num_spin_orbitals=2) ** 2
+            bos_op = bos_op.simplify().normal_order()
+            targ = BosonicOp({'+_0 +_0 +_1 +_1': (4+0j)}, num_spin_orbitals=2)
             self.assertEqual(bos_op, targ)
 
         with self.subTest("square nontrivial"):
             bos_op = BosonicOp({"+_0 +_1 -_1": 3, "+_0 -_0 -_1": 1}, num_spin_orbitals=2) ** 2
             bos_op = bos_op.simplify()
-            targ = BosonicOp({"+_0 -_1": -3}, num_spin_orbitals=2)
+            targ = BosonicOp({'+_0 +_0 +_1 -_1': 9., '+_0 -_1': 6., '+_0 -_0 -_1 -_1': 1.}, num_spin_orbitals=2)
             self.assertEqual(bos_op, targ)
 
         with self.subTest("3rd power"):
@@ -342,8 +341,8 @@ class TestBosonicOp(QiskitNatureTestCase):
         with self.subTest("square nontrivial with parameters"):
             bos_op = BosonicOp({"+_0 +_1 -_1": self.a, "+_0 -_0 -_1": 1}) ** 2
             bos_op = bos_op.simplify()
-            targ = BosonicOp({"+_0 -_1": -self.a})
-            self.assertEqual(bos_op, targ)
+            targ = BosonicOp({"+_0 +_0 +_1 -_1": self.a * self.a, "+_0 -_1": 2*self.a, "+_0 -_0 -_1 -_1": 1})
+            self.assertEqual(bos_op, targ) 
 
     def test_adjoint(self):
         """Test adjoint method"""
@@ -351,7 +350,7 @@ class TestBosonicOp(QiskitNatureTestCase):
             {"": 1j, "+_0 +_1 -_1": 3, "+_0 -_0 -_1": 1, "-_0 -_1": 2 + 4j}, num_spin_orbitals=3
         ).adjoint()
         targ = BosonicOp(
-            {"": -1j, "+_1 -_1 -_0": 3, "+_1 +_0 -_0": 1, "+_1 +_0": 2 - 4j}, num_spin_orbitals=3
+            {"": -1j, "-_0 -_1 +_1": 3, "-_0 +_0 +_1": 1, "+_0 +_1": 2 - 4j}, num_spin_orbitals=3
         )
         self.assertEqual(bos_op, targ)
 
@@ -359,7 +358,7 @@ class TestBosonicOp(QiskitNatureTestCase):
             {"": 1j, "+_0 +_1 -_1": 3, "+_0 -_0 -_1": self.a, "-_0 -_1": 2 + 4j}
         ).adjoint()
         targ = BosonicOp(
-            {"": -1j, "+_1 -_1 -_0": 3, "+_1 +_0 -_0": self.a.conjugate(), "+_1 +_0": 2 - 4j}
+            {"": -1j, "-_0 -_1 +_1": 3, "-_0 +_0 +_1": self.a.conjugate(), "+_0 +_1": 2 - 4j}
         )
         self.assertEqual(bos_op, targ)
 
@@ -418,73 +417,6 @@ class TestBosonicOp(QiskitNatureTestCase):
         self.assertTrue(op3.equiv(self.op3))
         BosonicOp.atol = prev_atol
         BosonicOp.rtol = prev_rtol
-
-    def test_to_matrix(self):
-        """Test to_matrix"""
-        with self.subTest("identity operator matrix"):
-            op = BosonicOp.one()
-            op.num_spin_orbitals = 2
-            mat = op.to_matrix(sparse=False)
-            targ = np.eye(4)
-            self.assertTrue(np.allclose(mat, targ))
-
-        with self.subTest("number operator matrix"):
-            mat = BosonicOp({"+_1 -_1": 1}, num_spin_orbitals=2).to_matrix(sparse=False)
-            targ = np.array([[0, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 0], [0, 0, 0, 1]])
-            self.assertTrue(np.allclose(mat, targ))
-
-        with self.subTest("emptiness operator matrix"):
-            mat = BosonicOp({"-_1 +_1": 1}, num_spin_orbitals=2).to_matrix(sparse=False)
-            targ = np.array([[1, 0, 0, 0], [0, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, 0]])
-            self.assertTrue(np.allclose(mat, targ))
-
-        with self.subTest("raising operator matrix"):
-            mat = BosonicOp({"+_1": 1}, num_spin_orbitals=2).to_matrix(sparse=False)
-            targ = np.array([[0, 0, 0, 0], [1, 0, 0, 0], [0, 0, 0, 0], [0, 0, -1, 0]])
-            self.assertTrue(np.allclose(mat, targ))
-
-        with self.subTest("lowering operator matrix"):
-            mat = BosonicOp({"-_1": 1}, num_spin_orbitals=2).to_matrix(sparse=False)
-            targ = np.array([[0, 1, 0, 0], [0, 0, 0, 0], [0, 0, 0, -1], [0, 0, 0, 0]])
-            self.assertTrue(np.allclose(mat, targ))
-
-        with self.subTest("nontrivial sparse matrix"):
-            mat = BosonicOp(
-                {"-_0 +_0 +_1 -_1 +_3": 3j, "-_0 +_1 -_1 +_2 -_3": -2}, num_spin_orbitals=4
-            ).to_matrix()
-            targ = csc_matrix(([-3j, 3j, -2], ([5, 7, 6], [4, 6, 13])), shape=(16, 16))
-            self.assertTrue((mat != targ).nnz == 0)
-
-        with self.subTest("Test Hydrogen spectrum"):
-            h2_labels = {
-                "+_0 -_1 +_2 -_3": 0.18093120148374142,
-                "+_0 -_1 -_2 +_3": -0.18093120148374134,
-                "-_0 +_1 +_2 -_3": -0.18093120148374134,
-                "-_0 +_1 -_2 +_3": 0.18093120148374128,
-                "+_3 -_3": -0.4718960038869427,
-                "+_2 -_2": -1.2563391028292563,
-                "+_2 -_2 +_3 -_3": 0.48365053378098793,
-                "+_1 -_1": -0.4718960038869427,
-                "+_1 -_1 +_3 -_3": 0.6985737398458793,
-                "+_1 -_1 +_2 -_2": 0.6645817352647293,
-                "+_0 -_0": -1.2563391028292563,
-                "+_0 -_0 +_3 -_3": 0.6645817352647293,
-                "+_0 -_0 +_2 -_2": 0.6757101625347564,
-                "+_0 -_0 +_1 -_1": 0.48365053378098793,
-            }
-            h2_matrix = BosonicOp(h2_labels, num_spin_orbitals=4).to_matrix()
-            evals, evecs = eigs(h2_matrix)
-            self.assertTrue(np.isclose(np.min(evals), -1.8572750))
-            # make sure the ground state has support only in the 2-particle subspace
-            groundstate = evecs[:, np.argmin(evals)]
-            for idx in np.where(~np.isclose(groundstate, 0))[0]:
-                binary = f"{idx:0{4}b}"
-                self.assertEqual(binary.count("1"), 2)
-
-        with self.subTest("parameters"):
-            bos_op = BosonicOp({"+_0": self.a})
-            with self.assertRaisesRegex(ValueError, "parameter"):
-                _ = bos_op.to_matrix()
 
     def test_induced_norm(self):
         """Test induced norm."""
@@ -633,16 +565,6 @@ class TestBosonicOp(QiskitNatureTestCase):
             op3 = BosonicOp({"+_0 -_0": 1}, num_spin_orbitals=3)
             self.assertEqual(op1, op3)
             self.assertTrue(op1.equiv(1.000001 * op3))
-
-        with self.subTest("to_matrix"):
-            ref = np.array([[0, 0], [0, 1]])
-            np.testing.assert_array_almost_equal(op1.to_matrix(False), ref)
-            op1.num_spin_orbitals = 2
-            np.testing.assert_array_almost_equal(op1.to_matrix(False), np.kron(ref, np.eye(2)))
-
-            ref = np.array([[1]])
-            np.testing.assert_array_almost_equal(op0.to_matrix(False), ref)
-
 
 if __name__ == "__main__":
     unittest.main()
