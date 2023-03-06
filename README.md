@@ -143,7 +143,7 @@ This project adheres to Qiskit's [code of conduct](https://github.com/Qiskit/qis
 By participating, you are expected to uphold this code.
 
 We use [GitHub issues](https://github.com/Qiskit/qiskit-nature/issues) for tracking requests and bugs. Please
-[join the Qiskit Slack community](https://ibm.co/joinqiskitslack)
+[join the Qiskit Slack community](https://qisk.it/join-slack)
 for discussion and simple questions.
 For questions that are more suited for a forum, we use the **Qiskit** tag in [Stack Overflow](https://stackoverflow.com/questions/tagged/qiskit).
 
