@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -13,12 +13,13 @@
 """ Test FCIDump """
 
 import unittest
+import warnings
 from abc import ABC, abstractmethod
 from test import QiskitNatureTestCase
+from test.second_q.utils import get_expected_two_body_ints
 import numpy as np
 from qiskit_nature.second_q.formats.fcidump import FCIDump
 from qiskit_nature.second_q.formats.fcidump_translator import fcidump_to_problem
-from qiskit_nature.second_q.operators.tensor_ordering import _chem_to_phys
 
 
 class BaseTestFCIDump(ABC):
@@ -93,7 +94,9 @@ class BaseTestFCIDump(ABC):
             self.log.debug("MO two electron alpha-alpha integrals are %s", alpha_2body)
             self.assertEqual(alpha_2body.shape, self.mo_eri.shape)
             np.testing.assert_array_almost_equal(
-                np.absolute(alpha_2body), np.absolute(self.mo_eri), decimal=4
+                np.absolute(alpha_2body),
+                np.absolute(get_expected_two_body_ints(alpha_2body, self.mo_eri)),
+                decimal=4,
             )
 
         if self.mo_eri_ba is not None:
@@ -102,7 +105,9 @@ class BaseTestFCIDump(ABC):
                 self.log.debug("MO two electron beta-alpha integrals are %s", beta_alpha_2body)
                 self.assertEqual(beta_alpha_2body.shape, self.mo_eri_ba.shape)
                 np.testing.assert_array_almost_equal(
-                    np.absolute(beta_alpha_2body), np.absolute(self.mo_eri_ba), decimal=4
+                    np.absolute(beta_alpha_2body),
+                    np.absolute(get_expected_two_body_ints(beta_alpha_2body, self.mo_eri_ba)),
+                    decimal=4,
                 )
 
         if self.mo_eri_bb is not None:
@@ -111,7 +116,9 @@ class BaseTestFCIDump(ABC):
                 self.log.debug("MO two electron beta-alpha integrals are %s", beta_2body)
                 self.assertEqual(beta_2body.shape, self.mo_eri_bb.shape)
                 np.testing.assert_array_almost_equal(
-                    np.absolute(beta_2body), np.absolute(self.mo_eri_bb), decimal=4
+                    np.absolute(beta_2body),
+                    np.absolute(get_expected_two_body_ints(beta_2body, self.mo_eri_bb)),
+                    decimal=4,
                 )
 
     def test_system_size(self):
@@ -141,20 +148,20 @@ class TestFCIDumpH2(QiskitNatureTestCase, BaseTestFCIDump):
         self.num_beta = 1
         self.mo_onee = np.array([[1.2563, 0.0], [0.0, 0.4719]])
         self.mo_onee_b = None
-        self.mo_eri = _chem_to_phys(
-            np.array(
-                [
-                    [[[0.6757, 0.0], [0.0, 0.6646]], [[0.0, 0.1809], [0.1809, 0.0]]],
-                    [[[0.0, 0.1809], [0.1809, 0.0]], [[0.6646, 0.0], [0.0, 0.6986]]],
-                ]
-            )
+        self.mo_eri = np.array(
+            [
+                [[[0.6757, 0.0], [0.0, 0.6646]], [[0.0, 0.1809], [0.1809, 0.0]]],
+                [[[0.0, 0.1809], [0.1809, 0.0]], [[0.6646, 0.0], [0.0, 0.6986]]],
+            ]
         )
         self.mo_eri_ba = None
         self.mo_eri_bb = None
-        fcidump = FCIDump.from_file(
-            self.get_resource_path("test_fcidump_h2.fcidump", "second_q/formats/fcidump")
-        )
-        self.problem = fcidump_to_problem(fcidump)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            fcidump = FCIDump.from_file(
+                self.get_resource_path("test_fcidump_h2.fcidump", "second_q/formats/fcidump")
+            )
+            self.problem = fcidump_to_problem(fcidump)
 
 
 class TestFCIDumpLiH(QiskitNatureTestCase, BaseTestFCIDump):
@@ -169,13 +176,15 @@ class TestFCIDumpLiH(QiskitNatureTestCase, BaseTestFCIDump):
         loaded = np.load(self.get_resource_path("test_fcidump_lih.npz", "second_q/formats/fcidump"))
         self.mo_onee = loaded["mo_onee"]
         self.mo_onee_b = None
-        self.mo_eri = _chem_to_phys(loaded["mo_eri"])
+        self.mo_eri = loaded["mo_eri"]
         self.mo_eri_ba = None
         self.mo_eri_bb = None
-        fcidump = FCIDump.from_file(
-            self.get_resource_path("test_fcidump_lih.fcidump", "second_q/formats/fcidump")
-        )
-        self.problem = fcidump_to_problem(fcidump)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            fcidump = FCIDump.from_file(
+                self.get_resource_path("test_fcidump_lih.fcidump", "second_q/formats/fcidump")
+            )
+            self.problem = fcidump_to_problem(fcidump)
 
 
 class TestFCIDumpOH(QiskitNatureTestCase, BaseTestFCIDump):
@@ -190,13 +199,15 @@ class TestFCIDumpOH(QiskitNatureTestCase, BaseTestFCIDump):
         loaded = np.load(self.get_resource_path("test_fcidump_oh.npz", "second_q/formats/fcidump"))
         self.mo_onee = loaded["mo_onee"]
         self.mo_onee_b = loaded["mo_onee_b"]
-        self.mo_eri = _chem_to_phys(loaded["mo_eri"])
-        self.mo_eri_ba = _chem_to_phys(loaded["mo_eri_ba"])
-        self.mo_eri_bb = _chem_to_phys(loaded["mo_eri_bb"])
-        fcidump = FCIDump.from_file(
-            self.get_resource_path("test_fcidump_oh.fcidump", "second_q/formats/fcidump")
-        )
-        self.problem = fcidump_to_problem(fcidump)
+        self.mo_eri = loaded["mo_eri"]
+        self.mo_eri_ba = loaded["mo_eri_ba"]
+        self.mo_eri_bb = loaded["mo_eri_bb"]
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            fcidump = FCIDump.from_file(
+                self.get_resource_path("test_fcidump_oh.fcidump", "second_q/formats/fcidump")
+            )
+            self.problem = fcidump_to_problem(fcidump)
 
 
 if __name__ == "__main__":

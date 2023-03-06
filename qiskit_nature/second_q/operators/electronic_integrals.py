@@ -527,7 +527,7 @@ class ElectronicIntegrals(LinearMixin):
         alpha_dict = {"+-": h1_a}
 
         if h2_aa is not None:
-            if auto_index_order:
+            if auto_index_order and not isinstance(h2_aa, SymmetricTwoBodyIntegrals):
                 index_order = find_index_order(h2_aa)
                 if index_order == IndexType.UNKNOWN:
                     raise QiskitNatureError(

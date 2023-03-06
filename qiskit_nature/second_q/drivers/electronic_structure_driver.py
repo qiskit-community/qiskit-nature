@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -33,6 +33,7 @@ from qiskit_nature.second_q.formats.qcschema import (
     QCTopology,
     QCWavefunction,
 )
+from qiskit_nature.second_q.operators import Tensor
 from qiskit_nature.second_q.problems import ElectronicBasis, ElectronicStructureProblem
 
 from .base_driver import BaseDriver
@@ -234,6 +235,10 @@ class ElectronicStructureDriver(BaseDriver):
         properties.scf_dipole_moment = data.dip_ref
 
         def format_np_array(arr):
+            if isinstance(arr, Tensor):
+                # NOTE: this also deals with symmetry-reduced integral classes and ensures that
+                # they are not automatically unfolded to 1-fold symmetry
+                arr = arr.array
             return arr.ravel().tolist()
 
         wavefunction = QCWavefunction(basis=data.basis)

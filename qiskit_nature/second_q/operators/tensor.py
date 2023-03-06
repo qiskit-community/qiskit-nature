@@ -153,9 +153,10 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
                     new_inputs.append(i._array)
                 else:
                     new_inputs.append(i)
+            context = kwargs.pop("context", None)
             ret = ufunc(*new_inputs, **kwargs)
             if isinstance(ret, (np.ndarray, SparseArray)):
-                return self.__array_wrap__(ret)
+                return self.__array_wrap__(ret, context)
             return ret
         else:
             return NotImplemented
@@ -168,9 +169,10 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
         https://numpy.org/doc/stable/reference/arrays.classes.html#numpy.class.__array_function__
         """
         new_args = _unpack_args(args)
+        context = kwargs.pop("context", None)
         ret = func(*new_args, **kwargs)
         if isinstance(ret, (np.ndarray, SparseArray)):
-            return self.__array_wrap__(ret)
+            return self.__array_wrap__(ret, context)
         return ret
 
     # pylint: disable=unused-argument

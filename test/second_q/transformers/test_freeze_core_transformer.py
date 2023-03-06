@@ -15,6 +15,8 @@
 import unittest
 
 from test import QiskitNatureTestCase
+from test.second_q.utils import get_expected_two_body_ints
+
 from ddt import ddt, idata
 import numpy as np
 
@@ -23,6 +25,7 @@ from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.formats.qcschema import QCSchema
 from qiskit_nature.second_q.formats.qcschema_translator import qcschema_to_problem
+from qiskit_nature.second_q.operators.tensor_ordering import to_chemist_ordering
 from qiskit_nature.second_q.transformers import FreezeCoreTransformer
 
 
@@ -30,7 +33,6 @@ from qiskit_nature.second_q.transformers import FreezeCoreTransformer
 class TestFreezeCoreTransformer(QiskitNatureTestCase):
     """FreezeCoreTransformer tests."""
 
-    # pylint: disable=import-outside-toplevel
     from test.second_q.transformers.test_active_space_transformer import (
         TestActiveSpaceTransformer,
     )
@@ -121,9 +123,16 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
                 np.abs(electronic_energy_exp.electronic_integrals.second_q_coeffs()["+-"]),
             )
         with self.subTest("MO 2-electron integrals"):
+            actual_ints = electronic_energy.electronic_integrals.second_q_coeffs()["++--"]
+            expected_ints = get_expected_two_body_ints(
+                actual_ints,
+                to_chemist_ordering(
+                    electronic_energy_exp.electronic_integrals.second_q_coeffs()["++--"]
+                ),
+            )
             np.testing.assert_array_almost_equal(
-                np.abs(electronic_energy.electronic_integrals.second_q_coeffs()["++--"]),
-                np.abs(electronic_energy_exp.electronic_integrals.second_q_coeffs()["++--"]),
+                np.abs(actual_ints),
+                np.abs(expected_ints),
             )
         with self.subTest("Inactive energy"):
             self.assertAlmostEqual(electronic_energy.constants["FreezeCoreTransformer"], 0.0)
