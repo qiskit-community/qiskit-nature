@@ -200,7 +200,7 @@ class TestBosonicOp(QiskitNatureTestCase):
         with self.subTest("index order + simplify"):
             orig = BosonicOp({"+_1 -_0 +_0 -_0": 1, "-_0 +_1": 2})
             bos_op = orig.index_order().simplify()
-            targ = BosonicOp({"-_0 +_1": 3})
+            targ = BosonicOp({"+_1 -_0": 4})
             self.assertEqual(bos_op, targ)
     
     def test_simplify(self):
@@ -208,25 +208,25 @@ class TestBosonicOp(QiskitNatureTestCase):
             This test method tries to simplify the operator label
         """
         with self.subTest("simplify integer"):
-            bos_op = BosonicOp({"+_0 -_0": 1, "+_0 -_0 +_0 -_0": 1}, num_spin_orbitals=1)
+            bos_op = BosonicOp({"+_0 -_0": 1, "+_0 -_0 +_0": 1}, num_spin_orbitals=1)
             simplified_op = bos_op.simplify()
-            targ = BosonicOp({"+_0 -_0": 2}, num_spin_orbitals=1)
+            targ = BosonicOp({"+_0 -_0": 1, '+_0': 2}, num_spin_orbitals=1)
             self.assertEqual(simplified_op, targ)
 
         with self.subTest("simplify complex"):
-            bos_op = BosonicOp({"+_0 -_0": 1, "+_0 -_0 +_0 -_0": 1j}, num_spin_orbitals=1)
+            bos_op = BosonicOp({"+_0": 1, "+_0 -_0 +_0": 1j}, num_spin_orbitals=1)
             simplified_op = bos_op.simplify()
-            targ = BosonicOp({"+_0 -_0": 1 + 1j}, num_spin_orbitals=1)
+            targ = BosonicOp({"+_0": (1 + 2j)}, num_spin_orbitals=1)
             self.assertEqual(simplified_op, targ)
 
-        with self.subTest("simplify doesn't reorder"):
-            bos_op = BosonicOp({"-_0 +_1": 1 + 0j}, num_spin_orbitals=2)
-            simplified_op = bos_op.simplify()
-            self.assertEqual(simplified_op, bos_op)
+        # with self.subTest("simplify doesn't reorder"):
+        #     bos_op = BosonicOp({"-_0 +_1": 1 + 0j}, num_spin_orbitals=2)
+        #     simplified_op = bos_op.simplify()
+        #     self.assertEqual(simplified_op, bos_op)
 
-            bos_op = BosonicOp({"-_1 +_0": 1 + 0j}, num_spin_orbitals=2)
-            simplified_op = bos_op.simplify()
-            self.assertEqual(simplified_op, bos_op)
+        #     bos_op = BosonicOp({"-_1 +_0": 1 + 0j}, num_spin_orbitals=2)
+        #     simplified_op = bos_op.simplify()
+        #     self.assertEqual(simplified_op, bos_op)
 
         with self.subTest("simplify zero"):
             bos_op = self.op1 - self.op1
@@ -235,9 +235,9 @@ class TestBosonicOp(QiskitNatureTestCase):
             self.assertEqual(simplified_op, targ)
 
         with self.subTest("simplify parameters"):
-            bos_op = BosonicOp({"+_0 -_0": self.a, "+_0 -_0 +_0 -_0": 1j})
+            bos_op = BosonicOp({"+_0 -_0": self.a, "+_0 -_0 +_0": 1j})
             simplified_op = bos_op.simplify()
-            targ = BosonicOp({"+_0 -_0": self.a + 1j})
+            targ = BosonicOp({"+_0 -_0": self.a, '+_0': 2j})
             self.assertEqual(simplified_op, targ)
 
         with self.subTest("simplify commutes with normal_order"):
@@ -247,7 +247,7 @@ class TestBosonicOp(QiskitNatureTestCase):
         with self.subTest("simplify + index order"):
             orig = BosonicOp({"+_1 -_0 +_0 -_0": 1, "-_0 +_1": 2})
             bos_op = orig.simplify().index_order()
-            targ = BosonicOp({"-_0 +_1": 3}) # Boson don't change sign after commutation
+            targ = BosonicOp({"-_0 +_1": 4}) # Boson don't change sign after commutation
             self.assertEqual(bos_op, targ)
 
     def test_compose(self):
@@ -273,7 +273,10 @@ class TestBosonicOp(QiskitNatureTestCase):
             ) @ BosonicOp({"": 1, "-_0 +_1": 1}, num_spin_orbitals=2)
             bos_op = bos_op.simplify()
             targ = BosonicOp(
-                {"+_0 +_1 -_1": 1, "+_0 -_0 -_1": 1, "+_0 -_0 +_1": 1, "-_0 +_1 -_1": +1},
+                {"+_0 +_1 -_1": 1, # Op1(first term) * Op2(first term)
+                 "+_0 +_1 -_0": 2, # Op1(first term) * Op2(second term)
+                 '+_0 -_0 -_1': 1, '-_1': 1, # Op1(second term) * Op2(first term)
+                 '+_1 -_0 -_1': 2, '-_0': 2}, # Op1(second term) * Op2(second term)
                 num_spin_orbitals=2,
             )
             self.assertEqual(bos_op, targ)
@@ -284,11 +287,10 @@ class TestBosonicOp(QiskitNatureTestCase):
             )
             bos_op = bos_op.simplify()
             targ = BosonicOp(
-                {
-                    "+_0 +_1 -_1": self.a,
-                    "-_0 +_0 -_1": 1,
-                    "+_0 -_0 +_1": self.a * self.b,
-                    "-_0 -_1 +_1": self.b,
+                {"+_0 +_1 -_1": self.a, # Op1(first term) * Op2(first term)
+                 "+_0 +_1 -_0": 2 * self.a * self.b, # Op1(first term) * Op2(second term)
+                 "+_0 -_0 -_1": 1, "-_1": 1, # Op1(second term) * Op2(first term)
+                 '+_1 -_0 -_1': 2 * self.b, '-_0': 2 * self.b # Op1(second term) * Op2(second term)
                 }
             )
             self.assertEqual(bos_op, targ)
@@ -324,7 +326,7 @@ class TestBosonicOp(QiskitNatureTestCase):
         with self.subTest("square nontrivial"):
             bos_op = BosonicOp({"+_0 +_1 -_1": 3, "+_0 -_0 -_1": 1}, num_spin_orbitals=2) ** 2
             bos_op = bos_op.simplify()
-            targ = BosonicOp({'+_0 +_0 +_1 -_1': 9., '+_0 -_1': 6., '+_0 -_0 -_1 -_1': 1.}, num_spin_orbitals=2)
+            targ = BosonicOp({'+_0 +_0 +_1 -_1': 18, '+_0 -_1': 15, '+_0 -_0 -_1 -_1': 2}, num_spin_orbitals=2)
             self.assertEqual(bos_op, targ)
 
         with self.subTest("3rd power"):
@@ -341,7 +343,7 @@ class TestBosonicOp(QiskitNatureTestCase):
         with self.subTest("square nontrivial with parameters"):
             bos_op = BosonicOp({"+_0 +_1 -_1": self.a, "+_0 -_0 -_1": 1}) ** 2
             bos_op = bos_op.simplify()
-            targ = BosonicOp({"+_0 +_0 +_1 -_1": self.a * self.a, "+_0 -_1": 2*self.a, "+_0 -_0 -_1 -_1": 1})
+            targ = BosonicOp({'+_0 +_0 +_1 -_1': 2*self.a*self.a, '+_0 -_1': 5*self.a, '+_0 -_0 -_1 -_1': 2}, num_spin_orbitals=2)
             self.assertEqual(bos_op, targ) 
 
     def test_adjoint(self):
@@ -367,12 +369,12 @@ class TestBosonicOp(QiskitNatureTestCase):
         with self.subTest("operator hermitian"):
             # deliberately define test operator with duplicate terms in case .adjoint() simplifies terms
             bos_op = (
-                1j * BosonicOp({"+_0 -_1 +_2 -_2 -_3 +_3": 1}, num_spin_orbitals=4)
+                  1j * BosonicOp({"+_0 -_1 +_2 -_2 -_3 +_3": 1}, num_spin_orbitals=4)
                 + 1j * BosonicOp({"+_0 -_1 +_2 -_2 -_3 +_3": 1}, num_spin_orbitals=4)
-                + 1j * BosonicOp({"-_0 +_1 +_2 -_2 -_3 +_3": 1}, num_spin_orbitals=4)
-                + 1j * BosonicOp({"-_0 +_1 +_2 -_2 -_3 +_3": 1}, num_spin_orbitals=4)
+                - 1j * BosonicOp({"-_0 +_1 -_2 +_2 +_3 -_3": 1}, num_spin_orbitals=4)
+                - 1j * BosonicOp({"-_0 +_1 -_2 +_2 +_3 -_3": 1}, num_spin_orbitals=4)
                 + BosonicOp({"+_0 -_1 -_2 +_2 +_3 -_3": 1}, num_spin_orbitals=4)
-                - BosonicOp({"-_0 +_1 -_2 +_2 +_3 -_3": 1}, num_spin_orbitals=4)
+                + BosonicOp({"-_0 +_1 +_2 -_2 -_3 +_3": 1}, num_spin_orbitals=4)
             )
             self.assertTrue(bos_op.is_hermitian())
 
@@ -385,12 +387,10 @@ class TestBosonicOp(QiskitNatureTestCase):
             )
             self.assertFalse(bos_op.is_hermitian())
 
-        with self.subTest("test require normal order"):
-            bos_op = (
-                BosonicOp({"+_0 -_0 -_1": 1}, num_spin_orbitals=2)
-                - BosonicOp({"+_1 -_0 +_0": 1}, num_spin_orbitals=2)
-                + BosonicOp({"+_1": 1}, num_spin_orbitals=2)
-            )
+        with self.subTest("test hermiatin from polynomial tensor"):
+            arr1 = np.array([0,1,1,3])
+            p_t = PolynomialTensor({"+-": arr1.reshape((2, 2))})
+            bos_op = BosonicOp.from_polynomial_tensor(p_t)
             self.assertTrue(bos_op.is_hermitian())
 
         with self.subTest("test passing atol"):

@@ -156,7 +156,6 @@ class BosonicOp(SparseLabelOp):
         However, a BosonicOp containing parameters does not support the following methods:
 
         - ``is_hermitian``
-        - ``to_matrix``
     """
 
     _OPERATION_REGEX = re.compile(r"([\+\-]_\d+\s)*[\+\-]_\d+")
@@ -558,18 +557,22 @@ class BosonicOp(SparseLabelOp):
         if self.is_parameterized():
             raise ValueError("is_hermitian is not supported for operators containing parameters.")
         atol = self.atol if atol is None else atol
-        diff = (self - self.adjoint()).normal_order().simplify(atol=atol)
+        diff = (self - self.adjoint()).simplify(atol=atol)
         return all(np.isclose(coeff, 0.0, atol=atol) for coeff in diff.values())
 
     def simplify(self, atol: float | None = None) -> BosonicOp:
         # TODO: currently simplify() DOES NOT commute with index_order()
         atol = self.atol if atol is None else atol
 
+        # First, we normal-order the operator
+        ordered_op = self.normal_order()
+
         data = defaultdict(complex)  # type: dict[str, _TCoeff]
         # TODO: use parallel_map to make this more efficient (?)
-        for label, coeff in self.items():
-            label, coeff = self._simplify_label(label, coeff)
+        for label, coeff in ordered_op.items():
+            label, coeff = ordered_op._simplify_label(label, coeff)
             data[label] += coeff
+
         simplified_data = {
             label: coeff
             for label, coeff in data.items()
@@ -577,43 +580,92 @@ class BosonicOp(SparseLabelOp):
         }
         return self._new_instance(simplified_data)
 
+    # def _simplify_label(self, label: str, coeff: _TCoeff) -> tuple[str, _TCoeff]:
+    #     # We can probably use a defaultDict as we only need to store th number of +/- operations that we applied
+    #     # i.e. if we have +_1 -_1 +_1 -> we store 1
+    #     new_label: str = ""
+
+    #     # Since Python 3.7, dictionaries are guaranteed to be insert-order preserving. We use this
+    #     # to our advantage, to implement an ordered set, which allows us to preserve the label order
+    #     # and only remove canceling terms.
+    #     operator_mapper = defaultdict(int)
+    #     order_mapper = defaultdict(bool)
+
+    #     # first, we compute how many creation/annihilation op are applied to each state
+    #     for lbl in label.split():
+    #         # Each lbl has the following format: [\+\-]_<index>
+    #         operator, index = lbl.split("_")
+    #         idx = int(index)
+    #         # Creation operator (+) creates a new particle at that index, so we increase the value in the dict by one
+    #         # Annihilaion operator (-) doe the opposite
+    #         operator_mapper[idx] += 1 if operator == "+" else -1
+    #         if idx not in order_mapper:
+    #             order_mapper[idx] = True if operator == "+" else False
+
+    #     # Remark: count can be >=< 0. If "> 0", we are adding particles (creation op) to that state.
+    #     # If "< 0" we are removing particles (annihilation op) to that state
+    #     # If "== 0", we applied the same number of creation and annihilitation op to a certain index:
+    #     #      it's a density operator
+    #     # If the key is not existing, that state was not influenced by the operation
+    #     for state, count in operator_mapper.items():
+    #         if count == 0:
+    #             # density operator, therefore the new label will be: b_i^\dagger b_i
+    #             if order_mapper[state]:
+    #                 new_label += f" +_{state} -_{state}"
+    #             else:
+    #                 new_label += f" -_{state} +_{state}"
+    #         else:
+    #             # In this case, we need to print as many creation/annihilitation operators as the count says
+    #             for i in range(0, abs(count)):
+    #                 new_label += f' {"+" if count > 0 else "-"}_{state}'
+    #     # The first character is a space, so we nned to get rid of it
+    #     return new_label[1:], coeff
+
     def _simplify_label(self, label: str, coeff: _TCoeff) -> tuple[str, _TCoeff]:
-        # We can probably use a defaultDict as we only need to store th number of +/- operations that we applied
-        # i.e. if we have +_1 -_1 +_1 -> we store 1
-        new_label: str = ""
+            # We can probably use a defaultDict as we only need to store th number of +/- operations that we applied
+            # i.e. if we have +_1 -_1 +_1 -> we store 1
+            new_label: str = ""
 
-        # Since Python 3.7, dictionaries are guaranteed to be insert-order preserving. We use this
-        # to our advantage, to implement an ordered set, which allows us to preserve the label order
-        # and only remove canceling terms.
-        operator_mapper = defaultdict(int)
-        order_mapper = defaultdict(bool)
+            # Since Python 3.7, dictionaries are guaranteed to be insert-order preserving. We use this
+            # to our advantage, to implement an ordered set, which allows us to preserve the label order
+            # and only remove canceling terms.
+            operator_mapper = defaultdict(int)
 
-        # first, we compute how many creation/annihilation op are applied to each state
-        for lbl in label.split():
-            # Each lbl has the following format: [\+\-]_<index>
-            operator, index = lbl.split("_")
-            idx = int(index)
-            # Creation operator (+) creates a new particle at that index, so we increase the value in the dict by one
-            # Annihilaion operator (-) doe the opposite
-            operator_mapper[idx] += 1 if operator == "+" else -1
-            if idx not in order_mapper:
-                order_mapper[idx] = True if operator == "+" else False
-
-        # Remark: count can be >=< 0. If "> 0", we are adding particles (creation op) to that state.
-        # If "< 0" we are removing particles (annihilation op) to that state
-        # If "== 0", we applied the same number of creation and annihilitation op to a certain index:
-        #      it's a density operator
-        # If the key is not existing, that state was not influenced by the operation
-        for state, count in operator_mapper.items():
-            if count == 0:
-                # density operator, therefore the new label will be: b_i^\dagger b_i
-                if order_mapper[state]:
-                    new_label += f" +_{state} -_{state}"
+            # first, we compute how many creation/annihilation op are applied to each state
+            for lbl in label.split():
+                # Each lbl has the following format: [\+\-]_<index>
+                operator, index = lbl.split("_")
+                idx = int(index)
+                # First, add the operator to the new label. 
+                # CASES:
+                #   1. index does not exist in dict: we add the operator to the new label
+                #   2. index exists, the value stored in dict is < 0 and operator is "-": we add the operator to the new label
+                #   3. index exists, the value stored in dict is > 0 and operator is "+": we add the operator to the new label
+                #   4. index exists, the value stored in dict is <(>) 0 and operator is "+"("-"): 
+                #        we remove the last "-"("+") from the new string
+                if (not idx in operator_mapper or abs(operator_mapper[idx]) == 1 or
+                    (operator_mapper[idx] < -1 and operator == "-") or 
+                    (operator_mapper[idx] > 1 and operator == "+")):
+                    # Cases 1., 2., 3.
+                    new_label += f"{lbl}" if len(new_label) == 0 else f" {lbl}"
                 else:
-                    new_label += f" -_{state} +_{state}"
-            else:
-                # In this case, we need to print as many creation/annihilitation operators as the count says
-                for i in range(0, abs(count)):
-                    new_label += f' {"+" if count > 0 else "-"}_{state}'
-        # The first character is a space, so we nned to get rid of it
-        return new_label[1:], coeff
+                    # Case 4. -> we have to remove the last "-"("+") from the new string
+                    # First, find all the operators of the opposite type of "lbl" in the label
+                    lbl_to_find = ("-" if operator == "+" else "+") + lbl[1:]
+                    # occurencies contains all the start indeces of the substring lbl_to_find in label
+                    occurrencies = [i for i in range(0,len(new_label),4) if new_label.startswith(lbl_to_find, i)]
+                    # Finally, remove the last occurency
+                    #print("new", new_label)
+                    #print("occ", occurrencies)
+                    if occurrencies[-1] + 4 < len(new_label):
+                        new_label = (new_label[0:occurrencies[-1]] + new_label[(occurrencies[-1] + 4):]).strip()
+                    else:
+                        new_label = (new_label[0:occurrencies[-1]]).strip()
+                # Then, update the operator_mapper dictionary
+                # Creation operator (+) creates a new particle at that index, so we increase the value in the dict by one
+                # Annihilaion operator (-) does the opposite
+                operator_mapper[idx] += 1 if operator == "+" else -1
+
+            # The first character is a space, so we nned to get rid of it
+            return new_label, coeff
+
