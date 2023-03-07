@@ -352,7 +352,7 @@ class TestBosonicOp(QiskitNatureTestCase):
             {"": 1j, "+_0 +_1 -_1": 3, "+_0 -_0 -_1": 1, "-_0 -_1": 2 + 4j}, num_spin_orbitals=3
         ).adjoint()
         targ = BosonicOp(
-            {"": -1j, "-_0 -_1 +_1": 3, "-_0 +_0 +_1": 1, "+_0 +_1": 2 - 4j}, num_spin_orbitals=3
+            {'': -1j, '+_1 -_1 -_0': 3, '+_1 +_0 -_0': 1, '+_1 +_0': (2-4j)}, num_spin_orbitals=3
         )
         self.assertEqual(bos_op, targ)
 
@@ -360,21 +360,25 @@ class TestBosonicOp(QiskitNatureTestCase):
             {"": 1j, "+_0 +_1 -_1": 3, "+_0 -_0 -_1": self.a, "-_0 -_1": 2 + 4j}
         ).adjoint()
         targ = BosonicOp(
-            {"": -1j, "-_0 -_1 +_1": 3, "-_0 +_0 +_1": self.a.conjugate(), "+_0 +_1": 2 - 4j}
+            {"": -1j, "+_1 -_1 -_0": 3, "+_1 +_0 -_0": self.a.conjugate(), "+_1 +_0": 2 - 4j}
         )
         self.assertEqual(bos_op, targ)
 
     def test_hermiticity(self):
         """test is_hermitian"""
+        with self.subTest("trivial hermitian case"):
+            bos_op = BosonicOp({"+_0 -_0": 1}, num_spin_orbitals=2)
+            self.assertTrue(bos_op.is_hermitian())
+        
         with self.subTest("operator hermitian"):
             # deliberately define test operator with duplicate terms in case .adjoint() simplifies terms
             bos_op = (
-                  1j * BosonicOp({"+_0 -_1 +_2 -_2 -_3 +_3": 1}, num_spin_orbitals=4)
+                1j * BosonicOp({"+_0 -_1 +_2 -_2 -_3 +_3": 1}, num_spin_orbitals=4)
                 + 1j * BosonicOp({"+_0 -_1 +_2 -_2 -_3 +_3": 1}, num_spin_orbitals=4)
-                - 1j * BosonicOp({"-_0 +_1 -_2 +_2 +_3 -_3": 1}, num_spin_orbitals=4)
-                - 1j * BosonicOp({"-_0 +_1 -_2 +_2 +_3 -_3": 1}, num_spin_orbitals=4)
+                - 1j * BosonicOp({"-_0 +_1 +_2 -_2 -_3 +_3": 1}, num_spin_orbitals=4)
+                - 1j * BosonicOp({"-_0 +_1 +_2 -_2 -_3 +_3": 1}, num_spin_orbitals=4)
                 + BosonicOp({"+_0 -_1 -_2 +_2 +_3 -_3": 1}, num_spin_orbitals=4)
-                + BosonicOp({"-_0 +_1 +_2 -_2 -_3 +_3": 1}, num_spin_orbitals=4)
+                + BosonicOp({"-_0 +_1 -_2 +_2 +_3 -_3": 1}, num_spin_orbitals=4)
             )
             self.assertTrue(bos_op.is_hermitian())
 
@@ -382,8 +386,8 @@ class TestBosonicOp(QiskitNatureTestCase):
             bos_op = (
                 1j * BosonicOp({"+_0 -_1 +_2 -_2 -_3 +_3": 1}, num_spin_orbitals=4)
                 + 1j * BosonicOp({"+_0 -_1 +_2 -_2 -_3 +_3": 1}, num_spin_orbitals=4)
-                - 1j * BosonicOp({"-_0 +_1 +_2 -_2 -_3 +_3": 1}, num_spin_orbitals=4)
-                - 1j * BosonicOp({"-_0 +_1 +_2 -_2 -_3 +_3": 1}, num_spin_orbitals=4)
+                + 1j * BosonicOp({"-_0 +_1 +_2 -_2 -_3 +_3": 1}, num_spin_orbitals=4)
+                + 1j * BosonicOp({"-_0 +_1 +_2 -_2 -_3 +_3": 1}, num_spin_orbitals=4)
             )
             self.assertFalse(bos_op.is_hermitian())
 

@@ -413,7 +413,7 @@ class BosonicOp(SparseLabelOp):
         trans = "".maketrans("+-", "-+")
 
         for label, coeff in self.items():
-            data[" ".join(lbl.translate(trans) for lbl in label.split())] = coeff # Double check for reverse 
+            data[" ".join(lbl.translate(trans) for lbl in reversed(label.split()))] = coeff
 
         return self._new_instance(data)
 
