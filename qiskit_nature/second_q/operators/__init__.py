@@ -55,7 +55,7 @@ from .tensor import Tensor
 __all__ = [
     "ElectronicIntegrals",
     "FermionicOp",
-    "BosonicOp"
+    "BosonicOp",
     "SpinOp",
     "VibrationalOp",
     "VibrationalIntegrals",
