@@ -38,8 +38,8 @@ class BosonicOp(SparseLabelOp):
     expressions. Each expression must look like :code:`[+-]_<index>`, where the :code:`<index>` is a
     non-negative integer representing the index of the bosonic mode where the ``+`` (creation) or
     ``-`` (annihilation) operation is to be performed. The value of :code:`index` is bound by the
-    number of spin orbitals (``num_spin_orbitals``) of the operator (Note: since Python indices are
-    0-based, the maximum value an index can take is given by :code:`num_spin_orbitals-1`).
+    number of modes (``num_modes``) of the operator (Note: since Python indices are
+    0-based, the maximum value an index can take is given by :code:`num_modes-1`).
 
     **Initialization**
 
@@ -55,7 +55,7 @@ class BosonicOp(SparseLabelOp):
                 "+_0 -_0": 1.0,
                 "+_1 -_1": -1.0,
             },
-            num_spin_orbitals=2,
+            num_modes=2,
         )
 
     By default, this way of initializing will create a full copy of the dictionary of coefficients.
@@ -72,7 +72,7 @@ class BosonicOp(SparseLabelOp):
 
         op = BosonicOp(
             some_big_data,
-            num_spin_orbitals=2,
+            num_modes=2,
             copy=False,
         )
 
@@ -93,40 +93,40 @@ class BosonicOp(SparseLabelOp):
 
     .. code-block:: python
 
-      BosonicOp({"+_1": 1}, num_spin_orbitals=2) + BosonicOp({"+_0": 1}, num_spin_orbitals=2)
+      BosonicOp({"+_1": 1}, num_modes=2) + BosonicOp({"+_0": 1}, num_modes=2)
 
     Sum
 
     .. code-block:: python
 
-      sum(BosonicOp({label: 1}, num_spin_orbitals=3) for label in ["+_0", "-_1", "+_2 -_2"])
+      sum(BosonicOp({label: 1}, num_modes=3) for label in ["+_0", "-_1", "+_2 -_2"])
 
     Scalar multiplication
 
     .. code-block:: python
 
-      0.5 * BosonicOp({"+_1": 1}, num_spin_orbitals=2)
+      0.5 * BosonicOp({"+_1": 1}, num_modes=2)
 
     Operator multiplication
 
     .. code-block:: python
 
-      op1 = BosonicOp({"+_0 -_1": 1}, num_spin_orbitals=2)
-      op2 = BosonicOp({"-_0 +_0 +_1": 1}, num_spin_orbitals=2)
+      op1 = BosonicOp({"+_0 -_1": 1}, num_modes=2)
+      op2 = BosonicOp({"-_0 +_0 +_1": 1}, num_modes=2)
       print(op1 @ op2)
 
     Tensor multiplication
 
     .. code-block:: python
 
-      op = BosonicOp({"+_0 -_1": 1}, num_spin_orbitals=2)
+      op = BosonicOp({"+_0 -_1": 1}, num_modes=2)
       print(op ^ op)
 
     Adjoint
 
     .. code-block:: python
 
-      BosonicOp({"+_0 -_1": 1j}, num_spin_orbitals=2).adjoint()
+      BosonicOp({"+_0 -_1": 1j}, num_modes=2).adjoint()
 
     In principle, you can also add `BosonicOp` and integers, but the only valid case is the
     addition of `0 + BosonicOp`. This makes the `sum` operation from the example above possible
@@ -145,9 +145,9 @@ class BosonicOp(SparseLabelOp):
     pairs describing the terms contained in the operator.
 
     Attributes:
-        num_spin_orbitals: the number of spin orbitals on which this operator acts. This is
+        num_modes: the number of modes on which this operator acts. This is
             considered a lower bound, which means that mathematical operations acting on two or more
-            operators will result in a new operator with the maximum number of spin orbitals of any
+            operators will result in a new operator with the maximum number of modes of any
             of the involved operators.
 
     .. note::
@@ -163,7 +163,7 @@ class BosonicOp(SparseLabelOp):
     def __init__(
         self,
         data: Mapping[str, _TCoeff],
-        num_spin_orbitals: int | None = None,
+        num_modes: int | None = None,
         *,
         copy: bool = True,
         validate: bool = True,
@@ -171,7 +171,7 @@ class BosonicOp(SparseLabelOp):
         """
         Args:
             data: the operator data, mapping string-based keys to numerical values.
-            num_spin_orbitals: the number of spin orbitals on which this operator acts.
+            num_modes: the number of modes on which this operator acts.
             copy: when set to False the ``data`` will not be copied and the dictionary will be
                 stored by reference rather than by value (which is the default; ``copy=True``). Note,
                 that this requires you to not change the contents of the dictionary after
@@ -184,30 +184,30 @@ class BosonicOp(SparseLabelOp):
         Raises:
             QiskitNatureError: when an invalid key is encountered during validation.
         """
-        self.num_spin_orbitals = num_spin_orbitals
+        self.num_modes = num_modes
         super().__init__(data, copy=copy, validate=validate)
 
     @property
     def register_length(self) -> int | None:
-        return self.num_spin_orbitals
+        return self.num_modes
 
     def _new_instance(
         self, data: Mapping[str, _TCoeff], *, other: BosonicOp | None = None
     ) -> BosonicOp:
-        num_so = self.num_spin_orbitals
+        num_so = self.num_modes
         if other is not None:
-            other_num_so = other.num_spin_orbitals
+            other_num_so = other.num_modes
             if num_so is None:
                 num_so = other_num_so
             elif other_num_so is not None:
                 num_so = max(num_so, other_num_so)
 
-        return self.__class__(data, copy=False, num_spin_orbitals=num_so)
+        return self.__class__(data, copy=False, num_modes=num_so)
 
     def _validate_keys(self, keys: Collection[str]) -> None:
         super()._validate_keys(keys)
 
-        num_so = self.num_spin_orbitals
+        num_so = self.num_modes
 
         max_index = -1
 
@@ -232,7 +232,7 @@ class BosonicOp(SparseLabelOp):
                         f"orbitals, {num_so}."
                     )
 
-        self.num_spin_orbitals = max_index + 1 if num_so is None else num_so
+        self.num_modes = max_index + 1 if num_so is None else num_so
 
     @classmethod
     def _validate_polynomial_tensor_key(cls, keys: Collection[str]) -> None:
@@ -269,17 +269,17 @@ class BosonicOp(SparseLabelOp):
             for value, index in mat.coord_iter():
                 data[label_template.format(*index)] = value
 
-        return cls(data, copy=False, num_spin_orbitals=tensor.register_length).chop()
+        return cls(data, copy=False, num_modes=tensor.register_length).chop()
 
     def __repr__(self) -> str:
         data_str = f"{dict(self.items())}"
 
-        return "BosonicOp(" f"{data_str}, " f"num_spin_orbitals={self.num_spin_orbitals}, " ")"
+        return "BosonicOp(" f"{data_str}, " f"num_modes={self.num_modes}, " ")"
 
     def __str__(self) -> str:
         pre = (
             "Bosonic Operator\n"
-            f"number spin orbitals={self.num_spin_orbitals}, number terms={len(self)}\n"
+            f"number modes={self.num_modes}, number terms={len(self)}\n"
         )
         ret = "  " + "\n+ ".join(
             [f"{coeff} * ( {label} )" if label else f"{coeff}" for label, coeff in self.items()]
@@ -325,7 +325,7 @@ class BosonicOp(SparseLabelOp):
 
     @classmethod
     def _tensor(cls, a: BosonicOp, b: BosonicOp, *, offset: bool = True) -> BosonicOp:
-        shift = a.num_spin_orbitals if offset else 0
+        shift = a.num_modes if offset else 0
 
         new_data: dict[str, _TCoeff] = {}
         for label1, cf1 in a.items():
@@ -338,74 +338,8 @@ class BosonicOp(SparseLabelOp):
 
         new_op = a._new_instance(new_data, other=b)
         if offset:
-            new_op.num_spin_orbitals = a.num_spin_orbitals + b.num_spin_orbitals
+            new_op.num_modes = a.num_modes + b.num_modes
         return new_op
-        """Convert to a matrix representation over the full bosonic Fock space in the occupation
-        number basis.
-
-        The basis states are ordered in increasing bitstring order as 0000, 0001, ..., 1111.
-
-        Args:
-            sparse: If true, the matrix is returned as a sparse matrix, otherwise it is returned as
-                a dense numpy array.
-
-        Returns:
-            The matrix of the operator in the Fock basis
-
-        Raises:
-            ValueError: Operator contains parameters.
-        """
-        if self.is_parameterized():
-            raise ValueError("to_matrix is not supported for operators containing parameters.")
-
-        csc_data, csc_col, csc_row = [], [], []
-
-        dimension = 1 << self.num_spin_orbitals
-
-        # loop over all columns of the matrix
-        for col_idx in range(dimension):
-            initial_occupations = [occ == "1" for occ in f"{col_idx:0{self.num_spin_orbitals}b}"]
-            # loop over the terms in the operator data
-            for terms, prefactor in self.simplify().terms():
-                # check if op string is the identity
-                if not terms:
-                    csc_data.append(prefactor)
-                    csc_row.append(col_idx)
-                    csc_col.append(col_idx)
-                else:
-                    occupations = initial_occupations.copy()
-                    sign = 1
-                    mapped_to_zero = False
-
-                    # apply terms sequentially to the current basis state
-                    for char, index in reversed(terms):
-                        index = int(index)
-                        occ = occupations[index]
-                        if (char == "+") == occ:
-                            # Applying the creation operator on an occupied state maps to zero. So
-                            # does applying the annihilation operator on an unoccupied state.
-                            mapped_to_zero = True
-                            break
-                        sign *= (-1) ** sum(occupations[:index])
-                        occupations[index] = not occ
-
-                    # add data point to matrix in the correct row
-                    if not mapped_to_zero:
-                        row_idx = sum(int(occ) << idx for idx, occ in enumerate(occupations[::-1]))
-                        csc_data.append(sign * prefactor)
-                        csc_row.append(row_idx)
-                        csc_col.append(col_idx)
-
-        sparse_mat = csc_matrix(
-            (csc_data, (csc_row, csc_col)),
-            shape=(dimension, dimension),
-            dtype=complex,
-        )
-
-        if sparse:
-            return sparse_mat
-        else:
-            return sparse_mat.toarray()
 
     def transpose(self) -> BosonicOp:
         data = {}
@@ -435,8 +369,8 @@ class BosonicOp(SparseLabelOp):
             This method implements the transformation of an operator to the normal ordered operator.
             The transformation is calculated by considering all commutation relations between the
             operators.
-            For example, for the case :math:`\\colon c_0 c_0^\\dagger\\colon` where :math:`c_0`
-            is an annihilation operator, this method returns :math:`1 - c_0^\\dagger c_0` due to
+            For example, for the case :math:`\\colon b_0 b_0^\\dagger\\colon` where :math:`c_0`
+            is an annihilation operator, this method returns :math:`1 + b_0^\\dagger b_0` due to
             commutation relations.
             See the reference: https://en.wikipedia.org/wiki/Normal_order#Multiple_bosons.
 
