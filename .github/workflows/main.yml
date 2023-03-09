@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -146,8 +146,6 @@ jobs:
         os: [ubuntu-latest]
         python-version: [3.7, 3.8, 3.9, '3.10']
         include:
-          - os: macos-latest
-            python-version: 3.8
           - os: macos-latest
             python-version: '3.10'
           - os: windows-2019
@@ -383,10 +381,6 @@ jobs:
           path: /tmp/u310
       - uses: actions/download-artifact@v3
         with:
-          name: macos-latest-3.8
-          path: /tmp/m38
-      - uses: actions/download-artifact@v3
-        with:
           name: macos-latest-3.10
           path: /tmp/m310
       - uses: actions/download-artifact@v3
@@ -402,7 +396,7 @@ jobs:
         shell: bash
       - name: Combined Deprecation Messages
         run: |
-          sort -f -u /tmp/u37/nat.dep /tmp/u38/nat.dep /tmp/u39/nat.dep /tmp/u310/nat.dep /tmp/m38/nat.dep /tmp/m310/nat.dep /tmp/w38/nat.dep /tmp/w310/nat.dep || true
+          sort -f -u /tmp/u37/nat.dep /tmp/u38/nat.dep /tmp/u39/nat.dep /tmp/u310/nat.dep /tmp/m310/nat.dep /tmp/w38/nat.dep /tmp/w310/nat.dep || true
         shell: bash
       - name: Coverage combine
         run: coverage3 combine /tmp/u37/nat.dat
