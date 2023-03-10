@@ -1,3 +1,5 @@
+.. _how-to-numpy:
+
 How to use the ``NumPyEigensolver``
 ===================================
 

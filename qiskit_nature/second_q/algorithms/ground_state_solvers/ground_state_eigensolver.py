@@ -62,6 +62,12 @@ class GroundStateEigensolver(GroundStateSolver):
             solver: Minimum Eigensolver or MESFactory object, e.g. the VQEUCCSDFactory.
         """
         super().__init__(qubit_mapper)
+        if isinstance(solver, MinimumEigensolverFactory):
+            warn_deprecated_type(
+                "0.6.0",
+                "solver",
+                "MinimumEigensolverFactory",
+            )
         self._solver = solver
 
     @property
@@ -155,6 +161,11 @@ class GroundStateEigensolver(GroundStateSolver):
                     )
 
         if isinstance(self.solver, MinimumEigensolverFactory):
+            warn_deprecated_type(
+                "0.6.0",
+                "solver",
+                "MinimumEigensolverFactory",
+            )
             # this must be called after transformation.transform
             self._solver = self.solver.get_solver(problem, self._qubit_mapper)
         # if the eigensolver does not support auxiliary operators, reset them

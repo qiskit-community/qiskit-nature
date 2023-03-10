@@ -1,3 +1,5 @@
+.. _how-to-vqe-ucc:
+
 How to use a UCC-like ansatz with a ``VQE``
 ===========================================
 

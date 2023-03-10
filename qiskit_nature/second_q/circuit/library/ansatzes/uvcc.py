@@ -40,9 +40,7 @@ class UVCC(EvolvedOperatorAnsatz):
     :class:`~qiskit_nature.second_q.circuit.library.VSCF` reference state by default. When setting
     up a ``VQE`` algorithm using this ansatz and initial state, it is likely you will also want to
     use a :class:`~qiskit_nature.second_q.algorithms.initial_points.VSCFInitialPoint` that has been
-    configured using the corresponding ansatz parameters. When using a
-    :class:`~qiskit_nature.second_q.algorithms.VQEUVCCFactory` this is set by default. When directly
-    using ``VQE``, you can set it manually. For example:
+    configured using the corresponding ansatz parameters. This can be done as follows:
 
     .. code-block:: python
 

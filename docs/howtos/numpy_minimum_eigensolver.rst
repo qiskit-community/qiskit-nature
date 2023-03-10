@@ -1,3 +1,5 @@
+.. _how-to-numpy-min:
+
 How to use the ``NumPyMinimumEigensolver``
 ==========================================
 

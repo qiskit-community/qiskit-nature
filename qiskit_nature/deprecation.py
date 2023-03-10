@@ -197,7 +197,7 @@ def warn_deprecated_type(
     version: str,
     argument_name: str,
     old_type: str,
-    new_type: str,
+    new_type: Optional[str] = None,
     additional_msg: Optional[str] = None,
     stack_level: int = 2,
     category: Type[Warning] = DeprecationWarning,
@@ -209,7 +209,7 @@ def warn_deprecated_type(
         version: Version to be used
         argument_name: The name of the argument whose type gets deprecated.
         old_type: Old type to be used
-        new_type: New type to be used.
+        new_type: New type to be used, if None, the type is deprecated without replacement.
         additional_msg: any additional message
         stack_level: stack level
         category: warning category
@@ -223,9 +223,10 @@ def warn_deprecated_type(
 
     msg = (
         f"The {old_type} type in the '{argument_name}' argument is deprecated as of version "
-        f"{version} and will be removed no sooner than 3 months after the release. "
-        f"Instead use the {new_type} type"
+        f"{version} and will be removed no sooner than 3 months after the release"
     )
+    if new_type:
+        msg += f". Instead use the {new_type} type"
     if additional_msg:
         msg += f" {additional_msg}"
     msg += "."

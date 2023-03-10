@@ -1,3 +1,5 @@
+.. _how-to-vqe-uvcc:
+
 How to use a UVCC-like ansatz with a ``VQE``
 ============================================
 

@@ -45,9 +45,7 @@ class UCC(EvolvedOperatorAnsatz):
     :class:`~qiskit_nature.second_q.circuit.library.HartreeFock` reference state by default. When
     setting up a ``VQE`` algorithm using this ansatz and initial state, it is likely you will also
     want to use a :class:`~qiskit_nature.second_q.algorithms.initial_points.HFInitialPoint` that has
-    been configured using the corresponding ansatz parameters. When using a
-    :class:`~qiskit_nature.second_q.algorithms.VQEUCCFactory` this is set by default. When directly
-    using ``VQE`` you can set it manually. For example:
+    been configured using the corresponding ansatz parameters. This can be done as follows:
 
     .. code-block:: python
 

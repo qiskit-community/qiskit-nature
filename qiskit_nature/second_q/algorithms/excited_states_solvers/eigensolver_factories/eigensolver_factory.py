@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -20,7 +20,7 @@ from qiskit_nature.second_q.problems.base_problem import BaseProblem
 
 
 class EigensolverFactory(ABC):
-    """A factory to construct an eigensolver based on a qubit operator transformation."""
+    """DEPRECATED A factory to construct an eigensolver based on a qubit operator transformation."""
 
     @abstractmethod
     def get_solver(self, problem: BaseProblem) -> Eigensolver:

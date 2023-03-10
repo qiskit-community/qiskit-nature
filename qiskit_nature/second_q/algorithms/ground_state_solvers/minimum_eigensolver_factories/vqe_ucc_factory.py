@@ -21,6 +21,7 @@ from qiskit.algorithms.optimizers import Minimizer, Optimizer
 from qiskit.circuit import QuantumCircuit
 from qiskit.primitives import BaseEstimator
 
+from qiskit_nature.deprecation import DeprecatedType, warn_deprecated
 from qiskit_nature.second_q.circuit.library import HartreeFock, UCC
 from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.problems import (
@@ -35,8 +36,13 @@ logger = logging.getLogger(__name__)
 
 
 class VQEUCCFactory(MinimumEigensolverFactory):
-    """Factory to construct a :class:`~qiskit.algorithms.minimum_eigensolvers.VQE` minimum
-    eigensolver with :class:`~.UCC` ansatz wavefunction.
+    """DEPRECATED Factory to construct a :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`
+    minimum eigensolver with :class:`~.UCC` ansatz wavefunction.
+
+    .. warning::
+
+        This class is deprecated! Please see :ref:`this guide <how-to-vqe-ucc>` for how to replace
+        your usage of it!
     """
 
     def __init__(
@@ -73,6 +79,16 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             kwargs: Remaining keyword arguments are passed to the
                 :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`.
         """
+        warn_deprecated(
+            "0.6.0",
+            DeprecatedType.CLASS,
+            "VQEUCCFactory",
+            additional_msg=(
+                ". This class is deprecated without replacement. Instead, refer to this how-to "
+                "guide which explains the steps you need to take to replace the use of this class: "
+                "https://qiskit.org/documentation/nature/howtos/vqe_ucc.html"
+            ),
+        )
         self._initial_state = initial_state
         self._initial_point = initial_point if initial_point is not None else HFInitialPoint()
 

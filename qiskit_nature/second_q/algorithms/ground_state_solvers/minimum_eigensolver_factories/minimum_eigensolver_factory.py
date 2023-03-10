@@ -24,7 +24,9 @@ from qiskit_nature.deprecation import deprecate_arguments
 
 
 class MinimumEigensolverFactory(ABC):
-    """A factory to construct a minimum eigensolver based on a qubit operator transformation."""
+    """DEPRECATED A factory to construct a minimum eigensolver based on a qubit operator
+    transformation.
+    """
 
     @abstractmethod
     @deprecate_arguments(
