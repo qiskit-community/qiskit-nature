@@ -99,6 +99,9 @@ ansatz.initial_state = initial_state
 from qiskit.algorithms.minimum_eigensolvers import VQE
 
 vqe = VQE(estimator, ansatz, optimizer)
+# ensure that the optimizer starts in the all-zero state which corresponds to
+# the Hartree-Fock starting point
+vqe.initial_point = [0] * ansatz.num_parameters
 
 # prepare the ground-state solver and run it
 from qiskit_nature.second_q.algorithms import GroundStateEigensolver
@@ -113,18 +116,17 @@ H<sub>2</sub>, where the two atoms are configured to be at a distance of 0.735 a
 input specification is processed by the PySCF driver. This driver produces an `ElectronicStructureProblem`
 which gathers all the problem information required by Qiskit Nature.
 The second-quantized operators contained in that problem can be mapped to qubit operators with a
-`QubitConverter`. Here, we chose the parity mapping in combination with a 2-qubit reduction, which
-is a precision-preserving optimization removing two qubits; a reduction in complexity that is particularly
+`QubitMapper`. Here, we chose the `ParityMapper` which automatically removes 2 qubits due to inherit
+symmetries when the `num_particles` are provided to it; a reduction in complexity that is particularly
 advantageous for NISQ computers.
 
 For actually finding the ground state solution, the Variational Quantum Eigensolver (VQE) algorithm is used.
-Its main three components, the estimator primitive, wavefunciton ansatz (`UCCSD`), and optimizer, are passed
-to the `VQEUCCFactory`, a utility of Qiskit Nature simplifying the setup of the `VQE` algorithm and its
-components. This factory also ensures consistent settings for the ansatzes initial state and the optimizers
-initial point.
+Its main three components are the estimator primitive, wavefunciton ansatz (`UCCSD`), and optimizer.
+The `UCCSD` component is the only one provided directly by Qiskit Nature and it is usually paired with the
+`HartreeFock` initial state and an all-zero initial point for the optimizer.
 
-The entire problem is then solved using a `GroundStateEigensolver` which wraps both, the `QubitConverter`
-and `VQEUCCFactory`. Since an `ElectronicStructureProblem` is provided to it (which was the output of the
+The entire problem is then solved using a `GroundStateEigensolver` which wraps both, the `ParityMapper`
+and `VQE`. Since an `ElectronicStructureProblem` is provided to it (which was the output of the
 `PySCFDriver`) it also returns an `ElectronicStructureResult`.
 
 ### Further examples
