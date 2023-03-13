@@ -28,19 +28,19 @@ class BosonicMapper(QubitMapper):
     Mapper of Bosonic Operator to Qubit Operator
 
     Workflow:
-        First, the user initializes an instance of BosonicLinearMapper, which call the __init__ method 
+        First, the user initializes an instance of BosonicLinearMapper, which call the __init__ method
         defined in this class.
         Then, the user calls BosonicLinearMapper.map(). Since map is not defined in BosonicLinearMapper,
         the call is actually to the map method in this class.
         QubitMapper.map() calls QubitMapper.map() thank to the super() class.
         Inside QubitMapper.map() there is a call to _map_single. This method is present in QubitMapper
-        class, but it is overloaded in BosonicLinearMapper. 
+        class, but it is overloaded in BosonicLinearMapper.
         Thus, the call is to BosonicLinearMapper._map_single()
     """
 
     def __init__(self, truncation: int) -> None:
         super().__init__()
-        if (truncation < 1):
+        if truncation < 1:
             raise QiskitNatureError("Truncation for bosonic linear mapper must be at least 1. " +
                                     f"Detected value: {truncation}")
         self.truncation = truncation

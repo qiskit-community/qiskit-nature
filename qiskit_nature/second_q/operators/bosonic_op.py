@@ -534,10 +534,11 @@ class BosonicOp(SparseLabelOp):
             #           we add the operator to the new label
             #  4. index exists, the value stored in dict is <(>) 0 and operator is "+"("-"):
             #        we remove the last "-"("+") from the new string
+            # pylint: disable=too-many-boolean-expressions
             if (idx not in operator_mapper or abs(operator_mapper[idx]) == 1 or
                (operator_mapper[idx] < -1 and operator == "-") or
                (operator_mapper[idx] > 1 and operator == "+")):
-                # Cases 1., 2., 3.
+                # Case 1., 2., 3.
                 new_label += f"{lbl}" if len(new_label) == 0 else f" {lbl}"
             else:
                 # Case 4. -> we have to remove the last "-"("+") from the new string

@@ -17,7 +17,7 @@ Mappers (:mod:`qiskit_nature.second_q.mappers`)
 
 .. currentmodule:: qiskit_nature.second_q.mappers
 
-The classes here are used to convert fermionic, bosonic, vibrational and spin operators to qubit 
+The classes here are used to convert fermionic, bosonic, vibrational and spin operators to qubit
 operators.
 
 .. autosummary::

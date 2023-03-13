@@ -15,8 +15,6 @@
 from __future__ import annotations
 import operator
 
-from collections import defaultdict
-from fractions import Fraction
 from functools import reduce
 
 import numpy as np
@@ -24,7 +22,6 @@ import numpy as np
 from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info import Pauli, SparsePauliOp
 
-from qiskit_nature import settings
 from qiskit_nature.second_q.operators import BosonicOp
 from .bosonic_mapper import BosonicMapper
 
@@ -62,19 +59,22 @@ class BosonicLinearMapper(BosonicMapper):
     def _map_single(
         self, second_q_op: BosonicOp, *, register_length: int | None = None
     ) -> SparsePauliOp | PauliSumOp:
+        # If register_length was passed, override the one present in the BosonicOp
         if register_length is None:
-            register_length = second_q_op.num_modes * (self.truncation + 1)
+            register_length = second_q_op.num_modes
 
+        qubit_register_length = register_length * (self.truncation + 1)
         # Create a Pauli operator, which we will fill in this method
         # TODO: Check if we need to normal/index_order
-        pauli_op = []  # type: List[SparsePauliOp]
+        pauli_op: list[SparsePauliOp] = []
         # Then we loop over all the terms of the bosonic operator
         for terms, coeff in second_q_op.terms():
             # Then loop over each term (terms -> List[Tuple[string, int]])
-            boson_op_to_pauli_op = []  # type: List[SparsePauliOp]
+            bos_op_to_pauli_op = SparsePauliOp(["I" * qubit_register_length], coeffs=[1.])
             for op, idx in terms:
-                if op != "+" and op != "-":
+                if op not in ('+', '-'):
                     break
+                pauli_expansion: list[SparsePauliOp] = []
                 # Now we dealing with a single bosonic operator. We have to perform the linear mapper
                 for n_k in range(self.truncation):
                     prefactor = np.sqrt(n_k + 1) / 4
@@ -82,36 +82,42 @@ class BosonicLinearMapper(BosonicMapper):
                     # to the mode onto which the operator is acting
                     register_index = n_k + idx * (self.truncation + 1)
                     # Now build the Pauli operators XX, XY, YX, YY, which arise from S_j^+ S_j^-
-                    xx, xy, yx, yy = self.get_ij_pauli_matrix(register_index, register_length)
+                    x_x, x_y, y_x, y_y = self.get_ij_pauli_matrix(register_index, qubit_register_length)
 
-                    tmp_op = (SparsePauliOp(xx) + SparsePauliOp(yy)
-                              - 1j*SparsePauliOp(xy) + 1j*SparsePauliOp(yx))
-                    if op == "-":
-                        tmp_op = tmp_op.conjugate()
-                    # Add the Pauli expansion for a single n_k to map of the bosonic operator
-                    boson_op_to_pauli_op.append(prefactor * tmp_op)
-                # Add the map of the single boson op (e.g. +_0) to the map of the full bosonic operator
-                pauli_op.append(coeff * reduce(operator.add, boson_op_to_pauli_op))
+                    tmp_op = SparsePauliOp(x_x) + SparsePauliOp(y_y)
+                    if op == "+":
+                        tmp_op += - 1j*SparsePauliOp(x_y) + 1j*SparsePauliOp(y_x)
+                    else:
+                        tmp_op += + 1j*SparsePauliOp(x_y) - 1j*SparsePauliOp(y_x)
+                    pauli_expansion.append(prefactor * tmp_op)
+                # Add the Pauli expansion for a single n_k to map of the bosonic operator
+                bos_op_to_pauli_op = reduce(operator.add, pauli_expansion).compose(bos_op_to_pauli_op)
+            # Add the map of the single boson op (e.g. +_0) to the map of the full bosonic operator
+            pauli_op.append(coeff * reduce(operator.add, bos_op_to_pauli_op.simplify()))
 
         # return the lookup table for the transformed XYZI operators
         bos_op_encoding = reduce(operator.add, pauli_op)
         return bos_op_encoding
 
     def get_ij_pauli_matrix(self, register_index: int, register_length: int):
-        xx = Pauli(
+        # Define recurrent variables
+        prefix_zeros = [0] * register_index
+        suffix_zeros = [0] * (register_length - 2 - register_index)
+        # Build the Pauli strings
+        x_x = Pauli((
             [0] * register_length,
-            [0] * register_index + [1, 1] + [0] * (register_length - 2 - register_index),
-        )
-        xy = Pauli(
-            [0] * register_index + [0, 1] + [0] * (register_length - 2 - register_index),
-            [0] * register_index + [1, 1] + [0] * (register_length - 2 - register_index),
-        )
-        yx = Pauli(
-            [0] * register_index + [1, 0] + [0] * (register_length - 2 - register_index),
-            [0] * register_index + [1, 1] + [0] * (register_length - 2 - register_index),
-        )
-        yy = Pauli(
-            [0] * register_index + [1, 1] + [0] * (register_length - 2 - register_index),
-            [0] * register_index + [1, 1] + [0] * (register_length - 2 - register_index)
-        )
-        return xx, xy, yx, yy
+            prefix_zeros + [1, 1] + suffix_zeros,
+        ))
+        x_y = Pauli((
+            prefix_zeros + [1, 0] + suffix_zeros,
+            prefix_zeros + [1, 1] + suffix_zeros,
+        ))
+        y_x = Pauli((
+            prefix_zeros + [0, 1] + suffix_zeros,
+            prefix_zeros + [1, 1] + suffix_zeros,
+        ))
+        y_y = Pauli((
+            prefix_zeros + [1, 1] + suffix_zeros,
+            prefix_zeros + [1, 1] + suffix_zeros
+        ))
+        return x_x, x_y, y_x, y_y
