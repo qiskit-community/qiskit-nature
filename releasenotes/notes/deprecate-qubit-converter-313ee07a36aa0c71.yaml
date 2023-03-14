@@ -2,7 +2,7 @@
 deprecations:
   - |
     The :class:`~qiskit_nature.second_q.mappers.QubitConverter` class is
-    deprecated in favor of using the :class:~qiskit_nature.second_q.mappers.QubitMapper`
+    deprecated in favor of using the :class:`~qiskit_nature.second_q.mappers.QubitMapper`
     implementations directly.
     As a consequence of this, all public properties and function arguments which
     referred to the ``QubitConverter`` by name (e.g. ``qubit_converter``) have
