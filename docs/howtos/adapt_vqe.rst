@@ -69,3 +69,9 @@ This tutorial outlines how the algorithm can be used.
 .. testcode::
 
     result = solver.solve(problem)
+
+    print(f"Total ground state energy = {result.total_energies[0]:.4f}")
+
+.. testoutput::
+
+    Total ground state energy = -1.1373

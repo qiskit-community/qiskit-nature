@@ -94,3 +94,9 @@ from an MP2 starting point like so:
     from qiskit_nature.second_q.algorithms import GroundStateEigensolver
     solver = GroundStateEigensolver(mapper, vqe)
     result = solver.solve(problem)
+
+    print(f"Total ground state energy = {result.total_energies[0]:.4f}")
+
+.. testoutput::
+
+    Total ground state energy = -1.1373
