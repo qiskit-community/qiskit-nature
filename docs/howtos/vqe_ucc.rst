@@ -11,7 +11,8 @@ By default, the algorithm will start from a *random* initial point. In this how 
 can set a custom initial point instead (for example to guarantee that one starts from the
 Hartree-Fock state).
 
-1. We obtain an ``ElectronicStructureProblem`` which we want to solve:
+1. We obtain an :class:`~qiskit_nature.second_q.problems.ElectronicStructureProblem`
+   which we want to solve:
 
 .. testcode::
 
@@ -19,7 +20,7 @@ Hartree-Fock state).
     driver = PySCFDriver(atom="H 0 0 0; H 0 0 0.735", basis="sto-3g")
     problem = driver.run()
 
-2. We setup our ``QubitMapper``:
+2. We setup our :class:`~qiskit_nature.second_q.mappers.QubitMapper`:
 
 .. testcode::
 
@@ -42,7 +43,7 @@ Hartree-Fock state).
         ),
     )
 
-4. We setup a ``VQE``:
+4. We setup a :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`:
 
 .. testcode::
 
@@ -52,9 +53,10 @@ Hartree-Fock state).
     from qiskit.primitives import Estimator
     vqe = VQE(Estimator(), ansatz, SLSQP())
 
-5. Now comes the key step: choosing the initial point. Since we picked the ``HartreeFock`` initial
-   state before, in order to ensure we start from that, we need to initialize our ``initial_point``
-   with all-zero parameters. One way to do that is like so:
+5. Now comes the key step: choosing the initial point. Since we picked the
+   :class:`~qiskit_nature.second_q.circuit.library.HartreeFock` initial
+   state before, in order to ensure we start from that, we need to initialize our
+   ``initial_point`` with all-zero parameters. One way to do that is like so:
 
 .. testcode::
 

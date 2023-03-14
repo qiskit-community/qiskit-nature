@@ -1,12 +1,13 @@
 How to use the ``AdaptVQE``
 ===========================
 
-As of Qiskit Nature v0.5, the ``AdaptVQE`` algorithm has been migrated to Qiskit
-Terra (released in v0.22).
+As of Qiskit Nature v0.5, the :class:`~qiskit.algorithms.minimum_eigensolvers.AdaptVQE`
+algorithm has been migrated to Qiskit Terra (released in v0.22).
 
 This tutorial outlines how the algorithm can be used.
 
-1. We obtain an ``ElectronicStructureProblem`` which we want to solve:
+1. We obtain an :class:`~qiskit_nature.second_q.problems.ElectronicStructureProblem`
+   which we want to solve:
 
 .. testcode::
 
@@ -14,7 +15,7 @@ This tutorial outlines how the algorithm can be used.
     driver = PySCFDriver(atom="H 0 0 0; H 0 0 0.735", basis="sto-3g")
     problem = driver.run()
 
-2. We setup our ``QubitMapper``:
+2. We setup our :class:`~qiskit_nature.second_q.mappers.QubitMapper`:
 
 .. testcode::
 
@@ -36,7 +37,7 @@ This tutorial outlines how the algorithm can be used.
     initial_state.qubit_mapper = mapper
     ansatz.initial_state = initial_state
 
-4. We setup a ``VQE``:
+4. We setup a :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`:
 
 .. testcode::
 
@@ -47,7 +48,7 @@ This tutorial outlines how the algorithm can be used.
     vqe = VQE(Estimator(), ansatz, SLSQP())
     vqe.initial_point = np.zeros(ansatz.num_parameters)
 
-5. We setup the ``AdaptVQE``:
+5. We setup the :class:`~qiskit.algorithms.minimum_eigensolvers.AdaptVQE`:
 
 .. testcode::
 
@@ -55,7 +56,7 @@ This tutorial outlines how the algorithm can be used.
     adapt_vqe = AdaptVQE(vqe)
     adapt_vqe.supports_aux_operators = lambda: True  # temporary fix
 
-6. We wrap everything in a ``GroundStateEigensolver``:
+6. We wrap everything in a :class:`~qiskit_nature.second_q.algorithms.GroundStateEigensolver`:
 
 .. testcode::
 

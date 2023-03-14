@@ -14,7 +14,8 @@ provides a default implementation of such a filter criterion for commonly encoun
 
 Below we show how you can use this setting.
 
-1. We obtain an ``ElectronicStructureProblem`` which we want to solve:
+1. We obtain an :class:`~qiskit_nature.second_q.problems.ElectronicStructureProblem`
+   which we want to solve:
 
 .. testcode::
 
@@ -22,14 +23,14 @@ Below we show how you can use this setting.
     driver = PySCFDriver(atom="H 0 0 0; H 0 0 0.735", basis="sto-3g")
     problem = driver.run()
 
-2. We setup our ``QubitMapper``:
+2. We setup our :class:`~qiskit_nature.second_q.mappers.QubitMapper`:
 
 .. testcode::
 
     from qiskit_nature.second_q.mappers import JordanWignerMapper
     mapper = JordanWignerMapper()
 
-3. We setup our ``NumPyMinimumEigensolver``:
+3. We setup our :class:`~qiskit.algorithms.minimum_eigensolvers.NumPyMinimumEigensolver`:
 
 .. testcode::
 
@@ -37,7 +38,7 @@ Below we show how you can use this setting.
     algo = NumPyMinimumEigensolver()
     algo.filter_criterion = problem.get_default_filter_criterion()
 
-4. We wrap everything in a ``GroundStateEigensolver``:
+4. We wrap everything in a :class:`~qiskit_nature.second_q.algorithms.GroundStateEigensolver`:
 
 .. testcode::
 

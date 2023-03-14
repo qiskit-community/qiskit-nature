@@ -15,7 +15,8 @@ The basics of this how-to are identical to the UCC-like ansatz how-to (TODO: add
 we will simply show how to use the
 :class:`~qiskit_nature.second_q.algorithms.initial_points.VSCFInitialPoint` like so:
 
-1. Assuming we already have our ``VibrationalStructureProblem`` and ``QubitMapper``:
+1. Assuming we already have our :class:`~qiskit_nature.second_q.problems.VibrationalStructureProblem`
+   and :class:`~qiskit_nature.second_q.mappers.QubitMapper`:
 
 .. testcode::
 
@@ -39,7 +40,7 @@ we will simply show how to use the
         ),
     )
 
-3. We setup a ``VQE``:
+3. We setup a :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`:
 
 .. testcode::
 
@@ -49,8 +50,9 @@ we will simply show how to use the
     from qiskit.primitives import Estimator
     vqe = VQE(Estimator(), ansatz, SLSQP())
 
-4. Now comes the key step: choosing the initial point. Since we picked the ``VSCF`` initial
-   state before, in order to ensure we start from that, we need to initialize our ``initial_point``
+4. Now comes the key step: choosing the initial point. Since we picked the
+   :class:`~qiskit_nature.second_q.circuit.library.VSCF` initial state before,
+   in order to ensure we start from that, we need to initialize our ``initial_point``
    with all-zero parameters. One way to do that is like so:
 
 .. testcode::
