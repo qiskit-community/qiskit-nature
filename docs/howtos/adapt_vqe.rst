@@ -27,15 +27,16 @@ This tutorial outlines how the algorithm can be used.
 .. testcode::
 
     from qiskit_nature.second_q.circuit.library import UCCSD, HartreeFock
-    ansatz = UCCSD()
-    ansatz.num_particles = problem.num_particles
-    ansatz.num_spatial_orbitals = problem.num_spatial_orbitals
-    ansatz.qubit_mapper = mapper
-    initial_state = HartreeFock()
-    initial_state.num_particles = problem.num_particles
-    initial_state.num_spatial_orbitals = problem.num_spatial_orbitals
-    initial_state.qubit_mapper = mapper
-    ansatz.initial_state = initial_state
+    ansatz = UCCSD(
+        problem.num_spatial_orbitals,
+        problem.num_particles,
+        mapper,
+        initial_state=HartreeFock(
+            problem.num_spatial_orbitals,
+            problem.num_particles,
+            mapper,
+        ),
+    )
 
 4. We setup a :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`:
 
