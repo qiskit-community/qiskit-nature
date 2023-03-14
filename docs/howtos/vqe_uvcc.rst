@@ -30,13 +30,14 @@ we will simply show how to use the
 .. testcode::
 
     from qiskit_nature.second_q.circuit.library import UVCCSD, VSCF
-    ansatz = UVCCSD()
-    ansatz.num_modals = num_modals
-    ansatz.qubit_mapper = mapper
-    initial_state = VSCF()
-    initial_state.num_modals = num_modals
-    initial_state.qubit_mapper = mapper
-    ansatz.initial_state = initial_state
+    ansatz = UVCCSD(
+        num_modals,
+        mapper,
+        initial_state=VSCF(
+            num_modals,
+            mapper,
+        ),
+    )
 
 3. We setup a ``VQE``:
 
