@@ -13,6 +13,7 @@
 """ Test VQE UCC MinimumEigensolver Factory """
 
 import unittest
+import warnings
 
 from test import QiskitNatureTestCase
 
@@ -36,7 +37,9 @@ class TestVQEUCCFactory(QiskitNatureTestCase):
     def setUp(self):
         super().setUp()
         self.mapper = QubitConverter(JordanWignerMapper())
-        self._vqe_ucc_factory = VQEUCCFactory(Estimator(), UCCSD(), SLSQP())
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            self._vqe_ucc_factory = VQEUCCFactory(Estimator(), UCCSD(), SLSQP())
 
     def auxiliary_tester(self, title: str, prop: str, cases: tuple):
         """

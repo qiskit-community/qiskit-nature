@@ -40,7 +40,7 @@ the solvers themselves
    ExcitedStatesEigensolver
    QEOM
 
-the specific raw result for the qEOM solver
+and the specific raw result for the qEOM solver.
 
 .. autosummary::
    :toctree: ../stubs/
@@ -48,8 +48,8 @@ the specific raw result for the qEOM solver
 
    QEOMResult
 
-and factories to provision quantum and/or classical algorithms upon which the above solvers may
-depend
+The following factories are still available but have been **deprecated** in version 0.6.0 of Qiskit
+Nature:
 
 .. autosummary::
    :toctree: ../stubs/
@@ -70,7 +70,7 @@ The interface for such solvers,
 
    GroundStateSolver
 
-the solvers themselves
+the solvers themselves.
 
 .. autosummary::
    :toctree: ../stubs/
@@ -78,8 +78,8 @@ the solvers themselves
 
    GroundStateEigensolver
 
-and factories to provision quantum and/or classical algorithms upon which the above solvers may
-depend
+The following factories are still available but have been **deprecated** in version 0.6.0 of Qiskit
+Nature:
 
 .. autosummary::
    :toctree: ../stubs/
@@ -92,8 +92,14 @@ depend
 
 Initial Points
 ++++++++++++++
-The factories linked above make use of utility classes to compute initial points to use with
-specific ansatzes. More details may be found in the sub-module linked below.
+When using variational algorithms such as the :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`
+it may be necessary to set the initial parameters for the optimizer to a specific value (by default,
+the optimizer will start from a random point). This depends on the problem one is trying to solve as
+well as the ansatz used to solve the problem. To this extent, the following submodule provides
+generator classes for such an ``initial_point``. For more information, refer to the documentation of
+the submodule linked below as well as the how-to guides on
+:ref:`using a UCC-like ansatz with a VQE <how-to-vqe-ucc>` or on
+:ref:`using a UVCC-like ansatz with a VQE <how-to-vqe-uvcc>` for some specific examples.
 
 .. autosummary::
    :toctree:
