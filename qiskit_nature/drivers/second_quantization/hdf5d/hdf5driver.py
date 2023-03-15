@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018, 2022.
+# (C) Copyright IBM 2018, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -100,8 +100,8 @@ class HDF5Driver(BaseDriver):
 
         warnings.filterwarnings("ignore", category=DeprecationWarning)
         driver_result = ElectronicStructureDriverResult.from_legacy_driver_result(q_mol)
-        warnings.filterwarnings("default", category=DeprecationWarning)
         save_to_hdf5(driver_result, str(new_hdf5_file), replace=replace)
+        warnings.filterwarnings("default", category=DeprecationWarning)
 
     def run(self) -> GroupedSecondQuantizedProperty:
         """

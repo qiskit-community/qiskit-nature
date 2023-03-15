@@ -26,8 +26,14 @@ import qiskit_nature.optionals as _optionals
 
 if _optionals.HAS_SPARSE:
     # pylint: disable=import-error
-    from sparse import COO, DOK, GCXS, SparseArray, zeros_like
+    from sparse import COO, DOK, GCXS, SparseArray, as_coo, zeros_like
 else:
+
+    def as_coo(*args):
+        """Empty as_coo function
+        Replacement if sparse.as_coo is not present.
+        """
+        del args
 
     def zeros_like(*args):
         """Empty zeros_like function
@@ -609,7 +615,7 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
             make_sparse = True
         einsum = np.einsum(f"{aeinsum},{beinsum}", amat, bmat)
         if make_sparse:
-            einsum = COO(einsum)
+            einsum = as_coo(einsum)
 
         return cls(einsum)
 

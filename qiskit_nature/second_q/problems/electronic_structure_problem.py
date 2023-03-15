@@ -14,6 +14,7 @@
 
 from __future__ import annotations
 
+import warnings
 from functools import partial
 from typing import cast, Callable, List, Optional, Union, TYPE_CHECKING
 
@@ -314,12 +315,14 @@ class ElectronicStructureProblem(BaseProblem):
         # We need the HF bitstring mapped to the qubit space but without any tapering done
         # by the converter (just qubit mapping and any two qubit reduction) since we are
         # going to determine the tapering sector
-        hf_bitstr = hartree_fock_bitstring_mapped(
-            num_spatial_orbitals=self.num_spatial_orbitals,
-            num_particles=num_particles,
-            qubit_mapper=converter,
-            match_convert=False,
-        )
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            hf_bitstr = hartree_fock_bitstring_mapped(
+                num_spatial_orbitals=self.num_spatial_orbitals,
+                num_particles=num_particles,
+                qubit_mapper=converter,
+                match_convert=False,
+            )
         sector = ElectronicStructureProblem._pick_sector(z2_symmetries, hf_bitstr)
 
         return sector

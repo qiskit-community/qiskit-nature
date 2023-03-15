@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -23,15 +23,8 @@ import qiskit_nature.optionals as _optionals
 
 if _optionals.HAS_SPARSE:
     # pylint: disable=import-error
-    from sparse import COO, SparseArray
+    from sparse import SparseArray, as_coo
 else:
-
-    class COO:  # type: ignore
-        """Empty COO class
-        Replacement if sparse.COO is not present.
-        """
-
-        pass
 
     class SparseArray:  # type: ignore
         """Empty SparseArray class
@@ -39,6 +32,12 @@ else:
         """
 
         pass
+
+    def as_coo(*args):
+        """Empty as_coo function
+        Replacement if sparse.as_coo is not present.
+        """
+        del args
 
 
 @dataclass
@@ -75,7 +74,7 @@ class WatsonHamiltonian:
                 if value:
                     yield value, tuple((-1) ** kinetic * (i + 1) for i in index)
         elif isinstance(array, SparseArray):
-            coo = COO(array)
+            coo = as_coo(array)
             for value, *index in zip(coo.data, *coo.coords):
                 yield value, tuple((-1) ** kinetic * (i + 1) for i in index)
 
