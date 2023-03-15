@@ -4,8 +4,8 @@ How to use the ``NumPyEigensolver``
 ===================================
 
 In order to ensure a physically meaningful excited states of a hamiltonian are found when using the
-:class:`~qiskit.algorithms.minimum_eigensolvers.NumPyEigensolver` one needs to set the
-:attr:`~qiskit.algorithms.minimum_eigensolvers.NumPyEigensolver.filter_criterion` attribute
+:class:`~qiskit.algorithms.eigensolvers.NumPyEigensolver` one needs to set the
+:attr:`~qiskit.algorithms.eigensolvers.NumPyEigensolver.filter_criterion` attribute
 of the solver.
 
 Subclasses of :class:`~qiskit_nature.second_q.problems.BaseProblem` in Qiskit Nature provide the
