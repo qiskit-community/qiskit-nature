@@ -60,6 +60,12 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
             qubit_converter: DEPRECATED The ``QubitConverter`` or ``QubitMapper`` to use for mapping
                 and symmetry reduction.
         """
+        if isinstance(solver, EigensolverFactory):
+            warn_deprecated_type(
+                "0.6.0",
+                "solver",
+                "EigensolverFactory",
+            )
         self._qubit_mapper = qubit_mapper
         self._solver = solver
 
@@ -71,6 +77,12 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
     @solver.setter
     def solver(self, solver: Eigensolver | EigensolverFactory) -> None:
         """Sets the minimum eigensolver or factory."""
+        if isinstance(solver, EigensolverFactory):
+            warn_deprecated_type(
+                "0.6.0",
+                "solver",
+                "EigensolverFactory",
+            )
         self._solver = solver
 
     def get_qubit_operators(
@@ -136,6 +148,11 @@ class ExcitedStatesEigensolver(ExcitedStatesSolver):
                     )
 
         if isinstance(self._solver, EigensolverFactory):
+            warn_deprecated_type(
+                "0.6.0",
+                "solver",
+                "EigensolverFactory",
+            )
             # this must be called after transformation.transform
             self._solver = self._solver.get_solver(problem)
 

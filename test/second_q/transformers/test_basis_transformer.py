@@ -33,7 +33,7 @@ class TestBasisTransformer(QiskitNatureTestCase):
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_restricted_spin(self):
         """A simple restricted-spin test case."""
-        driver = PySCFDriver(atom="H 0 0 0; H 0 0 0.735", method=MethodType.RKS)
+        driver = PySCFDriver(atom="H 0 0 0; H 0 0 0.735", method=MethodType.RHF)
         driver.run_pyscf()
         mo_coeff = driver._calc.mo_coeff
 
@@ -97,7 +97,7 @@ class TestBasisTransformer(QiskitNatureTestCase):
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_unrestricted_spin(self):
         """A simple unrestricted-spin test case."""
-        driver = PySCFDriver(atom="O 0 0 0; H 0 0 0.9697", spin=1, method=MethodType.UKS)
+        driver = PySCFDriver(atom="O 0 0 0; H 0 0 0.9697", spin=1, method=MethodType.UHF)
         driver.run_pyscf()
         mo_coeff, mo_coeff_b = driver._calc.mo_coeff
 

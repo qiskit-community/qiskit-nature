@@ -15,6 +15,7 @@
 from __future__ import annotations
 
 import unittest
+import warnings
 
 from test import QiskitNatureTestCase
 from ddt import ddt, named_data
@@ -133,7 +134,9 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
         hamiltonian_op, _ = self.electronic_structure_problem.second_q_ops()
         aux_ops = {"hamiltonian": hamiltonian_op}
         estimator = Estimator()
-        solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
         gsc = GroundStateEigensolver(mapper, solver)
         esc = QEOM(gsc, estimator, "sd", aux_eval_rules=EvaluationRule.DIAG)
         results = esc.solve(self.electronic_structure_problem, aux_operators=aux_ops)
@@ -152,7 +155,9 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
         aux_ops = {"hamiltonian_derivative": self._hamiltonian_derivative()}
 
         estimator = Estimator()
-        solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
         gsc = GroundStateEigensolver(mapper, solver)
         esc = QEOM(gsc, estimator, excitations="sd", aux_eval_rules=aux_eval_rules)
         results = esc.solve(self.electronic_structure_problem, aux_operators=aux_ops)

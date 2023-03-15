@@ -62,7 +62,8 @@ class ElectronicStructureProblem(BaseProblem):
     about the problem which you are trying to solve, which can be used by various modules in the
     stack. For example, specifying the number of particles in the system :attr:`num_particles` is
     useful (and even required) for many components that interact with this problem instance to make
-    your life easier (for example the :class:`qiskit_nature.second_q.algorithms.VQEUCCFactory`).
+    your life easier (for example the
+    :class:`qiskit_nature.second_q.transformers.ActiveSpaceTransformer`).
 
     In the fermionic case the default filter ensures that the number of particles is being
     preserved.
@@ -78,7 +79,7 @@ class ElectronicStructureProblem(BaseProblem):
     .. code-block:: python
 
         import numpy as np
-        from qiskit_nature.second_q.algorithms import NumPyEigensolverFactory
+        from qiskit.algorithms.minimum_eigensolvers import NumPyMinimumEigensolver
 
         expected_spin = 2
         expected_num_electrons = 6
@@ -92,7 +93,8 @@ class ElectronicStructureProblem(BaseProblem):
                 np.isclose(num_particles_aux, expected_num_electrons)
             )
 
-        solver = NumPyEigensolverFactory(filter_criterion=filter_criterion_custom)
+        solver = NumPyEigensolver()
+        solver.filter_criterion = filter_criterion_custom
 
     The following attributes can be read and updated once the ``ElectronicStructureProblem`` object
     has been constructed.

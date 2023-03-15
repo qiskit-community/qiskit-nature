@@ -16,6 +16,7 @@ import contextlib
 import copy
 import io
 import unittest
+import warnings
 
 from test import QiskitNatureTestCase
 
@@ -64,28 +65,36 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
 
     def test_npme(self):
         """Test NumPyMinimumEigensolver"""
-        solver = NumPyMinimumEigensolverFactory()
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = NumPyMinimumEigensolverFactory()
         calc = GroundStateEigensolver(self.tapered_mapper, solver)
         res = calc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
     def test_npme_with_default_filter(self):
         """Test NumPyMinimumEigensolver with default filter"""
-        solver = NumPyMinimumEigensolverFactory(use_default_filter_criterion=True)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = NumPyMinimumEigensolverFactory(use_default_filter_criterion=True)
         calc = GroundStateEigensolver(self.tapered_mapper, solver)
         res = calc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
     def test_vqe_uccsd(self):
         """Test VQE UCCSD case"""
-        solver = VQEUCCFactory(Estimator(), UCC(excitations="d"), SLSQP())
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = VQEUCCFactory(Estimator(), UCC(excitations="d"), SLSQP())
         calc = GroundStateEigensolver(self.tapered_mapper, solver)
         res = calc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
     def test_vqe_uccsd_mapper(self):
         """Test VQE UCCSD case with QubitMapper"""
-        solver = VQEUCCFactory(Estimator(), UCC(excitations="d"), SLSQP())
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = VQEUCCFactory(Estimator(), UCC(excitations="d"), SLSQP())
         calc = GroundStateEigensolver(self.mapper, solver)
         res = calc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
@@ -97,7 +106,9 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
             # pylint: disable=unused-argument
             print(f"iterations {nfev}: energy: {energy}")
 
-        solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP(), callback=callback)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP(), callback=callback)
         calc = GroundStateEigensolver(self.tapered_mapper, solver)
         with contextlib.redirect_stdout(io.StringIO()) as out:
             res = calc.solve(self.electronic_structure_problem)
@@ -108,7 +119,9 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
 
     def test_vqe_ucc_custom(self):
         """Test custom ansatz in Factory use case"""
-        solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP())
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP())
         calc = GroundStateEigensolver(self.tapered_mapper, solver)
         res = calc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
@@ -116,7 +129,9 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
     def test_aux_ops_reusability(self):
         """Test that the auxiliary operators can be reused"""
         # Regression test against #1475
-        solver = NumPyMinimumEigensolverFactory()
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = NumPyMinimumEigensolverFactory()
         calc = GroundStateEigensolver(self.tapered_mapper, solver)
 
         modes = 4
@@ -133,7 +148,9 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
 
     def _setup_evaluation_operators(self):
         # first we run a ground state calculation
-        solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP())
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP())
         calc = GroundStateEigensolver(self.tapered_mapper, solver)
         res = calc.solve(self.electronic_structure_problem)
 
@@ -204,7 +221,9 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
         num_particles = problem.num_particles
         tapered_mapper = problem.get_tapered_mapper(ParityMapper(num_particles))
 
-        solver = NumPyMinimumEigensolverFactory()
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = NumPyMinimumEigensolverFactory()
         gsc = GroundStateEigensolver(tapered_mapper, solver)
 
         result = gsc.solve(problem)
@@ -215,14 +234,18 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
 
         An issue with calculating the dipole moment that had division None/float.
         """
-        solver = NumPyMinimumEigensolverFactory()
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = NumPyMinimumEigensolverFactory()
         calc = GroundStateEigensolver(self.tapered_mapper, solver)
         res = calc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(res.total_dipole_moment_in_debye[0], 0.0, places=1)
 
     def test_print_result(self):
         """Regression test against #198 and general issues with printing results."""
-        solver = NumPyMinimumEigensolverFactory()
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = NumPyMinimumEigensolverFactory()
         calc = GroundStateEigensolver(self.tapered_mapper, solver)
         res = calc.solve(self.electronic_structure_problem)
         with contextlib.redirect_stdout(io.StringIO()) as out:
@@ -256,7 +279,9 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
     def test_default_initial_point(self):
         """Test when using the default initial point."""
 
-        solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP())
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP())
         calc = GroundStateEigensolver(self.tapered_mapper, solver)
         res = calc.solve(self.electronic_structure_problem)
 
@@ -267,7 +292,11 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
         """Test VQEUCCFactory when using it with a user defined initial point."""
 
         initial_point = np.asarray([1.28074029e-19, 5.92226076e-08, 1.11762559e-01])
-        solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP(maxiter=1), initial_point=initial_point)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = VQEUCCFactory(
+                Estimator(), UCCSD(), SLSQP(maxiter=1), initial_point=initial_point
+            )
         calc = GroundStateEigensolver(self.tapered_mapper, solver)
         res = calc.solve(self.electronic_structure_problem)
         np.testing.assert_array_almost_equal(res.raw_result.optimal_point, initial_point)
@@ -277,7 +306,9 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
 
         initial_point = MP2InitialPoint()
 
-        solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP(), initial_point=initial_point)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP(), initial_point=initial_point)
         calc = GroundStateEigensolver(self.tapered_mapper, solver)
         res = calc.solve(self.electronic_structure_problem)
 
@@ -295,7 +326,9 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
             reps=2,
         )
 
-        solver = VQEUCCFactory(Estimator(), ansatz, SLSQP())
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = VQEUCCFactory(Estimator(), ansatz, SLSQP())
         calc = GroundStateEigensolver(self.tapered_mapper, solver)
         res = calc.solve(self.electronic_structure_problem)
 
@@ -318,7 +351,9 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
             reps=2,
         )
 
-        solver = VQEUCCFactory(Estimator(), ansatz, SLSQP(), initial_point=initial_point)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = VQEUCCFactory(Estimator(), ansatz, SLSQP(), initial_point=initial_point)
         calc = GroundStateEigensolver(self.tapered_mapper, solver)
         res = calc.solve(self.electronic_structure_problem)
 

@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -15,6 +15,7 @@
 import contextlib
 import io
 import unittest
+import warnings
 
 from test import QiskitNatureTestCase
 
@@ -107,7 +108,9 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
     def test_numpy_mes(self):
         """Test with NumPyMinimumEigensolver"""
         estimator = Estimator()
-        solver = NumPyMinimumEigensolverFactory(use_default_filter_criterion=True)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = NumPyMinimumEigensolverFactory(use_default_filter_criterion=True)
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
         esc = QEOM(gsc, estimator, "sd")
         results = esc.solve(self.vibrational_problem)
@@ -115,7 +118,9 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
 
     def test_numpy_factory(self):
         """Test with NumPyEigensolver"""
-        solver = NumPyEigensolverFactory(use_default_filter_criterion=True)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = NumPyEigensolverFactory(use_default_filter_criterion=True)
         esc = ExcitedStatesEigensolver(self.qubit_converter, solver)
         results = esc.solve(self.vibrational_problem)
         self._assert_energies(results.computed_vibrational_energies, self.reference_energies)
@@ -124,7 +129,9 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
         """Test with VQE plus UVCCSD"""
         optimizer = COBYLA(maxiter=5000)
         estimator = Estimator()
-        solver = VQEUVCCFactory(estimator, UVCCSD(), optimizer)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = VQEUVCCFactory(estimator, UVCCSD(), optimizer)
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
         esc = QEOM(gsc, estimator, "sd")
         results = esc.solve(self.vibrational_problem)
@@ -137,7 +144,9 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
         initial_point = np.asarray([-7.35250290e-05, -9.73079292e-02, -5.43346282e-05])
         estimator = Estimator()
         optimizer = COBYLA(maxiter=1)
-        solver = VQEUVCCFactory(estimator, UVCCSD(), optimizer, initial_point=initial_point)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = VQEUVCCFactory(estimator, UVCCSD(), optimizer, initial_point=initial_point)
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
         esc = QEOM(gsc, estimator, "sd")
         results = esc.solve(self.vibrational_problem)
@@ -154,7 +163,9 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
         estimator = Estimator()
         optimizer = COBYLA(maxiter=5000)
 
-        solver = VQEUVCCFactory(estimator, UVCCSD(), optimizer, callback=cb_callback)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = VQEUVCCFactory(estimator, UVCCSD(), optimizer, callback=cb_callback)
         gsc = GroundStateEigensolver(self.qubit_converter, solver)
         esc = QEOM(gsc, estimator, "sd")
         with contextlib.redirect_stdout(io.StringIO()) as out:

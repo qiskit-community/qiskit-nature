@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 """ Test NumPyMinimumEigensolver Factory """
 import unittest
+import warnings
 from test import QiskitNatureTestCase
 import numpy as np
 
@@ -46,9 +47,11 @@ class TestNumPyEigensolverFactory(QiskitNatureTestCase):
             return np.isclose(aux_values["ParticleNumber"][0], 2.0)
 
         self.k = 99
-        self._numpy_eigensolver_factory = NumPyEigensolverFactory(
-            filter_criterion=filter_criterion, k=self.k
-        )
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            self._numpy_eigensolver_factory = NumPyEigensolverFactory(
+                filter_criterion=filter_criterion, k=self.k
+            )
 
     def test_setters_getters(self):
         """Test Getter/Setter"""
