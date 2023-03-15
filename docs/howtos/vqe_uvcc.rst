@@ -70,5 +70,5 @@ Alternatively, one can also use
     initial_point.problem = problem
     vqe.initial_point = initial_point.to_numpy_array()
 
-Just like in the UCC-ansatz case, this is mostly useful when building more code on top of the
-:class:`~qiskit_nature.second_q.algorithms.initial_points.InitialPoint` interface.
+Just like in the :ref:`UCC-ansatz case <how-to-vqe-ucc>`, this is mostly useful when building more
+code on top of the :class:`~qiskit_nature.second_q.algorithms.initial_points.InitialPoint` interface.
