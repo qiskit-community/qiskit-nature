@@ -7,7 +7,7 @@ When using a :class:`~qiskit_nature.second_q.circuit.library.UVCC`-style ansatz 
 :class:`~qiskit.algorithms.minimum_eigensolvers.VQE` one needs to pay particular attention to the
 :attr:`~qiskit.algorithms.minimum_eigensolvers.VQE.initial_point` attribute which indicates from
 which set of initial parameters the optimization routine should start.
-By default, the algorithm will start from a *random* initial point. In this how to we show how one
+By default, VQE will start from a *random* initial point. In this how to we show how one
 can set a custom initial point instead (for example to guarantee that one starts from the
 VSCF state).
 
