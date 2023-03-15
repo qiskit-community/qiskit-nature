@@ -52,7 +52,11 @@ Below we show how you can use this setting.
     result = solver.solve(problem)
 
     print(f"Total ground state energy = {result.total_energies[0]:.4f}")
+    print(f"Total first excited state energy = {result.total_energies[1]:.3f}")
+    print(f"Total second excited state energy = {result.total_energies[2]:.3f}")
 
 .. testoutput::
 
     Total ground state energy = -1.1373
+    Total first excited state energy = -0.163
+    Total second excited state energy = 0.495
