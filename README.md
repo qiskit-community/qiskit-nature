@@ -112,7 +112,7 @@ algorithm = GroundStateEigensolver(mapper, vqe)
 electronic_structure_result = algorithm.solve(problem)
 print(electronic_structure_result)
 ```
-The program above uses a virtual quantum computer simulator to calculate the ground state energy of molecular Hydrogen,
+The program above computes the ground state energy of molecular Hydrogen,
 H<sub>2</sub>, where the two atoms are configured to be at a distance of 0.735 angstroms. The molecular
 input specification is processed by the PySCF driver. This driver produces an `ElectronicStructureProblem`
 which gathers all the problem information required by Qiskit Nature.
