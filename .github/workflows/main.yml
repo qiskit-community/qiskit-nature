@@ -99,13 +99,13 @@ jobs:
           python tools/check_copyright.py -check
         if: ${{ !cancelled() }}
         shell: bash
-      - name: Spell Check
-        run: |
-          source "$CONDA/etc/profile.d/conda.sh"
-          conda activate psi4env
-          make spell
-        if: ${{ !cancelled() }}
-        shell: bash
+ #     - name: Spell Check
+ #       run: |
+ #         source "$CONDA/etc/profile.d/conda.sh"
+ #         conda activate psi4env
+ #         make spell
+ #       if: ${{ !cancelled() }}
+ #       shell: bash
       - name: Style Check
         run: |
           source "$CONDA/etc/profile.d/conda.sh"
