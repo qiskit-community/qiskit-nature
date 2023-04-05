@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fixes the behavior of :meth:`~qiskit_nature.second_q.operators.SparseLabelOp.is_zero` when
+    called on a parameterized operator.
