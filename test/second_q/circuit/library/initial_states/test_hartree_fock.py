@@ -13,6 +13,7 @@
 """Test Hartree Fock initial state circuit."""
 
 import unittest
+import warnings
 from test import QiskitNatureTestCase
 import numpy as np
 
@@ -153,12 +154,14 @@ class TestHartreeFock(QiskitNatureTestCase):
             ref_matched = [True, False, True, True, False, True, False, True, False, False]
             self.assertListEqual(bitstr, ref_matched)
         with self.subTest("Bitsring creation with no tapering"):
-            bitstr = hartree_fock_bitstring_mapped(
-                num_spatial_orbitals=num_spatial_orbitals,
-                num_particles=num_particles,
-                qubit_mapper=mapper,
-                match_convert=False,
-            )
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=DeprecationWarning)
+                bitstr = hartree_fock_bitstring_mapped(
+                    num_spatial_orbitals=num_spatial_orbitals,
+                    num_particles=num_particles,
+                    qubit_mapper=mapper,
+                    match_convert=False,
+                )
             ref_notaper = [
                 True,
                 False,
