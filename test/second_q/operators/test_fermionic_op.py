@@ -85,6 +85,11 @@ class TestFermionicOp(QiskitNatureTestCase):
         targ = FermionicOp({"+_0 -_0": 1 + self.a})
         self.assertEqual(fer_op, targ)
 
+        with self.subTest("sum"):
+            fer_op = sum(FermionicOp({label: 1}) for label in ["+_0", "-_1", "+_2 -_2"])
+            targ = FermionicOp({"+_0": 1, "-_1": 1, "+_2 -_2": 1})
+            self.assertEqual(fer_op, targ)
+
     def test_sub(self):
         """Test __sub__"""
         fer_op = self.op3 - self.op2
