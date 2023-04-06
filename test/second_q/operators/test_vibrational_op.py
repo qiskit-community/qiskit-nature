@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -77,6 +77,14 @@ class TestVibrationalOp(QiskitNatureTestCase):
         vib_op = self.op1 + self.op2
         targ = self.op3
         self.assertEqual(vib_op, targ)
+
+        with self.subTest("sum"):
+            vib_op = sum(
+                VibrationalOp({label: 1}, num_modals=[1, 1, 1])
+                for label in ["+_0_0", "-_1_0", "+_2_0 -_2_0"]
+            )
+            targ = VibrationalOp({"+_0_0": 1, "-_1_0": 1, "+_2_0 -_2_0": 1})
+            self.assertEqual(vib_op, targ)
 
     def test_sub(self):
         """Test __sub__"""
