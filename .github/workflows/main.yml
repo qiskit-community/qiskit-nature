@@ -35,7 +35,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.7]
+        python-version: [3.8]
     steps:
       - name: Print Concurrency Group
         env:
@@ -304,6 +304,7 @@ jobs:
           use-conda: "false"
       - name: Install Dependencies
         run: |
+          pip install jupyter
           sudo apt-get install -y pandoc
           echo "earliest_version: 0.1.0" >> releasenotes/config.yaml
         shell: bash

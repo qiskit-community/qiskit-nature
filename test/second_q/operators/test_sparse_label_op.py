@@ -567,6 +567,12 @@ class TestSparseLabelOp(QiskitNatureTestCase):
             )
             self.assertFalse(test_op.is_zero(tol=0.001))
 
+        with self.subTest("parameterized coefficient"):
+            test_op = DummySparseLabelOp({"+_0 -_1": a})
+            self.assertFalse(test_op.is_zero())
+            bound_op = test_op.assign_parameters({a: 0.0})
+            self.assertTrue(bound_op.is_zero())
+
     def test_parameters(self):
         """Test parameters."""
         op = DummySparseLabelOp({"+_0 -_1": a, "+_0 -_2": b})
