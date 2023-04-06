@@ -278,7 +278,7 @@ class QEOM(ExcitedStatesSolver):
     def get_qubit_operators(
         self,
         problem: BaseProblem,
-        aux_operators: dict[str, SparseLabelOp | PauliSumOp] | None = None,
+        aux_operators: dict[str, SparseLabelOp | SparsePauliOp | PauliSumOp] | None = None,
     ) -> tuple[SparsePauliOp | PauliSumOp, dict[str, SparsePauliOp | PauliSumOp] | None]:
         """
         Gets the operator and auxiliary operators, and transforms the provided auxiliary operators.
@@ -392,10 +392,13 @@ class QEOM(ExcitedStatesSolver):
         untap_main_op = untap_main_op_sumop
         if isinstance(untap_main_op, PauliSumOp):
             untap_main_op = untap_main_op.primitive
-        untap_aux_ops = {
-            key: op.primitive if isinstance(op, PauliSumOp) else op
-            for key, op in untap_aux_ops_sumop.items()
-        }
+
+        untap_aux_ops = None
+        if untap_aux_ops_sumop is not None:
+            untap_aux_ops = {
+                key: op.primitive if isinstance(op, PauliSumOp) else op
+                for key, op in untap_aux_ops_sumop.items()
+            }
 
         # before we taper our operators we filter the ones which come from the problem internally as
         # to not trigger a bunch of warnings being raised about overwritten auxiliary operators
