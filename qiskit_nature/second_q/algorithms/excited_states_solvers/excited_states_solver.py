@@ -54,7 +54,7 @@ class ExcitedStatesSolver(ABC):
     def get_qubit_operators(
         self,
         problem: BaseProblem,
-        aux_operators: dict[str, SparseLabelOp | PauliSumOp] | None = None,
+        aux_operators: dict[str, SparseLabelOp | SparsePauliOp | PauliSumOp] | None = None,
     ) -> tuple[PauliSumOp | SparseLabelOp, dict[str, PauliSumOp | SparseLabelOp] | None]:
         """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators
         using a ``QubitConverter`` or ``QubitMapper``.
