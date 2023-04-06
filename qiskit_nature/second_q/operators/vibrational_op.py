@@ -149,17 +149,6 @@ class VibrationalOp(SparseLabelOp):
 
       VibrationalOp({"+_0_0 -_1_0": 1j}, num_modals=[1, 1]).adjoint()
 
-    In principle, you can also add :class:`VibrationalOp` and integers, but the only valid case is the
-    addition of `0 + VibrationalOp`. This makes the `sum` operation from the example above possible
-    and it is useful in the following scenario:
-
-    .. code-block:: python
-
-        vibrational_op = 0
-        for i in some_iterable:
-            # some processing
-            vibrational_op += VibrationalOp(somedata)
-
     **Iteration**
 
     Instances of ``VibrationalOp`` are iterable. Iterating a ``VibrationalOp`` yields (term, coefficient)
