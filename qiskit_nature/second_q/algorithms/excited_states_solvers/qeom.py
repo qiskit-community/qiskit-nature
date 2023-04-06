@@ -276,7 +276,7 @@ class QEOM(ExcitedStatesSolver):
     def get_qubit_operators(
         self,
         problem: BaseProblem,
-        aux_operators: dict[str, SparseLabelOp | PauliSumOp] | None = None,
+        aux_operators: dict[str, SparseLabelOp | SparsePauliOp | PauliSumOp] | None = None,
     ) -> tuple[SparsePauliOp | PauliSumOp, dict[str, SparsePauliOp | PauliSumOp] | None]:
         """
         Gets the operator and auxiliary operators, and transforms the provided auxiliary operators.
@@ -389,10 +389,13 @@ class QEOM(ExcitedStatesSolver):
         untap_main_op = untap_main_op_sumop
         if isinstance(untap_main_op, PauliSumOp):
             untap_main_op = untap_main_op.primitive
-        untap_aux_ops = {
-            key: op.primitive if isinstance(op, PauliSumOp) else op
-            for key, op in untap_aux_ops_sumop.items()
-        }
+
+        untap_aux_ops = None
+        if untap_aux_ops_sumop is not None:
+            untap_aux_ops = {
+                key: op.primitive if isinstance(op, PauliSumOp) else op
+                for key, op in untap_aux_ops_sumop.items()
+            }
 
         # 2. Run ground state calculation with fully tapered custom auxiliary operators
         # Note that the solve() method includes the `second_q' auxiliary operators
