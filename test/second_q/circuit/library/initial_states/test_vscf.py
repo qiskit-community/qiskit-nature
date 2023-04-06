@@ -19,7 +19,7 @@ import numpy as np
 from qiskit import QuantumCircuit
 from qiskit_nature.second_q.circuit.library import VSCF
 from qiskit_nature.second_q.circuit.library.initial_states.vscf import vscf_bitstring
-from qiskit_nature.second_q.mappers import ParityMapper, TaperedQubitMapper, QubitConverter
+from qiskit_nature.second_q.mappers import DirectMapper, TaperedQubitMapper, QubitConverter
 
 
 class TestVSCF(QiskitNatureTestCase):
@@ -52,7 +52,7 @@ class TestVSCF(QiskitNatureTestCase):
         """Test 2 modes 2 modal for the first mode and 4 modals for the second
         with lazy attribute setting."""
         num_modals = [2, 4]
-        mapper = QubitConverter(ParityMapper())
+        mapper = QubitConverter(DirectMapper())
         vscf = VSCF()
         vscf.num_modals = num_modals
         vscf.qubit_mapper = mapper
@@ -65,7 +65,7 @@ class TestVSCF(QiskitNatureTestCase):
         """Test 2 modes 2 modal for the first mode and 4 modals for the second
         with lazy attribute setting when bypassing the Qubit converter."""
         num_modals = [2, 4]
-        mapper = ParityMapper()
+        mapper = DirectMapper()
         vscf = VSCF()
         vscf.num_modals = num_modals
         vscf.qubit_mapper = mapper
@@ -78,7 +78,7 @@ class TestVSCF(QiskitNatureTestCase):
         """Test 2 modes 2 modal for the first mode and 4 modals for the second
         with lazy attribute setting and the Tapered Qubit."""
         num_modals = [2, 4]
-        mapper = TaperedQubitMapper(ParityMapper())
+        mapper = TaperedQubitMapper(DirectMapper())
         vscf = VSCF()
         vscf.num_modals = num_modals
         vscf.qubit_mapper = mapper
