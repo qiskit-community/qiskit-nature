@@ -20,7 +20,7 @@ import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Provider
-from qiskit.providers.backend import Backend
+from qiskit.providers.backend import Backend, BackendV2
 from qiskit.algorithms import (
     MinimumEigensolver,
     MinimumEigensolverResult,
@@ -289,7 +289,11 @@ class VQEClient(VariationalAlgorithm, MinimumEigensolver):
         }
 
         # define runtime options
-        options = {"backend_name": self.backend.name()}
+        options = {
+            "backend_name": self.backend.name
+            if isinstance(self.backend, BackendV2)
+            else self.backend.name()
+        }
 
         # send job to runtime and return result
         job = self.provider.runtime.run(
