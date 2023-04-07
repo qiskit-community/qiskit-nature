@@ -1,7 +1,7 @@
 .. _how-to-numpy-min:
 
-How to use the ``NumPyMinimumEigensolver``
-==========================================
+Find ground state energy using the NumPyMinimumEigensolver
+==========================================================
 
 In order to ensure a physically meaningful ground state of a hamiltonian is found when using the
 :class:`~qiskit.algorithms.minimum_eigensolvers.NumPyMinimumEigensolver` one needs to set the

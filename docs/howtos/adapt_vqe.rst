@@ -1,5 +1,5 @@
-How to use the ``AdaptVQE``
-===========================
+Find ground state energy using AdaptVQE
+=======================================
 
 As of Qiskit Nature v0.5, the :class:`~qiskit.algorithms.minimum_eigensolvers.AdaptVQE`
 algorithm has been migrated to Qiskit Terra (released in v0.22).
