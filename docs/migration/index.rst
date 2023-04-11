@@ -2,15 +2,19 @@
 Qiskit Nature Migration Guides
 ##############################
 
+Migrating from 0.5 to 0.6
+-------------------------
+
 .. toctree::
-    :caption: Migrating from 0.5 to 0.6
     :maxdepth: 1
     :glob:
 
     0.6*
 
+Migrating from 0.4 to 0.5
+-------------------------
+
 .. nbgallery::
-    :caption: Migrating from 0.4 to 0.5
     :glob:
 
     0.5*
