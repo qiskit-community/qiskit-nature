@@ -35,7 +35,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.7]
+        python-version: [3.8]
     steps:
       - name: Print Concurrency Group
         env:
@@ -147,7 +147,7 @@ jobs:
         python-version: [3.7, 3.8, 3.9, '3.10', 3.11]
         include:
           - os: macos-latest
-            python-version: 3.8
+            python-version: 3.9
           - os: macos-latest
             python-version: 3.11
           - os: windows-2019
@@ -306,6 +306,7 @@ jobs:
           use-conda: "false"
       - name: Install Dependencies
         run: |
+          pip install jupyter
           sudo apt-get install -y pandoc
           echo "earliest_version: 0.1.0" >> releasenotes/config.yaml
         shell: bash
@@ -383,8 +384,8 @@ jobs:
           path: /tmp/u310
       - uses: actions/download-artifact@v3
         with:
-          name: macos-latest-3.8
-          path: /tmp/m38
+          name: macos-latest-3.9
+          path: /tmp/m39
       - uses: actions/download-artifact@v3
         with:
           name: macos-latest-3.11
@@ -402,7 +403,7 @@ jobs:
         shell: bash
       - name: Combined Deprecation Messages
         run: |
-          sort -f -u /tmp/u37/nat.dep /tmp/u38/nat.dep /tmp/u39/nat.dep /tmp/u310/nat.dep /tmp/m38/nat.dep /tmp/m311/nat.dep /tmp/w38/nat.dep /tmp/w311/nat.dep || true
+          sort -f -u /tmp/u37/nat.dep /tmp/u38/nat.dep /tmp/u39/nat.dep /tmp/u310/nat.dep /tmp/m39/nat.dep /tmp/m311/nat.dep /tmp/w38/nat.dep /tmp/w311/nat.dep || true
         shell: bash
       - name: Coverage combine
         run: coverage3 combine /tmp/u37/nat.dat

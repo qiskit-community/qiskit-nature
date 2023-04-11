@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -30,10 +30,10 @@ from functools import partial, reduce
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
-import qiskit_nature.optionals as _optionals
 
 from .polynomial_tensor import PolynomialTensor
 from .sparse_label_op import _TCoeff, SparseLabelOp, _to_number
+from .tensor import Tensor
 
 
 class SpinOp(SparseLabelOp):
@@ -61,7 +61,7 @@ class SpinOp(SparseLabelOp):
     A ``SpinOp`` is initialized with a dictionary, mapping terms to their respective
     coefficients. For example:
 
-    .. jupyter-execute::
+    .. code-block:: python
 
         from qiskit_nature.second_q.operators import SpinOp
 
@@ -72,7 +72,7 @@ class SpinOp(SparseLabelOp):
     are :math:`S^x, S^y, S^z` for spin 3/2 system.
     The two qutrit Heisenberg model with transverse magnetic field is
 
-    .. jupyter-execute::
+    .. code-block:: python
 
         SpinOp({
                 "X_0 X_1": -1,
@@ -88,7 +88,7 @@ class SpinOp(SparseLabelOp):
 
     An example using labels with powers would be:
 
-    .. jupyter-execute::
+    .. code-block:: python
 
         from qiskit_nature.second_q.operators import SpinOp
 
@@ -99,7 +99,7 @@ class SpinOp(SparseLabelOp):
     If you have very restricted memory resources available, or would like to avoid the additional
     copy, the dictionary will be stored by reference if you disable ``copy`` like so:
 
-    .. jupyter-execute::
+    .. code-block:: python
 
         some_big_data = {
             "X_0 Y_0": 1.0,
@@ -133,25 +133,25 @@ class SpinOp(SparseLabelOp):
 
     Addition
 
-    .. jupyter-execute::
+    .. code-block:: python
 
         SpinOp({"X_1": 1}, num_spins=2) + SpinOp({"X_0": 1}, num_spins=2)
 
     Sum
 
-    .. jupyter-execute::
+    .. code-block:: python
 
         sum(SpinOp({label: 1}, num_spins=3) for label in ["X_0", "Z_1", "X_2 Z_2"])
 
     Scalar multiplication
 
-    .. jupyter-execute::
+    .. code-block:: python
 
         0.5 * SpinOp({"X_1": 1}, num_spins=2)
 
     Operator multiplication
 
-    .. jupyter-execute::
+    .. code-block:: python
 
         op1 = SpinOp({"X_0 Z_1": 1}, num_spins=2)
         op2 = SpinOp({"Z_0 X_0 X_1": 1}, num_spins=2)
@@ -159,14 +159,14 @@ class SpinOp(SparseLabelOp):
 
     Tensor multiplication
 
-    .. jupyter-execute::
+    .. code-block:: python
 
         op = SpinOp({"X_0 Z_1": 1}, num_spins=2)
         print(op ^ op)
 
     Adjoint
 
-    .. jupyter-execute::
+    .. code-block:: python
 
         SpinOp({"X_0 Z_1": 1j}, num_spins=2).adjoint()
 
@@ -304,23 +304,17 @@ class SpinOp(SparseLabelOp):
                 data[""] = cast(float, tensor[key])
                 continue
 
-            label_template = " ".join(f"{op}_{{}}" for op in key)
-
-            # PERF: the following matrix unpacking is a performance bottleneck!
-            # We could consider using Rust in the future to improve upon this.
-
             mat = tensor[key]
-            if isinstance(mat, np.ndarray):
-                for index in np.ndindex(*mat.shape):
-                    data[label_template.format(*index)] = mat[index]
-            else:
-                _optionals.HAS_SPARSE.require_now("SparseArray")
-                import sparse as sp  # pylint: disable=import-error
 
-                if isinstance(mat, sp.SparseArray):
-                    coo = sp.as_coo(mat)
-                    for value, *index in zip(coo.data, *coo.coords):
-                        data[label_template.format(*index)] = value
+            if not isinstance(mat, Tensor):
+                # TODO: this case is to be removed once qiskit_nature.settings.tensor_unwrapping is
+                # deprecated and the PolynomialTensor item is guaranteed to be of type Tensor
+                mat = Tensor(mat)
+
+            label_template = mat.label_template.format(*key)
+
+            for value, index in mat.coord_iter():
+                data[label_template.format(*index)] = value
 
         return cls(data, copy=False, num_spins=tensor.register_length).chop()
 

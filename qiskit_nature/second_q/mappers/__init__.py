@@ -21,6 +21,7 @@ The classes here are used to convert fermionic, vibrational and spin operators t
 
 .. autosummary::
    :toctree: ../stubs/
+   :template: autosummary/class_with_inherited_members.rst
    :nosignatures:
 
    QubitMapper
@@ -30,9 +31,9 @@ FermionicOp Mappers
 
 .. autosummary::
    :toctree: ../stubs/
+   :template: autosummary/class_with_inherited_members.rst
    :nosignatures:
 
-   FermionicMapper
    BravyiKitaevMapper
    BravyiKitaevSuperFastMapper
    JordanWignerMapper
@@ -44,6 +45,7 @@ blocked) order, you can use the following wrapper:
 
 .. autosummary::
    :toctree: ../stubs/
+   :template: autosummary/class_with_inherited_members.rst
    :nosignatures:
 
    InterleavedQubitMapper
@@ -53,9 +55,9 @@ VibrationalOp Mappers
 
 .. autosummary::
    :toctree: ../stubs/
+   :template: autosummary/class_with_inherited_members.rst
    :nosignatures:
 
-   VibrationalMapper
    DirectMapper
 
 
@@ -64,9 +66,9 @@ SpinOp Mappers
 
 .. autosummary::
    :toctree: ../stubs/
+   :template: autosummary/class_with_inherited_members.rst
    :nosignatures:
 
-   SpinMapper
    LinearMapper
    LogarithmicMapper
 
@@ -78,6 +80,7 @@ after the mapping to qubit operators, you can use the following wrapper for symm
 
 .. autosummary::
    :toctree: ../stubs/
+   :template: autosummary/class_with_inherited_members.rst
    :nosignatures:
 
    TaperedQubitMapper
@@ -87,6 +90,7 @@ Qubit Converter
 
 .. autosummary::
    :toctree: ../stubs/
+   :template: autosummary/class_with_inherited_members.rst
    :nosignatures:
 
    QubitConverter
@@ -102,9 +106,6 @@ from .logarithmic_mapper import LogarithmicMapper
 from .direct_mapper import DirectMapper
 from .qubit_mapper import QubitMapper
 from .qubit_converter import QubitConverter
-from .fermionic_mapper import FermionicMapper
-from .spin_mapper import SpinMapper
-from .vibrational_mapper import VibrationalMapper
 from .interleaved_qubit_mapper import InterleavedQubitMapper
 from .tapered_qubit_mapper import TaperedQubitMapper
 

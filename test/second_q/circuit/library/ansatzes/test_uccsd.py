@@ -106,7 +106,7 @@ class TestUCCSD(QiskitNatureTestCase):
 
         with self.subTest("Qubit Converter object"):
             ansatz = UCCSD(
-                qubit_converter=converter,
+                qubit_mapper=converter,
                 num_particles=num_particles,
                 num_spatial_orbitals=num_spatial_orbitals,
             )
@@ -114,7 +114,7 @@ class TestUCCSD(QiskitNatureTestCase):
 
         with self.subTest("Qubit Mapper object"):
             ansatz = UCCSD(
-                qubit_converter=mapper,
+                qubit_mapper=mapper,
                 num_particles=num_particles,
                 num_spatial_orbitals=num_spatial_orbitals,
             )
@@ -151,7 +151,7 @@ class TestUCCSD(QiskitNatureTestCase):
 
         with self.subTest("Qubit Converter object"):
             ansatz = UCCSD(
-                qubit_converter=converter,
+                qubit_mapper=converter,
                 num_particles=num_particles,
                 num_spatial_orbitals=num_spatial_orbitals,
                 generalized=True,
@@ -160,7 +160,7 @@ class TestUCCSD(QiskitNatureTestCase):
 
         with self.subTest("Qubit Mapper object"):
             ansatz = UCCSD(
-                qubit_converter=mapper,
+                qubit_mapper=mapper,
                 num_particles=num_particles,
                 num_spatial_orbitals=num_spatial_orbitals,
                 generalized=True,
@@ -208,7 +208,7 @@ class TestUCCSD(QiskitNatureTestCase):
 
         with self.subTest("Qubit Converter object"):
             ansatz = UCCSD(
-                qubit_converter=converter,
+                qubit_mapper=converter,
                 num_particles=num_particles,
                 num_spatial_orbitals=num_spatial_orbitals,
                 preserve_spin=False,
@@ -217,7 +217,7 @@ class TestUCCSD(QiskitNatureTestCase):
 
         with self.subTest("Qubit Mapper object"):
             ansatz = UCCSD(
-                qubit_converter=mapper,
+                qubit_mapper=mapper,
                 num_particles=num_particles,
                 num_spatial_orbitals=num_spatial_orbitals,
                 preserve_spin=False,

@@ -12,11 +12,13 @@
 
 """Tests Electronic Structure Problem."""
 import unittest
+import warnings
 from test import QiskitNatureTestCase
 
 import json
 import numpy as np
 
+from qiskit.opflow import PauliSumOp
 from qiskit.opflow.primitive_ops import Z2Symmetries
 from qiskit.quantum_info.analysis.z2_symmetries import Z2Symmetries as Z2SparseSymmetries
 
@@ -100,12 +102,20 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
         expected_sector = [-1, 1, -1]
 
         with self.subTest("Opflow Z2Symmetries"):
-            z2sym = Z2SparseSymmetries.find_z2_symmetries(mapped_op.primitive)
-            sector = electronic_structure_problem.symmetry_sector_locator(z2sym, mapper)
+            if isinstance(mapped_op, PauliSumOp):
+                mapped_op = mapped_op.primitive
+            z2sym = Z2SparseSymmetries.find_z2_symmetries(mapped_op)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=DeprecationWarning)
+                sector = electronic_structure_problem.symmetry_sector_locator(z2sym, mapper)
             self.assertEqual(sector, expected_sector)
         with self.subTest("Opflow Z2Symmetries"):
+            if not isinstance(mapped_op, PauliSumOp):
+                mapped_op = PauliSumOp(mapped_op)
             z2sym = Z2Symmetries.find_Z2_symmetries(mapped_op)
-            sector = electronic_structure_problem.symmetry_sector_locator(z2sym, mapper)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=DeprecationWarning)
+                sector = electronic_structure_problem.symmetry_sector_locator(z2sym, mapper)
             self.assertEqual(sector, expected_sector)
 
 

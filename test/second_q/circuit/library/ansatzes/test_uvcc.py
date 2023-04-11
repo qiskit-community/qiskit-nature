@@ -64,11 +64,11 @@ class TestUVCC(QiskitNatureTestCase):
         converter = QubitConverter(mapper)
 
         with self.subTest("Qubit Converter object"):
-            ansatz = UVCC(qubit_converter=converter, num_modals=num_modals, excitations=excitations)
+            ansatz = UVCC(qubit_mapper=converter, num_modals=num_modals, excitations=excitations)
             assert_ucc_like_ansatz(self, ansatz, num_modals, expect)
 
         with self.subTest("Qubit Mapper object"):
-            ansatz = UVCC(qubit_converter=mapper, num_modals=num_modals, excitations=excitations)
+            ansatz = UVCC(qubit_mapper=mapper, num_modals=num_modals, excitations=excitations)
             assert_ucc_like_ansatz(self, ansatz, num_modals, expect)
 
     def test_transpile_no_parameters(self):
@@ -78,12 +78,12 @@ class TestUVCC(QiskitNatureTestCase):
         converter = QubitConverter(mapper)
 
         with self.subTest("Qubit Converter object"):
-            ansatz = UVCC(qubit_converter=converter, num_modals=[2], excitations="s")
+            ansatz = UVCC(qubit_mapper=converter, num_modals=[2], excitations="s")
             ansatz = transpile(ansatz, optimization_level=3)
             self.assertEqual(ansatz.num_qubits, 2)
 
         with self.subTest("Qubit Mapper object"):
-            ansatz = UVCC(qubit_converter=mapper, num_modals=[2], excitations="s")
+            ansatz = UVCC(qubit_mapper=mapper, num_modals=[2], excitations="s")
             ansatz = transpile(ansatz, optimization_level=3)
             self.assertEqual(ansatz.num_qubits, 2)
 
@@ -158,7 +158,7 @@ class TestUVCCVSCF(QiskitNatureTestCase):
         with self.subTest("Check defaulted construction"):
             self.assertIsNone(uvcc.num_modals)
             self.assertIsNone(uvcc.excitations)
-            self.assertIsNone(uvcc.qubit_converter)
+            self.assertIsNone(uvcc.qubit_mapper)
             self.assertIsNone(uvcc.operators)
             self.assertIsNone(uvcc.excitation_list)
             self.assertEqual(uvcc.num_qubits, 0)
@@ -181,8 +181,8 @@ class TestUVCCVSCF(QiskitNatureTestCase):
 
         with self.subTest("Set qubit converter to complete build"):
             converter = QubitConverter(DirectMapper())
-            uvcc.qubit_converter = converter
-            self.assertEqual(uvcc.qubit_converter, converter)
+            uvcc.qubit_mapper = converter
+            self.assertEqual(uvcc.qubit_mapper, converter)
             self.assertIsNotNone(uvcc.operators)
             self.assertEqual(len(uvcc.operators), 3)
             self.assertEqual(uvcc.num_qubits, 4)

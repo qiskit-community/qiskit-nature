@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -72,18 +72,18 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         num_particles = (problem.num_alpha, problem.num_beta)
         num_spatial_orbitals = problem.num_spatial_orbitals
 
-        qubit_converter = QubitConverter(mapper=JordanWignerMapper())
+        mapper = QubitConverter(mapper=JordanWignerMapper())
 
         initial_state = HartreeFock(
             num_spatial_orbitals=num_spatial_orbitals,
             num_particles=num_particles,
-            qubit_converter=qubit_converter,
+            qubit_mapper=mapper,
         )
         ansatz = UCC(
             num_spatial_orbitals=num_spatial_orbitals,
             num_particles=num_particles,
             excitations="sd",
-            qubit_converter=qubit_converter,
+            qubit_mapper=mapper,
             initial_state=initial_state,
         )
 
@@ -92,20 +92,23 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         mp2_initial_point.ansatz = ansatz
 
         with self.subTest("Test the MP2 energy correction."):
-            np.testing.assert_almost_equal(
-                mp2_initial_point.energy_correction, pyscf_mp.e_corr, decimal=4
-            )
+            energy_correction = mp2_initial_point.energy_correction
+            if hasattr(energy_correction, "todense"):
+                energy_correction = energy_correction.todense()
+            np.testing.assert_almost_equal(energy_correction, pyscf_mp.e_corr, decimal=4)
 
         with self.subTest("Test the total MP2 energy."):
-            np.testing.assert_almost_equal(
-                mp2_initial_point.total_energy, pyscf_mp.e_tot, decimal=4
-            )
+            total_energy = mp2_initial_point.total_energy
+            if hasattr(total_energy, "todense"):
+                total_energy = total_energy.todense()
+            np.testing.assert_almost_equal(total_energy, pyscf_mp.e_tot, decimal=4)
 
         with self.subTest("Test the T2 amplitudes."):
             mp2_initial_point.compute()
-            np.testing.assert_array_almost_equal(
-                mp2_initial_point.t2_amplitudes, pyscf_mp.t2, decimal=4
-            )
+            t2_amplitudes = mp2_initial_point.t2_amplitudes
+            if hasattr(t2_amplitudes, "todense"):
+                t2_amplitudes = t2_amplitudes.todense()
+            np.testing.assert_array_almost_equal(t2_amplitudes, pyscf_mp.t2, decimal=4)
 
     def test_no_threshold(self):
         """Test when no threshold is provided."""

@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -28,6 +28,7 @@ Operators and mappers for different systems such as fermionic, vibrational and s
    VibrationalOp
    VibrationalIntegrals
    PolynomialTensor
+   Tensor
 
 Modules
 -------
@@ -36,6 +37,7 @@ Modules
    :toctree:
 
    tensor_ordering
+   symmetric_two_body
    commutators
 """
 
@@ -46,6 +48,7 @@ from .vibrational_op import VibrationalOp
 from .vibrational_integrals import VibrationalIntegrals
 from .polynomial_tensor import PolynomialTensor
 from .sparse_label_op import SparseLabelOp
+from .tensor import Tensor
 
 __all__ = [
     "ElectronicIntegrals",
@@ -55,4 +58,5 @@ __all__ = [
     "VibrationalIntegrals",
     "PolynomialTensor",
     "SparseLabelOp",
+    "Tensor",
 ]

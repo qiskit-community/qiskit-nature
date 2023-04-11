@@ -67,12 +67,10 @@ driver = PySCFDriver(
 )
 problem = driver.run()
 
-# setup the mapper and qubit converter
+# setup the qubit mapper
 from qiskit_nature.second_q.mappers import ParityMapper
-from qiskit_nature.second_q.mappers import QubitConverter
 
-mapper = ParityMapper()
-converter = QubitConverter(mapper=mapper, two_qubit_reduction=True)
+mapper = ParityMapper(num_particles=problem.num_particles)
 
 # setup the classical optimizer for the VQE
 from qiskit.algorithms.optimizers import L_BFGS_B
@@ -85,40 +83,51 @@ from qiskit.primitives import Estimator
 estimator = Estimator()
 
 # setup the ansatz for VQE
-from qiskit_nature.second_q.circuit.library import UCCSD
+from qiskit_nature.second_q.circuit.library import HartreeFock, UCCSD
 
-ansatz = UCCSD()
+ansatz = UCCSD(
+    problem.num_spatial_orbitals,
+    problem.num_particles,
+    mapper,
+    initial_state=HartreeFock(
+        problem.num_spatial_orbitals,
+        problem.num_particles,
+        mapper,
+    ),
+)
 
-# use a factory to complement the VQE and its components at runtime
-from qiskit_nature.second_q.algorithms import VQEUCCFactory
+# set up our actual VQE instance
+from qiskit.algorithms.minimum_eigensolvers import VQE
 
-vqe_factory = VQEUCCFactory(estimator, ansatz, optimizer)
+vqe = VQE(estimator, ansatz, optimizer)
+# ensure that the optimizer starts in the all-zero state which corresponds to
+# the Hartree-Fock starting point
+vqe.initial_point = [0] * ansatz.num_parameters
 
 # prepare the ground-state solver and run it
 from qiskit_nature.second_q.algorithms import GroundStateEigensolver
 
-algorithm = GroundStateEigensolver(converter, vqe_factory)
+algorithm = GroundStateEigensolver(mapper, vqe)
 
 electronic_structure_result = algorithm.solve(problem)
 print(electronic_structure_result)
 ```
-The program above uses a quantum computer to calculate the ground state energy of molecular Hydrogen,
+The program above computes the ground state energy of molecular Hydrogen,
 H<sub>2</sub>, where the two atoms are configured to be at a distance of 0.735 angstroms. The molecular
 input specification is processed by the PySCF driver. This driver produces an `ElectronicStructureProblem`
 which gathers all the problem information required by Qiskit Nature.
 The second-quantized operators contained in that problem can be mapped to qubit operators with a
-`QubitConverter`. Here, we chose the parity mapping in combination with a 2-qubit reduction, which
-is a precision-preserving optimization removing two qubits; a reduction in complexity that is particularly
+`QubitMapper`. Here, we chose the `ParityMapper` which automatically removes 2 qubits due to inherit
+symmetries when the `num_particles` are provided to it; a reduction in complexity that is particularly
 advantageous for NISQ computers.
 
 For actually finding the ground state solution, the Variational Quantum Eigensolver (VQE) algorithm is used.
-Its main three components, the estimator primitive, wavefunciton ansatz (`UCCSD`), and optimizer, are passed
-to the `VQEUCCFactory`, a utility of Qiskit Nature simplifying the setup of the `VQE` algorithm and its
-components. This factory also ensures consistent settings for the ansatzes initial state and the optimizers
-initial point.
+Its main three components are the estimator primitive, wavefunciton ansatz (`UCCSD`), and optimizer.
+The `UCCSD` component is the only one provided directly by Qiskit Nature and it is usually paired with the
+`HartreeFock` initial state and an all-zero initial point for the optimizer.
 
-The entire problem is then solved using a `GroundStateEigensolver` which wraps both, the `QubitConverter`
-and `VQEUCCFactory`. Since an `ElectronicStructureProblem` is provided to it (which was the output of the
+The entire problem is then solved using a `GroundStateEigensolver` which wraps both, the `ParityMapper`
+and `VQE`. Since an `ElectronicStructureProblem` is provided to it (which was the output of the
 `PySCFDriver`) it also returns an `ElectronicStructureResult`.
 
 ### Further examples
@@ -143,7 +152,7 @@ This project adheres to Qiskit's [code of conduct](https://github.com/Qiskit/qis
 By participating, you are expected to uphold this code.
 
 We use [GitHub issues](https://github.com/Qiskit/qiskit-nature/issues) for tracking requests and bugs. Please
-[join the Qiskit Slack community](https://ibm.co/joinqiskitslack)
+[join the Qiskit Slack community](https://qisk.it/join-slack)
 for discussion and simple questions.
 For questions that are more suited for a forum, we use the **Qiskit** tag in [Stack Overflow](https://stackoverflow.com/questions/tagged/qiskit).
 

@@ -86,13 +86,6 @@ nbsphinx_prolog += link_str + "{{ docname }}"
 
 # -- General configuration ---------------------------------------------------
 
-# If your documentation needs a minimal Sphinx version, state it here.
-#
-# needs_sphinx = '1.0'
-
-# Add any Sphinx extension module names here, as strings. They can be
-# extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
-# ones.
 extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.autodoc",
@@ -102,7 +95,6 @@ extensions = [
     "sphinx.ext.extlinks",
     "sphinx_design",
     "jupyter_sphinx",
-    "sphinx_autodoc_typehints",
     "reno.sphinxext",
     "sphinx.ext.doctest",
     "nbsphinx",
@@ -123,11 +115,12 @@ nbsphinx_thumbnails = {
     "migration/00e_Protein_folding_with_v0.5": "_static/lattice_protein.png",
     "tutorials/01_electronic_structure": "_static/orbitals.png",
     "tutorials/02_vibrational_structure": "_static/co2_vibration.png",
-    "tutorials/03_ground_state_solvers": "_images/h2_gs.png",
-    "tutorials/04_excited_states_solvers": "_images/h2_es.png",
+    "tutorials/03_ground_state_solvers": "_images/H2_gs.png",
+    "tutorials/04_excited_states_solvers": "_images/H2_es.png",
     "tutorials/05_problem_transformers": "_static/core-orbitals.png",
     "tutorials/06_qubit_mappers": "_images/jw_mapping.png",
     "tutorials/07_leveraging_qiskit_runtime": "_static/runtime.png",
+    "**": "_static/no_image.png",
 }
 
 spelling_word_list_filename = "../.pylintdict"
@@ -143,6 +136,12 @@ autosummary_generate_overwrite = False
 # -----------------------------------------------------------------------------
 # Autodoc
 # -----------------------------------------------------------------------------
+# Move type hints from signatures to the parameter descriptions (except in overload cases, where
+# that's not possible).
+autodoc_typehints = "description"
+# Only add type hints from signature to description body if the parameter has documentation.  The
+# return type is always added to the description (if in the signature).
+autodoc_typehints_description_target = "documented_params"
 
 autodoc_default_options = {
     "inherited-members": None,
@@ -194,18 +193,7 @@ modindex_common_prefix = ["qiskit_nature."]
 
 # -- Options for HTML output -------------------------------------------------
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-#
-#
 html_theme = "qiskit_sphinx_theme"
-
-html_theme_path = [".", qiskit_sphinx_theme.get_html_theme_path()]
-
-# Theme options are theme-specific and customize the look and feel of a theme
-# further.  For a list of options available for each theme, see the
-# documentation.
-#
 html_theme_options = {
     "logo_only": False,
     "display_version": True,

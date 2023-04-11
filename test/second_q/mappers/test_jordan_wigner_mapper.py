@@ -16,13 +16,14 @@ import unittest
 from test import QiskitNatureTestCase
 
 from qiskit.circuit import Parameter
-from qiskit.quantum_info import SparsePauliOp
 from qiskit.opflow import I, PauliSumOp, X, Y, Z
+from qiskit.quantum_info import SparsePauliOp
 
 import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import JordanWignerMapper
 from qiskit_nature.second_q.operators import FermionicOp
+from qiskit_nature import settings
 
 
 class TestJordanWignerMapper(QiskitNatureTestCase):
@@ -53,52 +54,98 @@ class TestJordanWignerMapper(QiskitNatureTestCase):
         driver_result = driver.run()
         fermionic_op, _ = driver_result.second_q_ops()
         mapper = JordanWignerMapper()
-        qubit_op = mapper.map(fermionic_op)
 
         # Note: The PauliSumOp equals, as used in the test below, use the equals of the
         #       SparsePauliOp which in turn uses np.allclose() to determine equality of
         #       coeffs. So the reference operator above will be matched on that basis so
         #       we don't need to worry about tiny precision changes for any reason.
 
-        self.assertEqual(qubit_op, TestJordanWignerMapper.REF_H2)
-
-    def test_allows_two_qubit_reduction(self):
-        """Test this returns False for this mapper"""
-        mapper = JordanWignerMapper()
-        self.assertFalse(mapper.allows_two_qubit_reduction)
+        aux = settings.use_pauli_sum_op
+        try:
+            settings.use_pauli_sum_op = True
+            qubit_op = mapper.map(fermionic_op)
+            self.assertEqual(qubit_op, TestJordanWignerMapper.REF_H2)
+            settings.use_pauli_sum_op = False
+            qubit_op = mapper.map(fermionic_op)
+            self.assertEqualSparsePauliOp(qubit_op, TestJordanWignerMapper.REF_H2.primitive)
+        finally:
+            settings.use_pauli_sum_op = aux
 
     def test_mapping_for_single_op(self):
         """Test for single register operator."""
         with self.subTest("test +"):
             op = FermionicOp({"+_0": 1}, num_spin_orbitals=1)
-            expected = PauliSumOp.from_list([("X", 0.5), ("Y", -0.5j)])
-            self.assertEqual(JordanWignerMapper().map(op), expected)
+            aux = settings.use_pauli_sum_op
+            try:
+                settings.use_pauli_sum_op = True
+                expected = PauliSumOp.from_list([("X", 0.5), ("Y", -0.5j)])
+                self.assertEqual(JordanWignerMapper().map(op), expected)
+                settings.use_pauli_sum_op = False
+                expected = SparsePauliOp.from_list([("X", 0.5), ("Y", -0.5j)])
+                self.assertEqualSparsePauliOp(JordanWignerMapper().map(op), expected)
+            finally:
+                settings.use_pauli_sum_op = aux
 
         with self.subTest("test -"):
             op = FermionicOp({"-_0": 1}, num_spin_orbitals=1)
-            expected = PauliSumOp.from_list([("X", 0.5), ("Y", 0.5j)])
-            self.assertEqual(JordanWignerMapper().map(op), expected)
+            aux = settings.use_pauli_sum_op
+            try:
+                settings.use_pauli_sum_op = True
+                expected = PauliSumOp.from_list([("X", 0.5), ("Y", 0.5j)])
+                self.assertEqual(JordanWignerMapper().map(op), expected)
+                settings.use_pauli_sum_op = False
+                expected = SparsePauliOp.from_list([("X", 0.5), ("Y", 0.5j)])
+                self.assertEqualSparsePauliOp(JordanWignerMapper().map(op), expected)
+            finally:
+                settings.use_pauli_sum_op = aux
 
         with self.subTest("test N"):
             op = FermionicOp({"+_0 -_0": 1}, num_spin_orbitals=1)
-            expected = PauliSumOp.from_list([("I", 0.5), ("Z", -0.5)])
-            self.assertEqual(JordanWignerMapper().map(op), expected)
+            aux = settings.use_pauli_sum_op
+            try:
+                settings.use_pauli_sum_op = True
+                expected = PauliSumOp.from_list([("I", 0.5), ("Z", -0.5)])
+                self.assertEqual(JordanWignerMapper().map(op), expected)
+                settings.use_pauli_sum_op = False
+                expected = SparsePauliOp.from_list([("I", 0.5), ("Z", -0.5)])
+                self.assertEqualSparsePauliOp(JordanWignerMapper().map(op), expected)
+            finally:
+                settings.use_pauli_sum_op = aux
 
         with self.subTest("test E"):
             op = FermionicOp({"-_0 +_0": 1}, num_spin_orbitals=1)
-            expected = PauliSumOp.from_list([("I", 0.5), ("Z", 0.5)])
-            self.assertEqual(JordanWignerMapper().map(op), expected)
+            aux = settings.use_pauli_sum_op
+            try:
+                settings.use_pauli_sum_op = True
+                expected = PauliSumOp.from_list([("I", 0.5), ("Z", 0.5)])
+                self.assertEqual(JordanWignerMapper().map(op), expected)
+                settings.use_pauli_sum_op = False
+                expected = SparsePauliOp.from_list([("I", 0.5), ("Z", 0.5)])
+                self.assertEqualSparsePauliOp(JordanWignerMapper().map(op), expected)
+            finally:
+                settings.use_pauli_sum_op = aux
 
         with self.subTest("test I"):
             op = FermionicOp({"": 1}, num_spin_orbitals=1)
-            expected = PauliSumOp.from_list([("I", 1)])
-            self.assertEqual(JordanWignerMapper().map(op), expected)
+            aux = settings.use_pauli_sum_op
+            try:
+                settings.use_pauli_sum_op = True
+                expected = PauliSumOp.from_list([("I", 1)])
+                self.assertEqual(JordanWignerMapper().map(op), expected)
+                settings.use_pauli_sum_op = False
+                expected = SparsePauliOp.from_list([("I", 1)])
+                self.assertEqualSparsePauliOp(JordanWignerMapper().map(op), expected)
+            finally:
+                settings.use_pauli_sum_op = aux
 
         with self.subTest("test parameters"):
             a = Parameter("a")
             op = FermionicOp({"+_0": a})
             expected = SparsePauliOp.from_list([("X", 0.5 * a), ("Y", -0.5j * a)], dtype=object)
-            self.assertEqual(JordanWignerMapper().map(op).primitive, expected)
+            qubit_op = JordanWignerMapper().map(op)
+            if isinstance(qubit_op, PauliSumOp):
+                qubit_op = qubit_op.primitive
+            self.assertEqual(qubit_op, expected)
 
     def test_mapping_for_list_ops(self):
         """Test for list of single register operator."""
@@ -120,6 +167,8 @@ class TestJordanWignerMapper(QiskitNatureTestCase):
         mapped_ops = JordanWignerMapper().map(ops)
         self.assertEqual(len(mapped_ops), len(expected))
         for mapped_op, expected_op in zip(mapped_ops, expected):
+            if not isinstance(mapped_op, PauliSumOp):
+                mapped_op = PauliSumOp(mapped_op)
             self.assertEqual(mapped_op, expected_op)
 
     def test_mapping_for_dict_ops(self):
@@ -142,7 +191,16 @@ class TestJordanWignerMapper(QiskitNatureTestCase):
         mapped_ops = JordanWignerMapper().map(ops)
         self.assertEqual(len(mapped_ops), len(expected))
         for k in mapped_ops.keys():
+            if not isinstance(mapped_ops[k], PauliSumOp):
+                mapped_ops[k] = PauliSumOp(mapped_ops[k])
             self.assertEqual(mapped_ops[k], expected[k])
+
+    def test_mapping_overwrite_reg_len(self):
+        """Test overwriting the register length."""
+        op = FermionicOp({"+_0 -_0": 1}, num_spin_orbitals=1)
+        expected = FermionicOp({"+_0 -_0": 1}, num_spin_orbitals=3)
+        mapper = JordanWignerMapper()
+        self.assertEqual(mapper.map(op, register_length=3), mapper.map(expected))
 
 
 if __name__ == "__main__":

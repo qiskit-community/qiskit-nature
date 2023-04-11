@@ -13,10 +13,12 @@
 """Hartree-Fock initial state."""
 
 from __future__ import annotations
+import warnings
 import numpy as np
 from qiskit import QuantumRegister
 from qiskit.circuit.library import BlueprintCircuit
 from qiskit.opflow import PauliSumOp
+from qiskit.quantum_info import SparsePauliOp
 from qiskit.utils.validation import validate_min
 
 from qiskit_nature.second_q.mappers import (
@@ -26,33 +28,48 @@ from qiskit_nature.second_q.mappers import (
     TaperedQubitMapper,
 )
 from qiskit_nature.second_q.operators import FermionicOp
+from qiskit_nature.deprecation import deprecate_arguments, deprecate_property, warn_deprecated_type
 
 
 class HartreeFock(BlueprintCircuit):
     """A Hartree-Fock initial state."""
 
+    @deprecate_arguments(
+        "0.6.0",
+        {"qubit_converter": "qubit_mapper"},
+        additional_msg=(
+            ". Additionally, the QubitConverter type in the qubit_mapper argument is deprecated "
+            "and support for it will be removed together with the qubit_converter argument."
+        ),
+    )
     def __init__(
         self,
         num_spatial_orbitals: int | None = None,
         num_particles: tuple[int, int] | None = None,
+        qubit_mapper: QubitConverter | QubitMapper | None = None,
+        *,
         qubit_converter: QubitConverter | QubitMapper | None = None,
     ) -> None:
+        # pylint: disable=unused-argument
         """
         Args:
             num_spatial_orbitals: The number of spatial orbitals.
             num_particles: The number of particles as a tuple storing the number of alpha and
                 beta-spin electrons in the first and second number, respectively.
-            qubit_converter: A :class:`~qiskit_nature.second_q.mappers.QubitConverter` or a
-                :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance.
+            qubit_mapper: A :class:`~qiskit_nature.second_q.mappers.QubitMapper` or a
+                :class:`~qiskit_nature.second_q.mappers.QubitConverter` instance (use of the latter
+                is deprecated).
+            qubit_converter: DEPRECATED A :class:`~qiskit_nature.second_q.mappers.QubitConverter` or
+                a :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance.
 
         Raises:
-            NotImplementedError: If ``qubit_converter`` contains
+            NotImplementedError: If ``qubit_mapper`` is (or uses) a
                 :class:`~qiskit_nature.second_q.mappers.BravyiKitaevSuperFastMapper`. See
                 https://github.com/Qiskit/qiskit-nature/issues/537 for more information.
         """
 
         super().__init__()
-        self._qubit_converter = qubit_converter
+        self._qubit_mapper = qubit_mapper
         self._num_spatial_orbitals = num_spatial_orbitals
         self._num_particles = num_particles
         self._bitstr: list[bool] | None = None
@@ -60,15 +77,33 @@ class HartreeFock(BlueprintCircuit):
         self._reset_register()
 
     @property
+    @deprecate_property("0.6.0", new_name="qubit_mapper")
     def qubit_converter(self) -> QubitConverter | QubitMapper | None:
-        """The qubit converter."""
-        return self._qubit_converter
+        """DEPRECATED The qubit converter."""
+        return self._qubit_mapper
 
     @qubit_converter.setter
     def qubit_converter(self, conv: QubitConverter | QubitMapper | None) -> None:
         """Sets the qubit converter."""
+        self.qubit_mapper = conv
+
+    @property
+    def qubit_mapper(self) -> QubitConverter | QubitMapper | None:
+        """The qubit mapper."""
+        return self._qubit_mapper
+
+    @qubit_mapper.setter
+    def qubit_mapper(self, mapper: QubitConverter | QubitMapper | None) -> None:
+        """Sets the qubit mapper."""
+        if isinstance(mapper, QubitConverter):
+            warn_deprecated_type(
+                "0.6.0",
+                argument_name="mapper",
+                old_type="QubitConverter",
+                new_type="QubitMapper",
+            )
         self._invalidate()
-        self._qubit_converter = conv
+        self._qubit_mapper = mapper
         self._reset_register()
 
     @property
@@ -110,8 +145,8 @@ class HartreeFock(BlueprintCircuit):
             ValueError: If the number of particles of any kind is less than zero.
             ValueError: If the number of spatial orbitals is smaller than the number of particles
                 of any kind.
-            ValueError: If the qubit converter is not specified.
-            NotImplementedError: If the specified qubit converter is a
+            ValueError: If the qubit mapper is not specified.
+            NotImplementedError: If the specified qubit mapper is a
                 :class:`~qiskit_nature.second_q.mappers.BravyiKitaevSuperFastMapper` instance.
         """
         if self.num_spatial_orbitals is None:
@@ -147,18 +182,18 @@ class HartreeFock(BlueprintCircuit):
                 )
             return False
 
-        if self.qubit_converter is None:
+        if self.qubit_mapper is None:
             if raise_on_failure:
-                raise ValueError("The qubit converter cannot be `None`.")
+                raise ValueError("The qubit mapper cannot be `None`.")
             return False
 
-        if isinstance(self.qubit_converter, QubitConverter):
-            mapper = self.qubit_converter.mapper
-        elif isinstance(self.qubit_converter, TaperedQubitMapper):
+        if isinstance(self.qubit_mapper, QubitConverter):
+            mapper = self.qubit_mapper.mapper
+        elif isinstance(self.qubit_mapper, TaperedQubitMapper):
             # we also include the TaperedQubitMapper here, purely for the check done below
-            mapper = self.qubit_converter.mapper
+            mapper = self.qubit_mapper.mapper
         else:
-            mapper = self.qubit_converter
+            mapper = self.qubit_mapper
 
         if isinstance(mapper, BravyiKitaevSuperFastMapper):
             if raise_on_failure:
@@ -177,12 +212,14 @@ class HartreeFock(BlueprintCircuit):
         self._bitstr = None
 
         if self._check_configuration(raise_on_failure=False):
-            self._bitstr = hartree_fock_bitstring_mapped(
-                self.num_spatial_orbitals,
-                self.num_particles,
-                self.qubit_converter,
-                match_convert=True,
-            )
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=DeprecationWarning)
+                self._bitstr = hartree_fock_bitstring_mapped(
+                    self.num_spatial_orbitals,
+                    self.num_particles,
+                    self.qubit_mapper,
+                    match_convert=True,
+                )
             self.qregs = [QuantumRegister(len(self._bitstr), name="q")]
 
     def _build(self) -> None:
@@ -191,7 +228,7 @@ class HartreeFock(BlueprintCircuit):
         Returns:
             QuantumCircuit: a quantum circuit preparing the Hartree-Fock
             initial state given a number of spatial orbitals, number of particles and
-            a qubit converter.
+            a qubit mapper.
         """
         if self._is_built:
             return
@@ -207,20 +244,39 @@ class HartreeFock(BlueprintCircuit):
                     self.x(i)
 
 
+@deprecate_arguments(
+    "0.6.0",
+    {"qubit_converter": "qubit_mapper"},
+    additional_msg=(
+        ". Additionally, the QubitConverter type in the qubit_mapper argument is deprecated "
+        "and support for it will be removed together with the qubit_converter argument."
+    ),
+)
+@deprecate_arguments(
+    "0.6.0",
+    {"match_convert": ""},
+    additional_msg=(
+        ". This argument is no longer necessary when working directly with QubitMapper objects "
+        "outside of a QubitConverter because TaperedQubitMapper instances are now built differently"
+    ),
+)
 def hartree_fock_bitstring_mapped(
     num_spatial_orbitals: int,
     num_particles: tuple[int, int],
-    qubit_converter: QubitConverter | QubitMapper,
+    qubit_mapper: QubitConverter | QubitMapper,
     *,
+    qubit_converter: QubitConverter | QubitMapper | None = None,
     match_convert: bool = True,
 ) -> list[bool]:
+    # pylint: disable=unused-argument
     """Compute the bitstring representing the mapped Hartree-Fock state for the specified system.
 
     Args:
         num_spatial_orbitals: The number of spatial orbitals, has a min. value of 1.
         num_particles: The number of particles as a tuple (alpha, beta) containing the number of
             alpha- and  beta-spin electrons, respectively.
-        qubit_converter: A QubitConverter or QubitMapper instance.
+        qubit_mapper: A QubitMapper or QubitConverter instance (use of the latter is deprecated).
+        qubit_converter: DEPRECATED A QubitConverter or QubitMapper instance.
         match_convert: Whether to use `convert_match` method of the qubit converter (default),
             or just do mapping and possibly two qubit reduction but no tapering. The latter
             is an advanced usage - e.g. if we are trying to auto-select the tapering sector
@@ -229,8 +285,6 @@ def hartree_fock_bitstring_mapped(
     Returns:
         The bitstring representing the mapped state of the Hartree-Fock state as array of bools.
     """
-    # TODO: Remove match convert argument
-
     # get the bitstring encoding the Hartree Fock state
     bitstr = hartree_fock_bitstring(num_spatial_orbitals, num_particles)
 
@@ -241,23 +295,26 @@ def hartree_fock_bitstring_mapped(
     )
 
     # map the `FermionicOp` to a qubit operator
-    qubit_op: PauliSumOp
-    if isinstance(qubit_converter, QubitConverter):
+    qubit_op: SparsePauliOp
+    if isinstance(qubit_mapper, QubitConverter):
         if match_convert:
-            qubit_op = qubit_converter.convert_match(bitstr_op, check_commutes=False)
+            qubit_op = qubit_mapper.convert_match(bitstr_op, check_commutes=False)
         else:
-            qubit_op = qubit_converter.convert_only(bitstr_op, num_particles)
-    elif isinstance(qubit_converter, TaperedQubitMapper):
+            qubit_op = qubit_mapper.convert_only(bitstr_op, num_particles)
+    elif isinstance(qubit_mapper, TaperedQubitMapper):
         # To avoid checking commutativity, we call the two methods separately.
-        qubit_op = qubit_converter.map_clifford(bitstr_op)
-        qubit_op = qubit_converter.taper_clifford(qubit_op, check_commutes=False)
+        qubit_op = qubit_mapper.map_clifford(bitstr_op)
+        qubit_op = qubit_mapper.taper_clifford(qubit_op, check_commutes=False)
     else:
-        qubit_op = qubit_converter.map(bitstr_op)
+        qubit_op = qubit_mapper.map(bitstr_op)
+
+    if isinstance(qubit_op, PauliSumOp):
+        qubit_op = qubit_op.primitive
 
     # We check the mapped operator `x` part of the paulis because we want to have particles
     # i.e. True, where the initial state introduced a creation (`+`) operator.
     bits = []
-    for bit in qubit_op.primitive.paulis.x[0]:
+    for bit in qubit_op.paulis.x[0]:
         bits.append(bit)
 
     return bits

@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -23,6 +23,7 @@ import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.drivers import PySCFDriver, MethodType
 from qiskit_nature.second_q.formats.qcschema_translator import get_ao_to_mo_from_qcschema
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
+from qiskit_nature.second_q.operators.symmetric_two_body import SymmetricTwoBodyIntegrals
 from qiskit_nature.second_q.problems import ElectronicBasis
 
 
@@ -32,7 +33,7 @@ class TestBasisTransformer(QiskitNatureTestCase):
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_restricted_spin(self):
         """A simple restricted-spin test case."""
-        driver = PySCFDriver(atom="H 0 0 0; H 0 0 0.735", method=MethodType.RKS)
+        driver = PySCFDriver(atom="H 0 0 0; H 0 0 0.735", method=MethodType.RHF)
         driver.run_pyscf()
         mo_coeff = driver._calc.mo_coeff
 
@@ -64,10 +65,14 @@ class TestBasisTransformer(QiskitNatureTestCase):
             )
 
         with self.subTest("two-body alpha-spin"):
+            two_body_aa = transformed_integrals.alpha["++--"]
+            einsum = "pqrs,pi,qj,rk,sl->iklj"
+            if isinstance(two_body_aa, SymmetricTwoBodyIntegrals):
+                einsum = "pqrs,pi,qj,rk,sl->ijkl"
             np.testing.assert_array_almost_equal(
-                transformed_integrals.alpha["++--"],
+                two_body_aa,
                 np.einsum(
-                    "pqrs,pi,qj,rk,sl->iklj",
+                    einsum,
                     driver._mol.intor("int2e", aosym=1),
                     *(mo_coeff,) * 4,
                     optimize=True,
@@ -92,7 +97,7 @@ class TestBasisTransformer(QiskitNatureTestCase):
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_unrestricted_spin(self):
         """A simple unrestricted-spin test case."""
-        driver = PySCFDriver(atom="O 0 0 0; H 0 0 0.9697", spin=1, method=MethodType.UKS)
+        driver = PySCFDriver(atom="O 0 0 0; H 0 0 0.9697", spin=1, method=MethodType.UHF)
         driver.run_pyscf()
         mo_coeff, mo_coeff_b = driver._calc.mo_coeff
 
@@ -124,10 +129,14 @@ class TestBasisTransformer(QiskitNatureTestCase):
             )
 
         with self.subTest("two-body alpha-spin"):
+            two_body_aa = transformed_integrals.alpha["++--"]
+            einsum = "pqrs,pi,qj,rk,sl->iklj"
+            if isinstance(two_body_aa, SymmetricTwoBodyIntegrals):
+                einsum = "pqrs,pi,qj,rk,sl->ijkl"
             np.testing.assert_array_almost_equal(
-                transformed_integrals.alpha["++--"],
+                two_body_aa,
                 np.einsum(
-                    "pqrs,pi,qj,rk,sl->iklj",
+                    einsum,
                     driver._mol.intor("int2e", aosym=1),
                     *(mo_coeff,) * 4,
                     optimize=True,
@@ -141,10 +150,14 @@ class TestBasisTransformer(QiskitNatureTestCase):
             )
 
         with self.subTest("two-body beta-spin"):
+            two_body_bb = transformed_integrals.beta["++--"]
+            einsum = "pqrs,pi,qj,rk,sl->iklj"
+            if isinstance(two_body_bb, SymmetricTwoBodyIntegrals):
+                einsum = "pqrs,pi,qj,rk,sl->ijkl"
             np.testing.assert_array_almost_equal(
-                transformed_integrals.beta["++--"],
+                two_body_bb,
                 np.einsum(
-                    "pqrs,pi,qj,rk,sl->iklj",
+                    einsum,
                     driver._mol.intor("int2e", aosym=1),
                     *(mo_coeff_b,) * 4,
                     optimize=True,
@@ -152,10 +165,14 @@ class TestBasisTransformer(QiskitNatureTestCase):
             )
 
         with self.subTest("two-body beta-alpha-spin"):
+            two_body_ba = transformed_integrals.beta_alpha["++--"]
+            einsum = "pqrs,pi,qj,rk,sl->iklj"
+            if isinstance(two_body_ba, SymmetricTwoBodyIntegrals):
+                einsum = "pqrs,pi,qj,rk,sl->ijkl"
             np.testing.assert_array_almost_equal(
-                transformed_integrals.beta_alpha["++--"],
+                two_body_ba,
                 np.einsum(
-                    "pqrs,pi,qj,rk,sl->iklj",
+                    einsum,
                     driver._mol.intor("int2e", aosym=1),
                     *(mo_coeff_b,) * 2,
                     *(mo_coeff,) * 2,

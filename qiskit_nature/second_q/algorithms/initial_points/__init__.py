@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -15,6 +15,10 @@ Initial Points (:mod:`qiskit_nature.second_q.algorithms.initial_points`)
 ========================================================================
 
 Utility classes that provide initial points to use with specific ansatzes.
+
+For some concrete usage examples refer to the how-to guides on
+:ref:`using a UCC-like ansatz with a VQE <how-to-vqe-ucc>` or on
+:ref:`using a UVCC-like ansatz with a VQE <how-to-vqe-uvcc>`.
 
 .. currentmodule:: qiskit_nature.second_q.algorithms.initial_points
 

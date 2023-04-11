@@ -12,26 +12,23 @@
 
 """Fermionic Mapper."""
 
-from abc import abstractmethod
+from __future__ import annotations
 
 from qiskit.opflow import PauliSumOp
+from qiskit.quantum_info import SparsePauliOp
+
 from qiskit_nature.second_q.operators import FermionicOp
 
-from .qubit_mapper import QubitMapper
+from .qubit_mapper import ListOrDictType, QubitMapper
 
 
 class FermionicMapper(QubitMapper):
     """Mapper of Fermionic Operator to Qubit Operator"""
 
-    @abstractmethod
-    def _map_single(self, second_q_op: FermionicOp) -> PauliSumOp:
-        """Maps a :class:`~qiskit_nature.second_q.operators.FermionicOp`
-        to a `PauliSumOp`.
-
-        Args:
-            second_q_op: the `FermionicOp` to be mapped.
-
-        Returns:
-            The `PauliSumOp` corresponding to the problem-Hamiltonian in the qubit space.
-        """
-        raise NotImplementedError()
+    def map(
+        self,
+        second_q_ops: FermionicOp | ListOrDictType[FermionicOp],
+        *,
+        register_length: int | None = None,
+    ) -> SparsePauliOp | PauliSumOp | ListOrDictType[SparsePauliOp | PauliSumOp]:
+        return super().map(second_q_ops, register_length=register_length)

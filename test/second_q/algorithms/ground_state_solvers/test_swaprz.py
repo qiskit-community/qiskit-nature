@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2019, 2022.
+# (C) Copyright IBM 2019, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -50,7 +50,7 @@ class TestExcitationPreserving(QiskitNatureTestCase):
 
         driver = PySCFDriver()
 
-        converter = QubitConverter(ParityMapper())
+        mapper = QubitConverter(ParityMapper())
 
         problem = driver.run()
 
@@ -61,7 +61,7 @@ class TestExcitationPreserving(QiskitNatureTestCase):
 
         optimizer = SLSQP(maxiter=100)
 
-        initial_state = HartreeFock(num_spatial_orbitals, num_particles, converter)
+        initial_state = HartreeFock(num_spatial_orbitals, num_particles, mapper)
 
         num_qubits = 2 * num_spatial_orbitals
         wavefunction = ExcitationPreserving(int(num_qubits))
@@ -73,7 +73,7 @@ class TestExcitationPreserving(QiskitNatureTestCase):
             estimator=Estimator(),
         )
 
-        gsc = GroundStateEigensolver(converter, solver)
+        gsc = GroundStateEigensolver(mapper, solver)
 
         result = gsc.solve(problem)
         self.assertAlmostEqual(result.total_energies[0], self.reference_energy, places=4)

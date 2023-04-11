@@ -17,6 +17,7 @@ from test import QiskitNatureTestCase
 import unittest
 
 from qiskit.utils import algorithm_globals
+from qiskit.opflow import PauliSumOp
 
 from qiskit_nature.second_q.algorithms.excited_states_solvers.qeom_vibrational_ops_builder import (
     build_vibrational_ops,
@@ -98,7 +99,9 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
                 hopping_operators.keys(), expected_hopping_operators_vibrational.keys()
             ):
                 self.assertEqual(key, exp_key)
-                val = hopping_operators[key].primitive
+                val = hopping_operators[key]
+                if isinstance(val, PauliSumOp):
+                    val = val.primitive
                 exp_val = expected_hopping_operators_vibrational[exp_key]
                 if not val.equiv(exp_val):
                     print(val)
@@ -126,7 +129,9 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
                 hopping_operators.keys(), expected_hopping_operators_vibrational.keys()
             ):
                 self.assertEqual(key, exp_key)
-                val = hopping_operators[key].primitive
+                val = hopping_operators[key]
+                if isinstance(val, PauliSumOp):
+                    val = val.primitive
                 exp_val = expected_hopping_operators_vibrational[exp_key]
                 if not val.equiv(exp_val):
                     print(val)
@@ -154,7 +159,9 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
                 hopping_operators.keys(), expected_hopping_operators_vibrational.keys()
             ):
                 self.assertEqual(key, exp_key)
-                val = hopping_operators[key].primitive
+                val = hopping_operators[key]
+                if isinstance(val, PauliSumOp):
+                    val = val.primitive
                 exp_val = expected_hopping_operators_vibrational[exp_key]
                 if not val.equiv(exp_val):
                     print(val)

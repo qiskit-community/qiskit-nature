@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -25,11 +25,11 @@ import itertools
 import numpy as np
 
 from qiskit_nature.exceptions import QiskitNatureError
-import qiskit_nature.optionals as _optionals
 
 from ._bits_container import _BitsContainer
 from .polynomial_tensor import PolynomialTensor
 from .sparse_label_op import _TCoeff, SparseLabelOp, _to_number
+from .tensor import Tensor
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +49,7 @@ class VibrationalOp(SparseLabelOp):
     A ``VibrationalOp`` is initialized with a dictionary, mapping terms to their respective
     coefficients:
 
-    .. jupyter-execute::
+    .. code-block:: python
 
         from qiskit_nature.second_q.operators import VibrationalOp
 
@@ -67,7 +67,7 @@ class VibrationalOp(SparseLabelOp):
     If you have very restricted memory resources available, or would like to avoid the additional
     copy, the dictionary will be stored by reference if you disable ``copy`` like so:
 
-    .. jupyter-execute::
+    .. code-block:: python
 
         some_big_data = {
             "+_0_0 -_0_0": 1.0,
@@ -90,7 +90,7 @@ class VibrationalOp(SparseLabelOp):
     If :code:`num_modals` is not provided then the maximum :code:`modal_index` per
     mode will determine the :code:`num_modals` for that mode.
 
-    .. jupyter-execute::
+    .. code-block:: python
 
         from qiskit_nature.second_q.operators import VibrationalOp
 
@@ -112,25 +112,25 @@ class VibrationalOp(SparseLabelOp):
 
     Addition
 
-    .. jupyter-execute::
+    .. code-block:: python
 
       VibrationalOp({"+_1_0": 1}, num_modals=[2, 2]) + VibrationalOp({"+_0_0": 1}, num_modals=[2, 2])
 
     Sum
 
-    .. jupyter-execute::
+    .. code-block:: python
 
       sum(VibrationalOp({label: 1}, num_modals=[1, 1, 1]) for label in ["+_0_0", "-_1_0", "+_2_0 -_2_0"])
 
     Scalar multiplication
 
-    .. jupyter-execute::
+    .. code-block:: python
 
       0.5 * VibrationalOp({"+_1_0": 1}, num_modals=[1, 1])
 
     Operator multiplication
 
-    .. jupyter-execute::
+    .. code-block:: python
 
       op1 = VibrationalOp({"+_0_0 -_1_0": 1}, num_modals=[1, 1])
       op2 = VibrationalOp({"-_0_0 +_0_0 +_1_0": 1}, num_modals=[1, 1])
@@ -138,27 +138,16 @@ class VibrationalOp(SparseLabelOp):
 
     Tensor multiplication
 
-    .. jupyter-execute::
+    .. code-block:: python
 
       op = VibrationalOp({"+_0_0 -_1_0": 1}, num_modals=[1, 1])
       print(op ^ op)
 
     Adjoint
 
-    .. jupyter-execute::
-
-      VibrationalOp({"+_0_0 -_1_0": 1j}, num_modals=[1, 1]).adjoint()
-
-    In principle, you can also add :class:`VibrationalOp` and integers, but the only valid case is the
-    addition of `0 + VibrationalOp`. This makes the `sum` operation from the example above possible
-    and it is useful in the following scenario:
-
     .. code-block:: python
 
-        vibrational_op = 0
-        for i in some_iterable:
-            # some processing
-            vibrational_op += VibrationalOp(somedata)
+      VibrationalOp({"+_0_0 -_1_0": 1j}, num_modals=[1, 1]).adjoint()
 
     **Iteration**
 
@@ -299,20 +288,17 @@ class VibrationalOp(SparseLabelOp):
                 data[""] = cast(float, tensor[key])
                 continue
 
-            label_template = " ".join(f"{op}_{{}}_{{}}" for op in key.replace("_", ""))
-
             mat = tensor[key]
-            if isinstance(mat, np.ndarray):
-                for index in np.ndindex(*mat.shape):
-                    data[label_template.format(*_reshape_index(index))] = mat[index]
-            else:
-                _optionals.HAS_SPARSE.require_now("SparseArray")
-                import sparse as sp  # pylint: disable=import-error
 
-                if isinstance(mat, sp.SparseArray):
-                    coo = sp.as_coo(mat)
-                    for value, *index in zip(coo.data, *coo.coords):
-                        data[label_template.format(*_reshape_index(index))] = value
+            if not isinstance(mat, Tensor):
+                # TODO: this case is to be removed once qiskit_nature.settings.tensor_unwrapping is
+                # deprecated and the PolynomialTensor item is guaranteed to be of type Tensor
+                mat = Tensor(mat)
+
+            label_template = mat.label_template.format(*key.replace("_", ""))
+
+            for value, index in mat.coord_iter():
+                data[label_template.format(*_reshape_index(index))] = value
 
         return cls(data)
 

@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, Sequence, cast
+from typing import Any, Callable, Sequence
 from enum import Enum
 import itertools
 import logging
@@ -38,7 +38,6 @@ from qiskit.quantum_info import SparsePauliOp
 from qiskit.primitives import BaseEstimator
 
 from qiskit_nature.second_q.algorithms.ground_state_solvers import GroundStateSolver
-from qiskit_nature.second_q.algorithms.ground_state_solvers.ground_state_solver import QubitOperator
 from qiskit_nature.second_q.algorithms.ground_state_solvers.minimum_eigensolver_factories import (
     MinimumEigensolverFactory,
 )
@@ -58,6 +57,7 @@ from qiskit_nature.second_q.problems import (
     EigenstateResult,
     ElectronicStructureResult,
 )
+from qiskit_nature.deprecation import deprecate_property, warn_deprecated_type
 
 from .qeom_electronic_ops_builder import build_electronic_ops
 from .qeom_vibrational_ops_builder import build_vibrational_ops
@@ -166,6 +166,8 @@ class QEOM(ExcitedStatesSolver):
     Auxiliary observables can be specified to the ``solve`` method along with auxiliary evaluation
     rules of the ``QEOM`` object.
 
+    For more details, please refer to https://arxiv.org/abs/1910.12890.
+
     The following attributes can be read and updated once the ``QEOM`` object has been
     constructed.
 
@@ -233,10 +235,18 @@ class QEOM(ExcitedStatesSolver):
         self.aux_eval_rules = aux_eval_rules
         self.tol = tol
 
+        self._problem_generated_aux_op_names: set[str] = set()
+
     @property
+    @deprecate_property("0.6.0", new_name="qubit_mapper")
     def qubit_converter(self) -> QubitConverter | QubitMapper:
-        """Returns the qubit_converter object defined in the ground state solver."""
-        return self._gsc.qubit_converter
+        """DEPRECATED Returns the qubit_converter object defined in the ground state solver."""
+        return self._gsc.qubit_mapper
+
+    @property
+    def qubit_mapper(self) -> QubitConverter | QubitMapper:
+        """Returns the qubit_mapper object defined in the ground state solver."""
+        return self._gsc.qubit_mapper
 
     @property
     def solver(self) -> MinimumEigensolver | MinimumEigensolverFactory:
@@ -246,21 +256,21 @@ class QEOM(ExcitedStatesSolver):
     def _map_operators(
         self, operators: SparseLabelOp | ListOrDictType[SparseLabelOp]
     ) -> PauliSumOp | ListOrDictType[PauliSumOp]:
-        if isinstance(self.qubit_converter, QubitConverter):
-            mapped_ops = self.qubit_converter.convert_match(operators)
-        elif isinstance(self.qubit_converter, TaperedQubitMapper):
-            mapped_ops = self.qubit_converter.map_clifford(operators)
+        if isinstance(self.qubit_mapper, QubitConverter):
+            mapped_ops = self.qubit_mapper.convert_match(operators)
+        elif isinstance(self.qubit_mapper, TaperedQubitMapper):
+            mapped_ops = self.qubit_mapper.map_clifford(operators)
         else:
-            mapped_ops = self.qubit_converter.map(operators)
+            mapped_ops = self.qubit_mapper.map(operators)
         return mapped_ops
 
     def _taper_operators(
         self, operators: PauliSumOp | ListOrDictType[PauliSumOp]
     ) -> PauliSumOp | ListOrDictType[PauliSumOp]:
-        if isinstance(self.qubit_converter, QubitConverter):
-            tapered_ops = self.qubit_converter.symmetry_reduce_clifford(operators)
-        elif isinstance(self.qubit_converter, TaperedQubitMapper):
-            tapered_ops = self.qubit_converter.taper_clifford(operators, suppress_none=True)
+        if isinstance(self.qubit_mapper, QubitConverter):
+            tapered_ops = self.qubit_mapper.symmetry_reduce_clifford(operators)
+        elif isinstance(self.qubit_mapper, TaperedQubitMapper):
+            tapered_ops = self.qubit_mapper.taper_clifford(operators, suppress_none=True)
         else:
             tapered_ops = operators
         return tapered_ops
@@ -268,8 +278,8 @@ class QEOM(ExcitedStatesSolver):
     def get_qubit_operators(
         self,
         problem: BaseProblem,
-        aux_operators: dict[str, SparseLabelOp | QubitOperator] | None = None,
-    ) -> tuple[QubitOperator, dict[str, QubitOperator] | None]:
+        aux_operators: dict[str, SparseLabelOp | SparsePauliOp | PauliSumOp] | None = None,
+    ) -> tuple[SparsePauliOp | PauliSumOp, dict[str, SparsePauliOp | PauliSumOp] | None]:
         """
         Gets the operator and auxiliary operators, and transforms the provided auxiliary operators.
         If the user-provided ``aux_operators`` contain a name which clashes with an internally
@@ -288,16 +298,17 @@ class QEOM(ExcitedStatesSolver):
         """
 
         main_operator, aux_second_q_operators = problem.second_q_ops()
+        self._problem_generated_aux_op_names = set(aux_second_q_operators.keys())
         num_particles = getattr(problem, "num_particles", None)
 
         # 1. Convert the main operator (hamiltonian) to a Qubit Operator and apply two qubit reduction
-        if isinstance(self.qubit_converter, QubitConverter):
-            self.qubit_converter.force_match(num_particles=num_particles)
-            main_op = self.qubit_converter.convert_only(main_operator, num_particles=num_particles)
-        elif isinstance(self.qubit_converter, TaperedQubitMapper):
-            main_op = self.qubit_converter.map_clifford(main_operator)
+        if isinstance(self.qubit_mapper, QubitConverter):
+            self.qubit_mapper.force_match(num_particles=num_particles)
+            main_op = self.qubit_mapper.convert_only(main_operator, num_particles=num_particles)
+        elif isinstance(self.qubit_mapper, TaperedQubitMapper):
+            main_op = self.qubit_mapper.map_clifford(main_operator)
         else:
-            main_op = self.qubit_converter.map(main_operator)
+            main_op = self.qubit_mapper.map(main_operator)
 
         # 3. Convert the auxiliary operators.
         # aux_ops set to None if the solver does not support auxiliary operators.
@@ -306,9 +317,15 @@ class QEOM(ExcitedStatesSolver):
         if self.solver.supports_aux_operators():
             aux_ops = self._map_operators(aux_second_q_operators)
 
-            cast(ListOrDictType[QubitOperator], aux_ops)
             if aux_operators is not None:
                 for name, op in aux_operators.items():
+                    if isinstance(op, PauliSumOp):
+                        warn_deprecated_type(
+                            "0.6.0",
+                            argument_name="aux_operators",
+                            old_type="PauliSumOp",
+                            new_type="SparsePauliOp",
+                        )
                     if isinstance(op, (SparseLabelOp)):
                         converted_aux_op = self._map_operators(op)
                     else:
@@ -325,15 +342,15 @@ class QEOM(ExcitedStatesSolver):
                     # The custom op overrides the default op if the key is already taken.
                     aux_ops[name] = converted_aux_op
 
-        # 4. Find the z2symmetries, set them in the qubit_converter, and apply the first step of the
-        # tapering.
-        if isinstance(self.qubit_converter, QubitConverter):
-            _, z2symmetries = self.qubit_converter.find_taper_op(
+        if isinstance(self.qubit_mapper, QubitConverter):
+            # 4. Find the z2symmetries, set them in the QubitConverter, and apply the first step of
+            # the tapering.
+            _, z2symmetries = self.qubit_mapper.find_taper_op(
                 main_op, problem.symmetry_sector_locator
             )
-            self.qubit_converter.force_match(z2symmetries=z2symmetries)
-            untap_main_op = self.qubit_converter.convert_clifford(main_op)
-            untap_aux_ops = self.qubit_converter.convert_clifford(aux_ops)
+            self.qubit_mapper.force_match(z2symmetries=z2symmetries)
+            untap_main_op = self.qubit_mapper.convert_clifford(main_op)
+            untap_aux_ops = self.qubit_mapper.convert_clifford(aux_ops)
         else:
             untap_main_op = main_op
             untap_aux_ops = aux_ops
@@ -341,26 +358,29 @@ class QEOM(ExcitedStatesSolver):
         # 5. If a MinimumEigensolverFactory was provided, then an additional call to get_solver() is
         # required.
         if isinstance(self.solver, MinimumEigensolverFactory):
-            self._gsc._solver = self.solver.get_solver(problem, self.qubit_converter)  # type: ignore
+            self._gsc._solver = self.solver.get_solver(problem, self.qubit_mapper)  # type: ignore
 
         return untap_main_op, untap_aux_ops
 
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: dict[str, SparseLabelOp | QubitOperator] | None = None,
+        aux_operators: dict[str, SparseLabelOp | SparsePauliOp | PauliSumOp] | None = None,
     ) -> EigenstateResult:
         """Run the excited-states calculation.
 
-        Construct and solves the EOM pseudo-eigenvalue problem to obtain the excitation energies
+        Construct and solve the EOM pseudo-eigenvalue problem to obtain the excitation energies
         and the excitation operators expansion coefficients.
 
         Args:
             problem: A class encoding a problem to be solved.
             aux_operators: Additional auxiliary operators to evaluate.
+
         Returns:
             An interpreted :class:`~.EigenstateResult`. For more information see also
-            :meth:`~.BaseProblem.interpret`.
+            :meth:`~.BaseProblem.interpret`. The :class:`~.EigenstateResult` is constructed
+            from a :class:`~qiskit_nature.second_q.algorithms.excited_states_solvers.qeom.QEOMResult`
+            instance which holds additional information specific to the qEOM problem.
         """
 
         # 1. Prepare all operators and set the particle number in the qubit converter
@@ -369,12 +389,28 @@ class QEOM(ExcitedStatesSolver):
             untap_aux_ops_sumop,  # Auxiliary observables
         ) = self.get_qubit_operators(problem, aux_operators)
 
-        untap_main_op = untap_main_op_sumop.primitive
-        untap_aux_ops = {key: op.primitive for key, op in untap_aux_ops_sumop.items()}
+        untap_main_op = untap_main_op_sumop
+        if isinstance(untap_main_op, PauliSumOp):
+            untap_main_op = untap_main_op.primitive
+
+        untap_aux_ops = None
+        if untap_aux_ops_sumop is not None:
+            untap_aux_ops = {
+                key: op.primitive if isinstance(op, PauliSumOp) else op
+                for key, op in untap_aux_ops_sumop.items()
+            }
+
+        # before we taper our operators we filter the ones which come from the problem internally as
+        # to not trigger a bunch of warnings being raised about overwritten auxiliary operators
+        filtered_aux_ops = {
+            k: v
+            for k, v in untap_aux_ops_sumop.items()
+            if k not in self._problem_generated_aux_op_names and k not in aux_operators.keys()
+        }
 
         # 2. Run ground state calculation with fully tapered custom auxiliary operators
         # Note that the solve() method includes the `second_q' auxiliary operators
-        tap_aux_operators_sumop = self._taper_operators(untap_aux_ops_sumop)
+        tap_aux_operators_sumop = self._taper_operators(filtered_aux_ops)
 
         groundstate_result = self._gsc.solve(problem, tap_aux_operators_sumop)
         ground_state = groundstate_result.eigenstates[0]
@@ -428,7 +464,7 @@ class QEOM(ExcitedStatesSolver):
     def _build_hopping_ops(
         self, problem: BaseProblem
     ) -> tuple[
-        dict[str, QubitOperator],
+        dict[str, SparsePauliOp | PauliSumOp],
         dict[str, list[bool]],
         dict[str, tuple[tuple[int, ...], tuple[int, ...]]],
     ]:
@@ -448,17 +484,17 @@ class QEOM(ExcitedStatesSolver):
                 problem.num_spatial_orbitals,
                 (problem.num_alpha, problem.num_beta),
                 self.excitations,
-                self.qubit_converter,
+                self.qubit_mapper,
             )
         elif isinstance(problem, VibrationalStructureProblem):
             return build_vibrational_ops(
                 problem.num_modals,
                 self.excitations,
-                self.qubit_converter,
+                self.qubit_mapper,
             )
         else:
             raise NotImplementedError(
-                "The building of QEOM hopping operators is not yet implemented for a problem of "
+                "The building of qEOM hopping operators is not yet implemented for a problem of "
                 f"type {type(problem)}"
             )
 
@@ -493,12 +529,12 @@ class QEOM(ExcitedStatesSolver):
                 to_be_computed_list.append((m_u, n_u, left_op_1, right_op_1, right_op_2))
 
         if (
-            isinstance(self.qubit_converter, (QubitConverter, TaperedQubitMapper))
-            and not self.qubit_converter.z2symmetries.is_empty()
+            isinstance(self.qubit_mapper, (QubitConverter, TaperedQubitMapper))
+            and not self.qubit_mapper.z2symmetries.is_empty()
         ):
 
             combinations = itertools.product(
-                [1, -1], repeat=len(self.qubit_converter.z2symmetries.symmetries)
+                [1, -1], repeat=len(self.qubit_mapper.z2symmetries.symmetries)
             )
             for targeted_tapering_values in combinations:
                 logger.info(
@@ -688,12 +724,15 @@ class QEOM(ExcitedStatesSolver):
         hopping_operators, type_of_commutativities, excitation_indices = data
         size = int(len(list(excitation_indices.keys())) // 2)
 
-        if isinstance(self.qubit_converter, QubitConverter):
-            untap_hopping_ops = self.qubit_converter.convert_clifford(hopping_operators)
+        if isinstance(self.qubit_mapper, QubitConverter):
+            untap_hopping_ops = self.qubit_mapper.convert_clifford(hopping_operators)
         else:
             untap_hopping_ops = hopping_operators
 
-        untap_hopping_ops_sparse = {key: op.primitive for key, op in untap_hopping_ops.items()}
+        untap_hopping_ops_sparse = {
+            key: op.primitive if isinstance(op, PauliSumOp) else op
+            for key, op in untap_hopping_ops.items()
+        }
 
         return untap_hopping_ops_sparse, type_of_commutativities, size
 
@@ -717,7 +756,7 @@ class QEOM(ExcitedStatesSolver):
             deviation errors.
         """
 
-        logger.debug("Build QEOM pseudoeigenvalue problem...")
+        logger.debug("Build qEOM pseudoeigenvalue problem...")
 
         # 1. Build all EOM operators to evaluate on the ground state
         untap_eom_matrix_ops = self._build_all_eom_operators(
@@ -924,7 +963,7 @@ class QEOM(ExcitedStatesSolver):
     ) -> tuple[dict[tuple[int, int], dict[str, Any]], dict[tuple[int, int], dict[str, Any]]]:
         """Evaluate the expectation values and transition amplitudes of the auxiliary operators on the
         excited states. Custom rules can be used to define which expectation values and transition
-        amplitudes to compute. A typical rule is specified in the form of a nary
+        amplitudes to compute. A typical rule is specified in the form of a dictionary
         {'hamiltonian':[(1,1)]}
 
         Args:
@@ -1029,7 +1068,30 @@ class QEOM(ExcitedStatesSolver):
 
 
 class QEOMResult(EigensolverResult):
-    """The results class for the QEOM algorithm."""
+    """The results class for the qEOM algorithm.
+
+    For more details about the definitions, please refer to https://arxiv.org/abs/1910.12890.
+
+    Attributes:
+        ground_state_raw_result (EigenstateResult): The raw results of the ground state eigensolver.
+        excitation_energies (np.ndarray): The excitation energies approximated by the qEOM algorithm.
+        expansion_coefficients (np.ndarray): The expansion coefficients matrix of the excitation
+            operators onto the set of basis operators spanning the linear qEOM subspace.
+        h_matrix (np.ndarray): Matrix representing the Hamiltonian in the qEOM subspace. Because of our
+            choice for the expansion basis, the two square sub-matrices on the diagonal are related by
+            a transposition and the two submatrices on the anti diagonal are hermitian conjugates.
+        s_matrix (np.ndarray): Matrix representing the geometry of the qEOM subspace. Because of our
+            choice for the expansion basis, the two square submatrices on the diagonal are related by
+            a transposition (with a sign) and the two submatrices on the anti diagonal are hermitian
+            conjugates.
+        h_matrix_std (np.ndarray): 2 by 2 matrix representing the sums of standard deviations in the four
+            square submatrices of H.
+        s_matrix_std (np.ndarray): 2 by 2 matrix representing the sums of standard deviations in the four
+            square submatrices of S.
+        transition_amplitudes (list[ListOrDictType[tuple[complex, dict[str, Any]]]): Transition
+            amplitudes of the auxiliary operators computed following the evaluation rules specified when
+            the qEOM class was created.
+    """
 
     def __init__(self) -> None:
         super().__init__()
@@ -1051,9 +1113,6 @@ class QEOMResult(EigensolverResult):
         self._q_matrix_std: float = 0.0
         self._w_matrix_std: float = 0.0
 
-        self.aux_operators_evaluated: list[
-            ListOrDictType[tuple[complex, dict[str, Any]]]
-        ] | None = None
         self.transition_amplitudes: list[
             ListOrDictType[tuple[complex, dict[str, Any]]]
         ] | None = None
@@ -1069,7 +1128,7 @@ class QEOMResult(EigensolverResult):
 
     @m_matrix.setter
     @deprecate_function(
-        "The M matrix is now computed from the H matrix. "
+        "You should now set the H matrix from which the M matrix will be extracted. "
         "This setter will be deprecated in a future release and subsequently "
         "removed after that.",
         category=PendingDeprecationWarning,
@@ -1077,6 +1136,11 @@ class QEOMResult(EigensolverResult):
     def m_matrix(self, value: np.ndarray) -> None:
         """sets the M matrix"""
         self._m_matrix = value
+        logger.warning(
+            "This setter for the M matrix will not update the H matrix to match. "
+            "Using this setter will make this result object bypass the H matrix "
+            "values for M."
+        )
 
     @property
     def v_matrix(self) -> np.ndarray | None:
@@ -1088,7 +1152,7 @@ class QEOMResult(EigensolverResult):
 
     @v_matrix.setter
     @deprecate_function(
-        "The V matrix is now computed from the S matrix. "
+        "You should now set the S matrix from which the V matrix will be extracted. "
         "This setter will be deprecated in a future release and subsequently "
         "removed after that.",
         category=PendingDeprecationWarning,
@@ -1096,6 +1160,11 @@ class QEOMResult(EigensolverResult):
     def v_matrix(self, value: np.ndarray) -> None:
         """sets the V matrix"""
         self._v_matrix = value
+        logger.warning(
+            "This setter for the V matrix will not update the S matrix to match. "
+            "Using this setter will make this result object bypass the S matrix "
+            "values for V."
+        )
 
     @property
     def q_matrix(self) -> np.ndarray | None:
@@ -1109,7 +1178,7 @@ class QEOMResult(EigensolverResult):
 
     @q_matrix.setter
     @deprecate_function(
-        "The Q matrix is now computed from the H matrix. "
+        "You should now set the H matrix from which the Q matrix will be extracted. "
         "This setter will be deprecated in a future release and subsequently "
         "removed after that.",
         category=PendingDeprecationWarning,
@@ -1117,6 +1186,11 @@ class QEOMResult(EigensolverResult):
     def q_matrix(self, value: np.ndarray) -> None:
         """sets the Q matrix"""
         self._q_matrix = value
+        logger.warning(
+            "This setter for the Q matrix will not update the H matrix to match. "
+            "Using this setter will make this result object bypass the H matrix "
+            "values for Q."
+        )
 
     @property
     def w_matrix(self) -> np.ndarray | None:
@@ -1128,7 +1202,7 @@ class QEOMResult(EigensolverResult):
 
     @w_matrix.setter
     @deprecate_function(
-        "The W matrix is now computed from the S matrix. "
+        "You should now set the S matrix from which the W matrix will be extracted. "
         "This setter will be deprecated in a future release and subsequently "
         "removed after that.",
         category=PendingDeprecationWarning,
@@ -1136,6 +1210,11 @@ class QEOMResult(EigensolverResult):
     def w_matrix(self, value: np.ndarray) -> None:
         """sets the W matrix"""
         self._w_matrix = value
+        logger.warning(
+            "This setter for the W matrix will not update the S matrix to match. "
+            "Using this setter will make this result object bypass the S matrix "
+            "values for W."
+        )
 
     @property
     def m_matrix_std(self) -> float:
@@ -1146,9 +1225,22 @@ class QEOMResult(EigensolverResult):
             return self._m_matrix_std
 
     @m_matrix_std.setter
+    @deprecate_function(
+        "You should now set the H matrix standard deviation from which the M matrix "
+        "standard deviation will be extracted. "
+        "This setter will be deprecated in a future release and subsequently "
+        "removed after that.",
+        category=PendingDeprecationWarning,
+    )
     def m_matrix_std(self, value: float) -> None:
         """sets the M matrix standard deviation"""
         self._m_matrix_std = value
+        logger.warning(
+            "This setter for the M standard deviation matrix will not "
+            "update the H standard deviation matrix to match. "
+            "Using this setter will make this result object bypass the H "
+            "standard deviation matrix values for M."
+        )
 
     @property
     def v_matrix_std(self) -> float:
@@ -1159,9 +1251,22 @@ class QEOMResult(EigensolverResult):
             return self._v_matrix_std
 
     @v_matrix_std.setter
+    @deprecate_function(
+        "You should now set the S matrix standard deviation from which the V matrix "
+        "standard deviation will be extracted. "
+        "This setter will be deprecated in a future release and subsequently "
+        "removed after that.",
+        category=PendingDeprecationWarning,
+    )
     def v_matrix_std(self, value: float) -> None:
         """sets the V matrix standard deviation"""
         self._v_matrix_std = value
+        logger.warning(
+            "This setter for the V standard deviation matrix will not "
+            "update the S standard deviation matrix to match. "
+            "Using this setter will make this result object bypass the S "
+            "standard deviation matrix values for V."
+        )
 
     @property
     def q_matrix_std(self) -> float:
@@ -1172,9 +1277,22 @@ class QEOMResult(EigensolverResult):
             return self._q_matrix_std
 
     @q_matrix_std.setter
+    @deprecate_function(
+        "You should now set the H matrix standard deviation from which the Q matrix "
+        "standard deviation will be extracted. "
+        "This setter will be deprecated in a future release and subsequently "
+        "removed after that.",
+        category=PendingDeprecationWarning,
+    )
     def q_matrix_std(self, value: float) -> None:
         """sets the Q matrix standard deviation"""
         self._q_matrix_std = value
+        logger.warning(
+            "This setter for the Q standard deviation matrix will not "
+            "update the H standard deviation matrix to match. "
+            "Using this setter will make this result object bypass the H "
+            "standard deviation matrix values for Q."
+        )
 
     @property
     def w_matrix_std(self) -> float:
@@ -1185,6 +1303,19 @@ class QEOMResult(EigensolverResult):
             return self._w_matrix_std
 
     @w_matrix_std.setter
+    @deprecate_function(
+        "You should now set the S matrix standard deviation from which the W matrix "
+        "standard deviation will be extracted. "
+        "This setter will be deprecated in a future release and subsequently "
+        "removed after that.",
+        category=PendingDeprecationWarning,
+    )
     def w_matrix_std(self, value: float) -> None:
         """sets the W matrix standard deviation"""
         self._w_matrix_std = value
+        logger.warning(
+            "This setter for the W standard deviation matrix will not "
+            "update the S standard deviation matrix to match. "
+            "Using this setter will make this result object bypass the S "
+            "standard deviation matrix values for W."
+        )

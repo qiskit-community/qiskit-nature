@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -19,6 +19,7 @@ import unittest
 from ddt import ddt, data
 import numpy as np
 from qiskit.providers.basicaer import QasmSimulatorPy
+from qiskit.providers.fake_provider import FakeArmonk, FakeArmonkV2
 from qiskit.algorithms import VQEResult
 from qiskit.algorithms.optimizers import SPSA
 from qiskit.circuit.library import RealAmplitudes
@@ -75,6 +76,25 @@ class TestVQEClient(QiskitNatureDeprecatedTestCase):
         qubit_converter = QubitConverter(JordanWignerMapper())
         gss = GroundStateEigensolver(qubit_converter, vqe)
         self.assertTrue(gss.returns_groundstate)
+
+    @data(FakeArmonk, FakeArmonkV2)
+    def test_v1_and_v2_compatibility(self, backend_cls):
+        """Test the VQE client is compatible both with V1 and V2 backends.
+
+        Regression test of github.com/Qiskit/qiskit-nature/issues/1100.
+        """
+        provider = FakeRuntimeProvider()
+        backend = backend_cls()
+
+        circuit = RealAmplitudes(1, reps=0)
+        operator = Z
+        initial_point = np.array([0])
+        optimizer = SPSA(maxiter=1, perturbation=0.1, learning_rate=0.1)
+
+        vqe = VQEClient(circuit, optimizer, initial_point, provider, backend)
+        result = vqe.compute_minimum_eigenvalue(operator)
+
+        self.assertIsInstance(result, VQERuntimeResult)
 
 
 if __name__ == "__main__":

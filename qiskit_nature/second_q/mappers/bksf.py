@@ -15,12 +15,13 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import List, Tuple
 import numpy as np
 
 from qiskit.opflow import PauliSumOp
-from qiskit.quantum_info.operators import Pauli, SparsePauliOp
+from qiskit.quantum_info import SparsePauliOp
+from qiskit.quantum_info.operators import Pauli
 
+from qiskit_nature import settings
 from qiskit_nature.second_q.operators import FermionicOp
 from .fermionic_mapper import FermionicMapper
 
@@ -36,15 +37,16 @@ class BravyiKitaevSuperFastMapper(FermionicMapper):
         Phys. 148, 164104 (2018). https://doi.org/10.1063/1.5019371
     """
 
-    def __init__(self):
-        """The BKSF mapping."""
-        super().__init__(allows_two_qubit_reduction=False)
+    def _map_single(
+        self, second_q_op: FermionicOp, *, register_length: int | None = None
+    ) -> SparsePauliOp | PauliSumOp:
+        if register_length is None:
+            register_length = second_q_op.register_length
 
-    def _map_single(self, second_q_op: FermionicOp) -> PauliSumOp:
         if not isinstance(second_q_op, FermionicOp):
             raise TypeError("Type ", type(second_q_op), " not supported.")
 
-        edge_list = _bksf_edge_list_fermionic_op(second_q_op)
+        edge_list = _bksf_edge_list_fermionic_op(second_q_op, register_length)
         sparse_pauli = _convert_operator(second_q_op, edge_list)
 
         ## Simplify and sort the result
@@ -54,7 +56,7 @@ class BravyiKitaevSuperFastMapper(FermionicMapper):
         coeffs = sparse_pauli.coeffs[indices]
         sorted_sparse_pauli = SparsePauliOp(table, coeffs)
 
-        return PauliSumOp(sorted_sparse_pauli)
+        return PauliSumOp(sorted_sparse_pauli) if settings.use_pauli_sum_op else sorted_sparse_pauli
 
 
 class TermType(Enum):
@@ -154,7 +156,7 @@ def _add_sparse_pauli(qubit_op1: SparsePauliOp, qubit_op2: SparsePauliOp) -> Spa
         return qubit_op1 + qubit_op2
 
 
-def _analyze_term(terms: list[tuple[str, int]]) -> Tuple[TermType, List[Tuple[int, str]]]:
+def _analyze_term(terms: list[tuple[str, int]]) -> tuple[TermType, list[tuple[int, str]]]:
     """Return the type of interaction represented by `term_str` and
     a list of the factors and their indices in `term_str`.
 
@@ -170,14 +172,14 @@ def _analyze_term(terms: list[tuple[str, int]]) -> Tuple[TermType, List[Tuple[in
     return _type, facs
 
 
-def _operator_string(term: Tuple) -> list[tuple[str, int]]:
+def _operator_string(term: tuple) -> list[tuple[str, int]]:
     """Return the list of pairs describing the operators in the term extracted from a `FermionicOp`
     given by `term`.
     """
     return term[0]
 
 
-def _operator_coefficient(term: Tuple) -> float:
+def _operator_coefficient(term: tuple) -> float:
     """Return the coefficient of the multi-mode operator term extracted from a `FermionicOp`."""
     return term[1]
 
@@ -359,7 +361,7 @@ def _number_excitation(  # pylint: disable=invalid-name
 
 def _unpack_term(
     terms: list[tuple[str, int]], compress_number_op: bool
-) -> Tuple[Tuple[int, int, int], List[Tuple[int, str]]]:
+) -> tuple[tuple[int, int, int], list[tuple[int, str]]]:
     """Return a tuple specifying the counts of kinds of operators in `term_str` and
     a list of the factors and their indices in `term_str`.
 
@@ -446,7 +448,7 @@ def _interaction_type(n_number: int, n_raise: int, n_lower: int) -> TermType:
         raise ValueError(f"n_raise ({n_raise}) not equal to n_lower ({n_lower})")
 
 
-def _get_adjacency_matrix(fer_op: FermionicOp) -> np.ndarray:
+def _get_adjacency_matrix(fer_op: FermionicOp, register_length: int) -> np.ndarray:
     """Return an adjacency matrix specifying the edges in the BKSF graph for the
     operator `fer_op`.
 
@@ -455,12 +457,12 @@ def _get_adjacency_matrix(fer_op: FermionicOp) -> np.ndarray:
 
     Args:
       fer_op: The Fermionic operator.
+      register_length: the register length of the operator.
 
     Returns:
       numpy.ndarray(dtype=bool): edge_matrix the adjacency matrix.
     """
-    n_modes = fer_op.register_length
-    edge_matrix = np.zeros((n_modes, n_modes), dtype=bool)
+    edge_matrix = np.zeros((register_length, register_length), dtype=bool)
     for term in fer_op.terms():
         if _operator_coefficient(term) != 0:
             _add_edges_for_term(edge_matrix, _operator_string(term))
@@ -505,11 +507,12 @@ def _add_edges_for_term(edge_matrix: np.ndarray, terms: list[tuple[str, int]]) -
         _add_one_edge(edge_matrix, *lower_inds)
 
 
-def _bksf_edge_list_fermionic_op(ferm_op: FermionicOp) -> np.ndarray:
+def _bksf_edge_list_fermionic_op(ferm_op: FermionicOp, register_length: int) -> np.ndarray:
     """Construct edge list required for the BKSF algorithm.
 
     Args:
         ferm_op: the fermionic operator in the second quantized form
+        register_length: the register length of the operator.
 
     Returns:
         numpy.ndarray: edge_list, a 2xE matrix, where E is total number of edges.
@@ -517,7 +520,7 @@ def _bksf_edge_list_fermionic_op(ferm_op: FermionicOp) -> np.ndarray:
                        where the index `i` starts at zero.
 
     """
-    edge_matrix = _get_adjacency_matrix(ferm_op)
+    edge_matrix = _get_adjacency_matrix(ferm_op, register_length)
     edge_list_as_2d_array = np.asarray(np.nonzero(edge_matrix))
     return edge_list_as_2d_array
 
@@ -583,7 +586,7 @@ def _edge_operator_bi(edge_list: np.ndarray, i: int) -> SparsePauliOp:
     return SparsePauliOp(qubit_op)
 
 
-def _to_physicist_index_order(facs: List[Tuple[int, str]]) -> Tuple[List[Tuple[int, str]], int]:
+def _to_physicist_index_order(facs: list[tuple[int, str]]) -> tuple[list[tuple[int, str]], int]:
     """Reorder the factors `facs` to be two raising operators followed by two lowering operators and
     return the new factors and the phase incurred by the reordering. Note that `facs` are not in
     chemists' order, but rather sorted by index with least index first.

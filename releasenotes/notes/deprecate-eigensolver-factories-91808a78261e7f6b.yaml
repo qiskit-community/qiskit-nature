@@ -1,0 +1,12 @@
+---
+deprecations:
+  - |
+    Deprecated all :class:`~qiskit_nature.second_q.algorithms.MinimumEigensolverFactory`
+    and :class:`~qiskit_nature.second_q.algorithms.EigensolverFactory` classes.
+    Instead, users should now build the respectively generated solver instances
+    themselves. How-to guides to detail the involved steps have been added:
+
+    - :ref:`Building a NumPyEigensolver <how-to-numpy>`
+    - :ref:`Building a NumPyMinimumEigensolver <how-to-numpy-min>`
+    - :ref:`Using a UCC-like ansatz with VQE <how-to-vqe-ucc>`
+    - :ref:`Using a UVCC-like ansatz with VQE <how-to-vqe-uvcc>`

@@ -15,6 +15,7 @@
 from __future__ import annotations
 
 import unittest
+import warnings
 
 from test import QiskitNatureTestCase
 from ddt import ddt, named_data
@@ -129,12 +130,14 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
                     trans_amp_expected = np.abs(references[key][opkey][0])
                     self.assertAlmostEqual(trans_amp, trans_amp_expected, places=places)
 
-    def _compute_and_assert_qeom_aux_eigenvalues(self, converter: QubitConverter | QubitMapper):
+    def _compute_and_assert_qeom_aux_eigenvalues(self, mapper: QubitConverter | QubitMapper):
         hamiltonian_op, _ = self.electronic_structure_problem.second_q_ops()
         aux_ops = {"hamiltonian": hamiltonian_op}
         estimator = Estimator()
-        solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
-        gsc = GroundStateEigensolver(converter, solver)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
+        gsc = GroundStateEigensolver(mapper, solver)
         esc = QEOM(gsc, estimator, "sd", aux_eval_rules=EvaluationRule.DIAG)
         results = esc.solve(self.electronic_structure_problem, aux_operators=aux_ops)
 
@@ -145,15 +148,17 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
         self._assert_energies(results.computed_energies, self.reference_energies)
         self._assert_energies(energies_recalculated, self.reference_energies)
 
-    def _compute_and_assert_qeom_trans_amp(self, converter: QubitConverter | QubitMapper):
+    def _compute_and_assert_qeom_trans_amp(self, mapper: QubitConverter | QubitMapper):
         aux_eval_rules = {
             "hamiltonian_derivative": [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)]
         }
         aux_ops = {"hamiltonian_derivative": self._hamiltonian_derivative()}
 
         estimator = Estimator()
-        solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
-        gsc = GroundStateEigensolver(converter, solver)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
+        gsc = GroundStateEigensolver(mapper, solver)
         esc = QEOM(gsc, estimator, excitations="sd", aux_eval_rules=aux_eval_rules)
         results = esc.solve(self.electronic_structure_problem, aux_operators=aux_ops)
 

@@ -18,12 +18,13 @@ from abc import ABC, abstractmethod
 from typing import cast
 from logging import Logger
 
+from test.second_q.utils import get_expected_two_body_ints
+
 import numpy as np
 
 from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
-from qiskit_nature.second_q.operators.tensor_ordering import _chem_to_phys
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
 
 
@@ -89,18 +90,18 @@ class TestDriver(ABC):
 
         with self.subTest("2-body integrals"):
             mo_eri_ints = electronic_energy.electronic_integrals.alpha["++--"]
+            expected_mo_ints = np.asarray(
+                [
+                    [[[0.6757, 0.0], [0.0, 0.6646]], [[0.0, 0.1809], [0.1809, 0.0]]],
+                    [[[0.0, 0.1809], [0.1809, 0.0]], [[0.6646, 0.0], [0.0, 0.6986]]],
+                ]
+            )
+            expected_mo_ints = get_expected_two_body_ints(mo_eri_ints, expected_mo_ints)
             self.log.debug("MO two electron integrals %s", mo_eri_ints)
             self.assertEqual(mo_eri_ints.shape, (2, 2, 2, 2))
             np.testing.assert_array_almost_equal(
                 np.absolute(mo_eri_ints),
-                _chem_to_phys(
-                    np.asarray(
-                        [
-                            [[[0.6757, 0.0], [0.0, 0.6646]], [[0.0, 0.1809], [0.1809, 0.0]]],
-                            [[[0.0, 0.1809], [0.1809, 0.0]], [[0.6646, 0.0], [0.0, 0.6986]]],
-                        ]
-                    )
-                ),
+                expected_mo_ints,
                 decimal=4,
             )
 
