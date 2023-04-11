@@ -545,7 +545,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         if len(self) == 0:
             return True
         tol = tol if tol is not None else self.atol
-        return all(np.isclose(val, 0, atol=tol) for val in self._data.values())
+        return all(np.isclose(_to_number(val), 0, atol=tol) for val in self._data.values())
 
     def parameters(self) -> list[ParameterExpression]:
         """Returns a list of the parameters in the operator.

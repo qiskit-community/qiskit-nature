@@ -235,6 +235,8 @@ class QEOM(ExcitedStatesSolver):
         self.aux_eval_rules = aux_eval_rules
         self.tol = tol
 
+        self._problem_generated_aux_op_names: set[str] = set()
+
     @property
     @deprecate_property("0.6.0", new_name="qubit_mapper")
     def qubit_converter(self) -> QubitConverter | QubitMapper:
@@ -276,7 +278,7 @@ class QEOM(ExcitedStatesSolver):
     def get_qubit_operators(
         self,
         problem: BaseProblem,
-        aux_operators: dict[str, SparseLabelOp | PauliSumOp] | None = None,
+        aux_operators: dict[str, SparseLabelOp | SparsePauliOp | PauliSumOp] | None = None,
     ) -> tuple[SparsePauliOp | PauliSumOp, dict[str, SparsePauliOp | PauliSumOp] | None]:
         """
         Gets the operator and auxiliary operators, and transforms the provided auxiliary operators.
@@ -296,6 +298,7 @@ class QEOM(ExcitedStatesSolver):
         """
 
         main_operator, aux_second_q_operators = problem.second_q_ops()
+        self._problem_generated_aux_op_names = set(aux_second_q_operators.keys())
         num_particles = getattr(problem, "num_particles", None)
 
         # 1. Convert the main operator (hamiltonian) to a Qubit Operator and apply two qubit reduction
@@ -389,14 +392,25 @@ class QEOM(ExcitedStatesSolver):
         untap_main_op = untap_main_op_sumop
         if isinstance(untap_main_op, PauliSumOp):
             untap_main_op = untap_main_op.primitive
-        untap_aux_ops = {
-            key: op.primitive if isinstance(op, PauliSumOp) else op
-            for key, op in untap_aux_ops_sumop.items()
+
+        untap_aux_ops = None
+        if untap_aux_ops_sumop is not None:
+            untap_aux_ops = {
+                key: op.primitive if isinstance(op, PauliSumOp) else op
+                for key, op in untap_aux_ops_sumop.items()
+            }
+
+        # before we taper our operators we filter the ones which come from the problem internally as
+        # to not trigger a bunch of warnings being raised about overwritten auxiliary operators
+        filtered_aux_ops = {
+            k: v
+            for k, v in untap_aux_ops_sumop.items()
+            if k not in self._problem_generated_aux_op_names and k not in aux_operators.keys()
         }
 
         # 2. Run ground state calculation with fully tapered custom auxiliary operators
         # Note that the solve() method includes the `second_q' auxiliary operators
-        tap_aux_operators_sumop = self._taper_operators(untap_aux_ops_sumop)
+        tap_aux_operators_sumop = self._taper_operators(filtered_aux_ops)
 
         groundstate_result = self._gsc.solve(problem, tap_aux_operators_sumop)
         ground_state = groundstate_result.eigenstates[0]

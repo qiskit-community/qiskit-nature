@@ -1,7 +1,7 @@
 .. _how-to-numpy:
 
-How to use the ``NumPyEigensolver``
-===================================
+Find excited state energies using the NumPyEigensolver
+======================================================
 
 In order to ensure a physically meaningful excited states of a hamiltonian are found when using the
 :class:`~qiskit.algorithms.eigensolvers.NumPyEigensolver` one needs to set the

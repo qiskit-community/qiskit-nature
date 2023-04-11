@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -65,6 +65,11 @@ class TestSpinOp(QiskitNatureTestCase):
         spin_op = self.op1 + self.op2
         targ = self.op3
         self.assertEqual(spin_op, targ)
+
+        with self.subTest("sum"):
+            spin_op = sum(SpinOp({label: 1}, num_spins=3) for label in ["X_0", "Z_1", "X_2 Z_2"])
+            targ = SpinOp({"X_0": 1, "Z_1": 1, "X_2 Z_2": 1})
+            self.assertEqual(spin_op, targ)
 
     def test_sub(self):
         """Test __sub__"""

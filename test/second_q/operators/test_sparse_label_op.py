@@ -155,6 +155,18 @@ class TestSparseLabelOp(QiskitNatureTestCase):
 
             self.assertEqual(test_op, target_op)
 
+        with self.subTest("sum"):
+            test_op = sum([DummySparseLabelOp(op1), DummySparseLabelOp(op3)])
+            target_op = DummySparseLabelOp(
+                {
+                    "+_0 -_1": 0.5,
+                    "+_0 -_2": 1.0,
+                    "+_0 -_3": 3.0,
+                },
+            )
+
+            self.assertEqual(test_op, target_op)
+
     def test_mul(self):
         """Test scalar multiplication method"""
         with self.subTest("real * real"):
@@ -566,6 +578,12 @@ class TestSparseLabelOp(QiskitNatureTestCase):
                 }
             )
             self.assertFalse(test_op.is_zero(tol=0.001))
+
+        with self.subTest("parameterized coefficient"):
+            test_op = DummySparseLabelOp({"+_0 -_1": a})
+            self.assertFalse(test_op.is_zero())
+            bound_op = test_op.assign_parameters({a: 0.0})
+            self.assertTrue(bound_op.is_zero())
 
     def test_parameters(self):
         """Test parameters."""

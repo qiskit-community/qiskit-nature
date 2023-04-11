@@ -15,6 +15,7 @@
 import contextlib
 import io
 import unittest
+import warnings
 from test import QiskitNatureTestCase
 from typing import List, Optional
 
@@ -513,18 +514,22 @@ class TestQubitConverter(QiskitNatureTestCase):
         aux = settings.use_pauli_sum_op
         try:
             settings.use_pauli_sum_op = True
-            qubit_op = qubit_conv.convert(
-                main_op,
-                self.num_particles,
-                sector_locator=problem.symmetry_sector_locator,
-            )
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=DeprecationWarning)
+                qubit_op = qubit_conv.convert(
+                    main_op,
+                    self.num_particles,
+                    sector_locator=problem.symmetry_sector_locator,
+                )
             self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW_TAPERED)
             settings.use_pauli_sum_op = False
-            qubit_op = qubit_conv.convert(
-                main_op,
-                self.num_particles,
-                sector_locator=problem.symmetry_sector_locator,
-            )
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=DeprecationWarning)
+                qubit_op = qubit_conv.convert(
+                    main_op,
+                    self.num_particles,
+                    sector_locator=problem.symmetry_sector_locator,
+                )
             self.assertEqualSparsePauliOp(qubit_op, TestQubitConverter.REF_H2_JW_TAPERED.primitive)
         finally:
             settings.use_pauli_sum_op = aux

@@ -13,6 +13,7 @@
 """Hartree-Fock initial state."""
 
 from __future__ import annotations
+import warnings
 import numpy as np
 from qiskit import QuantumRegister
 from qiskit.circuit.library import BlueprintCircuit
@@ -211,12 +212,14 @@ class HartreeFock(BlueprintCircuit):
         self._bitstr = None
 
         if self._check_configuration(raise_on_failure=False):
-            self._bitstr = hartree_fock_bitstring_mapped(
-                self.num_spatial_orbitals,
-                self.num_particles,
-                self.qubit_mapper,
-                match_convert=True,
-            )
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=DeprecationWarning)
+                self._bitstr = hartree_fock_bitstring_mapped(
+                    self.num_spatial_orbitals,
+                    self.num_particles,
+                    self.qubit_mapper,
+                    match_convert=True,
+                )
             self.qregs = [QuantumRegister(len(self._bitstr), name="q")]
 
     def _build(self) -> None:

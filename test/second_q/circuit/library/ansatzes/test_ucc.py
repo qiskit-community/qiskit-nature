@@ -15,6 +15,7 @@
 from test import QiskitNatureTestCase
 
 import unittest
+import warnings
 
 from ddt import data, ddt, unpack
 
@@ -223,7 +224,12 @@ class TestUCC(QiskitNatureTestCase):
             self.assertIsNone(ucc.num_particles)
             self.assertIsNone(ucc.num_spatial_orbitals)
             self.assertIsNone(ucc.excitations)
-            self.assertIsNone(ucc.qubit_converter)
+            self.assertIsNone(ucc.qubit_mapper)
+
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=DeprecationWarning)
+                self.assertIsNone(ucc.qubit_converter)
+
             self.assertIsNone(ucc.operators)
             self.assertIsNone(ucc.excitation_list)
             self.assertEqual(ucc.num_qubits, 0)
@@ -252,7 +258,18 @@ class TestUCC(QiskitNatureTestCase):
                 _ = ucc.data
 
         with self.subTest("Set qubit converter to complete build"):
-            mapper = QubitConverter(JordanWignerMapper())
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=DeprecationWarning)
+                converter = QubitConverter(JordanWignerMapper())
+                ucc.qubit_converter = converter
+                self.assertEqual(ucc.qubit_converter, converter)
+            self.assertIsNotNone(ucc.operators)
+            self.assertEqual(len(ucc.operators), 3)
+            self.assertEqual(ucc.num_qubits, 4)
+            self.assertIsNotNone(ucc.data)
+
+        with self.subTest("Set qubit mapper to complete build"):
+            mapper = JordanWignerMapper()
             ucc.qubit_mapper = mapper
             self.assertEqual(ucc.qubit_mapper, mapper)
             self.assertIsNotNone(ucc.operators)

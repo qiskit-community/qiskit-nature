@@ -322,16 +322,17 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
     def test_vqe_ucc_factory_with_reps(self):
         """Test when using the default initial point with repeated evolved operators."""
-        ansatz = UCCSD(
-            qubit_converter=self.qubit_converter,
-            num_particles=self.num_particles,
-            num_spatial_orbitals=self.num_spatial_orbitals,
-            reps=2,
-        )
-
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", category=DeprecationWarning)
+            ansatz = UCCSD(
+                qubit_converter=self.qubit_converter,
+                num_particles=self.num_particles,
+                num_spatial_orbitals=self.num_spatial_orbitals,
+                reps=2,
+            )
+
             solver = VQEUCCFactory(Estimator(), ansatz, SLSQP())
+
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
 
@@ -347,16 +348,17 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
         initial_point = MP2InitialPoint()
 
-        ansatz = UCCSD(
-            qubit_converter=self.qubit_converter,
-            num_particles=self.num_particles,
-            num_spatial_orbitals=self.num_spatial_orbitals,
-            reps=2,
-        )
-
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", category=DeprecationWarning)
+            ansatz = UCCSD(
+                qubit_converter=self.qubit_converter,
+                num_particles=self.num_particles,
+                num_spatial_orbitals=self.num_spatial_orbitals,
+                reps=2,
+            )
+
             solver = VQEUCCFactory(Estimator(), ansatz, SLSQP(), initial_point=initial_point)
+
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
 

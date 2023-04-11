@@ -129,17 +129,6 @@ class FermionicOp(SparseLabelOp):
 
       FermionicOp({"+_0 -_1": 1j}, num_spin_orbitals=2).adjoint()
 
-    In principle, you can also add `FermionicOp` and integers, but the only valid case is the
-    addition of `0 + FermionicOp`. This makes the `sum` operation from the example above possible
-    and it is useful in the following scenario:
-
-    .. code-block:: python
-
-        fermion = 0
-        for i in some_iterable:
-            # some processing
-            fermion += FermionicOp(somedata)
-
     **Iteration**
 
     Instances of ``FermionicOp`` are iterable. Iterating a ``FermionicOp`` yields (term, coefficient)

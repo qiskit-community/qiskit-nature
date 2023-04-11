@@ -320,7 +320,7 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
     def test_vqe_ucc_factory_with_reps(self):
         """Test when using the default initial point with repeated evolved operators."""
         ansatz = UCCSD(
-            qubit_converter=self.tapered_mapper,
+            qubit_mapper=self.tapered_mapper,
             num_particles=self.num_particles,
             num_spatial_orbitals=self.num_spatial_orbitals,
             reps=2,
@@ -345,7 +345,7 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
         initial_point = MP2InitialPoint()
 
         ansatz = UCCSD(
-            qubit_converter=self.tapered_mapper,
+            qubit_mapper=self.tapered_mapper,
             num_particles=self.num_particles,
             num_spatial_orbitals=self.num_spatial_orbitals,
             reps=2,
@@ -354,6 +354,7 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", category=DeprecationWarning)
             solver = VQEUCCFactory(Estimator(), ansatz, SLSQP(), initial_point=initial_point)
+
         calc = GroundStateEigensolver(self.tapered_mapper, solver)
         res = calc.solve(self.electronic_structure_problem)
 
