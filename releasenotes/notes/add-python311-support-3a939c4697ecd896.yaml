@@ -2,4 +2,4 @@
 upgrade:
   - |
     Added support for running with Python 3.11.
-    At the the time of the release, PySCF, Psi4, PyQuante2 and Sparse didn't have a python 3.11 version.
+    At the the time of the release, Psi4, PyQuante2 and Sparse didn't have a python 3.11 version.
