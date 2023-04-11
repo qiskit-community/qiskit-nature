@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    Fix support of ``BackendV2`` in the :class:`.VQEClient`. Previously, backends instantiated
+    with the ``IBMProvider`` failed since they return backends of type ``BackendV2``, which
+    were not correctly supported in the VQE client. Backends instantiated with the ``IBMQ``
+    provider continue to work as before.
