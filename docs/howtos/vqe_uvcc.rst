@@ -1,7 +1,7 @@
 .. _how-to-vqe-uvcc:
 
-How to use a UVCC-like ansatz with a ``VQE``
-============================================
+Use a UVCC-like ansatz with a VQE
+=================================
 
 When using a :class:`~qiskit_nature.second_q.circuit.library.UVCC`-style ansatz with a
 :class:`~qiskit.algorithms.minimum_eigensolvers.VQE` one needs to pay particular attention to the
