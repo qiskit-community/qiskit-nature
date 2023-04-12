@@ -7,7 +7,7 @@ All the factory classes which could be used to construct
 deprecated as part of version 0.6 of Qiskit Nature.
 
 Their benefit over an improved documentation on how to properly set these algorithms up for use with
-Qiskit Nature has diminished over time. Thus, you can now find proper **How-to guides** detailing
+Qiskit Nature has diminished over time. Thus, you can now find proper **How-to guides**, as listed below, detailing
 how you can achieve the same functionality which used to be provided by these classes. The table
 below summarizes where you need to look for the steps to replace a factory class:
 
