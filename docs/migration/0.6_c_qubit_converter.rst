@@ -8,8 +8,8 @@ directly. To support this, the mappers have been improved and now ship with more
 functionality out of the box.
 
 To keep this guide simple, we will focus on examples on how to replace specific use cases of the
-``QubitConverter``. For more details on the mappers we suggest you check out the
-`tutorial on qubit mappers <../tutorials/06_qubit_mappers.ipynb>`_.
+:class:`~qiskit_nature.second_q.mappers.QubitConverter`. For more details on the mappers we suggest
+you check out the `tutorial on qubit mappers <../tutorials/06_qubit_mappers.ipynb>`_.
 
 Setup
 -----
@@ -71,11 +71,11 @@ For the examples in this guide, we will always be using the following
 PauliSumOp vs. SparsePauliOp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-One more note: the ``qiskit.opflow`` module is going to be deprecated in the future. In order to
-transition from the :class:`~qiskit.opflow.PauliSumOp` class and its widespread use to the
-``qiskit.quantum_info`` module and its :class:`~qiskit.quantum_info.SparsePauliOp` class, you can
-now set the value of :attr:`qiskit_nature.settings.use_pauli_sum_op` to ``False``. This will become
-the default in a later release.
+One more note: the :mod:`qiskit.opflow` module is going to be deprecated in the future. In order to
+transition from the :class:`~qiskit.opflow.primitive_ops.PauliSumOp` class and its widespread use to the
+:mod:`qiskit.quantum_info` module and its :class:`~qiskit.quantum_info.SparsePauliOp` class, you can
+now set the value of :attr:`~qiskit_nature.settings.QiskitNatureSettings.use_pauli_sum_op` to
+``False``. This will become the default in a later release.
 
 To ensure that we can consistently rely on using the :class:`~qiskit.quantum_info.SparsePauliOp` in
 the following parts of this guide, we are applying this setting here:
@@ -88,18 +88,19 @@ the following parts of this guide, we are applying this setting here:
 
 As a consequence of this upcoming deprecation, Qiskit Nature now fully supports the use
 :class:`~qiskit.quantum_info.SparsePauliOp` instances in all places which previously allowed
-:class:`~qiskit.opflow.PauliSumOp` objects. In order to leverage this, it is **not** required to
-change the setting above. Thus, it is recommended that you switch to using
+:class:`~qiskit.opflow.primitive_ops.PauliSumOp` objects. In order to leverage this, it is **not**
+required to change the setting above. Thus, it is recommended that you switch to using
 :class:`~qiskit.quantum_info.SparsePauliOp`.
 
-For more in-depth information about the ``qiskit.opflow`` deprecation please refer to its
+For more in-depth information about the :mod:`qiskit.opflow` deprecation please refer to its
 `migration guide`_.
 
 Simplest cases
 --------------
 
 In the simplest cases, all you did was pass a :class:`~qiskit_nature.second_q.mappers.QubitMapper`
-object into the ``QubitConverter``. For example, somewhat like this:
+object into the :class:`~qiskit_nature.second_q.mappers.QubitConverter`. For example, somewhat like
+this:
 
 .. testcode::
 
@@ -179,9 +180,10 @@ The ParityMapper
 ----------------
 
 However, when you were using the :class:`~qiskit_nature.second_q.mappers.ParityMapper`, you were
-able to use the ``two_qubit_reduction=True`` option of the ``QubitConverter``. This ability, which
-has always been unique to the ``ParityMapper``, is now directly built into said mapper. So if you
-were doing something along these lines:
+able to use the ``two_qubit_reduction=True`` option of the
+:class:`~qiskit_nature.second_q.mappers.QubitConverter`. This ability, which has always been unique
+to the :class:`~qiskit_nature.second_q.mappers.ParityMapper`, is now directly built into said
+mapper. So if you were doing something along these lines:
 
 .. testcode::
 
@@ -224,10 +226,12 @@ The equivalent code now looks like the following:
 Z2Symmetries
 ------------
 
-Finally, the ``QubitConverter`` class also supported further reduction of qubit resources by
-exploiting :class:`~qiskit.opflow.Z2Symmetries`. Although we did extend the deprecated class to also
-support the updated implementation in :class:`~qiskit.quantum_info.analysis.Z2Symmetries`, you
-should now use the new :class:`~qiskit_nature.second_q.mappers.TaperedQubitMapper` instead.
+Finally, the :class:`~qiskit_nature.second_q.mappers.QubitConverter` class also supported further
+reduction of qubit resources by exploiting the :class:`~qiskit.opflow.primitive_ops.Z2Symmetries`
+implemented in the :mod:`qiskit.opflow` module. Although we did extend the deprecated class to also
+support the updated implementation in the :mod:`qiskit.quantum_info` module (which has the same
+name: :class:`~qiskit.quantum_info.analysis.z2_symmetries.Z2Symmetries`), you should now use the new
+:class:`~qiskit_nature.second_q.mappers.TaperedQubitMapper` instead.
 
 In the past, you would have enabled this like so:
 
@@ -277,10 +281,10 @@ original mapper which you would like to wrap:
     +0.18093120 * X
     -0.79587485 * Z
 
-If you were not using the automatic ``Z2Symmetries`` detection but instead provided a custom
-symmetry sector, you can construct your :class:`~qiskit_nature.second_q.mappers.TaperedQubitMapper`
-instance directly. Be sure to check out its documentation for more details.
+If you were not using the automatic symmetry detection but instead provided a custom symmetry
+sector, you can construct your :class:`~qiskit_nature.second_q.mappers.TaperedQubitMapper` instance
+directly. Be sure to check out its documentation for more details.
 
-.. _opflow migration guide: http://qisk.it/opflow_migration
+.. _migration guide: http://qisk.it/opflow_migration
 
 .. vim: set tw=100:
