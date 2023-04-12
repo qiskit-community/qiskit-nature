@@ -68,6 +68,33 @@ For the examples in this guide, we will always be using the following
     +0.34928686 * '+_3 +_3 -_3 -_3'
     -0.47189601 * '+_3 -_3'
 
+PauliSumOp vs. SparsePauliOp
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+One more note: the ``qiskit.opflow`` module is going to be deprecated in the future. In order to
+transition from the :class:`~qiskit.opflow.PauliSumOp` class and its widespread use to the
+``qiskit.quantum_info`` module and its :class:`~qiskit.quantum_info.SparsePauliOp` class, you can
+now set the value of :attr:`qiskit_nature.settings.use_pauli_sum_op` to ``False``. This will become
+the default in a later release.
+
+To ensure that we can consistently rely on using the :class:`~qiskit.quantum_info.SparsePauliOp` in
+the following parts of this guide, we are applying this setting here:
+
+.. testcode::
+
+   from qiskit_nature import settings
+
+   settings.use_pauli_sum_op = False
+
+As a consequence of this upcoming deprecation, Qiskit Nature now fully supports the use
+:class:`~qiskit.quantum_info.SparsePauliOp` instances in all places which previously allowed
+:class:`~qiskit.opflow.PauliSumOp` objects. In order to leverage this, it is **not** required to
+change the setting above. Thus, it is recommended that you switch to using
+:class:`~qiskit.quantum_info.SparsePauliOp`.
+
+For more in-depth information about the ``qiskit.opflow`` deprecation please refer to its
+`migration guide`_.
+
 Simplest cases
 --------------
 
@@ -91,7 +118,7 @@ so:
 
    qubit_op = converter.convert(hamiltonian)
 
-   for pauli, coeff in sorted(qubit_op.primitive.label_iter()):
+   for pauli, coeff in sorted(qubit_op.label_iter()):
        print(f"{coeff.real:+.8f} * {pauli}")
 
 .. testoutput::
@@ -118,7 +145,7 @@ You should now directly use the ``mapper`` again, but its method is called ``.ma
 
    qubit_op = mapper.map(hamiltonian)
 
-   for pauli, coeff in sorted(qubit_op.primitive.label_iter()):
+   for pauli, coeff in sorted(qubit_op.label_iter()):
        print(f"{coeff.real:+.8f} * {pauli}")
 
 .. testoutput::
@@ -164,7 +191,7 @@ were doing something along these lines:
 
    reduced_op = converter.convert(hamiltonian, num_particles=problem.num_particles)
 
-   for pauli, coeff in sorted(reduced_op.primitive.label_iter()):
+   for pauli, coeff in sorted(reduced_op.label_iter()):
        print(f"{coeff.real:+.8f} * {pauli}")
 
 .. testoutput::
@@ -183,7 +210,7 @@ The equivalent code now looks like the following:
 
    reduced_op = mapper.map(hamiltonian)
 
-   for pauli, coeff in sorted(reduced_op.primitive.label_iter()):
+   for pauli, coeff in sorted(reduced_op.label_iter()):
        print(f"{coeff.real:+.8f} * {pauli}")
 
 .. testoutput::
@@ -222,7 +249,7 @@ the :class:`~qiskit_nature.second_q.problems.ElectronicStructureProblem`. Below 
        sector_locator=problem.symmetry_sector_locator,
    )
 
-   for pauli, coeff in sorted(tapered_op.primitive.label_iter()):
+   for pauli, coeff in sorted(tapered_op.label_iter()):
        print(f"{coeff.real:+.8f} * {pauli}")
 
 .. testoutput::
@@ -241,7 +268,7 @@ original mapper which you would like to wrap:
 
    tapered_op = tapered_mapper.map(hamiltonian)
 
-   for pauli, coeff in sorted(tapered_op.primitive.label_iter()):
+   for pauli, coeff in sorted(tapered_op.label_iter()):
        print(f"{coeff.real:+.8f} * {pauli}")
 
 .. testoutput::
@@ -253,15 +280,6 @@ original mapper which you would like to wrap:
 If you were not using the automatic ``Z2Symmetries`` detection but instead provided a custom
 symmetry sector, you can construct your :class:`~qiskit_nature.second_q.mappers.TaperedQubitMapper`
 instance directly. Be sure to check out its documentation for more details.
-
-PauliSumOp vs. SparsePauliOp
-----------------------------
-
-A final word of advice: the ``qiskit.opflow`` module is going to be deprecated in the future. In
-order to transition from the :class:`~qiskit.opflow.PauliSumOp` class and its widespread use to the
-``qiskit.quantum_info`` module and its :class:`~qiskit.quantum_info.SparsePauliOp` class, you can
-now set the value of :attr:`qiskit_nature.settings.use_pauli_sum_op` to ``False``. This will become
-the default in a later release. For more information please refer to the `opflow migration guide`_.
 
 .. _opflow migration guide: http://qisk.it/opflow_migration
 
