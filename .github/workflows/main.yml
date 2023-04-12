@@ -181,7 +181,7 @@ jobs:
         with:
           os: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
-        if: ${{ matrix.python-version != '3.11' && (matrix.os != 'windows-2019' || (matrix.os == 'windows-2019' && matrix.python-version != '3.10')) }}
+        if: ${{ matrix.python-version != '3.11' && (matrix.os != 'windows-2019' || (matrix.os == 'windows-2019' && matrix.python-version != '3.11')) }}
       - name: Install PyQuante2
         run: |
           source "$CONDA/etc/profile.d/conda.sh"
@@ -260,7 +260,7 @@ jobs:
           source "$CONDA/etc/profile.d/conda.sh"
           conda activate psi4env
           pip uninstall -y matplotlib pyscf sparse opt_einsum
-          if [[ "${{ matrix.python-version }}" != "3.11" && ("${{ matrix.os }}" != "windows-2019" || ("${{ matrix.os }}" == "windows-2019" && "${{ matrix.python-version }}" != "3.10")) ]]; then
+          if [[ "${{ matrix.python-version }}" != "3.11" && ("${{ matrix.os }}" != "windows-2019" || ("${{ matrix.os }}" == "windows-2019" && "${{ matrix.python-version }}" != "3.11")) ]]; then
               echo 'Uninstall psi4'
               conda remove -y --force psi4
           fi
