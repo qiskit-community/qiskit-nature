@@ -16,6 +16,7 @@ from test import QiskitNatureDeprecatedTestCase
 from test.runtime.fake_vqeruntime import FakeRuntimeProvider
 
 import unittest
+import warnings
 from ddt import ddt, data
 import numpy as np
 from qiskit.providers.basicaer import QasmSimulatorPy
@@ -45,13 +46,15 @@ class TestVQEClient(QiskitNatureDeprecatedTestCase):
         provider = FakeRuntimeProvider()
         vqe_cls = VQEClient
 
-        vqe = vqe_cls(
-            ansatz=circuit,
-            optimizer=SPSA(),
-            initial_point=initial_point,
-            backend=backend,
-            provider=provider,
-        )
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            vqe = vqe_cls(
+                ansatz=circuit,
+                optimizer=SPSA(),
+                initial_point=initial_point,
+                backend=backend,
+                provider=provider,
+            )
 
         return vqe, operator
 
@@ -60,7 +63,10 @@ class TestVQEClient(QiskitNatureDeprecatedTestCase):
         """Test a standard use case."""
         vqe, operator = self.get_standard_program()
         vqe.optimizer = optimizer
-        result = vqe.compute_minimum_eigenvalue(operator)
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            result = vqe.compute_minimum_eigenvalue(operator)
 
         self.assertIsInstance(result, VQEResult)
         self.assertIsInstance(result, VQERuntimeResult)
@@ -91,8 +97,10 @@ class TestVQEClient(QiskitNatureDeprecatedTestCase):
         initial_point = np.array([0])
         optimizer = SPSA(maxiter=1, perturbation=0.1, learning_rate=0.1)
 
-        vqe = VQEClient(circuit, optimizer, initial_point, provider, backend)
-        result = vqe.compute_minimum_eigenvalue(operator)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            vqe = VQEClient(circuit, optimizer, initial_point, provider, backend)
+            result = vqe.compute_minimum_eigenvalue(operator)
 
         self.assertIsInstance(result, VQERuntimeResult)
 

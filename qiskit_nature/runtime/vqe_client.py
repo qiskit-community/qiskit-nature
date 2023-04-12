@@ -30,13 +30,15 @@ from qiskit.algorithms import (
 from qiskit.algorithms.optimizers import Optimizer, SPSA
 from qiskit.opflow import OperatorBase, PauliSumOp
 from qiskit.quantum_info import SparsePauliOp
+
 from qiskit_nature import ListOrDictType
+from qiskit_nature.deprecation import warn_deprecated, DeprecatedType
 
 from ..converters.second_quantization.utils import ListOrDict
 
 
 class VQEClient(VariationalAlgorithm, MinimumEigensolver):
-    """The Qiskit Nature VQE Runtime Client.
+    """DEPRECATED The Qiskit Nature VQE Runtime Client.
 
     This class is a client to call the VQE program in Qiskit Runtime."""
 
@@ -74,6 +76,16 @@ class VQEClient(VariationalAlgorithm, MinimumEigensolver):
             store_intermediate: Whether or not to store intermediate values of the optimization
                 steps. Per default False.
         """
+        warn_deprecated(
+            "0.6.0",
+            DeprecatedType.CLASS,
+            "VQEClient",
+            additional_msg=(
+                ". Instead you should update your code to use the Qiskit Runtime Primitives. For "
+                "more details on how to migrate check out this guide, here: "
+                "https://qisk.it/algo_migration"
+            ),
+        )
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             super().__init__()
@@ -338,13 +350,14 @@ class VQEClient(VariationalAlgorithm, MinimumEigensolver):
 
 
 class VQERuntimeResult(VQEResult):
-    """The VQEClient result object.
+    """DEPRECATED The VQEClient result object.
 
     This result objects contains the same as the VQEResult and additionally the history
     of the optimizer, containing information such as the function and parameter values per step.
     """
 
     def __init__(self) -> None:
+        warn_deprecated("0.6.0", DeprecatedType.CLASS, "VQERuntimeResult")
         super().__init__()
         self._job_id = None  # type: str
         self._optimizer_history = None  # type: Dict[str, Any]
