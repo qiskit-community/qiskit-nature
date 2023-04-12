@@ -22,7 +22,7 @@ See :ref:`optional_installs` for more information.
 
     .. tab-item:: Start locally
 
-        The simplest way to get started is to follow the `getting started 'Start locally' guide for 
+        The simplest way to get started is to follow the `getting started 'Start locally' guide for
         Qiskit <https://qiskit.org/documentation/getting_started.html>`__
 
         In your virtual environment where you installed Qiskit simply add ``nature`` to the
@@ -109,6 +109,129 @@ and how to install the dependent library/program that it requires.
 
 Ready to get going?...
 ======================
+
+Now that Qiskit Nature is installed, let's try a chemistry application experiment
+using the :class:`~qiskit.algorithms.minimum_eigensolvers.VQE` (Variational
+Quantum Eigensolver) algorithm to compute the ground-state (minimum) energy of a
+molecule.
+
+.. testcode::
+
+   from qiskit_nature.units import DistanceUnit
+   from qiskit_nature.second_q.drivers import PySCFDriver
+
+   # Use PySCF, a classical computational chemistry software
+   # package, to compute the one-body and two-body integrals in
+   # electronic-orbital basis, necessary to form the Fermionic operator
+   driver = PySCFDriver(
+       atom='H .0 .0 .0; H .0 .0 0.735',
+       unit=DistanceUnit.ANGSTROM,
+       basis='sto3g',
+   )
+   problem = driver.run()
+
+   # setup the qubit mapper
+   from qiskit_nature.second_q.mappers import ParityMapper
+
+   mapper = ParityMapper(num_particles=problem.num_particles)
+
+   # setup the classical optimizer for the VQE
+   from qiskit.algorithms.optimizers import L_BFGS_B
+
+   optimizer = L_BFGS_B()
+
+   # setup the estimator primitive for the VQE
+   from qiskit.primitives import Estimator
+
+   estimator = Estimator()
+
+   # setup the ansatz for VQE
+   from qiskit_nature.second_q.circuit.library import HartreeFock, UCCSD
+
+   ansatz = UCCSD(
+       problem.num_spatial_orbitals,
+       problem.num_particles,
+       mapper,
+       initial_state=HartreeFock(
+           problem.num_spatial_orbitals,
+           problem.num_particles,
+           mapper,
+       ),
+   )
+
+   # set up our actual VQE instance
+   from qiskit.algorithms.minimum_eigensolvers import VQE
+
+   vqe = VQE(estimator, ansatz, optimizer)
+   # ensure that the optimizer starts in the all-zero state which corresponds to
+   # the Hartree-Fock starting point
+   vqe.initial_point = [0] * ansatz.num_parameters
+
+   # prepare the ground-state solver and run it
+   from qiskit_nature.second_q.algorithms import GroundStateEigensolver
+
+   algorithm = GroundStateEigensolver(mapper, vqe)
+
+   electronic_structure_result = algorithm.solve(problem)
+   electronic_structure_result.formatting_precision = 6
+   print(electronic_structure_result)
+
+.. testoutput::
+   :options: +NORMALIZE_WHITESPACE
+
+    === GROUND STATE ENERGY ===
+
+    * Electronic ground state energy (Hartree): -1.857275
+      - computed part:      -1.857275
+    ~ Nuclear repulsion energy (Hartree): 0.719969
+    > Total ground state energy (Hartree): -1.137306
+
+    === MEASURED OBSERVABLES ===
+
+      0:  # Particles: 2.000 S: 0.000 S^2: 0.000 M: 0.000
+
+    === DIPOLE MOMENTS ===
+
+    ~ Nuclear dipole moment (a.u.): [0.0  0.0  1.388949]
+
+      0:
+      * Electronic dipole moment (a.u.): [0.0  0.0  1.388949]
+        - computed part:      [0.0  0.0  1.388949]
+      > Dipole moment (a.u.): [0.0  0.0  0.0]  Total: 0.0
+                     (debye): [0.0  0.0  0.0]  Total: 0.0
+
+The program above computes the ground state energy of molecular Hydrogen,
+H<sub>2</sub>, where the two atoms are configured to be at a distance of 0.735
+angstroms. The molecular input specification is processed by the PySCF driver.
+This driver produces an
+:class:`~qiskit_nature.second_q.problems.ElectronicStructureProblem` which
+gathers all the problem information required by Qiskit Nature.
+The second-quantized operators contained in that problem can be mapped to qubit
+operators with a :class:`~qiskit_nature.second_q.mappers.QubitMapper`. Here, we
+chose the :class:`~qiskit_nature.second_q.mappers.ParityMapper` which
+automatically removes 2 qubits due to inherit symmetries when the `num_particles`
+are provided to it; a reduction in complexity that is particularly advantageous
+for NISQ computers.
+
+For actually finding the ground state solution, the Variational Quantum
+Eigensolver (:class:`~qiskit.algorithms.minimum_eigensolvers.VQE`) algorithm is
+used. Its main three components are the estimator primitive
+(:class:`~qiskit.primitives.Estimator`), wavefunction ansatz
+(:class:`~qiskit_nature.second_q.circuit.library.UCCSD`), and optimizer
+(:class:`~qiskit.algorithms.optimiziers.L_BFGS_B`).
+The :class:`~qiskit_nature.second_q.circuit.library.UCCSD` component is the only
+one provided directly by Qiskit Nature and it is usually paired with the
+:class:`~qiskit_nature.second_q.circuit.library.HartreeFock` initial state and
+an all-zero initial point for the optimizer.
+
+The entire problem is then solved using a
+:class:`~qiskit_nature.second_q.algorithms.GroundStateEigensolver` which wraps
+both, the :class:`~qiskit_nature.second_q.mappers.ParityMapper` and
+:class:`~qiskit.algorithms.minimum_eigensolvers.VQE`. Since an
+:class:`~qiskit_nature.second_q.problems.ElectronicStructureProblem` is provided
+to it (which was the output of the
+:class:`~qiskit_nature.second_q.drivers.PySCFDriver`) it also returns an
+:class:`~qiskit_nature.second_q.problems.ElectronicStructureResult`.
 
 .. raw:: html
 
