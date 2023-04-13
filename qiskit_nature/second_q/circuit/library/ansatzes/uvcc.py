@@ -332,7 +332,7 @@ class UVCC(EvolvedOperatorAnsatz):
         excitations = []
         for gen in generators:
             excitations.extend(
-                gen(
+                gen(  # pylint: disable=not-callable
                     num_modals=self.num_modals,
                 )
             )

@@ -32,7 +32,7 @@ from qiskit.quantum_info.operators.mixins import (
 from .polynomial_tensor import PolynomialTensor
 
 
-_TCoeff = Union[complex, ParameterExpression]
+_TCoeff = Union[complex, ParameterExpression]  # pylint: disable=invalid-name
 
 
 def _to_number(a: _TCoeff) -> complex:

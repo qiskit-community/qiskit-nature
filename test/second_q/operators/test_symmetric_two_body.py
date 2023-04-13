@@ -84,21 +84,21 @@ class TestSymmetricIntegrals(QiskitNatureTestCase):
         """Test the ``unfold`` method."""
         ints = getattr(self, ints_name)
         unfolded = unfold(ints)
-        if unfolded.is_sparse():
+        if not unfolded.is_dense():
             unfolded = unfolded.to_dense()
         np.testing.assert_allclose(self.eri1, unfolded)
 
     def test_unfold_s4_to_s1(self):
         """Test the ``unfold_s4_to_s1`` method."""
         unfolded = unfold_s4_to_s1(self.ints4)
-        if unfolded.is_sparse():
+        if not unfolded.is_dense():
             unfolded = unfolded.to_dense()
         np.testing.assert_allclose(self.eri1, unfolded)
 
     def test_unfold_s8_to_s1(self):
         """Test the ``unfold_s8_to_s1`` method."""
         unfolded = unfold_s8_to_s1(self.ints8)
-        if unfolded.is_sparse():
+        if not unfolded.is_dense():
             unfolded = unfolded.to_dense()
         np.testing.assert_allclose(self.eri1, unfolded)
 
