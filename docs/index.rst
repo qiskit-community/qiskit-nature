@@ -29,7 +29,7 @@ Next Steps
 
 `Getting started <getting_started.html>`_
 
-`Migration Guide <migration/index.html>`_
+`Migration Guides <migration/index.html>`_
 
 `Tutorials <tutorials/index.html>`_
 
@@ -40,7 +40,7 @@ Next Steps
 
     Overview <self>
     Getting Started <getting_started>
-    Migration Guide <migration/index>
+    Migration Guides <migration/index>
     Tutorials <tutorials/index>
     How-Tos <howtos/index>
     API Reference <apidocs/qiskit_nature>

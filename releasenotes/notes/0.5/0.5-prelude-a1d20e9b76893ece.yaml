@@ -21,7 +21,7 @@ prelude: >
       reduced_problem = transformer.transform(problem)
 
     Check out the `migration guide for electronic structure calculations
-    <https://qiskit.org/documentation/nature/migration/00b_Electronic_structure_with_0.5.ipynb>`_
+    <https://qiskit.org/documentation/nature/migration/0.5_c_electronic_structure.ipynb>`_
     for more details.
 
     Furthermore, as a general refactoring strategy the code was migrated from locations
@@ -35,7 +35,7 @@ features:
     Qiskit Terra 0.22 which in turn rely on the `Qiskit Primitives
     <https://qiskit.org/documentation/apidoc/primitives.html>`_ themselves.
     For more details check out the `migration guide for problem solving
-    <https://qiskit.org/documentation/nature/migration/00a_Solving_problems_with_0.5.ipynb>`_.
+    <https://qiskit.org/documentation/nature/migration/0.5_b_solving_problems.ipynb>`_.
   - |
     The refactoring of the electronic structure stack has enabled the development
     of third-party plugins allowing classical codes to call Qiskit Nature instead
@@ -78,14 +78,14 @@ features:
     a more accessible entry to Qiskit Nature for users who do not come from a
     classical chemistry computing background. Check out the
     `migration guide for electronic structure calculations
-    <https://qiskit.org/documentation/nature/migration/00b_Electronic_structure_with_0.5.ipynb>`_
+    <https://qiskit.org/documentation/nature/migration/0.5_c_electronic_structure.ipynb>`_
     to learn how to update your code to use the refactored drivers.
   - |
     The ``properties`` concept has been largely redesigned and is a lot more
     refined now. Instead of being a "catchall" for operator factories, the
     module has been cleanly separated into various components. Check out the
     corresponding section of the `migration guide for electronic structure calculations
-    <https://qiskit.org/documentation/nature/migration/00b_Electronic_structure_with_0.5.ipynb>`_
+    <https://qiskit.org/documentation/nature/migration/0.5_c_electronic_structure.ipynb>`_
     for more details.
   - |
     The vibrational structure stack has been refactored in-line with the changes
@@ -93,12 +93,12 @@ features:
     this stack also include corrections to the differentiation of real-space and
     second-quantized coefficients of the Watson hamiltonian. For more details,
     check out the `migration guide for vibrational structure calculations
-    <https://qiskit.org/documentation/nature/migration/00c_Vibrational_structure_with_0.5.ipynb>`_.
+    <https://qiskit.org/documentation/nature/migration/0.5_d_vibrational_structure.ipynb>`_.
   - |
     The ``lattices`` and related ``LatticeModel`` classes have undergone some API
     changes, particularly around the location of the utility methods for uniform
     lattice generation. For more details check out the `migration guide for lattice models
-    <https://qiskit.org/documentation/nature/migration/00d_Lattice_models_with_0.5.ipynb>`_.
+    <https://qiskit.org/documentation/nature/migration/0.5_e_lattice_models.ipynb>`_.
 deprecations:
   - |
     The protein folding stack has been migrated to `Qiskit Research

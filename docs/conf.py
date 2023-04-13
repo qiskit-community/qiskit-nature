@@ -108,11 +108,11 @@ nbsphinx_timeout = 360
 nbsphinx_execute = os.getenv("QISKIT_DOCS_BUILD_TUTORIALS", "never")
 nbsphinx_widgets_path = ""
 nbsphinx_thumbnails = {
-    "migration/00_Migration_Guide_to_v0.5": "_images/qiskit_nature_0.5_overview.png",
-    "migration/00b_Electronic_structure_with_v0.5": "_static/orbitals.png",
-    "migration/00c_Vibrational_structure_with_v0.5": "_static/co2_vibration.png",
-    "migration/00d_Lattice_models_with_v0.5": "_images/tutorials_10_lattice_models_18_0.png",
-    "migration/00e_Protein_folding_with_v0.5": "_static/lattice_protein.png",
+    "migration/0.5_a_intro": "_images/qiskit_nature_0.5_overview.png",
+    "migration/0.5_c_electronic_structure": "_static/orbitals.png",
+    "migration/0.5_d_vibrational_structure": "_static/co2_vibration.png",
+    "migration/0.5_e_lattice_models": "_images/tutorials_10_lattice_models_18_0.png",
+    "migration/0.5_f_protein_folding": "_static/lattice_protein.png",
     "tutorials/01_electronic_structure": "_static/orbitals.png",
     "tutorials/02_vibrational_structure": "_static/co2_vibration.png",
     "tutorials/03_ground_state_solvers": "_images/H2_gs.png",
