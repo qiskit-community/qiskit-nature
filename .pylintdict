@@ -147,6 +147,7 @@ eigen
 eigenfunctions
 eigensolution
 eigensolver
+eigensolverfactory
 eigensolvers
 eigenstate
 eigenstateresult
