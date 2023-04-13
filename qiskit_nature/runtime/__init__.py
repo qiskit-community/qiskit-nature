@@ -19,7 +19,7 @@ DEPRECATED Qiskit Nature Runtime (:mod:`qiskit_nature.runtime`)
 .. warning::
     This entire module is deprecated as of version 0.6.0 and will be removed no sooner than 3 months
     after the release. Instead you should update your code to use the Qiskit Runtime Primitives. For
-    more details on how to migrate check out this guide, here: https://qisk.it/algo_migration !
+    more details on how to migrate check out this guide, here: https://qisk.it/algo_migration#vqe !
 
 Programs that embed Qiskit Runtime in the algorithmic interfaces and facilitate usage of
 algorithms and scripts in the cloud.

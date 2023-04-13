@@ -81,9 +81,9 @@ class VQEClient(VariationalAlgorithm, MinimumEigensolver):
             DeprecatedType.CLASS,
             "VQEClient",
             additional_msg=(
-                ". Instead you should update your code to use the Qiskit Runtime Primitives. For "
-                "more details on how to migrate check out this guide, here: "
-                "https://qisk.it/algo_migration"
+                ". Instead you should use the new primitives based VQE with the Qiskit IBM Runtime "
+                "Estimator primitive. For more details on how to migrate check out this guide, "
+                "here: https://qisk.it/algo_migration#vqe"
             ),
         )
         with warnings.catch_warnings():
