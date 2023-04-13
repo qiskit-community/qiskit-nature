@@ -105,6 +105,11 @@ many, or as few as you wish, that are supported by your platform etc.
 See `Driver installation <./apidocs/qiskit_nature.second_q.drivers.html>`__ which lists each driver
 and how to install the dependent library/program that it requires.
 
+Additionally, you may find the following optional dependencies useful:
+
+- `sparse <https://github.com/pydata/sparse/>`_, a library for sparse multi-dimensional arrays. When installed, Qiskit Nature can leverage this to reduce the memory requirements of your calculations.
+- `opt_einsum <https://github.com/dgasmith/opt_einsum>`_, a tensor contraction order optimizer for ``np.einsum``.
+
 ----
 
 Ready to get going?...
