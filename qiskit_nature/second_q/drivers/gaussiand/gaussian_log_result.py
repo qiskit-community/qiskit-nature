@@ -35,6 +35,7 @@ else:
         Replacement if sparse.as_coo is not present.
         """
         del args
+        return 0
 
 
 logger = logging.getLogger(__name__)

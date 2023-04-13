@@ -287,7 +287,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
             solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP())
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
-
+        # pylint: disable=no-member
         np.testing.assert_array_equal(solver.initial_point.to_numpy_array(), [0.0, 0.0, 0.0])
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
@@ -314,7 +314,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
             solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP(), initial_point=initial_point)
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
-
+        # pylint: disable=no-member
         np.testing.assert_array_almost_equal(
             solver.initial_point.to_numpy_array(), self.mp2_initial_point
         )
@@ -335,7 +335,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
-
+        # pylint: disable=no-member
         np.testing.assert_array_almost_equal(
             solver.initial_point.to_numpy_array(), np.zeros(6, dtype=float)
         )
@@ -361,7 +361,7 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
-
+        # pylint: disable=no-member
         np.testing.assert_array_almost_equal(
             solver.initial_point.to_numpy_array(), np.tile(self.mp2_initial_point, 2)
         )
