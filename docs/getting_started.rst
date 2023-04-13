@@ -218,7 +218,7 @@ Eigensolver (:class:`~qiskit.algorithms.minimum_eigensolvers.VQE`) algorithm is
 used. Its main three components are the estimator primitive
 (:class:`~qiskit.primitives.Estimator`), wavefunction ansatz
 (:class:`~qiskit_nature.second_q.circuit.library.UCCSD`), and optimizer
-(:class:`~qiskit.algorithms.optimiziers.L_BFGS_B`).
+(:class:`~qiskit.algorithms.optimizers.L_BFGS_B`).
 The :class:`~qiskit_nature.second_q.circuit.library.UCCSD` component is the only
 one provided directly by Qiskit Nature and it is usually paired with the
 :class:`~qiskit_nature.second_q.circuit.library.HartreeFock` initial state and
