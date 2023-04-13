@@ -1,0 +1,161 @@
+The (Minimum)EigensolverFactory Migration Guide
+===============================================
+
+All the factory classes which could be used to construct
+:class:`~qiskit.algorithms.minimum_eigensolvers.MinimumEigensolver` or
+:class:`~qiskit.algorithms.eigensolvers.Eigensolver` objects have been
+deprecated as part of version 0.6 of Qiskit Nature.
+
+Their benefit over an improved documentation on how to properly set these algorithms up for use with
+Qiskit Nature has diminished over time. Thus, you can now find proper **How-to guides**, as listed
+below, detailing how you can achieve the same functionality which used to be provided by these
+classes. The table below summarizes where you need to look for the steps to replace a factory class:
+
+.. list-table:: (Minimum)EigensolverFactory Replacements
+   :header-rows: 1
+
+   * - Legacy class
+     - How-to guide
+   * - :class:`~qiskit_nature.second_q.algorithms.NumPyEigensolverFactory`
+     - :ref:`Finding excited state energies with a NumPyEigensolver <how-to-numpy>`
+   * - :class:`~qiskit_nature.second_q.algorithms.NumPyMinimumEigensolverFactory`
+     - :ref:`Finding the ground state energy with a NumPyMinimumEigensolver <how-to-numpy-min>`
+   * - :class:`~qiskit_nature.second_q.algorithms.VQEUCCFactory`
+     - :ref:`Using a UCC-like ansatz with a VQE <how-to-vqe-ucc>`
+   * - :class:`~qiskit_nature.second_q.algorithms.VQEUVCCFactory`
+     - :ref:`Using a UVCC-like ansatz with a VQE <how-to-vqe-uvcc>`
+
+To make the transition to these guides easier, we provide one example for the
+:class:`~qiskit_nature.second_q.algorithms.VQEUCCFactory` and one for the
+:class:`~qiskit_nature.second_q.algorithms.NumPyEigensolverFactory` below.
+
+Setup
+-----
+
+For the following examples, we need a simple
+:class:`~qiskit_nature.second_q.problems.ElectronicStructureProblem` which we can obtain from a
+:class:`~qiskit_nature.second_q.drivers.PySCFDriver` like so:
+
+.. testcode::
+
+   from qiskit_nature.second_q.drivers import PySCFDriver
+   from qiskit_nature.second_q.mappers import ParityMapper
+
+   driver = PySCFDriver(atom="H 0 0 0; H 0 0 0.735")
+   problem = driver.run()
+
+   hamiltonian = problem.hamiltonian.second_q_op()
+
+   mapper = ParityMapper(num_particles=problem.num_particles)
+
+   qubit_op = mapper.map(hamiltonian)
+   aux_ops = {}
+   aux_ops.update(mapper.map(problem.properties.particle_number.second_q_ops()))
+   aux_ops.update(mapper.map(problem.properties.angular_momentum.second_q_ops()))
+
+VQEUCCFactory
+-------------
+
+The old way:
+
+.. testcode::
+
+   from qiskit.algorithms.optimizers import SLSQP
+   from qiskit.primitives import Estimator
+   from qiskit_nature.second_q.circuit.library import UCCSD
+   from qiskit_nature.second_q.algorithms import VQEUCCFactory
+
+   solver_factory = VQEUCCFactory(Estimator(), UCCSD(), SLSQP())
+
+   solver = solver_factory.get_solver(problem, mapper)
+
+   result = solver.compute_minimum_eigenvalue(qubit_op, aux_ops)
+   print(f"Eigenvalue = {result.eigenvalue: .6f}")
+
+.. testoutput::
+
+    Eigenvalue = -1.857275
+
+And the corresponding new way:
+
+.. testcode::
+
+   from qiskit.algorithms.minimum_eigensolvers import VQE
+   from qiskit.algorithms.optimizers import SLSQP
+   from qiskit.primitives import Estimator
+   from qiskit_nature.second_q.circuit.library import HartreeFock, UCCSD
+   from qiskit_nature.second_q.algorithms.initial_points import HFInitialPoint
+
+   ansatz = UCCSD(
+       problem.num_spatial_orbitals,
+       problem.num_particles,
+       mapper,
+       initial_state=HartreeFock(
+           problem.num_spatial_orbitals,
+           problem.num_particles,
+           mapper,
+       ),
+   )
+
+   initial_point = HFInitialPoint()
+   initial_point.ansatz = ansatz
+   initial_point.problem = problem
+
+   solver = VQE(Estimator(), ansatz, SLSQP())
+   solver.initial_point = initial_point.to_numpy_array()
+
+   result = solver.compute_minimum_eigenvalue(qubit_op, aux_ops)
+   print(f"Eigenvalue = {result.eigenvalue: .6f}")
+
+.. testoutput::
+
+    Eigenvalue = -1.857275
+
+NumPyEigensolverFactory
+-----------------------
+
+The old way:
+
+.. testcode::
+
+   from qiskit_nature.second_q.algorithms import NumPyEigensolverFactory
+
+   solver_factory = NumPyEigensolverFactory(
+       k=10,
+       use_default_filter_criterion=True,
+   )
+
+   solver = solver_factory.get_solver(problem)
+
+   result = solver.compute_eigenvalues(qubit_op, aux_ops)
+
+   for idx, eigenvalue in enumerate(result.eigenvalues):
+       print(f"{idx}: {eigenvalue: .6f}")
+
+.. testoutput::
+
+    0: -1.857275
+    1: -0.882722
+    2: -0.224911
+
+And the corresponding new way:
+
+.. testcode::
+
+   from qiskit.algorithms.eigensolvers import NumPyEigensolver
+
+   solver = NumPyEigensolver(k=10)
+   solver.filter_criterion = problem.get_default_filter_criterion()
+
+   result = solver.compute_eigenvalues(qubit_op, aux_ops)
+
+   for idx, eigenvalue in enumerate(result.eigenvalues):
+       print(f"{idx}: {eigenvalue: .6f}")
+
+.. testoutput::
+
+    0: -1.857275
+    1: -0.882722
+    2: -0.224911
+
+.. vim: set tw=100:

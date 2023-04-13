@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -15,7 +15,7 @@ Eigensolver Factories
 (:mod:`qiskit_nature.second_q.algorithms.excited_states_solvers.eigensolver_factories`)
 =======================================================================================
 
-Factories that create an eigensolver based on a qubit transformation.
+DEPRECATED Factories that create an eigensolver based on a qubit transformation.
 
 .. currentmodule:: qiskit_nature.second_q.algorithms.excited_states_solvers.eigensolver_factories
 
