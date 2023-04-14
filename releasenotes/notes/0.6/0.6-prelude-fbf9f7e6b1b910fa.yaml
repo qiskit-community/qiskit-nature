@@ -1,0 +1,35 @@
+---
+prelude: >
+    Qiskit Nature 0.6 focuses on refactoring of the :mod:`~qiskit_nature.second_q.mappers`
+    module. To that extent, the :class:`~qiskit_nature.second_q.mappers.QubitConverter`
+    class has been deprecated in favor of using the various subclasses of
+    :class:`~qiskit_nature.second_q.mappers.QubitMapper` directly.
+    As a short example, while you were doing something similar to this until now:
+
+
+    .. code-block:: python
+
+      solver = GroundStateEigensolver(
+          QubitConverter(ParityMapper(), two_qubit_reduction=True),
+          VQE(...),
+      )
+      result = solver.solve(problem)
+
+    you now simply do the following instead:
+
+
+    .. code-block:: python
+
+      solver = GroundStateEigensolver(
+          ParityMapper(num_particles=problem.num_particles),
+          VQE(...),
+      )
+      result = solver.solve(problem)
+
+    Check out the `migration guide for the QubitConverter
+    <https://qiskit.org/documentation/nature/migration/0.6_c_qubit_converter.rst>`_
+    for more details.
+
+    Besides this major refactoring, a few other changes have been done, so be sure
+    to check out the `migration guide from 0.5 to 0.6
+    <https://qiskit.org/documentation/nature/migration/index.html#migrating-from-0-5-to-0-6>`_.
