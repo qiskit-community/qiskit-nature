@@ -85,8 +85,10 @@ Qiskit Nature was inspired, authored and brought about by the collective work of
 Qiskit Nature continues to grow with the help and work of
 [many people](https://github.com/Qiskit/qiskit-nature/graphs/contributors), who contribute
 to the project at different levels.
-If you use Qiskit, please cite as per the provided
-[BibTeX file](https://github.com/Qiskit/qiskit/blob/master/Qiskit.bib).
+If you use Qiskit Nature, please cite the following references:
+
+- Qiskit, as per the provided [BibTeX file](https://github.com/Qiskit/qiskit/blob/master/Qiskit.bib).
+- Qiskit Nature, as per https://doi.org/10.5281/zenodo.7828767
 
 Please note that if you do not like the way your name is cited in the BibTex file then consult
 the information found in the [.mailmap](https://github.com/Qiskit/qiskit-nature/blob/main/.mailmap)
