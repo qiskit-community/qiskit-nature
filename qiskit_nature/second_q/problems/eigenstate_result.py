@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -46,6 +46,8 @@ class EigenstateResult(AlgorithmResult):
             belonging to each of the computed eigenvalues.
         aux_operators_evaluated (list[ListOrDict[complex]] | None): the evaluated aux operators.
         raw_result (AlgorithmResult | None): the raw result, wrapped by this ``EigenstateResult``.
+        formatting_precision (int): the number of decimal places to use when formatting the result
+            for printing.
     """
 
     def __init__(self) -> None:
@@ -54,6 +56,7 @@ class EigenstateResult(AlgorithmResult):
         self.eigenstates: list[tuple[QuantumCircuit, Sequence[float] | None]] | None = None
         self.aux_operators_evaluated: list[ListOrDict[complex]] | None = None
         self.raw_result: AlgorithmResult | None = None
+        self.formatting_precision: int = 12
 
     @property
     def groundenergy(self) -> float | None:

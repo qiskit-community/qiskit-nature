@@ -248,16 +248,17 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
             solver = NumPyMinimumEigensolverFactory()
         calc = GroundStateEigensolver(self.tapered_mapper, solver)
         res = calc.solve(self.electronic_structure_problem)
+        res.formatting_precision = 6
         with contextlib.redirect_stdout(io.StringIO()) as out:
             print(res)
         # do NOT change the below! Lines have been truncated as to not force exact numerical matches
         expected = """\
             === GROUND STATE ENERGY ===
 
-            * Electronic ground state energy (Hartree): -1.857
-              - computed part:      -1.857
-            ~ Nuclear repulsion energy (Hartree): 0.719
-            > Total ground state energy (Hartree): -1.137
+            * Electronic ground state energy (Hartree): -1.857275
+              - computed part:      -1.857275
+            ~ Nuclear repulsion energy (Hartree): 0.719969
+            > Total ground state energy (Hartree): -1.137306
 
             === MEASURED OBSERVABLES ===
 
@@ -265,13 +266,13 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
 
             === DIPOLE MOMENTS ===
 
-            ~ Nuclear dipole moment (a.u.): [0.0  0.0  1.38
+            ~ Nuclear dipole moment (a.u.): [0.0  0.0  1.388949]
 
               0:
-              * Electronic dipole moment (a.u.): [0.0  0.0  1.38
-                - computed part:      [0.0  0.0  1.38
-              > Dipole moment (a.u.): [0.0  0.0  0.0]  Total: 0.
-                             (debye): [0.0  0.0  0.0]  Total: 0.
+              * Electronic dipole moment (a.u.): [0.0  0.0  1.388949]
+                - computed part:      [0.0  0.0  1.388949]
+              > Dipole moment (a.u.): [0.0  0.0  0.0]  Total: 0.0
+                             (debye): [0.0  0.0  0.0]  Total: 0.0
         """
         for truth, expected in zip(out.getvalue().split("\n"), expected.split("\n")):
             assert truth.strip().startswith(expected.strip())
