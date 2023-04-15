@@ -249,17 +249,18 @@ def modified_cholesky(
 def double_factorized(
     two_body_tensor: np.ndarray, *, error_threshold: float = 1e-8, max_vecs: int | None = None
 ) -> tuple[np.ndarray, np.ndarray]:
-    r"""Double factorized decomposition of a two-body tensor.
+    r"""Double-factorized decomposition of a two-body tensor.
 
-    The double factorized decomposition is a representation of a two-body tensor
+    The double-factorized decomposition is a representation of a two-body tensor
     :math:`h_{pqrs}` as
 
     .. math::
         h_{pqrs} = \sum_{t=1}^N \sum_{k\ell} U^{t}_{pk} U^{t}_{qk}
             Z^{t}_{k\ell} U^{t}_{r\ell} U^{t}_{s\ell}
 
-    Here each :math:`U^{t}` is a unitary matrix, referred to as a "leaf tensor,"
-    and each :math:`Z^{(t)}` is a real symmetric matrix, referred to as a "core tensor."
+    Here each :math:`Z^{(t)}` is a real symmetric matrix, referred to as a
+    "diagonal Coulomb matrix," and each :math:`U^{t}` is a unitary matrix, referred to
+    as an "orbital rotation."
 
     The number of terms :math:`N` in the decomposition depends on the allowed
     error threshold. A larger error threshold may yield a smaller number of terms.
@@ -267,16 +268,6 @@ def double_factorized(
     on :math:`N`. The ``max_vecs`` parameter is always respected, so if it is
     too small, then the error of the decomposition may exceed the specified
     error threshold.
-
-    .. note::
-        The two-body tensor is assumed to be in "chemist" ordering. This can be
-        assured by calling :func:`~.to_chemist_ordering` on it before passing it in.
-
-    .. note::
-        The two-body tensor is assumed to satisfy certain constraints, namely, that
-        when it is reshaped into a square matrix, the resulting matrix is positive definite.
-        No checking is performed to verify whether this is the case. If it is not the case,
-        then the decomposition returned will be invalid.
 
     References:
         - `arXiv:1808.02625`_
@@ -292,11 +283,11 @@ def double_factorized(
             of the two-body tensor.
 
     Returns:
-        The core tensors and the leaf tensors. Each list of tensors is collected into
-        a numpy array, so this method returns a tuple of two numpy arrays,
-        the first containing the core tensors and the second containing the leaf tensors.
-        Each numpy array will have shape (t, n, n) where t is the rank of the
-        decomposition and n is the number of orbitals.
+        The diagonal Coulomb matrices and the orbital rotations. Each list of matrices
+        is collected into a numpy array, so this method returns a tuple of two numpy
+        arrays, the first containing the diagonal Coulomb matrices and the second
+        containing the orbital rotations. Each numpy array will have shape (t, n, n)
+        where t is the rank of the decomposition and n is the number of orbitals.
 
     .. _arXiv:1808.02625: https://arxiv.org/abs/1808.02625
     .. _arXiv:2104.08957: https://arxiv.org/abs/2104.08957
@@ -312,12 +303,12 @@ def double_factorized(
     )
 
     _, rank = cholesky_vecs.shape
-    core_tensors = np.zeros((rank, n_modes, n_modes))
-    leaf_tensors = np.zeros((rank, n_modes, n_modes))
+    diag_coulomb_mats = np.zeros((rank, n_modes, n_modes), dtype=two_body_tensor.dtype)
+    orbital_rotations = np.zeros((rank, n_modes, n_modes), dtype=two_body_tensor.dtype)
     for i in range(rank):
         mat = np.reshape(cholesky_vecs[:, i], (n_modes, n_modes))
         eigs, vecs = np.linalg.eigh(mat)
-        core_tensors[i] = np.outer(eigs, eigs)
-        leaf_tensors[i] = vecs
+        diag_coulomb_mats[i] = np.outer(eigs, eigs.conj())
+        orbital_rotations[i] = vecs
 
-    return core_tensors, leaf_tensors
+    return diag_coulomb_mats, orbital_rotations

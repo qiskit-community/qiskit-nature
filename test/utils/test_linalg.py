@@ -64,14 +64,14 @@ class TestLowRankTwoBodyDecomposition(QiskitNatureTestCase):
     def test_double_factorized_random(self, dim: int):
         """Test low rank two-body decomposition on a random tensor."""
         two_body_tensor = random_two_body_tensor_real(dim, seed=25257)
-        core_tensors, leaf_tensors = double_factorized(two_body_tensor)
+        diag_coulomb_mats, orbital_rotations = double_factorized(two_body_tensor)
         reconstructed = np.einsum(
             "tpk,tqk,tkl,trl,tsl->pqrs",
-            leaf_tensors,
-            leaf_tensors,
-            core_tensors,
-            leaf_tensors,
-            leaf_tensors,
+            orbital_rotations,
+            orbital_rotations,
+            diag_coulomb_mats,
+            orbital_rotations,
+            orbital_rotations,
         )
         np.testing.assert_allclose(reconstructed, two_body_tensor, atol=1e-8)
 
@@ -85,45 +85,47 @@ class TestLowRankTwoBodyDecomposition(QiskitNatureTestCase):
 
         with self.subTest("max rank"):
             max_vecs = 20
-            core_tensors, leaf_tensors = double_factorized(two_body_tensor, max_vecs=max_vecs)
+            diag_coulomb_mats, orbital_rotations = double_factorized(
+                two_body_tensor, max_vecs=max_vecs
+            )
             reconstructed = np.einsum(
                 "tpk,tqk,tkl,trl,tsl->pqrs",
-                leaf_tensors,
-                leaf_tensors,
-                core_tensors,
-                leaf_tensors,
-                leaf_tensors,
+                orbital_rotations,
+                orbital_rotations,
+                diag_coulomb_mats,
+                orbital_rotations,
+                orbital_rotations,
             )
-            self.assertEqual(len(leaf_tensors), max_vecs)
+            self.assertEqual(len(orbital_rotations), max_vecs)
             np.testing.assert_allclose(reconstructed, two_body_tensor, atol=1e-5)
 
         with self.subTest("error threshold"):
             error_threshold = 1e-4
-            core_tensors, leaf_tensors = double_factorized(
+            diag_coulomb_mats, orbital_rotations = double_factorized(
                 two_body_tensor, error_threshold=error_threshold
             )
             reconstructed = np.einsum(
                 "tpk,tqk,tkl,trl,tsl->pqrs",
-                leaf_tensors,
-                leaf_tensors,
-                core_tensors,
-                leaf_tensors,
-                leaf_tensors,
+                orbital_rotations,
+                orbital_rotations,
+                diag_coulomb_mats,
+                orbital_rotations,
+                orbital_rotations,
             )
-            self.assertLessEqual(len(leaf_tensors), 18)
+            self.assertLessEqual(len(orbital_rotations), 18)
             np.testing.assert_allclose(reconstructed, two_body_tensor, atol=error_threshold)
 
         with self.subTest("error threshold and max rank"):
-            core_tensors, leaf_tensors = double_factorized(
+            diag_coulomb_mats, orbital_rotations = double_factorized(
                 two_body_tensor, error_threshold=error_threshold, max_vecs=max_vecs
             )
             reconstructed = np.einsum(
                 "tpk,tqk,tkl,trl,tsl->pqrs",
-                leaf_tensors,
-                leaf_tensors,
-                core_tensors,
-                leaf_tensors,
-                leaf_tensors,
+                orbital_rotations,
+                orbital_rotations,
+                diag_coulomb_mats,
+                orbital_rotations,
+                orbital_rotations,
             )
-            self.assertLessEqual(len(leaf_tensors), 18)
+            self.assertLessEqual(len(orbital_rotations), 18)
             np.testing.assert_allclose(reconstructed, two_body_tensor, atol=error_threshold)
