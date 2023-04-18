@@ -321,7 +321,7 @@ class ElectronicStructureResult(EigenstateResult):
             )
             for name, value in self.extracted_transformer_energies.items():
                 lines.append(
-                    "  - {name} extracted energy part: "
+                    f"  - {name} extracted energy part: "
                     f"{_complex_to_string(value, self.formatting_precision)}"
                 )
         if self.nuclear_repulsion_energy is not None:

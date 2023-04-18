@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fixes a formatting issue when printing an
+    :class:`~qiskit_nature.second_q.problems.ElectronicStructureResult` which
+    contains values in :attr:`~qiskit_nature.second_q.problems.ElectronicStructureResult.extracted_transformer_energies`
