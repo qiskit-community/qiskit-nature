@@ -1,0 +1,4 @@
+---
+fixes:
+  - |
+    Fixes a regression in the performance of the :meth:`~qiskit_nature.second_q.mappers.QubitMapper.map` method
