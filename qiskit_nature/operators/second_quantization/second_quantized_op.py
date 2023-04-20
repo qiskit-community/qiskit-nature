@@ -36,6 +36,7 @@ class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
 
     def __pow__(self, power):
         if power == 0:
+            # pylint: disable=too-many-function-args
             return self.__class__("I" * self.register_length)
 
         return super().__pow__(power)
