@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -36,6 +36,7 @@ class SecondQuantizedOp(StarAlgebraMixin, TolerancesMixin, ABC):
 
     def __pow__(self, power):
         if power == 0:
+            # pylint: disable=too-many-function-args
             return self.__class__("I" * self.register_length)
 
         return super().__pow__(power)
