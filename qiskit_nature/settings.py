@@ -33,7 +33,6 @@ class QiskitNatureSettings:
     """Global settings for Qiskit Nature."""
 
     def __init__(self) -> None:
-        self._dict_aux_operators = True
         self._optimize_einsum = True
         self._deprecation_shown: set[str] = set()
         self._tensor_unwrapping = True
@@ -76,44 +75,6 @@ class QiskitNatureSettings:
             warnings.filterwarnings("ignore", category=PauliSumOpDeprecationWarning)
             self._deprecation_shown.add("PauliSumOp")
         self._use_pauli_sum_op = pauli_sum_op
-
-    @property
-    def dict_aux_operators(self) -> bool:
-        """Return whether `aux_operators` are dictionary- or list-based."""
-        if not self._dict_aux_operators and "ListAuxOps" not in self._deprecation_shown:
-            warnings.filterwarnings("default", category=ListAuxOpsDeprecationWarning)
-            warnings.warn(
-                ListAuxOpsDeprecationWarning(
-                    "List-based `aux_operators` are deprecated as of version 0.3.0 and support for "
-                    "them will be removed no sooner than 3 months after the release. Instead, use "
-                    "dict-based `aux_operators`. You can switch to the dict-based interface "
-                    "immediately, by setting `qiskit_nature.settings.dict_aux_operators` to `True`."
-                ),
-                stacklevel=3,
-            )
-            warnings.filterwarnings("ignore", category=ListAuxOpsDeprecationWarning)
-            self._deprecation_shown.add("ListAuxOps")
-
-        return self._dict_aux_operators
-
-    @dict_aux_operators.setter
-    def dict_aux_operators(self, dict_aux_operators: bool) -> None:
-        """Set whether `aux_operators` are dictionary- or list-based."""
-        if not dict_aux_operators and "ListAuxOps" not in self._deprecation_shown:
-            warnings.filterwarnings("default", category=ListAuxOpsDeprecationWarning)
-            warnings.warn(
-                ListAuxOpsDeprecationWarning(
-                    "List-based `aux_operators` are deprecated as of version 0.3.0 and support for "
-                    "them will be removed no sooner than 3 months after the release. Instead, use "
-                    "dict-based `aux_operators`. You can switch to the dict-based interface "
-                    "immediately, by setting `qiskit_nature.settings.dict_aux_operators` to `True`."
-                ),
-                stacklevel=3,
-            )
-            warnings.filterwarnings("ignore", category=ListAuxOpsDeprecationWarning)
-            self._deprecation_shown.add("ListAuxOps")
-
-        self._dict_aux_operators = dict_aux_operators
 
     @property
     def optimize_einsum(self) -> bool:

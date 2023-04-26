@@ -48,7 +48,6 @@ class QiskitNatureTestCase(unittest.TestCase, ABC):
     log = None
 
     def setUp(self) -> None:
-        settings.dict_aux_operators = True
         warnings.filterwarnings("default", category=DeprecationWarning)
         # disable unit tests NatureDeprecationWarning warnings previously reset
         warnings.filterwarnings("ignore", category=NatureDeprecationWarning)
