@@ -292,6 +292,28 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
         np.testing.assert_array_equal(solver.initial_point.to_numpy_array(), [0.0, 0.0, 0.0])
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
+    def test_default_initial_point_with_imaginary_ucc(self):
+        """Test when using the default initial point and the imaginary parts of the UCC ansatz."""
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            ansatz = UCCSD(
+                self.num_spatial_orbitals,
+                self.num_particles,
+                self.qubit_converter,
+                include_imaginary=True,
+            )
+
+            solver = VQEUCCFactory(Estimator(), ansatz, SLSQP())
+
+        calc = GroundStateEigensolver(self.qubit_converter, solver)
+        res = calc.solve(self.electronic_structure_problem)
+
+        # pylint: disable=no-member
+        np.testing.assert_array_equal(
+            solver.initial_point.to_numpy_array(), [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        )
+        self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
+
     def test_vqe_ucc_factory_with_user_initial_point(self):
         """Test VQEUCCFactory when using it with a user defined initial point."""
 
