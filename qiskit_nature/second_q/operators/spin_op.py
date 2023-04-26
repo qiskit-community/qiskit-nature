@@ -23,7 +23,7 @@ from __future__ import annotations
 import re
 from collections.abc import Collection, Mapping
 from collections import defaultdict
-from typing import cast, Iterator
+from typing import Iterator
 from fractions import Fraction
 from functools import partial, reduce
 
@@ -300,8 +300,7 @@ class SpinOp(SparseLabelOp):
 
         for key in tensor:
             if key == "":
-                # TODO: deal with complexity
-                data[""] = cast(float, tensor[key])
+                data[""] = tensor[key]
                 continue
 
             mat = tensor[key]
