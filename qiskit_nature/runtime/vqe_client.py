@@ -31,10 +31,8 @@ from qiskit.algorithms.optimizers import Optimizer, SPSA
 from qiskit.opflow import OperatorBase, PauliSumOp
 from qiskit.quantum_info import SparsePauliOp
 
-from qiskit_nature import ListOrDictType
+from qiskit_nature import ListOrDict, ListOrDictType
 from qiskit_nature.deprecation import warn_deprecated, DeprecatedType
-
-from ..converters.second_quantization.utils import ListOrDict
 
 
 class VQEClient(VariationalAlgorithm, MinimumEigensolver):
