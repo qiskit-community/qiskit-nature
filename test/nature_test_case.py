@@ -22,7 +22,6 @@ import unittest
 import time
 import math
 from qiskit.quantum_info import SparsePauliOp
-from qiskit_nature import settings
 from qiskit_nature.deprecation import NatureDeprecationWarning
 
 # disable unit tests NatureDeprecationWarning warnings on imports
