@@ -1,0 +1,11 @@
+---
+features:
+  - |
+    Added the new ``include_imaginary`` keyword argument to the
+    :class:`~qiskit_nature.second_q.circuit.library.ansatzes.UCC`,
+    :class:`~qiskit_nature.second_q.circuit.library.ansatzes.UCCSD`, and
+    :class:`~qiskit_nature.second_q.circuit.library.ansatzes.PUCCD` classes.
+    When ``True``, an extra ansatz parameter is added to each excitation that
+    controls the imaginary contribution to its evolution. Thus, this setting
+    doubles the total number of ansatz parameters, as compared to the default
+    setting of ``False``.

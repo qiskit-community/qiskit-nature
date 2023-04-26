@@ -45,6 +45,7 @@ class UCCSD(UCC):
         initial_state: QuantumCircuit | None = None,
         generalized: bool = False,
         preserve_spin: bool = True,
+        include_imaginary: bool = False,
         qubit_converter: QubitConverter | QubitMapper | None = None,
     ) -> None:
         # pylint: disable=unused-argument
@@ -62,6 +63,8 @@ class UCCSD(UCC):
                 only determined from the number of spin orbitals and independent from the number of
                 particles.
             preserve_spin: Boolean flag whether or not to preserve the particle spins.
+            include_imaginary: Boolean flag which when set to ``True`` expands the ansatz to include
+                imaginary parts using twice the number of free parameters.
             qubit_converter: DEPRECATED The :class:`~qiskit_nature.second_q.mappers.QubitConverter`
                 or :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance which takes care of
                 mapping to a qubit operator.
@@ -77,6 +80,7 @@ class UCCSD(UCC):
             max_spin_excitation=None,
             generalized=generalized,
             preserve_spin=preserve_spin,
+            include_imaginary=include_imaginary,
             reps=reps,
             initial_state=initial_state,
         )
