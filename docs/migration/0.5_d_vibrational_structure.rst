@@ -66,14 +66,6 @@ Previously
     ...
 
 
-.. parsed-literal::
-
-    <ipython-input-1-640136cacbb4>:2: NatureDeprecationWarning: The qiskit_nature.problems.second_quantization.electronic package is deprecated as of version 0.5.0 and will be removed no sooner than 3 months after the release. Instead use the qiskit_nature.second_q.problems package.
-      from qiskit_nature.problems.second_quantization import VibrationalStructureProblem
-    <ipython-input-1-640136cacbb4>:2: NatureDeprecationWarning: The qiskit_nature.problems.second_quantization.vibrational package is deprecated as of version 0.5.0 and will be removed no sooner than 3 months after the release. Instead use the qiskit_nature.second_q.problems package.
-      from qiskit_nature.problems.second_quantization import VibrationalStructureProblem
-
-
 New
 ~~~
 

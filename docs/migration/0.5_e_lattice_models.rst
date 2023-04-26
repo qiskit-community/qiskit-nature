@@ -89,14 +89,6 @@ Previously
     + (3+0j) * ...
 
 
-.. parsed-literal::
-
-    <ipython-input-1-f1eec1bc84fd>:1: NatureDeprecationWarning: The qiskit_nature.problems.second_quantization.electronic package is deprecated as of version 0.5.0 and will be removed no sooner than 3 months after the release. Instead use the qiskit_nature.second_q.problems package.
-      from qiskit_nature.problems.second_quantization.lattice.lattices import LineLattice
-    <ipython-input-1-f1eec1bc84fd>:1: NatureDeprecationWarning: The qiskit_nature.problems.second_quantization.vibrational package is deprecated as of version 0.5.0 and will be removed no sooner than 3 months after the release. Instead use the qiskit_nature.second_q.problems package.
-      from qiskit_nature.problems.second_quantization.lattice.lattices import LineLattice
-
-
 New
 ~~~
 

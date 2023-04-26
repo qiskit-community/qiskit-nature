@@ -75,14 +75,6 @@ Previously
 
 .. parsed-literal::
 
-    <ipython-input-1-aea959c80ea0>:7: NatureDeprecationWarning: The qiskit_nature.problems.second_quantization.electronic package is deprecated as of version 0.5.0 and will be removed no sooner than 3 months after the release. Instead use the qiskit_nature.second_q.problems package.
-      from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
-    <ipython-input-1-aea959c80ea0>:7: NatureDeprecationWarning: The qiskit_nature.problems.second_quantization.vibrational package is deprecated as of version 0.5.0 and will be removed no sooner than 3 months after the release. Instead use the qiskit_nature.second_q.problems package.
-      from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
-
-
-.. parsed-literal::
-
     Fermionic Operator
     register length=4, number terms=36
       -1.2563390730032498 * ( +_0 -_0 )

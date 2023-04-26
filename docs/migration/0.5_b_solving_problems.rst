@@ -234,14 +234,6 @@ Previously
     vqe_factory = VQEUCCFactory(quantum_instance=quantum_instance)
 
 
-.. parsed-literal::
-
-    <ipython-input-7-235294d4c9ec>:3: NatureDeprecationWarning: The qiskit_nature.algorithms.excited_state_solvers package is deprecated as of version 0.5.0 and will be removed no sooner than 3 months after the release. Instead use the qiskit_nature.second_q.algorithms.excited_state_solvers package.
-      from qiskit_nature.algorithms.ground_state_solvers import VQEUCCFactory
-    <ipython-input-7-235294d4c9ec>:3: NatureDeprecationWarning: The qiskit_nature.algorithms.pes_sampler package is deprecated as of version 0.5.0 and will be removed no sooner than 3 months after the release . Please refer to 'https://github.com/Qiskit/qiskit-nature/issues/750' for additional information regarding 'extrapolators'.
-      from qiskit_nature.algorithms.ground_state_solvers import VQEUCCFactory
-
-
 New
 ^^^
 
@@ -284,12 +276,6 @@ Previously
     ground_state_solver = GroundStateEigensolver(converter, vqe_factory)
 
     qeom = QEOM(ground_state_solver)
-
-
-.. parsed-literal::
-
-    <ipython-input-9-1de6c59e430e>:8: NatureDeprecationWarning: The qiskit_nature.algorithms.ground_state_solvers.GroundStateEigensolver class is deprecated as of version 0.5.0 and will be removed no sooner than 3 months after the release. Instead use the qiskit_nature.second_q.algorithms.ground_state_solvers.GroundStateEigensolver class.
-      ground_state_solver = GroundStateEigensolver(converter, vqe_factory)
 
 
 New
