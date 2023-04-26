@@ -116,7 +116,7 @@ class TestQCSchemaLegacy(QiskitNatureTestCase):
     def test_legacy_from_hdf5_error(self):
         """Tests the legacy_from_hdf5 method error."""
         with self.assertRaises(ValueError):
-            qcschema = QCSchema.from_legacy_hdf5(
+            _ = QCSchema.from_legacy_hdf5(
                 self.get_resource_path(
                     "vibrational_structure_driver_result.hdf5",
                     "properties/second_quantization/vibrational/resources",
