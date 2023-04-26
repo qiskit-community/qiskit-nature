@@ -1,0 +1,9 @@
+---
+upgrade:
+  - |
+    Removes the entire legacy code stack which was deprecated in version 0.5.
+    Follow the `migration guides <https://qiskit.org/ecosystem/nature/migration/index.html>`_
+    to upgrade your code if you have not done so already.
+deprecations:
+  - |
+    Deprecates the :meth:`.QCSchema.from_legacy_hdf5` method without a replacement.
