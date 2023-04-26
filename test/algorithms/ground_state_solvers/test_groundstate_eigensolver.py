@@ -578,26 +578,6 @@ class TestGroundStateEigensolver(QiskitNatureDeprecatedTestCase):
         res = calc.solve(self.electronic_structure_problem)
         np.testing.assert_array_almost_equal(res.raw_result.optimal_point, initial_point)
 
-    def test_default_initial_point_with_imaginary_ucc(self):
-        """Test when using the default initial point and the imaginary parts of the UCC ansatz."""
-
-        ansatz = UCCSD(
-            qubit_converter=self.qubit_converter,
-            num_particles=self.num_particles,
-            num_spin_orbitals=self.num_spin_orbitals,
-            include_imaginary=True,
-        )
-        solver = VQEUCCFactory(
-            QuantumInstance(BasicAer.get_backend("statevector_simulator")), ansatz=ansatz
-        )
-        calc = GroundStateEigensolver(self.qubit_converter, solver)
-        res = calc.solve(self.electronic_structure_problem)
-
-        np.testing.assert_array_equal(
-            solver.initial_point.to_numpy_array(), [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-        )
-        self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
-
     def test_vqe_ucc_factory_with_mp2(self):
         """Test when using MP2InitialPoint to generate the initial point."""
 

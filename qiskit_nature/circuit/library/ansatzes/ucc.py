@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import logging
 from functools import partial
-from typing import Callable, Sequence, Optional
+from typing import Callable, Sequence
 
 from qiskit.circuit import QuantumCircuit
 from qiskit.circuit.library import EvolvedOperatorAnsatz
@@ -129,8 +129,7 @@ class UCC(EvolvedOperatorAnsatz):
         generalized: bool = False,
         preserve_spin: bool = True,
         reps: int = 1,
-        initial_state: Optional[QuantumCircuit] = None,
-        include_imaginary: bool = False,
+        initial_state: QuantumCircuit | None = None,
     ):
         """
 
@@ -172,8 +171,6 @@ class UCC(EvolvedOperatorAnsatz):
                 setting does _not_ influence the `excitations`. When relying on the default
                 generation method (i.e. not providing a `Callable` to `excitations`), these will
                 always be constructed with respect to a `HartreeFock` reference state.
-            include_imaginary: boolean flag which when set to 'True' expands the ansatz to include
-                imaginary parts using twice the number of free parameters.
         """
         self._qubit_converter = qubit_converter
         self._num_particles = num_particles
@@ -184,7 +181,6 @@ class UCC(EvolvedOperatorAnsatz):
         self._max_spin_excitation = max_spin_excitation
         self._generalized = generalized
         self._preserve_spin = preserve_spin
-        self._include_imaginary = include_imaginary
 
         super().__init__(reps=reps, evolution=PauliTrotterEvolution(), initial_state=initial_state)
 
@@ -297,16 +293,7 @@ class UCC(EvolvedOperatorAnsatz):
                 # ``None`` for non-commuting operators in order to manually remove them in unison.
                 operators = self.qubit_converter.convert_match(excitation_ops, suppress_none=False)
                 valid_operators, valid_excitations = [], []
-
-                if self._include_imaginary:
-                    # Duplicate each excitation to account for the real and imaginary parts.
-                    excitations = []
-                    for ex in self._excitation_list:
-                        excitations.extend([ex, ex])
-                else:
-                    excitations = self._excitation_list
-
-                for op, ex in zip(operators, excitations):
+                for op, ex in zip(operators, self._excitation_list):
                     if op is not None:
                         valid_operators.append(op)
                         valid_excitations.append(ex)
@@ -513,18 +500,11 @@ class UCC(EvolvedOperatorAnsatz):
                 label[occ] = "+"
             for unocc in exc[1]:
                 label[unocc] = "-"
-            # Real part of the wave-function
             op = FermionicOp("".join(label), display_format="dense")
-            op_adj = op.adjoint()
-            op_minus = 1j * (op - op_adj)
-            # we need to account for an additional imaginary phase in the exponent
-            # hence multiplied by 1j (see also
+            op -= op.adjoint()
+            # we need to account for an additional imaginary phase in the exponent (see also
             # `PauliTrotterEvolution.convert`)
-            operators.append(op_minus)
-
-            # Appending the corresponding imaginary part
-            if self._include_imaginary:
-                op_plus = -1 * (op + op_adj)
-                operators.append(op_plus)
+            op *= 1j  # type: ignore
+            operators.append(op)
 
         return operators

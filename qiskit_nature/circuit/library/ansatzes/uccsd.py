@@ -35,7 +35,6 @@ class UCCSD(UCC):
         initial_state: Optional[QuantumCircuit] = None,
         generalized: bool = False,
         preserve_spin: bool = True,
-        include_imaginary: bool = False,
     ):
         """
         Args:
@@ -51,10 +50,7 @@ class UCCSD(UCC):
                 only determined from the number of spin orbitals and independent from the number of
                 particles.
             preserve_spin: Boolean flag whether or not to preserve the particle spins.
-            include_imaginary: boolean flag which when set to 'True' expands the ansatz to include
-                imaginary parts using twice the number of free parameters.
         """
-
         super().__init__(
             qubit_converter=qubit_converter,
             num_particles=num_particles,
@@ -67,5 +63,4 @@ class UCCSD(UCC):
             preserve_spin=preserve_spin,
             reps=reps,
             initial_state=initial_state,
-            include_imaginary=include_imaginary,
         )

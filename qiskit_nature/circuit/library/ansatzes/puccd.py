@@ -56,7 +56,6 @@ class PUCCD(UCC):
         initial_state: Optional[QuantumCircuit] = None,
         include_singles: Tuple[bool, bool] = (False, False),
         generalized: bool = False,
-        include_imaginary: bool = False,
     ):
         """
 
@@ -73,8 +72,6 @@ class PUCCD(UCC):
                 the occupation of the spin orbitals. As such, the set of generalized excitations is
                 only determined from the number of spin orbitals and independent from the number of
                 particles.
-            include_imaginary: boolean flag which when set to 'True' expands the ansatz to include
-                imaginary parts using twice the number of free parameters.
 
         Raises:
             QiskitNatureError: if the number of alpha and beta electrons is not equal.
@@ -92,7 +89,6 @@ class PUCCD(UCC):
             generalized=generalized,
             reps=reps,
             initial_state=initial_state,
-            include_imaginary=include_imaginary,
         )
 
     @property
