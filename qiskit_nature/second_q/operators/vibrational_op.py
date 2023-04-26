@@ -17,7 +17,7 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 from collections.abc import Collection, Mapping
-from typing import Iterator, Sequence, Tuple, cast
+from typing import Iterator, Sequence, Tuple
 import logging
 import operator
 import itertools
@@ -284,8 +284,7 @@ class VibrationalOp(SparseLabelOp):
 
         for key in tensor:
             if key == "":
-                # TODO: deal with complexity
-                data[""] = cast(float, tensor[key])
+                data[""] = tensor[key]
                 continue
 
             mat = tensor[key]
