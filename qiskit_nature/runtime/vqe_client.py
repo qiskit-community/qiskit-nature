@@ -31,8 +31,9 @@ from qiskit.algorithms.optimizers import Optimizer, SPSA
 from qiskit.opflow import OperatorBase, PauliSumOp
 from qiskit.quantum_info import SparsePauliOp
 
-from qiskit_nature import ListOrDict, ListOrDictType
+from qiskit_nature import ListOrDictType
 from qiskit_nature.deprecation import warn_deprecated, DeprecatedType
+from qiskit_nature.second_q.mappers.qubit_mapper import _ListOrDict
 
 
 class VQEClient(VariationalAlgorithm, MinimumEigensolver):
@@ -283,7 +284,7 @@ class VQEClient(VariationalAlgorithm, MinimumEigensolver):
         wrapped_type = type(aux_operators)
         wrapped_aux_operators = {
             str(aux_op_name_or_idx): _convert_to_paulisumop(aux_op)
-            for aux_op_name_or_idx, aux_op in ListOrDict(aux_operators).items()
+            for aux_op_name_or_idx, aux_op in _ListOrDict(aux_operators).items()
         }
 
         # combine the settings with the given operator to runtime inputs
