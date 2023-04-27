@@ -34,7 +34,7 @@ class TestBosonicLinearMapper(QiskitNatureTestCase):
     sq_2 = np.sqrt(2) / 4
     sq_3 = np.sqrt(3) / 4
 
-    # +_0 -_0, -_0 +_0, +_0 -_1, -_1 +_0, +_0 +_0
+    # TODO: -_0 +_0, +_0 -_1, -_1 +_0, +_0 +_0
 
     bos_op1 = BosonicOp({"+_0": 1})
     # Using: truncation = 1
@@ -74,8 +74,8 @@ class TestBosonicLinearMapper(QiskitNatureTestCase):
     # Using: truncation = 1
     ref_qubit_op5_tr1 = SparsePauliOp(["II", "ZZ", "IZ", "ZI"], coeffs=[0.25, -0.25, -0.25, 0.25])
     # Using: truncation = 2
-    ref_qubit_op5_tr2 = SparsePauliOp(["III", "IZZ", "IIZ", "IZI", "III", "ZZI", "IZI", "ZII"],
-                                      coeffs=[0.25, -0.25, -0.25, 0.25, sq_2, -sq_2, -sq_2, sq_2])
+    ref_qubit_op5_tr2 = SparsePauliOp(["III", "IZZ", "IIZ", "IZI", "ZZI", "ZII"],
+                                      coeffs=[0.75, -0.25, -0.25, -0.25, -0.5, 0.5])
 
     # Test truncation = 1
     @data(
