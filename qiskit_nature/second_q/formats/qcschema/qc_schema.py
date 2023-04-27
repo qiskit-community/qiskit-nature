@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -26,6 +26,7 @@ import h5py
 
 import numpy as np
 
+from qiskit_nature.deprecation import deprecate_function
 from qiskit_nature.version import __version__
 
 from .qc_error import QCError
@@ -134,6 +135,7 @@ class QCSchema(QCSchemaInput):
         return cls(**data)
 
     @classmethod
+    @deprecate_function("0.7.0")
     def from_legacy_hdf5(cls, legacy_hdf5: str | Path) -> QCSchema:
         # pylint: disable=line-too-long
         """Constructs a schema object from a legacy HDF5 object.

@@ -1,0 +1,22 @@
+Protein Folding with Qiskit Nature v0.5
+=======================================
+
+The keen-eyed among you will have already noticed in the `overview of
+the design of Qiskit Nature <./0.5_a_intro.ipynb>`__ that protein
+folding was not mentioned at all. The reason for that is simply that it
+does not align with the vision and goals of Qiskit Nature. Its status
+was more of a prototype than a continuously developing feature like the
+other parts of the package and on top of that it is really more a
+chemistry-inspired *optimization problem* which is not something that is
+currently in the scope of Qiskit Nature.
+
+Thus, the entire code related to protein folding has been migrated to
+the `Qiskit Research
+repository <https://github.com/qiskit-research/qiskit-research>`__ from
+where you can still install and use it, just like you have done so far,
+except with the new import locations based on that package.
+
+We suggest that you read `the updated
+tutorial <https://qiskit-research.github.io/qiskit-research/protein_folding/protein_folding.html>`__
+which should contain all information for you to migrate your code.
+

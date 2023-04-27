@@ -26,9 +26,8 @@ from qiskit.algorithms.optimizers import SPSA
 from qiskit.circuit.library import RealAmplitudes
 from qiskit.opflow import I, Z
 
-from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver
-from qiskit_nature.converters.second_quantization import QubitConverter
-from qiskit_nature.mappers.second_quantization import JordanWignerMapper
+from qiskit_nature.second_q.algorithms.ground_state_solvers import GroundStateEigensolver
+from qiskit_nature.second_q.mappers import JordanWignerMapper
 from qiskit_nature.runtime import VQEClient, VQERuntimeResult
 
 
@@ -76,12 +75,12 @@ class TestVQEClient(QiskitNatureDeprecatedTestCase):
         vqe, _ = self.get_standard_program()
         self.assertTrue(vqe.supports_aux_operators)
 
-    def test_return_groundstate(self):
-        """Test the VQEClient yields a ground state solver that returns the ground state."""
+    def test_gss_supports_aux_ops(self):
+        """Test the VQEClient yields a GroundStateEigensolver that supports aux operators."""
         vqe, _ = self.get_standard_program()
-        qubit_converter = QubitConverter(JordanWignerMapper())
-        gss = GroundStateEigensolver(qubit_converter, vqe)
-        self.assertTrue(gss.returns_groundstate)
+        qubit_mapper = JordanWignerMapper()
+        gss = GroundStateEigensolver(qubit_mapper, vqe)
+        self.assertTrue(gss.supports_aux_operators)
 
     @data(FakeArmonk, FakeArmonkV2)
     def test_v1_and_v2_compatibility(self, backend_cls):
