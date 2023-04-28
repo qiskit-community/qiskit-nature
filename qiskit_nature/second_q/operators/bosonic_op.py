@@ -522,7 +522,7 @@ class BosonicOp(SparseLabelOp):
 
         # first, we compute how many creation/annihilation op are applied to each state
         for lbl in label.split():
-            # Each splitted label has the following format: [\+\-]_<index>
+            # After splitting, each label has the following format: [\+\-]_<index>
             operator, index = lbl.split("_")
             idx = int(index)
             # First, add the operator to the new label.
@@ -542,11 +542,12 @@ class BosonicOp(SparseLabelOp):
                 new_label += f"{lbl}" if len(new_label) == 0 else f" {lbl}"
             else:
                 # Case 4. -> we have to remove the last "-"("+") from the new string
+                # pylint: disable=wrong-spelling-in-comment
                 # First, find all the operators of the opposite type of "lbl" in the label
                 lbl_to_find = ("-" if operator == "+" else "+") + lbl[1:]
-                # occs contains all the start indeces of the substring lbl_to_find in label
+                # occs contains all the start indexes of the sub-string lbl_to_find in label
                 occs = [i for i in range(0, len(new_label), 4) if new_label.startswith(lbl_to_find, i)]
-                # Finally, remove the last occurency
+                # Finally, remove the last occurrence
                 if occs[-1] + 4 < len(new_label):
                     new_label = (new_label[0:occs[-1]] + new_label[(occs[-1] + 4):]).strip()
                 else:

@@ -75,13 +75,13 @@ class BosonicLinearMapper(BosonicMapper):
                 if op not in ('+', '-'):
                     break
                 pauli_expansion: list[SparsePauliOp] = []
-                # Now we dealing with a single bosonic operator. We have to perform the linear mapper
+                # Now we are dealing with a single bosonic operator. We have to perform the linear mapper
                 for n_k in range(self.truncation):
                     prefactor = np.sqrt(n_k + 1) / 4
                     # Define the actual index in the qubit register. It is given n_k plus the shift due
                     # to the mode onto which the operator is acting
                     register_index = n_k + idx * (self.truncation + 1)
-                    # Now build the Pauli operators XX, XY, YX, YY, which arise from S_j^+ S_j^-
+                    # Now build the Pauli operators XX, XY, YX, YY, which arise from S_i^+ S_j^-
                     x_x, x_y, y_x, y_y = self.get_ij_pauli_matrix(register_index, qubit_register_length)
 
                     tmp_op = SparsePauliOp(x_x) + SparsePauliOp(y_y)
@@ -100,6 +100,7 @@ class BosonicLinearMapper(BosonicMapper):
         return bos_op_encoding
 
     def get_ij_pauli_matrix(self, register_index: int, register_length: int):
+        "This method builds the Qiskit Pauli operators of the operators XX, YY, XY and YX"
         # Define recurrent variables
         prefix_zeros = [0] * register_index
         suffix_zeros = [0] * (register_length - 2 - register_index)
