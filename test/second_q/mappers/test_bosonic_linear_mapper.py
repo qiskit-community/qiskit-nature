@@ -173,13 +173,5 @@ class TestBosonicLinearMapper(QiskitNatureTestCase):
         finally:
             settings.use_pauli_sum_op = aux
 
-    # def test_mapping_overwrite_reg_len(self):
-    #     """Test overwriting the register length."""
-    #     op = SpinOp({"Y_0^2": -0.432 + 1.32j}, 0.5, 1)
-    #     expected = SpinOp({"Y_0^2": -0.432 + 1.32j}, 0.5, 3)
-    #     mapper = LinearMapper()
-    #     self.assertEqual(mapper.map(op, register_length=3), mapper.map(expected))
-
-
 if __name__ == "__main__":
     unittest.main()

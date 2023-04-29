@@ -38,15 +38,6 @@ class BosonicLinearMapper(BosonicMapper):
 
     The length of the qubit register is: BosonicOp.num_mode * (BosonicLinearMapper.truncation + 1)
 
-    e.g. let's consider a 2 mode system with truncation = 2: +_0 -_1
-    Let's map each term:
-    +_0 -> S_0^+ S_1^- + sqrt(2) S_1^+ S_2^- =
-        (0.5)^4 * (X_0 + i*Y_0) * (X_0 - i*Y_0) * (X_1 - i*Y_1) * (X_1 + i*Y_1) +
-        (0.5)^4 * (X_1 + i*Y_1) * (X_1 - i*Y_1) * (X_2 - i*Y_2) * (X_2 + i*Y_2) * sqrt(2) =
-        (0.5)^4 * (XX - i*XY + i*YX + YY)IIII * I(XX + i*XY - i*YX + YY)III +
-        (0.5)^4 * I(XX + i*XY - i*YX + YY)III * II(XX - i*XY + i*YX + YY)II * sqrt(2)
-    -_1 -> S_0^- S_1^+ + sqrt(2) S_1^- S_2^+
-
     Generates a 'linear_encoding' of the Bosonic operator b_k^\\dagger, b_k to qubit operators
         (linear combinations of pauli strings).
         In this 'linear_encoding' each bosonic mode is represented via n_k^max + 1 qubits, where n_k^max
@@ -100,7 +91,7 @@ class BosonicLinearMapper(BosonicMapper):
         return bos_op_encoding
 
     def get_ij_pauli_matrix(self, register_index: int, register_length: int):
-        "This method builds the Qiskit Pauli operators of the operators XX, YY, XY and YX"
+        """This method builds the Qiskit Pauli operators of the operators XX, YY, XY and YX"""
         # Define recurrent variables
         prefix_zeros = [0] * register_index
         suffix_zeros = [0] * (register_length - 2 - register_index)
