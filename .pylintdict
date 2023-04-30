@@ -43,6 +43,7 @@ avogadro
 äquivalenzverbot
 bac
 backend
+backends
 barkoutsos
 bb
 bergholm
@@ -86,6 +87,7 @@ coeffs
 colormap
 commutativities
 commutativity
+computable
 conda
 conf
 config
@@ -146,6 +148,7 @@ eigen
 eigenfunctions
 eigensolution
 eigensolver
+eigensolverfactory
 eigensolvers
 eigenstate
 eigenstateresult
@@ -157,6 +160,7 @@ einsum
 electronicintegrals
 electronicstructureproblem
 endian
+endianness
 endif
 enum
 eom
@@ -242,6 +246,7 @@ intel
 intelvem
 interatomic
 internuclear
+interoperability
 interpretable
 ints
 io
@@ -251,9 +256,11 @@ ising
 iso
 isoleucine
 isometry
+isospectral
 iswap
 isym
 iten
+iter
 iterable
 iteratively
 itertools
@@ -301,6 +308,7 @@ lijh
 linewidths
 linux
 listordict
+listordicttype
 ljik
 lk
 logfile
@@ -352,6 +360,7 @@ natom
 nbasis
 nd
 ndarray
+ndim
 nelec
 neq
 networkx
@@ -454,12 +463,14 @@ quantized
 quantumcircuit
 quartic
 qubit
+qubitmapper
 qubits
 qutrit
 radians
 rangle
 rcccx
 rccx
+rdm
 readme
 readthedocs
 realise
@@ -529,6 +540,8 @@ str
 stylesheet
 subcircuits
 subclasses
+submatrix
+submatrices
 submodule
 submodules
 subtest
@@ -546,6 +559,7 @@ tavernelli
 taylor
 tb
 tdg
+tcoeff
 tensored
 tensoring
 terra
@@ -578,6 +592,7 @@ uccsd
 ucrx
 ucry
 ucrz
+ufuncs
 uhf
 ulimit
 un

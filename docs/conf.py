@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -86,13 +86,6 @@ nbsphinx_prolog += link_str + "{{ docname }}"
 
 # -- General configuration ---------------------------------------------------
 
-# If your documentation needs a minimal Sphinx version, state it here.
-#
-# needs_sphinx = '1.0'
-
-# Add any Sphinx extension module names here, as strings. They can be
-# extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
-# ones.
 extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.autodoc",
@@ -102,7 +95,6 @@ extensions = [
     "sphinx.ext.extlinks",
     "sphinx_design",
     "jupyter_sphinx",
-    "sphinx_autodoc_typehints",
     "reno.sphinxext",
     "sphinx.ext.doctest",
     "nbsphinx",
@@ -115,7 +107,21 @@ html_css_files = ["style.css", "custom.css", "gallery.css"]
 nbsphinx_timeout = 360
 nbsphinx_execute = os.getenv("QISKIT_DOCS_BUILD_TUTORIALS", "never")
 nbsphinx_widgets_path = ""
-nbsphinx_thumbnails = {}
+nbsphinx_thumbnails = {
+    "migration/0.5_a_intro": "_images/qiskit_nature_0.5_overview.png",
+    "migration/0.5_c_electronic_structure": "_static/orbitals.png",
+    "migration/0.5_d_vibrational_structure": "_static/co2_vibration.png",
+    "migration/0.5_e_lattice_models": "_images/tutorials_10_lattice_models_18_0.png",
+    "migration/0.5_f_protein_folding": "_static/lattice_protein.png",
+    "tutorials/01_electronic_structure": "_static/orbitals.png",
+    "tutorials/02_vibrational_structure": "_static/co2_vibration.png",
+    "tutorials/03_ground_state_solvers": "_images/H2_gs.png",
+    "tutorials/04_excited_states_solvers": "_images/H2_es.png",
+    "tutorials/05_problem_transformers": "_static/core-orbitals.png",
+    "tutorials/06_qubit_mappers": "_images/jw_mapping.png",
+    "tutorials/07_leveraging_qiskit_runtime": "_static/runtime.png",
+    "**": "_static/no_image.png",
+}
 
 spelling_word_list_filename = "../.pylintdict"
 spelling_filters = ["lowercase_filter.LowercaseFilter"]
@@ -130,6 +136,12 @@ autosummary_generate_overwrite = False
 # -----------------------------------------------------------------------------
 # Autodoc
 # -----------------------------------------------------------------------------
+# Move type hints from signatures to the parameter descriptions (except in overload cases, where
+# that's not possible).
+autodoc_typehints = "description"
+# Only add type hints from signature to description body if the parameter has documentation.  The
+# return type is always added to the description (if in the signature).
+autodoc_typehints_description_target = "documented_params"
 
 autodoc_default_options = {
     "inherited-members": None,
@@ -159,7 +171,7 @@ gettext_compact = False  # optional.
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["_build", "**.ipynb_checkpoints"]
+exclude_patterns = ["**site-packages", "_build", "**.ipynb_checkpoints"]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "colorful"
@@ -181,18 +193,7 @@ modindex_common_prefix = ["qiskit_nature."]
 
 # -- Options for HTML output -------------------------------------------------
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-#
-#
 html_theme = "qiskit_sphinx_theme"
-
-html_theme_path = [".", qiskit_sphinx_theme.get_html_theme_path()]
-
-# Theme options are theme-specific and customize the look and feel of a theme
-# further.  For a list of options available for each theme, see the
-# documentation.
-#
 html_theme_options = {
     "logo_only": False,
     "display_version": True,
@@ -211,7 +212,7 @@ intersphinx_mapping = {
     "numpy": ("https://numpy.org/doc/stable/", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/", None),
     "qiskit": ("https://qiskit.org/documentation/", None),
-    "rustworkx": ("https://qiskit.org/documentation/rustworkx/", None),
+    "rustworkx": ("https://qiskit.org/ecosystem/rustworkx/", None),
     "sparse": ("https://sparse.pydata.org/en/stable/", None),
 }
 

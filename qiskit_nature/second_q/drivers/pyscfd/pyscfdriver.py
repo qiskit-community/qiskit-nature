@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018, 2022.
+# (C) Copyright IBM 2018, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -30,6 +30,7 @@ from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
 from qiskit_nature.second_q.formats.qcschema import QCSchema
 from qiskit_nature.second_q.formats.qcschema_translator import qcschema_to_problem
+from qiskit_nature.second_q.operators.symmetric_two_body import fold
 from qiskit_nature.second_q.problems import ElectronicBasis, ElectronicStructureProblem
 from qiskit_nature.settings import settings
 import qiskit_nature.optionals as _optionals
@@ -506,15 +507,17 @@ class PySCFDriver(ElectronicStructureDriver):
     def to_qcschema(self, *, include_dipole: bool = True) -> QCSchema:
         # pylint: disable=import-error
         from pyscf import __version__ as pyscf_version
-        from pyscf import gto
+        from pyscf import ao2mo, gto
         from pyscf.tools import dump_mat
 
         einsum_func, _ = get_einsum()
         data = _QCSchemaData()
 
-        data.mo_coeff, data.mo_coeff_b = self._extract_mo_data("mo_coeff", array_dimension=3)
-        data.mo_energy, data.mo_energy_b = self._extract_mo_data("mo_energy")
-        data.mo_occ, data.mo_occ_b = self._extract_mo_data("mo_occ")
+        data.mo_coeff, data.mo_coeff_b = self._expand_mo_object(
+            self._calc.mo_coeff, array_dimension=3
+        )
+        data.mo_energy, data.mo_energy_b = self._expand_mo_object(self._calc.mo_energy)
+        data.mo_occ, data.mo_occ_b = self._expand_mo_object(self._calc.mo_occ)
 
         if logger.isEnabledFor(logging.DEBUG):
             # Add some more to PySCF output...
@@ -533,36 +536,50 @@ class PySCFDriver(ElectronicStructureDriver):
         data.hij_mo = np.dot(np.dot(data.mo_coeff.T, data.hij), data.mo_coeff)
         if data.mo_coeff_b is not None:
             data.hij_mo_b = np.dot(np.dot(data.mo_coeff_b.T, data.hij), data.mo_coeff_b)
-        data.eri = self._mol.intor("int2e", aosym=1)
+
         einsum_ao_to_mo = "pqrs,pi,qj,rk,sl->ijkl"
-        data.eri_mo = einsum_func(
-            einsum_ao_to_mo,
-            data.eri,
-            data.mo_coeff,
-            data.mo_coeff,
-            data.mo_coeff,
-            data.mo_coeff,
-            optimize=settings.optimize_einsum,
-        )
-        if data.mo_coeff_b is not None:
-            data.eri_mo_ba = einsum_func(
+        if settings.use_symmetry_reduced_integrals:
+            data.eri = self._mol.intor("int2e", aosym=8)
+            data.eri_mo = fold(ao2mo.full(self._mol, data.mo_coeff, aosym=4))
+            if data.mo_coeff_b is not None:
+                data.eri_mo_bb = fold(ao2mo.full(self._mol, data.mo_coeff_b, aosym=4))
+                data.eri_mo_ba = fold(
+                    ao2mo.general(
+                        self._mol,
+                        [data.mo_coeff_b, data.mo_coeff_b, data.mo_coeff, data.mo_coeff],
+                        aosym=4,
+                    )
+                )
+        else:
+            data.eri = self._mol.intor("int2e", aosym=1)
+            data.eri_mo = einsum_func(
                 einsum_ao_to_mo,
                 data.eri,
-                data.mo_coeff_b,
-                data.mo_coeff_b,
+                data.mo_coeff,
+                data.mo_coeff,
                 data.mo_coeff,
                 data.mo_coeff,
                 optimize=settings.optimize_einsum,
             )
-            data.eri_mo_bb = einsum_func(
-                einsum_ao_to_mo,
-                data.eri,
-                data.mo_coeff_b,
-                data.mo_coeff_b,
-                data.mo_coeff_b,
-                data.mo_coeff_b,
-                optimize=settings.optimize_einsum,
-            )
+            if data.mo_coeff_b is not None:
+                data.eri_mo_ba = einsum_func(
+                    einsum_ao_to_mo,
+                    data.eri,
+                    data.mo_coeff_b,
+                    data.mo_coeff_b,
+                    data.mo_coeff,
+                    data.mo_coeff,
+                    optimize=settings.optimize_einsum,
+                )
+                data.eri_mo_bb = einsum_func(
+                    einsum_ao_to_mo,
+                    data.eri,
+                    data.mo_coeff_b,
+                    data.mo_coeff_b,
+                    data.mo_coeff_b,
+                    data.mo_coeff_b,
+                    optimize=settings.optimize_einsum,
+                )
 
         data.e_nuc = gto.mole.energy_nuc(self._mol)
         data.e_ref = self._calc.e_tot
@@ -629,36 +646,32 @@ class PySCFDriver(ElectronicStructureDriver):
 
         return problem
 
-    def _extract_mo_data(
-        self, name: str, array_dimension: int = 2
+    def _expand_mo_object(
+        self,
+        mo_object: tuple[np.ndarray | None, np.ndarray | None] | np.ndarray,
+        array_dimension: int = 2,
     ) -> tuple[np.ndarray, np.ndarray]:
-        """Extract molecular orbital data from a PySCF calculation object.
+        """Expands the molecular orbital object into alpha- and beta-spin components.
+
+        Since PySCF 1.6.2, the alpha and beta components are no longer stored as a tuple but as a
+        multi-dimensional numpy array. This utility takes care of differentiating these cases.
 
         Args:
-            name: the name of the molecular orbital data field to extract.
-            array_dimension: since PySCF 1.6.2, the alpha and beta components are no longer stored
-                as a tuple but as a multi-dimensional numpy array. This argument specifies the
-                dimension of that array in such a case. Making this configurable permits this
-                function to be used to extract both, MO coefficients (3D array) and MO energies (2D
-                array).
+            mo_object: the molecular orbital object to expand.
+            array_dimension:  This argument specifies the dimension of the numpy array (if a tuple
+                is not encountered). Making this configurable permits this function to be used to
+                expand both, MO coefficients (3D array) and MO energies (2D array).
 
         Returns:
             The (alpha, beta) tuple of MO data.
         """
-        attr = getattr(self._calc, name)
-        if isinstance(attr, tuple):
-            attr_alpha = attr[0]
-            attr_beta = attr[1]
-        else:
-            # Since PySCF 1.6.2, instead of a tuple it could be a multi-dimensional array with the
-            # first dimension indexing the arrays for alpha and beta
-            if len(attr.shape) == array_dimension:
-                attr_alpha = attr[0]
-                attr_beta = attr[1]
-            else:
-                attr_alpha = attr
-                attr_beta = None
-        return attr_alpha, attr_beta
+        if isinstance(mo_object, tuple):
+            return mo_object
+
+        if len(mo_object.shape) == array_dimension:
+            return mo_object[0], mo_object[1]
+
+        return mo_object, None
 
     def _process_pyscf_log(self, logfile: str) -> None:
         """Processes a PySCF logfile.

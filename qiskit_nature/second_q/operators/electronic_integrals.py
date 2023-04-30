@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from numbers import Number
-from typing import cast
+from typing import Tuple, cast
 
 import numpy as np
 
@@ -25,7 +25,9 @@ from qiskit.quantum_info.operators.mixins import LinearMixin
 from qiskit_nature.exceptions import QiskitNatureError
 import qiskit_nature.optionals as _optionals
 
-from .polynomial_tensor import ARRAY_TYPE, PolynomialTensor
+from .polynomial_tensor import PolynomialTensor
+from .symmetric_two_body import SymmetricTwoBodyIntegrals
+from .tensor import Tensor
 from .tensor_ordering import (
     IndexType,
     find_index_order,
@@ -256,8 +258,18 @@ class ElectronicIntegrals(LinearMixin):
         if self.beta_alpha.is_empty():
             return self.beta_alpha
 
-        beta_alpha = cast(ARRAY_TYPE, self.beta_alpha["++--"])
-        alpha_beta = np.moveaxis(beta_alpha, (0, 1), (2, 3))
+        two_body_ba = self.beta_alpha["++--"]
+        if isinstance(two_body_ba, SymmetricTwoBodyIntegrals):
+            # NOTE: to ensure proper inter-operability with the symmetry-aware integral containers,
+            # we delegate the conjugation to the objects themselves
+            return PolynomialTensor({"++--": two_body_ba.conjugate()}, validate=False)
+
+        alpha_beta: Tensor | np.ndarray | SparseArray
+        if not isinstance(two_body_ba, Tensor):
+            # TODO: remove extra-wrapping of Tensor once settings.tensor_unwrapping is removed
+            alpha_beta = Tensor(np.moveaxis(Tensor(two_body_ba), (0, 1), (2, 3)))
+        else:
+            alpha_beta = np.moveaxis(two_body_ba, (0, 1), (2, 3))
         return PolynomialTensor({"++--": alpha_beta}, validate=False)
 
     @property
@@ -378,7 +390,7 @@ class ElectronicIntegrals(LinearMixin):
     @classmethod
     def apply(
         cls,
-        function: Callable[..., np.ndarray | SparseArray | Number],
+        function: Callable[..., np.ndarray | SparseArray | complex],
         *operands: ElectronicIntegrals,
         validate: bool = True,
     ) -> ElectronicIntegrals:
@@ -515,7 +527,7 @@ class ElectronicIntegrals(LinearMixin):
         alpha_dict = {"+-": h1_a}
 
         if h2_aa is not None:
-            if auto_index_order:
+            if auto_index_order and not isinstance(h2_aa, SymmetricTwoBodyIntegrals):
                 index_order = find_index_order(h2_aa)
                 if index_order == IndexType.UNKNOWN:
                     raise QiskitNatureError(
@@ -568,17 +580,31 @@ class ElectronicIntegrals(LinearMixin):
 
         kron_one_body = np.zeros((2, 2))
         kron_two_body = np.zeros((2, 2, 2, 2))
-        kron_tensor = PolynomialTensor(
-            {"": cast(Number, 1.0), "+-": kron_one_body, "++--": kron_two_body}
-        )
+        kron_tensor = PolynomialTensor({"": 1.0, "+-": kron_one_body, "++--": kron_two_body})
+
+        ba_index = (1, 0, 0, 1)
+        ab_index = (0, 1, 1, 0)
 
         if beta_empty and beta_alpha_empty:
             kron_one_body[(0, 0)] = 1
             kron_one_body[(1, 1)] = 1
             kron_two_body[(0, 0, 0, 0)] = 0.5
-            kron_two_body[(0, 1, 1, 0)] = 0.5
-            kron_two_body[(1, 0, 0, 1)] = 0.5
             kron_two_body[(1, 1, 1, 1)] = 0.5
+
+            aa_tensor = self.alpha.get("++--", None)
+            if aa_tensor is not None:
+                if not isinstance(aa_tensor, Tensor):
+                    aa_tensor = Tensor(aa_tensor)
+
+                ba_index = cast(
+                    Tuple[int, int, int, int], tuple(aa_tensor._reverse_label_template(ba_index))
+                )
+                ab_index = cast(
+                    Tuple[int, int, int, int], tuple(aa_tensor._reverse_label_template(ab_index))
+                )
+
+            kron_two_body[ba_index] = 0.5
+            kron_two_body[ab_index] = 0.5
 
             tensor_blocked_spin_orbitals = PolynomialTensor.apply(np.kron, kron_tensor, self.alpha)
             return tensor_blocked_spin_orbitals
@@ -599,17 +625,29 @@ class ElectronicIntegrals(LinearMixin):
         # beta_alpha spin
         if not beta_alpha_empty:
             kron_tensor = PolynomialTensor({"++--": kron_two_body})
-            kron_two_body[(1, 0, 0, 1)] = 0.5
+
+            ba_tensor = self.beta_alpha["++--"]
+            if not isinstance(ba_tensor, Tensor):
+                ba_tensor = Tensor(ba_tensor)
+
+            ba_index = cast(
+                Tuple[int, int, int, int], tuple(ba_tensor._reverse_label_template(ba_index))
+            )
+            ab_index = cast(
+                Tuple[int, int, int, int], tuple(ba_tensor._reverse_label_template(ab_index))
+            )
+
+            kron_two_body[ba_index] = 0.5
             tensor_blocked_spin_orbitals += PolynomialTensor.apply(
                 np.kron, kron_tensor, self.beta_alpha
             )
-            kron_two_body[(1, 0, 0, 1)] = 0
+            kron_two_body[ba_index] = 0
             # extract transposed beta_alpha term
-            kron_two_body[(0, 1, 1, 0)] = 0.5
+            kron_two_body[ab_index] = 0.5
             tensor_blocked_spin_orbitals += PolynomialTensor.apply(
                 np.kron, kron_tensor, self.alpha_beta
             )
-            kron_two_body[(0, 1, 1, 0)] = 0
+            kron_two_body[ab_index] = 0
 
         return tensor_blocked_spin_orbitals
 
@@ -627,13 +665,10 @@ class ElectronicIntegrals(LinearMixin):
         if beta_empty and beta_alpha_empty:
             return cast(PolynomialTensor, 2.0 * self.alpha)
 
-        one_body = self.one_body
         two_body = self.two_body
         tensor_spin_traced = PolynomialTensor({})
-        tensor_spin_traced += one_body.alpha
-        tensor_spin_traced += one_body.beta
-        tensor_spin_traced += two_body.alpha
-        tensor_spin_traced += two_body.beta
+        tensor_spin_traced += self.alpha
+        tensor_spin_traced += self.beta
         if beta_alpha_empty:
             tensor_spin_traced += two_body.alpha
             tensor_spin_traced += two_body.beta

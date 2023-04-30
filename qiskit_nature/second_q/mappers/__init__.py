@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -21,6 +21,7 @@ The classes here are used to convert fermionic, vibrational and spin operators t
 
 .. autosummary::
    :toctree: ../stubs/
+   :template: autosummary/class_with_inherited_members.rst
    :nosignatures:
 
    QubitMapper
@@ -30,23 +31,33 @@ FermionicOp Mappers
 
 .. autosummary::
    :toctree: ../stubs/
+   :template: autosummary/class_with_inherited_members.rst
    :nosignatures:
 
-   FermionicMapper
    BravyiKitaevMapper
    BravyiKitaevSuperFastMapper
    JordanWignerMapper
    ParityMapper
 
+**Interleaved Qubit-Ordering:** If you want to generate qubit operators where the alpha-spin and
+beta-spin components are mapped to the qubit register in an interleaved (rather than the default
+blocked) order, you can use the following wrapper:
+
+.. autosummary::
+   :toctree: ../stubs/
+   :template: autosummary/class_with_inherited_members.rst
+   :nosignatures:
+
+   InterleavedQubitMapper
 
 VibrationalOp Mappers
 +++++++++++++++++++++
 
 .. autosummary::
    :toctree: ../stubs/
+   :template: autosummary/class_with_inherited_members.rst
    :nosignatures:
 
-   VibrationalMapper
    DirectMapper
 
 
@@ -55,20 +66,35 @@ SpinOp Mappers
 
 .. autosummary::
    :toctree: ../stubs/
+   :template: autosummary/class_with_inherited_members.rst
    :nosignatures:
 
-   SpinMapper
    LinearMapper
    LogarithmicMapper
+
+Tapered Qubit Mapper
+++++++++++++++++++++
+
+If you want to make use of the symmetries of your problem and add a step of tapering
+after the mapping to qubit operators, you can use the following wrapper for symmetry reduction:
+
+.. autosummary::
+   :toctree: ../stubs/
+   :template: autosummary/class_with_inherited_members.rst
+   :nosignatures:
+
+   TaperedQubitMapper
 
 Qubit Converter
 +++++++++++++++
 
 .. autosummary::
    :toctree: ../stubs/
+   :template: autosummary/class_with_inherited_members.rst
    :nosignatures:
 
    QubitConverter
+
 """
 
 from .bksf import BravyiKitaevSuperFastMapper
@@ -80,9 +106,8 @@ from .logarithmic_mapper import LogarithmicMapper
 from .direct_mapper import DirectMapper
 from .qubit_mapper import QubitMapper
 from .qubit_converter import QubitConverter
-from .fermionic_mapper import FermionicMapper
-from .spin_mapper import SpinMapper
-from .vibrational_mapper import VibrationalMapper
+from .interleaved_qubit_mapper import InterleavedQubitMapper
+from .tapered_qubit_mapper import TaperedQubitMapper
 
 __all__ = [
     "BravyiKitaevMapper",
@@ -94,4 +119,6 @@ __all__ = [
     "LogarithmicMapper",
     "QubitConverter",
     "QubitMapper",
+    "InterleavedQubitMapper",
+    "TaperedQubitMapper",
 ]

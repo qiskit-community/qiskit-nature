@@ -33,7 +33,7 @@
    {% block methods_summary %}
    {% if methods %}
 
-   .. rubric:: Methods
+   .. rubric:: Methods Defined Here
 
    .. autosummary::
       :toctree: ../stubs/

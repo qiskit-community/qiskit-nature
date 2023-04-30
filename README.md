@@ -43,93 +43,25 @@ Several, as listed below, are supported, and while logic to interface these prog
 Qiskit Nature via the above pip installation, the dependent programs/libraries themselves need
 to be installed separately.
 
-1. [Gaussian 16&trade;](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.second_q.drivers.gaussiand.html), a commercial chemistry program
-2. [PSI4](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.second_q.drivers.psi4d.html), a chemistry program that exposes a Python interface allowing for accessing internal objects
-3. [PySCF](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.second_q.drivers.pyscfd.html), an open-source Python chemistry program
+- [Gaussian 16&trade;](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.second_q.drivers.gaussiand.html), a commercial chemistry program
+- [PSI4](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.second_q.drivers.psi4d.html), a chemistry program that exposes a Python interface allowing for accessing internal objects
+- [PySCF](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.second_q.drivers.pyscfd.html), an open-source Python chemistry program
+
+Additionally, you may find the following optional dependencies useful:
+
+- [sparse](https://github.com/pydata/sparse/), a library for sparse multi-dimensional arrays. When installed, Qiskit Nature can leverage this to reduce the memory requirements of your calculations.
+- [opt_einsum](https://github.com/dgasmith/opt_einsum), a tensor contraction order optimizer for `np.einsum`.
 
 ## Creating Your First Chemistry Programming Experiment in Qiskit
 
-Now that Qiskit Nature is installed, let's try a chemistry application experiment
-using the VQE (Variational Quantum Eigensolver) algorithm to compute
-the ground-state (minimum) energy of a molecule.
-
-```python
-from qiskit_nature.units import DistanceUnit
-from qiskit_nature.second_q.drivers import PySCFDriver
-
-# Use PySCF, a classical computational chemistry software
-# package, to compute the one-body and two-body integrals in
-# electronic-orbital basis, necessary to form the Fermionic operator
-driver = PySCFDriver(
-    atom='H .0 .0 .0; H .0 .0 0.735',
-    unit=DistanceUnit.ANGSTROM,
-    basis='sto3g',
-)
-problem = driver.run()
-
-# setup the mapper and qubit converter
-from qiskit_nature.second_q.mappers import ParityMapper
-from qiskit_nature.second_q.mappers import QubitConverter
-
-mapper = ParityMapper()
-converter = QubitConverter(mapper=mapper, two_qubit_reduction=True)
-
-# setup the classical optimizer for the VQE
-from qiskit.algorithms.optimizers import L_BFGS_B
-
-optimizer = L_BFGS_B()
-
-# setup the estimator primitive for the VQE
-from qiskit.primitives import Estimator
-
-estimator = Estimator()
-
-# setup the ansatz for VQE
-from qiskit_nature.second_q.circuit.library import UCCSD
-
-ansatz = UCCSD()
-
-# use a factory to complement the VQE and its components at runtime
-from qiskit_nature.second_q.algorithms import VQEUCCFactory
-
-vqe_factory = VQEUCCFactory(estimator, ansatz, optimizer)
-
-# prepare the ground-state solver and run it
-from qiskit_nature.second_q.algorithms import GroundStateEigensolver
-
-algorithm = GroundStateEigensolver(converter, vqe_factory)
-
-electronic_structure_result = algorithm.solve(problem)
-print(electronic_structure_result)
-```
-The program above uses a quantum computer to calculate the ground state energy of molecular Hydrogen,
-H<sub>2</sub>, where the two atoms are configured to be at a distance of 0.735 angstroms. The molecular
-input specification is processed by the PySCF driver. This driver produces an `ElectronicStructureProblem`
-which gathers all the problem information required by Qiskit Nature.
-The second-quantized operators contained in that problem can be mapped to qubit operators with a
-`QubitConverter`. Here, we chose the parity mapping in combination with a 2-qubit reduction, which
-is a precision-preserving optimization removing two qubits; a reduction in complexity that is particularly
-advantageous for NISQ computers.
-
-For actually finding the ground state solution, the Variational Quantum Eigensolver (VQE) algorithm is used.
-Its main three components, the estimator primitive, wavefunciton ansatz (`UCCSD`), and optimizer, are passed
-to the `VQEUCCFactory`, a utility of Qiskit Nature simplifying the setup of the `VQE` algorithm and its
-components. This factory also ensures consistent settings for the ansatzes initial state and the optimizers
-initial point.
-
-The entire problem is then solved using a `GroundStateEigensolver` which wraps both, the `QubitConverter`
-and `VQEUCCFactory`. Since an `ElectronicStructureProblem` is provided to it (which was the output of the
-`PySCFDriver`) it also returns an `ElectronicStructureResult`.
+Check our [getting started page](https://qiskit.org/documentation/nature/getting_started.html)
+for a first example on how to use Qiskit Nature.
 
 ### Further examples
 
 Learning path notebooks may be found in the
 [Nature Tutorials](https://qiskit.org/documentation/nature/tutorials/index.html) section
-of the documentation and are a great place to start
-
-Jupyter notebooks containing further Nature examples may be found in the
-following Qiskit GitHub repositories at
-[qiskit-nature/docs/tutorials](https://github.com/Qiskit/qiskit-nature/tree/main/docs/tutorials).
+of the documentation and are a great place to start.
 
 
 ----------------------------------------------------------------------------------------------------
@@ -143,7 +75,7 @@ This project adheres to Qiskit's [code of conduct](https://github.com/Qiskit/qis
 By participating, you are expected to uphold this code.
 
 We use [GitHub issues](https://github.com/Qiskit/qiskit-nature/issues) for tracking requests and bugs. Please
-[join the Qiskit Slack community](https://ibm.co/joinqiskitslack)
+[join the Qiskit Slack community](https://qisk.it/join-slack)
 for discussion and simple questions.
 For questions that are more suited for a forum, we use the **Qiskit** tag in [Stack Overflow](https://stackoverflow.com/questions/tagged/qiskit).
 
@@ -153,8 +85,10 @@ Qiskit Nature was inspired, authored and brought about by the collective work of
 Qiskit Nature continues to grow with the help and work of
 [many people](https://github.com/Qiskit/qiskit-nature/graphs/contributors), who contribute
 to the project at different levels.
-If you use Qiskit, please cite as per the provided
-[BibTeX file](https://github.com/Qiskit/qiskit/blob/master/Qiskit.bib).
+If you use Qiskit Nature, please cite the following references:
+
+- Qiskit, as per the provided [BibTeX file](https://github.com/Qiskit/qiskit/blob/master/Qiskit.bib).
+- Qiskit Nature, as per https://doi.org/10.5281/zenodo.7828767
 
 Please note that if you do not like the way your name is cited in the BibTex file then consult
 the information found in the [.mailmap](https://github.com/Qiskit/qiskit-nature/blob/main/.mailmap)

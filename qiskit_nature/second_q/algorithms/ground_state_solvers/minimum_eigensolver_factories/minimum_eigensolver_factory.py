@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,27 +12,46 @@
 
 """The minimum eigensolver factory for ground state calculation algorithms."""
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 
 from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolver
 
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.problems import BaseProblem
+from qiskit_nature.deprecation import deprecate_arguments
 
 
 class MinimumEigensolverFactory(ABC):
-    """A factory to construct a minimum eigensolver based on a qubit operator transformation."""
+    """DEPRECATED A factory to construct a minimum eigensolver based on a qubit operator
+    transformation.
+    """
 
     @abstractmethod
+    @deprecate_arguments(
+        "0.6.0",
+        {"qubit_converter": "qubit_mapper"},
+        additional_msg=(
+            ". Additionally, the QubitConverter type in the qubit_mapper argument is deprecated "
+            "and support for it will be removed together with the qubit_converter argument."
+        ),
+    )
     def get_solver(
-        self, problem: BaseProblem, qubit_converter: QubitConverter
+        self,
+        problem: BaseProblem,
+        qubit_mapper: QubitConverter | QubitMapper,
+        *,
+        qubit_converter: QubitConverter | QubitMapper | None = None,
     ) -> MinimumEigensolver:
         """Returns a minimum eigensolver, based on the qubit operator transformation.
 
         Args:
             problem: A class encoding a problem to be solved.
-            qubit_converter: A class that converts second quantized operator to qubit operator
-                             according to a mapper it is initialized with.
+            qubit_mapper: A class that converts second quantized operator to qubit operator.
+                Providing a ``QubitConverter`` instance here is deprecated.
+            qubit_converter: DEPRECATED A class that converts second quantized operator to qubit
+                operator according to a mapper it is initialized with.
 
         Returns:
             A minimum eigensolver suitable to compute the ground state of the molecule.

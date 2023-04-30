@@ -20,6 +20,8 @@ Random sampling utilities
 -------------------------
 
 .. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
 
    random_antisymmetric_matrix
    random_quadratic_hamiltonian

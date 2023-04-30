@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -32,7 +32,7 @@ from qiskit.quantum_info.operators.mixins import (
 from .polynomial_tensor import PolynomialTensor
 
 
-_TCoeff = Union[complex, ParameterExpression]
+_TCoeff = Union[complex, ParameterExpression]  # pylint: disable=invalid-name
 
 
 def _to_number(a: _TCoeff) -> complex:
@@ -511,11 +511,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
             A new operator with the parameters assigned.
         """
         data = {
-            # TODO use this line once
-            # https://github.com/Qiskit/qiskit-terra/pull/9304
-            # is merged:
-            # key: value.bind(parameters, allow_unknown_parameters=True)
-            key: value.bind({k: v for k, v in parameters.items() if k in value.parameters})
+            key: value.bind(parameters, allow_unknown_parameters=True)
             if isinstance(value, ParameterExpression)
             else value
             for key, value in self._data.items()
@@ -549,7 +545,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
         if len(self) == 0:
             return True
         tol = tol if tol is not None else self.atol
-        return all(np.isclose(val, 0, atol=tol) for val in self._data.values())
+        return all(np.isclose(_to_number(val), 0, atol=tol) for val in self._data.values())
 
     def parameters(self) -> list[ParameterExpression]:
         """Returns a list of the parameters in the operator.

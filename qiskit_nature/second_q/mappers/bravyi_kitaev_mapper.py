@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -18,21 +18,22 @@ from functools import lru_cache
 
 import numpy as np
 
-from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators import Pauli
 
-from qiskit_nature.second_q.operators import FermionicOp
+from qiskit_nature.deprecation import deprecate_arguments
 from .fermionic_mapper import FermionicMapper
 
 
-class BravyiKitaevMapper(FermionicMapper):  # pylint: disable=missing-class-docstring
-    def __init__(self):
-        """The Bravyi-Kitaev fermion-to-qubit mapping."""
-        super().__init__(allows_two_qubit_reduction=False)
+class BravyiKitaevMapper(FermionicMapper):
+    """The Bravyi-Kitaev fermion-to-qubit mapping."""
 
     @classmethod
+    @deprecate_arguments("0.6.0", {"nmodes": "register_length"})
     @lru_cache(maxsize=32)
-    def pauli_table(cls, nmodes: int) -> list[tuple[Pauli, Pauli]]:
+    def pauli_table(
+        cls, register_length: int, *, nmodes: int | None = None
+    ) -> list[tuple[Pauli, Pauli]]:
+        # pylint: disable=unused-argument
         def parity_set(j, n):
             """
             Computes the parity set of the j-th orbital in n modes.
@@ -103,7 +104,7 @@ class BravyiKitaevMapper(FermionicMapper):  # pylint: disable=missing-class-docs
         pauli_table = []
         # FIND BINARY SUPERSET SIZE
         bin_sup = 1
-        while nmodes > np.power(2, bin_sup):
+        while register_length > np.power(2, bin_sup):
             bin_sup += 1
         # DEFINE INDEX SETS FOR EVERY FERMIONIC MODE
         update_sets = []
@@ -116,25 +117,35 @@ class BravyiKitaevMapper(FermionicMapper):  # pylint: disable=missing-class-docs
 
         remainder_sets = []
         remainder_pauli = []
-        for j in range(nmodes):
+        for j in range(register_length):
 
             update_sets.append(update_set(j, np.power(2, bin_sup)))
-            update_sets[j] = update_sets[j][update_sets[j] < nmodes]
+            update_sets[j] = update_sets[j][update_sets[j] < register_length]
 
             parity_sets.append(parity_set(j, np.power(2, bin_sup)))
-            parity_sets[j] = parity_sets[j][parity_sets[j] < nmodes]
+            parity_sets[j] = parity_sets[j][parity_sets[j] < register_length]
 
             flip_sets.append(flip_set(j, np.power(2, bin_sup)))
-            flip_sets[j] = flip_sets[j][flip_sets[j] < nmodes]
+            flip_sets[j] = flip_sets[j][flip_sets[j] < register_length]
 
             remainder_sets.append(np.setdiff1d(parity_sets[j], flip_sets[j]))
 
-            update_pauli.append(Pauli((np.zeros(nmodes, dtype=bool), np.zeros(nmodes, dtype=bool))))
-            parity_pauli.append(Pauli((np.zeros(nmodes, dtype=bool), np.zeros(nmodes, dtype=bool))))
-            remainder_pauli.append(
-                Pauli((np.zeros(nmodes, dtype=bool), np.zeros(nmodes, dtype=bool)))
+            update_pauli.append(
+                Pauli(
+                    (np.zeros(register_length, dtype=bool), np.zeros(register_length, dtype=bool))
+                )
             )
-            for k in range(nmodes):
+            parity_pauli.append(
+                Pauli(
+                    (np.zeros(register_length, dtype=bool), np.zeros(register_length, dtype=bool))
+                )
+            )
+            remainder_pauli.append(
+                Pauli(
+                    (np.zeros(register_length, dtype=bool), np.zeros(register_length, dtype=bool))
+                )
+            )
+            for k in range(register_length):
                 if np.in1d(k, update_sets[j]):
                     update_pauli[j].x[k] = True
                 if np.in1d(k, parity_sets[j]):
@@ -142,9 +153,13 @@ class BravyiKitaevMapper(FermionicMapper):  # pylint: disable=missing-class-docs
                 if np.in1d(k, remainder_sets[j]):
                     remainder_pauli[j].z[k] = True
 
-            x_j = Pauli((np.zeros(nmodes, dtype=bool), np.zeros(nmodes, dtype=bool)))
+            x_j = Pauli(
+                (np.zeros(register_length, dtype=bool), np.zeros(register_length, dtype=bool))
+            )
             x_j.x[j] = True
-            y_j = Pauli((np.zeros(nmodes, dtype=bool), np.zeros(nmodes, dtype=bool)))
+            y_j = Pauli(
+                (np.zeros(register_length, dtype=bool), np.zeros(register_length, dtype=bool))
+            )
             y_j.z[j] = True
             y_j.x[j] = True
             pauli_table.append(
@@ -161,6 +176,3 @@ class BravyiKitaevMapper(FermionicMapper):  # pylint: disable=missing-class-docs
             pauli2.phase = 0
 
         return pauli_table
-
-    def map(self, second_q_op: FermionicOp) -> PauliSumOp:
-        return BravyiKitaevMapper.mode_based_mapping(second_q_op, second_q_op.register_length)

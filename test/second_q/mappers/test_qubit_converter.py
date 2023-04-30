@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -15,16 +15,23 @@
 import contextlib
 import io
 import unittest
+import warnings
 from test import QiskitNatureTestCase
 from typing import List, Optional
 
 from qiskit.opflow import I, PauliSumOp, X, Y, Z, Z2Symmetries
+from qiskit.quantum_info import SparsePauliOp
 
 import qiskit_nature.optionals as _optionals
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.operators import FermionicOp
-from qiskit_nature.second_q.mappers import JordanWignerMapper, ParityMapper, QubitConverter
+from qiskit_nature.second_q.mappers import (
+    JordanWignerMapper,
+    ParityMapper,
+    QubitConverter,
+)
+from qiskit_nature.settings import settings
 
 
 @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
@@ -77,7 +84,7 @@ class TestQubitConverter(QiskitNatureTestCase):
 
     REF_H2_JW_TAPERED = -1.04109314222921270 * I - 0.79587484566286240 * Z + 0.18093119996470988 * X
 
-    REF_H2_PARITY_2Q_REDUCED_TAPER = (
+    REF_H2_PARITY_TAPERED = (
         -1.04109314222921250 * I - 0.79587484566286300 * Z - 0.18093119996470994 * X
     )
 
@@ -85,45 +92,86 @@ class TestQubitConverter(QiskitNatureTestCase):
         super().setUp()
         driver = PySCFDriver()
         self.driver_result = driver.run()
-        self.num_particles = self.driver_result.num_particles
+        self.num_particles = self.driver_result.num_particles  # (1, 1)
         self.h2_op, _ = self.driver_result.second_q_ops()
+        self.mapper = ParityMapper()
+        self.qubit_conv = QubitConverter(self.mapper)
 
     def test_mapping_basic(self):
         """Test mapping to qubit operator"""
         mapper = JordanWignerMapper()
         qubit_conv = QubitConverter(mapper)
-        qubit_op = qubit_conv.convert(self.h2_op)
-
-        self.assertIsInstance(qubit_op, PauliSumOp)
 
         # Note: The PauliSumOp equals, as used in the test below, use the equals of the
         #       SparsePauliOp which in turn uses np.allclose() to determine equality of
         #       coeffs. So the reference operator above will be matched on that basis so
         #       we don't need to worry about tiny precision changes for any reason.
 
-        self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW)
+        aux = settings.use_pauli_sum_op
+        try:
+            settings.use_pauli_sum_op = True
+            qubit_op = qubit_conv.convert(self.h2_op)
+            self.assertIsInstance(qubit_op, PauliSumOp)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW)
+            settings.use_pauli_sum_op = False
+            qubit_op = qubit_conv.convert(self.h2_op)
+            self.assertIsInstance(qubit_op, SparsePauliOp)
+            self.assertEqualSparsePauliOp(qubit_op, TestQubitConverter.REF_H2_JW.primitive)
+        finally:
+            settings.use_pauli_sum_op = aux
 
         with self.subTest("Re-use test"):
-            qubit_op = qubit_conv.convert(self.h2_op)
-            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW)
+            aux = settings.use_pauli_sum_op
+            try:
+                settings.use_pauli_sum_op = True
+                qubit_op = qubit_conv.convert(self.h2_op)
+                self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW)
+                settings.use_pauli_sum_op = False
+                qubit_op = qubit_conv.convert(self.h2_op)
+                self.assertEqualSparsePauliOp(qubit_op, TestQubitConverter.REF_H2_JW.primitive)
+            finally:
+                settings.use_pauli_sum_op = aux
 
         with self.subTest("convert_match()"):
-            qubit_op = qubit_conv.convert_match(self.h2_op)
-            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW)
+            aux = settings.use_pauli_sum_op
+            try:
+                settings.use_pauli_sum_op = True
+                qubit_op = qubit_conv.convert_match(self.h2_op)
+                self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW)
+                settings.use_pauli_sum_op = False
+                qubit_op = qubit_conv.convert_match(self.h2_op)
+                self.assertEqualSparsePauliOp(qubit_op, TestQubitConverter.REF_H2_JW.primitive)
+            finally:
+                settings.use_pauli_sum_op = aux
 
         with self.subTest("Re-use with different mapper"):
             qubit_conv.mapper = ParityMapper()
-            qubit_op = qubit_conv.convert(self.h2_op)
-            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY)
-
-        with self.subTest("Set two qubit reduction - no effect without num particles"):
             qubit_conv.two_qubit_reduction = True
-            qubit_op = qubit_conv.convert_match(self.h2_op)
+            qubit_op = qubit_conv.convert(self.h2_op)
+            if not isinstance(qubit_op, PauliSumOp):
+                qubit_op = PauliSumOp(qubit_op)
             self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY)
 
         with self.subTest("Force match set num particles"):
             qubit_conv.force_match(num_particles=self.num_particles)
-            qubit_op = qubit_conv.convert_match(self.h2_op)
+            aux = settings.use_pauli_sum_op
+            try:
+                settings.use_pauli_sum_op = True
+                qubit_op = qubit_conv.convert_match(self.h2_op)
+                self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED)
+                settings.use_pauli_sum_op = False
+                qubit_op = qubit_conv.convert_match(self.h2_op)
+                self.assertEqualSparsePauliOp(
+                    qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED.primitive
+                )
+            finally:
+                settings.use_pauli_sum_op = aux
+
+        with self.subTest("Convert with number of particles"):
+            qubit_conv.force_match(num_particles=None)
+            qubit_op = qubit_conv.convert(self.h2_op, num_particles=self.num_particles)
+            if not isinstance(qubit_op, PauliSumOp):
+                qubit_op = PauliSumOp(qubit_op)
             self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED)
 
     def test_two_qubit_reduction(self):
@@ -131,34 +179,102 @@ class TestQubitConverter(QiskitNatureTestCase):
         mapper = ParityMapper()
         qubit_conv = QubitConverter(mapper, two_qubit_reduction=True)
 
-        with self.subTest("Two qubit reduction ignored as no num particles given"):
+        with self.subTest("Two qubit reduction produces list as no particle number is given"):
             qubit_op = qubit_conv.convert(self.h2_op)
+            if not isinstance(qubit_op, PauliSumOp):
+                qubit_op = PauliSumOp(qubit_op)
             self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY)
             self.assertIsNone(qubit_conv.num_particles)
 
         with self.subTest("Two qubit reduction, num particles given"):
-            qubit_op = qubit_conv.convert(self.h2_op, self.num_particles)
-            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED)
-            self.assertEqual(qubit_conv.num_particles, self.num_particles)
+            aux = settings.use_pauli_sum_op
+            try:
+                settings.use_pauli_sum_op = True
+                qubit_op = qubit_conv.convert(self.h2_op, self.num_particles)
+                self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED)
+                self.assertEqual(qubit_conv.num_particles, self.num_particles)
+                settings.use_pauli_sum_op = False
+                qubit_op = qubit_conv.convert(self.h2_op, self.num_particles)
+                self.assertEqualSparsePauliOp(
+                    qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED.primitive
+                )
+                self.assertEqual(qubit_conv.num_particles, self.num_particles)
+            finally:
+                settings.use_pauli_sum_op = aux
 
         with self.subTest("convert_match()"):
-            qubit_op = qubit_conv.convert_match(self.h2_op)
-            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED)
-            self.assertEqual(qubit_conv.num_particles, self.num_particles)
+            aux = settings.use_pauli_sum_op
+            try:
+                settings.use_pauli_sum_op = True
+                qubit_op = qubit_conv.convert_match(self.h2_op)
+                self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED)
+                self.assertEqual(qubit_conv.num_particles, self.num_particles)
+                settings.use_pauli_sum_op = False
+                qubit_op = qubit_conv.convert_match(self.h2_op)
+                self.assertEqualSparsePauliOp(
+                    qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED.primitive
+                )
+                self.assertEqual(qubit_conv.num_particles, self.num_particles)
+            finally:
+                settings.use_pauli_sum_op = aux
 
         with self.subTest("State is reset (Num particles lost)"):
-            qubit_op = qubit_conv.convert(self.h2_op)
-            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY)
-            self.assertIsNone(qubit_conv.num_particles)
+            aux = settings.use_pauli_sum_op
+            try:
+                settings.use_pauli_sum_op = True
+                qubit_op = qubit_conv.convert(self.h2_op)
+                self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY)
+                self.assertIsNone(qubit_conv.num_particles)
+                settings.use_pauli_sum_op = False
+                qubit_op = qubit_conv.convert(self.h2_op)
+                self.assertEqualSparsePauliOp(qubit_op, TestQubitConverter.REF_H2_PARITY.primitive)
+                self.assertIsNone(qubit_conv.num_particles)
+            finally:
+                settings.use_pauli_sum_op = aux
 
         with self.subTest("Num particles given again"):
-            qubit_op = qubit_conv.convert(self.h2_op, self.num_particles)
-            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED)
+            aux = settings.use_pauli_sum_op
+            try:
+                settings.use_pauli_sum_op = True
+                qubit_op = qubit_conv.convert(self.h2_op, self.num_particles)
+                self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED)
+                settings.use_pauli_sum_op = False
+                qubit_op = qubit_conv.convert(self.h2_op, self.num_particles)
+                self.assertEqualSparsePauliOp(
+                    qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED.primitive
+                )
+            finally:
+                settings.use_pauli_sum_op = aux
 
-        with self.subTest("Set for no two qubit reduction"):
+        with self.subTest("Set two qubit reduction to False"):
             qubit_conv.two_qubit_reduction = False
             self.assertFalse(qubit_conv.two_qubit_reduction)
+            aux = settings.use_pauli_sum_op
+            try:
+                settings.use_pauli_sum_op = True
+                qubit_op = qubit_conv.convert(self.h2_op)
+                self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY)
+                settings.use_pauli_sum_op = False
+                qubit_op = qubit_conv.convert(self.h2_op)
+                self.assertEqualSparsePauliOp(qubit_op, TestQubitConverter.REF_H2_PARITY.primitive)
+            finally:
+                settings.use_pauli_sum_op = aux
+
+        with self.subTest("Set two qubit reduction to False, set particle number in convert"):
+            qubit_conv.two_qubit_reduction = False
+            self.assertFalse(qubit_conv.two_qubit_reduction)
+            qubit_op = qubit_conv.convert(self.h2_op, num_particles=self.num_particles)
+            if not isinstance(qubit_op, PauliSumOp):
+                qubit_op = PauliSumOp(qubit_op)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY)
+
+        with self.subTest("Set two qubit reduction to False, set particle numbers in the mapper"):
+            qubit_conv.two_qubit_reduction = False
+            self.assertFalse(qubit_conv.two_qubit_reduction)
+            qubit_conv.force_match(num_particles=self.num_particles)
             qubit_op = qubit_conv.convert(self.h2_op)
+            if not isinstance(qubit_op, PauliSumOp):
+                qubit_op = PauliSumOp(qubit_op)
             self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY)
 
         # Regression test against https://github.com/Qiskit/qiskit-nature/issues/271
@@ -168,6 +284,67 @@ class TestQubitConverter(QiskitNatureTestCase):
             expected_op = 1.0 * (I ^ I) - 0.5 * (I ^ Z) + 0.5 * (Z ^ Z)
             with contextlib.redirect_stderr(io.StringIO()) as out:
                 qubit_op = qubit_conv.convert(small_op, num_particles=self.num_particles)
+            if not isinstance(qubit_op, PauliSumOp):
+                qubit_op = PauliSumOp(qubit_op)
+            self.assertEqual(qubit_op, expected_op)
+            self.assertTrue(
+                out.getvalue()
+                .strip()
+                .startswith(
+                    "The original qubit operator only contains 2 qubits! "
+                    "Skipping the requested two-qubit reduction!"
+                )
+            )
+
+    def test_paritymapper_two_qubit_reduction(self):
+        """Test mapping to qubit operator with two qubit reduction from the parity Mapper."""
+
+        with self.subTest("No particle number in the mapper and the convert method"):
+            mapper = ParityMapper()
+            qubit_conv = QubitConverter(mapper, two_qubit_reduction=False)
+            qubit_op = qubit_conv.convert(self.h2_op)
+            if not isinstance(qubit_op, PauliSumOp):
+                qubit_op = PauliSumOp(qubit_op)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY)
+            self.assertIsNone(qubit_conv.num_particles)
+
+        with self.subTest("Set particle number in the mapper only"):
+            mapper = ParityMapper(num_particles=(1, 1))
+            qubit_conv = QubitConverter(mapper, two_qubit_reduction=False)
+            qubit_op = qubit_conv.convert(self.h2_op)
+            if not isinstance(qubit_op, PauliSumOp):
+                qubit_op = PauliSumOp(qubit_op)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY)
+            self.assertIsNone(qubit_conv.num_particles)
+
+        with self.subTest("Two qubit reduction is False and num particles given"):
+            mapper = ParityMapper(num_particles=(1, 1))
+            qubit_conv = QubitConverter(mapper, two_qubit_reduction=False)
+            qubit_op = qubit_conv.convert(self.h2_op, num_particles=(1, 1))
+            if not isinstance(qubit_op, PauliSumOp):
+                qubit_op = PauliSumOp(qubit_op)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY)
+            self.assertIsNone(mapper.num_particles)
+
+        with self.subTest("Set particle number in the converter only"):
+            mapper = ParityMapper()
+            qubit_conv = QubitConverter(mapper, two_qubit_reduction=True)
+            qubit_op = qubit_conv.convert(self.h2_op, num_particles=(1, 1))
+            if not isinstance(qubit_op, PauliSumOp):
+                qubit_op = PauliSumOp(qubit_op)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED)
+            self.assertEqual(qubit_conv.num_particles, self.num_particles)
+
+        # Regression test against https://github.com/Qiskit/qiskit-nature/issues/271
+        with self.subTest("Two qubit reduction skipped when operator too small"):
+            mapper = ParityMapper(num_particles=self.num_particles)
+            qubit_conv = QubitConverter(mapper, two_qubit_reduction=True)
+            small_op = FermionicOp({"+_0 -_0": 1.0, "-_1 +_1": 1.0}, num_spin_orbitals=2)
+            expected_op = 1.0 * (I ^ I) - 0.5 * (I ^ Z) + 0.5 * (Z ^ Z)
+            with contextlib.redirect_stderr(io.StringIO()) as out:
+                qubit_op = qubit_conv.convert(small_op, num_particles=self.num_particles)
+            if not isinstance(qubit_op, PauliSumOp):
+                qubit_op = PauliSumOp(qubit_op)
             self.assertEqual(qubit_op, expected_op)
             self.assertTrue(
                 out.getvalue()
@@ -196,17 +373,45 @@ class TestQubitConverter(QiskitNatureTestCase):
         qubit_conv = QubitConverter(mapper, z2symmetry_reduction="auto")
 
         with self.subTest("Locator returns None, should be untapered operator"):
-            qubit_op = qubit_conv.convert(self.h2_op, sector_locator=cb_find_none)
-            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW)
+            aux = settings.use_pauli_sum_op
+            try:
+                settings.use_pauli_sum_op = True
+                qubit_op = qubit_conv.convert(self.h2_op, sector_locator=cb_find_none)
+                self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW)
+                settings.use_pauli_sum_op = False
+                qubit_op = qubit_conv.convert(self.h2_op, sector_locator=cb_find_none)
+                self.assertEqualSparsePauliOp(qubit_op, TestQubitConverter.REF_H2_JW.primitive)
+            finally:
+                settings.use_pauli_sum_op = aux
 
-        qubit_op = qubit_conv.convert(self.h2_op, sector_locator=cb_finder)
-        self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW_TAPERED)
+        aux = settings.use_pauli_sum_op
+        try:
+            settings.use_pauli_sum_op = True
+            qubit_op = qubit_conv.convert(self.h2_op, sector_locator=cb_finder)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW_TAPERED)
+            settings.use_pauli_sum_op = False
+            qubit_op = qubit_conv.convert(self.h2_op, sector_locator=cb_finder)
+            self.assertEqualSparsePauliOp(qubit_op, TestQubitConverter.REF_H2_JW_TAPERED.primitive)
+        finally:
+            settings.use_pauli_sum_op = aux
 
         with self.subTest("convert_match()"):
-            qubit_op = qubit_conv.convert_match(self.h2_op)
-            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW_TAPERED)
-            self.assertIsNone(qubit_conv.num_particles)
-            self.assertListEqual(qubit_conv.z2symmetries.tapering_values, z2_sector)
+            aux = settings.use_pauli_sum_op
+            try:
+                settings.use_pauli_sum_op = True
+                qubit_op = qubit_conv.convert_match(self.h2_op)
+                self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW_TAPERED)
+                self.assertIsNone(qubit_conv.num_particles)
+                self.assertListEqual(qubit_conv.z2symmetries.tapering_values, z2_sector)
+                settings.use_pauli_sum_op = False
+                qubit_op = qubit_conv.convert_match(self.h2_op)
+                self.assertEqualSparsePauliOp(
+                    qubit_op, TestQubitConverter.REF_H2_JW_TAPERED.primitive
+                )
+                self.assertIsNone(qubit_conv.num_particles)
+                self.assertListEqual(qubit_conv.z2symmetries.tapering_values, z2_sector)
+            finally:
+                settings.use_pauli_sum_op = aux
 
     def test_two_qubit_reduction_and_z2_symmetry(self):
         """Test mapping to qubit operator with z2 symmetry tapering and two qubit reduction"""
@@ -220,30 +425,71 @@ class TestQubitConverter(QiskitNatureTestCase):
         mapper = ParityMapper()
         qubit_conv = QubitConverter(mapper, two_qubit_reduction=True, z2symmetry_reduction="auto")
         qubit_op = qubit_conv.convert(self.h2_op, self.num_particles, sector_locator=cb_finder)
-        self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED_TAPER)
+        if not isinstance(qubit_op, PauliSumOp):
+            qubit_op = PauliSumOp(qubit_op)
+        self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_TAPERED)
         self.assertEqual(qubit_conv.num_particles, self.num_particles)
         self.assertListEqual(qubit_conv.z2symmetries.tapering_values, z2_sector)
 
         with self.subTest("convert_match()"):
-            qubit_op = qubit_conv.convert_match(self.h2_op)
-            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED_TAPER)
-            self.assertEqual(qubit_conv.num_particles, self.num_particles)
-            self.assertListEqual(qubit_conv.z2symmetries.tapering_values, z2_sector)
+            aux = settings.use_pauli_sum_op
+            try:
+                qubit_op = qubit_conv.convert_match(self.h2_op)
+                if not isinstance(qubit_op, PauliSumOp):
+                    qubit_op = PauliSumOp(qubit_op)
+                self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_TAPERED)
+                self.assertEqual(qubit_conv.num_particles, self.num_particles)
+                self.assertListEqual(qubit_conv.z2symmetries.tapering_values, z2_sector)
+                settings.use_pauli_sum_op = False
+                qubit_op = qubit_conv.convert(
+                    self.h2_op, self.num_particles, sector_locator=cb_finder
+                )
+                self.assertEqualSparsePauliOp(
+                    qubit_op, TestQubitConverter.REF_H2_PARITY_TAPERED.primitive
+                )
+                self.assertEqual(qubit_conv.num_particles, self.num_particles)
+                self.assertListEqual(qubit_conv.z2symmetries.tapering_values, z2_sector)
+            finally:
+                settings.use_pauli_sum_op = aux
+
+        with self.subTest("convert_match()"):
+            aux = settings.use_pauli_sum_op
+            try:
+                settings.use_pauli_sum_op = True
+                qubit_op = qubit_conv.convert_match(self.h2_op)
+                self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_TAPERED)
+                self.assertEqual(qubit_conv.num_particles, self.num_particles)
+                self.assertListEqual(qubit_conv.z2symmetries.tapering_values, z2_sector)
+                settings.use_pauli_sum_op = False
+                qubit_op = qubit_conv.convert_match(self.h2_op)
+                self.assertEqualSparsePauliOp(
+                    qubit_op, TestQubitConverter.REF_H2_PARITY_TAPERED.primitive
+                )
+                self.assertEqual(qubit_conv.num_particles, self.num_particles)
+                self.assertListEqual(qubit_conv.z2symmetries.tapering_values, z2_sector)
+            finally:
+                settings.use_pauli_sum_op = aux
 
         with self.subTest("Change setting"):
             qubit_conv.z2symmetry_reduction = [1]
             qubit_op = qubit_conv.convert(self.h2_op, self.num_particles)
-            self.assertNotEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED_TAPER)
+            if not isinstance(qubit_op, PauliSumOp):
+                qubit_op = PauliSumOp(qubit_op)
+            self.assertNotEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_TAPERED)
             qubit_conv.z2symmetry_reduction = [-1]
             qubit_op = qubit_conv.convert(self.h2_op, self.num_particles)
-            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED_TAPER)
+            if not isinstance(qubit_op, PauliSumOp):
+                qubit_op = PauliSumOp(qubit_op)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_TAPERED)
 
         with self.subTest("Specify sector upfront"):
             qubit_conv = QubitConverter(
                 mapper, two_qubit_reduction=True, z2symmetry_reduction=z2_sector
             )
             qubit_op = qubit_conv.convert(self.h2_op, self.num_particles)
-            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_2Q_REDUCED_TAPER)
+            if not isinstance(qubit_op, PauliSumOp):
+                qubit_op = PauliSumOp(qubit_op)
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_PARITY_TAPERED)
 
         with self.subTest("Specify sector upfront, but invalid content"):
             with self.assertRaises(ValueError):
@@ -265,12 +511,60 @@ class TestQubitConverter(QiskitNatureTestCase):
         mapper = JordanWignerMapper()
         qubit_conv = QubitConverter(mapper, two_qubit_reduction=True, z2symmetry_reduction="auto")
         main_op, _ = problem.second_q_ops()
-        qubit_op = qubit_conv.convert(
-            main_op,
-            self.num_particles,
-            sector_locator=problem.symmetry_sector_locator,
-        )
-        self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW_TAPERED)
+        aux = settings.use_pauli_sum_op
+        try:
+            settings.use_pauli_sum_op = True
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=DeprecationWarning)
+                qubit_op = qubit_conv.convert(
+                    main_op,
+                    self.num_particles,
+                    sector_locator=problem.symmetry_sector_locator,
+                )
+            self.assertEqual(qubit_op, TestQubitConverter.REF_H2_JW_TAPERED)
+            settings.use_pauli_sum_op = False
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=DeprecationWarning)
+                qubit_op = qubit_conv.convert(
+                    main_op,
+                    self.num_particles,
+                    sector_locator=problem.symmetry_sector_locator,
+                )
+            self.assertEqualSparsePauliOp(qubit_op, TestQubitConverter.REF_H2_JW_TAPERED.primitive)
+        finally:
+            settings.use_pauli_sum_op = aux
+
+    def test_compatibiliy_with_mappers(self):
+        """Test that Qubit converter and mappers produces the same results."""
+
+        with self.subTest("JordanWigner Mapper"):
+            mapper = JordanWignerMapper()
+            qubit_conv = QubitConverter(mapper)
+            qubit_op_converter = mapper.map(self.h2_op)
+            qubit_op_mapper = qubit_conv.convert(self.h2_op)
+            self.assertEqual(qubit_op_converter, qubit_op_mapper)
+
+        with self.subTest("Parity Mapper"):
+            mapper = ParityMapper()
+            qubit_conv = QubitConverter(mapper)
+            qubit_op_converter = mapper.map(self.h2_op)
+            qubit_op_mapper = qubit_conv.convert(self.h2_op)
+            self.assertEqual(qubit_op_converter, qubit_op_mapper)
+
+        with self.subTest("Parity Mapper and two qubit reduction"):
+            mapper = ParityMapper(num_particles=(1, 1))
+            qubit_conv = QubitConverter(mapper, two_qubit_reduction=True)
+            qubit_op_converter = mapper.map(self.h2_op)
+            qubit_op_mapper = qubit_conv.convert_match(self.h2_op)
+            self.assertEqual(qubit_op_converter, qubit_op_mapper)
+
+    def test_error_with_tapered_qubit_mapper(self):
+        """Test that the qubit converter cannot be used with a Tapered Qubit Mapper"""
+
+        mapper = JordanWignerMapper()
+        tq_mapper = self.driver_result.get_tapered_mapper(mapper)
+        with self.assertRaises(ValueError):
+            _ = QubitConverter(tq_mapper)
 
 
 if __name__ == "__main__":

@@ -40,7 +40,8 @@ class TestBogoliubovTransform(QiskitNatureTestCase):
     @data((4, True), (5, True), (4, False), (5, False))
     def test_bogoliubov_transform(self, n_orbitals, num_conserving):
         """Test Bogoliubov transform."""
-        converter = QubitConverter(JordanWignerMapper())
+        mapper = JordanWignerMapper()
+        converter = QubitConverter(mapper)
         hamiltonian = random_quadratic_hamiltonian(
             n_orbitals, num_conserving=num_conserving, seed=5740
         )
@@ -49,14 +50,26 @@ class TestBogoliubovTransform(QiskitNatureTestCase):
             orbital_energies,
             transformed_constant,
         ) = hamiltonian.diagonalizing_bogoliubov_transform()
-        matrix = converter.map(hamiltonian.second_q_op()).to_matrix()
-        bog_circuit = BogoliubovTransform(transformation_matrix, qubit_converter=converter)
-        for initial_state in range(2**n_orbitals):
-            state = Statevector.from_int(initial_state, dims=2**n_orbitals)
-            final_state = np.array(state.evolve(bog_circuit))
-            occupied_orbitals = [i for i in range(n_orbitals) if initial_state >> i & 1]
-            eig = np.sum(orbital_energies[occupied_orbitals]) + transformed_constant
-            np.testing.assert_allclose(matrix @ final_state, eig * final_state, atol=1e-8)
+
+        with self.subTest("Qubit Converter object"):
+            matrix = converter.convert_only(hamiltonian.second_q_op()).to_matrix()
+            bog_circuit = BogoliubovTransform(transformation_matrix, qubit_mapper=converter)
+            for initial_state in range(2**n_orbitals):
+                state = Statevector.from_int(initial_state, dims=2**n_orbitals)
+                final_state = np.array(state.evolve(bog_circuit))
+                occupied_orbitals = [i for i in range(n_orbitals) if initial_state >> i & 1]
+                eig = np.sum(orbital_energies[occupied_orbitals]) + transformed_constant
+                np.testing.assert_allclose(matrix @ final_state, eig * final_state, atol=1e-8)
+
+        with self.subTest("Qubit Mapper object"):
+            matrix = mapper.map(hamiltonian.second_q_op()).to_matrix()
+            bog_circuit = BogoliubovTransform(transformation_matrix, qubit_mapper=mapper)
+            for initial_state in range(2**n_orbitals):
+                state = Statevector.from_int(initial_state, dims=2**n_orbitals)
+                final_state = np.array(state.evolve(bog_circuit))
+                occupied_orbitals = [i for i in range(n_orbitals) if initial_state >> i & 1]
+                eig = np.sum(orbital_energies[occupied_orbitals]) + transformed_constant
+                np.testing.assert_allclose(matrix @ final_state, eig * final_state, atol=1e-8)
 
     @data(4, 5)
     def test_bogoliubov_transform_compose_num_conserving(self, n_orbitals):
@@ -140,4 +153,9 @@ class TestBogoliubovTransform(QiskitNatureTestCase):
     def test_unsupported_mapper(self):
         """Test passing unsupported mapper fails gracefully."""
         with self.assertRaisesRegex(NotImplementedError, "supported"):
-            _ = BogoliubovTransform(np.eye(2), qubit_converter=QubitConverter(BravyiKitaevMapper()))
+            _ = BogoliubovTransform(np.eye(2), qubit_mapper=QubitConverter(BravyiKitaevMapper()))
+
+    def test_unsupported_mapper_no_converter(self):
+        """Test passing unsupported mapper fails gracefully when bypassing the qubit converter."""
+        with self.assertRaisesRegex(NotImplementedError, "supported"):
+            _ = BogoliubovTransform(np.eye(2), qubit_mapper=BravyiKitaevMapper())

@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -16,11 +16,13 @@ import unittest
 from test import QiskitNatureTestCase
 
 from qiskit.opflow import I, PauliSumOp, X, Z
+from qiskit.quantum_info import SparsePauliOp
 
 import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import BravyiKitaevMapper
 from qiskit_nature.second_q.operators import FermionicOp
+from qiskit_nature import settings
 
 
 class TestBravyiKitaevMapper(QiskitNatureTestCase):
@@ -51,46 +53,96 @@ class TestBravyiKitaevMapper(QiskitNatureTestCase):
         driver_result = driver.run()
         fermionic_op, _ = driver_result.second_q_ops()
         mapper = BravyiKitaevMapper()
-        qubit_op = mapper.map(fermionic_op)
 
         # Note: The PauliSumOp equals, as used in the test below, use the equals of the
         #       SparsePauliOp which in turn uses np.allclose() to determine equality of
         #       coeffs. So the reference operator above will be matched on that basis so
         #       we don't need to worry about tiny precision changes for any reason.
 
-        self.assertEqual(qubit_op, TestBravyiKitaevMapper.REF_H2)
-
-    def test_allows_two_qubit_reduction(self):
-        """Test this returns False for this mapper"""
-        mapper = BravyiKitaevMapper()
-        self.assertFalse(mapper.allows_two_qubit_reduction)
+        aux = settings.use_pauli_sum_op
+        try:
+            settings.use_pauli_sum_op = True
+            qubit_op = mapper.map(fermionic_op)
+            self.assertEqual(qubit_op, TestBravyiKitaevMapper.REF_H2)
+            settings.use_pauli_sum_op = False
+            qubit_op = mapper.map(fermionic_op)
+            self.assertEqualSparsePauliOp(qubit_op, TestBravyiKitaevMapper.REF_H2.primitive)
+        finally:
+            settings.use_pauli_sum_op = aux
 
     def test_mapping_for_single_op(self):
         """Test for single register operator."""
         with self.subTest("test +"):
             op = FermionicOp({"+_0": 1}, num_spin_orbitals=1)
-            expected = PauliSumOp.from_list([("X", 0.5), ("Y", -0.5j)])
-            self.assertEqual(BravyiKitaevMapper().map(op), expected)
+            aux = settings.use_pauli_sum_op
+            try:
+                settings.use_pauli_sum_op = True
+                expected = PauliSumOp.from_list([("X", 0.5), ("Y", -0.5j)])
+                self.assertEqual(BravyiKitaevMapper().map(op), expected)
+                settings.use_pauli_sum_op = False
+                expected = SparsePauliOp.from_list([("X", 0.5), ("Y", -0.5j)])
+                self.assertEqualSparsePauliOp(BravyiKitaevMapper().map(op), expected)
+            finally:
+                settings.use_pauli_sum_op = aux
 
         with self.subTest("test -"):
             op = FermionicOp({"-_0": 1}, num_spin_orbitals=1)
-            expected = PauliSumOp.from_list([("X", 0.5), ("Y", 0.5j)])
-            self.assertEqual(BravyiKitaevMapper().map(op), expected)
+            aux = settings.use_pauli_sum_op
+            try:
+                settings.use_pauli_sum_op = True
+                expected = PauliSumOp.from_list([("X", 0.5), ("Y", 0.5j)])
+                self.assertEqual(BravyiKitaevMapper().map(op), expected)
+                settings.use_pauli_sum_op = False
+                expected = SparsePauliOp.from_list([("X", 0.5), ("Y", 0.5j)])
+                self.assertEqualSparsePauliOp(BravyiKitaevMapper().map(op), expected)
+            finally:
+                settings.use_pauli_sum_op = aux
 
         with self.subTest("test N"):
             op = FermionicOp({"+_0 -_0": 1}, num_spin_orbitals=1)
-            expected = PauliSumOp.from_list([("I", 0.5), ("Z", -0.5)])
-            self.assertEqual(BravyiKitaevMapper().map(op), expected)
+            aux = settings.use_pauli_sum_op
+            try:
+                settings.use_pauli_sum_op = True
+                expected = PauliSumOp.from_list([("I", 0.5), ("Z", -0.5)])
+                self.assertEqual(BravyiKitaevMapper().map(op), expected)
+                settings.use_pauli_sum_op = False
+                expected = SparsePauliOp.from_list([("I", 0.5), ("Z", -0.5)])
+                self.assertEqualSparsePauliOp(BravyiKitaevMapper().map(op), expected)
+            finally:
+                settings.use_pauli_sum_op = aux
 
         with self.subTest("test E"):
             op = FermionicOp({"-_0 +_0": 1}, num_spin_orbitals=1)
-            expected = PauliSumOp.from_list([("I", 0.5), ("Z", 0.5)])
-            self.assertEqual(BravyiKitaevMapper().map(op), expected)
+            aux = settings.use_pauli_sum_op
+            try:
+                settings.use_pauli_sum_op = True
+                expected = PauliSumOp.from_list([("I", 0.5), ("Z", 0.5)])
+                self.assertEqual(BravyiKitaevMapper().map(op), expected)
+                settings.use_pauli_sum_op = False
+                expected = SparsePauliOp.from_list([("I", 0.5), ("Z", 0.5)])
+                self.assertEqualSparsePauliOp(BravyiKitaevMapper().map(op), expected)
+            finally:
+                settings.use_pauli_sum_op = aux
 
         with self.subTest("test I"):
             op = FermionicOp({"": 1}, num_spin_orbitals=1)
-            expected = PauliSumOp.from_list([("I", 1)])
-            self.assertEqual(BravyiKitaevMapper().map(op), expected)
+            aux = settings.use_pauli_sum_op
+            try:
+                settings.use_pauli_sum_op = True
+                expected = PauliSumOp.from_list([("I", 1)])
+                self.assertEqual(BravyiKitaevMapper().map(op), expected)
+                settings.use_pauli_sum_op = False
+                expected = SparsePauliOp.from_list([("I", 1)])
+                self.assertEqualSparsePauliOp(BravyiKitaevMapper().map(op), expected)
+            finally:
+                settings.use_pauli_sum_op = aux
+
+    def test_mapping_overwrite_reg_len(self):
+        """Test overwriting the register length."""
+        op = FermionicOp({"+_0 -_0": 1}, num_spin_orbitals=1)
+        expected = FermionicOp({"+_0 -_0": 1}, num_spin_orbitals=3)
+        mapper = BravyiKitaevMapper()
+        self.assertEqual(mapper.map(op, register_length=3), mapper.map(expected))
 
 
 if __name__ == "__main__":

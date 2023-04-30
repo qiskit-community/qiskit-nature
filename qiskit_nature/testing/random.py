@@ -19,9 +19,6 @@ from typing import Any
 import numpy as np
 from qiskit.quantum_info import random_hermitian
 
-from qiskit_nature.operators.second_quantization import (
-    QuadraticHamiltonian as LegacyQuadraticHamiltonian,
-)
 from qiskit_nature.second_q.hamiltonians import QuadraticHamiltonian
 
 
@@ -86,29 +83,3 @@ def random_two_body_tensor_real(dim: int, rank: int | None = None, seed: Any = N
     cholesky_vecs = rng.standard_normal((rank, dim, dim))
     cholesky_vecs += cholesky_vecs.transpose((0, 2, 1))
     return np.einsum("ipr,iqs->prqs", cholesky_vecs, cholesky_vecs)
-
-
-# pylint: disable=invalid-name
-def random_legacy_quadratic_hamiltonian(
-    n_orbitals: int, num_conserving: bool = False, seed: Any = None
-) -> LegacyQuadraticHamiltonian:
-    """Generate a random instance of QuadraticHamiltonian.
-
-    Args:
-        n_orbitals: The number of orbitals.
-        num_conserving: Whether the Hamiltonian should conserve particle number.
-        seed: The pseudorandom number generator or seed. Should be a valid input to
-            ``np.random.default_rng``.
-
-    Returns:
-        The sampled QuadraticHamiltonian.
-    """
-    rng = np.random.default_rng(seed)
-    hermitian_part = np.array(random_hermitian(n_orbitals, seed=rng))
-    antisymmetric_part = (
-        None if num_conserving else random_antisymmetric_matrix(n_orbitals, seed=rng)
-    )
-    constant = rng.standard_normal()
-    return LegacyQuadraticHamiltonian(
-        hermitian_part=hermitian_part, antisymmetric_part=antisymmetric_part, constant=constant
-    )

@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021,2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -89,6 +89,14 @@ class _DeprecatedTypeName(NamedTuple):
     old_name: str
     new_type: DeprecatedType
     new_name: str
+    additional_msg: str
+
+
+class _DeprecatedArgumentType(NamedTuple):
+    version: str
+    func_qualname: str
+    old_type: str
+    new_type: str
     additional_msg: str
 
 
@@ -185,6 +193,47 @@ def warn_deprecated_same_type_name(
     )
 
 
+def warn_deprecated_type(
+    version: str,
+    argument_name: str,
+    old_type: str,
+    new_type: Optional[str] = None,
+    additional_msg: Optional[str] = None,
+    stack_level: int = 2,
+    category: Type[Warning] = DeprecationWarning,
+) -> None:
+    """Emits deprecation warning the first time only
+       Used when only a specific supported type of an argument is to be deprecated.
+
+    Args:
+        version: Version to be used
+        argument_name: The name of the argument whose type gets deprecated.
+        old_type: Old type to be used
+        new_type: New type to be used, if None, the type is deprecated without replacement.
+        additional_msg: any additional message
+        stack_level: stack level
+        category: warning category
+    """
+    # skip if it was already added
+    obj = _DeprecatedArgumentType(version, argument_name, old_type, new_type, additional_msg)
+    if obj in _DEPRECATED_OBJECTS:
+        return
+
+    _DEPRECATED_OBJECTS.add(cast(NamedTuple, obj))
+
+    msg = (
+        f"The {old_type} type in the '{argument_name}' argument is deprecated as of version "
+        f"{version} and will be removed no sooner than 3 months after the release"
+    )
+    if new_type:
+        msg += f". Instead use the {new_type} type"
+    if additional_msg:
+        msg += f" {additional_msg}"
+    msg += "."
+
+    warnings.warn(msg, category=category, stacklevel=stack_level + 1)
+
+
 def _rename_kwargs(version, qualname, func_name, kwargs, kwarg_map, additional_msg, stack_level):
     for old_arg, new_arg in kwarg_map.items():
         if old_arg in kwargs:
@@ -199,14 +248,17 @@ def _rename_kwargs(version, qualname, func_name, kwargs, kwarg_map, additional_m
                 msg = (
                     f"{func_name}: the {old_arg} {DeprecatedType.ARGUMENT.value} is deprecated "
                     f"as of version {version} and will be removed no sooner "
-                    "than 3 months after the release. Instead use the "
-                    f"{new_arg} {DeprecatedType.ARGUMENT.value}"
+                    "than 3 months after the release"
                 )
+                if new_arg:
+                    msg += f". Instead use the {new_arg} {DeprecatedType.ARGUMENT.value}"
                 if additional_msg:
                     msg += f" {additional_msg}"
                 msg += "."
                 warnings.warn(msg, DeprecationWarning, stacklevel=stack_level)
-            kwargs[new_arg] = kwargs.pop(old_arg)
+
+            if new_arg:
+                kwargs[new_arg] = kwargs.pop(old_arg)
 
 
 def deprecate_arguments(
@@ -216,6 +268,9 @@ def deprecate_arguments(
     stack_level: int = 3,
 ) -> Callable:
     """Decorator to alias deprecated argument names and warn upon use.
+
+    When the new argument name is an empty string, this deprecates the argument without replacement.
+
     Args:
         version: Version to be used
         kwarg_map: Args dictionary with old, new arguments

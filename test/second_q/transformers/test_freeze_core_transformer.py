@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -15,13 +15,17 @@
 import unittest
 
 from test import QiskitNatureTestCase
+from test.second_q.utils import get_expected_two_body_ints
+
 from ddt import ddt, idata
 import numpy as np
 
 import qiskit_nature.optionals as _optionals
+from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.formats.qcschema import QCSchema
 from qiskit_nature.second_q.formats.qcschema_translator import qcschema_to_problem
+from qiskit_nature.second_q.operators.tensor_ordering import to_chemist_ordering
 from qiskit_nature.second_q.transformers import FreezeCoreTransformer
 
 
@@ -29,12 +33,12 @@ from qiskit_nature.second_q.transformers import FreezeCoreTransformer
 class TestFreezeCoreTransformer(QiskitNatureTestCase):
     """FreezeCoreTransformer tests."""
 
-    # pylint: disable=import-outside-toplevel
     from test.second_q.transformers.test_active_space_transformer import (
         TestActiveSpaceTransformer,
     )
 
     assertDriverResult = TestActiveSpaceTransformer.assertDriverResult
+    assertElectronicEnergy = TestActiveSpaceTransformer.assertElectronicEnergy
 
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     @idata(
@@ -119,12 +123,46 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
                 np.abs(electronic_energy_exp.electronic_integrals.second_q_coeffs()["+-"]),
             )
         with self.subTest("MO 2-electron integrals"):
+            actual_ints = electronic_energy.electronic_integrals.second_q_coeffs()["++--"]
+            expected_ints = get_expected_two_body_ints(
+                actual_ints,
+                to_chemist_ordering(
+                    electronic_energy_exp.electronic_integrals.second_q_coeffs()["++--"]
+                ),
+            )
             np.testing.assert_array_almost_equal(
-                np.abs(electronic_energy.electronic_integrals.second_q_coeffs()["++--"]),
-                np.abs(electronic_energy_exp.electronic_integrals.second_q_coeffs()["++--"]),
+                np.abs(actual_ints),
+                np.abs(expected_ints),
             )
         with self.subTest("Inactive energy"):
             self.assertAlmostEqual(electronic_energy.constants["FreezeCoreTransformer"], 0.0)
+
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
+    def test_standalone_usage(self):
+        """Test usage on a standalone Hamiltonian."""
+        driver = PySCFDriver(atom="Li 0 0 0; H 0 0 1.6")
+        problem = driver.run()
+
+        trafo = FreezeCoreTransformer()
+
+        with self.subTest("prepare_active_space not called yet"):
+            with self.assertRaises(QiskitNatureError):
+                reduced_hamiltonian = trafo.transform_hamiltonian(problem.hamiltonian)
+
+        trafo.prepare_active_space(problem.molecule, problem.num_spatial_orbitals)
+
+        reduced_hamiltonian = trafo.transform_hamiltonian(problem.hamiltonian)
+
+        expected = qcschema_to_problem(
+            QCSchema.from_json(
+                self.get_resource_path("LiH_sto3g_reduced.json", "second_q/transformers/resources")
+            ),
+            include_dipole=False,
+        )
+        # add energy shift, which currently cannot be stored in the QCSchema
+        expected.hamiltonian.constants["FreezeCoreTransformer"] = -7.796219568771229
+
+        self.assertElectronicEnergy(reduced_hamiltonian, expected.hamiltonian)
 
 
 if __name__ == "__main__":

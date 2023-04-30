@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,13 +12,19 @@
 
 """Tests Electronic Structure Problem."""
 import unittest
+import warnings
 from test import QiskitNatureTestCase
 
 import json
 import numpy as np
 
+from qiskit.opflow import PauliSumOp
+from qiskit.opflow.primitive_ops import Z2Symmetries
+from qiskit.quantum_info.analysis.z2_symmetries import Z2Symmetries as Z2SparseSymmetries
+
 import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.drivers import PySCFDriver
+from qiskit_nature.second_q.mappers import JordanWignerMapper
 from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.transformers import ActiveSpaceTransformer
 
@@ -84,6 +90,33 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
                 s[0] == t[0] and np.isclose(np.abs(s[1]), np.abs(t[1]))
                 for s, t in zip(sorted(expected.items()), sorted(electr_sec_quant_op.items()))
             )
+
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
+    def test_symmetry_sector_locator(self):
+        """Tests that the symmetry sector locator gives the right sector."""
+        driver = PySCFDriver()
+        electronic_structure_problem = driver.run()
+        hamiltonian, _ = electronic_structure_problem.second_q_ops()
+        mapper = JordanWignerMapper()
+        mapped_op = mapper.map(hamiltonian)
+        expected_sector = [-1, 1, -1]
+
+        with self.subTest("Opflow Z2Symmetries"):
+            if isinstance(mapped_op, PauliSumOp):
+                mapped_op = mapped_op.primitive
+            z2sym = Z2SparseSymmetries.find_z2_symmetries(mapped_op)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=DeprecationWarning)
+                sector = electronic_structure_problem.symmetry_sector_locator(z2sym, mapper)
+            self.assertEqual(sector, expected_sector)
+        with self.subTest("Opflow Z2Symmetries"):
+            if not isinstance(mapped_op, PauliSumOp):
+                mapped_op = PauliSumOp(mapped_op)
+            z2sym = Z2Symmetries.find_Z2_symmetries(mapped_op)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=DeprecationWarning)
+                sector = electronic_structure_problem.symmetry_sector_locator(z2sym, mapper)
+            self.assertEqual(sector, expected_sector)
 
 
 if __name__ == "__main__":

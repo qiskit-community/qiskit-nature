@@ -24,12 +24,21 @@ The code comprises various modules revolving around:
 - and much more
 
 
+Citation
+========
+
+If you use Qiskit Nature, please cite the following references:
+
+- Qiskit, as per the provided `BibTeX file <https://github.com/Qiskit/qiskit/blob/master/Qiskit.bib>`_.
+- Qiskit Nature, as per https://doi.org/10.5281/zenodo.7828767
+
+
 Next Steps
 =================================
 
 `Getting started <getting_started.html>`_
 
-`Migration Guide <migration/index.html>`_
+`Migration Guides <migration/index.html>`_
 
 `Tutorials <tutorials/index.html>`_
 
@@ -40,7 +49,7 @@ Next Steps
 
     Overview <self>
     Getting Started <getting_started>
-    Migration Guide <migration/index>
+    Migration Guides <migration/index>
     Tutorials <tutorials/index>
     How-Tos <howtos/index>
     API Reference <apidocs/qiskit_nature>

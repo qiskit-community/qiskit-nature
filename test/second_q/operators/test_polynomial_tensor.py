@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -20,8 +20,8 @@ from test import QiskitNatureTestCase
 import numpy as np
 from ddt import ddt, idata
 
-from qiskit_nature.second_q.operators import PolynomialTensor
 import qiskit_nature.optionals as _optionals
+from qiskit_nature.second_q.operators import PolynomialTensor, Tensor
 
 
 @ddt
@@ -185,7 +185,7 @@ class TestPolynomialTensor(QiskitNatureTestCase):
         """Test for getting value matrices corresponding to keys in PolynomialTensor"""
         og_poly_tensor = PolynomialTensor(self.og_poly)
         for key, value in self.og_poly.items():
-            np.testing.assert_array_equal(value, og_poly_tensor[key])
+            np.testing.assert_array_almost_equal(value - og_poly_tensor[key], np.zeros_like(value))
 
     def test_len(self):
         """Test for the length of PolynomialTensor"""
@@ -294,9 +294,10 @@ class TestPolynomialTensor(QiskitNatureTestCase):
             expected["++--"][0, 0, 0, 1] += 1
             expected["++--"][1, 0, 2, 1] += 2
             self.assertEqual(result, PolynomialTensor(expected))
-            self.assertIsInstance(result["+"], np.ndarray)
-            self.assertIsInstance(result["+-"], np.ndarray)
-            self.assertIsInstance(result["++--"], np.ndarray)
+            # TODO: remove extra-wrapping of Tensor once settings.tensor_unwrapping is removed
+            self.assertIsInstance(Tensor(result["+"]).array, np.ndarray)
+            self.assertIsInstance(Tensor(result["+-"]).array, np.ndarray)
+            self.assertIsInstance(Tensor(result["++--"]).array, np.ndarray)
 
         with self.subTest("sparse + sparse"):
             result = PolynomialTensor(self.sparse_1) + PolynomialTensor(self.sparse_2)
@@ -307,9 +308,10 @@ class TestPolynomialTensor(QiskitNatureTestCase):
                 "++--": sp.as_coo({(0, 0, 0, 1): 1, (0, 1, 0, 1): 1}, shape=(4, 4, 4, 4)),
             }
             self.assertEqual(result, PolynomialTensor(expected))
-            self.assertIsInstance(result["+"], sp.COO)
-            self.assertIsInstance(result["+-"], sp.COO)
-            self.assertIsInstance(result["++--"], sp.COO)
+            # TODO: remove extra-wrapping of Tensor once settings.tensor_unwrapping is removed
+            self.assertIsInstance(Tensor(result["+"]).array, sp.COO)
+            self.assertIsInstance(Tensor(result["+-"]).array, sp.COO)
+            self.assertIsInstance(Tensor(result["++--"]).array, sp.COO)
 
         with self.assertRaisesRegex(
             TypeError, "Incorrect argument type: other should be PolynomialTensor"

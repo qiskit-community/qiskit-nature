@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -30,7 +30,7 @@ class HyperCubicLattice(Lattice):
     tuples of `size`, `edge_parameters`, and `boundary_conditions`.
     For example,
 
-    .. jupyter-execute::
+    .. code-block:: python
 
         from qiskit_nature.second_q.hamiltonians.lattices import (
             BoundaryCondition,

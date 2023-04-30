@@ -1,0 +1,40 @@
+---
+features:
+  - |
+    Three new methods for creating instances
+    :class:`~qiskit_nature.second_q.properties.ElectronicDensity` have been
+    added:
+
+    1. constructing an empty (or all-zero) density of a given size:
+
+       .. code-block:: python
+
+         empty = ElectronicDensity.empty(num_spatial_orbitals=4)
+
+    2. constructing an identity density, meaning that the 1-body matrices are
+       initialized with identity matrices
+
+       .. code-block:: python
+
+         identity = ElectronicDensity.identity(num_spatial_orbitals=4)
+
+    3. constructing from a provided number of particles. This is a shorter
+       variant of the already existing ``from_orbital_occupation`` method for the
+       most common use-case.
+
+       .. code-block:: python
+
+         num_spatial_orbitals = 4
+         num_particles = (2, 2)
+
+         two_and_two = ElectronicDensity.from_particle_number(num_spatial_orbitals, num_particles)
+
+         # for example now the 1-body matrices will be:
+         #   [[1, 0, 0, 0],
+         #    [0, 1, 0, 0],
+         #    [0, 0, 0, 0],
+         #    [0, 0, 0, 0]]
+
+    All of the methods above take the optional keyword-argument ``include_rdm2``
+    which determines whether or not the 2-body matrices are computed based on the
+    constructed 1-body matrices. By default, this is set to ``True``.

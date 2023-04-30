@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -19,7 +19,8 @@ import logging
 
 from qiskit.circuit import QuantumCircuit
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.deprecation import deprecate_arguments
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 
 from .ucc import UCC
 from .utils.fermionic_excitation_generator import (
@@ -47,24 +48,36 @@ class PUCCD(UCC):
 
     """
 
+    @deprecate_arguments(
+        "0.6.0",
+        {"qubit_converter": "qubit_mapper"},
+        additional_msg=(
+            ". Additionally, the QubitConverter type in the qubit_mapper argument is deprecated "
+            "and support for it will be removed together with the qubit_converter argument."
+        ),
+    )
     def __init__(
         self,
         num_spatial_orbitals: int | None = None,
         num_particles: tuple[int, int] | None = None,
-        qubit_converter: QubitConverter | None = None,
+        qubit_mapper: QubitConverter | QubitMapper | None = None,
         *,
         reps: int = 1,
         initial_state: QuantumCircuit | None = None,
         include_singles: tuple[bool, bool] = (False, False),
         generalized: bool = False,
-    ):
+        include_imaginary: bool = False,
+        qubit_converter: QubitConverter | QubitMapper | None = None,
+    ) -> None:
+        # pylint: disable=unused-argument
         """
 
         Args:
             num_spatial_orbitals: The number of spatial orbitals.
             num_particles: The tuple of the number of alpha- and beta-spin particles.
-            qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` instance
-                which takes care of mapping to a qubit operator.
+            qubit_mapper: The :class:`~qiskit_nature.second_q.mappers.QubitMapper` or
+                :class:`~qiskit_nature.second_q.mappers.QubitConverter` instance (use of the latter
+                is deprecated) which takes care of mapping to a qubit operator.
             reps: The number of times to repeat the evolved operators.
             initial_state: A ``QuantumCircuit`` object to prepend to the circuit.
             include_singles: enables the inclusion of single excitations per spin species.
@@ -72,9 +85,15 @@ class PUCCD(UCC):
                 the occupation of the spin orbitals. As such, the set of generalized excitations is
                 only determined from the number of spin orbitals and independent from the number of
                 particles.
+            include_imaginary: Boolean flag which when set to ``True`` expands the ansatz to include
+                imaginary parts using twice the number of free parameters.
+            qubit_converter: DEPRECATED The :class:`~qiskit_nature.second_q.mappers.QubitConverter`
+                or :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance which takes care of
+                mapping to a qubit operator.
 
         Raises:
             QiskitNatureError: if the number of alpha and beta electrons is not equal.
+
         """
         self._validate_num_particles(num_particles)
         self._include_singles = include_singles
@@ -82,11 +101,12 @@ class PUCCD(UCC):
             num_spatial_orbitals=num_spatial_orbitals,
             num_particles=num_particles,
             excitations=self.generate_excitations,
-            qubit_converter=qubit_converter,
+            qubit_mapper=qubit_mapper,
             alpha_spin=True,
             beta_spin=True,
             max_spin_excitation=None,
             generalized=generalized,
+            include_imaginary=include_imaginary,
             reps=reps,
             initial_state=initial_state,
         )

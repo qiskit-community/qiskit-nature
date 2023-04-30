@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -35,7 +35,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.7]
+        python-version: [3.8]
     steps:
       - name: Print Concurrency Group
         env:
@@ -86,7 +86,7 @@ jobs:
           echo "::add-matcher::./.github/problem_matchers/spell.json"
           echo "::add-matcher::./.github/problem_matchers/black.json"
       - name: PIP Check
-        run:  |
+        run: |
           source "$CONDA/etc/profile.d/conda.sh"
           conda activate psi4env
           pip check
@@ -115,7 +115,7 @@ jobs:
         if: ${{ !cancelled() }}
         shell: bash
       - name: Run make html
-        run:  |
+        run: |
           source "$CONDA/etc/profile.d/conda.sh"
           conda activate psi4env
           make clean_sphinx
@@ -144,16 +144,16 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.7, 3.8, 3.9, '3.10']
+        python-version: [3.7, 3.8, 3.9, '3.10', 3.11]
         include:
           - os: macos-latest
-            python-version: 3.8
+            python-version: 3.9
           - os: macos-latest
-            python-version: '3.10'
+            python-version: 3.11
           - os: windows-2019
             python-version: 3.8
           - os: windows-2019
-            python-version: '3.10'
+            python-version: 3.11
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -170,20 +170,25 @@ jobs:
             sudo chown -R $USER: "$CONDA"
           fi
           source "$CONDA/etc/profile.d/conda.sh"
-          conda create -y -n psi4env python=${{ matrix.python-version }}
+          if [ "${{ matrix.python-version }}" == "3.11" ]; then
+            conda create -y -n psi4env python=${{ matrix.python-version }} -c conda-forge
+          else
+            conda create -y -n psi4env python=${{ matrix.python-version }}
+          fi
         shell: bash
       - name: Install PSI4
         uses: ./.github/actions/install-psi4
         with:
           os: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
-        if: ${{ matrix.os != 'windows-2019' || (matrix.os == 'windows-2019' && matrix.python-version != '3.10') }}
+        if: ${{ matrix.python-version != '3.11' && (matrix.os != 'windows-2019' || (matrix.os == 'windows-2019' && matrix.python-version != '3.11')) }}
       - name: Install PyQuante2
         run: |
           source "$CONDA/etc/profile.d/conda.sh"
           conda activate psi4env
           conda install -y pyquante2_pure -c rpmuller
         shell: bash
+        if: ${{ matrix.python-version != '3.11' }}
       - uses: ./.github/actions/install-main-dependencies
         with:
           os: ${{ matrix.os }}
@@ -210,13 +215,6 @@ jobs:
           conda activate psi4env
           make mypy
         if: ${{ !cancelled() }}
-        shell: bash
-      - name: Run lint latest version
-        run: |
-          source "$CONDA/etc/profile.d/conda.sh"
-          conda activate psi4env
-          pip install -U -r requirements-dev.txt
-          make lint
         shell: bash
       - name: Stestr Cache
         uses: actions/cache@v3
@@ -262,12 +260,14 @@ jobs:
           source "$CONDA/etc/profile.d/conda.sh"
           conda activate psi4env
           pip uninstall -y matplotlib pyscf sparse opt_einsum
-          if [[ "${{ matrix.os }}" != "windows-2019" || ("${{ matrix.os }}" == "windows-2019" && "${{ matrix.python-version }}" != "3.10") ]]; then
+          if [[ "${{ matrix.python-version }}" != "3.11" && ("${{ matrix.os }}" != "windows-2019" || ("${{ matrix.os }}" == "windows-2019" && "${{ matrix.python-version }}" != "3.11")) ]]; then
               echo 'Uninstall psi4'
               conda remove -y --force psi4
           fi
           echo 'Uninstall pyquante2'
-          conda remove -y --force pyquante2_pure
+          if [[ "${{ matrix.python-version }}" != "3.11" ]]; then
+            conda remove -y --force pyquante2_pure
+          fi
           pip uninstall -y pyquante2
           if [ "${{ github.event_name }}" == "schedule" ] || [ "${{ contains(github.event.pull_request.labels.*.name, 'run_slow') }}" == "true" ]; then
               export QISKIT_TESTS="run_slow"
@@ -282,7 +282,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.8, 3.9]
+        python-version: [3.8, 3.11]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -306,6 +306,7 @@ jobs:
           use-conda: "false"
       - name: Install Dependencies
         run: |
+          pip install jupyter
           sudo apt-get install -y pandoc
           echo "earliest_version: 0.1.0" >> releasenotes/config.yaml
         shell: bash
@@ -383,26 +384,26 @@ jobs:
           path: /tmp/u310
       - uses: actions/download-artifact@v3
         with:
-          name: macos-latest-3.8
-          path: /tmp/m38
+          name: macos-latest-3.9
+          path: /tmp/m39
       - uses: actions/download-artifact@v3
         with:
-          name: macos-latest-3.10
-          path: /tmp/m310
+          name: macos-latest-3.11
+          path: /tmp/m311
       - uses: actions/download-artifact@v3
         with:
           name: windows-2019-3.8
           path: /tmp/w38
       - uses: actions/download-artifact@v3
         with:
-          name: windows-2019-3.10
-          path: /tmp/w310
+          name: windows-2019-3.11
+          path: /tmp/w311
       - name: Install Dependencies
         run: pip install -U coverage coveralls diff-cover
         shell: bash
       - name: Combined Deprecation Messages
         run: |
-          sort -f -u /tmp/u37/nat.dep /tmp/u38/nat.dep /tmp/u39/nat.dep /tmp/u310/nat.dep /tmp/m38/nat.dep /tmp/m310/nat.dep /tmp/w38/nat.dep /tmp/w310/nat.dep || true
+          sort -f -u /tmp/u37/nat.dep /tmp/u38/nat.dep /tmp/u39/nat.dep /tmp/u310/nat.dep /tmp/m39/nat.dep /tmp/m311/nat.dep /tmp/w38/nat.dep /tmp/w311/nat.dep || true
         shell: bash
       - name: Coverage combine
         run: coverage3 combine /tmp/u37/nat.dat

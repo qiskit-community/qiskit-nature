@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -13,17 +13,23 @@
 """ Test FCIDump Dumping """
 
 import tempfile
+import builtins
 import unittest
+import warnings
 from abc import ABC, abstractmethod
 from test import QiskitNatureTestCase
 from pathlib import Path
 import numpy as np
+
+from ddt import ddt, data
+
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.formats.fcidump import FCIDump
-from qiskit_nature.second_q.operators.tensor_ordering import _phys_to_chem
+from qiskit_nature.second_q.operators.tensor_ordering import to_chemist_ordering, find_index_order
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.drivers import PySCFDriver
+from qiskit_nature.settings import settings
 import qiskit_nature.optionals as _optionals
 
 
@@ -46,22 +52,22 @@ class BaseTestFCIDumpDumper(ABC):
     def subTest(self, msg, **kwargs):
         # pylint: disable=invalid-name
         """subtest"""
-        raise Exception("Abstract method")
+        raise builtins.Exception("Abstract method")
 
     @abstractmethod
     def assertAlmostEqual(self, first, second, places=None, msg=None, delta=None):
         """assert Almost Equal"""
-        raise Exception("Abstract method")
+        raise builtins.Exception("Abstract method")
 
     @abstractmethod
     def assertEqual(self, first, second, msg=None):
         """assert equal"""
-        raise Exception("Abstract method")
+        raise builtins.Exception("Abstract method")
 
     @abstractmethod
     def assertSequenceEqual(self, seq1, seq2, msg=None, seq_type=None):
         """assert Sequence Equal"""
-        raise Exception("Abstract method")
+        raise builtins.Exception("Abstract method")
 
     def test_dumped_inactive_energy(self):
         """dumped inactive energy test"""
@@ -155,36 +161,49 @@ class TestFCIDumpDumpH2(QiskitNatureTestCase, BaseTestFCIDumpDumper):
         hijkl = electronic_integrals.alpha.get("++--", None)
         hijkl_ba = electronic_integrals.beta_alpha.get("++--", None)
         hijkl_bb = electronic_integrals.beta.get("++--", None)
-        fcidump = FCIDump(
-            num_electrons=problem.num_alpha + problem.num_beta,
-            hij=electronic_integrals.alpha.get("+-", None),
-            hij_b=electronic_integrals.beta.get("+-", None),
-            hijkl=_phys_to_chem(hijkl) if hijkl is not None else None,
-            hijkl_ba=_phys_to_chem(hijkl_ba) if hijkl_ba is not None else None,
-            hijkl_bb=_phys_to_chem(hijkl_bb) if hijkl_bb is not None else None,
-            multiplicity=problem.molecule.multiplicity,
-            constant_energy=electronic_energy.nuclear_repulsion_energy,
-        )
-        fcidump.to_file(outpath)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            fcidump = FCIDump(
+                num_electrons=problem.num_alpha + problem.num_beta,
+                hij=electronic_integrals.alpha.get("+-", None),
+                hij_b=electronic_integrals.beta.get("+-", None),
+                hijkl=to_chemist_ordering(hijkl) if hijkl is not None else None,
+                hijkl_ba=to_chemist_ordering(hijkl_ba, index_order=find_index_order(hijkl))
+                if hijkl_ba is not None
+                else None,
+                hijkl_bb=to_chemist_ordering(hijkl_bb) if hijkl_bb is not None else None,
+                multiplicity=problem.molecule.multiplicity,
+                constant_energy=electronic_energy.nuclear_repulsion_energy,
+            )
+            fcidump.to_file(outpath)
 
 
+@ddt
 class TestFCIDumpDumpOH(QiskitNatureTestCase):
     """RHF FCIDump tests."""
 
-    def test_dump_unrestricted_spin(self):
+    @data(True, False)
+    def test_dump_unrestricted_spin(self, use_symmetry_reduced_integrals: bool):
         """Tests dumping unrestricted spin data.
         PySCF cannot handle this themselves, so we need to rely on a custom FCIDUMP file, load it,
         dump it again, and make sure it did not change."""
-        path = self.get_resource_path("test_fcidump_oh.fcidump", "second_q/formats/fcidump")
-        fcidump = FCIDump.from_file(path)
-        with tempfile.TemporaryDirectory() as dump_dir:
-            dump_file = Path(dump_dir) / "fcidump"
-            fcidump.to_file(dump_file)
+        prev_setting = settings.use_symmetry_reduced_integrals
+        settings.use_symmetry_reduced_integrals = use_symmetry_reduced_integrals
+        try:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=DeprecationWarning)
+                path = self.get_resource_path("test_fcidump_oh.fcidump", "second_q/formats/fcidump")
+                fcidump = FCIDump.from_file(path)
+                with tempfile.TemporaryDirectory() as dump_dir:
+                    dump_file = Path(dump_dir) / "fcidump"
+                    fcidump.to_file(dump_file)
 
-            with open(path, "r", encoding="utf-8") as reference:
-                with open(dump_file, "r", encoding="utf-8") as result:
-                    for ref, res in zip(reference.readlines(), result.readlines()):
-                        self.assertEqual(ref.strip(), res.strip())
+                    with open(path, "r", encoding="utf-8") as reference:
+                        with open(dump_file, "r", encoding="utf-8") as result:
+                            for ref, res in zip(reference.readlines(), result.readlines()):
+                                self.assertEqual(ref.strip(), res.strip())
+        finally:
+            settings.use_symmetry_reduced_integrals = prev_setting
 
 
 if __name__ == "__main__":

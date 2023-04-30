@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018, 2022.
+# (C) Copyright IBM 2018, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -323,6 +323,10 @@ class GaussianDriver(ElectronicStructureDriver):
                 data.mo_coeff_b,
             )
 
+        # TODO: add support for symmetry-reduced integrals
+        # NOTE: supporting this will likely require changes to the _augment_config method where we
+        # currently enforce Symm=NoInt. Support for symmetry-reduced integrals in the matrix file
+        # produced by Gaussian will need to be investigated.
         data.eri = GaussianDriver._get_matrix(mel, "REGULAR 2E INTEGRALS")
         logger.debug("REGULAR 2E INTEGRALS %s", data.eri.shape)
         useao2e = False

@@ -1,0 +1,14 @@
+---
+deprecates:
+  - |
+    Replaced all public API occurrences of :class:`~qiskit.opflow.PauliSumOp` with :class:`~qiskit.quantum_info.SparsePauliOp`:
+
+    1. in cases where the type is a function *input*, support for ``SparsePauliOp`` objects was added
+       alongside the use of ``PauliSumOp`` objects. When providing the latter as input, a deprecation
+       warning is raised.
+    2. in cases where the type is an *output* the return type now depends on the new setting
+       :attr:`~qiskit_nature.settings.use_pauli_sum_op`. This defaults to ``True`` but raises a
+       deprecation warning indicating it will be switched to ``False`` in the future.
+       Users may already set it to ``False`` now, to avoid the deprecation warning.
+       In the further future, once the ``opflow`` module gets removed, this setting will be removed
+       again, too.
