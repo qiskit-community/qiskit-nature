@@ -200,7 +200,7 @@ def modified_cholesky(
     too small, then the error of the decomposition may exceed the specified
     error threshold.
 
-    .. note::
+    .. warning::
         No checking is performed to verify whether the input matrix is positive definite.
         If the input matrix is not positive definite, then the decomposition returned will be invalid.
 
