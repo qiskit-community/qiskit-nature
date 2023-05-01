@@ -269,6 +269,12 @@ def double_factorized(
     too small, then the error of the decomposition may exceed the specified
     error threshold.
 
+    The input tensor is assumed to be positive definite when reshaped into a matrix.
+
+    .. warning::
+        No checking is performed to verify whether the input tensor is positive definite.
+        If the input tensor is not positive definite, then the decomposition returned will be invalid.
+
     References:
         - `arXiv:1808.02625`_
         - `arXiv:2104.08957`_
@@ -308,7 +314,7 @@ def double_factorized(
     for i in range(rank):
         mat = np.reshape(cholesky_vecs[:, i], (n_modes, n_modes))
         eigs, vecs = np.linalg.eigh(mat)
-        diag_coulomb_mats[i] = np.outer(eigs, eigs.conj())
+        diag_coulomb_mats[i] = np.outer(eigs, eigs)
         orbital_rotations[i] = vecs
 
     return diag_coulomb_mats, orbital_rotations
