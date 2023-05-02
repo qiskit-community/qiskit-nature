@@ -90,10 +90,6 @@ If you use Qiskit Nature, please cite the following references:
 - Qiskit, as per the provided [BibTeX file](https://github.com/Qiskit/qiskit/blob/master/Qiskit.bib).
 - Qiskit Nature, as per https://doi.org/10.5281/zenodo.7828767
 
-Please note that if you do not like the way your name is cited in the BibTex file then consult
-the information found in the [.mailmap](https://github.com/Qiskit/qiskit-nature/blob/main/.mailmap)
-file.
-
 ## License
 
 This project uses the [Apache License 2.0](https://github.com/Qiskit/qiskit-nature/blob/main/LICENSE.txt).
