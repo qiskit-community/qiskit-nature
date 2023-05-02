@@ -205,8 +205,8 @@ def modified_cholesky(
         If the input matrix is not positive definite, then the decomposition returned will be invalid.
 
     References:
-        - `arXiv:1711.02242`_
-        - `International Journal of Quantum Chemistry 12, 683 (1977)`_
+        - `Ab initio computations of molecular systems by the auxiliary-field quantum Monte Carlo method`_
+        - `Simplifications in the generation and transformation of two-electron integrals in molecular calculations`_
 
     Args:
         mat: The matrix to decompose.
@@ -220,8 +220,8 @@ def modified_cholesky(
         The Cholesky vectors ``v_i`` assembled into a 2-dimensional Numpy array
         whose columns are the vectors.
 
-    .. _arXiv:1711.02242: https://arxiv.org/abs/1711.02242
-    .. _International Journal of Quantum Chemistry 12, 683 (1977): https://doi.org/10.1002/qua.560120408
+    .. _Ab initio computations of molecular systems by the auxiliary-field quantum Monte Carlo method: https://arxiv.org/abs/1711.02242
+    .. _Simplifications in the generation and transformation of two-electron integrals in molecular calculations: https://doi.org/10.1002/qua.560120408
     """
     dim, _ = mat.shape
 
@@ -276,8 +276,8 @@ def double_factorized(
         If the input tensor is not positive definite, then the decomposition returned will be invalid.
 
     References:
-        - `arXiv:1808.02625`_
-        - `arXiv:2104.08957`_
+        - `Low rank representations for quantum simulation of electronic structure`_
+        - `Quantum Filter Diagonalization with Double-Factorized Hamiltonians`_
 
     Args:
         two_body_tensor: The two-body tensor to decompose.
@@ -295,8 +295,8 @@ def double_factorized(
         containing the orbital rotations. Each numpy array will have shape (t, n, n)
         where t is the rank of the decomposition and n is the number of orbitals.
 
-    .. _arXiv:1808.02625: https://arxiv.org/abs/1808.02625
-    .. _arXiv:2104.08957: https://arxiv.org/abs/2104.08957
+    .. _Low rank representations for quantum simulation of electronic structure: https://arxiv.org/abs/1808.02625
+    .. _Quantum Filter Diagonalization with Double-Factorized Hamiltonians: https://arxiv.org/abs/2104.08957
     """
     n_modes, _, _, _ = two_body_tensor.shape
 
