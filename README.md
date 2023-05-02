@@ -33,7 +33,7 @@ pip install qiskit-nature
 If you want to work on the very latest work-in-progress versions, either to try features ahead of
 their official release or if you want to contribute to Qiskit Nature, then you can install from source.
 To do this follow the instructions in the
- [documentation](https://qiskit.org/documentation/nature/getting_started.html#installation).
+ [documentation](https://qiskit.org/ecosystem/nature/getting_started.html#installation).
 
 ### Optional Installs
 
@@ -43,9 +43,9 @@ Several, as listed below, are supported, and while logic to interface these prog
 Qiskit Nature via the above pip installation, the dependent programs/libraries themselves need
 to be installed separately.
 
-- [Gaussian 16&trade;](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.second_q.drivers.gaussiand.html), a commercial chemistry program
-- [PSI4](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.second_q.drivers.psi4d.html), a chemistry program that exposes a Python interface allowing for accessing internal objects
-- [PySCF](https://qiskit.org/documentation/nature/apidocs/qiskit_nature.second_q.drivers.pyscfd.html), an open-source Python chemistry program
+- [Gaussian 16&trade;](https://qiskit.org/ecosystem/nature/apidocs/qiskit_nature.second_q.drivers.gaussiand.html), a commercial chemistry program
+- [PSI4](https://qiskit.org/ecosystem/nature/apidocs/qiskit_nature.second_q.drivers.psi4d.html), a chemistry program that exposes a Python interface allowing for accessing internal objects
+- [PySCF](https://qiskit.org/ecosystem/nature/apidocs/qiskit_nature.second_q.drivers.pyscfd.html), an open-source Python chemistry program
 
 Additionally, you may find the following optional dependencies useful:
 
@@ -54,13 +54,13 @@ Additionally, you may find the following optional dependencies useful:
 
 ## Creating Your First Chemistry Programming Experiment in Qiskit
 
-Check our [getting started page](https://qiskit.org/documentation/nature/getting_started.html)
+Check our [getting started page](https://qiskit.org/ecosystem/nature/getting_started.html)
 for a first example on how to use Qiskit Nature.
 
 ### Further examples
 
 Learning path notebooks may be found in the
-[Nature Tutorials](https://qiskit.org/documentation/nature/tutorials/index.html) section
+[Nature Tutorials](https://qiskit.org/ecosystem/nature/tutorials/index.html) section
 of the documentation and are a great place to start.
 
 
