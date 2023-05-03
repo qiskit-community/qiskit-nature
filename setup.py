@@ -77,7 +77,7 @@ setuptools.setup(
     extras_require={
         "pyscf": ["pyscf; sys_platform != 'win32'"],
         "mpl": ["matplotlib>=3.3"],
-        "sparse": ["sparse; python_version < '3.11'"],
+        "sparse": ["sparse"],
         "opt_einsum": ["opt_einsum"],
     },
     zip_safe=False,
