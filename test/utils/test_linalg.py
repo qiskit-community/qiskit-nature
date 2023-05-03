@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,11 +12,18 @@
 
 """Test linear algebra utilities."""
 
+import unittest
 from test import QiskitNatureTestCase
 
 import numpy as np
 from ddt import data, ddt, unpack
-from qiskit_nature.utils import givens_matrix
+from qiskit.quantum_info import random_unitary
+
+import qiskit_nature.optionals as _optionals
+from qiskit_nature.second_q.drivers import PySCFDriver
+from qiskit_nature.second_q.operators.tensor_ordering import to_chemist_ordering
+from qiskit_nature.testing import random_two_body_tensor_real
+from qiskit_nature.utils import double_factorized, givens_matrix, modified_cholesky
 
 
 @ddt
@@ -30,3 +37,95 @@ class TestGivensMatrix(QiskitNatureTestCase):
         givens_mat = givens_matrix(a, b)
         product = givens_mat @ np.array([a, b])
         np.testing.assert_allclose(product[1], 0.0, atol=1e-8)
+
+
+@ddt
+class TestModifiedCholesky(QiskitNatureTestCase):
+    """Tests for modified Cholesky decomposition."""
+
+    @data(4, 5)
+    def test_modified_cholesky(self, dim: int):
+        """Test modified Cholesky decomposition on a random tensor."""
+        rng = np.random.default_rng(4640)
+        # construct a random positive definite matrix
+        unitary = np.array(random_unitary(dim, seed=rng))
+        eigs = rng.uniform(size=dim)
+        mat = unitary @ np.diag(eigs) @ unitary.T.conj()
+        cholesky_vecs = modified_cholesky(mat)
+        reconstructed = np.einsum("ji,ki->jk", cholesky_vecs, cholesky_vecs.conj())
+        np.testing.assert_allclose(reconstructed, mat, atol=1e-8)
+
+
+@ddt
+class TestLowRankTwoBodyDecomposition(QiskitNatureTestCase):
+    """Tests for low rank two-body decomposition."""
+
+    @data(4, 5)
+    def test_double_factorized_random(self, dim: int):
+        """Test low rank two-body decomposition on a random tensor."""
+        two_body_tensor = random_two_body_tensor_real(dim, seed=25257)
+        diag_coulomb_mats, orbital_rotations = double_factorized(two_body_tensor)
+        reconstructed = np.einsum(
+            "tpk,tqk,tkl,trl,tsl->pqrs",
+            orbital_rotations,
+            orbital_rotations,
+            diag_coulomb_mats,
+            orbital_rotations,
+            orbital_rotations,
+        )
+        np.testing.assert_allclose(reconstructed, two_body_tensor, atol=1e-8)
+
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
+    def test_double_factorized_error_threshold_max_vecs(self):
+        """Test low rank decomposition error threshold and max rank."""
+        driver = PySCFDriver(atom="Li 0 0 0; H 0 0 1.6")
+        driver_result = driver.run()
+        electronic_energy = driver_result.hamiltonian
+        two_body_tensor = to_chemist_ordering(electronic_energy.electronic_integrals.alpha["++--"])
+
+        with self.subTest("max rank"):
+            max_vecs = 20
+            diag_coulomb_mats, orbital_rotations = double_factorized(
+                two_body_tensor, max_vecs=max_vecs
+            )
+            reconstructed = np.einsum(
+                "tpk,tqk,tkl,trl,tsl->pqrs",
+                orbital_rotations,
+                orbital_rotations,
+                diag_coulomb_mats,
+                orbital_rotations,
+                orbital_rotations,
+            )
+            self.assertEqual(len(orbital_rotations), max_vecs)
+            np.testing.assert_allclose(reconstructed, two_body_tensor, atol=1e-5)
+
+        with self.subTest("error threshold"):
+            error_threshold = 1e-4
+            diag_coulomb_mats, orbital_rotations = double_factorized(
+                two_body_tensor, error_threshold=error_threshold
+            )
+            reconstructed = np.einsum(
+                "tpk,tqk,tkl,trl,tsl->pqrs",
+                orbital_rotations,
+                orbital_rotations,
+                diag_coulomb_mats,
+                orbital_rotations,
+                orbital_rotations,
+            )
+            self.assertLessEqual(len(orbital_rotations), 18)
+            np.testing.assert_allclose(reconstructed, two_body_tensor, atol=error_threshold)
+
+        with self.subTest("error threshold and max rank"):
+            diag_coulomb_mats, orbital_rotations = double_factorized(
+                two_body_tensor, error_threshold=error_threshold, max_vecs=max_vecs
+            )
+            reconstructed = np.einsum(
+                "tpk,tqk,tkl,trl,tsl->pqrs",
+                orbital_rotations,
+                orbital_rotations,
+                diag_coulomb_mats,
+                orbital_rotations,
+                orbital_rotations,
+            )
+            self.assertLessEqual(len(orbital_rotations), 18)
+            np.testing.assert_allclose(reconstructed, two_body_tensor, atol=error_threshold)

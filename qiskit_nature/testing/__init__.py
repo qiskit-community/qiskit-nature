@@ -25,11 +25,17 @@ Random sampling utilities
 
    random_antisymmetric_matrix
    random_quadratic_hamiltonian
+   random_two_body_tensor_real
 """
 
-from .random import random_antisymmetric_matrix, random_quadratic_hamiltonian
+from .random import (
+    random_antisymmetric_matrix,
+    random_quadratic_hamiltonian,
+    random_two_body_tensor_real,
+)
 
 __all__ = [
     "random_antisymmetric_matrix",
     "random_quadratic_hamiltonian",
+    "random_two_body_tensor_real",
 ]

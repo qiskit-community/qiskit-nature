@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Added linear algebra utilities for performing the double-factorization of a two-body tensor:
+
+      - :func:`qiskit_nature.utils.double_factorized`
+      - :func:`qiskit_nature.utils.modified_cholesky`
