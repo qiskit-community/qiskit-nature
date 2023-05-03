@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Support optional `sparse` install under Python 3.11.
