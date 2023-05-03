@@ -1,4 +1,4 @@
 ---
-features:
+fixes:
   - |
-    Support optional `sparse` install under Python 3.11.
+    Compatibility fix to support optional `sparse` install under Python 3.11.
