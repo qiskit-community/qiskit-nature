@@ -22,7 +22,6 @@ import itertools
 import logging
 
 from qiskit.circuit import QuantumCircuit
-from qiskit.opflow import PauliSumOp
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.deprecation import deprecate_arguments
 from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
@@ -149,10 +148,6 @@ class SUCCD(UCC):
         valid_operators, valid_excitations = [], []
         for op, ex in zip(operators, self._excitations_dict.values()):
             if op is not None:
-                # TODO: remove wrapping into PauliSumOp after the EvolvedOperatorAnsatz supports
-                # SparsePauliOp instances, too: https://github.com/Qiskit/qiskit-terra/pull/9537
-                if not isinstance(op, PauliSumOp):
-                    op = PauliSumOp(op)
                 valid_operators.append(op)
                 valid_excitations.extend(ex)
 
