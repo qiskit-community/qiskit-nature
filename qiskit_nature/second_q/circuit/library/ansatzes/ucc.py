@@ -22,7 +22,6 @@ from typing import Callable, Sequence
 
 from qiskit.circuit import QuantumCircuit
 from qiskit.circuit.library import EvolvedOperatorAnsatz
-from qiskit.opflow import PauliSumOp
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.deprecation import deprecate_arguments, deprecate_property, warn_deprecated_type
@@ -368,10 +367,6 @@ class UCC(EvolvedOperatorAnsatz):
         valid_operators, valid_excitations = [], []
         for op, ex in zip(operators, self._excitation_list):
             if op is not None:
-                # TODO: remove wrapping into PauliSumOp after the EvolvedOperatorAnsatz supports
-                # SparsePauliOp instances, too: https://github.com/Qiskit/qiskit-terra/pull/9537
-                if not isinstance(op, PauliSumOp):
-                    op = PauliSumOp(op)
                 valid_operators.append(op)
                 valid_excitations.append(ex)
 
