@@ -22,6 +22,9 @@ inputs:
   use-conda:
     description: 'Use conda'
     required: true
+  terra-main:
+    description: 'Use Terra main'
+    required: true
 runs:
   using: "composite"
   steps:
@@ -41,40 +44,49 @@ runs:
       env:
         MACOSX_DEPLOYMENT_TARGET: 10.15
       run: |
-        echo 'Install Terra from Main'
-        if [ "${{ inputs.use-conda }}" == "true" ]; then
-          source "$CONDA/etc/profile.d/conda.sh"
-          conda activate psi4env
-        else
-          pip install wheel
-        fi
-        BASE_DIR=terra-cache
-        build_from_main=true
-        cache_hit=${{ steps.terra-cache.outputs.cache-hit }}
-        echo "cache hit: ${cache_hit}"
-        if [ "$cache_hit" == "true" ]; then
-          pip_result=0
-          pushd "${BASE_DIR}"
-          python -m pip install *.whl && pip_result=$? || pip_result=$?
-          popd
-          if [ $pip_result == 0 ]; then
-            build_from_main=false
+        if [ "${{ inputs.terra-main }}" == "true" ]; then
+          echo 'Install Terra from Main'
+          if [ "${{ inputs.use-conda }}" == "true" ]; then
+            source "$CONDA/etc/profile.d/conda.sh"
+            conda activate psi4env
+          else
+            pip install wheel
+          fi
+          BASE_DIR=terra-cache
+          build_from_main=true
+          cache_hit=${{ steps.terra-cache.outputs.cache-hit }}
+          echo "cache hit: ${cache_hit}"
+          if [ "$cache_hit" == "true" ]; then
+            pip_result=0
+            pushd "${BASE_DIR}"
+            python -m pip install *.whl && pip_result=$? || pip_result=$?
+            popd
+            if [ $pip_result == 0 ]; then
+              build_from_main=false
+            fi
+          else
+            mkdir -p ${BASE_DIR}
+          fi
+          if [ "$build_from_main" == "true" ]; then
+            echo 'Create wheel file from main'
+            pip install -U setuptools_rust
+            git clone --depth 1 --branch main https://github.com/Qiskit/qiskit-terra.git /tmp/qiskit-terra
+            pushd /tmp/qiskit-terra
+            python setup.py bdist_wheel
+            popd
+            cp -rf /tmp/qiskit-terra/dist/*.whl "${BASE_DIR}"
+            pushd "${BASE_DIR}"
+            python -m pip install *.whl
+            popd
+            pip uninstall -y setuptools_rust
           fi
         else
-          mkdir -p ${BASE_DIR}
-        fi
-        if [ "$build_from_main" == "true" ]; then
-          echo 'Create wheel file from main'
-          pip install -U setuptools_rust
-          git clone --depth 1 --branch main https://github.com/Qiskit/qiskit-terra.git /tmp/qiskit-terra
-          pushd /tmp/qiskit-terra
-          python setup.py bdist_wheel
-          popd
-          cp -rf /tmp/qiskit-terra/dist/*.whl "${BASE_DIR}"
-          pushd "${BASE_DIR}"
-          python -m pip install *.whl
-          popd
-          pip uninstall -y setuptools_rust
+          echo 'Install Terra from Stable'
+          if [ "${{ inputs.use-conda }}" == "true" ]; then
+            source "$CONDA/etc/profile.d/conda.sh"
+            conda activate psi4env
+          fi
+          pip install -U qiskit-terra
         fi
       shell: bash
     - name: Install stable Aer

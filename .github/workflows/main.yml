@@ -65,6 +65,7 @@ jobs:
           os: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
           use-conda: "true"
+          terra-main: "false"
         if: ${{ !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
       - uses: ./.github/actions/install-nature
         with:
