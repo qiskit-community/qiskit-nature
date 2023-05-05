@@ -23,7 +23,7 @@ from __future__ import annotations
 import re
 from collections.abc import Collection, Mapping
 from collections import defaultdict
-from typing import Iterator
+from typing import Iterator, Sequence
 from fractions import Fraction
 from functools import partial, reduce
 
@@ -414,6 +414,14 @@ class SpinOp(SparseLabelOp):
             for char, index, exp in self._split_label(label):
                 terms += [(char, index)] * exp
             yield (terms, self[label])
+
+    @classmethod
+    def from_terms(cls, terms: Sequence[tuple[list[tuple[str, int]], _TCoeff]]) -> SpinOp:
+        data = {
+            " ".join(f"{action}_{index}" for action, index in label): value
+            for label, value in terms
+        }
+        return cls(data)
 
     def conjugate(self) -> SpinOp:
         """Returns the conjugate of the ``SpinOp``.

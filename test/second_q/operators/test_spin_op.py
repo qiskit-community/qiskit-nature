@@ -223,6 +223,24 @@ class TestSpinOp(QiskitNatureTestCase):
             targ = SpinOp({"X_0 Y_0 Y_0 X_1": 1, "X_0 X_1": 2})
             self.assertEqual(spin_op, targ)
 
+    def test_terms(self):
+        """Test terms generator."""
+        op = SpinOp(
+            {
+                "X_0": 1,
+                "X_0 Z_1": 2,
+                "Z_1 Y_1 X_2": 2,
+            }
+        )
+
+        terms = [([("X", 0)], 1), ([("X", 0), ("Z", 1)], 2), ([("Z", 1), ("Y", 1), ("X", 2)], 2)]
+
+        with self.subTest("terms"):
+            self.assertEqual(list(op.terms()), terms)
+
+        with self.subTest("from_terms"):
+            self.assertEqual(SpinOp.from_terms(terms), op)
+
 
 if __name__ == "__main__":
     unittest.main()

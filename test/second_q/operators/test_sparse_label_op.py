@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import Collection, Iterator, Mapping
+from typing import Collection, Iterator, Mapping, Sequence
 
 import unittest
 from test import QiskitNatureTestCase
@@ -24,6 +24,7 @@ import numpy as np
 from qiskit.circuit import Parameter
 
 from qiskit_nature.second_q.operators import PolynomialTensor, SparseLabelOp
+from qiskit_nature.second_q.operators.sparse_label_op import _TCoeff
 
 
 a = Parameter("a")
@@ -80,6 +81,9 @@ class DummySparseLabelOp(SparseLabelOp):
         pass
 
     def terms(self) -> Iterator[tuple[list[tuple[str, int]], complex]]:
+        pass
+
+    def from_terms(self, terms: Sequence[tuple[list[tuple[str, int]], _TCoeff]]) -> SparseLabelOp:
         pass
 
     def transpose(self) -> SparseLabelOp:

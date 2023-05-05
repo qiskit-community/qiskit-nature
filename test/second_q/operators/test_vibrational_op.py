@@ -373,6 +373,26 @@ class TestVibrationalOp(QiskitNatureTestCase):
             targ = VibrationalOp({"-_0_0 +_0_1 +_1_0 -_1_1": 1})
             self.assertEqual(vib_op, targ)
 
+    def test_terms(self):
+        """Test terms generator."""
+        op = VibrationalOp(
+            {
+                "+_0_0": 1,
+                "-_0_1 +_1_1": 2,
+                "+_1_0 -_1_1 +_2_0": 2,
+            },
+            num_modals=[2, 2, 1],
+        )
+
+        terms = [([("+", 0)], 1), ([("-", 1), ("+", 3)], 2), ([("+", 2), ("-", 3), ("+", 4)], 2)]
+
+        with self.subTest("terms"):
+            self.assertEqual(list(op.terms()), terms)
+
+        with self.subTest("from_terms"):
+            with self.assertRaises(NotImplementedError):
+                VibrationalOp.from_terms(terms)
+
 
 if __name__ == "__main__":
     unittest.main()
