@@ -241,6 +241,25 @@ class TestSpinOp(QiskitNatureTestCase):
         with self.subTest("from_terms"):
             self.assertEqual(SpinOp.from_terms(terms), op)
 
+    def test_permute_indices(self):
+        """Test index permutation method."""
+        op = SpinOp(
+            {
+                "X_0 Y_1": 1,
+                "Z_1 X_2": 2,
+            },
+            num_spins=4,
+        )
+
+        with self.subTest("wrong permutation length"):
+            with self.assertRaises(ValueError):
+                _ = op.permute_indices([1, 0])
+
+        with self.subTest("actual permutation"):
+            permuted_op = op.permute_indices([2, 1, 3, 0])
+
+            self.assertEqual(permuted_op, SpinOp({"X_2 Y_1": 1, "Z_1 X_3": 2}, num_spins=4))
+
 
 if __name__ == "__main__":
     unittest.main()

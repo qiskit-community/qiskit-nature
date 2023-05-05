@@ -651,6 +651,27 @@ class TestFermionicOp(QiskitNatureTestCase):
         with self.subTest("from_terms"):
             self.assertEqual(FermionicOp.from_terms(terms), op)
 
+    def test_permute_indices(self):
+        """Test index permutation method."""
+        op = FermionicOp(
+            {
+                "+_0 -_1": 1,
+                "+_1 -_2": 2,
+            },
+            num_spin_orbitals=4,
+        )
+
+        with self.subTest("wrong permutation length"):
+            with self.assertRaises(ValueError):
+                _ = op.permute_indices([1, 0])
+
+        with self.subTest("actual permutation"):
+            permuted_op = op.permute_indices([2, 1, 3, 0])
+
+            self.assertEqual(
+                permuted_op, FermionicOp({"+_2 -_1": 1, "+_1 -_3": 2}, num_spin_orbitals=4)
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

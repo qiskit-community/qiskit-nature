@@ -415,6 +415,11 @@ class SpinOp(SparseLabelOp):
                 terms += [(char, index)] * exp
             yield (terms, self[label])
 
+    def _permute_term(
+        self, term: list[tuple[str, int]], permutation: Sequence[int]
+    ) -> list[tuple[str, int]]:
+        return [(action, permutation[index]) for action, index in term]
+
     @classmethod
     def from_terms(cls, terms: Sequence[tuple[list[tuple[str, int]], _TCoeff]]) -> SpinOp:
         data = {

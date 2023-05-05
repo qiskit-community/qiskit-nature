@@ -393,6 +393,11 @@ class TestVibrationalOp(QiskitNatureTestCase):
             with self.assertRaises(NotImplementedError):
                 VibrationalOp.from_terms(terms)
 
+    def test_permute_indices(self):
+        """Test index permutation method."""
+        with self.assertRaises(NotImplementedError):
+            VibrationalOp({"+_0_0 -_1_0": 2}).permute_indices([1, 0])
+
 
 if __name__ == "__main__":
     unittest.main()

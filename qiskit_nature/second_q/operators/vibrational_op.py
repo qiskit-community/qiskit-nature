@@ -341,6 +341,11 @@ class VibrationalOp(SparseLabelOp):
     def from_terms(cls, terms: Sequence[tuple[list[tuple[str, int]], _TCoeff]]) -> VibrationalOp:
         raise NotImplementedError()
 
+    def _permute_term(
+        self, term: list[tuple[str, int]], permutation: Sequence[int]
+    ) -> list[tuple[str, int]]:
+        raise NotImplementedError()
+
     def _build_register_label(self, label: str, partial_sum_modals: list[int]) -> tuple[str, int]:
         op, mode_index, modal_index = label.split("_")
         index = partial_sum_modals[int(mode_index)] + int(modal_index)

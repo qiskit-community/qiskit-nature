@@ -304,6 +304,11 @@ class FermionicOp(SparseLabelOp):
         }
         return cls(data)
 
+    def _permute_term(
+        self, term: list[tuple[str, int]], permutation: Sequence[int]
+    ) -> list[tuple[str, int]]:
+        return [(action, permutation[index]) for action, index in term]
+
     def compose(self, other: FermionicOp, qargs=None, front: bool = False) -> FermionicOp:
         if not isinstance(other, FermionicOp):
             raise TypeError(
