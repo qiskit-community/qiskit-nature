@@ -425,6 +425,13 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
            permuted_op = op.permute_indices([3, 1, 0, 2])
            assert permuted_op == SparseLabelOp({"+_3 -_1 +_0 -_2": 1.0})
 
+        .. warning::
+
+           This permutation utility is very powerful. Be mindful of the implications such a
+           permutation might have on other components of the stack. To name an example, the builtin
+           two-qubit reduction of the :class:`.ParityMapper` might not yield the expected results
+           when used on permuted operator.
+
         Args:
             permutation: a sequence of integers indicating the permutation to be applied. See above
                 for an example.

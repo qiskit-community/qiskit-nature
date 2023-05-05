@@ -38,20 +38,48 @@ class TestInterleavedQubitMapper(QiskitNatureTestCase):
         """Test the actual mapping procedure."""
         settings.use_pauli_sum_op = use_pauli_sum_op
 
-        ferm_op = FermionicOp({"+_0 -_1": 1}, num_spin_orbitals=4)
-
         interleaved_mapper = InterleavedQubitMapper(JordanWignerMapper())
 
-        qubit_op = interleaved_mapper.map(ferm_op)
-        if isinstance(qubit_op, PauliSumOp):
-            qubit_op = qubit_op.primitive
+        with self.subTest("1-body excitation"):
+            ferm_op = FermionicOp({"+_0 -_1": 1}, num_spin_orbitals=4)
 
-        self.assertEqual(
-            qubit_op,
-            SparsePauliOp.from_list(
-                [("IXIY", -0.25j), ("IYIY", 0.25), ("IXIX", 0.25), ("IYIX", 0.25j)]
-            ),
-        )
+            qubit_op = interleaved_mapper.map(ferm_op)
+            if isinstance(qubit_op, PauliSumOp):
+                qubit_op = qubit_op.primitive
+
+            self.assertEqual(
+                qubit_op,
+                SparsePauliOp.from_list(
+                    [("IXZY", -0.25j), ("IYZY", 0.25), ("IXZX", 0.25), ("IYZX", 0.25j)]
+                ),
+            )
+
+        with self.subTest("paired 2-body excitation"):
+            # NOTE: this is the particularly important test case because we want to observe *NO*
+            # Z terms being included in the resulting qubit operator (because they cancel)
+            ferm_op = FermionicOp(
+                {"+_0 +_4 -_2 -_6": 1, "+_6 +_2 -_4 -_0": -1}, num_spin_orbitals=8
+            )
+
+            qubit_op = interleaved_mapper.map(ferm_op)
+            if isinstance(qubit_op, PauliSumOp):
+                qubit_op = qubit_op.primitive
+
+            self.assertEqual(
+                qubit_op,
+                SparsePauliOp.from_list(
+                    [
+                        ("IIYYIIXY", -0.125j),
+                        ("IIXXIIXY", 0.125j),
+                        ("IIXYIIYY", 0.125j),
+                        ("IIYXIIYY", 0.125j),
+                        ("IIXYIIXX", -0.125j),
+                        ("IIYXIIXX", -0.125j),
+                        ("IIYYIIYX", -0.125j),
+                        ("IIXXIIYX", 0.125j),
+                    ],
+                ),
+            )
 
 
 if __name__ == "__main__":
