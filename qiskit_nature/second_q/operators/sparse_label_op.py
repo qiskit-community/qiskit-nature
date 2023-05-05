@@ -383,8 +383,9 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
             returned tuple is the coefficient of this term.
         """
 
+    @classmethod
     @abstractmethod
-    def from_terms(self, terms: Sequence[tuple[list[tuple[str, int]], _TCoeff]]) -> SparseLabelOp:
+    def from_terms(cls, terms: Sequence[tuple[list[tuple[str, int]], _TCoeff]]) -> SparseLabelOp:
         """Constructs a new ``SparseLabelOp`` from a sequence returned by :meth:`.terms`.
 
         Args:

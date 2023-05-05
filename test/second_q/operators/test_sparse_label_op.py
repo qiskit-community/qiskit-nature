@@ -83,7 +83,8 @@ class DummySparseLabelOp(SparseLabelOp):
     def terms(self) -> Iterator[tuple[list[tuple[str, int]], complex]]:
         pass
 
-    def from_terms(self, terms: Sequence[tuple[list[tuple[str, int]], _TCoeff]]) -> SparseLabelOp:
+    @classmethod
+    def from_terms(cls, terms: Sequence[tuple[list[tuple[str, int]], _TCoeff]]) -> SparseLabelOp:
         pass
 
     def _permute_term(
