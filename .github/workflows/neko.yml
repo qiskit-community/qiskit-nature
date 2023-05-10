@@ -8,6 +8,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   neko:
+    if: github.repository_owner == 'Qiskit'
     name: Qiskit Neko Integration Tests
     runs-on: ubuntu-latest
     steps:
