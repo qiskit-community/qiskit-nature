@@ -99,6 +99,7 @@ extensions = [
     "sphinx.ext.doctest",
     "nbsphinx",
     "sphinx.ext.intersphinx",
+    "qiskit_sphinx_theme",
 ]
 html_static_path = ["_static"]
 templates_path = ["_templates"]
