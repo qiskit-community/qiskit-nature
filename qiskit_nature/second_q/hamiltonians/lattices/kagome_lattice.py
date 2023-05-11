@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2023.
+# (C) Copyright IBM 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -225,7 +225,7 @@ class KagomeLattice(Lattice):
             )
         return list_of_edges
 
-    def _default_position(self, with_boundaries: bool = True) -> dict[int, list[float]]:
+    def _default_position(self, *, with_boundaries: bool = True) -> dict[int, list[float]]:
         """Return a dictionary of default positions for visualization of a two-dimensional lattice.
 
         Returns:
