@@ -414,14 +414,15 @@ class UCC(EvolvedOperatorAnsatz):
                 )
             return False
 
-        if any(n >= self.num_spatial_orbitals for n in self.num_particles):
-            if raise_on_failure:
-                raise ValueError(
-                    f"The number of spatial orbitals {self.num_spatial_orbitals}"
-                    f"must be greater than number of particles of any spin kind "
-                    f"{self.num_particles}."
-                )
-            return False
+        if not self._generalized:
+            if any(n >= self.num_spatial_orbitals for n in self.num_particles):
+                if raise_on_failure:
+                    raise ValueError(
+                        f"The number of spatial orbitals {self.num_spatial_orbitals}"
+                        f"must be greater than number of particles of any spin kind "
+                        f"{self.num_particles}."
+                    )
+                return False
 
         if self.excitations is None:
             if raise_on_failure:
