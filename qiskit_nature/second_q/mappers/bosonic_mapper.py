@@ -14,7 +14,6 @@
 
 from __future__ import annotations
 
-from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info import SparsePauliOp
 from qiskit_nature.exceptions import QiskitNatureError
 
@@ -27,18 +26,18 @@ class BosonicMapper(QubitMapper):
     """
     Mapper of Bosonic Operator to Qubit Operator
 
-    Workflow:
-        First, the user initializes an instance of BosonicLinearMapper, which call the __init__ method
-        defined in this class.
-        Then, the user calls BosonicLinearMapper.map(). Since map is not defined in BosonicLinearMapper,
-        the call is actually to the map method in this class.
-        QubitMapper.map() calls QubitMapper.map() thank to the super() class.
-        Inside QubitMapper.map() there is a call to _map_single. This method is present in QubitMapper
-        class, but it is overloaded in BosonicLinearMapper.
-        Thus, the call is to BosonicLinearMapper._map_single()
+     The following attributes can be read and updated once the ``BosonicMapper`` object
+     has been constructed.
+
+     Attributes:
+            truncation (int): INSERT DEFINITION HERE. Mention that the min. value is 1.
     """
 
     def __init__(self, truncation: int) -> None:
+        """
+        Args:
+            truncation: an int .... (insert definition here)
+        """
         super().__init__()
         if truncation < 1:
             raise QiskitNatureError("Truncation for bosonic linear mapper must be at least 1. " +
