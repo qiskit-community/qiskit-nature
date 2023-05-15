@@ -36,13 +36,8 @@ Sphinx documentation builder
 
 import qiskit_sphinx_theme
 import qiskit_nature
-from custom_directives import (
-    IncludeDirective,
-    GalleryItemDirective,
-    CustomGalleryItemDirective,
-    CustomCalloutItemDirective,
-    CustomCardItemDirective,
-)
+from custom_directives import CustomCalloutItemDirective
+
 
 # Set env flag so that we can doc functions that may otherwise not be loaded
 # see for example interactive visualizations in qiskit.visualization.
@@ -103,7 +98,6 @@ extensions = [
 ]
 html_static_path = ["_static"]
 templates_path = ["_templates"]
-html_css_files = ["style.css", "custom.css", "gallery.css"]
 
 nbsphinx_timeout = 360
 nbsphinx_execute = os.getenv("QISKIT_DOCS_BUILD_TUTORIALS", "never")
@@ -222,9 +216,5 @@ html_context = {"analytics_enabled": True}
 
 
 def setup(app):
-    app.add_directive("includenodoc", IncludeDirective)
-    app.add_directive("galleryitem", GalleryItemDirective)
-    app.add_directive("customgalleryitem", CustomGalleryItemDirective)
-    app.add_directive("customcarditem", CustomCardItemDirective)
     app.add_directive("customcalloutitem", CustomCalloutItemDirective)
     app.setup_extension("versionutils")
