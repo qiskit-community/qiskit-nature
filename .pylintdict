@@ -177,6 +177,10 @@ fermion
 fermionic
 fermionicop
 fermions
+boson
+bosons
+bosonic
+bosonicop
 feynman
 filename
 fmt
