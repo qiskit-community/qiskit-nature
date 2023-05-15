@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -46,7 +46,7 @@ def _extend_html_context(app, config):
     context["translations_list"] = translations_list
     context["current_translation"] = _get_current_translation(config) or config.language
     context["translation_url"] = partial(_get_translation_url, config)
-    context["version_label"] = _get_version_label(config)
+    context["language_label"] = _get_language_label(config)
 
 
 def _get_current_translation(config):
@@ -63,7 +63,7 @@ def _get_translation_url(config, code, pagename):
     return _get_url(config, base, pagename)
 
 
-def _get_version_label(config):
+def _get_language_label(config):
     return "%s" % (_get_current_translation(config) or config.language,)
 
 
