@@ -22,6 +22,7 @@ from qiskit.circuit import Parameter
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.operators import BosonicOp, PolynomialTensor
 import qiskit_nature.optionals as _optionals
+from qiskit_nature.second_q.operators.commutators import commutator
 
 
 @ddt
@@ -38,7 +39,7 @@ class TestBosonicOp(QiskitNatureTestCase):
 
     def test_neg(self):
         """Test __neg__
-            This test method tries to multiply the coefficient by (-1)
+        This test method tries to multiply the coefficient by (-1)
         """
         bos_op = -self.op1
         targ = BosonicOp({"+_0 -_0": -1}, num_modes=1)
@@ -50,7 +51,7 @@ class TestBosonicOp(QiskitNatureTestCase):
 
     def test_mul(self):
         """Test __mul__, and __rmul__
-            This method tries to multiply from left and right the coefficient
+        This method tries to multiply from left and right the coefficient
         """
         with self.subTest("rightmul"):
             bos_op = self.op1 * 2
@@ -68,7 +69,7 @@ class TestBosonicOp(QiskitNatureTestCase):
 
     def test_div(self):
         """Test __truediv__
-            This test method tries to divide the coefficient
+        This test method tries to divide the coefficient
         """
         bos_op = self.op1 / 2
         targ = BosonicOp({"+_0 -_0": 0.5}, num_modes=1)
@@ -80,7 +81,7 @@ class TestBosonicOp(QiskitNatureTestCase):
 
     def test_add(self):
         """Test __add__
-            This test tries to sum two operators with the same label but different coefficients
+        This test tries to sum two operators with the same label but different coefficients
         """
         bos_op = self.op1 + self.op2
         targ = self.op3
@@ -92,7 +93,7 @@ class TestBosonicOp(QiskitNatureTestCase):
 
     def test_sub(self):
         """Test __sub__
-            This test tries to subtract two operators with the same label but different coefficients
+        This test tries to subtract two operators with the same label but different coefficients
         """
         bos_op = self.op3 - self.op2
         targ = BosonicOp({"+_0 -_0": 1, "-_0 +_0": 0}, num_modes=1)
@@ -104,8 +105,8 @@ class TestBosonicOp(QiskitNatureTestCase):
 
     def test_normal_order(self):
         """test normal_order method
-            This test method tries to normal order an BosonicOp, meaning that the resulting label will
-            have first all creation operators and then all annihilation operators
+        This test method tries to normal order an BosonicOp, meaning that the resulting label will
+        have first all creation operators and then all annihilation operators
         """
         with self.subTest("Test for creation operator"):
             orig = BosonicOp({"+_0": 1}, num_modes=1)
@@ -154,9 +155,9 @@ class TestBosonicOp(QiskitNatureTestCase):
 
     def test_index_order(self):
         """test index_order method
-            This test method tries to index order an BosonicOp, meaning that the resulting label will
-            have first all operators acting of the lowest index, and then all operators acting on the
-            second lowest index and so on
+        This test method tries to index order an BosonicOp, meaning that the resulting label will
+        have first all operators acting of the lowest index, and then all operators acting on the
+        second lowest index and so on
         """
         with self.subTest("Test for creation operator"):
             orig = BosonicOp({"+_0": 1})
@@ -204,12 +205,12 @@ class TestBosonicOp(QiskitNatureTestCase):
 
     def test_simplify(self):
         """Test simplify
-            This test method tries to simplify the operator label
+        This test method tries to simplify the operator label
         """
         with self.subTest("simplify integer"):
             bos_op = BosonicOp({"+_0 -_0": 1, "+_0 -_0 +_0": 1}, num_modes=1)
             simplified_op = bos_op.simplify()
-            targ = BosonicOp({"+_0 -_0": 1, '+_0': 2}, num_modes=1)
+            targ = BosonicOp({"+_0 -_0": 1, "+_0": 2}, num_modes=1)
             self.assertEqual(simplified_op, targ)
 
         with self.subTest("simplify complex"):
@@ -227,7 +228,7 @@ class TestBosonicOp(QiskitNatureTestCase):
         with self.subTest("simplify parameters"):
             bos_op = BosonicOp({"+_0 -_0": self.a, "+_0 -_0 +_0": 1j})
             simplified_op = bos_op.simplify()
-            targ = BosonicOp({"+_0 -_0": self.a, '+_0': 2j})
+            targ = BosonicOp({"+_0 -_0": self.a, "+_0": 2j})
             self.assertEqual(simplified_op, targ)
 
         with self.subTest("simplify commutes with normal_order"):
@@ -240,16 +241,32 @@ class TestBosonicOp(QiskitNatureTestCase):
             targ = BosonicOp({"-_0 +_1": 4})  # Boson don't change sign after commutation
             self.assertEqual(bos_op, targ)
 
+    def test_commutator(self):
+        """Test commutator
+        This test method tries the commutation relation between two bosonic operators
+        [-_i, +_j] = (-_i +_j) - (+_j -_i) = \\delta_ij
+        """
+        with self.subTest("commutator same index"):
+            bos_op = commutator(BosonicOp({"-_0": 1}), BosonicOp({"+_0": 1}))
+            targ = BosonicOp({"": 1})
+            self.assertEqual(bos_op, targ)
+        with self.subTest("commutator same index reversed"):
+            bos_op = commutator(BosonicOp({"+_0": 1}), BosonicOp({"-_0": 1}))
+            targ = BosonicOp({"": -1})
+            self.assertEqual(bos_op, targ)
+        with self.subTest("commutator same different indices"):
+            bos_op = commutator(BosonicOp({"+_0": 1}), BosonicOp({"-_1": 1}))
+            targ = BosonicOp({})  # 0
+            self.assertEqual(bos_op, targ)
+
     def test_compose(self):
         """Test operator composition
-            This test method compares two identical operators.
-            One of them is defined directly with the desired label, the other is obtained with a
-            composition of two operators
+        This test method compares two identical operators.
+        One of them is defined directly with the desired label, the other is obtained with a
+        composition of two operators
         """
         with self.subTest("single compose"):
-            bos_op = BosonicOp({"+_0 -_1": 1}, num_modes=2) @ BosonicOp(
-                {"-_0": 1}, num_modes=2
-            )
+            bos_op = BosonicOp({"+_0 -_1": 1}, num_modes=2) @ BosonicOp({"-_0": 1}, num_modes=2)
             targ = BosonicOp({"+_0 -_1 -_0": 1}, num_modes=2)
             self.assertEqual(bos_op, targ)
 
@@ -259,15 +276,19 @@ class TestBosonicOp(QiskitNatureTestCase):
             self.assertEqual(bos_op, targ)
 
         with self.subTest("multi compose"):
-            bos_op = BosonicOp(
-                {"+_0 +_1 -_1": 1, "-_0 +_0 -_1": 1}, num_modes=2
-            ) @ BosonicOp({"": 1, "-_0 +_1": 1}, num_modes=2)
+            bos_op = BosonicOp({"+_0 +_1 -_1": 1, "-_0 +_0 -_1": 1}, num_modes=2) @ BosonicOp(
+                {"": 1, "-_0 +_1": 1}, num_modes=2
+            )
             bos_op = bos_op.simplify()
             targ = BosonicOp(
-                {"+_0 +_1 -_1": 1,             # Op1(first term)  * Op2(first term)
-                 "+_0 +_1 -_0": 2,             # Op1(first term)  * Op2(second term)
-                 '+_0 -_0 -_1': 1, '-_1': 1,   # Op1(second term) * Op2(first term)
-                 '+_1 -_0 -_1': 2, '-_0': 2},  # Op1(second term) * Op2(second term)
+                {
+                    "+_0 +_1 -_1": 1,  # Op1(first term)  * Op2(first term)
+                    "+_0 +_1 -_0": 2,  # Op1(first term)  * Op2(second term)
+                    "+_0 -_0 -_1": 1,
+                    "-_1": 1,  # Op1(second term) * Op2(first term)
+                    "+_1 -_0 -_1": 2,
+                    "-_0": 2,
+                },  # Op1(second term) * Op2(second term)
                 num_modes=2,
             )
             self.assertEqual(bos_op, targ)
@@ -279,10 +300,12 @@ class TestBosonicOp(QiskitNatureTestCase):
             bos_op = bos_op.simplify()
             targ = BosonicOp(
                 {
-                    "+_0 +_1 -_1": self.a,                        # Op1(first term) * Op2(first term)
-                    "+_0 +_1 -_0": 2 * self.a * self.b,           # Op1(first term) * Op2(second term)
-                    "+_0 -_0 -_1": 1, "-_1": 1,                   # Op1(second term) * Op2(first term)
-                    '+_1 -_0 -_1': 2 * self.b, '-_0': 2 * self.b  # Op1(second term) * Op2(second term)
+                    "+_0 +_1 -_1": self.a,  # Op1(first term) * Op2(first term)
+                    "+_0 +_1 -_0": 2 * self.a * self.b,  # Op1(first term) * Op2(second term)
+                    "+_0 -_0 -_1": 1,
+                    "-_1": 1,  # Op1(second term) * Op2(first term)
+                    "+_1 -_0 -_1": 2 * self.b,
+                    "-_0": 2 * self.b,  # Op1(second term) * Op2(second term)
                 }
             )
             self.assertEqual(bos_op, targ)
@@ -312,13 +335,15 @@ class TestBosonicOp(QiskitNatureTestCase):
         with self.subTest("square trivial"):
             bos_op = BosonicOp({"+_0 +_1": 3, "+_1 +_0": -1}, num_modes=2) ** 2
             bos_op = bos_op.simplify().normal_order()
-            targ = BosonicOp({'+_0 +_0 +_1 +_1': (4+0j)}, num_modes=2)
+            targ = BosonicOp({"+_0 +_0 +_1 +_1": (4 + 0j)}, num_modes=2)
             self.assertEqual(bos_op, targ)
 
         with self.subTest("square nontrivial"):
             bos_op = BosonicOp({"+_0 +_1 -_1": 3, "+_0 -_0 -_1": 1}, num_modes=2) ** 2
             bos_op = bos_op.simplify()
-            targ = BosonicOp({'+_0 +_0 +_1 -_1': 18, '+_0 -_1': 15, '+_0 -_0 -_1 -_1': 2}, num_modes=2)
+            targ = BosonicOp(
+                {"+_0 +_0 +_1 -_1": 18, "+_0 -_1": 15, "+_0 -_0 -_1 -_1": 2}, num_modes=2
+            )
             self.assertEqual(bos_op, targ)
 
         with self.subTest("3rd power"):
@@ -337,11 +362,12 @@ class TestBosonicOp(QiskitNatureTestCase):
             bos_op = bos_op.simplify()
             targ = BosonicOp(
                 {
-                    '+_0 +_0 +_1 -_1': 2 * self.a * self.a,
-                    '+_0 -_1': 5 * self.a,
-                    '+_0 -_0 -_1 -_1': 2
+                    "+_0 +_0 +_1 -_1": 2 * self.a * self.a,
+                    "+_0 -_1": 5 * self.a,
+                    "+_0 -_0 -_1 -_1": 2,
                 },
-                num_modes=2)
+                num_modes=2,
+            )
             self.assertEqual(bos_op, targ)
 
     def test_adjoint(self):
@@ -350,7 +376,7 @@ class TestBosonicOp(QiskitNatureTestCase):
             {"": 1j, "+_0 +_1 -_1": 3, "+_0 -_0 -_1": 1, "-_0 -_1": 2 + 4j}, num_modes=3
         ).adjoint()
         targ = BosonicOp(
-            {'': -1j, '+_1 -_1 -_0': 3, '+_1 +_0 -_0': 1, '+_1 +_0': (2-4j)}, num_modes=3
+            {"": -1j, "+_1 -_1 -_0": 3, "+_1 +_0 -_0": 1, "+_1 +_0": (2 - 4j)}, num_modes=3
         )
         self.assertEqual(bos_op, targ)
 
@@ -422,9 +448,7 @@ class TestBosonicOp(QiskitNatureTestCase):
 
     def test_induced_norm(self):
         """Test induced norm."""
-        op = 3 * BosonicOp({"+_0": 1}, num_modes=1) + 4j * BosonicOp(
-            {"-_0": 1}, num_modes=1
-        )
+        op = 3 * BosonicOp({"+_0": 1}, num_modes=1) + 4j * BosonicOp({"-_0": 1}, num_modes=1)
         self.assertAlmostEqual(op.induced_norm(), 7.0)
         self.assertAlmostEqual(op.induced_norm(2), 5.0)
 
