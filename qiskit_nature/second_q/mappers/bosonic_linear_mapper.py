@@ -15,7 +15,7 @@
 from __future__ import annotations
 import operator
 
-from functools import reduce
+from functools import reduce, lru_cache
 
 import numpy as np
 
@@ -29,13 +29,13 @@ class BosonicLinearMapper(BosonicMapper):
     """
    The Linear boson-to-qubit mapping.
 
-   This mapper generates a linear encoding of the Bosonic operator :math:`b_k^\dagger, b_k` to qubit operators
-   (linear combinations of pauli strings).
-   In this linear encoding each bosonic mode is represented via :math:`n_k^max + 1` qubits, where :math:`n_k^max`
-   is the truncation of the mode (meaning the number of states used in the expansion of the mode,
-   or equivalently the state at which the maximum excitation can take place).
+   This mapper generates a linear encoding of the Bosonic operator :math:`b_k^\dagger, b_k` to qubit
+   operators (linear combinations of pauli strings).
+   In this linear encoding each bosonic mode is represented via :math:`n_k^max + 1` qubits, where
+   :math:`n_k^max` is the truncation of the mode (meaning the number of states used in the expansion of
+   the mode, or equivalently the state at which the maximum excitation can take place).
    The mode :math:`|k\rangle` is then mapped to the occupation number vector
-   :math:`|0_{n_{k}^max}, 0_{n_{k}^max - 1}, ..., 0_{n_k + 1}, 1_{n_k}, 0_{n_k - 1}, ..., 0_{0_k}  \rangle`
+   :math:`|0_{n_{k}^max}, 0_{n_{k}^max - 1}, ..., 0_{n_k + 1}, 1_{n_k}, 0_{n_k - 1}, ..., 0_{0_k}\rangle`
 
    It implements the formula in Section II.C of Reference [1]:
 
@@ -44,7 +44,8 @@ class BosonicLinearMapper(BosonicMapper):
 
    from :math:`n_k = 0` to :math:`n_k^max + 1`
    where :math:`n_k^max` is the truncation order (defined by the user).
-   In the following implementation, we explicit the operators :math:`\sigma^+` and :math:`\sigma^-` with the Pauli    matrices:
+   In the following implementation, we explicit the operators :math:`\sigma^+` and :math:`\sigma^-` with
+   the Pauli matrices:
 
    .. math::
        \sigma_{n_k}^+ := S_j^+ = 0.5 * (X_j + i*Y_j)\\
@@ -53,9 +54,11 @@ class BosonicLinearMapper(BosonicMapper):
    The length of the qubit register is: ``BosonicOp.num_modes * (BosonicLinearMapper.truncation + 1)``
 
    References:
-       [1] ADD FULL REFERENCE HERE. https://arxiv.org/abs/2108.04258
-    
-    """    
+       [1] A. Miessen et al., Quantum algorithms for quantum dynamics: A performance study on the
+       spin-boson model, Phys. Rev. Research 3, 043212.
+       https://link.aps.org/doi/10.1103/PhysRevResearch.3.043212
+
+    """
 
     def _map_single(
         self, second_q_op: BosonicOp, *, register_length: int | None = None
@@ -89,11 +92,11 @@ class BosonicLinearMapper(BosonicMapper):
                 # Now we are dealing with a single bosonic operator. We have to perform the linear mapper
                 for n_k in range(self.truncation):
                     prefactor = np.sqrt(n_k + 1) / 4.0
-                    # Define the actual index in the qubit register. It is given by n_k plus the shift due
-                    # to the mode onto which the operator is acting
+                    # Define the actual index in the qubit register. It is given by n_k plus the shift
+                    # due to the mode onto which the operator is acting
                     register_index = n_k + idx * (self.truncation + 1)
                     # Now build the Pauli operators XX, XY, YX, YY, which arise from S_i^+ S_j^-
-                    x_x, x_y, y_x, y_y = self.get_ij_pauli_matrix(
+                    x_x, x_y, y_x, y_y = self._get_ij_pauli_matrix(
                         register_index, qubit_register_length
                     )
 
@@ -116,12 +119,15 @@ class BosonicLinearMapper(BosonicMapper):
 
     @classmethod
     @lru_cache(maxsize=32)
-    def _get_ij_pauli_matrix(register_index: int, register_length: int):
+    def _get_ij_pauli_matrix(cls, register_index: int, register_length: int):
         """This method builds the Qiskit Pauli operators of the operators XX, YY, XY and YX
-               Args:
-                   ...
-               Returns:
-                   ...
+        Args:
+            register_index (int): the index of the qubit register where the mapped operator should be
+            placed
+            register_length (int): the length of the qubit register
+        Returns:
+            Four Pauli operators that represent XX, YY, XY and YX at the specified index in the
+            current qubit register
         """
         # Define recurrent variables
         prefix_zeros = [0] * register_index

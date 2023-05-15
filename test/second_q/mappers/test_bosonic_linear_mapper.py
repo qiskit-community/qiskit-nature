@@ -83,10 +83,10 @@ class TestBosonicLinearMapper(QiskitNatureTestCase):
 
     bos_op6 = BosonicOp({"-_0 +_0": 1})  # TODO: Check
     # Using: truncation = 1
-    ref_qubit_op6_tr1 = SparsePauliOp(["II", "ZZ", "IZ", "ZI"], coeffs=[0.25, -0.25, +0.25, -0.25])
+    ref_qubit_op6_tr1 = SparsePauliOp(["II", "ZZ", "ZI", "IZ"], coeffs=[0.25, -0.25, +0.25, -0.25])
     # Using: truncation = 2
     ref_qubit_op6_tr2 = SparsePauliOp(
-        ["III", "IZZ", "IIZ", "IZI", "ZZI", "ZII"], coeffs=[0.75, -0.25, -0.25, -0.25, -0.5, 0.5]
+        ["III", "IZZ", "IZI", "IIZ", "ZZI", "ZII"], coeffs=[0.75, -0.25, -0.25, -0.25, -0.5, 0.5]
     )
 
     bos_op7 = BosonicOp({"+_0 -_1": 1})
@@ -281,7 +281,7 @@ class TestBosonicLinearMapper(QiskitNatureTestCase):
         (bos_op3, ref_qubit_op3_tr1),
         (bos_op4, ref_qubit_op4_tr1),
         (bos_op5, ref_qubit_op5_tr1),
-        # (bos_op6, ref_qubit_op6_tr1),
+        (bos_op6, ref_qubit_op6_tr1),
         (bos_op7, ref_qubit_op7_8_tr1),
         (bos_op8, ref_qubit_op7_8_tr1),
         (bos_op9, ref_qubit_op9_tr1),
@@ -307,7 +307,7 @@ class TestBosonicLinearMapper(QiskitNatureTestCase):
         (bos_op3, ref_qubit_op3_tr2),
         (bos_op4, ref_qubit_op4_tr2),
         (bos_op5, ref_qubit_op5_tr2),
-        # (bos_op6, ref_qubit_op6_tr2),
+        (bos_op6, ref_qubit_op6_tr2),
         (bos_op7, ref_qubit_op7_8_tr2),
         (bos_op8, ref_qubit_op7_8_tr2),
         (bos_op9, ref_qubit_op9_tr2),

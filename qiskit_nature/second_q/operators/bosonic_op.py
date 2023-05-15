@@ -126,17 +126,6 @@ class BosonicOp(SparseLabelOp):
 
       BosonicOp({"+_0 -_1": 1j}, num_modes=2).adjoint()
 
-    In principle, you can also add `BosonicOp` and integers, but the only valid case is the
-    addition of `0 + BosonicOp`. This makes the `sum` operation from the example above possible
-    and it is useful in the following scenario:
-
-    .. code-block:: python
-
-        boson = 0
-        for i in some_iterable:
-            # some processing
-            boson += BosonicOp(somedata)
-
     **Iteration**
 
     Instances of ``BosonicOp`` are iterable. Iterating a ``BosonicOp`` yields (term, coefficient)
@@ -251,8 +240,7 @@ class BosonicOp(SparseLabelOp):
 
         for key in tensor:
             if key == "":
-                # TODO: deal with complexity
-                data[""] = cast(float, tensor[key])
+                data[""] = tensor[key]
                 continue
 
             mat = tensor[key]
