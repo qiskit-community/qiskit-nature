@@ -81,9 +81,9 @@ class BosonicLinearMapper(BosonicMapper):
         # Then we loop over all the terms of the bosonic operator
         for terms, coeff in second_q_op.terms():
             # Then loop over each term (terms -> List[Tuple[string, int]])
-            bos_op_to_pauli_op = SparsePauliOp(["I" * qubit_register_length], coeffs=[1.])
+            bos_op_to_pauli_op = SparsePauliOp(["I" * qubit_register_length], coeffs=[1.0])
             for op, idx in terms:
-                if op not in ('+', '-'):
+                if op not in ("+", "-"):
                     break
                 pauli_expansion: list[SparsePauliOp] = []
                 # Now we are dealing with a single bosonic operator. We have to perform the linear mapper
@@ -93,16 +93,20 @@ class BosonicLinearMapper(BosonicMapper):
                     # to the mode onto which the operator is acting
                     register_index = n_k + idx * (self.truncation + 1)
                     # Now build the Pauli operators XX, XY, YX, YY, which arise from S_i^+ S_j^-
-                    x_x, x_y, y_x, y_y = self.get_ij_pauli_matrix(register_index, qubit_register_length)
+                    x_x, x_y, y_x, y_y = self.get_ij_pauli_matrix(
+                        register_index, qubit_register_length
+                    )
 
                     tmp_op = SparsePauliOp(x_x) + SparsePauliOp(y_y)
                     if op == "+":
-                        tmp_op += - 1j*SparsePauliOp(x_y) + 1j*SparsePauliOp(y_x)
+                        tmp_op += -1j * SparsePauliOp(x_y) + 1j * SparsePauliOp(y_x)
                     else:
-                        tmp_op += + 1j*SparsePauliOp(x_y) - 1j*SparsePauliOp(y_x)
+                        tmp_op += +1j * SparsePauliOp(x_y) - 1j * SparsePauliOp(y_x)
                     pauli_expansion.append(prefactor * tmp_op)
                 # Add the Pauli expansion for a single n_k to map of the bosonic operator
-                bos_op_to_pauli_op = reduce(operator.add, pauli_expansion).compose(bos_op_to_pauli_op)
+                bos_op_to_pauli_op = reduce(operator.add, pauli_expansion).compose(
+                    bos_op_to_pauli_op
+                )
             # Add the map of the single boson op (e.g. +_0) to the map of the full bosonic operator
             pauli_op.append(coeff * reduce(operator.add, bos_op_to_pauli_op.simplify()))
 
@@ -123,20 +127,23 @@ class BosonicLinearMapper(BosonicMapper):
         prefix_zeros = [0] * register_index
         suffix_zeros = [0] * (register_length - 2 - register_index)
         # Build the Pauli strings
-        x_x = Pauli((
-            [0] * register_length,
-            prefix_zeros + [1, 1] + suffix_zeros,
-        ))
-        x_y = Pauli((
-            prefix_zeros + [1, 0] + suffix_zeros,
-            prefix_zeros + [1, 1] + suffix_zeros,
-        ))
-        y_x = Pauli((
-            prefix_zeros + [0, 1] + suffix_zeros,
-            prefix_zeros + [1, 1] + suffix_zeros,
-        ))
-        y_y = Pauli((
-            prefix_zeros + [1, 1] + suffix_zeros,
-            prefix_zeros + [1, 1] + suffix_zeros
-        ))
+        x_x = Pauli(
+            (
+                [0] * register_length,
+                prefix_zeros + [1, 1] + suffix_zeros,
+            )
+        )
+        x_y = Pauli(
+            (
+                prefix_zeros + [0, 1] + suffix_zeros,
+                prefix_zeros + [1, 1] + suffix_zeros,
+            )
+        )
+        y_x = Pauli(
+            (
+                prefix_zeros + [1, 0] + suffix_zeros,
+                prefix_zeros + [1, 1] + suffix_zeros,
+            )
+        )
+        y_y = Pauli((prefix_zeros + [1, 1] + suffix_zeros, prefix_zeros + [1, 1] + suffix_zeros))
         return x_x, x_y, y_x, y_y

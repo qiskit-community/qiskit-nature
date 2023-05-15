@@ -40,14 +40,16 @@ class BosonicMapper(QubitMapper):
         """
         super().__init__()
         if truncation < 1:
-            raise QiskitNatureError("Truncation for bosonic linear mapper must be at least 1. " +
-                                    f"Detected value: {truncation}")
+            raise QiskitNatureError(
+                "Truncation for bosonic linear mapper must be at least 1. "
+                + f"Detected value: {truncation}"
+            )
         self.truncation = truncation
 
     def map(
         self,
         second_q_ops: BosonicOp | ListOrDictType[BosonicOp],
         *,
-        register_length: int | None = None
+        register_length: int | None = None,
     ) -> SparsePauliOp | PauliSumOp | ListOrDictType[SparsePauliOp | PauliSumOp]:
         return super().map(second_q_ops, register_length=register_length)

@@ -275,10 +275,7 @@ class BosonicOp(SparseLabelOp):
         return "BosonicOp(" f"{data_str}, " f"num_modes={self.num_modes}, " ")"
 
     def __str__(self) -> str:
-        pre = (
-            "Bosonic Operator\n"
-            f"number modes={self.num_modes}, number terms={len(self)}\n"
-        )
+        pre = "Bosonic Operator\n" f"number modes={self.num_modes}, number terms={len(self)}\n"
         ret = "  " + "\n+ ".join(
             [f"{coeff} * ( {label} )" if label else f"{coeff}" for label, coeff in self.items()]
         )
@@ -410,7 +407,7 @@ class BosonicOp(SparseLabelOp):
                     if right[1] == left[1]:
                         # if their indices are identical, we incur an additional term because of:
                         # b_i b_i^\dagger = 1 + b_i^\dagger b_i
-                        new_terms = terms[: (j - 1)] + terms[(j + 1):]
+                        new_terms = terms[: (j - 1)] + terms[(j + 1) :]
                         # we can do so by recursion on this method
                         ordered_op += self._normal_order(new_terms, coeff)
 
@@ -535,9 +532,12 @@ class BosonicOp(SparseLabelOp):
             #  4. index exists, the value stored in dict is <(>) 0 and operator is "+"("-"):
             #        we remove the last "-"("+") from the new string
             # pylint: disable=too-many-boolean-expressions
-            if (idx not in operator_mapper or abs(operator_mapper[idx]) == 1 or
-               (operator_mapper[idx] < -1 and operator == "-") or
-               (operator_mapper[idx] > 1 and operator == "+")):
+            if (
+                idx not in operator_mapper
+                or abs(operator_mapper[idx]) == 1
+                or (operator_mapper[idx] < -1 and operator == "-")
+                or (operator_mapper[idx] > 1 and operator == "+")
+            ):
                 # Case 1., 2., 3.
                 new_label += f"{lbl}" if len(new_label) == 0 else f" {lbl}"
             else:
@@ -546,12 +546,14 @@ class BosonicOp(SparseLabelOp):
                 # First, find all the operators of the opposite type of "lbl" in the label
                 lbl_to_find = ("-" if operator == "+" else "+") + lbl[1:]
                 # occs contains all the start indexes of the sub-string lbl_to_find in label
-                occs = [i for i in range(0, len(new_label), 4) if new_label.startswith(lbl_to_find, i)]
+                occs = [
+                    i for i in range(0, len(new_label), 4) if new_label.startswith(lbl_to_find, i)
+                ]
                 # Finally, remove the last occurrence
                 if occs[-1] + 4 < len(new_label):
-                    new_label = (new_label[0:occs[-1]] + new_label[(occs[-1] + 4):]).strip()
+                    new_label = (new_label[0 : occs[-1]] + new_label[(occs[-1] + 4) :]).strip()
                 else:
-                    new_label = (new_label[0:occs[-1]]).strip()
+                    new_label = (new_label[0 : occs[-1]]).strip()
             # Then, update the operator_mapper dictionary
             # Creation operator (+) creates a new particle at that index, so we increase the value in
             # the dict by one. Annihilation operator (-) does the opposite
