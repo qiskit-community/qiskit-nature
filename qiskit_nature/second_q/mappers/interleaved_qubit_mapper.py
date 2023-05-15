@@ -43,11 +43,9 @@ class InterleavedQubitMapper(FermionicMapper):
         The builtin two-qubit reduction of the :class:`.ParityMapper` will also not provide correct
         results when combined with this mapper. Again, this is not asserted so be aware of this
         pitfall.
-
-    .. note::
-
-        Given the above, you may instead want to use a :class:`.TaperedQubitMapper` to remove
-        redundant qubits.
+        Thus, if you would like to reduce the number of qubits, you should instead look towards the
+        :class:`.TaperedQubitMapper` which removes qubits based on all Z2-symmetries it detects in
+        the operator.
 
     For site-based mappers, Qiskit Nature always arranges the qubits corresponding to the alpha-spin
     and beta-spin components in a blocked fashion. I.e. the first half of the qubit register

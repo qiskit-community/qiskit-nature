@@ -43,8 +43,10 @@ class ParityMapper(FermionicMapper):
 
     .. warning::
 
-       This additional two-qubit reduction will **not** work in conjunction with the
-       :class:`.InterleavedQubitMapper`! In such a case you should rely on the
+       Combing this additional two-qubit reduction with the :class:`.InterleavedQubitMapper` will
+       **not** yield the intended result. While the code will work, the hard-coded indices of the
+       qubits which are removed will alter the Hamiltonian in a non-physical way, resulting in a
+       physically incorrect answer. In such a case you should rely on the
        :class:`.TaperedQubitMapper`, instead.
     """
 
