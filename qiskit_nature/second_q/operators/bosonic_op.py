@@ -347,7 +347,7 @@ class BosonicOp(SparseLabelOp):
 
             The commutation relation between two bosonic operator is:
         .. math:
-            [b_i, b_j^\\dagger]_- = \\delta_{ij} \rightarrow \\
+            [b_i, b_j^\\dagger]_- = \\delta_{ij} = \\
             b_i * b_j^\\dagger = b_j^\\dagger * b_i + \\delta_{ij}
 
         .. note::

@@ -42,7 +42,7 @@ class BosonicLinearMapper(BosonicMapper):
    It implements the formula in Section II.C of Reference [1]:
 
    .. math::
-       b_k^\\dagger \\rightarrow \\sum(\\sqrt{n_k + 1} \\sigma_{n_k}^+\\sigma_{n_k + 1}^-)
+       b_k^\\dagger = \\sum(\\sqrt{n_k + 1} \\sigma_{n_k}^+\\sigma_{n_k + 1}^-)
 
    from :math:`n_k = 0` to :math:`n_k^max + 1`
    where :math:`n_k^max` is the truncation order (defined by the user).
@@ -65,8 +65,7 @@ class BosonicLinearMapper(BosonicMapper):
     def _map_single(
         self, second_q_op: BosonicOp, *, register_length: int | None = None
     ) -> SparsePauliOp:
-        """Maps a :class:`~qiskit_nature.second_q.operators.SparseLabelOp`
-        to a``SparsePauliOp``.
+        """Maps a :class:`~qiskit_nature.second_q.operators.SparseLabelOp` to a``SparsePauliOp``.
 
         Args:
             second_q_op: the ``SparseLabelOp`` to be mapped.

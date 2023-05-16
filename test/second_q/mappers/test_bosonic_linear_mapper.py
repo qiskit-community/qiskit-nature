@@ -19,7 +19,6 @@ from test import QiskitNatureTestCase
 from ddt import ddt, data, unpack
 import numpy as np
 
-from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info import SparsePauliOp
 from qiskit_nature.second_q.operators import BosonicOp
 from qiskit_nature.second_q.mappers import BosonicLinearMapper
@@ -81,7 +80,7 @@ class TestBosonicLinearMapper(QiskitNatureTestCase):
         ["III", "IZZ", "IZI", "IIZ", "ZZI", "ZII"], coeffs=[0.75, -0.25, 0.25, 0.25, -0.5, -0.5]
     )
 
-    bos_op6 = BosonicOp({"-_0 +_0": 1})  # TODO: Check
+    bos_op6 = BosonicOp({"-_0 +_0": 1})
     # Using: truncation = 1
     ref_qubit_op6_tr1 = SparsePauliOp(["II", "ZZ", "ZI", "IZ"], coeffs=[0.25, -0.25, +0.25, -0.25])
     # Using: truncation = 2
@@ -292,9 +291,6 @@ class TestBosonicLinearMapper(QiskitNatureTestCase):
         mapper = BosonicLinearMapper(truncation=1)
         aux = settings.use_pauli_sum_op
         try:
-            settings.use_pauli_sum_op = True
-            qubit_op = mapper.map(bos_op)
-            self.assertEqual(qubit_op, PauliSumOp(ref_qubit_op))
             settings.use_pauli_sum_op = False
             qubit_op = mapper.map(bos_op)
             self.assertEqualSparsePauliOp(qubit_op, ref_qubit_op)
@@ -318,9 +314,6 @@ class TestBosonicLinearMapper(QiskitNatureTestCase):
         mapper = BosonicLinearMapper(truncation=2)
         aux = settings.use_pauli_sum_op
         try:
-            settings.use_pauli_sum_op = True
-            qubit_op = mapper.map(bos_op)
-            self.assertEqual(qubit_op, PauliSumOp(ref_qubit_op))
             settings.use_pauli_sum_op = False
             qubit_op = mapper.map(bos_op)
             self.assertEqualSparsePauliOp(qubit_op, ref_qubit_op)

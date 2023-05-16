@@ -57,7 +57,9 @@ boolean
 bools
 bopes
 boson
+bosons
 bosonic
+bosonicop
 bravyi
 calcinfo
 cargs
@@ -177,10 +179,6 @@ fermion
 fermionic
 fermionicop
 fermions
-boson
-bosons
-bosonic
-bosonicop
 feynman
 filename
 fmt
@@ -336,6 +334,7 @@ metadata
 meth
 methionine
 microsoft
+miessen
 minao
 mixin
 miyazawa
@@ -524,6 +523,7 @@ soham
 sp
 sparsearray
 sparselabelop
+sparsepauliop
 spinop
 springer
 spsa
