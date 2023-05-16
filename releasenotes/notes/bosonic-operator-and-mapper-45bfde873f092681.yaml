@@ -1,7 +1,7 @@
 ---
 features:
   - |
-    Introduced a new feature that implements the bosonic operators ``BosonicOp``.
+    Introduced a new feature that implements the bosonic operator ``BosonicOp``.
     Its functionalities are analogous to the ``FermionicOp`` It should be used to represent a bosonic
     operator, so if one wants to represent the boson number operator it should do for example::
 
@@ -13,11 +13,11 @@ features:
     method ``bosonic_op.simplify()`` does not commute with the index order ``bosonic_op.index_order()``
 
   - |
-    In order to use the bosonic operator in a quantum circuit, this featrue also introduces the
+    In order to use the bosonic operator in a quantum circuit, this feature also introduces the
     bosonic linear mapper, which allows to map the BosonicOp to the qubit space. This mapper is based
     on the paper: A. Miessen et al., Quantum algorithms for quantum dynamics: A performance study on the
     spin-boson model, Phys. Rev. Research 3, 043212.
-    To use this mapper on can for example::
+    To use this mapper one can for example::
 
       from qiskit_nature.second_q.mappers import BosonicLinearMapper
       mapper = BosonicLinearMapper(truncation=1)
