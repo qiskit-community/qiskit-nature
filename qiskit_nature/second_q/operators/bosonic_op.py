@@ -17,7 +17,7 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 from collections.abc import Collection, Mapping
-from typing import cast, Iterator
+from typing import Iterator
 
 import numpy as np
 
@@ -347,15 +347,16 @@ class BosonicOp(SparseLabelOp):
 
             The commutation relation between two bosonic operator is:
         .. math:
-            [b_i, b_j^\dagger]_- = \delta_{ij} \rightarrow b_i * b_j^\dagger = b_j^\dagger * b_i + \delta_{ij}
+            [b_i, b_j^\\dagger]_- = \\delta_{ij} \rightarrow \\
+            b_i * b_j^\\dagger = b_j^\\dagger * b_i + \\delta_{ij}
 
         .. note::
 
             This method implements the transformation of an operator to the normal ordered operator.
             The transformation is calculated by considering all commutation relations between the
             operators.
-            For example, for the case :math:`\colon b_0 b_0^\dagger\colon` where :math:`c_0`
-            is an annihilation operator, this method returns :math:`1 + b_0^\dagger b_0` due to
+            For example, for the case :math:`\\colon b_0 b_0^\\dagger\\colon` where :math:`b_0`
+            is an annihilation operator, this method returns :math:`1 + b_0^\\dagger b_0` due to
             commutation relations.
             See the reference: [here](https://en.wikipedia.org/wiki/Normal_order#Multiple_bosons).
         """

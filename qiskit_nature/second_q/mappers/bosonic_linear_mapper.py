@@ -31,27 +31,27 @@ class BosonicLinearMapper(BosonicMapper):
     """
    The Linear boson-to-qubit mapping.
 
-   This mapper generates a linear encoding of the Bosonic operator :math:`b_k^\dagger, b_k` to qubit
+   This mapper generates a linear encoding of the Bosonic operator :math:`b_k^\\dagger, b_k` to qubit
    operators (linear combinations of pauli strings).
-   In this linear encoding each bosonic mode is represented via :math:`n_k^max + 1` qubits, where
-   :math:`n_k^max` is the truncation of the mode (meaning the number of states used in the expansion of
+   In this linear encoding each bosonic mode is represented via :math:`n_k^{max} + 1` qubits, where
+   :math:`n_k^{max}` is the truncation of the mode (meaning the number of states used in the expansion of
    the mode, or equivalently the state at which the maximum excitation can take place).
    The mode :math:`|k\rangle` is then mapped to the occupation number vector
-   :math:`|0_{n_{k}^max}, 0_{n_{k}^max - 1}, ..., 0_{n_k + 1}, 1_{n_k}, 0_{n_k - 1}, ..., 0_{0_k}\rangle`
+   :math:`|0_{n_k^{max}}, 0_{n_k^{max} - 1}, ..., 0_{n_k + 1}, 1_{n_k}, 0_{n_k - 1}, ..., 0_{0_k}\rangle`
 
    It implements the formula in Section II.C of Reference [1]:
 
    .. math::
-       b_k^\dagger -> \sum(\sqrt{n_k + 1} \sigma_{n_k}^+\sigma_{n_k + 1}^-)
+       b_k^\\dagger \\rightarrow \\sum(\\sqrt{n_k + 1} \\sigma_{n_k}^+\\sigma_{n_k + 1}^-)
 
    from :math:`n_k = 0` to :math:`n_k^max + 1`
    where :math:`n_k^max` is the truncation order (defined by the user).
-   In the following implementation, we explicit the operators :math:`\sigma^+` and :math:`\sigma^-` with
-   the Pauli matrices:
+   In the following implementation, we explicit the operators :math:`\\sigma^+` and :math:`\\sigma^-`
+   with the Pauli matrices:
 
    .. math::
-       \sigma_{n_k}^+ := S_j^+ = 0.5 * (X_j + i*Y_j)\\
-       \sigma_{n_k}^- := S_j^- = 0.5 * (X_j - i*Y_j)
+       \\sigma_{n_k}^+ := S_j^+ = 0.5 * (X_j + i*Y_j)\\
+       \\sigma_{n_k}^- := S_j^- = 0.5 * (X_j - i*Y_j)
 
    The length of the qubit register is: ``BosonicOp.num_modes * (BosonicLinearMapper.truncation + 1)``
 
@@ -130,10 +130,12 @@ class BosonicLinearMapper(BosonicMapper):
     @lru_cache(maxsize=32)
     def _get_ij_pauli_matrix(cls, register_index: int, register_length: int):
         """This method builds the Qiskit Pauli operators of the operators XX, YY, XY and YX
+
         Args:
             register_index (int): the index of the qubit register where the mapped operator should be
             placed
             register_length (int): the length of the qubit register
+
         Returns:
             Four Pauli operators that represent XX, YY, XY and YX at the specified index in the
             current qubit register

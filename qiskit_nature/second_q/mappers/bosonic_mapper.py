@@ -55,5 +55,5 @@ class BosonicMapper(QubitMapper):
         second_q_ops: BosonicOp | ListOrDictType[BosonicOp],
         *,
         register_length: int | None = None,
-    ) -> SparsePauliOp | PauliSumOp | ListOrDictType[SparsePauliOp | PauliSumOp]:
+    ) -> SparsePauliOp | ListOrDictType[SparsePauliOp]:
         return super().map(second_q_ops, register_length=register_length)
