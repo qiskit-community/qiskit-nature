@@ -244,6 +244,8 @@ class ElectronicStructureProblem(BaseProblem):
             if isinstance(prop, Interpretable):
                 prop.interpret(result)
         result.computed_energies = np.asarray([e.real for e in eigenstate_result.eigenvalues])
+        if self.reference_energy is not None:
+            result.hartree_fock_energy = self.reference_energy
         return result
 
     def get_default_filter_criterion(
