@@ -53,10 +53,17 @@ class BosonicLinearMapper(BosonicMapper):
 
     The length of the qubit register is: ``BosonicOp.num_modes * (BosonicLinearMapper.truncation + 1)``
 
+    .. note::
+        Since this mapper uses a truncation in the representation of the Bosonic operators, the
+        commutation relation after the mapping differ from the standard ones. Please refer to
+        Section 4, equation 22 of Reference [2] for more details
+
     References:
         [1] A. Miessen et al., Quantum algorithms for quantum dynamics: A performance study on the
         spin-boson model, Phys. Rev. Research 3, 043212.
         https://link.aps.org/doi/10.1103/PhysRevResearch.3.043212
+        [2] R. Somma et al., Quantum Simulations of Physics Problems, Arxiv
+        https://doi.org/10.48550/arXiv.quant-ph/0304063
 
     """
 
