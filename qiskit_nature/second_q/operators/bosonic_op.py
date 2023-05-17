@@ -17,7 +17,7 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 from collections.abc import Collection, Mapping
-from typing import Iterator
+from typing import Iterator, Sequence
 
 import numpy as np
 
@@ -288,6 +288,19 @@ class BosonicOp(SparseLabelOp):
             #   lbl[2:] corresponds to the index
             terms = [(lbl[0], int(lbl[2:])) for lbl in label.split()]
             yield (terms, self[label])
+
+    @classmethod
+    def from_terms(cls, terms: Sequence[tuple[list[tuple[str, int]], _TCoeff]]) -> BosonicOp:
+        data = {
+            " ".join(f"{action}_{index}" for action, index in label): value
+            for label, value in terms
+        }
+        return cls(data)
+
+    def _permute_term(
+        self, term: list[tuple[str, int]], permutation: Sequence[int]
+    ) -> list[tuple[str, int]]:
+        return [(action, permutation[index]) for action, index in term]
 
     def compose(self, other: BosonicOp, qargs=None, front: bool = False) -> BosonicOp:
         if not isinstance(other, BosonicOp):
