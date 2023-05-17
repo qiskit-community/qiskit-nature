@@ -627,9 +627,7 @@ class TestBosonicOp(QiskitNatureTestCase):
         with self.subTest("actual permutation"):
             permuted_op = op.permute_indices([2, 1, 3, 0])
 
-            self.assertEqual(
-                permuted_op, BosonicOp({"+_2 -_1": 1, "+_1 -_3": 2}, num_modes=4)
-            )
+            self.assertEqual(permuted_op, BosonicOp({"+_2 -_1": 1, "+_1 -_3": 2}, num_modes=4))
 
 
 if __name__ == "__main__":

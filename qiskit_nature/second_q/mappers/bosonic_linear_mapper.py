@@ -76,7 +76,9 @@ class BosonicLinearMapper(BosonicMapper):
             The qubit operator corresponding to the problem-Hamiltonian in the qubit space.
         """
         if settings.use_pauli_sum_op:
-            raise NotImplementedError("Setting not supported for this class. Please disable settings.use_pauli_sum_op.")
+            raise NotImplementedError(
+                "Setting not supported for this class. Please disable settings.use_pauli_sum_op."
+            )
         if register_length is None:
             register_length = second_q_op.num_modes
 
