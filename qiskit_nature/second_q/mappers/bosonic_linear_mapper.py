@@ -14,7 +14,6 @@
 
 from __future__ import annotations
 import operator
-import warnings
 
 from functools import reduce, lru_cache
 
@@ -77,12 +76,7 @@ class BosonicLinearMapper(BosonicMapper):
             The qubit operator corresponding to the problem-Hamiltonian in the qubit space.
         """
         if settings.use_pauli_sum_op:
-            warnings.warn(
-                DeprecationWarning(
-                    "As of version 0.6.0 the PauliSumOp is deprecated. We are ignoring this setting"
-                    "for this function. Thus the returned object will have type SparsePauliOp"
-                )
-            )
+            raise NotImplementedError("Setting not supported for this class. Please disable settings.use_pauli_sum_op.")
         if register_length is None:
             register_length = second_q_op.num_modes
 

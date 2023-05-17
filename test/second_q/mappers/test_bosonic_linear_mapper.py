@@ -320,6 +320,13 @@ class TestBosonicLinearMapper(QiskitNatureTestCase):
         finally:
             settings.use_pauli_sum_op = aux
 
+    def test_error_pauli_sum_op(self):
+        """Test that if the user sets use_pauli_sum_op to true, then we return an error"""
+        mapper = BosonicLinearMapper(truncation=1)
+        settings.use_pauli_sum_op = True
+        with self.assertRaises(NotImplementedError):
+            mapper.map(BosonicOp({"+_0": 1}))
+
 
 if __name__ == "__main__":
     unittest.main()
