@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    The :class:`.ActiveSpaceTransformer` would sometimes set the wrong number of active particles
+    because of a flawed integer rounding. This has now been fixed.
