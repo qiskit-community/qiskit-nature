@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -73,12 +73,12 @@ class VibrationalStructureResult(EigenstateResult):
         lines.append(" ")
         lines.append(
             "* Vibrational ground state energy "
-            f"(cm^-1): {np.round(self.computed_vibrational_energies[0], 12)}"
+            f"(cm^-1): {np.round(self.computed_vibrational_energies[0], self.formatting_precision)}"
         )
         if len(self.num_occupied_modals_per_mode) > 0:
             lines.append("The number of occupied modals for each mode is: ")
             for i, m in enumerate(self.num_occupied_modals_per_mode[0]):
-                lines.append(f"- Mode {i}: {np.round(m, 12)}")
+                lines.append(f"- Mode {i}: {np.round(m, self.formatting_precision)}")
 
         if (
             self.computed_vibrational_energies is not None
@@ -91,12 +91,12 @@ class VibrationalStructureResult(EigenstateResult):
             for idx, vib_energy in enumerate(self.computed_vibrational_energies[1:]):
                 lines.append(
                     f"* {(idx + 1): 3d}: Vibrational excited state energy "
-                    f"(cm^-1): {np.round(vib_energy, 12)}"
+                    f"(cm^-1): {np.round(vib_energy, self.formatting_precision)}"
                 )
                 if idx < len(self.num_occupied_modals_per_mode):
                     lines.append("The number of occupied modals for each mode is")
                     for i, m in enumerate(self.num_occupied_modals_per_mode[idx]):
-                        lines.append(f"- Mode {i}: {np.round(m, 12)}")
+                        lines.append(f"- Mode {i}: {np.round(m, self.formatting_precision)}")
                 lines.append(" ")
 
         return lines

@@ -12,24 +12,66 @@
 
 """Tests Electronic Structure Problem."""
 import unittest
+import warnings
 from test import QiskitNatureTestCase
 
 import json
 import numpy as np
 
+from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
 from qiskit.opflow import PauliSumOp
 from qiskit.opflow.primitive_ops import Z2Symmetries
 from qiskit.quantum_info.analysis.z2_symmetries import Z2Symmetries as Z2SparseSymmetries
 
 import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.drivers import PySCFDriver
+from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.mappers import JordanWignerMapper
 from qiskit_nature.second_q.operators import SparseLabelOp
+from qiskit_nature.second_q.problems import ElectronicStructureProblem
+from qiskit_nature.second_q.properties import AngularMomentum, Magnetization, ParticleNumber
 from qiskit_nature.second_q.transformers import ActiveSpaceTransformer
 
 
 class TestElectronicStructureProblem(QiskitNatureTestCase):
     """Tests Electronic Structure Problem."""
+
+    def test_interpret(self):
+        """Tests the result interpretation method."""
+        dummy_result = MinimumEigensolverResult()
+        dummy_result.eigenvalue = 1.0
+        dummy_result.aux_operators_evaluated = {
+            "ParticleNumber": (1.0, 0.0),
+            "AngularMomentum": (2.0, 0.0),
+            "Magnetization": (-1.0, 0.0),
+        }
+
+        dummy_problem = ElectronicStructureProblem(
+            ElectronicEnergy.from_raw_integrals(np.zeros((2, 2)), np.zeros((2, 2, 2, 2)))
+        )
+        dummy_problem.hamiltonian.nuclear_repulsion_energy = 1.23
+        dummy_problem.reference_energy = -4.56
+        dummy_problem.properties.angular_momentum = AngularMomentum(1)
+        dummy_problem.properties.magnetization = Magnetization(1)
+        dummy_problem.properties.particle_number = ParticleNumber(1)
+
+        elec_struc_res = dummy_problem.interpret(dummy_result)
+
+        with self.subTest("hartree fock energy"):
+            self.assertAlmostEqual(elec_struc_res.hartree_fock_energy, -4.56)
+        with self.subTest("nuclear repulsion energy"):
+            self.assertAlmostEqual(elec_struc_res.nuclear_repulsion_energy, 1.23)
+        with self.subTest("computed energy"):
+            self.assertEqual(len(elec_struc_res.computed_energies), 1)
+            self.assertAlmostEqual(elec_struc_res.computed_energies[0], 1.0)
+        with self.subTest("number of particles"):
+            self.assertAlmostEqual(elec_struc_res.num_particles[0], 1.0)
+        with self.subTest("angular momentum"):
+            self.assertAlmostEqual(elec_struc_res.total_angular_momentum[0], 2.0)
+        with self.subTest("spin"):
+            self.assertAlmostEqual(elec_struc_res.spin[0], 1.0)
+        with self.subTest("magnetization"):
+            self.assertAlmostEqual(elec_struc_res.magnetization[0], -1.0)
 
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_second_q_ops_without_transformers(self):
@@ -104,13 +146,17 @@ class TestElectronicStructureProblem(QiskitNatureTestCase):
             if isinstance(mapped_op, PauliSumOp):
                 mapped_op = mapped_op.primitive
             z2sym = Z2SparseSymmetries.find_z2_symmetries(mapped_op)
-            sector = electronic_structure_problem.symmetry_sector_locator(z2sym, mapper)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=DeprecationWarning)
+                sector = electronic_structure_problem.symmetry_sector_locator(z2sym, mapper)
             self.assertEqual(sector, expected_sector)
         with self.subTest("Opflow Z2Symmetries"):
             if not isinstance(mapped_op, PauliSumOp):
                 mapped_op = PauliSumOp(mapped_op)
             z2sym = Z2Symmetries.find_Z2_symmetries(mapped_op)
-            sector = electronic_structure_problem.symmetry_sector_locator(z2sym, mapper)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=DeprecationWarning)
+                sector = electronic_structure_problem.symmetry_sector_locator(z2sym, mapper)
             self.assertEqual(sector, expected_sector)
 
 

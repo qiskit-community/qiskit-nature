@@ -21,12 +21,11 @@ from test import QiskitNatureTestCase
 import numpy as np
 from ddt import ddt, data, unpack
 
+from qiskit.algorithms.minimum_eigensolvers import NumPyMinimumEigensolver
+
 import qiskit_nature.optionals as _optionals
 
-from qiskit_nature.second_q.algorithms import (
-    GroundStateEigensolver,
-    NumPyMinimumEigensolverFactory,
-)
+from qiskit_nature.second_q.algorithms import GroundStateEigensolver
 from qiskit_nature.second_q.drivers import PySCFDriver, MethodType
 from qiskit_nature.second_q.mappers import JordanWignerMapper, QubitConverter
 from qiskit_nature.second_q.operators import ElectronicIntegrals
@@ -278,7 +277,7 @@ class TestElectronicDensity(QiskitNatureTestCase):
 
         algo = GroundStateEigensolver(
             QubitConverter(JordanWignerMapper()),
-            NumPyMinimumEigensolverFactory(),
+            NumPyMinimumEigensolver(),
         )
 
         result = algo.solve(problem)

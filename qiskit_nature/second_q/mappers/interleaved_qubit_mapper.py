@@ -38,6 +38,15 @@ class InterleavedQubitMapper(FermionicMapper):
        which will indeed produce qubit operators for you. You will just not be able to interpret the
        order of the qubits in the same way.
 
+    .. warning::
+
+        The builtin two-qubit reduction of the :class:`.ParityMapper` will also not provide correct
+        results when combined with this mapper. Again, this is not asserted so be aware of this
+        pitfall.
+        Thus, if you would like to reduce the number of qubits, you should instead look towards the
+        :class:`.TaperedQubitMapper` which removes qubits based on all Z2-symmetries it detects in
+        the operator.
+
     For site-based mappers, Qiskit Nature always arranges the qubits corresponding to the alpha-spin
     and beta-spin components in a blocked fashion. I.e. the first half of the qubit register
     corresponds to the alpha-spin components, and the second half to the beta-spin one, like so:
@@ -96,15 +105,17 @@ class InterleavedQubitMapper(FermionicMapper):
     def _map_single(
         self, second_q_op: FermionicOp, *, register_length: int | None = None
     ) -> SparsePauliOp | PauliSumOp:
-        blocked_op = self.mapper._map_single(second_q_op, register_length=register_length)
-        if isinstance(blocked_op, PauliSumOp):
-            blocked_op = blocked_op.primitive
+        if register_length is None:
+            register_length = second_q_op.register_length
 
-        def blocked_to_interleaved(label: str) -> str:
-            return label[::2] + label[1::2]
-
-        interleaved_op = SparsePauliOp.from_list(
-            [(blocked_to_interleaved(label), coeff) for label, coeff in blocked_op.to_list()]
+        interleaved_sec_op = second_q_op.permute_indices(
+            list(range(0, register_length, 2)) + list(range(1, register_length, 2))
         )
+
+        interleaved_op = self.mapper._map_single(
+            interleaved_sec_op, register_length=register_length
+        )
+        if isinstance(interleaved_op, PauliSumOp):
+            interleaved_op = interleaved_op.primitive
 
         return PauliSumOp(interleaved_op) if settings.use_pauli_sum_op else interleaved_op

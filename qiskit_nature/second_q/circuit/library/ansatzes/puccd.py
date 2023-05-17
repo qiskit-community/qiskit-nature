@@ -66,6 +66,7 @@ class PUCCD(UCC):
         initial_state: QuantumCircuit | None = None,
         include_singles: tuple[bool, bool] = (False, False),
         generalized: bool = False,
+        include_imaginary: bool = False,
         qubit_converter: QubitConverter | QubitMapper | None = None,
     ) -> None:
         # pylint: disable=unused-argument
@@ -84,6 +85,8 @@ class PUCCD(UCC):
                 the occupation of the spin orbitals. As such, the set of generalized excitations is
                 only determined from the number of spin orbitals and independent from the number of
                 particles.
+            include_imaginary: Boolean flag which when set to ``True`` expands the ansatz to include
+                imaginary parts using twice the number of free parameters.
             qubit_converter: DEPRECATED The :class:`~qiskit_nature.second_q.mappers.QubitConverter`
                 or :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance which takes care of
                 mapping to a qubit operator.
@@ -103,6 +106,7 @@ class PUCCD(UCC):
             beta_spin=True,
             max_spin_excitation=None,
             generalized=generalized,
+            include_imaginary=include_imaginary,
             reps=reps,
             initial_state=initial_state,
         )

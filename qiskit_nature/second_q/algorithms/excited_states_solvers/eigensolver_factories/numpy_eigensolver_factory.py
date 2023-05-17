@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -18,12 +18,19 @@ import numpy as np
 from qiskit.algorithms.eigensolvers import Eigensolver, NumPyEigensolver
 from qiskit.utils.validation import validate_min
 
+from qiskit_nature.deprecation import DeprecatedType, warn_deprecated
 from qiskit_nature.second_q.problems.base_problem import BaseProblem
 from .eigensolver_factory import EigensolverFactory
 
 
 class NumPyEigensolverFactory(EigensolverFactory):
-    """A factory to construct a NumPyEigensolver."""
+    """DEPRECATED A factory to construct a NumPyEigensolver.
+
+    .. warning::
+
+        This class is deprecated! Please see :ref:`this guide <how-to-numpy>` for how to replace
+        your usage of it!
+    """
 
     def __init__(
         self,
@@ -46,6 +53,16 @@ class NumPyEigensolverFactory(EigensolverFactory):
             use_default_filter_criterion: Whether to use the transformation's default filter
                 criterion if ``filter_criterion`` is ``None``.
         """
+        warn_deprecated(
+            "0.6.0",
+            DeprecatedType.CLASS,
+            "NumPyMinimumEigensolverFactory",
+            additional_msg=(
+                ". This class is deprecated without replacement. Instead, refer to this how-to "
+                "guide which explains the steps you need to take to replace the use of this class: "
+                "https://qiskit.org/documentation/nature/howtos/numpy_minimum_eigensolver.html"
+            ),
+        )
         self._filter_criterion = filter_criterion
         self._k = k  # pylint:disable=invalid-name
         self._use_default_filter_criterion = use_default_filter_criterion

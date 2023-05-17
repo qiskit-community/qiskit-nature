@@ -178,16 +178,16 @@ class TestQuadraticHamiltonian(QiskitNatureTestCase):
         expected_terms = {
             "": 5.0,
             "+_0 -_0": 1.0,
-            "+_1 -_1": 3.0,
             "+_0 -_1": 2j,
-            "-_0 +_1": 2j,
-            "+_0 +_1": 4j,
-            "-_0 -_1": 4j,
+            "+_1 -_0": -2j,
+            "+_1 -_1": 3.0,
+            "+_0 +_1": 2j,
+            "+_1 +_0": -2j,
+            "-_0 -_1": 2j,
+            "-_1 -_0": -2j,
         }
         expected_op = FermionicOp(expected_terms, num_spin_orbitals=2)
-        matrix = fermionic_op.to_matrix(sparse=False)
-        expected_matrix = expected_op.to_matrix(sparse=False)
-        np.testing.assert_allclose(matrix, expected_matrix)
+        self.assertTrue(expected_op.equiv(fermionic_op))
 
     def test_validate(self):
         """Test input validation."""

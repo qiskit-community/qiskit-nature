@@ -30,6 +30,7 @@ from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
 from qiskit_nature.second_q.formats.qcschema import QCSchema
 from qiskit_nature.second_q.formats.qcschema_translator import qcschema_to_problem
+from qiskit_nature.second_q.operators.symmetric_two_body import fold
 from qiskit_nature.second_q.problems import ElectronicBasis, ElectronicStructureProblem
 from qiskit_nature.settings import settings
 import qiskit_nature.optionals as _optionals
@@ -506,7 +507,7 @@ class PySCFDriver(ElectronicStructureDriver):
     def to_qcschema(self, *, include_dipole: bool = True) -> QCSchema:
         # pylint: disable=import-error
         from pyscf import __version__ as pyscf_version
-        from pyscf import gto
+        from pyscf import ao2mo, gto
         from pyscf.tools import dump_mat
 
         einsum_func, _ = get_einsum()
@@ -535,36 +536,50 @@ class PySCFDriver(ElectronicStructureDriver):
         data.hij_mo = np.dot(np.dot(data.mo_coeff.T, data.hij), data.mo_coeff)
         if data.mo_coeff_b is not None:
             data.hij_mo_b = np.dot(np.dot(data.mo_coeff_b.T, data.hij), data.mo_coeff_b)
-        data.eri = self._mol.intor("int2e", aosym=1)
+
         einsum_ao_to_mo = "pqrs,pi,qj,rk,sl->ijkl"
-        data.eri_mo = einsum_func(
-            einsum_ao_to_mo,
-            data.eri,
-            data.mo_coeff,
-            data.mo_coeff,
-            data.mo_coeff,
-            data.mo_coeff,
-            optimize=settings.optimize_einsum,
-        )
-        if data.mo_coeff_b is not None:
-            data.eri_mo_ba = einsum_func(
+        if settings.use_symmetry_reduced_integrals:
+            data.eri = self._mol.intor("int2e", aosym=8)
+            data.eri_mo = fold(ao2mo.full(self._mol, data.mo_coeff, aosym=4))
+            if data.mo_coeff_b is not None:
+                data.eri_mo_bb = fold(ao2mo.full(self._mol, data.mo_coeff_b, aosym=4))
+                data.eri_mo_ba = fold(
+                    ao2mo.general(
+                        self._mol,
+                        [data.mo_coeff_b, data.mo_coeff_b, data.mo_coeff, data.mo_coeff],
+                        aosym=4,
+                    )
+                )
+        else:
+            data.eri = self._mol.intor("int2e", aosym=1)
+            data.eri_mo = einsum_func(
                 einsum_ao_to_mo,
                 data.eri,
-                data.mo_coeff_b,
-                data.mo_coeff_b,
+                data.mo_coeff,
+                data.mo_coeff,
                 data.mo_coeff,
                 data.mo_coeff,
                 optimize=settings.optimize_einsum,
             )
-            data.eri_mo_bb = einsum_func(
-                einsum_ao_to_mo,
-                data.eri,
-                data.mo_coeff_b,
-                data.mo_coeff_b,
-                data.mo_coeff_b,
-                data.mo_coeff_b,
-                optimize=settings.optimize_einsum,
-            )
+            if data.mo_coeff_b is not None:
+                data.eri_mo_ba = einsum_func(
+                    einsum_ao_to_mo,
+                    data.eri,
+                    data.mo_coeff_b,
+                    data.mo_coeff_b,
+                    data.mo_coeff,
+                    data.mo_coeff,
+                    optimize=settings.optimize_einsum,
+                )
+                data.eri_mo_bb = einsum_func(
+                    einsum_ao_to_mo,
+                    data.eri,
+                    data.mo_coeff_b,
+                    data.mo_coeff_b,
+                    data.mo_coeff_b,
+                    data.mo_coeff_b,
+                    optimize=settings.optimize_einsum,
+                )
 
         data.e_nuc = gto.mole.energy_nuc(self._mol)
         data.e_ref = self._calc.e_tot

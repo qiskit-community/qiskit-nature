@@ -43,6 +43,7 @@ avogadro
 äquivalenzverbot
 bac
 backend
+backends
 barkoutsos
 bb
 bergholm
@@ -72,6 +73,7 @@ chc
 chiral
 chirality
 chkfile
+cholesky
 chuang
 ci
 clbit
@@ -148,6 +150,7 @@ eigen
 eigenfunctions
 eigensolution
 eigensolver
+eigensolverfactory
 eigensolvers
 eigenstate
 eigenstateresult
@@ -159,6 +162,7 @@ einsum
 electronicintegrals
 electronicstructureproblem
 endian
+endianness
 endif
 enum
 eom
@@ -559,6 +563,7 @@ tavernelli
 taylor
 tb
 tdg
+tcoeff
 tensored
 tensoring
 terra

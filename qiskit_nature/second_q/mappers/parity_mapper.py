@@ -40,6 +40,14 @@ class ParityMapper(FermionicMapper):
     (middle and last qubit) because the spin orbitals are ordered in two spin sectors
     (block spin order). Based on the provided number of particles this allows the automatic selection
     of the correct symmetry sector.
+
+    .. warning::
+
+       Combing this additional two-qubit reduction with the :class:`.InterleavedQubitMapper` will
+       **not** yield the intended result. While the code will work, the hard-coded indices of the
+       qubits which are removed will alter the Hamiltonian in a non-physical way, resulting in a
+       physically incorrect answer. In such a case you should rely on the
+       :class:`.TaperedQubitMapper`, instead.
     """
 
     def __init__(self, num_particles: tuple[int, int] | None = None):

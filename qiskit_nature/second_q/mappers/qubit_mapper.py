@@ -295,9 +295,9 @@ class QubitMapper(ABC):
                     break
                 position = int(term[1])
                 if char == "+":
-                    ret_op = ret_op.compose(times_creation_op[position], front=True)
+                    ret_op = ret_op.compose(times_creation_op[position], front=True).simplify()
                 elif char == "-":
-                    ret_op = ret_op.compose(times_annihilation_op[position], front=True)
+                    ret_op = ret_op.compose(times_annihilation_op[position], front=True).simplify()
                 # catch any disallowed labels
                 else:
                     raise QiskitNatureError(

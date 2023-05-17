@@ -17,7 +17,7 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 from collections.abc import Collection, Mapping
-from typing import Iterator, Sequence, Tuple, cast
+from typing import Iterator, Sequence, Tuple
 import logging
 import operator
 import itertools
@@ -148,17 +148,6 @@ class VibrationalOp(SparseLabelOp):
     .. code-block:: python
 
       VibrationalOp({"+_0_0 -_1_0": 1j}, num_modals=[1, 1]).adjoint()
-
-    In principle, you can also add :class:`VibrationalOp` and integers, but the only valid case is the
-    addition of `0 + VibrationalOp`. This makes the `sum` operation from the example above possible
-    and it is useful in the following scenario:
-
-    .. code-block:: python
-
-        vibrational_op = 0
-        for i in some_iterable:
-            # some processing
-            vibrational_op += VibrationalOp(somedata)
 
     **Iteration**
 
@@ -295,8 +284,7 @@ class VibrationalOp(SparseLabelOp):
 
         for key in tensor:
             if key == "":
-                # TODO: deal with complexity
-                data[""] = cast(float, tensor[key])
+                data[""] = tensor[key]
                 continue
 
             mat = tensor[key]
@@ -348,6 +336,15 @@ class VibrationalOp(SparseLabelOp):
                 continue
             terms = [self._build_register_label(lbl, partial_sum_modals) for lbl in label.split()]
             yield (terms, self[label])
+
+    @classmethod
+    def from_terms(cls, terms: Sequence[tuple[list[tuple[str, int]], _TCoeff]]) -> VibrationalOp:
+        raise NotImplementedError()
+
+    def _permute_term(
+        self, term: list[tuple[str, int]], permutation: Sequence[int]
+    ) -> list[tuple[str, int]]:
+        raise NotImplementedError()
 
     def _build_register_label(self, label: str, partial_sum_modals: list[int]) -> tuple[str, int]:
         op, mode_index, modal_index = label.split("_")

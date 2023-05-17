@@ -17,11 +17,12 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 from collections.abc import Collection, Mapping
-from typing import cast, Iterator
+from typing import Iterator, Sequence
 
 import numpy as np
 from scipy.sparse import csc_matrix
 
+from qiskit_nature.deprecation import deprecate_method
 from qiskit_nature.exceptions import QiskitNatureError
 
 from ._bits_container import _BitsContainer
@@ -127,17 +128,6 @@ class FermionicOp(SparseLabelOp):
     .. code-block:: python
 
       FermionicOp({"+_0 -_1": 1j}, num_spin_orbitals=2).adjoint()
-
-    In principle, you can also add `FermionicOp` and integers, but the only valid case is the
-    addition of `0 + FermionicOp`. This makes the `sum` operation from the example above possible
-    and it is useful in the following scenario:
-
-    .. code-block:: python
-
-        fermion = 0
-        for i in some_iterable:
-            # some processing
-            fermion += FermionicOp(somedata)
 
     **Iteration**
 
@@ -254,8 +244,7 @@ class FermionicOp(SparseLabelOp):
 
         for key in tensor:
             if key == "":
-                # TODO: deal with complexity
-                data[""] = cast(float, tensor[key])
+                data[""] = tensor[key]
                 continue
 
             mat = tensor[key]
@@ -307,6 +296,19 @@ class FermionicOp(SparseLabelOp):
             terms = [(lbl[0], int(lbl[2:])) for lbl in label.split()]
             yield (terms, self[label])
 
+    @classmethod
+    def from_terms(cls, terms: Sequence[tuple[list[tuple[str, int]], _TCoeff]]) -> FermionicOp:
+        data = {
+            " ".join(f"{action}_{index}" for action, index in label): value
+            for label, value in terms
+        }
+        return cls(data)
+
+    def _permute_term(
+        self, term: list[tuple[str, int]], permutation: Sequence[int]
+    ) -> list[tuple[str, int]]:
+        return [(action, permutation[index]) for action, index in term]
+
     def compose(self, other: FermionicOp, qargs=None, front: bool = False) -> FermionicOp:
         if not isinstance(other, FermionicOp):
             raise TypeError(
@@ -342,10 +344,20 @@ class FermionicOp(SparseLabelOp):
             new_op.num_spin_orbitals = a.num_spin_orbitals + b.num_spin_orbitals
         return new_op
 
-    # TODO: do we want to change the returned type to be non-scipy sparse matrix?
+    # pylint: disable=bad-docstring-quotes
+    @deprecate_method(
+        "0.6.0",
+        additional_msg=(
+            ". This method has no direct replacement. Instead, use the "
+            "`qiskit_nature.second_q.mappers.JordanWignerMapper` to create a qubit operator and "
+            "subsequently use its `to_matrix()` method. Be advised, that the basis state ordering "
+            "of that output will differ due to the bitstring endianness. For more information "
+            "refer to https://github.com/Qiskit/qiskit-nature/issues/875."
+        ),
+    )
     def to_matrix(self, sparse: bool | None = True) -> csc_matrix | np.ndarray:
-        """Convert to a matrix representation over the full fermionic Fock space in the occupation
-        number basis.
+        """DEPRECATED Convert to a matrix representation over the full fermionic Fock space in the
+        occupation number basis.
 
         The basis states are ordered in increasing bitstring order as 0000, 0001, ..., 1111.
 

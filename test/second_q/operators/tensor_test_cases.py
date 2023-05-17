@@ -34,22 +34,22 @@ class ScalarTensorTestCase(ABC):
     def subTest(self, msg, **kwargs):
         # pylint: disable=invalid-name
         """subtest"""
-        raise Exception("Abstract method")
+        raise Exception("Abstract method")  # pylint: disable=broad-exception-raised
 
     @abstractmethod
     def assertEqual(self, first, second, msg=None):
         """assert equal"""
-        raise Exception("Abstract method")
+        raise Exception("Abstract method")  # pylint: disable=broad-exception-raised
 
     @abstractmethod
     def assertTrue(self, condition, msg=None):
         """assert true"""
-        raise Exception("Abstract method")
+        raise Exception("Abstract method")  # pylint: disable=broad-exception-raised
 
     @abstractmethod
     def assertFalse(self, condition, msg=None):
         """assert false"""
-        raise Exception("Abstract method")
+        raise Exception("Abstract method")  # pylint: disable=broad-exception-raised
 
     def test_array(self):
         """Test array property."""
@@ -147,22 +147,22 @@ class MatrixTensorTestCase(ABC):
     def subTest(self, msg, **kwargs):
         # pylint: disable=invalid-name
         """subtest"""
-        raise Exception("Abstract method")
+        raise Exception("Abstract method")  # pylint: disable=broad-exception-raised
 
     @abstractmethod
     def assertEqual(self, first, second, msg=None):
         """assert equal"""
-        raise Exception("Abstract method")
+        raise Exception("Abstract method")  # pylint: disable=broad-exception-raised
 
     @abstractmethod
     def assertTrue(self, condition, msg=None):
         """assert true"""
-        raise Exception("Abstract method")
+        raise Exception("Abstract method")  # pylint: disable=broad-exception-raised
 
     @abstractmethod
     def assertFalse(self, condition, msg=None):
         """assert false"""
-        raise Exception("Abstract method")
+        raise Exception("Abstract method")  # pylint: disable=broad-exception-raised
 
     def test_array(self):
         """Test array property."""

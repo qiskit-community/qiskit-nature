@@ -58,6 +58,7 @@ class TestElectronicStructureResult(QiskitNatureTestCase):
     def test_print_complex_dipole(self):
         """Test printing complex dipoles."""
         res = ElectronicStructureResult()
+        res.formatting_precision = 8
         res.computed_energies = np.asarray([1.0])
         res.nuclear_dipole_moment = (0.0, 0.0, 1.0)
         res.computed_dipole_moment = [(0.0, 0.0, 1.0j)]

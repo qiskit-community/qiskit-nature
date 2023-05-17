@@ -17,11 +17,11 @@ from __future__ import annotations
 
 import logging
 from functools import partial
+from itertools import chain
 from typing import Callable, Sequence
 
 from qiskit.circuit import QuantumCircuit
 from qiskit.circuit.library import EvolvedOperatorAnsatz
-from qiskit.opflow import PauliSumOp
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.deprecation import deprecate_arguments, deprecate_property, warn_deprecated_type
@@ -45,9 +45,7 @@ class UCC(EvolvedOperatorAnsatz):
     :class:`~qiskit_nature.second_q.circuit.library.HartreeFock` reference state by default. When
     setting up a ``VQE`` algorithm using this ansatz and initial state, it is likely you will also
     want to use a :class:`~qiskit_nature.second_q.algorithms.initial_points.HFInitialPoint` that has
-    been configured using the corresponding ansatz parameters. When using a
-    :class:`~qiskit_nature.second_q.algorithms.VQEUCCFactory` this is set by default. When directly
-    using ``VQE`` you can set it manually. For example:
+    been configured using the corresponding ansatz parameters. This can be done as follows:
 
     .. code-block:: python
 
@@ -153,6 +151,7 @@ class UCC(EvolvedOperatorAnsatz):
         max_spin_excitation: int | None = None,
         generalized: bool = False,
         preserve_spin: bool = True,
+        include_imaginary: bool = False,
         reps: int = 1,
         initial_state: QuantumCircuit | None = None,
         qubit_converter: QubitConverter | QubitMapper | None = None,
@@ -192,6 +191,8 @@ class UCC(EvolvedOperatorAnsatz):
                 only determined from the number of spin orbitals and independent from the number of
                 particles.
             preserve_spin: Boolean flag whether or not to preserve the particle spins.
+            include_imaginary: Boolean flag which when set to ``True`` expands the ansatz to include
+                imaginary parts using twice the number of free parameters.
             reps: The number of times to repeat the evolved operators.
             initial_state: A ``QuantumCircuit`` object to prepend to the circuit. Note that this
                 setting does *not* influence the ``excitations``. When relying on the default
@@ -215,6 +216,7 @@ class UCC(EvolvedOperatorAnsatz):
         self._max_spin_excitation = max_spin_excitation
         self._generalized = generalized
         self._preserve_spin = preserve_spin
+        self._include_imaginary = include_imaginary
 
         super().__init__(reps=reps, initial_state=initial_state)
 
@@ -351,6 +353,12 @@ class UCC(EvolvedOperatorAnsatz):
                 else:
                     operators = self.qubit_mapper.map(excitation_ops)
 
+                if self._include_imaginary:
+                    # duplicate each excitation to account for the real and imaginary parts.
+                    self._excitation_list = list(
+                        chain(*zip(self._excitation_list, self._excitation_list))
+                    )
+
                 self._filter_operators(operators=operators)
 
         return super(UCC, self.__class__).operators.__get__(self)
@@ -359,10 +367,6 @@ class UCC(EvolvedOperatorAnsatz):
         valid_operators, valid_excitations = [], []
         for op, ex in zip(operators, self._excitation_list):
             if op is not None:
-                # TODO: remove wrapping into PauliSumOp after the EvolvedOperatorAnsatz supports
-                # SparsePauliOp instances, too: https://github.com/Qiskit/qiskit-terra/pull/9537
-                if not isinstance(op, PauliSumOp):
-                    op = PauliSumOp(op)
                 valid_operators.append(op)
                 valid_excitations.append(ex)
 
@@ -461,7 +465,7 @@ class UCC(EvolvedOperatorAnsatz):
         excitations = []
         for gen in generators:
             excitations.extend(
-                gen(
+                gen(  # pylint: disable=not-callable
                     num_spatial_orbitals=self.num_spatial_orbitals,
                     num_particles=self.num_particles,
                 )
@@ -568,10 +572,14 @@ class UCC(EvolvedOperatorAnsatz):
             for unocc in exc[1]:
                 label.append(f"-_{unocc}")
             op = FermionicOp({" ".join(label): 1}, num_spin_orbitals=num_spin_orbitals)
-            op -= op.adjoint()
+            op_adj = op.adjoint()
             # we need to account for an additional imaginary phase in the exponent accumulated from
             # the first-order trotterization routine implemented in Qiskit Terra
-            op *= 1j  # type: ignore
-            operators.append(op)
+            op_minus = 1j * (op - op_adj)
+            operators.append(op_minus)
+
+            if self._include_imaginary:
+                op_plus = -1 * (op + op_adj)
+                operators.append(op_plus)
 
         return operators

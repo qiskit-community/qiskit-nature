@@ -1,0 +1,28 @@
+---
+deprecations:
+  - |
+    Deprecated the :meth:`~qiskit_nature.second_q.operators.FermionicOp.to_matrix` method.
+    The same functionality can be achieved via the qubit-operator after applying the
+    :class:`~qiskit_nature.second_q.mappers.JordanWignerMapper` (one only needs to
+    adapt to the different basis state ordering due to the reversed bitstring endianness).
+
+    .. code-block:: python
+
+       import numpy as np
+       from qiskit_nature.second_q.mappers import JordanWignerMapper
+       from qiskit_nature.second_q.operators import FermionicOp
+       from qiskit_nature.settings import settings
+
+       settings.use_pauli_sum_op = False
+
+       op = FermionicOp({"+_0": 1, "-_1": 1})
+       mat = op.to_matrix().todense()
+       jw = JordanWignerMapper().map(op)
+
+       print(np.allclose(mat, jw.to_matrix(), atol=1e-8))  # prints False
+
+       for pauli in jw.paulis:
+           pauli.x = pauli.x[::-1]
+           pauli.z = pauli.z[::-1]
+
+       print(np.allclose(mat, jw.to_matrix(), atol=1e-8))  # prints True

@@ -13,6 +13,7 @@
 """Tests for the TaperedQubitMapper."""
 
 import unittest
+import warnings
 from test import QiskitNatureTestCase
 
 from ddt import data, ddt
@@ -151,9 +152,11 @@ class TestTaperedQubitMapper(QiskitNatureTestCase):
         mapper = JordanWignerMapper()
 
         with self.subTest("QubitConverter"):
-            sector_locator = self.driver_result.symmetry_sector_locator
-            qubit_conv = QubitConverter(mapper, z2symmetry_reduction="auto")
-            qubit_op = qubit_conv.convert(self.h2_op, sector_locator=sector_locator)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=DeprecationWarning)
+                sector_locator = self.driver_result.symmetry_sector_locator
+                qubit_conv = QubitConverter(mapper, z2symmetry_reduction="auto")
+                qubit_op = qubit_conv.convert(self.h2_op, sector_locator=sector_locator)
             if isinstance(qubit_op, PauliSumOp):
                 qubit_op = qubit_op.primitive
             self.assertEqual(qubit_op, TestTaperedQubitMapper.REF_H2_JW_TAPERED)

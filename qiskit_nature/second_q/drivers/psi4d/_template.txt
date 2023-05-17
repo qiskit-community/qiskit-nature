@@ -15,7 +15,6 @@ _q_h1b = _q_h1.clone() if _has_B else None
 data = _QCSchemaData()
 data.hij = np.asarray(_q_h1.clone())
 data.hij_b = None
-data.eri = np.asarray(_q_mints.ao_eri())
 _q_h1.transform(_q_hf_wavefn.Ca())
 data.hij_mo = np.asarray(_q_h1)
 data.hij_mo_b = None
@@ -23,6 +22,8 @@ if _has_B:
     _q_h1b.transform(_q_hf_wavefn.Cb())
     data.hij_mo_b = np.asarray(_q_h1b)
 
+# TODO: add support for symmetry-reduced integrals
+data.eri = np.asarray(_q_mints.ao_eri())
 data.eri_mo = np.asarray(_q_mints.mo_eri(_q_hf_wavefn.Ca(), _q_hf_wavefn.Ca(),
                                          _q_hf_wavefn.Ca(), _q_hf_wavefn.Ca()))
 data.eri_mo_ba = None

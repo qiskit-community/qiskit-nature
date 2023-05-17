@@ -15,6 +15,7 @@
 from __future__ import annotations
 
 import unittest
+import warnings
 
 from test import QiskitNatureTestCase
 from ddt import ddt, named_data
@@ -92,7 +93,9 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
 
     def _compute_and_assert_qeom_energies(self, mapper: QubitConverter | QubitMapper):
         estimator = Estimator()
-        solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
         gsc = GroundStateEigensolver(mapper, solver)
         esc = QEOM(gsc, estimator, "sd")
         results = esc.solve(self.electronic_structure_problem)
@@ -154,7 +157,9 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         def filter_criterion(eigenstate, eigenvalue, aux_values):
             return np.isclose(aux_values["ParticleNumber"][0], 2.0)
 
-        solver = NumPyEigensolverFactory(filter_criterion=filter_criterion)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = NumPyEigensolverFactory(filter_criterion=filter_criterion)
         esc = ExcitedStatesEigensolver(self.qubit_converter, solver)
         results = esc.solve(self.electronic_structure_problem)
 
@@ -197,7 +202,9 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
                 num_particles_aux, expected_num_electrons
             )
 
-        solver = NumPyEigensolverFactory(filter_criterion=custom_filter_criterion)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = NumPyEigensolverFactory(filter_criterion=custom_filter_criterion)
         esc = ExcitedStatesEigensolver(converter, solver)
         results = esc.solve(esp)
 
@@ -227,7 +234,9 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
             return np.isclose(aux_values["ParticleNumber"][0], 2.0)
 
         with self.subTest("Excited states solver with qubit converter"):
-            solver = NumPyEigensolverFactory(filter_criterion=filter_criterion)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=DeprecationWarning)
+                solver = NumPyEigensolverFactory(filter_criterion=filter_criterion)
             esc_converter = ExcitedStatesEigensolver(self.qubit_converter, solver)
             results_converter = esc_converter.solve(self.electronic_structure_problem)
             computed_energies_converter = [results_converter.computed_energies[0]]
@@ -238,7 +247,9 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
             self._assert_energies(computed_energies_converter, self.reference_energies)
 
         with self.subTest("Excited states solver with qubit mapper"):
-            solver = NumPyEigensolverFactory(filter_criterion=filter_criterion)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=DeprecationWarning)
+                solver = NumPyEigensolverFactory(filter_criterion=filter_criterion)
             esc_mapper = ExcitedStatesEigensolver(self.mapper, solver)
             results_mapper = esc_mapper.solve(self.electronic_structure_problem)
             # filter duplicates from list
@@ -250,7 +261,9 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
 
         with self.subTest("QEOM with qubit converter"):
             estimator = Estimator()
-            solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=DeprecationWarning)
+                solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
             gsc_converter = GroundStateEigensolver(self.qubit_converter, solver)
             esc_converter = QEOM(gsc_converter, estimator, "sd")
             results_converter = esc_converter.solve(self.electronic_structure_problem)
@@ -263,7 +276,9 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
 
         with self.subTest("QEOM with qubit mapper"):
             estimator = Estimator()
-            solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=DeprecationWarning)
+                solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
             gsc_mapper = GroundStateEigensolver(self.mapper, solver)
             esc_mapper = QEOM(gsc_mapper, estimator, "sd")
             results_mapper = esc_mapper.solve(self.electronic_structure_problem)

@@ -1,0 +1,60 @@
+---
+features:
+  - |
+    Adds the :mod:`~qiskit_nature.second_q.operators.symmetric_two_body` module.
+    This module provides utilities to exploit the inherent symmetries of
+    chemistry-ordered two-body electronic integrals. You may use these to reduce
+    memory consumption of your code, for example like so:
+
+    .. code-block:: python
+
+       from pyscf import gto
+       from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
+       from qiskit_nature.second_q.operators import (
+            ElectronicIntegrals,
+            PolynomialTensor,
+       )
+       from qiskit_nature.second_q.operators.symmetric_two_body import S8Integrals
+
+       mol = gto.M(atom="H 0 0 0; H 0 0 0.735", basis="631g*")
+
+       hamiltonian = ElectronicEnergy(
+           ElectronicIntegrals(
+               PolynomialTensor(
+                   {
+                       "+-": mol.get_hcore(),
+                       "++--": S8Integrals(mol.intor("int2e", aosym=8)),
+                   },
+                   validate=False,
+               )
+           )
+       )
+
+       print(hamiltonian.second_q_op())
+
+    Since these integral containers are integrated into the stack, you can
+    continue to use existing tools such as the
+    :class:`~qiskit_nature.second_q.transformers.BasisTransformer` or even the
+    :class:`~qiskit_nature.second_q.transformers.ActiveSpaceTransformer` as if
+    you had stored your integrals in standard arrays.
+  - |
+    Adds the :attr:`~qiskit_nature.settings.use_symmetry_reduced_integrals` setting.
+    When set to ``True``, this will cause objects like for example the
+    :class:`~qiskit_nature.second_q.formats.fcidump.FCIDump`,
+    :class:`~qiskit_nature.second_q.formats.qcschema.QCSchema`, or
+    :class:`~qiskit_nature.second_q.drivers.PySCFDriver` to attempt and leverage
+    the :mod:`~qiskit_nature.second_q.operators.symmetric_two_body` module in
+    order to reduce the memory requirements at runtime.
+deprecations:
+  - |
+    Deprecates ``np.ndarray`` as the return type of the
+    :attr:`~qiskit_nature.second_q.formats.fcidump.FCIDump.hijkl`,
+    :attr:`~qiskit_nature.second_q.formats.fcidump.FCIDump.hijkl_ba`, and
+    :attr:`~qiskit_nature.second_q.formats.fcidump.FCIDump.hijkl_bb` attributes.
+    Instead, these will always be
+    :class:`~qiskit_nature.second_q.operators.symmetric_two_body.SymmetricTwoBodyIntegrals`.
+    Instances of the latter can be used as ``np.ndarray`` so in terms of functionality
+    this should not change anything. However, ``isinstance(integrals, np.ndarray)`` will *not*
+    return ``True`` for ``integrals`` of type ``SymmetricTwoBodyIntegrals``.
+    Additionally, the three ``FCIDump`` attributes will no longer accept physicist-ordered
+    two-body tensors in the future.

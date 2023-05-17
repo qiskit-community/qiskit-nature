@@ -26,8 +26,14 @@ import qiskit_nature.optionals as _optionals
 
 if _optionals.HAS_SPARSE:
     # pylint: disable=import-error
-    from sparse import COO, DOK, GCXS, SparseArray, zeros_like
+    from sparse import COO, DOK, GCXS, SparseArray, as_coo, zeros_like
 else:
+
+    def as_coo(*args):
+        """Empty as_coo function
+        Replacement if sparse.as_coo is not present.
+        """
+        del args
 
     def zeros_like(*args):
         """Empty zeros_like function
@@ -153,9 +159,10 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
                     new_inputs.append(i._array)
                 else:
                     new_inputs.append(i)
+            context = kwargs.pop("context", None)
             ret = ufunc(*new_inputs, **kwargs)
             if isinstance(ret, (np.ndarray, SparseArray)):
-                return self.__array_wrap__(ret)
+                return self.__array_wrap__(ret, context)
             return ret
         else:
             return NotImplemented
@@ -168,9 +175,10 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
         https://numpy.org/doc/stable/reference/arrays.classes.html#numpy.class.__array_function__
         """
         new_args = _unpack_args(args)
+        context = kwargs.pop("context", None)
         ret = func(*new_args, **kwargs)
         if isinstance(ret, (np.ndarray, SparseArray)):
-            return self.__array_wrap__(ret)
+            return self.__array_wrap__(ret, context)
         return ret
 
     # pylint: disable=unused-argument
@@ -607,7 +615,7 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
             make_sparse = True
         einsum = np.einsum(f"{aeinsum},{beinsum}", amat, bmat)
         if make_sparse:
-            einsum = COO(einsum)
+            einsum = as_coo(einsum)
 
         return cls(einsum)
 

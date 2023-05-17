@@ -33,11 +33,11 @@ class QiskitNatureSettings:
     """Global settings for Qiskit Nature."""
 
     def __init__(self) -> None:
-        self._dict_aux_operators = True
         self._optimize_einsum = True
         self._deprecation_shown: set[str] = set()
         self._tensor_unwrapping = True
         self._use_pauli_sum_op: bool = True
+        self._use_symmetry_reduced_integrals: bool = False
 
     @property
     def use_pauli_sum_op(self) -> bool:
@@ -77,44 +77,6 @@ class QiskitNatureSettings:
         self._use_pauli_sum_op = pauli_sum_op
 
     @property
-    def dict_aux_operators(self) -> bool:
-        """Return whether `aux_operators` are dictionary- or list-based."""
-        if not self._dict_aux_operators and "ListAuxOps" not in self._deprecation_shown:
-            warnings.filterwarnings("default", category=ListAuxOpsDeprecationWarning)
-            warnings.warn(
-                ListAuxOpsDeprecationWarning(
-                    "List-based `aux_operators` are deprecated as of version 0.3.0 and support for "
-                    "them will be removed no sooner than 3 months after the release. Instead, use "
-                    "dict-based `aux_operators`. You can switch to the dict-based interface "
-                    "immediately, by setting `qiskit_nature.settings.dict_aux_operators` to `True`."
-                ),
-                stacklevel=3,
-            )
-            warnings.filterwarnings("ignore", category=ListAuxOpsDeprecationWarning)
-            self._deprecation_shown.add("ListAuxOps")
-
-        return self._dict_aux_operators
-
-    @dict_aux_operators.setter
-    def dict_aux_operators(self, dict_aux_operators: bool) -> None:
-        """Set whether `aux_operators` are dictionary- or list-based."""
-        if not dict_aux_operators and "ListAuxOps" not in self._deprecation_shown:
-            warnings.filterwarnings("default", category=ListAuxOpsDeprecationWarning)
-            warnings.warn(
-                ListAuxOpsDeprecationWarning(
-                    "List-based `aux_operators` are deprecated as of version 0.3.0 and support for "
-                    "them will be removed no sooner than 3 months after the release. Instead, use "
-                    "dict-based `aux_operators`. You can switch to the dict-based interface "
-                    "immediately, by setting `qiskit_nature.settings.dict_aux_operators` to `True`."
-                ),
-                stacklevel=3,
-            )
-            warnings.filterwarnings("ignore", category=ListAuxOpsDeprecationWarning)
-            self._deprecation_shown.add("ListAuxOps")
-
-        self._dict_aux_operators = dict_aux_operators
-
-    @property
     def optimize_einsum(self) -> bool:
         """Returns the setting used for `numpy.einsum(optimize=...)`.
 
@@ -133,6 +95,50 @@ class QiskitNatureSettings:
         self._optimize_einsum = optimize_einsum
 
     @property
+    def use_symmetry_reduced_integrals(self) -> bool:
+        """Whether or not to use symmetry-reduced integrals whenever possible.
+
+        This setting affects whether the drivers and formats should attempt to use the utilities
+        provided by the :mod:`~qiskit_nature.second_q.operators.symmetric_two_body` module.
+        Setting this to ``True`` will very likely result in lower memory consumptions at runtime.
+        """
+        if (
+            not self._use_symmetry_reduced_integrals
+            and "SymmetricTwoBodyIntegrals" not in self._deprecation_shown
+        ):
+            warnings.warn(
+                DeprecationWarning(
+                    "As of version 0.6.0 the current default-value `False` of "
+                    "`qiskit_nature.settings.use_symmetry_reduced_integrals` is deprecated. "
+                    "No sooner than 3 months after this release, this default value will be "
+                    "switched to `True`. You can change the value of this setting yourself already."
+                ),
+                stacklevel=3,
+            )
+            self._deprecation_shown.add("SymmetricTwoBodyIntegrals")
+
+        return self._use_symmetry_reduced_integrals
+
+    @use_symmetry_reduced_integrals.setter
+    def use_symmetry_reduced_integrals(self, use_symmetry_reduced_integrals: bool) -> None:
+        if (
+            not use_symmetry_reduced_integrals
+            and "SymmetricTwoBodyIntegrals" not in self._deprecation_shown
+        ):
+            warnings.warn(
+                DeprecationWarning(
+                    "As of version 0.6.0 the current default-value `False` of "
+                    "`qiskit_nature.settings.use_symmetry_reduced_integrals` is deprecated. "
+                    "No sooner than 3 months after this release, this default value will be "
+                    "switched to `True`. You can change the value of this setting yourself already."
+                ),
+                stacklevel=3,
+            )
+            self._deprecation_shown.add("SymmetricTwoBodyIntegrals")
+
+        self._use_symmetry_reduced_integrals = use_symmetry_reduced_integrals
+
+    @property
     def tensor_unwrapping(self) -> bool:
         """Returns whether tensors inside the :class:`~.PolynomialTensor` should be unwrapped.
 
@@ -143,18 +149,16 @@ class QiskitNatureSettings:
         ``numpy.ndarray``, ``sparse.SparseArray`` or a plain ``Number``.
         """
         if self._tensor_unwrapping and "Tensor" not in self._deprecation_shown:
-            warnings.filterwarnings("default", category=DeprecationWarning)
             warnings.warn(
                 DeprecationWarning(
                     "As of version 0.6.0 the return of unwrapped tensors in the "
-                    "`PolynomialTensor.__getitem__` method is deprecated. No sooner that 3 months "
+                    "`PolynomialTensor.__getitem__` method is deprecated. No sooner than 3 months "
                     "after this release, arrays will always be returned as `Tensor` objects. You "
                     "can switch to the new objects immediately, by setting "
                     "`qiskit_nature.settings.tensor_unwrapping` to `False`."
                 ),
                 stacklevel=3,
             )
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
             self._deprecation_shown.add("Tensor")
 
         return self._tensor_unwrapping
@@ -170,18 +174,16 @@ class QiskitNatureSettings:
         ``numpy.ndarray``, ``sparse.SparseArray`` or a plain ``Number``.
         """
         if tensor_unwrapping and "Tensor" not in self._deprecation_shown:
-            warnings.filterwarnings("default", category=DeprecationWarning)
             warnings.warn(
                 DeprecationWarning(
                     "As of version 0.6.0 the return of unwrapped tensors in the "
-                    "`PolynomialTensor.__getitem__` method is deprecated. No sooner that 3 months "
+                    "`PolynomialTensor.__getitem__` method is deprecated. No sooner than 3 months "
                     "after this release, arrays will always be returned as `Tensor` objects. You "
                     "can switch to the new objects immediately, by setting "
                     "`qiskit_nature.settings.tensor_unwrapping` to `False`."
                 ),
                 stacklevel=3,
             )
-            warnings.filterwarnings("ignore", category=DeprecationWarning)
             self._deprecation_shown.add("Tensor")
 
         self._tensor_unwrapping = tensor_unwrapping

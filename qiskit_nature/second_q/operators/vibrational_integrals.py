@@ -16,6 +16,10 @@ from __future__ import annotations
 
 from typing import Mapping
 
+import logging
+
+import numpy as np
+
 import qiskit_nature.optionals as _optionals
 
 from .polynomial_tensor import PolynomialTensor
@@ -33,7 +37,9 @@ else:
         del args
 
 
-@_optionals.HAS_SPARSE.require_in_instance
+LOGGER = logging.getLogger(__name__)
+
+
 class VibrationalIntegrals(PolynomialTensor):
     """A container class for vibrational operator coefficients (a.k.a. vibrational integrals).
 
@@ -62,17 +68,45 @@ class VibrationalIntegrals(PolynomialTensor):
         Returns:
             The constructed instance.
         """
-        max_n_body = max(len(key) for key in integrals) // 3
-        ret = cls(
-            {
-                ("_+-" * n_body): Tensor(
-                    as_coo({k: v for k, v in integrals.items() if len(k) == 3 * n_body}),
-                    label_template=" ".join(["{}_{{}}_{{}}"] * n_body * 2),
+        if _optionals.HAS_SPARSE:
+            max_n_body = max(len(key) for key in integrals) // 3
+            ret = cls(
+                {
+                    ("_+-" * n_body): Tensor(
+                        as_coo({k: v for k, v in integrals.items() if len(k) == 3 * n_body}),
+                        label_template=" ".join(["{}_{{}}_{{}}"] * n_body * 2),
+                    )
+                    for n_body in range(1, max_n_body + 1)
+                },
+                validate=False,
+            )
+        else:
+            LOGGER.warning(
+                "The optional dependency 'sparse' is not installed. Falling back to using 'numpy' "
+                "arrays instead. Consider installing the 'sparse' package to reduce memory "
+                "requirements."
+            )
+            data = {}
+            max_n_body = 0
+            max_mode = 0
+            max_modal = 0
+            for key in integrals:
+                max_n_body = max(max_n_body, len(key) // 3)
+                max_mode = max(max_mode, *key[::3])
+                max_modal = max(max_modal, *key[1::3], *key[2::3])
+
+            max_mode += 1
+            max_modal += 1
+            for n_body in range(1, max_n_body + 1):
+                data_key = "_+-" * n_body
+                numpy_arr = np.zeros((max_mode, max_modal, max_modal) * n_body, dtype=complex)
+                for k, v in integrals.items():
+                    if len(k) == 3 * n_body:
+                        numpy_arr[k] = v
+                data[data_key] = Tensor(
+                    numpy_arr, label_template=" ".join(["{}_{{}}_{{}}"] * n_body * 2)
                 )
-                for n_body in range(1, max_n_body + 1)
-            },
-            validate=False,
-        )
+            ret = cls(data, validate=False)
         return ret
 
     @property

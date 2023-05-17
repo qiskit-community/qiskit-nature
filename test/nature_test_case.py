@@ -22,7 +22,6 @@ import unittest
 import time
 import math
 from qiskit.quantum_info import SparsePauliOp
-from qiskit_nature import settings
 from qiskit_nature.deprecation import NatureDeprecationWarning
 
 # disable unit tests NatureDeprecationWarning warnings on imports
@@ -48,7 +47,6 @@ class QiskitNatureTestCase(unittest.TestCase, ABC):
     log = None
 
     def setUp(self) -> None:
-        settings.dict_aux_operators = True
         warnings.filterwarnings("default", category=DeprecationWarning)
         # disable unit tests NatureDeprecationWarning warnings previously reset
         warnings.filterwarnings("ignore", category=NatureDeprecationWarning)

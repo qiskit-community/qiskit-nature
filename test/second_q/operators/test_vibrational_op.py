@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -77,6 +77,14 @@ class TestVibrationalOp(QiskitNatureTestCase):
         vib_op = self.op1 + self.op2
         targ = self.op3
         self.assertEqual(vib_op, targ)
+
+        with self.subTest("sum"):
+            vib_op = sum(
+                VibrationalOp({label: 1}, num_modals=[1, 1, 1])
+                for label in ["+_0_0", "-_1_0", "+_2_0 -_2_0"]
+            )
+            targ = VibrationalOp({"+_0_0": 1, "-_1_0": 1, "+_2_0 -_2_0": 1})
+            self.assertEqual(vib_op, targ)
 
     def test_sub(self):
         """Test __sub__"""
@@ -364,6 +372,31 @@ class TestVibrationalOp(QiskitNatureTestCase):
             vib_op = orig.index_order()
             targ = VibrationalOp({"-_0_0 +_0_1 +_1_0 -_1_1": 1})
             self.assertEqual(vib_op, targ)
+
+    def test_terms(self):
+        """Test terms generator."""
+        op = VibrationalOp(
+            {
+                "+_0_0": 1,
+                "-_0_1 +_1_1": 2,
+                "+_1_0 -_1_1 +_2_0": 2,
+            },
+            num_modals=[2, 2, 1],
+        )
+
+        terms = [([("+", 0)], 1), ([("-", 1), ("+", 3)], 2), ([("+", 2), ("-", 3), ("+", 4)], 2)]
+
+        with self.subTest("terms"):
+            self.assertEqual(list(op.terms()), terms)
+
+        with self.subTest("from_terms"):
+            with self.assertRaises(NotImplementedError):
+                VibrationalOp.from_terms(terms)
+
+    def test_permute_indices(self):
+        """Test index permutation method."""
+        with self.assertRaises(NotImplementedError):
+            VibrationalOp({"+_0_0 -_1_0": 2}).permute_indices([1, 0])
 
 
 if __name__ == "__main__":

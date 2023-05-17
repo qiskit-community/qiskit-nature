@@ -16,6 +16,7 @@ from __future__ import annotations
 
 from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolver, NumPyMinimumEigensolver
 
+from qiskit_nature.deprecation import DeprecatedType, warn_deprecated
 from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.deprecation import deprecate_arguments
@@ -24,7 +25,13 @@ from .minimum_eigensolver_factory import MinimumEigensolverFactory
 
 
 class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
-    """A factory to construct a NumPyMinimumEigensolver."""
+    """DEPRECATED A factory to construct a NumPyMinimumEigensolver.
+
+    .. warning::
+
+        This class is deprecated! Please see :ref:`this guide <how-to-numpy-min>` for how to replace
+        your usage of it!
+    """
 
     def __init__(
         self,
@@ -38,6 +45,16 @@ class NumPyMinimumEigensolverFactory(MinimumEigensolverFactory):
             kwargs: Keyword arguments passed to NumpyMinimumEigensolver to construct
                 the internal ``MinimumEigensolver``.
         """
+        warn_deprecated(
+            "0.6.0",
+            DeprecatedType.CLASS,
+            "NumPyMinimumEigensolverFactory",
+            additional_msg=(
+                ". This class is deprecated without replacement. Instead, refer to this how-to "
+                "guide which explains the steps you need to take to replace the use of this class: "
+                "https://qiskit.org/documentation/nature/howtos/numpy_minimum_eigensolver.html"
+            ),
+        )
         self._use_default_filter_criterion = use_default_filter_criterion
         self._minimum_eigensolver = NumPyMinimumEigensolver(**kwargs)
 

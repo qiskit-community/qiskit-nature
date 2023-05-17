@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -34,7 +34,7 @@ class ElectronicDipoleMoment:
     the electronic integrals:
 
     .. math::
-        \vec{d}_{pq} = \int \phi_{p} \frac{1}{\vec{r}} \phi_{q} ,
+        \vec{d}_{pq} = \int \phi_{p} \vec{r} \phi_{q} ,
 
     where the integral is over the all space. The operator can then be expressed as:
 

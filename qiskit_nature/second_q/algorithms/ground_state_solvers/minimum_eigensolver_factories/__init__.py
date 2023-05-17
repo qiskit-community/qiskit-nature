@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -15,7 +15,7 @@ Minimum Eigensolver Factories
 (:mod:`qiskit_nature.second_q.algorithms.ground_state_solvers.minimum_eigensolver_factories`)
 =============================================================================================
 
-Factories that create a minimum eigensolver based on a qubit transformation.
+DEPRECATED Factories that create a minimum eigensolver based on a qubit transformation.
 
 .. currentmodule:: qiskit_nature.second_q.algorithms.ground_state_solvers.minimum_eigensolver_factories
 
