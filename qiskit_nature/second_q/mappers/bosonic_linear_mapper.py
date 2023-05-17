@@ -27,37 +27,36 @@ from .bosonic_mapper import BosonicMapper
 
 
 class BosonicLinearMapper(BosonicMapper):
-    """
-   The Linear boson-to-qubit mapping.
+    r"""The Linear boson-to-qubit mapping.
 
-   This mapper generates a linear encoding of the Bosonic operator :math:`b_k^\\dagger, b_k` to qubit
-   operators (linear combinations of pauli strings).
-   In this linear encoding each bosonic mode is represented via :math:`n_k^{max} + 1` qubits, where
-   :math:`n_k^{max}` is the truncation of the mode (meaning the number of states used in the expansion of
-   the mode, or equivalently the state at which the maximum excitation can take place).
-   The mode :math:`|k\rangle` is then mapped to the occupation number vector
-   :math:`|0_{n_k^{max}}, 0_{n_k^{max} - 1}, ..., 0_{n_k + 1}, 1_{n_k}, 0_{n_k - 1}, ..., 0_{0_k}\rangle`
+    This mapper generates a linear encoding of the Bosonic operator :math:`b_k^\\dagger, b_k` to qubit
+    operators (linear combinations of pauli strings).
+    In this linear encoding each bosonic mode is represented via :math:`n_k^{max} + 1` qubits, where
+    :math:`n_k^{max}` is the truncation of the mode (meaning the number of states used in the expansion
+    of the mode, or equivalently the state at which the maximum excitation can take place).
+    The mode :math:`|k\rangle` is then mapped to the occupation number vector
+    :math:`|0_{n_k^{max}}, 0_{n_k^{max} - 1},..., 0_{n_k + 1}, 1_{n_k}, 0_{n_k - 1}, ..., 0_{0_k}\rangle`
 
-   It implements the formula in Section II.C of Reference [1]:
+    It implements the formula in Section II.C of Reference [1]:
 
-   .. math::
-       b_k^\\dagger = \\sum(\\sqrt{n_k + 1} \\sigma_{n_k}^+\\sigma_{n_k + 1}^-)
+    .. math::
+        b_k^\\dagger = \\sum(\\sqrt{n_k + 1} \\sigma_{n_k}^+\\sigma_{n_k + 1}^-)
 
-   from :math:`n_k = 0` to :math:`n_k^max + 1`
-   where :math:`n_k^max` is the truncation order (defined by the user).
-   In the following implementation, we explicit the operators :math:`\\sigma^+` and :math:`\\sigma^-`
-   with the Pauli matrices:
+    from :math:`n_k = 0` to :math:`n_k^max + 1` where :math:`n_k^max` is the truncation order
+    (defined by the user).
+    In the following implementation, we explicit the operators :math:`\\sigma^+` and :math:`\\sigma^-`
+    with the Pauli matrices:
 
-   .. math::
-       \\sigma_{n_k}^+ := S_j^+ = 0.5 * (X_j + i*Y_j)\\
-       \\sigma_{n_k}^- := S_j^- = 0.5 * (X_j - i*Y_j)
+    .. math::
+        \\sigma_{n_k}^+ := S_j^+ = 0.5 * (X_j + i*Y_j)\\
+        \\sigma_{n_k}^- := S_j^- = 0.5 * (X_j - i*Y_j)
 
-   The length of the qubit register is: ``BosonicOp.num_modes * (BosonicLinearMapper.truncation + 1)``
+    The length of the qubit register is: ``BosonicOp.num_modes * (BosonicLinearMapper.truncation + 1)``
 
-   References:
-       [1] A. Miessen et al., Quantum algorithms for quantum dynamics: A performance study on the
-       spin-boson model, Phys. Rev. Research 3, 043212.
-       https://link.aps.org/doi/10.1103/PhysRevResearch.3.043212
+    References:
+        [1] A. Miessen et al., Quantum algorithms for quantum dynamics: A performance study on the
+        spin-boson model, Phys. Rev. Research 3, 043212.
+        https://link.aps.org/doi/10.1103/PhysRevResearch.3.043212
 
     """
 
