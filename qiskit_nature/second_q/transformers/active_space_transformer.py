@@ -249,8 +249,8 @@ class ActiveSpaceTransformer(BaseTransformer):
             cast(np.ndarray, self._active_density.beta["+-"])
         )[self._active_orbs_indices]
         new_problem.num_particles = (
-            int(sum(new_problem.orbital_occupations)),
-            int(sum(new_problem.orbital_occupations_b)),
+            round(sum(new_problem.orbital_occupations)),
+            round(sum(new_problem.orbital_occupations_b)),
         )
 
         if problem.orbital_energies is not None:
