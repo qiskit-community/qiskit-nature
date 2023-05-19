@@ -88,10 +88,10 @@ class TestBosonicLinearMapper(QiskitNatureTestCase):
         ["III", "IZZ", "IZI", "IIZ", "ZZI", "ZII"], coeffs=[0.75, -0.25, -0.25, -0.25, -0.5, 0.5]
     )
 
-    # fmt: off
     bos_op7 = BosonicOp({"+_0 -_1": 1})
     bos_op8 = BosonicOp({"-_1 +_0": 1})
     # Using: truncation = 1
+    # fmt: off
     ref_qubit_op7_8_tr1 = SparsePauliOp(
         ["XXXX", "XXYY", "XXYX", "XXXY", "YYXX", "YYYY", "YYYX", "YYXY",
          "YXXX", "YXYY", "YXYX", "YXXY", "XYXX", "XYYY", "XYYX", "XYXY",],
@@ -99,7 +99,9 @@ class TestBosonicLinearMapper(QiskitNatureTestCase):
          1 / 16, 1 / 16, -1j / 16, 1j / 16, 1 / 16, 1 / 16, -1j / 16, 1j / 16,
          1j / 16, 1j / 16, 1 / 16, -1 / 16, -1j / 16, -1j / 16, -1 / 16, 1 / 16,]
     )
+    # fmt: on
     # Using: truncation = 2
+    # fmt: off
     ref_qubit_op7_8_tr2 = SparsePauliOp(
         ["IXXIXX", "IXXIYY", "IXXIYX", "IXXIXY", "IXXXXI", "IXXYYI", "IXXYXI", "IXXXYI",
          "IYYIXX", "IYYIYY", "IYYIYX", "IYYIXY", "IYYXXI", "IYYYYI", "IYYYXI", "IYYXYI",

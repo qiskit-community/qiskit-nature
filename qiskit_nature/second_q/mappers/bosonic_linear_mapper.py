@@ -53,6 +53,15 @@ class BosonicLinearMapper(BosonicMapper):
 
     The length of the qubit register is: ``BosonicOp.num_modes * (BosonicLinearMapper.truncation + 1)``
 
+    To use this mapper one can for example:
+
+    .. code-block:: python
+
+      from qiskit_nature.second_q.mappers import BosonicLinearMapper
+      from qiskit_nature.second_q.operators import BosonicOp
+      mapper = BosonicLinearMapper(truncation=1)
+      qubit_op = mapper.map(BosonicOp({'+_0 -_0': 1}, num_modes=1))
+
     .. note::
         Since this mapper uses a truncation in the representation of the Bosonic operators, the
         commutation relation after the mapping differ from the standard ones. Please refer to
