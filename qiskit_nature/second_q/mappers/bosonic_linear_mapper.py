@@ -27,22 +27,22 @@ from .bosonic_mapper import BosonicMapper
 
 
 class BosonicLinearMapper(BosonicMapper):
-    r"""The Linear boson-to-qubit mapping.
+    """The Linear boson-to-qubit mapping.
 
     This mapper generates a linear encoding of the Bosonic operator :math:`b_k^\\dagger, b_k` to qubit
     operators (linear combinations of pauli strings).
     In this linear encoding each bosonic mode is represented via :math:`n_k^{max} + 1` qubits, where
     :math:`n_k^{max}` is the truncation of the mode (meaning the number of states used in the expansion
     of the mode, or equivalently the state at which the maximum excitation can take place).
-    The mode :math:`|k\rangle` is then mapped to the occupation number vector
-    :math:`|0_{n_k^{max}}, 0_{n_k^{max} - 1},..., 0_{n_k + 1}, 1_{n_k}, 0_{n_k - 1}, ..., 0_{0_k}\rangle`
+    The mode :math:`|k\\rangle` is then mapped to the occupation number vector
+    :math:`|0_{n_k^{max}}, 0_{n_k^{max} - 1},..., 0_{n_k + 1}, 1_{n_k}, 0_{n_k - 1},..., 0_{0_k}\\rangle`
 
     It implements the formula in Section II.C of Reference [1]:
 
     .. math::
-        b_k^\\dagger = \\sum(\\sqrt{n_k + 1} \\sigma_{n_k}^+\\sigma_{n_k + 1}^-)
+        b_k^\\dagger = \\sum_{n_k =0}^{n_k^{max}-1}(\\sqrt{n_k +1}\\sigma_{n_k}^{+}\\sigma_{n_k + 1}^{-})
 
-    from :math:`n_k = 0` to :math:`n_k^max + 1` where :math:`n_k^max` is the truncation order
+    from :math:`n_k = 0` to :math:`n_k^{max} + 1` where :math:`n_k^{max}` is the truncation order
     (defined by the user).
     In the following implementation, we explicit the operators :math:`\\sigma^+` and :math:`\\sigma^-`
     with the Pauli matrices:
@@ -80,6 +80,11 @@ class BosonicLinearMapper(BosonicMapper):
 
         Returns:
             The qubit operator corresponding to the problem-Hamiltonian in the qubit space.
+
+        Raises:
+            NotImplementedError: when `qiskit_nature.settings.use_pauli_sum_op` is set to `True`.
+            This value is deprecated and, thus, not supported by this new implementation.
+            Set it to `False` in order to use this mapper.
         """
         if settings.use_pauli_sum_op:
             raise NotImplementedError(
@@ -133,13 +138,12 @@ class BosonicLinearMapper(BosonicMapper):
         """This method builds the Qiskit Pauli operators of the operators XX, YY, XY and YX
 
         Args:
-            register_index (int): the index of the qubit register where the mapped operator should be
-            placed
-            register_length (int): the length of the qubit register
+            register_index: the index of the qubit register where the mapped operator should be placed.
+            register_length: the length of the qubit register.
 
         Returns:
             Four Pauli operators that represent XX, YY, XY and YX at the specified index in the
-            current qubit register
+            current qubit register.
         """
         # Define recurrent variables
         prefix_zeros = [0] * register_index

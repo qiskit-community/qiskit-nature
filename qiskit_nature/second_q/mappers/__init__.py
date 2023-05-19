@@ -40,16 +40,6 @@ FermionicOp Mappers
    JordanWignerMapper
    ParityMapper
 
-BosonicOp Mappers
-+++++++++++++++++++
-
-.. autosummary::
-   :toctree: ../stubs/
-   :template: autosummary/class_with_inherited_members.rst
-   :nosignatures:
-
-   BosonicLinearMapper
-
 **Interleaved Qubit-Ordering:** If you want to generate qubit operators where the alpha-spin and
 beta-spin components are mapped to the qubit register in an interleaved (rather than the default
 blocked) order, you can use the following wrapper:
@@ -60,6 +50,17 @@ blocked) order, you can use the following wrapper:
    :nosignatures:
 
    InterleavedQubitMapper
+
+
+BosonicOp Mappers
++++++++++++++++++++
+
+.. autosummary::
+   :toctree: ../stubs/
+   :template: autosummary/class_with_inherited_members.rst
+   :nosignatures:
+
+   BosonicLinearMapper
 
 VibrationalOp Mappers
 +++++++++++++++++++++

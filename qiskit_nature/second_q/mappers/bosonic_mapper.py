@@ -23,24 +23,23 @@ from .qubit_mapper import ListOrDictType, QubitMapper
 
 
 class BosonicMapper(QubitMapper):
-    """
-    Mapper of Bosonic Operator to Qubit Operator
+    """Mapper of Bosonic Operator to Qubit Operator
 
     The following attributes can be read and updated once the ``BosonicMapper`` object
     has been constructed.
 
     Attributes:
         truncation (int): defines the excitation space of the k-th bosonic state. Together with the
-        number of modes required to represent the bosonic operator, it defines the minimum length of the
-        qubit register. The minimum value is 1.
+            number of modes required to represent the bosonic operator, it defines the minimum length of
+            the qubit register. The minimum value is 1.
     """
 
     def __init__(self, truncation: int) -> None:
         """
         Args:
-            truncation (int): defines the excitation space of the k-th bosonic state. Together with the
-            number of modes required to represent the bosonic operator, it defines the minimum length of
-            the qubit register. The minimum value is 1.
+            truncation: defines the excitation space of the k-th bosonic state. Together with the
+                number of modes required to represent the bosonic operator, it defines the minimum length
+                of the qubit register. The minimum value is 1.
         """
         super().__init__()
         if truncation < 1:
