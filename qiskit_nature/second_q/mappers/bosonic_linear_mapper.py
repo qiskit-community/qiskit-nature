@@ -97,7 +97,8 @@ class BosonicLinearMapper(BosonicMapper):
         """
         if settings.use_pauli_sum_op:
             raise NotImplementedError(
-                "Setting not supported for this class. Please disable settings.use_pauli_sum_op."
+                "This class does not support the deprecated `settings.use_pauli_sum_op` value."
+                "Please set `settings.use_pauli_sum_op = False` in order to use this mapper."
             )
         if register_length is None:
             register_length = second_q_op.num_modes
