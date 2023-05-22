@@ -53,6 +53,7 @@ class BosonicLinearMapper(BosonicMapper):
         \\sigma_{n_k}^- := S_j^- = 0.5 * (X_j - i*Y_j)
 
     The length of the qubit register is:
+    
     .. code-block:: python
 
      BosonicOp.num_modes * (BosonicLinearMapper.max_occupation + 1)
@@ -63,6 +64,7 @@ class BosonicLinearMapper(BosonicMapper):
 
       from qiskit_nature.second_q.mappers import BosonicLinearMapper
       from qiskit_nature.second_q.operators import BosonicOp
+      
       mapper = BosonicLinearMapper(max_occupation=1)
       qubit_op = mapper.map(BosonicOp({'+_0 -_0': 1}, num_modes=1))
 
