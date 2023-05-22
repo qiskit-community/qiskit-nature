@@ -15,7 +15,6 @@
 from __future__ import annotations
 
 from qiskit.quantum_info import SparsePauliOp
-from qiskit_nature.exceptions import QiskitNatureError
 
 from qiskit_nature.second_q.operators import BosonicOp
 
