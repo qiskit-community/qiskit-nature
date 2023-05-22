@@ -48,7 +48,8 @@ class BosonicLinearMapper(BosonicMapper):
     with the Pauli matrices:
 
     .. math::
-        \\sigma_{n_k}^+ := S_j^+ = 0.5 * (X_j + i*Y_j)\\
+        \\sigma_{n_k}^+ := S_j^+ = 0.5 * (X_j + i*Y_j)
+        
         \\sigma_{n_k}^- := S_j^- = 0.5 * (X_j - i*Y_j)
 
     The length of the qubit register is:
@@ -72,6 +73,7 @@ class BosonicLinearMapper(BosonicMapper):
         [1] A. Miessen et al., Quantum algorithms for quantum dynamics: A performance study on the
         spin-boson model, Phys. Rev. Research 3, 043212.
         https://link.aps.org/doi/10.1103/PhysRevResearch.3.043212
+
         [2] R. Somma et al., Quantum Simulations of Physics Problems, Arxiv
         https://doi.org/10.48550/arXiv.quant-ph/0304063
 
