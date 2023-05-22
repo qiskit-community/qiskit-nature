@@ -32,8 +32,8 @@ class BosonicLinearMapper(BosonicMapper):
     This mapper generates a linear encoding of the Bosonic operator :math:`b_k^\\dagger, b_k` to qubit
     operators (linear combinations of pauli strings).
     In this linear encoding each bosonic mode is represented via :math:`n_k^{max} + 1` qubits, where
-    :math:`n_k^{max}` is the truncation of the mode (meaning the number of states used in the expansion
-    of the mode, or equivalently the state at which the maximum excitation can take place).
+    :math:`n_k^{max}` is the max occupation of the mode (meaning the number of states used in the
+    expansion of the mode, or equivalently the state at which the maximum excitation can take place).
     The mode :math:`|k\\rangle` is then mapped to the occupation number vector
     :math:`|0_{n_k^{max}}, 0_{n_k^{max} - 1},..., 0_{n_k + 1}, 1_{n_k}, 0_{n_k - 1},..., 0_{0_k}\\rangle`
 
@@ -42,7 +42,7 @@ class BosonicLinearMapper(BosonicMapper):
     .. math::
         b_k^\\dagger = \\sum_{n_k =0}^{n_k^{max}-1}(\\sqrt{n_k +1}\\sigma_{n_k}^{+}\\sigma_{n_k + 1}^{-})
 
-    from :math:`n_k = 0` to :math:`n_k^{max} + 1` where :math:`n_k^{max}` is the truncation order
+    from :math:`n_k = 0` to :math:`n_k^{max} + 1` where :math:`n_k^{max}` is the maximum occupation
     (defined by the user).
     In the following implementation, we explicit the operators :math:`\\sigma^+` and :math:`\\sigma^-`
     with the Pauli matrices:
@@ -51,7 +51,8 @@ class BosonicLinearMapper(BosonicMapper):
         \\sigma_{n_k}^+ := S_j^+ = 0.5 * (X_j + i*Y_j)\\
         \\sigma_{n_k}^- := S_j^- = 0.5 * (X_j - i*Y_j)
 
-    The length of the qubit register is: ``BosonicOp.num_modes * (BosonicLinearMapper.truncation + 1)``
+    The length of the qubit register is:
+    ``BosonicOp.num_modes * (BosonicLinearMapper.max_occupation + 1)``
 
     To use this mapper one can for example:
 
@@ -59,7 +60,7 @@ class BosonicLinearMapper(BosonicMapper):
 
       from qiskit_nature.second_q.mappers import BosonicLinearMapper
       from qiskit_nature.second_q.operators import BosonicOp
-      mapper = BosonicLinearMapper(truncation=1)
+      mapper = BosonicLinearMapper(max_occupation=1)
       qubit_op = mapper.map(BosonicOp({'+_0 -_0': 1}, num_modes=1))
 
     .. note::
@@ -103,7 +104,7 @@ class BosonicLinearMapper(BosonicMapper):
         if register_length is None:
             register_length = second_q_op.num_modes
 
-        qubit_register_length = register_length * (self.truncation + 1)
+        qubit_register_length = register_length * (self.max_occupation + 1)
         # Create a Pauli operator, which we will fill in this method
         pauli_op: list[SparsePauliOp] = []
         # Then we loop over all the terms of the bosonic operator
@@ -115,11 +116,11 @@ class BosonicLinearMapper(BosonicMapper):
                     break
                 pauli_expansion: list[SparsePauliOp] = []
                 # Now we are dealing with a single bosonic operator. We have to perform the linear mapper
-                for n_k in range(self.truncation):
+                for n_k in range(self.max_occupation):
                     prefactor = np.sqrt(n_k + 1) / 4.0
                     # Define the actual index in the qubit register. It is given by n_k plus the shift
                     # due to the mode onto which the operator is acting
-                    register_index = n_k + idx * (self.truncation + 1)
+                    register_index = n_k + idx * (self.max_occupation + 1)
                     # Now build the Pauli operators XX, XY, YX, YY, which arise from S_i^+ S_j^-
                     x_x, x_y, y_x, y_y = self._get_ij_pauli_matrix(
                         register_index, qubit_register_length

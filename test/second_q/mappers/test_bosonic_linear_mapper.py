@@ -33,64 +33,64 @@ class TestBosonicLinearMapper(QiskitNatureTestCase):
     sq_2 = np.sqrt(2)
 
     bos_op1 = BosonicOp({"+_0": 1})
-    # Using: truncation = 1
+    # Using: max_occupation = 1
     ref_qubit_op1_tr1 = SparsePauliOp(["XX", "YY", "YX", "XY"], coeffs=[0.25, 0.25, -0.25j, 0.25j])
-    # Using: truncation = 2
+    # Using: max_occupation = 2
     ref_qubit_op1_tr2 = SparsePauliOp(
         ["IXX", "IYY", "IYX", "IXY", "XXI", "YYI", "YXI", "XYI"],
         coeffs=[0.25, 0.25, -0.25j, 0.25j, sq_2 / 4, sq_2 / 4, -1j * sq_2 / 4, 1j * sq_2 / 4],
     )
 
     bos_op2 = BosonicOp({"-_0": 1})
-    # Using: truncation = 1
+    # Using: max_occupation = 1
     ref_qubit_op2_tr1 = SparsePauliOp(["XX", "YY", "YX", "XY"], coeffs=[0.25, 0.25, 0.25j, -0.25j])
-    # Using: truncation = 2
+    # Using: max_occupation = 2
     ref_qubit_op2_tr2 = SparsePauliOp(
         ["IXX", "IYY", "IYX", "IXY", "XXI", "YYI", "YXI", "XYI"],
         coeffs=[0.25, 0.25, 0.25j, -0.25j, sq_2 / 4, sq_2 / 4, 1j * sq_2 / 4, -1j * sq_2 / 4],
     )
 
     bos_op3 = BosonicOp({"+_1": 1})
-    # Using: truncation = 1
+    # Using: max_occupation = 1
     ref_qubit_op3_tr1 = SparsePauliOp(
         ["XXII", "YYII", "YXII", "XYII"], coeffs=[0.25, 0.25, -0.25j, 0.25j]
     )
-    # Using: truncation = 2
+    # Using: max_occupation = 2
     ref_qubit_op3_tr2 = SparsePauliOp(
         ["IXXIII", "IYYIII", "IYXIII", "IXYIII", "XXIIII", "YYIIII", "YXIIII", "XYIIII"],
         coeffs=[0.25, 0.25, -0.25j, 0.25j, sq_2 / 4, sq_2 / 4, -1j * sq_2 / 4, 1j * sq_2 / 4],
     )
 
     bos_op4 = BosonicOp({"-_1": 1})
-    # Using: truncation = 1
+    # Using: max_occupation = 1
     ref_qubit_op4_tr1 = SparsePauliOp(
         ["XXII", "YYII", "YXII", "XYII"], coeffs=[0.25, 0.25, 0.25j, -0.25j]
     )
-    # Using: truncation = 2
+    # Using: max_occupation = 2
     ref_qubit_op4_tr2 = SparsePauliOp(
         ["IXXIII", "IYYIII", "IYXIII", "IXYIII", "XXIIII", "YYIIII", "YXIIII", "XYIIII"],
         coeffs=[0.25, 0.25, 0.25j, -0.25j, sq_2 / 4, sq_2 / 4, 1j * sq_2 / 4, -1j * sq_2 / 4],
     )
 
     bos_op5 = BosonicOp({"+_0 -_0": 1})
-    # Using: truncation = 1
+    # Using: max_occupation = 1
     ref_qubit_op5_tr1 = SparsePauliOp(["II", "ZZ", "ZI", "IZ"], coeffs=[0.25, -0.25, -0.25, 0.25])
-    # Using: truncation = 2
+    # Using: max_occupation = 2
     ref_qubit_op5_tr2 = SparsePauliOp(
         ["III", "IZZ", "IZI", "IIZ", "ZZI", "ZII"], coeffs=[0.75, -0.25, 0.25, 0.25, -0.5, -0.5]
     )
 
     bos_op6 = BosonicOp({"-_0 +_0": 1})
-    # Using: truncation = 1
+    # Using: max_occupation = 1
     ref_qubit_op6_tr1 = SparsePauliOp(["II", "ZZ", "ZI", "IZ"], coeffs=[0.25, -0.25, +0.25, -0.25])
-    # Using: truncation = 2
+    # Using: max_occupation = 2
     ref_qubit_op6_tr2 = SparsePauliOp(
         ["III", "IZZ", "IZI", "IIZ", "ZZI", "ZII"], coeffs=[0.75, -0.25, -0.25, -0.25, -0.5, 0.5]
     )
 
     bos_op7 = BosonicOp({"+_0 -_1": 1})
     bos_op8 = BosonicOp({"-_1 +_0": 1})
-    # Using: truncation = 1
+    # Using: max_occupation = 1
     # fmt: off
     ref_qubit_op7_8_tr1 = SparsePauliOp(
         ["XXXX", "XXYY", "XXYX", "XXXY", "YYXX", "YYYY", "YYYX", "YYXY",
@@ -100,7 +100,7 @@ class TestBosonicLinearMapper(QiskitNatureTestCase):
          1j / 16, 1j / 16, 1 / 16, -1 / 16, -1j / 16, -1j / 16, -1 / 16, 1 / 16,]
     )
     # fmt: on
-    # Using: truncation = 2
+    # Using: max_occupation = 2
     # fmt: off
     ref_qubit_op7_8_tr2 = SparsePauliOp(
         ["IXXIXX", "IXXIYY", "IXXIYX", "IXXIXY", "IXXXXI", "IXXYYI", "IXXYXI", "IXXXYI",
@@ -124,14 +124,14 @@ class TestBosonicLinearMapper(QiskitNatureTestCase):
     # fmt: on
 
     bos_op9 = BosonicOp({"+_0 +_0": 1})
-    # Using: truncation = 1
+    # Using: max_occupation = 1
     ref_qubit_op9_tr1 = SparsePauliOp(["II"], coeffs=[0.0])
-    # Using: truncation = 2
+    # Using: max_occupation = 2
     ref_qubit_op9_tr2 = SparsePauliOp(
         ["XIX", "YIX", "YIY", "XIY"], coeffs=[sq_2 / 4, -sq_2 * 1j / 4, sq_2 / 4, sq_2 * 1j / 4]
     )
 
-    # Test truncation = 1
+    # Test max_occupation = 1
     @data(
         (bos_op1, ref_qubit_op1_tr1),
         (bos_op2, ref_qubit_op2_tr1),
@@ -144,9 +144,9 @@ class TestBosonicLinearMapper(QiskitNatureTestCase):
         (bos_op9, ref_qubit_op9_tr1),
     )
     @unpack
-    def test_mapping_truncation_1(self, bos_op, ref_qubit_op):
+    def test_mapping_max_occupation_1(self, bos_op, ref_qubit_op):
         """Test mapping to qubit operator"""
-        mapper = BosonicLinearMapper(truncation=1)
+        mapper = BosonicLinearMapper(max_occupation=1)
         aux = settings.use_pauli_sum_op
         try:
             settings.use_pauli_sum_op = False
@@ -167,9 +167,9 @@ class TestBosonicLinearMapper(QiskitNatureTestCase):
         (bos_op9, ref_qubit_op9_tr2),
     )
     @unpack
-    def test_mapping_truncation_2(self, bos_op, ref_qubit_op):
+    def test_mapping_max_occupation_2(self, bos_op, ref_qubit_op):
         """Test mapping to qubit operator"""
-        mapper = BosonicLinearMapper(truncation=2)
+        mapper = BosonicLinearMapper(max_occupation=2)
         aux = settings.use_pauli_sum_op
         try:
             settings.use_pauli_sum_op = False
@@ -180,7 +180,7 @@ class TestBosonicLinearMapper(QiskitNatureTestCase):
 
     def test_error_pauli_sum_op(self):
         """Test that if the user sets use_pauli_sum_op to true, then we return an error"""
-        mapper = BosonicLinearMapper(truncation=1)
+        mapper = BosonicLinearMapper(max_occupation=1)
         settings.use_pauli_sum_op = True
         with self.assertRaises(NotImplementedError):
             mapper.map(BosonicOp({"+_0": 1}))

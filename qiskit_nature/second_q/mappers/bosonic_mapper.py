@@ -29,25 +29,34 @@ class BosonicMapper(QubitMapper):
     has been constructed.
 
     Attributes:
-        truncation (int): defines the excitation space of the k-th bosonic state. Together with the
+        max_occupation (int): defines the excitation space of the k-th bosonic state. Together with the
             number of modes required to represent the bosonic operator, it defines the minimum length of
             the qubit register. The minimum value is 1.
     """
 
-    def __init__(self, truncation: int) -> None:
+    def __init__(self, max_occupation: int) -> None:
         """
         Args:
-            truncation: defines the excitation space of the k-th bosonic state. Together with the
+            max_occupation: defines the excitation space of the k-th bosonic state. Together with the
                 number of modes required to represent the bosonic operator, it defines the minimum length
                 of the qubit register. The minimum value is 1.
         """
         super().__init__()
-        if truncation < 1:
+        self.set_max_occupation(max_occupation)
+
+    def set_max_occupation(self, max_occupation):
+        """
+        Setter for the property max_occupation
+
+        Raises:
+            QiskitNatureError: if max_occupation < 1
+        """
+        if max_occupation < 1:
             raise QiskitNatureError(
-                "Truncation for bosonic linear mapper must be at least 1. "
-                + f"Detected value: {truncation}"
+                "Max occupation for bosonic linear mapper must be at least 1. "
+                + f"Detected value: {max_occupation}"
             )
-        self.truncation = truncation
+        self.max_occupation = max_occupation
 
     def map(
         self,
