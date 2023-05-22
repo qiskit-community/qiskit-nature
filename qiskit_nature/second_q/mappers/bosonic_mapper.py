@@ -42,8 +42,8 @@ class BosonicMapper(QubitMapper):
 
     @property
     def max_occupation(self) -> int:
-            """The max. occupation for the bosonic linear mapper"""
-            return self._max_occupation
+        """The max. occupation for the bosonic linear mapper"""
+        return self._max_occupation
 
     @max_occupation.setter
     def max_occupation(self, max_occupation: int) -> None:
