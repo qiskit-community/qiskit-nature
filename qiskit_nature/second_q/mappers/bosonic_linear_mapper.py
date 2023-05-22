@@ -48,9 +48,9 @@ class BosonicLinearMapper(BosonicMapper):
     with the Pauli matrices:
 
     .. math::
-        \\sigma_{n_k}^+ := S_j^+ = 0.5 * (X_j + i*Y_j)
+        \\sigma_{n_k}^+ := S_j^+ = 0.5 * (X_j + \\textit{i}Y_j)
 
-        \\sigma_{n_k}^- := S_j^- = 0.5 * (X_j - i*Y_j)
+        \\sigma_{n_k}^- := S_j^- = 0.5 * (X_j - \\textit{i}Y_j)
 
     The length of the qubit register is:
 
@@ -151,7 +151,9 @@ class BosonicLinearMapper(BosonicMapper):
 
     @classmethod
     @lru_cache(maxsize=32)
-    def _get_ij_pauli_matrix(cls, register_index: int, register_length: int) -> tuple[Pauli, Pauli, Pauli, Pauli]:
+    def _get_ij_pauli_matrix(
+        cls, register_index: int, register_length: int
+    ) -> tuple[Pauli, Pauli, Pauli, Pauli]:
         """This method builds the Qiskit Pauli operators of the operators XX, YY, XY and YX
 
         Args:
