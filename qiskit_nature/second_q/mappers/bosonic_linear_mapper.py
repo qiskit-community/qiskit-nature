@@ -69,9 +69,9 @@ class BosonicLinearMapper(BosonicMapper):
       qubit_op = mapper.map(BosonicOp({'+_0 -_0': 1}, num_modes=1))
 
     .. note::
-        Since this mapper uses a truncation in the representation of the Bosonic operators, the
-        commutation relation after the mapping differ from the standard ones. Please refer to
-        Section 4, equation 22 of Reference [2] for more details
+        Since this mapper truncates the maximum occupation of a bosonic state as represented in the
+        qubit register, the commutation relation after the mapping differ from the standard ones.
+        Please refer to Section 4, equation 22 of Reference [2] for more details
 
     References:
         [1] A. Miessen et al., Quantum algorithms for quantum dynamics: A performance study on the
@@ -99,8 +99,8 @@ class BosonicLinearMapper(BosonicMapper):
 
         Raises:
             NotImplementedError: when `qiskit_nature.settings.use_pauli_sum_op` is set to `True`.
-            This value is deprecated and, thus, not supported by this new implementation.
-            Set it to `False` in order to use this mapper.
+                This value is deprecated and, thus, not supported by this new implementation.
+                Set it to `False` in order to use this mapper.
         """
         if settings.use_pauli_sum_op:
             raise NotImplementedError(
@@ -151,7 +151,7 @@ class BosonicLinearMapper(BosonicMapper):
 
     @classmethod
     @lru_cache(maxsize=32)
-    def _get_ij_pauli_matrix(cls, register_index: int, register_length: int):
+    def _get_ij_pauli_matrix(cls, register_index: int, register_length: int) -> tuple[Pauli, Pauli, Pauli, Pauli]:
         """This method builds the Qiskit Pauli operators of the operators XX, YY, XY and YX
 
         Args:
@@ -159,7 +159,7 @@ class BosonicLinearMapper(BosonicMapper):
             register_length: the length of the qubit register.
 
         Returns:
-            Four Pauli operators that represent XX, YY, XY and YX at the specified index in the
+            Four Pauli operators that represent XX, XY, YX and YY at the specified index in the
             current qubit register.
         """
         # Define recurrent variables
@@ -184,5 +184,10 @@ class BosonicLinearMapper(BosonicMapper):
                 prefix_zeros + [1, 1] + suffix_zeros,
             )
         )
-        y_y = Pauli((prefix_zeros + [1, 1] + suffix_zeros, prefix_zeros + [1, 1] + suffix_zeros))
+        y_y = Pauli(
+            (
+                prefix_zeros + [1, 1] + suffix_zeros,
+                prefix_zeros + [1, 1] + suffix_zeros,
+            )
+        )
         return x_x, x_y, y_x, y_y
