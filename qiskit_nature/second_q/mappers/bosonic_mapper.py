@@ -28,10 +28,6 @@ class BosonicMapper(QubitMapper):
     The following attributes can be read and updated once the ``BosonicMapper`` object
     has been constructed.
 
-    Attributes:
-        max_occupation (int): defines the excitation space of the k-th bosonic state. Together with the
-            number of modes required to represent the bosonic operator, it defines the minimum length of
-            the qubit register. The minimum value is 1.
     """
 
     def __init__(self, max_occupation: int) -> None:
@@ -42,21 +38,21 @@ class BosonicMapper(QubitMapper):
                 of the qubit register. The minimum value is 1.
         """
         super().__init__()
-        self.set_max_occupation(max_occupation)
+        self.max_occupation = max_occupation
 
-    def set_max_occupation(self, max_occupation):
-        """
-        Setter for the property max_occupation
+    @property
+    def max_occupation(self) -> int:
+            """The max. occupation for the bosonic linear mapper"""
+            return self._max_occupation
 
-        Raises:
-            QiskitNatureError: if max_occupation < 1
-        """
+    @max_occupation.setter
+    def max_occupation(self, max_occupation: int) -> None:
         if max_occupation < 1:
-            raise QiskitNatureError(
+            raise ValueError(
                 "Max occupation for bosonic linear mapper must be at least 1. "
                 + f"Detected value: {max_occupation}"
             )
-        self.max_occupation = max_occupation
+        self._max_occupation = max_occupation
 
     def map(
         self,
