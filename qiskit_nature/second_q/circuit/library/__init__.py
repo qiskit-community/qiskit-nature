@@ -21,6 +21,7 @@ A collection of circuits used as building blocks or inputs for algorithms.
 .. autosummary::
    :toctree: ../stubs/
    :nosignatures:
+   :template: autosummary/class_no_inherited_members.rst
 
 
    BogoliubovTransform
@@ -31,6 +32,7 @@ Initial states
 .. autosummary::
    :toctree: ../stubs/
    :nosignatures:
+   :template: autosummary/class_no_inherited_members.rst
 
 
    FermionicGaussianState
@@ -44,6 +46,7 @@ Ansatzes
 .. autosummary::
    :toctree: ../stubs/
    :nosignatures:
+   :template: autosummary/class_no_inherited_members.rst
 
 
    UCC
