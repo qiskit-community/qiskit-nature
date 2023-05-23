@@ -48,8 +48,7 @@ class BosonicMapper(QubitMapper):
     def max_occupation(self, max_occupation: int) -> None:
         if max_occupation < 1:
             raise ValueError(
-                "The maximum occupation must be at least 1. "
-                + f"Detected value: {max_occupation}"
+                f"The maximum occupation must be at least 1, and not {max_occupation}."
             )
         self._max_occupation = max_occupation
 
