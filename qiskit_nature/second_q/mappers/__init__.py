@@ -17,7 +17,8 @@ Mappers (:mod:`qiskit_nature.second_q.mappers`)
 
 .. currentmodule:: qiskit_nature.second_q.mappers
 
-The classes here are used to convert fermionic, vibrational and spin operators to qubit operators.
+The classes here are used to convert fermionic, bosonic, vibrational and spin operators to qubit
+operators.
 
 .. autosummary::
    :toctree: ../stubs/
@@ -46,6 +47,17 @@ blocked) order, you can use the following wrapper:
    :nosignatures:
 
    InterleavedQubitMapper
+
+
+BosonicOp Mappers
++++++++++++++++++++
+
+.. autosummary::
+   :toctree: ../stubs/
+   :template: autosummary/class_with_inherited_members.rst
+   :nosignatures:
+
+   BosonicLinearMapper
 
 VibrationalOp Mappers
 +++++++++++++++++++++
@@ -95,6 +107,7 @@ from .bravyi_kitaev_mapper import BravyiKitaevMapper
 from .jordan_wigner_mapper import JordanWignerMapper
 from .parity_mapper import ParityMapper
 from .linear_mapper import LinearMapper
+from .bosonic_linear_mapper import BosonicLinearMapper
 from .logarithmic_mapper import LogarithmicMapper
 from .direct_mapper import DirectMapper
 from .qubit_mapper import QubitMapper
@@ -109,6 +122,7 @@ __all__ = [
     "JordanWignerMapper",
     "ParityMapper",
     "LinearMapper",
+    "BosonicLinearMapper",
     "LogarithmicMapper",
     "QubitConverter",
     "QubitMapper",
