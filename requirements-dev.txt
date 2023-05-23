@@ -7,7 +7,7 @@ stestr>=2.0.0
 ddt>=1.2.0,!=1.4.0,!=1.4.3
 reno>=3.4.0
 Sphinx>=5.0
-sphinx-design~=0.4.1
+sphinx-design>=0.4.1
 sphinxcontrib-spelling!=7.3.1
 jupyter-sphinx
 discover
