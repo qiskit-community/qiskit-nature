@@ -47,19 +47,6 @@ blocked) order, you can use the following wrapper:
 
    InterleavedQubitMapper
 
-<<<<<<< HEAD
-=======
-
-BosonicOp Mappers
-+++++++++++++++++++
-
-.. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
-
-   BosonicLinearMapper
-
->>>>>>> 1eec83bb (Improve docs (#1175))
 VibrationalOp Mappers
 +++++++++++++++++++++
 
