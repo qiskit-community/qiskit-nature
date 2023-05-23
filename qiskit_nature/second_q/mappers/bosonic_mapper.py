@@ -41,14 +41,14 @@ class BosonicMapper(QubitMapper):
 
     @property
     def max_occupation(self) -> int:
-        """The max. occupation for the bosonic linear mapper"""
+        """The maximum occupation of any bosonic state."""
         return self._max_occupation
 
     @max_occupation.setter
     def max_occupation(self, max_occupation: int) -> None:
         if max_occupation < 1:
             raise ValueError(
-                "Max occupation for bosonic linear mapper must be at least 1. "
+                "The maximum occupation must be at least 1. "
                 + f"Detected value: {max_occupation}"
             )
         self._max_occupation = max_occupation
