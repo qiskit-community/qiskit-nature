@@ -21,7 +21,6 @@ The classes here are used to convert fermionic, vibrational and spin operators t
 
 .. autosummary::
    :toctree: ../stubs/
-   :template: autosummary/class_with_inherited_members.rst
    :nosignatures:
 
    QubitMapper
@@ -31,7 +30,6 @@ FermionicOp Mappers
 
 .. autosummary::
    :toctree: ../stubs/
-   :template: autosummary/class_with_inherited_members.rst
    :nosignatures:
 
    BravyiKitaevMapper
@@ -45,17 +43,28 @@ blocked) order, you can use the following wrapper:
 
 .. autosummary::
    :toctree: ../stubs/
-   :template: autosummary/class_with_inherited_members.rst
    :nosignatures:
 
    InterleavedQubitMapper
 
+<<<<<<< HEAD
+=======
+
+BosonicOp Mappers
++++++++++++++++++++
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   BosonicLinearMapper
+
+>>>>>>> 1eec83bb (Improve docs (#1175))
 VibrationalOp Mappers
 +++++++++++++++++++++
 
 .. autosummary::
    :toctree: ../stubs/
-   :template: autosummary/class_with_inherited_members.rst
    :nosignatures:
 
    DirectMapper
@@ -66,7 +75,6 @@ SpinOp Mappers
 
 .. autosummary::
    :toctree: ../stubs/
-   :template: autosummary/class_with_inherited_members.rst
    :nosignatures:
 
    LinearMapper
@@ -80,7 +88,6 @@ after the mapping to qubit operators, you can use the following wrapper for symm
 
 .. autosummary::
    :toctree: ../stubs/
-   :template: autosummary/class_with_inherited_members.rst
    :nosignatures:
 
    TaperedQubitMapper
@@ -90,7 +97,6 @@ Qubit Converter
 
 .. autosummary::
    :toctree: ../stubs/
-   :template: autosummary/class_with_inherited_members.rst
    :nosignatures:
 
    QubitConverter

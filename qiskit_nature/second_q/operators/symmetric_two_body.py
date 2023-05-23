@@ -34,7 +34,6 @@ interchangeably.
 
 .. autosummary::
    :toctree: ../stubs/
-   :template: autosummary/class_with_inherited_members.rst
    :nosignatures:
 
    SymmetricTwoBodyIntegrals
