@@ -58,7 +58,9 @@ boolean
 bools
 bopes
 boson
+bosons
 bosonic
+bosonicop
 bravyi
 calcinfo
 cargs
@@ -336,6 +338,7 @@ metadata
 meth
 methionine
 microsoft
+miessen
 minao
 mixin
 miyazawa
@@ -521,9 +524,11 @@ sklearn
 sl
 slater
 soham
+somma
 sp
 sparsearray
 sparselabelop
+sparsepauliop
 spinop
 springer
 spsa
