@@ -243,7 +243,7 @@ to it (which was the output of the
    <div class="tutorials-callout-container">
       <div class="row">
 
-.. customcalloutitem::
+.. qiskit-call-to-action-item::
    :description: Find out about Qiskit Nature and how to use it for natural science problems.
    :header: Dive into the tutorials
    :button_link:  ./tutorials/index.html
