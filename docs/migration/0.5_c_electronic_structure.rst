@@ -1,21 +1,6 @@
 Electronic Structure Problems with v0.5
 =======================================
 
-Table of Contents
------------------
-
-The electronic structure stack has received the most updates between
-Qiskit Nature v0.4 and v0.5. Thus, this file is split into multiple
-sections that go into various amounts of details. Here is a table of
-contents to help you navigate:
-
--  `TL;DR <#TL;DR>`__
--  `qiskit_nature.drivers <#qiskit_nature.drivers>`__
--  `qiskit_nature.transformers <#qiskit_nature.transformers>`__
--  `The ElectronicStructureProblem
-   (qiskit_nature.problems) <#The-ElectronicStructureProblem-(qiskit_nature.problems)>`__
--  `qiskit_nature.properties <#qiskit_nature.properties>`__
-
 Further resources
 -----------------
 

@@ -17,17 +17,6 @@ suggest that you read the `corresponding
 resources <https://qiskit.org/documentation/apidoc/primitives.html>`__
 of the Qiskit Terra documentation instead.
 
-Table of Contents
-~~~~~~~~~~~~~~~~~
-
-In this document, we will provide an overview of the API changes
-alongside with some minimal explanations:
-
--  `qiskit_nature.mappers <#qiskit_nature.mappers>`__
--  `qiskit_nature.converters <#qiskit_nature.converters>`__
--  `qiskit_nature.circuit <#qiskit_nature.circuit>`__
--  `qiskit_nature.algorithms <#qiskit_nature.algorithms>`__
-
 Further Resources
 ~~~~~~~~~~~~~~~~~
 
