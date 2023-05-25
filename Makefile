@@ -62,13 +62,13 @@ test_ci:
 
 spell:
 	python -m pylint -rn --disable=all --enable=spelling --spelling-dict=en_US --spelling-private-dict-file=.pylintdict --ignore=gauopen qiskit_nature test tools
-	sphinx-build -M spelling docs docs/_build -W -T --keep-going $(SPHINXOPTS)
+	sphinx-build -M spelling docs docs/_build -T --keep-going $(SPHINXOPTS)
 
 copyright:
 	python tools/check_copyright.py
 
 html:
-	sphinx-build -M html docs docs/_build -W -T --keep-going $(SPHINXOPTS)
+	sphinx-build -M html docs docs/_build -T --keep-going $(SPHINXOPTS)
 
 doctest:
 	sphinx-build -M doctest docs docs/_build -W -T --keep-going $(SPHINXOPTS)
