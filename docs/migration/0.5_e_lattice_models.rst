@@ -39,17 +39,6 @@ Furthermore, the factory methods for ``Lattice`` objects defined on the
 | ``IsingModel.from_parameters``           | ``Lattice.from_adjacency_matrix`` |
 +------------------------------------------+-----------------------------------+
 
-Table of Contents
-~~~~~~~~~~~~~~~~~
-
-Concrete examples are provided below. You can use the following links to
-jump to a specific section:
-
--  `FermiHubbardModel.uniform_parameters <#FermiHubbardModel.uniform_parameters>`__
--  `FermiHubbardModel.from_parameters <#FermiHubbardModel.from_parameters>`__
--  `IsingModel.uniform_parameters <#IsingModel.uniform_parameters>`__
--  `IsingModel.from_parameters <#IsingModel.from_parameters>`__
-
 Further Resources
 ~~~~~~~~~~~~~~~~~
 

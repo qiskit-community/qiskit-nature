@@ -1,20 +1,6 @@
 Vibrational Structure Problems with v0.5
 ========================================
 
-Table of Contents
------------------
-
-The vibrational structure stack has also received significant updates
-between Qiskit Nature v0.4 and v0.5. Thus, this file is split into
-multiple sections that go into various amounts of details. Here is a
-table of contents to help you navigate:
-
--  `TL;DR <#TL;DR>`__
--  `qiskit_nature.drivers <#qiskit_nature.drivers>`__
--  `The VibrationalStructureProblem
-   (qiskit_nature.problems) <#The-VibrationalStructureProblem-(qiskit_nature.problems)>`__
--  `qiskit_nature.properties <#qiskit_nature.properties>`__
-
 Further resources
 -----------------
 
