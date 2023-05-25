@@ -45,10 +45,10 @@ Table of Contents
 Concrete examples are provided below. You can use the following links to
 jump to a specific section:
 
--  `FermiHubbardModel.uniform_parameters <#FermiHubbardModel.uniform_parameters>`__
--  `FermiHubbardModel.from_parameters <#FermiHubbardModel.from_parameters>`__
--  `IsingModel.uniform_parameters <#IsingModel.uniform_parameters>`__
--  `IsingModel.from_parameters <#IsingModel.from_parameters>`__
+-  `FermiHubbardModel.uniform_parameters <#fermihubbardmodel-uniform-parameters>`__
+-  `FermiHubbardModel.from_parameters <#fermihubbardmodel-from-parameters>`__
+-  `IsingModel.uniform_parameters <#isingmodel-uniform-parameters>`__
+-  `IsingModel.from_parameters <#isingmodel-from-parameters>`__
 
 Further Resources
 ~~~~~~~~~~~~~~~~~

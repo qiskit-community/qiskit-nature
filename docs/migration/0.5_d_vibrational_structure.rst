@@ -9,11 +9,11 @@ between Qiskit Nature v0.4 and v0.5. Thus, this file is split into
 multiple sections that go into various amounts of details. Here is a
 table of contents to help you navigate:
 
--  `TL;DR <#TL;DR>`__
--  `qiskit_nature.drivers <#qiskit_nature.drivers>`__
+-  `TL;DR <#tl-dr>`__
+-  `qiskit_nature.drivers <#qiskit-nature-drivers>`__
 -  `The VibrationalStructureProblem
-   (qiskit_nature.problems) <#The-VibrationalStructureProblem-(qiskit_nature.problems)>`__
--  `qiskit_nature.properties <#qiskit_nature.properties>`__
+   (qiskit_nature.problems) <#the-vibrationalstructureproblem-qiskit-nature-problems>`__
+-  `qiskit_nature.properties <#qiskit-nature-properties>`__
 
 Further resources
 -----------------
