@@ -138,6 +138,20 @@ class TestFreezeCoreTransformer(QiskitNatureTestCase):
             self.assertAlmostEqual(electronic_energy.constants["FreezeCoreTransformer"], 0.0)
 
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
+    def test_freeze_core_with_charge(self):
+        """Test the transformer behavior with a charge present."""
+        driver = PySCFDriver(atom="Be 0 0 0", charge=1, spin=1)
+        driver_result = driver.run()
+        self.assertEqual(driver_result.num_alpha, 2)
+        self.assertEqual(driver_result.num_beta, 1)
+
+        trafo = FreezeCoreTransformer(freeze_core=True)
+        driver_result_reduced = trafo.transform(driver_result)
+
+        self.assertEqual(driver_result_reduced.num_alpha, 1)
+        self.assertEqual(driver_result_reduced.num_beta, 0)
+
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_standalone_usage(self):
         """Test usage on a standalone Hamiltonian."""
         driver = PySCFDriver(atom="Li 0 0 0; H 0 0 1.6")
