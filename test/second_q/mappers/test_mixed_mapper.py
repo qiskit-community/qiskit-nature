@@ -38,14 +38,10 @@ class TestMixedMapper(QiskitNatureTestCase):
     sq_2 = np.sqrt(2)
 
     bos_op1 = BosonicOp({"+_0": 1})
-    mapped_bos_op1 = SparsePauliOp(
-        ["XX", "YY", "YX", "XY"], coeffs=[0.25, 0.25, -0.25j, 0.25j]
-    )
+    mapped_bos_op1 = SparsePauliOp(["XX", "YY", "YX", "XY"], coeffs=[0.25, 0.25, -0.25j, 0.25j])
 
     bos_op2 = BosonicOp({"-_0": 1})
-    mapped_bos_op2 = SparsePauliOp(
-        ["XX", "YY", "YX", "XY"], coeffs=[0.25, 0.25, 0.25j, -0.25j]
-    )
+    mapped_bos_op2 = SparsePauliOp(["XX", "YY", "YX", "XY"], coeffs=[0.25, 0.25, 0.25j, -0.25j])
 
     fer_op1 = FermionicOp({"+_0": 1}, num_spin_orbitals=1)
     mapped_fer_op1 = SparsePauliOp.from_list([("X", 0.5), ("Y", -0.5j)])
@@ -70,9 +66,7 @@ class TestMixedMapper(QiskitNatureTestCase):
         aux = settings.use_pauli_sum_op
         settings.use_pauli_sum_op = False
         comp_op1 = MixedOp({("b1", "f1"): [(3.0, self.bos_op1, self.fer_op1)]})
-        test = self.mix_mapper.map(
-            comp_op1, hilbert_space_registers=self.hilbert_space_registers
-        )
+        test = self.mix_mapper.map(comp_op1, hilbert_space_registers=self.hilbert_space_registers)
         settings.use_pauli_sum_op = aux
 
         self.assertEqual(target, test)
