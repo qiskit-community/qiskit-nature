@@ -145,8 +145,8 @@ class TestFermionicOp(QiskitNatureTestCase):
                 (
                     "h1",
                     "h2",
-                ): [(3.0 +2j, self.op1, self.op2)],
-                "h2": [(4.0 -5j, self.op2)],
+                ): [(3.0 + 2j, self.op1, self.op2)],
+                "h2": [(4.0 - 5j, self.op2)],
             }
         ).adjoint()
 
@@ -156,8 +156,8 @@ class TestFermionicOp(QiskitNatureTestCase):
                 (
                     "h1",
                     "h2",
-                ): [(3.0 -2j, self.op1.adjoint(), self.op2.adjoint())],
-                "h2": [(4.0 +5j, self.op2.adjoint())],
+                ): [(3.0 - 2j, self.op1.adjoint(), self.op2.adjoint())],
+                "h2": [(4.0 + 5j, self.op2.adjoint())],
             }
         )
         self.assertEqual(test_adjoint, targ_adjoint)
@@ -170,8 +170,8 @@ class TestFermionicOp(QiskitNatureTestCase):
                 (
                     "h1",
                     "h2",
-                ): [(3.0 +2j, self.op1, self.op2)],
-                "h2": [(4.0 -5j, self.op2)],
+                ): [(3.0 + 2j, self.op1, self.op2)],
+                "h2": [(4.0 - 5j, self.op2)],
             }
         ).conjugate()
 
@@ -181,8 +181,8 @@ class TestFermionicOp(QiskitNatureTestCase):
                 (
                     "h1",
                     "h2",
-                ): [(3.0 -2j, self.op1.conjugate(), self.op2.conjugate())],
-                "h2": [(4.0 +5j, self.op2.conjugate())],
+                ): [(3.0 - 2j, self.op1.conjugate(), self.op2.conjugate())],
+                "h2": [(4.0 + 5j, self.op2.conjugate())],
             }
         )
         self.assertEqual(test_conjugate, targ_conjugate)
@@ -195,8 +195,8 @@ class TestFermionicOp(QiskitNatureTestCase):
                 (
                     "h1",
                     "h2",
-                ): [(3.0 +2j, self.op1, self.op2)],
-                "h2": [(4.0 -5j, self.op2)],
+                ): [(3.0 + 2j, self.op1, self.op2)],
+                "h2": [(4.0 - 5j, self.op2)],
             }
         ).transpose()
 
@@ -211,6 +211,7 @@ class TestFermionicOp(QiskitNatureTestCase):
             }
         )
         self.assertEqual(test_transpose, targ_transpose)
+
 
 if __name__ == "__main__":
     unittest.main()

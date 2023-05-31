@@ -157,9 +157,7 @@ class MixedOp(LinearMixin):
     def _apply_on_tuples(self, method, *args, **kwargs) -> MixedOp:
         new_op_data = {}
         for key, op_tuple_list in self.data.items():
-            new_op_data[key] = [
-                method(op_tuple, *args, **kwargs) for op_tuple in op_tuple_list
-            ]
+            new_op_data[key] = [method(op_tuple, *args, **kwargs) for op_tuple in op_tuple_list]
         return MixedOp(new_op_data)
 
     def conjugate(self):
@@ -225,15 +223,11 @@ class MixedOp(LinearMixin):
             op_tuple_list1, op_tuple_list2 = self.data[key1], other.data[key2]
             new_data[key1 + key2] = [
                 MixedOp._tuple_prod(op_tuple1, op_tuple2)
-                for op_tuple1, op_tuple2 in itertools.product(
-                    op_tuple_list1, op_tuple_list2
-                )
+                for op_tuple1, op_tuple2 in itertools.product(op_tuple_list1, op_tuple_list2)
             ]
         return MixedOp(new_data)
 
     def __eq__(self, other):
         if self.data.keys() != other.data.keys():
             return False
-        return all(
-            [self.data[key] == other.data[key] for key in self.data.keys()]
-        )
+        return all([self.data[key] == other.data[key] for key in self.data.keys()])
