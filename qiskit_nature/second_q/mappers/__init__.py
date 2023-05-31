@@ -128,6 +128,7 @@ __all__ = [
     "BosonicLinearMapper",
     "BosonicLogarithmicMapper",
     "LogarithmicMapper",
+    "MixedMapper",
     "QubitMapper",
     "InterleavedQubitMapper",
     "TaperedQubitMapper",
