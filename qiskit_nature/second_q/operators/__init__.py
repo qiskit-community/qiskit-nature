@@ -31,6 +31,7 @@ Operators and mappers for different systems such as fermionic, vibrational and s
    VibrationalIntegrals
    PolynomialTensor
    Tensor
+   MixedOp
 
 Modules
 -------
@@ -53,6 +54,7 @@ from .vibrational_integrals import VibrationalIntegrals
 from .polynomial_tensor import PolynomialTensor
 from .sparse_label_op import SparseLabelOp
 from .tensor import Tensor
+from .mixed_op import MixedOp
 
 __all__ = [
     "ElectronicIntegrals",
@@ -65,4 +67,5 @@ __all__ = [
     "PolynomialTensor",
     "SparseLabelOp",
     "Tensor",
+    "MixedOp",
 ]
