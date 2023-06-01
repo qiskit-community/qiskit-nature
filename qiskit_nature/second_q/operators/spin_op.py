@@ -338,7 +338,7 @@ class SpinOp(SparseLabelOp):
         Returns:
             The X spin operator for ``spin``.
         """
-        return cls({"X_0": 1.0}, spin=spin, copy=False)
+        return cls({"X_0": 1.0}, spin=spin, num_spins=1, copy=False)
 
     @classmethod
     def y(cls, spin: float | Fraction = Fraction(1, 2)) -> SpinOp:
@@ -347,7 +347,7 @@ class SpinOp(SparseLabelOp):
         Returns:
             The Y spin operator for ``spin``.
         """
-        return cls({"Y_0": 1.0}, spin=spin, copy=False)
+        return cls({"Y_0": 1.0}, spin=spin, num_spins=1, copy=False)
 
     @classmethod
     def z(cls, spin: float | Fraction = Fraction(1, 2)) -> SpinOp:
@@ -356,7 +356,7 @@ class SpinOp(SparseLabelOp):
         Returns:
             The Z spin operator for ``spin``.
         """
-        return cls({"Z_0": 1.0}, spin=spin, copy=False)
+        return cls({"Z_0": 1.0}, spin=spin, num_spins=1, copy=False)
 
     @classmethod
     def one(cls, spin: float | Fraction = Fraction(1, 2)) -> SpinOp:
@@ -602,7 +602,11 @@ class SpinOp(SparseLabelOp):
         # reorder and expand
         simplified_op = self.index_order().simplify()
 
-        final_matrix = np.zeros((dim, dim), dtype=np.complex128)
+        # the size of the final matrix needs to adjust for the total number of spins which this
+        # operator acts on
+        final_dim = dim**self.register_length
+        final_matrix = np.zeros((final_dim, final_dim), dtype=np.complex128)
+
         for label, coeff in simplified_op.items():
             matrix_per_idx = {}
             # after .simplify() all exponents will be 1,
@@ -615,7 +619,9 @@ class SpinOp(SparseLabelOp):
                 matrix_per_idx[idx] = matrix_per_idx[idx] @ char_map.get(char, i_mat)
 
             # fill out empty indices with identity
-            dense_matrix_per_idx = [matrix_per_idx.get(i, i_mat) for i in range(len(self))]
+            dense_matrix_per_idx = [
+                matrix_per_idx.get(i, i_mat) for i in range(self.register_length)
+            ]
             # add weighted kronecker product to final matrix
             final_matrix += coeff * tensorall(np.asarray(dense_matrix_per_idx))
 
