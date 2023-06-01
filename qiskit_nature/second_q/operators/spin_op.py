@@ -338,7 +338,7 @@ class SpinOp(SparseLabelOp):
         Returns:
             The X spin operator for ``spin``.
         """
-        return cls({"X_0": 1.0}, spin=spin, copy=False)
+        return cls({"X_0": 1.0}, spin=spin, num_spins=1, copy=False)
 
     @classmethod
     def y(cls, spin: float | Fraction = Fraction(1, 2)) -> SpinOp:
@@ -347,7 +347,7 @@ class SpinOp(SparseLabelOp):
         Returns:
             The Y spin operator for ``spin``.
         """
-        return cls({"Y_0": 1.0}, spin=spin, copy=False)
+        return cls({"Y_0": 1.0}, spin=spin, num_spins=1, copy=False)
 
     @classmethod
     def z(cls, spin: float | Fraction = Fraction(1, 2)) -> SpinOp:
@@ -356,7 +356,7 @@ class SpinOp(SparseLabelOp):
         Returns:
             The Z spin operator for ``spin``.
         """
-        return cls({"Z_0": 1.0}, spin=spin, copy=False)
+        return cls({"Z_0": 1.0}, spin=spin, num_spins=1, copy=False)
 
     @classmethod
     def one(cls, spin: float | Fraction = Fraction(1, 2)) -> SpinOp:
