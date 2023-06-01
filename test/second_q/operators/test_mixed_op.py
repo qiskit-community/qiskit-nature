@@ -43,99 +43,99 @@ class TestFermionicOp(QiskitNatureTestCase):
     def test_neg(self):
         """Test __neg__"""
         minus_mop1 = -self.mop1_h1
-        targ_v1 = MixedOp({("h1",): [(-2.0, self.op1)]})
-        self.assertEqual(minus_mop1, targ_v1)
+        target_v1 = MixedOp({("h1",): [(-2.0, self.op1)]})
+        self.assertEqual(minus_mop1, target_v1)
 
         # Requires the simplify()
-        # targ_v2 = MixedOp({("h1",): [(2.0, -self.op1)]})
-        # self.assertEqual(minus_mop1, targ_v2)
+        # target_v2 = MixedOp({("h1",): [(2.0, -self.op1)]})
+        # self.assertEqual(minus_mop1, target_v2)
 
         # fer_op = -self.op4
-        # targ = FermionicOp({"+_0 -_0": -self.a})
-        # self.assertEqual(fer_op, targ)
+        # target = FermionicOp({"+_0 -_0": -self.a})
+        # self.assertEqual(fer_op, target)
 
     def test_mul(self):
         """Test __mul__, and __rmul__"""
         with self.subTest("rightmul"):
             minus_mop1 = self.mop1_h1 * 2.0
-            targ_v1 = MixedOp({("h1",): [(4.0, self.op1)]})
-            self.assertEqual(minus_mop1, targ_v1)
+            target_v1 = MixedOp({("h1",): [(4.0, self.op1)]})
+            self.assertEqual(minus_mop1, target_v1)
 
-            # targ_v2 = MixedOp({("h1",): [(2.0, 2.0 * self.op1)]})
-            # self.assertEqual(minus_mop1, targ_v2)
+            # target_v2 = MixedOp({("h1",): [(2.0, 2.0 * self.op1)]})
+            # self.assertEqual(minus_mop1, target_v2)
 
             # Requires the simplify()
             # fer_op = self.op1 * self.a
-            # targ = FermionicOp({"+_0 -_0": self.a})
-            # self.assertEqual(fer_op, targ)
+            # target = FermionicOp({"+_0 -_0": self.a})
+            # self.assertEqual(fer_op, target)
 
         with self.subTest("leftmul"):
             minus_mop1 = (2.0 + 1.0j) * self.mop1_h1
-            targ_v1 = MixedOp({("h1",): [((4.0 + 2.0j), self.op1)]})
-            self.assertEqual(minus_mop1, targ_v1)
+            target_v1 = MixedOp({("h1",): [((4.0 + 2.0j), self.op1)]})
+            self.assertEqual(minus_mop1, target_v1)
 
             # Requires the simplify()
-            # targ_v2 = MixedOp({("h1",): [(2.0, (2.0 + 1.0j) * self.op1)]})
-            # self.assertEqual(minus_mop1, targ_v2)
+            # target_v2 = MixedOp({("h1",): [(2.0, (2.0 + 1.0j) * self.op1)]})
+            # self.assertEqual(minus_mop1, target_v2)
 
     # def test_div(self):
     #     """Test __truediv__"""
     #     fer_op = self.op1 / 2
-    #     targ = FermionicOp({"+_0 -_0": 0.5}, num_spin_orbitals=1)
-    #     self.assertEqual(fer_op, targ)
+    #     target = FermionicOp({"+_0 -_0": 0.5}, num_spin_orbitals=1)
+    #     self.assertEqual(fer_op, target)
 
     #     fer_op = self.op1 / self.a
-    #     targ = FermionicOp({"+_0 -_0": 1 / self.a})
-    #     self.assertEqual(fer_op, targ)
+    #     target = FermionicOp({"+_0 -_0": 1 / self.a})
+    #     self.assertEqual(fer_op, target)
 
     def test_add(self):
         """Test __add__"""
         with self.subTest("same hilbert space"):
             sum_mop = self.mop1_h1 + self.mop2_h1
-            targ = MixedOp({("h1",): [(2, self.op1), (3, self.op2)]})
-            self.assertEqual(sum_mop, targ)
+            target = MixedOp({("h1",): [(2, self.op1), (3, self.op2)]})
+            self.assertEqual(sum_mop, target)
 
             # Requires the simplify()
-            # targ = self.sumop2
-            # self.assertEqual(sum_mop, targ)
+            # target = self.sumop2
+            # self.assertEqual(sum_mop, target)
 
         with self.subTest("different hilbert space"):
             sum_mop = self.mop1_h1 + self.mop2_h2
-            targ = MixedOp({("h1",): [(2.0, self.op1)], ("h2",): [(3.0, self.op2)]})
-            self.assertEqual(sum_mop, targ)
+            target = MixedOp({("h1",): [(2.0, self.op1)], ("h2",): [(3.0, self.op2)]})
+            self.assertEqual(sum_mop, target)
 
         # with self.subTest("sum"):
         #     fer_op = sum(FermionicOp({label: 1}) for label in ["+_0", "-_1", "+_2 -_2"])
-        #     targ = FermionicOp({"+_0": 1, "-_1": 1, "+_2 -_2": 1})
-        #     self.assertEqual(fer_op, targ)
+        #     target = FermionicOp({"+_0": 1, "-_1": 1, "+_2 -_2": 1})
+        #     self.assertEqual(fer_op, target)
 
     def test_sub(self):
         """Test __sub__"""
         with self.subTest("same hilbert space"):
             sum_mop = self.mop1_h1 - self.mop2_h1
-            targ = MixedOp({("h1",): [(2, self.op1), (-3, self.op2)]})
-            self.assertEqual(sum_mop, targ)
+            target = MixedOp({("h1",): [(2, self.op1), (-3, self.op2)]})
+            self.assertEqual(sum_mop, target)
 
             # Requires the simplify()
-            # targ = self.sumop2
-            # self.assertEqual(sum_mop, targ)
+            # target = self.sumop2
+            # self.assertEqual(sum_mop, target)
 
         with self.subTest("different hilbert space"):
             sum_mop = self.mop1_h1 - self.mop2_h2
-            targ = MixedOp({("h1",): [(2.0, self.op1)], ("h2",): [(-3.0, self.op2)]})
-            self.assertEqual(sum_mop, targ)
+            target = MixedOp({("h1",): [(2.0, self.op1)], ("h2",): [(-3.0, self.op2)]})
+            self.assertEqual(sum_mop, target)
 
     def test_compose(self):
         """Test operator composition"""
         with self.subTest("same hilbert spaces"):
             composed_op = self.mop1_h1.compose(self.mop2_h1)
-            targ = MixedOp({("h1", "h1"): [(6.0, self.op1, self.op2)]})
-            self.assertEqual(composed_op, targ)
+            target = MixedOp({("h1", "h1"): [(6.0, self.op1, self.op2)]})
+            self.assertEqual(composed_op, target)
 
         with self.subTest("different hilbert spaces"):
             composed_op = self.mop1_h1.compose(self.mop2_h2)
-            targ = MixedOp({("h1", "h2"): [(6.0, self.op1, self.op2)]})
-            self.assertEqual(composed_op, targ)
+            target = MixedOp({("h1", "h2"): [(6.0, self.op1, self.op2)]})
+            self.assertEqual(composed_op, target)
 
     def test_adjoint(self):
         """Test adjoint method"""
@@ -150,7 +150,7 @@ class TestFermionicOp(QiskitNatureTestCase):
             }
         ).adjoint()
 
-        targ_adjoint = MixedOp(
+        target_adjoint = MixedOp(
             {
                 ("h1",): [(2.0 - 1j, self.op1.adjoint())],
                 (
@@ -160,7 +160,7 @@ class TestFermionicOp(QiskitNatureTestCase):
                 "h2": [(4.0 + 5j, self.op2.adjoint())],
             }
         )
-        self.assertEqual(test_adjoint, targ_adjoint)
+        self.assertEqual(test_adjoint, target_adjoint)
 
     def test_conjugate(self):
         """Test conjugate method"""
@@ -175,7 +175,7 @@ class TestFermionicOp(QiskitNatureTestCase):
             }
         ).conjugate()
 
-        targ_conjugate = MixedOp(
+        target_conjugate = MixedOp(
             {
                 ("h1",): [(2.0 - 1j, self.op1.conjugate())],
                 (
@@ -185,7 +185,7 @@ class TestFermionicOp(QiskitNatureTestCase):
                 "h2": [(4.0 + 5j, self.op2.conjugate())],
             }
         )
-        self.assertEqual(test_conjugate, targ_conjugate)
+        self.assertEqual(test_conjugate, target_conjugate)
 
     def test_transpose(self):
         """Test transpose method"""
@@ -200,7 +200,7 @@ class TestFermionicOp(QiskitNatureTestCase):
             }
         ).transpose()
 
-        targ_transpose = MixedOp(
+        target_transpose = MixedOp(
             {
                 ("h1",): [(2.0 + 1j, self.op1.transpose())],
                 (
@@ -210,7 +210,7 @@ class TestFermionicOp(QiskitNatureTestCase):
                 "h2": [(4.0 - 5j, self.op2.transpose())],
             }
         )
-        self.assertEqual(test_transpose, targ_transpose)
+        self.assertEqual(test_transpose, target_transpose)
 
 
 if __name__ == "__main__":
