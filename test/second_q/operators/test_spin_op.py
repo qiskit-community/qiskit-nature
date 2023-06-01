@@ -192,6 +192,48 @@ class TestSpinOp(QiskitNatureTestCase):
         actual = actual.to_matrix()
         np.testing.assert_array_almost_equal(actual, self.spin_1_matrix[label])
 
+    def test_to_matrix_multi_site(self):
+        """Test the to_matrix method when multiple sites are involved.
+
+        This is a regression test against https://github.com/Qiskit/qiskit-nature/issues/1187.
+        """
+        with self.subTest("spin 1/2; 2 sites"):
+            op = SpinOp({"X_0 X_1": 1, "Y_0 Y_1": 1, "Z_0 Z_1": 1})
+            actual = op.to_matrix()
+            expected = 0.25 * np.diag([1, -1, -1, 1])
+            expected[1, 2] = 0.5
+            expected[2, 1] = 0.5
+            np.testing.assert_array_almost_equal(actual, expected)
+
+        with self.subTest("spin 1; 2 sites"):
+            op = SpinOp({"X_0 X_1": 1, "Y_0 Y_1": 1, "Z_0 Z_1": 1}, spin=1)
+            actual = op.to_matrix()
+            expected = np.zeros((9, 9))
+            for i, j, v in zip(
+                [0, 1, 2, 2, 3, 4, 4, 5, 6, 6, 7, 8],
+                [0, 3, 2, 4, 1, 2, 6, 7, 4, 6, 5, 8],
+                [1, 1, -1, 1, 1, 1, 1, 1, 1, -1, 1, 1],
+            ):
+                expected[i, j] = v
+            np.testing.assert_array_almost_equal(actual, expected)
+
+        with self.subTest("spin 1/2; 3 sites"):
+            op = SpinOp({"X_0 X_1 X_2": 1, "Y_0 Y_2": 1, "Z_1": 1})
+            actual = op.to_matrix()
+            expected = np.zeros((8, 8))
+            for i, j, v in zip(
+                [0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7],
+                [0, 5, 7, 1, 4, 6, 2, 5, 7, 3, 4, 6, 1, 3, 4, 0, 2, 5, 1, 3, 6, 0, 2, 7],
+                # fmt: off
+                [
+                    0.5, -0.25, 0.125, 0.5, 0.25, 0.125, -0.5, 0.125, -0.25, -0.5, 0.125, 0.25,
+                     0.25, 0.125, 0.5, -0.25, 0.125, 0.5, 0.125, 0.25, -0.5, 0.125, -0.25, -0.5,
+                ],
+                # fmt: on
+            ):
+                expected[i, j] = v
+            np.testing.assert_array_almost_equal(actual, expected)
+
     def test_index_order(self):
         """Test index_order method"""
         with self.subTest("Test for single operators"):
