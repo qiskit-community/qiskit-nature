@@ -124,21 +124,21 @@ class MixedOp(LinearMixin, ABC):
         return set(itertools.chain(self.data.keys()))
 
     @staticmethod
-    def _tuple_prod(tup1:tuple[int, ...], tup2:tuple) -> tuple[int, ...]:
+    def _tuple_prod(tup1: tuple[int, ...], tup2: tuple) -> tuple[int, ...]:
         """Implements the composition of operator tuples representing tensor products of operators."""
         new_coeff = tup1[0] * tup2[0]
         new_op_tuple = tup1[1:] + tup2[1:]
         return (new_coeff,) + new_op_tuple
 
     @staticmethod
-    def _tuple_multiply(tup: tuple[int, ...], coef: float)-> tuple[int, ...]:
+    def _tuple_multiply(tup: tuple[int, ...], coef: float) -> tuple[int, ...]:
         """Implements the dilation by a coefficient of an operator tuple representing a tensor product
         of operators."""
         new_coeff = tup[0] * coef
         return (new_coeff,) + tup[1:]
 
     @staticmethod
-    def _tuple_conjugate(tup: tuple[int, ...])-> tuple[int, ...]:
+    def _tuple_conjugate(tup: tuple[int, ...]) -> tuple[int, ...]:
         """Implements the conjugation of an operator tuple representing a tensor product of operators."""
         new_coeff = np.conjugate(tup[0])
         new_op_tuple = tuple(op.conjugate() for op in tup[1:])
@@ -153,7 +153,7 @@ class MixedOp(LinearMixin, ABC):
         return (new_coeff,) + new_op_tuple
 
     @staticmethod
-    def _tuple_adjoint(tup: tuple[int, ...]) ->tuple[int, ...]:
+    def _tuple_adjoint(tup: tuple[int, ...]) -> tuple[int, ...]:
         """Implements the adjoint of an operator tuple representing a tensor product of operators."""
         new_coeff = np.conjugate(tup[0])
         new_op_tuple = tuple(op.adjoint() for op in tup[1:])
@@ -162,9 +162,7 @@ class MixedOp(LinearMixin, ABC):
     def _apply_on_tuples(self, method, *args, **kwargs) -> MixedOp:
         new_op_data = {}
         for key, op_tuple_list in self.data.items():
-            new_op_data[key] = [
-                method(op_tuple, *args, **kwargs) for op_tuple in op_tuple_list
-            ]
+            new_op_data[key] = [method(op_tuple, *args, **kwargs) for op_tuple in op_tuple_list]
         return MixedOp(new_op_data)
 
     def conjugate(self) -> MixedOp:
@@ -230,9 +228,7 @@ class MixedOp(LinearMixin, ABC):
             op_tuple_list1, op_tuple_list2 = self.data[key1], other.data[key2]
             new_data[key1 + key2] = [
                 MixedOp._tuple_prod(op_tuple1, op_tuple2)
-                for op_tuple1, op_tuple2 in itertools.product(
-                    op_tuple_list1, op_tuple_list2
-                )
+                for op_tuple1, op_tuple2 in itertools.product(op_tuple_list1, op_tuple_list2)
             ]
         return MixedOp(new_data)
 

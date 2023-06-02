@@ -13,20 +13,10 @@
 """Test for MixedOp"""
 
 import unittest
-import warnings
 from test import QiskitNatureTestCase
+from ddt import ddt
 
-import numpy as np
-from ddt import data, ddt, unpack
-from qiskit.circuit import Parameter
-from scipy.sparse import csc_matrix
-from scipy.sparse.linalg import eigs
-
-from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.operators import FermionicOp, MixedOp
-import qiskit_nature.optionals as _optionals
-
-from qiskit_nature import settings
 
 
 @ddt
