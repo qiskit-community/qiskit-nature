@@ -10,16 +10,15 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Spin Mapper."""
+"""The Mixed mapper."""
 
 from __future__ import annotations
 
-from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info import SparsePauliOp
 
-from qiskit_nature.second_q.operators import SpinOp, MixedOp
+from qiskit_nature.second_q.operators import MixedOp
 
-from .qubit_mapper import ListOrDictType, QubitMapper
+from .qubit_mapper import QubitMapper
 
 
 class MixedMapper(QubitMapper):
@@ -38,7 +37,7 @@ class MixedMapper(QubitMapper):
     constructed.
 
     Attributes:
-        mappers: Dictionary of mappers to associate to each "local" Hilbert spaces of the global problem.
+        mappers: Dictionary of mappers corresponding to each "local" Hilbert spaces of the global problem.
     """
 
     def __init__(
@@ -47,12 +46,17 @@ class MixedMapper(QubitMapper):
     ):
         """
         Args:
-            mappers: Dictionary of the mappers corresponding to each of the "local" Hilbert spaces.
+            mappers: Dictionary of mappers corresponding to each of the "local" Hilbert spaces.
         """
         super().__init__()
         self.mappers = mappers
 
-    def _map_tuple_product(self, key, operator_tuple, hilbert_space_registers):
+    def _map_tuple_product(
+        self,
+        key: tuple[str],
+        operator_tuple: tuple[int, ...],
+        hilbert_space_registers: dict[str, int],
+    ):
         """Mapping of operator products."""
         # initialize with the identity operator in the "global" Hilbert space.
         coefficient = operator_tuple[0]
@@ -75,7 +79,12 @@ class MixedMapper(QubitMapper):
 
         return product_op  # TODO: simplify()
 
-    def _map_list_sum(self, key, operator_list, hilbert_space_registers):
+    def _map_list_sum(
+        self,
+        key: tuple[str],
+        operator_list: list[tuple[int, ...]],
+        hilbert_space_registers: dict[str, int],
+    ):
         """Mapping of operators sums within same Hilbert spaces."""
         final_op = sum(
             self._map_tuple_product(key, operator_tuple, hilbert_space_registers)
@@ -83,11 +92,13 @@ class MixedMapper(QubitMapper):
         )
         return final_op
 
-    def _map_dict_sum(self, operator_dict, hilbert_space_registers):
+    def _map_dict_sum(
+        self, operator_dict: dict[str, list], hilbert_space_registers: dict[str, int]
+    ):
         """Mapping of operators sums within various Hilbert spaces."""
         final_op = sum(
             self._map_list_sum(key, operator_tuple, hilbert_space_registers)
-            for key, operator_tuple in operator_dict.data.items()
+            for key, operator_tuple in operator_dict.items()
         )
         return final_op
 
@@ -107,5 +118,5 @@ class MixedMapper(QubitMapper):
                 translates directly to the ordering of the corresponding qubit registers.
         """
 
-        mapped_op = self._map_dict_sum(mixed_op, hilbert_space_registers)
+        mapped_op = self._map_dict_sum(mixed_op.data, hilbert_space_registers)
         return mapped_op
