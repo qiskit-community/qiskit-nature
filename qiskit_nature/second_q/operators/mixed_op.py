@@ -23,7 +23,7 @@ from qiskit.quantum_info.operators.mixins import LinearMixin
 from .sparse_label_op import SparseLabelOp
 
 
-class MixedOp(LinearMixin):
+class MixedOp(LinearMixin, ABC):
     """Mixed operator.
 
     A ``MixedOp`` represents a weighted sum of products of fermionic/bosonic operators potentially
