@@ -1,26 +1,33 @@
+# This code is part of Qiskit.
+#
+# (C) Copyright IBM 2022, 2023.
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
+
+"""The Mixed Operator class."""
+
 from __future__ import annotations
 
-from .sparse_label_op import SparseLabelOp
-from .fermionic_op import FermionicOp
-from .spin_op import SpinOp
-from typing import cast
 
-from abc import ABC, abstractmethod
-from collections.abc import Collection, Mapping
-
-from qiskit.quantum_info.operators.mixins import (
-    AdjointMixin,
-    GroupMixin,
-    LinearMixin,
-    TolerancesMixin,
-)
-
+from abc import ABC
 from copy import deepcopy
 import numpy as np
 import itertools
 
+from qiskit.quantum_info.operators.mixins import (
+    LinearMixin,
+)
 
-class MixedOp(LinearMixin):
+from .sparse_label_op import SparseLabelOp
+
+
+class MixedOp(LinearMixin, ABC):
     """Mixed operator.
 
     A ``MixedOp`` represents a weighted sum of products of fermionic/bosonic operators potentially
@@ -28,7 +35,7 @@ class MixedOp(LinearMixin):
     where each operator product is identified by its key, a tuple of string specifying the names of the
     local Hilbert spaces on which it acts, and by its value, a list of tuple (corresponding to a sum of
     operators acting on the same composite Hilbert space) where each tuple encodes the coupling
-    coefficient and the operators themselves (that might also have coefficients asscociated with them).
+    coefficient and the operators themselves (that might also have coefficients associated with them).
 
 
     **Initialization**
@@ -53,7 +60,7 @@ class MixedOp(LinearMixin):
 
 
     .. note::
-    Note that the ``MixedOp`` objcet can be initialized without even knowing the structure of the
+    Note that the ``MixedOp`` object can be initialized without even knowing the structure of the
     "global" Hilbert space of the problem. However, the user is expected to use an unambiguous naming
     convention for the "local" Hilbert spaces to ensure a coherent construction.
     A more precise specification of the "global' Hilbert space will be required for the mapping of the
@@ -94,7 +101,7 @@ class MixedOp(LinearMixin):
       MixedOp({("h1", "s1"): [(30.0, fop1, sop1)]})
     """
 
-    def __init__(self, data=dict[tuple, list[tuple[SparseLabelOp, float]]]):
+    def __init__(self, data: dict[tuple, list[tuple[SparseLabelOp, float]]]):
         self.data = deepcopy(data)
 
     def __repr__(self) -> str:
@@ -112,43 +119,41 @@ class MixedOp(LinearMixin):
 
         return out_str
 
-    def keys_no_duplicate(self):
-        all_keys = ()
-        for key in self.data.keys():
-            all_keys += key
-        return tuple(set(all_keys))
+    def keys_no_duplicate(self) -> set[str]:
+        """Returns the global Hilbert space on which the ``MixedOp`` is acting."""
+        return set(itertools.chain(self.data.keys()))
 
     @staticmethod
-    def _tuple_prod(tup1, tup2):
+    def _tuple_prod(tup1:tuple[int, ...], tup2:tuple) -> tuple[int, ...]:
         """Implements the composition of operator tuples representing tensor products of operators."""
         new_coeff = tup1[0] * tup2[0]
         new_op_tuple = tup1[1:] + tup2[1:]
         return (new_coeff,) + new_op_tuple
 
     @staticmethod
-    def _tuple_multiply(tup, coef):
+    def _tuple_multiply(tup: tuple[int, ...], coef: float)-> tuple[int, ...]:
         """Implements the dilation by a coefficient of an operator tuple representing a tensor product
         of operators."""
         new_coeff = tup[0] * coef
         return (new_coeff,) + tup[1:]
 
     @staticmethod
-    def _tuple_conjugate(tup):
-        """Implements the conjugaison of an operator tuple representing a tensor product of operators."""
+    def _tuple_conjugate(tup: tuple[int, ...])-> tuple[int, ...]:
+        """Implements the conjugation of an operator tuple representing a tensor product of operators."""
         new_coeff = np.conjugate(tup[0])
         new_op_tuple = tuple(op.conjugate() for op in tup[1:])
         return (new_coeff,) + new_op_tuple
 
     @staticmethod
-    def _tuple_transpose(tup):
-        """Implements the trasnsposition of an operator tuple representing a tensor product of
+    def _tuple_transpose(tup: tuple[int, ...]) -> tuple[int, ...]:
+        """Implements the transposition of an operator tuple representing a tensor product of
         operators."""
         new_coeff = tup[0]
         new_op_tuple = tuple(op.transpose() for op in tup[1:])
         return (new_coeff,) + new_op_tuple
 
     @staticmethod
-    def _tuple_adjoint(tup):
+    def _tuple_adjoint(tup: tuple[int, ...]) ->tuple[int, ...]:
         """Implements the adjoint of an operator tuple representing a tensor product of operators."""
         new_coeff = np.conjugate(tup[0])
         new_op_tuple = tuple(op.adjoint() for op in tup[1:])
@@ -157,22 +162,24 @@ class MixedOp(LinearMixin):
     def _apply_on_tuples(self, method, *args, **kwargs) -> MixedOp:
         new_op_data = {}
         for key, op_tuple_list in self.data.items():
-            new_op_data[key] = [method(op_tuple, *args, **kwargs) for op_tuple in op_tuple_list]
+            new_op_data[key] = [
+                method(op_tuple, *args, **kwargs) for op_tuple in op_tuple_list
+            ]
         return MixedOp(new_op_data)
 
-    def conjugate(self):
+    def conjugate(self) -> MixedOp:
         """Returns the conjugate of the operator."""
         return self._apply_on_tuples(MixedOp._tuple_conjugate)
 
-    def transpose(self):
+    def transpose(self) -> MixedOp:
         """Returns the transpose of the operator."""
         return self._apply_on_tuples(MixedOp._tuple_transpose)
 
-    def adjoint(self):
+    def adjoint(self) -> MixedOp:
         """Returns the adjoint of the operator."""
         return self._apply_on_tuples(MixedOp._tuple_adjoint)
 
-    def _multiply(self, other: float):
+    def _multiply(self, other: float) -> MixedOp:
         """Return Operator multiplication of self and other.
 
         Args:
@@ -223,11 +230,11 @@ class MixedOp(LinearMixin):
             op_tuple_list1, op_tuple_list2 = self.data[key1], other.data[key2]
             new_data[key1 + key2] = [
                 MixedOp._tuple_prod(op_tuple1, op_tuple2)
-                for op_tuple1, op_tuple2 in itertools.product(op_tuple_list1, op_tuple_list2)
+                for op_tuple1, op_tuple2 in itertools.product(
+                    op_tuple_list1, op_tuple_list2
+                )
             ]
         return MixedOp(new_data)
 
     def __eq__(self, other):
-        if self.data.keys() != other.data.keys():
-            return False
-        return all([self.data[key] == other.data[key] for key in self.data.keys()])
+        return self.data == other.data
