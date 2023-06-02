@@ -14,6 +14,7 @@
 
 import unittest
 from test import QiskitNatureTestCase
+from ddt import ddt
 
 from qiskit_nature.second_q.operators import FermionicOp, MixedOp
 
