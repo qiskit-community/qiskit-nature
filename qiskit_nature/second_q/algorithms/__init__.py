@@ -48,6 +48,14 @@ and the specific raw result for the qEOM solver.
 
    QEOMResult
 
+You may also need the following to specify which auxiliary operators to evaluate with qEOM:
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   EvaluationRule
+
 The following factories are still available but have been **deprecated** in version 0.6.0 of Qiskit
 Nature:
 
@@ -112,6 +120,7 @@ from .excited_states_solvers import (
     ExcitedStatesSolver,
     QEOM,
     QEOMResult,
+    EvaluationRule,
     EigensolverFactory,
     NumPyEigensolverFactory,
 )
@@ -129,6 +138,7 @@ __all__ = [
     "ExcitedStatesSolver",
     "QEOM",
     "QEOMResult",
+    "EvaluationRule",
     "EigensolverFactory",
     "NumPyEigensolverFactory",
     "GroundStateEigensolver",
