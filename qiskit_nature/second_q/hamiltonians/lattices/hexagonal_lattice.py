@@ -13,7 +13,6 @@
 """The hexagonal lattice"""
 from typing import Dict, Tuple
 
-import numpy as np
 from rustworkx import generators
 
 from .lattice import Lattice
@@ -57,7 +56,7 @@ class HexagonalLattice(Lattice):
             graph.add_edges_from([(node, node, self._onsite_parameter)])
 
         super().__init__(graph)
-        
+
         self.pos = self._default_position()
 
     @property
@@ -77,7 +76,7 @@ class HexagonalLattice(Lattice):
             the parameter for the self-loops.
         """
         return self._onsite_parameter
-    
+
     def _default_position(self) -> Dict[int, Tuple]:
         """Return a dictionary of default positions for visualization of
             a one- or two-dimensional lattice.
@@ -94,32 +93,34 @@ class HexagonalLattice(Lattice):
         for i in range(collen):
             x_adjust += 1
             for j in range(rowlen):
-                idx = i*rowlen + j-1
+                idx = i * rowlen + j - 1
                 x = i
 
                 # plot the y coords to form heavy hex shape
                 if i == 0:
-                    y = j-1
-                elif (self._cols%2 == 0) and (i == self._cols):
-                    y = j+1
+                    y = j - 1
+                elif (self._cols % 2 == 0) and (i == self._cols):
+                    y = j + 1
                 else:
                     y = j
 
                 # adjust the x coords of some nodes to convert heavy hex shape to proper hexagon shape
-                if self._heavy_hex !=True:
-                    # even numbered nodes in the first, last and odd numbered columns need to be shifted to the right
-                    if i==0 or (i==self._cols) or (i%2 != 0):
-                        if idx%2 == 0:
-                            x = i+x_adjust
+                if self._heavy_hex is not True:
+                    # even numbered nodes in the first, last and odd numbered columns need to be
+                    # shifted to the right
+                    if i == 0 or (i == self._cols) or (i % 2 != 0):
+                        if idx % 2 == 0:
+                            x = i + x_adjust
                         else:
                             x = i + i
-                    # odd numbered nodes that aren't in the first, last or odd numbered columns need to be shifted to the right
+                    # odd numbered nodes that aren't in the first, last or odd numbered columns
+                    # need to be shifted to the right
                     else:
-                        if idx%2 == 0:
-                            x = i+i
+                        if idx % 2 == 0:
+                            x = i + i
                         else:
                             x = i + x_adjust
-                
-                pos[idx] = (x,y)
+
+                pos[idx] = (x, y)
 
         return pos
