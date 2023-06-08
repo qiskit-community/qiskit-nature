@@ -15,19 +15,17 @@
 from __future__ import annotations
 
 
-from abc import ABC
 from copy import deepcopy
+from typing import Callable
 import numpy as np
 import itertools
 
-from qiskit.quantum_info.operators.mixins import (
-    LinearMixin,
-)
+from qiskit.quantum_info.operators.mixins import LinearMixin
 
 from .sparse_label_op import SparseLabelOp
 
 
-class MixedOp(LinearMixin, ABC):
+class MixedOp(LinearMixin):
     """Mixed operator.
 
     A ``MixedOp`` represents a weighted sum of products of fermionic/bosonic operators potentially
@@ -126,6 +124,7 @@ class MixedOp(LinearMixin, ABC):
     @staticmethod
     def _tuple_prod(tup1: tuple[int, ...], tup2: tuple) -> tuple[int, ...]:
         """Implements the composition of operator tuples representing tensor products of operators."""
+        print(tup1, tup2)
         new_coeff = tup1[0] * tup2[0]
         new_op_tuple = tup1[1:] + tup2[1:]
         return (new_coeff,) + new_op_tuple
@@ -137,45 +136,31 @@ class MixedOp(LinearMixin, ABC):
         new_coeff = tup[0] * coef
         return (new_coeff,) + tup[1:]
 
-    @staticmethod
-    def _tuple_conjugate(tup: tuple[int, ...]) -> tuple[int, ...]:
-        """Implements the conjugation of an operator tuple representing a tensor product of operators."""
-        new_coeff = np.conjugate(tup[0])
-        new_op_tuple = tuple(op.conjugate() for op in tup[1:])
-        return (new_coeff,) + new_op_tuple
+    @classmethod
+    def _distribute_on_tuples(
+        cls, method: Callable, op_left: MixedOp, op_right: MixedOp = None, *args, **kwargs
+    ) -> MixedOp:
+        new_op_data: dict = {}
 
-    @staticmethod
-    def _tuple_transpose(tup: tuple[int, ...]) -> tuple[int, ...]:
-        """Implements the transposition of an operator tuple representing a tensor product of
-        operators."""
-        new_coeff = tup[0]
-        new_op_tuple = tuple(op.transpose() for op in tup[1:])
-        return (new_coeff,) + new_op_tuple
+        if op_right == None:
+            # Distribute method over all tuples.
+            for key, op_tuple_list in op_left.data.items():
+                new_op_data[key] = [
+                    method(op_tuple, *args, **kwargs) for op_tuple in op_tuple_list
+                ]
+        else:
+            # Distribute method over all combinations of tuples from the first and second operators.
+            for (key1, op_tuple_list1), (key2, op_tuple_list2) in itertools.product(
+                op_left.data.items(), op_right.data.items()
+            ):
+                new_op_data[key1 + key2] = [
+                    method(op_tuple1, op_tuple2, *args, **kwargs)
+                    for (op_tuple1, op_tuple2) in itertools.product(
+                        op_tuple_list1, op_tuple_list2
+                    )
+                ]
 
-    @staticmethod
-    def _tuple_adjoint(tup: tuple[int, ...]) -> tuple[int, ...]:
-        """Implements the adjoint of an operator tuple representing a tensor product of operators."""
-        new_coeff = np.conjugate(tup[0])
-        new_op_tuple = tuple(op.adjoint() for op in tup[1:])
-        return (new_coeff,) + new_op_tuple
-
-    def _apply_on_tuples(self, method, *args, **kwargs) -> MixedOp:
-        new_op_data = {}
-        for key, op_tuple_list in self.data.items():
-            new_op_data[key] = [method(op_tuple, *args, **kwargs) for op_tuple in op_tuple_list]
         return MixedOp(new_op_data)
-
-    def conjugate(self) -> MixedOp:
-        """Returns the conjugate of the operator."""
-        return self._apply_on_tuples(MixedOp._tuple_conjugate)
-
-    def transpose(self) -> MixedOp:
-        """Returns the transpose of the operator."""
-        return self._apply_on_tuples(MixedOp._tuple_transpose)
-
-    def adjoint(self) -> MixedOp:
-        """Returns the adjoint of the operator."""
-        return self._apply_on_tuples(MixedOp._tuple_adjoint)
 
     def _multiply(self, other: float) -> MixedOp:
         """Return Operator multiplication of self and other.
@@ -187,7 +172,7 @@ class MixedOp(LinearMixin, ABC):
         Returns:
             The new multiplied ``MixedOp``.
         """
-        return self._apply_on_tuples(MixedOp._tuple_multiply, other)
+        return MixedOp._distribute_on_tuples(MixedOp._tuple_multiply, op_left = self, coef = other)
 
     def _add(self, other: MixedOp, qargs: None = None) -> MixedOp:
         """Return Operator addition of self and other.
@@ -211,7 +196,8 @@ class MixedOp(LinearMixin, ABC):
                 sum_op.data[key] = other.data[key]
         return sum_op
 
-    def compose(self, other: MixedOp) -> MixedOp:
+    @classmethod
+    def compose(cls, op_left:MixedOp, op_right: MixedOp) -> MixedOp:
         """Returns Operator composition of self and other.
 
         Args:
@@ -223,14 +209,21 @@ class MixedOp(LinearMixin, ABC):
         """
 
         # Lazy composition without applying the products.
-        new_data = {}
-        for key1, key2 in itertools.product(self.data.keys(), other.data.keys()):
-            op_tuple_list1, op_tuple_list2 = self.data[key1], other.data[key2]
-            new_data[key1 + key2] = [
-                MixedOp._tuple_prod(op_tuple1, op_tuple2)
-                for op_tuple1, op_tuple2 in itertools.product(op_tuple_list1, op_tuple_list2)
-            ]
-        return MixedOp(new_data)
+        return MixedOp._distribute_on_tuples(MixedOp._tuple_prod, op_left = op_left, op_right = op_right)
+        # new_data = {}
+        # for key1, key2 in itertools.product(self.data.keys(), other.data.keys()):
+        #     op_tuple_list1, op_tuple_list2 = self.data[key1], other.data[key2]
+        #     new_data[key1 + key2] = [
+        #         MixedOp._tuple_prod(op_tuple1, op_tuple2)
+        #         for op_tuple1, op_tuple2 in itertools.product(
+        #             op_tuple_list1, op_tuple_list2
+        #         )
+        #     ]
+        # return MixedOp(new_data)
 
     def __eq__(self, other):
+        
+        if not isinstance(other, self.__class__):
+            return False
+
         return self.data == other.data
