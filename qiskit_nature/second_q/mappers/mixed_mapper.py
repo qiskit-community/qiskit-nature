@@ -51,54 +51,59 @@ class MixedMapper(QubitMapper):
         super().__init__()
         self.mappers = mappers
 
+    def _extend_mapping(self, op: SparsePauliOp, register, tot_register_length):
+        left_length = register[0]
+        right_length = register[1]
+        if left_length!=0:
+            left_pad = SparsePauliOp("Z"*left_length) 
+            op = left_pad.tensor(op)
+        if right_length!=0:
+            right_pad = SparsePauliOp("I"*right_length)
+            op = op.tensor(right_pad)
+        return op
+
     def _map_tuple_product(
         self,
         key: tuple[str],
         operator_tuple: tuple[int, ...],
-        hilbert_space_registers: dict[str, int],
+        hilbert_space_registers: dict[str, list[int, int]],
     ):
         """Mapping of operator products."""
-        # initialize with the identity operator in the "global" Hilbert space.
+        # # initialize with the identity operator in the "global" Hilbert space.
         coefficient = operator_tuple[0]
         dict_mapped_op = {}
-        for key_temp, length in hilbert_space_registers.items():
-            dict_mapped_op[key_temp] = SparsePauliOp("I" * length, coeffs=coefficient)
+        tot_register_len = 4# list(hilbert_space_registers.values())[-1][-]
+        # for key_temp, length in hilbert_space_registers.items():
+        #     dict_mapped_op[key_temp] = SparsePauliOp("I" * length)
 
         # for each Hilbert space appearing in the product of operators, replace the identity with the
         # corresponding term.
         for index, op in enumerate(operator_tuple[1:]):
             key_char = key[index]
             mapper = self.mappers[key_char]
-            dict_mapped_op[key_char] = mapper.map(op)  # TODO: compose()
+            padded_op = self._extend_mapping(
+                mapper.map(op), hilbert_space_registers[key_char], tot_register_len
+            )  # TODO: Generalize this
+            dict_mapped_op[key_char] = padded_op
 
         # tensor all the elements of the dictionary.
         list_op = list(dict_mapped_op.values())
         product_op = coefficient * list_op[0]
         for op in list_op[1:]:
-            product_op = product_op.tensor(op)
+            product_op = product_op.compose(op)
 
         return product_op  # TODO: simplify()
 
-    def _map_list_sum(
-        self,
-        key: tuple[str],
-        operator_list: list[tuple[int, ...]],
-        hilbert_space_registers: dict[str, int],
-    ):
-        """Mapping of operators sums within same Hilbert spaces."""
-        final_op = sum(
-            self._map_tuple_product(key, operator_tuple, hilbert_space_registers)
-            for operator_tuple in operator_list
-        )
-        return final_op
-
-    def _map_dict_sum(
+    def _distribute_map(
         self, operator_dict: dict[str, list], hilbert_space_registers: dict[str, int]
     ):
-        """Mapping of operators sums within various Hilbert spaces."""
+        """Mapping of operators sums within the various Hilbert spaces."""
         final_op = sum(
-            self._map_list_sum(key, operator_tuple, hilbert_space_registers)
-            for key, operator_tuple in operator_dict.items()
+            sum(
+                self._map_tuple_product(key, operator_tuple, hilbert_space_registers)
+                for operator_tuple in operator_list
+            )
+            for key, operator_list in operator_dict.items()
         )
         return final_op
 
@@ -118,5 +123,6 @@ class MixedMapper(QubitMapper):
                 translates directly to the ordering of the corresponding qubit registers.
         """
 
-        mapped_op = self._map_dict_sum(mixed_op.data, hilbert_space_registers)
+        mapped_op = self._distribute_map(mixed_op.data, hilbert_space_registers)
+
         return mapped_op
