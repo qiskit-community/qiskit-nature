@@ -35,7 +35,7 @@ Gaussian™ 16 Interfacing Code
 In the :mod:`gauopen` folder the Python part of the above interfacing code,
 as needed by Qiskit Nature modules, has been made available. It is licensed under a
 `Gaussian Open-Source Public License
-<https://github.com/Qiskit/qiskit-nature/blob/main/qiskit_nature/second_q/drivers/gaussiand/gauopen/LICENSE.txt>`_.
+<https://github.com/qiskit-community/qiskit-nature/blob/main/qiskit_nature/second_q/drivers/gaussiand/gauopen/LICENSE.txt>`_.
 
 Part of this interfacing code --- specifically, the Fortran file `qcmatrixio.F` --- requires
 compilation to a Python native extension. However, Qiskit comes with pre-built binaries
