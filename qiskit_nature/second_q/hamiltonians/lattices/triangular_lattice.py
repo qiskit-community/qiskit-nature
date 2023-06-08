@@ -209,7 +209,7 @@ class TriangularLattice(Lattice):
         self.edge_parameter = edge_parameter
         self.onsite_parameter = onsite_parameter
 
-        graph = PyGraph(multigraph=False)
+        graph: PyGraph = PyGraph(multigraph=False)
         graph.add_nodes_from(range(np.prod(self.size)))
 
         # add edges excluding the boundary edges
