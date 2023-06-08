@@ -77,6 +77,17 @@ class MixedMapper(ABC):
         self.hilbert_space_register_lengths: dict[str, int] = hilbert_space_register_lengths
         self.hilbert_space_register_types: dict[str, SparseLabelOp] = hilbert_space_register_types
 
+    def _extend_mapping(self, op: SparsePauliOp, register, tot_register_length):
+        left_length = register[0]
+        right_length = register[1]
+        if left_length!=0:
+            left_pad = SparsePauliOp("Z"*left_length) 
+            op = left_pad.tensor(op)
+        if right_length!=0:
+            right_pad = SparsePauliOp("I"*right_length)
+            op = op.tensor(right_pad)
+        return op
+
     def _map_tuple_product(
         self, active_indices: tuple[str], active_operators: tuple[SparseLabelOp]
     ) -> SparsePauliOp:
