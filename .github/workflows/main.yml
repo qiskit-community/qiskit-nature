@@ -217,7 +217,14 @@ jobs:
           source "$CONDA/etc/profile.d/conda.sh"
           conda activate psi4env
           make mypy
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && matrix.python-version != 3.7 }}
+        shell: bash
+      - name: Run mypy on Python 3.7
+        run: |
+          source "$CONDA/etc/profile.d/conda.sh"
+          conda activate psi4env
+          python -m mypy --no-warn-unused-ignores qiskit_nature test tools
+        if: ${{ !cancelled() && matrix.python-version == 3.7 }}
         shell: bash
       - name: Stestr Cache
         uses: actions/cache@v3
