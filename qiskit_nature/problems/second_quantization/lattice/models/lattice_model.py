@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -75,7 +75,7 @@ class LatticeModel(ABC):
                 "It must be a square matrix."
             )
 
-        graph = PyGraph(multigraph=False)
+        graph: PyGraph = PyGraph(multigraph=False)
         graph.add_nodes_from(range(shape[0]))
         for source_index in range(shape[0]):
             for target_index in range(source_index, shape[0]):

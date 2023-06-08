@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -22,7 +22,7 @@ import numbers
 import numpy as np
 
 from rustworkx import NodeIndices, PyGraph, WeightedEdgeList
-from rustworkx import adjacency_matrix, networkx_converter
+from rustworkx import adjacency_matrix, networkx_converter  # type: ignore[attr-defined]
 from rustworkx.visualization import mpl_draw
 
 from qiskit.utils import optionals as _optionals
@@ -186,7 +186,7 @@ class Lattice:
         Returns:
             Lattice generated from lists of nodes and edges.
         """
-        graph = PyGraph(multigraph=False)
+        graph: PyGraph = PyGraph(multigraph=False)
         graph.add_nodes_from(range(num_nodes))
         graph.add_edges_from(weighted_edges)
         return cls(graph)
@@ -243,7 +243,7 @@ class Lattice:
                 "It must be a square matrix."
             )
 
-        graph = PyGraph(multigraph=False)
+        graph: PyGraph = PyGraph(multigraph=False)
         graph.add_nodes_from(range(shape[0]))
         for source_index in range(shape[0]):
             for target_index in range(source_index, shape[0]):
