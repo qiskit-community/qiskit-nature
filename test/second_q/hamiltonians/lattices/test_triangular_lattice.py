@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -14,7 +14,7 @@
 from test import QiskitNatureTestCase
 from numpy.testing import assert_array_equal
 import numpy as np
-from rustworkx import PyGraph, is_isomorphic
+from rustworkx import PyGraph, is_isomorphic  # type: ignore[attr-defined]
 from qiskit_nature.second_q.hamiltonians.lattices import (
     BoundaryCondition,
     TriangularLattice,
