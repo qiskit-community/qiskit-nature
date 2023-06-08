@@ -111,7 +111,7 @@ class HyperCubicLattice(Lattice):
 
         self._boundary_condition = boundary_condition
 
-        graph = PyGraph(multigraph=False)
+        graph: PyGraph = PyGraph(multigraph=False)
         graph.add_nodes_from(range(np.prod(size)))
 
         # add edges excluding the boundary edges
