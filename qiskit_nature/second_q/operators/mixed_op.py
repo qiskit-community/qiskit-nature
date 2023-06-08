@@ -23,7 +23,7 @@ from qiskit.quantum_info.operators.mixins import LinearMixin
 from .sparse_label_op import SparseLabelOp
 
 
-class MixedOp(LinearMixin, ABC):
+class MixedOp(LinearMixin):
     """Mixed operator.
 
     A ``MixedOp`` represents a weighted sum of products of fermionic/bosonic operators potentially
@@ -109,6 +109,7 @@ class MixedOp(LinearMixin, ABC):
     @staticmethod
     def _tuple_prod(tup1: tuple[int, ...], tup2: tuple) -> tuple[float, ...]:
         """Implements the composition of operator tuples representing tensor products of operators."""
+        print(tup1, tup2)
         new_coeff = tup1[0] * tup2[0]
         new_op_tuple = tup1[1:] + tup2[1:]
         return (new_coeff,) + new_op_tuple
