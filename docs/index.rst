@@ -54,7 +54,7 @@ Next Steps
     How-Tos <howtos/index>
     API Reference <apidocs/qiskit_nature>
     Release Notes <release_notes>
-    GitHub <https://github.com/Qiskit/qiskit-nature>
+    GitHub <https://github.com/qiskit-community/qiskit-nature>
 
 
 .. Hiding - Indices and tables
