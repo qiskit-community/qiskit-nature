@@ -63,7 +63,7 @@ See :ref:`optional_installs` for more information.
 
           .. code:: sh
 
-             git clone https://github.com/Qiskit/qiskit-nature.git
+             git clone https://github.com/qiskit-community/qiskit-nature.git
 
        2. Cloning the repository creates a local folder called ``qiskit-nature``.
 

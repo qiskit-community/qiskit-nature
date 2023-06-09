@@ -346,7 +346,7 @@ jobs:
           # get current version
           version=$(pip show qiskit-nature | awk -F. '/^Version:/ { print substr($1,10), $2-1 }' OFS=.)
           # download stable version
-          wget https://codeload.github.com/Qiskit/qiskit-nature/zip/stable/$version -O /tmp/repo.zip
+          wget https://codeload.github.com/qiskit-community/qiskit-nature/zip/stable/$version -O /tmp/repo.zip
           unzip /tmp/repo.zip -d /tmp/
           # copy stable tutorials to main tutorials
           cp -R /tmp/qiskit-nature-stable-$version/docs/tutorials/* docs/tutorials
