@@ -1,6 +1,6 @@
 # Qiskit Nature
 
-[![License](https://img.shields.io/github/license/Qiskit/qiskit-nature.svg?style=popout-square)](https://opensource.org/licenses/Apache-2.0)<!--- long-description-skip-begin -->[![Build Status](https://github.com/Qiskit/qiskit-nature/workflows/Nature%20Unit%20Tests/badge.svg?branch=main)](https://github.com/Qiskit/qiskit-nature/actions?query=workflow%3A"Nature%20Unit%20Tests"+branch%3Amain+event%3Apush)[![](https://img.shields.io/github/release/Qiskit/qiskit-nature.svg?style=popout-square)](https://github.com/Qiskit/qiskit-nature/releases)[![](https://img.shields.io/pypi/dm/qiskit-nature.svg?style=popout-square)](https://pypi.org/project/qiskit-nature/)[![Coverage Status](https://coveralls.io/repos/github/Qiskit/qiskit-nature/badge.svg?branch=main)](https://coveralls.io/github/Qiskit/qiskit-nature?branch=main)<!--- long-description-skip-end -->
+[![License](https://img.shields.io/github/license/Qiskit/qiskit-nature.svg?style=popout-square)](https://opensource.org/licenses/Apache-2.0)<!--- long-description-skip-begin -->[![Build Status](https://github.com/qiskit-community/qiskit-nature/workflows/Nature%20Unit%20Tests/badge.svg?branch=main)](https://github.com/qiskit-community/qiskit-nature/actions?query=workflow%3A"Nature%20Unit%20Tests"+branch%3Amain+event%3Apush)[![](https://img.shields.io/github/release/Qiskit/qiskit-nature.svg?style=popout-square)](https://github.com/qiskit-community/qiskit-nature/releases)[![](https://img.shields.io/pypi/dm/qiskit-nature.svg?style=popout-square)](https://pypi.org/project/qiskit-nature/)[![Coverage Status](https://coveralls.io/repos/github/Qiskit/qiskit-nature/badge.svg?branch=main)](https://coveralls.io/github/Qiskit/qiskit-nature?branch=main)<!--- long-description-skip-end -->
 
 **Qiskit Nature** is an open-source framework which supports solving quantum mechanical natural
 science problems using quantum computing algorithms. This includes finding ground and excited
@@ -70,11 +70,11 @@ of the documentation and are a great place to start.
 ## Contribution Guidelines
 
 If you'd like to contribute to Qiskit, please take a look at our
-[contribution guidelines](https://github.com/Qiskit/qiskit-nature/blob/main/CONTRIBUTING.md).
-This project adheres to Qiskit's [code of conduct](https://github.com/Qiskit/qiskit-nature/blob/main/CODE_OF_CONDUCT.md).
+[contribution guidelines](https://github.com/qiskit-community/qiskit-nature/blob/main/CONTRIBUTING.md).
+This project adheres to Qiskit's [code of conduct](https://github.com/qiskit-community/qiskit-nature/blob/main/CODE_OF_CONDUCT.md).
 By participating, you are expected to uphold this code.
 
-We use [GitHub issues](https://github.com/Qiskit/qiskit-nature/issues) for tracking requests and bugs. Please
+We use [GitHub issues](https://github.com/qiskit-community/qiskit-nature/issues) for tracking requests and bugs. Please
 [join the Qiskit Slack community](https://qisk.it/join-slack)
 for discussion and simple questions.
 For questions that are more suited for a forum, we use the **Qiskit** tag in [Stack Overflow](https://stackoverflow.com/questions/tagged/qiskit).
@@ -83,7 +83,7 @@ For questions that are more suited for a forum, we use the **Qiskit** tag in [St
 
 Qiskit Nature was inspired, authored and brought about by the collective work of a team of researchers.
 Qiskit Nature continues to grow with the help and work of
-[many people](https://github.com/Qiskit/qiskit-nature/graphs/contributors), who contribute
+[many people](https://github.com/qiskit-community/qiskit-nature/graphs/contributors), who contribute
 to the project at different levels.
 If you use Qiskit Nature, please cite the following references:
 
@@ -96,10 +96,10 @@ file.
 
 ## License
 
-This project uses the [Apache License 2.0](https://github.com/Qiskit/qiskit-nature/blob/main/LICENSE.txt).
+This project uses the [Apache License 2.0](https://github.com/qiskit-community/qiskit-nature/blob/main/LICENSE.txt).
 
 However there is some code that is included under other licensing as follows:
 
-* The [Gaussian 16 driver](https://github.com/Qiskit/qiskit-nature/tree/main/qiskit_nature/second_q/drivers/gaussiand) in `qiskit-nature`
-  contains [work](https://github.com/Qiskit/qiskit-nature/tree/main/qiskit_nature/second_q/drivers/gaussiand/gauopen) licensed under the
-  [Gaussian Open-Source Public License](https://github.com/Qiskit/qiskit-nature/blob/main/qiskit_nature/second_q/drivers/gaussiand/gauopen/LICENSE.txt).
+* The [Gaussian 16 driver](https://github.com/qiskit-community/qiskit-nature/tree/main/qiskit_nature/second_q/drivers/gaussiand) in `qiskit-nature`
+  contains [work](https://github.com/qiskit-community/qiskit-nature/tree/main/qiskit_nature/second_q/drivers/gaussiand/gauopen) licensed under the
+  [Gaussian Open-Source Public License](https://github.com/qiskit-community/qiskit-nature/blob/main/qiskit_nature/second_q/drivers/gaussiand/gauopen/LICENSE.txt).
