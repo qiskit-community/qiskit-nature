@@ -19,7 +19,7 @@ Excited State Solving Algorithms (:mod:`qiskit_nature.second_q.algorithms.excite
 """
 
 from .excited_states_solver import ExcitedStatesSolver
-from .qeom import QEOM, QEOMResult
+from .qeom import QEOM, QEOMResult, EvaluationRule
 from .eigensolver_factories import EigensolverFactory, NumPyEigensolverFactory
 from .excited_states_eigensolver import ExcitedStatesEigensolver
 
@@ -30,4 +30,5 @@ __all__ = [
     "NumPyEigensolverFactory",
     "QEOM",
     "QEOMResult",
+    "EvaluationRule",
 ]
