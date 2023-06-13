@@ -22,9 +22,45 @@ from .ucc import UCC
 
 
 class UCCSD(UCC):
-    """The UCCSD Ansatz.
 
-    This is a convenience subclass of the UCC ansatz. For more information refer to :class:`UCC`.
+    r"""The UCCSD Ansatz. This is a convenience subclass of the UCC ansatz. For more information refer to :class:`UCC`.
+
+    This method constructs the requested excitations based on a
+    :class:`~qiskit_nature.second_q.circuit.library.HartreeFock` reference state as compared to the 
+    default random initial point. First we setup our ansatz and  :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`.
+
+    .. code-block:: python
+
+        qubit_mapper = JordanWignerMapper()
+        uccsd = UCCSD(problem.num_spatial_orbitals,
+                      problem.num_particles,
+                      qubit_mapper,
+                      initial_state=HartreeFock(problem.num_spatial_orbitals,
+                                                problem.num_particles, 
+                                                qubit_mapper)
+                    )
+        vqe = VQE(Estimator(), uccsd, SLSQP())
+
+    Since we picked the :class:`~qiskit_nature.second_q.circuit.library.HartreeFock` initial state before, in order to
+    ensure we start from that, we need to initialize our ``initial_point`` with all-zero parameters.
+    We use :class:`~qiskit_nature.second_q.algorithms.initial_points.HFInitialPoint` like so:
+
+    .. code-block:: python
+
+        initial_point = HFInitialPoint()
+        initial_point.ansatz = uccsd
+        initial_point.problem = problem
+        vqe.initial_point = initial_point.to_numpy_array()
+
+    Keep in mind, that in all of the examples above we have not set any of the following keyword
+    arguments, which must be specified before the ansatz becomes usable:
+
+    - ``num_particles``
+    - ``num_spatial_orbitals``
+
+    If you are using this ansatz with a Qiskit Nature algorithm, these arguments will be set for
+    you, depending on the rest of the stack.
+
     """
 
     @deprecate_arguments(
