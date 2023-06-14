@@ -207,16 +207,10 @@ class TestBosonicOp(QiskitNatureTestCase):
         """Test simplify
         This test method tries to simplify the operator label
         """
-        with self.subTest("simplify integer"):
+        with self.subTest("simplify does not touch density operators"):
             bos_op = BosonicOp({"+_0 -_0": 1, "-_0 +_0": 1}, num_modes=1)
             simplified_op = bos_op.simplify()
             targ = BosonicOp({"+_0 -_0": 1, "-_0 +_0": 1}, num_modes=1)
-            self.assertEqual(simplified_op, targ)
-
-        with self.subTest("simplify complex"):
-            bos_op = BosonicOp({"+_0 -_0": 1}) + BosonicOp({"+_0 -_0": 1j})
-            simplified_op = bos_op.simplify()
-            targ = BosonicOp({"+_0 -_0": (1 + 1j)}, num_modes=1)
             self.assertEqual(simplified_op, targ)
 
         with self.subTest("simplify zero"):

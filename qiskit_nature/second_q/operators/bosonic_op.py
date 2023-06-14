@@ -432,10 +432,9 @@ class BosonicOp(SparseLabelOp):
         .. note::
 
             You can use this method to achieve the most aggressive simplification of an operator
-            without changing the operation order per index. :meth:`simplify` can only reduce terms
-            with identical label, but does *not* reorder them. Thus, cannot deduce ``-_0 +_1`` and
-            ``+_1 -_0`` to be identical labels. Calling this method will reorder the latter label to
-            ``-_0 +_1``, after which :meth:`simplify` will be able to correctly collapse
+            without changing the operation order per index. :meth:`simplify` does *not* reorder the
+            terms and, thus, cannot deduce ``-_0 +_1`` and ``+_1 -_0`` to be identical labels.
+            Calling this method will reorder the latter label to ``-_0 +_1``, correctly collapsing
             these two labels into one.
         """
         data = defaultdict(complex)  # type: dict[str, _TCoeff]
@@ -499,11 +498,9 @@ class BosonicOp(SparseLabelOp):
 
         .. note::
 
-            You can use this method to an operator which has two or more identical labels, as it
-            can only reduce terms but it does not perform any reordering. Thus, it cannot deduce
-            ``-_0 +_1`` and ``+_1 -_0``.
-            Another use is to simplify terms whose coefficients are close to zero, up to the
-            specified numerical tolerance.
+            :meth:`simplify` should be used to simplify terms whose coefficients are close to zero,
+            up to the specified numerical tolerance. It still differs slightly from :meth:`chop`
+            because that will chop real and imaginary part components individually.
 
         .. note::
 
