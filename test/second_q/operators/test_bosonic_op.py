@@ -231,6 +231,11 @@ class TestBosonicOp(QiskitNatureTestCase):
             targ = BosonicOp({"+_0 -_0": self.a, "+_0 -_0 +_0": 1j})
             self.assertEqual(simplified_op, targ)
 
+        with self.subTest("simplify unordered"):
+            bos_op = BosonicOp({"+_0 -_0 -_1 +_0": 1})
+            simplified_op = bos_op.simplify()
+            self.assertEqual(simplified_op, bos_op)
+
         with self.subTest("simplify commutes with normal_order"):
             bos_op = BosonicOp({"+_0 -_0 +_1 +_0": 1})
             self.assertEqual(bos_op.simplify().normal_order(), bos_op.normal_order().simplify())
