@@ -432,15 +432,11 @@ class BosonicOp(SparseLabelOp):
         .. note::
 
             You can use this method to achieve the most aggressive simplification of an operator
-            without changing the operation order per index. :meth:`simplify` does *not* reorder the
-            terms and, thus, cannot deduce ``-_0 +_1`` and ``+_1 -_0 +_0 -_0`` to be
-            identical labels. Calling this method will reorder the latter label to
-            ``-_0 +_0 -_0 +_1``, after which :meth:`simplify` will be able to correctly collapse
+            without changing the operation order per index. :meth:`simplify` can only reduce terms
+            with identical label, but does *not* reorder them. Thus, cannot deduce ``-_0 +_1`` and
+            ``+_1 -_0`` to be identical labels. Calling this method will reorder the latter label to
+            ``-_0 +_1``, after which :meth:`simplify` will be able to correctly collapse
             these two labels into one.
-
-        .. warning::
-            The index ordering for BosonicOp does not commuted with the simplify method, thus the order
-            in which these two operations are executed matters
         """
         data = defaultdict(complex)  # type: dict[str, _TCoeff]
         for terms, coeff in self.terms():
@@ -501,9 +497,21 @@ class BosonicOp(SparseLabelOp):
         Returns:
             A new simplified BosonicOp (the original operator is not modified).
 
-        .. warning::
-            The simplify method for BosonicOp does not commuted with the index ordering, thus the order
-            in which these two operations are executed matters
+        .. note::
+
+            You can use this method to an operator which has two or more identical labels, as it
+            can only reduce terms but it does not perform any reordering. Thus, it cannot deduce
+            ``-_0 +_1`` and ``+_1 -_0``.
+            Another use is to simplify terms whose coefficients are close to zero, up to the
+            specified numerical tolerance.
+
+        .. note::
+
+            :meth:`simplify` is not allowed to simplify the labels ``+_0 -_0`` or ``-_0 +_0``. The
+            former corresponds to the boson number operator, and when it is applied to a state yields
+            the number of bosons in that state ``n``, not zero. Similarly, the latter yields
+            :math:`1 + n`. As a consequence, the label ``+_0 -_0 -_1 +_0`` will remain untouched by
+            this method.
         """
         atol = self.atol if atol is None else atol
 
