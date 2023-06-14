@@ -198,9 +198,9 @@ class TestBosonicOp(QiskitNatureTestCase):
             self.assertEqual(bos_op, targ)
 
         with self.subTest("index order + simplify"):
-            orig = BosonicOp({"+_1 -_0 +_0 -_0": 1, "-_0 +_1": 2})
+            orig = BosonicOp({"+_1 -_0": 1, "-_0 +_1": 2})
             bos_op = orig.index_order().simplify()
-            targ = BosonicOp({"+_1 -_0": 4})
+            targ = BosonicOp({"-_0 +_1": 3})
             self.assertEqual(bos_op, targ)
 
     def test_simplify(self):
@@ -208,15 +208,15 @@ class TestBosonicOp(QiskitNatureTestCase):
         This test method tries to simplify the operator label
         """
         with self.subTest("simplify integer"):
-            bos_op = BosonicOp({"+_0 -_0": 1, "+_0 -_0 +_0": 1}, num_modes=1)
+            bos_op = BosonicOp({"+_0 -_0": 1, "-_0 +_0": 1}, num_modes=1)
             simplified_op = bos_op.simplify()
-            targ = BosonicOp({"+_0 -_0": 1, "+_0": 2}, num_modes=1)
+            targ = BosonicOp({"+_0 -_0": 1, "-_0 +_0": 1}, num_modes=1)
             self.assertEqual(simplified_op, targ)
 
         with self.subTest("simplify complex"):
-            bos_op = BosonicOp({"+_0": 1, "+_0 -_0 +_0": 1j}, num_modes=1)
+            bos_op = BosonicOp({"+_0 -_0": 1}) + BosonicOp({"+_0 -_0": 1j})
             simplified_op = bos_op.simplify()
-            targ = BosonicOp({"+_0": (1 + 2j)}, num_modes=1)
+            targ = BosonicOp({"+_0 -_0": (1 + 1j)}, num_modes=1)
             self.assertEqual(simplified_op, targ)
 
         with self.subTest("simplify zero"):
@@ -228,18 +228,16 @@ class TestBosonicOp(QiskitNatureTestCase):
         with self.subTest("simplify parameters"):
             bos_op = BosonicOp({"+_0 -_0": self.a, "+_0 -_0 +_0": 1j})
             simplified_op = bos_op.simplify()
-            targ = BosonicOp({"+_0 -_0": self.a, "+_0": 2j})
+            targ = BosonicOp({"+_0 -_0": self.a, "+_0 -_0 +_0": 1j})
             self.assertEqual(simplified_op, targ)
 
         with self.subTest("simplify commutes with normal_order"):
-            bos_op = BosonicOp({"-_0 +_1": 1}, num_modes=2)
+            bos_op = BosonicOp({"+_0 -_0 +_1 +_0": 1})
             self.assertEqual(bos_op.simplify().normal_order(), bos_op.normal_order().simplify())
 
-        with self.subTest("simplify + index order"):
-            orig = BosonicOp({"+_1 -_0 +_0 -_0": 1, "-_0 +_1": 2})
-            bos_op = orig.simplify().index_order()
-            targ = BosonicOp({"-_0 +_1": 4})  # Boson don't change sign after commutation
-            self.assertEqual(bos_op, targ)
+        with self.subTest("simplify commutes with index_order"):
+            bos_op = BosonicOp({"+_0 -_0 +_1 +_0": 1})
+            self.assertEqual(bos_op.simplify().index_order(), bos_op.index_order().simplify())
 
     def test_commutator(self):
         """Test commutator
@@ -282,13 +280,11 @@ class TestBosonicOp(QiskitNatureTestCase):
             bos_op = bos_op.simplify()
             targ = BosonicOp(
                 {
-                    "+_0 +_1 -_1": 1,  # Op1(first term)  * Op2(first term)
-                    "+_0 +_1 -_0": 2,  # Op1(first term)  * Op2(second term)
-                    "+_0 -_0 -_1": 1,
-                    "-_1": 1,  # Op1(second term) * Op2(first term)
-                    "+_1 -_0 -_1": 2,
-                    "-_0": 2,
-                },  # Op1(second term) * Op2(second term)
+                    "+_0 +_1 -_1": 1,  # Op1(first term) * Op2(first term)
+                    "+_0 +_1 -_1 -_0 +_1": 1,  # Op1(first term) * Op2(second term)
+                    "-_0 +_0 -_1": 1,  # Op1(second term) * Op2(first term)
+                    "-_0 +_0 -_1 -_0 +_1": 1,  # Op1(second term) * Op2(second term)
+                },
                 num_modes=2,
             )
             self.assertEqual(bos_op, targ)
@@ -301,12 +297,11 @@ class TestBosonicOp(QiskitNatureTestCase):
             targ = BosonicOp(
                 {
                     "+_0 +_1 -_1": self.a,  # Op1(first term) * Op2(first term)
-                    "+_0 +_1 -_0": 2 * self.a * self.b,  # Op1(first term) * Op2(second term)
-                    "+_0 -_0 -_1": 1,
-                    "-_1": 1,  # Op1(second term) * Op2(first term)
-                    "+_1 -_0 -_1": 2 * self.b,
-                    "-_0": 2 * self.b,  # Op1(second term) * Op2(second term)
-                }
+                    "+_0 +_1 -_1 -_0 +_1": self.a * self.b,  # Op1(first term) * Op2(second term)
+                    "-_0 +_0 -_1": 1,  # Op1(second term) * Op2(first term)
+                    "-_0 +_0 -_1 -_0 +_1": self.b,  # Op1(second term) * Op2(second term)
+                },
+                num_modes=2,
             )
             self.assertEqual(bos_op, targ)
 
@@ -340,9 +335,19 @@ class TestBosonicOp(QiskitNatureTestCase):
 
         with self.subTest("square nontrivial"):
             bos_op = BosonicOp({"+_0 +_1 -_1": 3, "+_0 -_0 -_1": 1}, num_modes=2) ** 2
-            bos_op = bos_op.simplify()
+            bos_op = bos_op.normal_order().simplify()
             targ = BosonicOp(
-                {"+_0 +_0 +_1 -_1": 18, "+_0 -_1": 15, "+_0 -_0 -_1 -_1": 2}, num_modes=2
+                {
+                    "+_0 +_0 +_1 -_1": 9,
+                    "+_0 +_0 +_1 +_1 -_1 -_1": 9,  # term1**2
+                    "+_0 +_0 +_1 -_0 -_1 -_1": 6,  # term1*term2 + term2*term1.normal_order()
+                    "+_0 +_1 -_1 -_1": 3,
+                    "+_0 -_1": 3,
+                    "+_0 +_0 -_0 -_1": 3,  # term2*term1.normal_order()
+                    "+_0 +_0 -_0 -_0 -_1 -_1": 1,
+                    "+_0 -_0 -_1 -_1": 1,  # term1**2
+                },
+                num_modes=2,
             )
             self.assertEqual(bos_op, targ)
 
@@ -359,12 +364,18 @@ class TestBosonicOp(QiskitNatureTestCase):
 
         with self.subTest("square nontrivial with parameters"):
             bos_op = BosonicOp({"+_0 +_1 -_1": self.a, "+_0 -_0 -_1": 1}) ** 2
-            bos_op = bos_op.simplify()
+            bos_op = bos_op.normal_order().simplify()
             targ = BosonicOp(
                 {
-                    "+_0 +_0 +_1 -_1": 2 * self.a * self.a,
-                    "+_0 -_1": 5 * self.a,
-                    "+_0 -_0 -_1 -_1": 2,
+                    "+_0 +_0 +_1 -_1": self.a * self.a,
+                    "+_0 +_0 +_1 +_1 -_1 -_1": self.a * self.a,  # term1**2
+                    "+_0 +_0 +_1 -_0 -_1 -_1": 2
+                    * self.a,  # term1*term2 + term2*term1.normal_order()
+                    "+_0 +_1 -_1 -_1": self.a,
+                    "+_0 -_1": self.a,
+                    "+_0 +_0 -_0 -_1": self.a,  # term2*term1.normal_order()
+                    "+_0 +_0 -_0 -_0 -_1 -_1": 1,
+                    "+_0 -_0 -_1 -_1": 1,  # term1**2
                 },
                 num_modes=2,
             )
