@@ -199,7 +199,7 @@ class TestBosonicOp(QiskitNatureTestCase):
 
         with self.subTest("index order + simplify"):
             orig = BosonicOp({"+_1 -_0": 1, "-_0 +_1": 2})
-            bos_op = orig.index_order().simplify()
+            bos_op = orig.index_order()
             targ = BosonicOp({"-_0 +_1": 3})
             self.assertEqual(bos_op, targ)
 

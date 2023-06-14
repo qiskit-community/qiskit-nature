@@ -485,7 +485,7 @@ class BosonicOp(SparseLabelOp):
         if self.is_parameterized():
             raise ValueError("is_hermitian is not supported for operators containing parameters.")
         atol = self.atol if atol is None else atol
-        diff = (self - self.adjoint()).index_order().simplify(atol=atol)
+        diff = (self - self.adjoint()).normal_order().simplify(atol=atol)
         return all(np.isclose(coeff, 0.0, atol=atol) for coeff in diff.values())
 
     def simplify(self, atol: float | None = None) -> BosonicOp:
@@ -509,9 +509,10 @@ class BosonicOp(SparseLabelOp):
 
             :meth:`simplify` is not allowed to simplify the labels ``+_0 -_0`` or ``-_0 +_0``. The
             former corresponds to the boson number operator, and when it is applied to a state yields
-            the number of bosons in that state ``n``, not zero. Similarly, the latter yields
+            the number of bosons in that state :math:`n`. Similarly, the latter yields
             :math:`1 + n`. As a consequence, the label ``+_0 -_0 -_1 +_0`` will remain untouched by
-            this method.
+            this method. This is in contrast to how :meth:`.FermionicOp.simplify` works,
+            because it exploits that :math:`n` can be either :math:`0` or :math:`1`.
         """
         atol = self.atol if atol is None else atol
 
