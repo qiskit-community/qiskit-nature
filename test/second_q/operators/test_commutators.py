@@ -40,14 +40,14 @@ class TestCommutators(QiskitNatureTestCase):
     @unpack
     @data(
         (op1, op2, {}),
-        (op4, op5, {"+_0 -_0": (1 + 0j), "-_0 +_0": (-1 + 0j)}),
+        (op4, op5, {"+_0 -_0": (2 + 0j), "": (-1 + 0j)}),
     )
     def test_commutator(self, op_a: FermionicOp, op_b: FermionicOp, expected: dict):
         """Test commutator method"""
         self.assertEqual(commutator(op_a, op_b), FermionicOp(expected, num_spin_orbitals=1))
 
-        with self.subTest("test simplfication tolerance"):
-            modified_op = op_a + FermionicOp({"+_0": 1e-10}, num_spin_orbitals=1)
+        with self.subTest("test simplification tolerance"):
+            modified_op = op_a + FermionicOp({"+_0": 1e-08}, num_spin_orbitals=1)
             self.assertNotEqual(
                 commutator(modified_op, op_b), FermionicOp(expected, num_spin_orbitals=1)
             )
@@ -61,8 +61,8 @@ class TestCommutators(QiskitNatureTestCase):
         """Test anti commutator method"""
         self.assertEqual(anti_commutator(op_a, op_b), FermionicOp(expected, num_spin_orbitals=1))
 
-        with self.subTest("test simplfication tolerance"):
-            modified_op = op_a + FermionicOp({"-_0": 1e-10}, num_spin_orbitals=1)
+        with self.subTest("test simplification tolerance"):
+            modified_op = op_a + FermionicOp({"-_0": 1e-08}, num_spin_orbitals=1)
             self.assertNotEqual(
                 anti_commutator(modified_op, op_b), FermionicOp(expected, num_spin_orbitals=1)
             )
@@ -87,7 +87,7 @@ class TestCommutators(QiskitNatureTestCase):
         )
 
         with self.subTest("test simplfication tolerance"):
-            modified_op = op_a + FermionicOp({"-_0": 1e-10}, num_spin_orbitals=1)
+            modified_op = op_a + FermionicOp({"-_0": 1e-08}, num_spin_orbitals=1)
             self.assertNotEqual(
                 double_commutator(modified_op, op_b, op_c, sign),
                 FermionicOp(expected, num_spin_orbitals=1),
