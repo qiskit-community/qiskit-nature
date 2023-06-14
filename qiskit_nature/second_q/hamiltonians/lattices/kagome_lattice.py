@@ -78,7 +78,8 @@ class KagomeLattice(Lattice):
         cols: int,
         edge_parameter: complex = 1.0,
         onsite_parameter: complex = 0.0,
-        boundary_condition: BoundaryCondition = BoundaryCondition.OPEN,
+        boundary_condition: BoundaryCondition
+        | tuple[BoundaryCondition, BoundaryCondition] = BoundaryCondition.OPEN,
     ) -> None:
         """
         Args:
@@ -88,17 +89,32 @@ class KagomeLattice(Lattice):
                 Defaults to 1.0,
             onsite_parameter: Weight on the self-loops, which are edges connecting a node to itself.
                 Defaults to 0.0.
-            boundary_condition: Boundary condition for the lattice.
+            boundary_condition: Boundary condition for each direction.
                 The available boundary conditions are:
                 :attr:`.BoundaryCondition.OPEN`, :attr:`.BoundaryCondition.PERIODIC`.
                 Defaults to :attr:`.BoundaryCondition.OPEN`.
+
+        Raises:
+            ValueError: When edge parameter or boundary condition is a tuple,
+                the length of that is not the same as that of size.
         """
         self._rows = rows
         self._cols = cols
         self._size = (rows, cols)
-        self._boundary_condition = boundary_condition
         self._edge_parameter = edge_parameter
         self._onsite_parameter = onsite_parameter
+
+        if isinstance(boundary_condition, BoundaryCondition):
+            boundary_condition = (boundary_condition,) * self._dim
+        elif isinstance(boundary_condition, tuple):
+            if len(boundary_condition) != self._dim:
+                raise ValueError(
+                    "size mismatch, "
+                    f"`boundary_condition`: {len(boundary_condition)}, `size`: {self._dim}."
+                    "The length of `boundary_condition` must be the same as that of size."
+                )
+
+        self._boundary_condition = boundary_condition
 
         graph = PyGraph(multigraph=False)
         graph.add_nodes_from(range(self._num_sites_per_cell * np.prod(self._size)))
@@ -205,31 +221,36 @@ class KagomeLattice(Lattice):
         edge_parameter = self._edge_parameter
         num_sites_per_cell = self._num_sites_per_cell
         boundary_condition = self._boundary_condition
+
+        is_x_periodic = boundary_condition[0] == BoundaryCondition.PERIODIC
+        is_y_periodic = boundary_condition[1] == BoundaryCondition.PERIODIC
+
         # add edges when the boundary condition is periodic.
-        if boundary_condition == BoundaryCondition.PERIODIC:
-            # The periodic boundary condition in the x direction.
-            # It makes sense only when rows is greater than 1.
-            if self._rows > 1:
-                for y in range(self._cols):
-                    cell_a_idx = self._coordinate_to_index(np.array([self._rows - 1, y]))
-                    cell_a_1 = num_sites_per_cell * cell_a_idx + 1
+        # The periodic boundary condition in the x direction.
+        # It makes sense only when rows is greater than 1.
+        if is_x_periodic and self._rows > 1:
+            for y in range(self._cols):
+                cell_a_idx = self._coordinate_to_index(np.array([self._rows - 1, y]))
+                cell_a_1 = num_sites_per_cell * cell_a_idx + 1
 
-                    cell_b_idx = self._coordinate_to_index(np.array([0, y]))
-                    cell_b_0 = num_sites_per_cell * cell_b_idx
+                cell_b_idx = self._coordinate_to_index(np.array([0, y]))
+                cell_b_0 = num_sites_per_cell * cell_b_idx
 
-                    list_of_edges.append((cell_a_1, cell_b_0, edge_parameter.conjugate()))
-            # The periodic boundary condition in the y direction.
-            # It makes sense only when cols is greater than 1.
-            if self._cols > 1:
-                for x in range(self._rows):
-                    cell_a_idx = self._coordinate_to_index(np.array([x, self._cols - 1]))
-                    cell_a_2 = num_sites_per_cell * cell_a_idx + 2
+                list_of_edges.append((cell_a_1, cell_b_0, edge_parameter.conjugate()))
 
-                    cell_b_idx = self._coordinate_to_index(np.array([x, 0]))
-                    cell_b_0 = num_sites_per_cell * cell_b_idx
+        # The periodic boundary condition in the y direction.
+        # It makes sense only when cols is greater than 1.
+        if is_y_periodic and self._cols > 1:
+            for x in range(self._rows):
+                cell_a_idx = self._coordinate_to_index(np.array([x, self._cols - 1]))
+                cell_a_2 = num_sites_per_cell * cell_a_idx + 2
 
-                    list_of_edges.append((cell_a_2, cell_b_0, edge_parameter.conjugate()))
+                cell_b_idx = self._coordinate_to_index(np.array([x, 0]))
+                cell_b_0 = num_sites_per_cell * cell_b_idx
 
+                list_of_edges.append((cell_a_2, cell_b_0, edge_parameter.conjugate()))
+
+        if is_x_periodic and is_y_periodic:
             # The periodic boundary condition in the diagonal directions.
             for x in range(1, self._rows):
                 cell_a_idx = self._coordinate_to_index(np.array([x, self._cols - 1]))
@@ -260,13 +281,13 @@ class KagomeLattice(Lattice):
 
             list_of_edges.append((cell_a_2, cell_b_1, edge_parameter.conjugate()))
 
-        elif boundary_condition == BoundaryCondition.OPEN:
-            pass
-        else:
-            raise ValueError(
-                f"Invalid `boundary condition` {boundary_condition} is given."
-                "`boundary condition` must be " + " or ".join(str(bc) for bc in BoundaryCondition)
-            )
+        for i in range(self._dim):
+            if not isinstance(boundary_condition[i], BoundaryCondition):
+                raise ValueError(
+                    f"Invalid `boundary condition` {boundary_condition[i]} is given."
+                    "`boundary condition` must be "
+                    + " or ".join(str(bc) for bc in BoundaryCondition)
+                )
         return list_of_edges
 
     def _default_position(self) -> dict[int, list[float]]:
@@ -370,7 +391,7 @@ class KagomeLattice(Lattice):
         return self._onsite_parameter
 
     @property
-    def boundary_condition(self) -> BoundaryCondition:
+    def boundary_condition(self) -> BoundaryCondition | tuple[BoundaryCondition, BoundaryCondition]:
         """Boundary condition for the entire lattice.
 
         Returns:
