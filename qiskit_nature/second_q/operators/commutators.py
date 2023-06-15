@@ -45,7 +45,7 @@ def commutator(op_a: SparseLabelOp, op_b: SparseLabelOp) -> SparseLabelOp:
     Returns:
         The computed commutator.
     """
-    return (op_a @ op_b - op_b @ op_a).simplify(atol=0)
+    return (op_a @ op_b - op_b @ op_a).normal_order().simplify(atol=0)
 
 
 def anti_commutator(op_a: SparseLabelOp, op_b: SparseLabelOp) -> SparseLabelOp:
@@ -61,7 +61,7 @@ def anti_commutator(op_a: SparseLabelOp, op_b: SparseLabelOp) -> SparseLabelOp:
     Returns:
         The computed anti-commutator.
     """
-    return (op_a @ op_b + op_b @ op_a).simplify(atol=0)
+    return (op_a @ op_b + op_b @ op_a).normal_order().simplify(atol=0)
 
 
 def double_commutator(
