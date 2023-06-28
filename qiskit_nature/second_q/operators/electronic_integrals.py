@@ -403,7 +403,8 @@ class ElectronicIntegrals(LinearMixin):
         This method is special, because it handles the scenario in which any operand has a non-empty
         :attr:`beta` attribute, in which case the empty-beta attributes of any other operands will
         be filled with :attr:`alpha` attributes of those operands.
-        The same applies to the :attr:`beta_alpha` attributes.
+        The :attr:`beta_alpha` attributes will only be handled if they are non-empty in all supplied
+        operands.
 
         Args:
             function: the function to apply to the internal arrays of the provided operands. This
@@ -452,7 +453,8 @@ class ElectronicIntegrals(LinearMixin):
         This method is special, because it handles the scenario in which any operand has a non-empty
         :attr:`beta` attribute, in which case the empty-beta attributes of any other operands will
         be filled with :attr:`alpha` attributes of those operands.
-        The same applies to the :attr:`beta_alpha` attributes.
+        The :attr:`beta_alpha` attributes will only be handled if they are non-empty in all supplied
+        operands.
 
         Args:
             function: the stacking function to apply to the internal arrays of the provided
@@ -497,11 +499,6 @@ class ElectronicIntegrals(LinearMixin):
         This behaves identical to the ``split`` implementation of the ``PolynomialTensor``, applied
         to the :attr:`alpha`, :attr:`beta`, and :attr:`beta_alpha` attributes of the provided
         ``ElectronicIntegrals`` operands.
-
-        This method is special, because it handles the scenario in which any operand has a non-empty
-        :attr:`beta` attribute, in which case the empty-beta attributes of any other operands will
-        be filled with :attr:`alpha` attributes of those operands.
-        The same applies to the :attr:`beta_alpha` attributes.
 
         Args:
             function: the splitting function to use. This function must take a single numpy (or
@@ -549,7 +546,8 @@ class ElectronicIntegrals(LinearMixin):
         This method is special, because it handles the scenario in which any operand has a non-empty
         :attr:`beta` attribute, in which case the empty-beta attributes of any other operands will
         be filled with :attr:`alpha` attributes of those operands.
-        The same applies to the :attr:`beta_alpha` attributes.
+        The :attr:`beta_alpha` attributes will only be handled if they are non-empty in all supplied
+        operands.
 
         Args:
             einsum_map: a dictionary, mapping from :meth:`numpy.einsum` subscripts to a tuple of
