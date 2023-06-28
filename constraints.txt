@@ -1,3 +1,8 @@
 numpy>=1.20.0
 ipython<8.13;python_version<'3.9'
 rustworkx!=0.13.0;python_version<'3.8'
+
+# Scipy 1.11 seems to have caused an instability in the Weyl coordinates
+# eigensystem code for one of the test cases. See
+# https://github.com/Qiskit/qiskit-terra/issues/10345 for current details.
+scipy<1.11
