@@ -607,8 +607,8 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
             # computing eigenvectors
             hermi_a = np.array([[1, -2j], [2j, 5]])
             a = PolynomialTensor({"+-": hermi_a})
-            _, eigvecs = PolynomialTensor.apply(np.linalg.eigh, a, multi=True, validate=False)
-            print(eigvecs == PolynomialTensor({"+-": np.eigh(hermi_a)[1]}))  # True
+            _, eigenvectors = PolynomialTensor.apply(np.linalg.eigh, a, multi=True, validate=False)
+            print(eigenvectors == PolynomialTensor({"+-": np.eigh(hermi_a)[1]}))  # True
 
         .. note::
 
