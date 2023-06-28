@@ -516,11 +516,13 @@ class ElectronicIntegrals(LinearMixin):
         """
         alphas = self.alpha.split(function, indices_or_sections, validate=validate)
 
+        betas: list[PolynomialTensor | None]
         if self.beta.is_empty():
             betas = [None] * len(alphas)
         else:
             betas = self.beta.split(function, indices_or_sections, validate=validate)
 
+        beta_alphas: list[PolynomialTensor | None]
         if self.beta_alpha.is_empty():
             beta_alphas = [None] * len(alphas)
         else:

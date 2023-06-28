@@ -761,37 +761,37 @@ class TestPolynomialTensor(QiskitNatureTestCase):
     def test_split(self):
         """Test PolynomialTensor.split"""
         rand_ab = np.random.random((4, 4))
-        ab = PolynomialTensor({"+-": rand_ab})
+        poly_ab = PolynomialTensor({"+-": rand_ab})
 
         with self.subTest("np.hsplit"):
             a_exp, b_exp = np.hsplit(rand_ab, 2)
-            a_real, b_real = ab.split(np.hsplit, 2, validate=False)
+            a_real, b_real = poly_ab.split(np.hsplit, 2, validate=False)
             self.assertEqual(a_real, PolynomialTensor({"+-": a_exp}, validate=False))
             self.assertEqual(b_real, PolynomialTensor({"+-": b_exp}, validate=False))
 
         with self.subTest("np.vsplit"):
             a_exp, b_exp = np.vsplit(rand_ab, 2)
-            a_real, b_real = ab.split(np.vsplit, 2, validate=False)
+            a_real, b_real = poly_ab.split(np.vsplit, 2, validate=False)
             self.assertEqual(a_real, PolynomialTensor({"+-": a_exp}, validate=False))
             self.assertEqual(b_real, PolynomialTensor({"+-": b_exp}, validate=False))
 
         with self.subTest("np.split"):
             a_exp, b_exp = np.split(rand_ab, 2)
-            a_real, b_real = ab.split(np.split, 2, validate=False)
+            a_real, b_real = poly_ab.split(np.split, 2, validate=False)
             self.assertEqual(a_real, PolynomialTensor({"+-": a_exp}, validate=False))
             self.assertEqual(b_real, PolynomialTensor({"+-": b_exp}, validate=False))
 
         with self.subTest("np.split axis=-1"):
             a_exp, b_exp = np.split(rand_ab, 2, axis=-1)
-            a_real, b_real = ab.split(partial(np.split, axis=-1), 2, validate=False)
+            a_real, b_real = poly_ab.split(partial(np.split, axis=-1), 2, validate=False)
             self.assertEqual(a_real, PolynomialTensor({"+-": a_exp}, validate=False))
             self.assertEqual(b_real, PolynomialTensor({"+-": b_exp}, validate=False))
 
         with self.subTest("np.dsplit"):
             rand_ab = np.random.random((2, 2, 2))
-            ab = PolynomialTensor({"+++": rand_ab})
+            poly_ab = PolynomialTensor({"+++": rand_ab})
             a_exp, b_exp = np.dsplit(rand_ab, [1])
-            a_real, b_real = ab.split(np.dsplit, [1], validate=False)
+            a_real, b_real = poly_ab.split(np.dsplit, [1], validate=False)
             self.assertEqual(a_real, PolynomialTensor({"+++": a_exp}, validate=False))
             self.assertEqual(b_real, PolynomialTensor({"+++": b_exp}, validate=False))
 
