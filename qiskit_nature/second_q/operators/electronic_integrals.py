@@ -743,7 +743,7 @@ class ElectronicIntegrals(LinearMixin):
             kron_two_body[ab_index] = 0.5
 
             tensor_blocked_spin_orbitals = PolynomialTensor.apply(np.kron, kron_tensor, self.alpha)
-            return tensor_blocked_spin_orbitals
+            return cast(PolynomialTensor, tensor_blocked_spin_orbitals)
 
         tensor_blocked_spin_orbitals = PolynomialTensor({})
         # pure alpha spin
@@ -785,7 +785,7 @@ class ElectronicIntegrals(LinearMixin):
             )
             kron_two_body[ab_index] = 0
 
-        return tensor_blocked_spin_orbitals
+        return cast(PolynomialTensor, tensor_blocked_spin_orbitals)
 
     def trace_spin(self) -> PolynomialTensor:
         """Returns a :class:`~.PolynomialTensor` where the spin components have been traced out.
