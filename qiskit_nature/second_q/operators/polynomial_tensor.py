@@ -666,7 +666,7 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
                 operands. This function must take a sequence of numpy (or sparse) arrays as its
                 first argument. You should use :code:`functools.partial` if you need to provide
                 keyword arguments (e.g. :code:`partial(np.stack, axis=-1)`). Common methods to use
-                here are ``np.hstack`` and ``np.vstack``.
+                here are :meth:`np.hstack` and :meth:`np.vstack`.
             operands: a sequence of ``PolynomialTensor`` instances on which to operate.
             validate: when set to False the ``data`` will not be validated. Disable this setting
                 with care!
@@ -713,7 +713,7 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
                 sparse) array as its first input followed by a sequence of indices to split on.
                 You should use :code:`functools.partial` if you need to provide keyword arguments
                 (e.g. :code:`partial(np.split, axis=-1)`). Common methods to use here are
-                ``np.hsplit`` and ``np.vsplit``.
+                :meth:`np.hsplit` and :meth:`np.vsplit`.
             indices_or_sections: a single index or sequence of indices to split on.
             validate: when set to False the ``data`` will not be validated. Disable this setting
                 with care!
