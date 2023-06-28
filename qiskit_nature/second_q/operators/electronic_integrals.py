@@ -144,7 +144,8 @@ class ElectronicIntegrals(LinearMixin):
             beta: the down-spin electronic integrals
             beta_alpha: the beta-alpha-spin two-body electronic integrals. This may *only* contain
                 the ``++--`` key.
-            validate: when set to False, no validation will be performed.
+            validate: when set to False, no validation will be performed. Disable this setting with
+                care!
 
         Raises:
             KeyError: if the ``alpha`` tensor contains keys other than ``""``, ``"+-"``, and ``"++--"``.
@@ -411,7 +412,8 @@ class ElectronicIntegrals(LinearMixin):
                 function must take numpy (or sparse) arrays as its positional arguments. The number
                 of arguments must match the number of provided operands.
             operands: a sequence of ``ElectronicIntegrals`` instances on which to operate.
-            validate: when set to False, no validation will be performed.
+            validate: when set to False, no validation will be performed. Disable this setting with
+                care!
 
         Returns:
             A new ``ElectronicIntegrals``.
@@ -462,7 +464,8 @@ class ElectronicIntegrals(LinearMixin):
                 first argument. You should use :code:`functools.partial` if you need to provide
                 keyword arguments (e.g. :code:`partial(np.stack, axis=-1)`)
             operands: a sequence of ``ElectronicIntegrals`` instances on which to operate.
-            validate: when set to False, no validation will be performed.
+            validate: when set to False, no validation will be performed. Disable this setting with
+                care!
 
         Returns:
             A new ``ElectronicIntegrals``.
@@ -506,7 +509,8 @@ class ElectronicIntegrals(LinearMixin):
                 You should use :code:`functools.partial` if you need to provide keyword arguments
                 (e.g. :code:`partial(np.split, axis=-1)`)
             indices_or_sections: a single index or sequence of indices to split on.
-            validate: when set to False, no validation will be performed.
+            validate: when set to False, no validation will be performed. Disable this setting with
+                care!
 
         Returns:
             The new ``ElectronicIntegrals`` instances.
@@ -555,7 +559,8 @@ class ElectronicIntegrals(LinearMixin):
                 provided ``ElectronicIntegrals`` operands. The last string in this tuple indicates
                 the key under which to store the result in the returned ``ElectronicIntegrals``.
             operands: a sequence of ``ElectronicIntegrals`` instances on which to operate.
-            validate: when set to False, no validation will be performed.
+            validate: when set to False, no validation will be performed. Disable this setting with
+                care!
 
         Returns:
             A new ``ElectronicIntegrals``.
@@ -609,7 +614,8 @@ class ElectronicIntegrals(LinearMixin):
             h1_b: the beta-spin one-body integrals.
             h2_bb: the beta-beta-spin two-body integrals.
             h2_ba: the beta-alpha-spin two-body integrals.
-            validate: whether or not to validate the integral matrices.
+            validate: whether or not to validate the integral matrices. Disable this setting with
+                care!
             auto_index_order: whether or not to automatically convert the matrices to physicists'
                 order.
 
