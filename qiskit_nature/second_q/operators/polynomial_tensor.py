@@ -572,8 +572,9 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         cls,
         function: Callable[..., np.ndarray | SparseArray | complex],
         *operands: PolynomialTensor,
+        multi: bool = False,
         validate: bool = True,
-    ) -> PolynomialTensor:
+    ) -> PolynomialTensor | list[PolynomialTensor]:
         """Applies the provided function to the common set of keys of the provided tensors.
 
         The usage of this method is best explained by some examples:
@@ -621,10 +622,23 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
             A new ``PolynomialTensor`` instance with the resulting arrays.
         """
         common_keys = set.intersection(*(set(op) for op in operands))
-        new_data: dict[str, Tensor] = {}
+
+        new_tensors: list[dict[str, Tensor]] = [{}]
         for key in common_keys:
-            new_data[key] = cast(Tensor, function(*(op[key] for op in operands)))
-        return cls(new_data, validate=validate)
+            results = cast(Tensor, function(*(op[key] for op in operands)))
+
+            if multi:
+                for idx, res in enumerate(results):
+                    if idx >= len(new_tensors):
+                        new_tensors.append({})
+                    new_tensors[idx][key] = res
+            else:
+                new_tensors[0][key] = results
+
+        if multi:
+            return [cls(tensor, validate=validate) for tensor in new_tensors]
+
+        return cls(new_tensors[0], validate=validate)
 
     @classmethod
     def stack(
