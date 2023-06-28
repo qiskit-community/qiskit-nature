@@ -1,7 +1,7 @@
 ---
 features:
   - |
-    Adds the following new utility methods for splitting and stacking mulit-tensors:
+    Adds the following new utility methods for splitting and stacking multi-tensors:
 
     - :meth:`.PolynomialTensor.split`
     - :meth:`.PolynomialTensor.stack`
