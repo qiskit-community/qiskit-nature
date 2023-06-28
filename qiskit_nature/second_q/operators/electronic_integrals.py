@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from numbers import Number
-from typing import Tuple, cast
+from typing import Sequence, Tuple, cast
 
 import numpy as np
 
@@ -413,7 +413,7 @@ class ElectronicIntegrals(LinearMixin):
             validate: when set to False, no validation will be performed.
 
         Returns:
-            A new ``PolynomialTensor``.
+            A new ``ElectronicIntegrals``.
         """
         alpha = PolynomialTensor.apply(function, *(op.alpha for op in operands), validate=validate)
 
@@ -439,11 +439,32 @@ class ElectronicIntegrals(LinearMixin):
     def stack(
         cls,
         function: Callable[..., np.ndarray | SparseArray | Number],
-        operands: Sequence[PolynomialTensor],
+        operands: Sequence[ElectronicIntegrals],
         *,
         validate: bool = True,
-    ) -> PolynomialTensor:
-        """TODO."""
+    ) -> ElectronicIntegrals:
+        """Exposes the :meth:`qiskit_nature.second_q.operators.PolynomialTensor.stack` method.
+
+        This behaves identical to the ``stack`` implementation of the ``PolynomialTensor``, applied
+        to the :attr:`alpha`, :attr:`beta`, and :attr:`beta_alpha` attributes of the provided
+        ``ElectronicIntegrals`` operands.
+
+        This method is special, because it handles the scenario in which any operand has a non-empty
+        :attr:`beta` attribute, in which case the empty-beta attributes of any other operands will
+        be filled with :attr:`alpha` attributes of those operands.
+        The same applies to the :attr:`beta_alpha` attributes.
+
+        Args:
+            function: the stacking function to apply to the internal arrays of the provided
+                operands. This function must take a sequence of numpy (or sparse) arrays as its
+                first argument. You should use :code:`functools.partial` if you need to provide
+                keyword arguments (e.g. :code:`partial(np.stack, axis=-1)`)
+            operands: a sequence of ``ElectronicIntegrals`` instances on which to operate.
+            validate: when set to False, no validation will be performed.
+
+        Returns:
+            A new ``ElectronicIntegrals``.
+        """
         alpha = PolynomialTensor.stack(function, [op.alpha for op in operands], validate=validate)
 
         beta: PolynomialTensor = None
@@ -470,8 +491,29 @@ class ElectronicIntegrals(LinearMixin):
         indices_or_sections: int | Sequence[int],
         *,
         validate: bool = True,
-    ) -> list[PolynomialTensor]:
-        """TODO."""
+    ) -> list[ElectronicIntegrals]:
+        """Exposes the :meth:`qiskit_nature.second_q.operators.PolynomialTensor.split` method.
+
+        This behaves identical to the ``split`` implementation of the ``PolynomialTensor``, applied
+        to the :attr:`alpha`, :attr:`beta`, and :attr:`beta_alpha` attributes of the provided
+        ``ElectronicIntegrals`` operands.
+
+        This method is special, because it handles the scenario in which any operand has a non-empty
+        :attr:`beta` attribute, in which case the empty-beta attributes of any other operands will
+        be filled with :attr:`alpha` attributes of those operands.
+        The same applies to the :attr:`beta_alpha` attributes.
+
+        Args:
+            function: the splitting function to use. This function must take a single numpy (or
+                sparse) array as its first input followed by a sequence of indices to split on.
+                You should use :code:`functools.partial` if you need to provide keyword arguments
+                (e.g. :code:`partial(np.split, axis=-1)`)
+            indices_or_sections: a single index or sequence of indices to split on.
+            validate: when set to False, no validation will be performed.
+
+        Returns:
+            The new ``ElectronicIntegrals`` instances.
+        """
         alphas = self.alpha.split(function, indices_or_sections, validate=validate)
 
         if self.beta.is_empty():
@@ -516,7 +558,7 @@ class ElectronicIntegrals(LinearMixin):
             validate: when set to False, no validation will be performed.
 
         Returns:
-            A new ``PolynomialTensor``.
+            A new ``ElectronicIntegrals``.
         """
         alpha = PolynomialTensor.einsum(
             einsum_map, *(op.alpha for op in operands), validate=validate
