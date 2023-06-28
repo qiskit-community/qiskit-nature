@@ -559,7 +559,7 @@ class ElectronicIntegrals(LinearMixin):
         if h2_ba is not None:
             beta_alpha = PolynomialTensor({"++--": h2_ba}, validate=validate)
 
-        return cls(alpha, beta, beta_alpha)
+        return cls(alpha, beta, beta_alpha, validate=validate)
 
     def second_q_coeffs(self) -> PolynomialTensor:
         """Constructs the total ``PolynomialTensor`` contained the second-quantized coefficients.
