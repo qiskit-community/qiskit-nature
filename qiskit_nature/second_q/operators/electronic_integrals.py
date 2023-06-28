@@ -413,6 +413,9 @@ class ElectronicIntegrals(LinearMixin):
                 function must take numpy (or sparse) arrays as its positional arguments. The number
                 of arguments must match the number of provided operands.
             operands: a sequence of ``ElectronicIntegrals`` instances on which to operate.
+            multi: when set to True this indicates that the provided numpy function will return
+                multiple new numpy arrays which will each be wrapped into an ``ElectronicIntegrals``
+                instance separately.
             validate: when set to False, no validation will be performed. Disable this setting with
                 care!
 

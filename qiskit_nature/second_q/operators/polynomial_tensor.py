@@ -604,6 +604,12 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
             # "+" key. That is because the function only gets applied to the keys which are common
             # to all tensors passed to it.
 
+            # computing eigenvectors
+            hermi_a = np.array([[1, -2j], [2j, 5]])
+            a = PolynomialTensor({"+-": hermi_a})
+            _, eigvecs = PolynomialTensor.apply(np.linalg.eigh, a, multi=True, validate=False)
+            print(eigvecs == PolynomialTensor({"+-": np.eigh(hermi_a)[1]}))  # True
+
         .. note::
 
             The provided function will only be applied to the internal arrays of the common keys of
@@ -615,6 +621,9 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
                 function must take numpy (or sparse) arrays as its positional arguments. The number
                 of arguments must match the number of provided operands.
             operands: a sequence of ``PolynomialTensor`` instances on which to operate.
+            multi: when set to True this indicates that the provided numpy function will return
+                multiple new numpy arrays which will each be wrapped into a ``PolynomialTensor``
+                instance separately.
             validate: when set to False the ``data`` will not be validated. Disable this setting
                 with care!
 
