@@ -627,6 +627,38 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         return cls(new_data, validate=validate)
 
     @classmethod
+    def stack(
+        cls,
+        function: Callable[..., np.ndarray | SparseArray | Number],
+        operands: Sequence[PolynomialTensor],
+        *,
+        validate: bool = True,
+    ) -> PolynomialTensor:
+        """TODO."""
+        common_keys = set.intersection(*(set(op) for op in operands))
+        new_data: dict[str, ARRAY_TYPE | Number] = {}
+        for key in common_keys:
+            new_data[key] = function([*(op[key] for op in operands)])
+        return cls(new_data, validate=validate)
+
+    def split(
+        self,
+        function: Callable[..., np.ndarray | SparseArray | Number],
+        indices_or_sections: int | Sequence[int],
+        *,
+        validate: bool = True,
+    ) -> list[PolynomialTensor]:
+        """TODO."""
+        new_tensors: list[dict[str, ARRAY_TYPE | Number]] = []
+        for key, arr in self._data.items():
+            for idx, new_arr in enumerate(function(arr, indices_or_sections)):
+                if idx < len(new_tensors):
+                    new_tensors[idx][key] = new_arr
+                else:
+                    new_tensors.append({key: new_arr})
+        return [self.__class__(new_data, validate=validate) for new_data in new_tensors]
+
+    @classmethod
     def einsum(
         cls,
         einsum_map: dict[str, tuple[str, ...]],

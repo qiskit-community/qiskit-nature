@@ -436,6 +436,60 @@ class ElectronicIntegrals(LinearMixin):
         return cls(alpha, beta, beta_alpha, validate=validate)
 
     @classmethod
+    def stack(
+        cls,
+        function: Callable[..., np.ndarray | SparseArray | Number],
+        operands: Sequence[PolynomialTensor],
+        *,
+        validate: bool = True,
+    ) -> PolynomialTensor:
+        """TODO."""
+        alpha = PolynomialTensor.stack(function, [op.alpha for op in operands], validate=validate)
+
+        beta: PolynomialTensor = None
+        if any(not op.beta.is_empty() for op in operands):
+            # If any beta-entry is non-empty, we have to perform this computation.
+            # Empty tensors will be populated with their alpha-terms automatically.
+            beta = PolynomialTensor.stack(
+                function,
+                [op.alpha if op.beta.is_empty() else op.beta for op in operands],
+                validate=validate,
+            )
+
+        beta_alpha: PolynomialTensor = None
+        if all(not op.beta_alpha.is_empty() for op in operands):
+            # We can only perform this operation, when all beta_alpha tensors are non-empty.
+            beta_alpha = PolynomialTensor.stack(
+                function, [op.beta_alpha for op in operands], validate=validate
+            )
+        return cls(alpha, beta, beta_alpha, validate=validate)
+
+    def split(
+        self,
+        function: Callable[..., np.ndarray | SparseArray | Number],
+        indices_or_sections: int | Sequence[int],
+        *,
+        validate: bool = True,
+    ) -> list[PolynomialTensor]:
+        """TODO."""
+        alphas = self.alpha.split(function, indices_or_sections, validate=validate)
+
+        if self.beta.is_empty():
+            betas = [None] * len(alphas)
+        else:
+            betas = self.beta.split(function, indices_or_sections, validate=validate)
+
+        if self.beta_alpha.is_empty():
+            beta_alphas = [None] * len(alphas)
+        else:
+            beta_alphas = self.beta_alpha.split(function, indices_or_sections, validate=validate)
+
+        return [
+            self.__class__(a, b, ba, validate=validate)
+            for a, b, ba in zip(alphas, betas, beta_alphas)
+        ]
+
+    @classmethod
     def einsum(
         cls,
         einsum_map: dict[str, tuple[str, ...]],
