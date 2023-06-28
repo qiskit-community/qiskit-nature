@@ -522,7 +522,6 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
         one_body_1 = np.random.random((2, 2))
         one_body_2 = np.random.random((2, 2))
         one_body_3 = np.random.random((2, 2))
-        one_body_4 = np.random.random((2, 2))
 
         with self.subTest("alpha only"):
             ints1 = ElectronicIntegrals(PolynomialTensor({"": 1, "+-": one_body_1}))
