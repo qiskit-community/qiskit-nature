@@ -661,6 +661,13 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
             all provided ``PolynomialTensor`` instances. That means, that no cross-products will be
             generated.
 
+        .. note::
+
+            When stacking arrays this will likely lead to array shapes which would fail the shape
+            validation check (as you can see from the examples above where we explicitly disable
+            them). This is considered an advanced use case which is why the user is left to disable
+            this check themselves, to ensure they know what they are doing.
+
         Args:
             function: the stacking function to apply to the internal arrays of the provided
                 operands. This function must take a sequence of numpy (or sparse) arrays as its
@@ -707,6 +714,13 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
             a, b = ab.split(np.vsplit, [2], validate=False)
             print(a == PolynomialTensor({"+-": np.vsplit(ab, [2])[0], validate=False)}))  # True
             print(b == PolynomialTensor({"+-": np.vsplit(ab, [2])[1], validate=False)}))  # True
+
+        .. note::
+
+            When splitting arrays this will likely lead to array shapes which would fail the shape
+            validation check (as you can see from the examples above where we explicitly disable
+            them). This is considered an advanced use case which is why the user is left to disable
+            this check themselves, to ensure they know what they are doing.
 
         Args:
             function: the splitting function to use. This function must take a single numpy (or

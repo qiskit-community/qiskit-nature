@@ -458,6 +458,12 @@ class ElectronicIntegrals(LinearMixin):
         The :attr:`beta_alpha` attributes will only be handled if they are non-empty in all supplied
         operands.
 
+        .. note::
+
+            When stacking arrays this will likely lead to array shapes which would fail the shape
+            validation check. This is considered an advanced use case which is why the user is left
+            to disable this check themselves, to ensure they know what they are doing.
+
         Args:
             function: the stacking function to apply to the internal arrays of the provided
                 operands. This function must take a sequence of numpy (or sparse) arrays as its
@@ -503,6 +509,12 @@ class ElectronicIntegrals(LinearMixin):
         This behaves identical to the ``split`` implementation of the ``PolynomialTensor``, applied
         to the :attr:`alpha`, :attr:`beta`, and :attr:`beta_alpha` attributes of the provided
         ``ElectronicIntegrals`` operands.
+
+        .. note::
+
+            When splitting arrays this will likely lead to array shapes which would fail the shape
+            validation check. This is considered an advanced use case which is why the user is left
+            to disable this check themselves, to ensure they know what they are doing.
 
         Args:
             function: the splitting function to use. This function must take a single numpy (or
