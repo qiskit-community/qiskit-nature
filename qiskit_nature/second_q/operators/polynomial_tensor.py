@@ -17,7 +17,7 @@ from __future__ import annotations
 from collections.abc import Callable, Mapping
 from itertools import product
 from numbers import Number
-from typing import Iterator, Type, Union, cast
+from typing import Iterator, Sequence, Type, Union, cast
 
 import numpy as np
 
@@ -185,8 +185,8 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
                 automatically be wrapped into one. Upon retrieval via item access (``__getitem__``)
                 automatically wrapped objects will be unwrapped again depending on the value of
                 :attr:`~qiskit_nature.settings.tensor_unwrapping`.
-            validate: when set to False the ``data`` will not be validated. Disable this setting with
-                care!
+            validate: when set to False the ``data`` will not be validated. Disable this setting
+                with care!
 
         Raises:
             ValueError: when length of operator key does not match dimensions of value matrix.
@@ -614,8 +614,8 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
                 function must take numpy (or sparse) arrays as its positional arguments. The number
                 of arguments must match the number of provided operands.
             operands: a sequence of ``PolynomialTensor`` instances on which to operate.
-            validate: when set to False the `data` will not be validated. Disable this setting with
-                care!
+            validate: when set to False the ``data`` will not be validated. Disable this setting
+                with care!
 
         Returns:
             A new ``PolynomialTensor`` instance with the resulting arrays.
@@ -634,11 +634,49 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         *,
         validate: bool = True,
     ) -> PolynomialTensor:
-        """TODO."""
+        """Stacks the provided sequence of tensors using the given numpy stacking function.
+
+        The usage of this method is best explained by some examples:
+
+        .. code-block:: python
+
+            import numpy as np
+            from qiskit_nature.second_q.opertors import PolynomialTensor
+            rand_a = np.random.random((2, 2))
+            rand_b = np.random.random((2, 2))
+            a = PolynomialTensor({"+-": rand_a})
+            b = PolynomialTensor({"+": np.random.random(2), "+-": rand_b})
+
+            # np.hstack
+            ab_hstack = PolynomialTensor.stack(np.hstack, [a, b], validate=False)
+            print(ab_hstack == PolynomialTensor({"+-": np.hstack([a, b], validate=False)}))  # True
+
+            # np.vstack
+            ab_vstack = PolynomialTensor.stack(np.vstack, [a, b], validate=False)
+            print(ab_vstack == PolynomialTensor({"+-": np.vstack([a, b], validate=False)}))  # True
+
+        .. note::
+
+            The provided function will only be applied to the internal arrays of the common keys of
+            all provided ``PolynomialTensor`` instances. That means, that no cross-products will be
+            generated.
+
+        Args:
+            function: the stacking function to apply to the internal arrays of the provided
+                operands. This function must take a sequence of numpy (or sparse) arrays as its
+                first argument. You should use :code:`functools.partial` if you need to provide
+                keyword arguments (e.g. :code:`partial(np.stack, axis=-1)`)
+            operands: a sequence of ``PolynomialTensor`` instances on which to operate.
+            validate: when set to False the ``data`` will not be validated. Disable this setting
+                with care!
+
+        Returns:
+            A new ``PolynomialTensor`` instance with the resulting arrays.
+        """
         common_keys = set.intersection(*(set(op) for op in operands))
-        new_data: dict[str, ARRAY_TYPE | Number] = {}
+        new_data: dict[str, Tensor | Number] = {}
         for key in common_keys:
-            new_data[key] = function([*(op[key] for op in operands)])
+            new_data[key] = cast(Tensor, function([*(op[key] for op in operands)]))
         return cls(new_data, validate=validate)
 
     def split(
@@ -648,10 +686,44 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         *,
         validate: bool = True,
     ) -> list[PolynomialTensor]:
-        """TODO."""
-        new_tensors: list[dict[str, ARRAY_TYPE | Number]] = []
+        """Splits the acted on tensor instance using the given numpy splitting function.
+
+        The usage of this method is best explained by some examples:
+
+        .. code-block:: python
+
+            import numpy as np
+            from qiskit_nature.second_q.opertors import PolynomialTensor
+            rand_ab = np.random.random((4, 4))
+            ab = PolynomialTensor({"+-": rand_ab})
+
+            # np.hsplit
+            a, b = ab.stack(np.hsplit, [2], validate=False)
+            print(a == PolynomialTensor({"+-": np.hsplit(ab, [2])[0], validate=False)}))  # True
+            print(b == PolynomialTensor({"+-": np.hsplit(ab, [2])[1], validate=False)}))  # True
+
+            # np.vsplit
+            a, b = ab.stack(np.vsplit, [2], validate=False)
+            print(a == PolynomialTensor({"+-": np.vsplit(ab, [2])[0], validate=False)}))  # True
+            print(b == PolynomialTensor({"+-": np.vsplit(ab, [2])[1], validate=False)}))  # True
+
+        Args:
+            function: the splitting function to use. This function must take a single numpy (or
+                sparse) array as its first input followed by a sequence of indices to split on.
+                You should use :code:`functools.partial` if you need to provide keyword arguments
+                (e.g. :code:`partial(np.split, axis=-1)`)
+            indices_or_sections: a single index or sequence of indices to split on.
+            validate: when set to False the ``data`` will not be validated. Disable this setting
+                with care!
+
+        Returns:
+            New ``PolynomialTensor`` instances containing the split arrays.
+        """
+        new_tensors: list[dict[str, Tensor | Number]] = []
         for key, arr in self._data.items():
-            for idx, new_arr in enumerate(function(arr, indices_or_sections)):
+            for idx, new_arr in enumerate(
+                function(arr, indices_or_sections)  # type: ignore[arg-type]
+            ):
                 if idx < len(new_tensors):
                     new_tensors[idx][key] = new_arr
                 else:
@@ -725,8 +797,8 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
                 provided ``PolynomialTensor`` operands. The last string in this tuple indicates the
                 key under which to store the result in the returned ``PolynomialTensor``.
             operands: a sequence of ``PolynomialTensor`` instances on which to operate.
-            validate: when set to False the `data` will not be validated. Disable this setting with
-                care!
+            validate: when set to False the ``data`` will not be validated. Disable this setting
+                with care!
 
         Returns:
             A new ``PolynomialTensor``.
