@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -516,6 +516,73 @@ class TestElectronicIntegrals(QiskitNatureTestCase):
                 }
             )
             self.assertTrue(tensor.equiv(expected))
+
+    def test_stack(self):
+        """Test ElectronicIntegrals.stack"""
+        one_body_1 = np.random.random((2, 2))
+        one_body_2 = np.random.random((2, 2))
+        one_body_3 = np.random.random((2, 2))
+
+        with self.subTest("alpha only"):
+            ints1 = ElectronicIntegrals(PolynomialTensor({"": 1, "+-": one_body_1}))
+            ints2 = ElectronicIntegrals(PolynomialTensor({"+-": one_body_2}))
+            result = ElectronicIntegrals.stack(np.hstack, [ints1, ints2], validate=False)
+            expected = ElectronicIntegrals(
+                PolynomialTensor({"+-": np.hstack([one_body_1, one_body_2])}, validate=False)
+            )
+            self.assertTrue(result.equiv(expected))
+
+        with self.subTest("alpha and partial beta ints"):
+            ints1 = ElectronicIntegrals(
+                PolynomialTensor({"": 1, "+-": one_body_1}),
+                PolynomialTensor({"+-": one_body_3}),
+            )
+            ints2 = ElectronicIntegrals(PolynomialTensor({"+-": one_body_2}))
+            result = ElectronicIntegrals.stack(np.hstack, [ints1, ints2], validate=False)
+            expected = ElectronicIntegrals(
+                PolynomialTensor({"+-": np.hstack([one_body_1, one_body_2])}, validate=False),
+                PolynomialTensor({"+-": np.hstack([one_body_3, one_body_2])}, validate=False),
+            )
+            self.assertTrue(result.equiv(expected))
+
+    def test_split(self):
+        """Test ElectronicIntegrals.split"""
+        one_body_1 = np.random.random((4, 4))
+        exp1a, exp1b = np.hsplit(one_body_1, [2])
+        one_body_2 = np.random.random((4, 4))
+        exp2a, exp2b = np.hsplit(one_body_2, [2])
+
+        with self.subTest("alpha only"):
+            ints1 = ElectronicIntegrals(PolynomialTensor({"+-": one_body_1}))
+            res1, res2 = ints1.split(np.hsplit, [2], validate=False)
+            self.assertTrue(
+                res1.equiv(ElectronicIntegrals(PolynomialTensor({"+-": exp1a}, validate=False)))
+            )
+            self.assertTrue(
+                res2.equiv(ElectronicIntegrals(PolynomialTensor({"+-": exp1b}, validate=False)))
+            )
+
+        with self.subTest("alpha and beta"):
+            ints1 = ElectronicIntegrals(
+                PolynomialTensor({"+-": one_body_1}), PolynomialTensor({"+-": one_body_2})
+            )
+            res1, res2 = ints1.split(np.hsplit, [2], validate=False)
+            self.assertTrue(
+                res1.equiv(
+                    ElectronicIntegrals(
+                        PolynomialTensor({"+-": exp1a}, validate=False),
+                        PolynomialTensor({"+-": exp2a}, validate=False),
+                    )
+                )
+            )
+            self.assertTrue(
+                res2.equiv(
+                    ElectronicIntegrals(
+                        PolynomialTensor({"+-": exp1b}, validate=False),
+                        PolynomialTensor({"+-": exp2b}, validate=False),
+                    )
+                )
+            )
 
 
 if __name__ == "__main__":
