@@ -238,19 +238,19 @@ class ElectronicEnergy(Hamiltonian):
             {einsum: ("++--", "+-", "+-")}, self.electronic_integrals, density
         )
 
-        if self.electronic_integrals.beta_alpha.is_empty():
+        if self.electronic_integrals.beta_alpha.is_empty() and density.beta.is_empty():
             coulomb *= 2.0  # type: ignore
         else:
+            if self.electronic_integrals.beta_alpha.is_empty():
+                beta_alpha = self.electronic_integrals.two_body.alpha
+            else:
+                beta_alpha = self.electronic_integrals.beta_alpha
             coulomb.alpha += PolynomialTensor.einsum(
-                {einsum: ("++--", "+-", "+-")},
-                self.electronic_integrals.beta_alpha,
-                density.beta,
+                {einsum: ("++--", "+-", "+-")}, beta_alpha, density.beta
             )
             einsum = einsum[2:4] + einsum[:2] + einsum[4:]
             coulomb.beta += PolynomialTensor.einsum(
-                {einsum: ("++--", "+-", "+-")},
-                self.electronic_integrals.beta_alpha,
-                density.alpha,
+                {einsum: ("++--", "+-", "+-")}, beta_alpha, density.alpha
             )
 
         return coulomb

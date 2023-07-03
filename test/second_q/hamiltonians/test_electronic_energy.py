@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -20,7 +20,7 @@ from typing import cast
 import numpy as np
 
 import qiskit_nature.optionals as _optionals
-from qiskit_nature.second_q.drivers import PySCFDriver
+from qiskit_nature.second_q.drivers import MethodType, PySCFDriver
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.operators import ElectronicIntegrals, PolynomialTensor
 
@@ -50,14 +50,52 @@ class TestElectronicEnergy(PropertyTest):
 
     def test_fock(self):
         """Test fock."""
-        density = ElectronicIntegrals(alpha=PolynomialTensor({"+-": 0.5 * np.eye(2)}))
-        fock_op = self.prop.fock(density)
+        with self.subTest("pure alpha spin"):
+            density = ElectronicIntegrals(alpha=PolynomialTensor({"+-": 0.5 * np.eye(2)}))
+            fock_op = self.prop.fock(density)
 
-        expected = np.asarray([[-0.34436786423711596, 0.0], [0.0, 0.4515069814257469]])
-        self.assertTrue(np.allclose(fock_op.alpha["+-"], expected))
-        self.assertNotIn("++--", fock_op.alpha)
-        self.assertNotIn("++--", fock_op.beta)
-        self.assertNotIn("++--", fock_op.beta_alpha)
+            expected = np.asarray([[-0.34436786423711596, 0.0], [0.0, 0.4515069814257469]])
+            self.assertTrue(np.allclose(fock_op.alpha["+-"], expected))
+            self.assertNotIn("+-", fock_op.beta)
+            self.assertNotIn("++--", fock_op.alpha)
+            self.assertNotIn("++--", fock_op.beta)
+            self.assertNotIn("++--", fock_op.beta_alpha)
+
+        with self.subTest("mixed spin hamiltonian with mixed spin density"):
+            driver = PySCFDriver(atom="He 0 0 0; H 0 0 1", charge=1, spin=2, method=MethodType.UHF)
+            hamil = driver.run().hamiltonian
+            density = ElectronicIntegrals(
+                alpha=PolynomialTensor({"+-": 0.5 * np.eye(2)}),
+                beta=PolynomialTensor({"+-": 0.25 * np.eye(2)}),
+            )
+            fock_op = hamil.fock(density)
+
+            expected_a = np.asarray([[-1.84389137, -0.01900224], [-0.01900224, -0.74820988]])
+            expected_b = np.asarray([[-1.56903142, 0.04837288], [0.04837288, -0.54049682]])
+            self.assertTrue(np.allclose(fock_op.alpha["+-"], expected_a))
+            self.assertTrue(np.allclose(fock_op.beta["+-"], expected_b))
+            self.assertNotIn("++--", fock_op.alpha)
+            self.assertNotIn("++--", fock_op.beta)
+            self.assertNotIn("++--", fock_op.beta_alpha)
+
+        with self.subTest("pure alpha hamiltonian with mixed spin density"):
+            driver = PySCFDriver(atom="He 0 0 0; H 0 0 1", charge=1, spin=2, method=MethodType.UHF)
+            hamil = driver.run().hamiltonian
+            hamil.electronic_integrals.beta = PolynomialTensor.empty()
+            hamil.electronic_integrals.beta_alpha = PolynomialTensor.empty()
+            density = ElectronicIntegrals(
+                alpha=PolynomialTensor({"+-": 0.5 * np.eye(2)}),
+                beta=PolynomialTensor({"+-": 0.25 * np.eye(2)}),
+            )
+            fock_op = hamil.fock(density)
+
+            expected_a = np.asarray([[-1.84389137, -0.01900224], [-0.01900224, -0.74820988]])
+            expected_b = np.asarray([[-1.56990143, -0.03800447], [-0.03800447, -0.53962681]])
+            self.assertTrue(np.allclose(fock_op.alpha["+-"], expected_a))
+            self.assertTrue(np.allclose(fock_op.beta["+-"], expected_b))
+            self.assertNotIn("++--", fock_op.alpha)
+            self.assertNotIn("++--", fock_op.beta)
+            self.assertNotIn("++--", fock_op.beta_alpha)
 
     def test_from_raw_integrals(self):
         """Test from_raw_integrals utility method."""
