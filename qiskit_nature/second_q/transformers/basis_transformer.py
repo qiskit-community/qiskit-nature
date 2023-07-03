@@ -96,7 +96,9 @@ class BasisTransformer(BaseTransformer):
         return BasisTransformer(
             self.final_basis,
             self.initial_basis,
-            self.coefficients.__class__.apply(np.transpose, self.coefficients, validate=False),
+            self.coefficients.__class__.apply(  # type: ignore[arg-type]
+                np.transpose, self.coefficients, validate=False
+            ),
         )
 
     def transform(self, problem: BaseProblem) -> BaseProblem:

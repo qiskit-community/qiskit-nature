@@ -726,6 +726,22 @@ class TestPolynomialTensor(QiskitNatureTestCase):
             ab_kron = PolynomialTensor.apply(np.kron, a, b)
             self.assertEqual(ab_kron, PolynomialTensor({"+-": np.kron(rand_a, rand_b)}))
 
+        with self.subTest("np.linalg.eigh"):
+            hermi_a = np.array([[1, -2j], [2j, 5]])
+            a = PolynomialTensor({"+-": hermi_a})
+            _, eigvecs = PolynomialTensor.apply(np.linalg.eigh, a, multi=True, validate=False)
+            self.assertEqual(eigvecs, PolynomialTensor({"+-": np.linalg.eigh(hermi_a)[1]}))
+
+        with self.subTest("np.linalg.svd"):
+            hermi_a = np.array([[1, -2j], [2j, 5]])
+            a = PolynomialTensor({"+-": hermi_a})
+            _, _, v_t = PolynomialTensor.apply(
+                partial(np.linalg.svd, full_matrices=True), a, multi=True, validate=False
+            )
+            self.assertEqual(
+                v_t, PolynomialTensor({"+-": np.linalg.svd(hermi_a, full_matrices=True)[2]})
+            )
+
     def test_stack(self):
         """Test PolynomialTensor.stack"""
         rand_a = np.random.random((2, 2))

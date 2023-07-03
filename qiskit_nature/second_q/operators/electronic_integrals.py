@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from numbers import Number
-from typing import Sequence, Tuple, cast
+from typing import Optional, Sequence, Tuple, cast
 
 import numpy as np
 
@@ -393,8 +393,9 @@ class ElectronicIntegrals(LinearMixin):
         cls,
         function: Callable[..., np.ndarray | SparseArray | complex],
         *operands: ElectronicIntegrals,
+        multi: bool = False,
         validate: bool = True,
-    ) -> ElectronicIntegrals:
+    ) -> ElectronicIntegrals | list[ElectronicIntegrals]:
         """Exposes the :meth:`qiskit_nature.second_q.operators.PolynomialTensor.apply` method.
 
         This behaves identical to the ``apply`` implementation of the ``PolynomialTensor``, applied
@@ -412,31 +413,50 @@ class ElectronicIntegrals(LinearMixin):
                 function must take numpy (or sparse) arrays as its positional arguments. The number
                 of arguments must match the number of provided operands.
             operands: a sequence of ``ElectronicIntegrals`` instances on which to operate.
+            multi: when set to True this indicates that the provided numpy function will return
+                multiple new numpy arrays which will each be wrapped into an ``ElectronicIntegrals``
+                instance separately.
             validate: when set to False, no validation will be performed. Disable this setting with
                 care!
 
         Returns:
             A new ``ElectronicIntegrals``.
         """
-        alpha = PolynomialTensor.apply(function, *(op.alpha for op in operands), validate=validate)
+        alphas = PolynomialTensor.apply(
+            function, *(op.alpha for op in operands), multi=multi, validate=validate
+        )
 
-        beta: PolynomialTensor = None
+        betas: PolynomialTensor | list[PolynomialTensor] | None = None
         if any(not op.beta.is_empty() for op in operands):
             # If any beta-entry is non-empty, we have to perform this computation.
             # Empty tensors will be populated with their alpha-terms automatically.
-            beta = PolynomialTensor.apply(
+            betas = PolynomialTensor.apply(
                 function,
                 *(op.alpha if op.beta.is_empty() else op.beta for op in operands),
+                multi=multi,
                 validate=validate,
             )
 
-        beta_alpha: PolynomialTensor = None
+        beta_alphas: PolynomialTensor | list[PolynomialTensor] | None = None
         if all(not op.beta_alpha.is_empty() for op in operands):
             # We can only perform this operation, when all beta_alpha tensors are non-empty.
-            beta_alpha = PolynomialTensor.apply(
-                function, *(op.beta_alpha for op in operands), validate=validate
+            beta_alphas = PolynomialTensor.apply(
+                function, *(op.beta_alpha for op in operands), multi=multi, validate=validate
             )
-        return cls(alpha, beta, beta_alpha, validate=validate)
+
+        if multi:
+            if betas is None:
+                betas = [None] * len(alphas)
+            if beta_alphas is None:
+                beta_alphas = [None] * len(alphas)
+            return [
+                cls(a, b, ba, validate=validate) for a, b, ba in zip(alphas, betas, beta_alphas)
+            ]
+
+        alphas = cast(PolynomialTensor, alphas)
+        betas = cast(Optional[PolynomialTensor], betas)
+        beta_alphas = cast(Optional[PolynomialTensor], beta_alphas)
+        return cls(alphas, betas, beta_alphas, validate=validate)
 
     @classmethod
     def stack(
@@ -723,7 +743,7 @@ class ElectronicIntegrals(LinearMixin):
             kron_two_body[ab_index] = 0.5
 
             tensor_blocked_spin_orbitals = PolynomialTensor.apply(np.kron, kron_tensor, self.alpha)
-            return tensor_blocked_spin_orbitals
+            return cast(PolynomialTensor, tensor_blocked_spin_orbitals)
 
         tensor_blocked_spin_orbitals = PolynomialTensor({})
         # pure alpha spin
@@ -765,7 +785,7 @@ class ElectronicIntegrals(LinearMixin):
             )
             kron_two_body[ab_index] = 0
 
-        return tensor_blocked_spin_orbitals
+        return cast(PolynomialTensor, tensor_blocked_spin_orbitals)
 
     def trace_spin(self) -> PolynomialTensor:
         """Returns a :class:`~.PolynomialTensor` where the spin components have been traced out.

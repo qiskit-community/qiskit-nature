@@ -572,8 +572,9 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         cls,
         function: Callable[..., np.ndarray | SparseArray | complex],
         *operands: PolynomialTensor,
+        multi: bool = False,
         validate: bool = True,
-    ) -> PolynomialTensor:
+    ) -> PolynomialTensor | list[PolynomialTensor]:
         """Applies the provided function to the common set of keys of the provided tensors.
 
         The usage of this method is best explained by some examples:
@@ -603,6 +604,12 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
             # "+" key. That is because the function only gets applied to the keys which are common
             # to all tensors passed to it.
 
+            # computing eigenvectors
+            hermi_a = np.array([[1, -2j], [2j, 5]])
+            a = PolynomialTensor({"+-": hermi_a})
+            _, eigenvectors = PolynomialTensor.apply(np.linalg.eigh, a, multi=True, validate=False)
+            print(eigenvectors == PolynomialTensor({"+-": np.eigh(hermi_a)[1]}))  # True
+
         .. note::
 
             The provided function will only be applied to the internal arrays of the common keys of
@@ -614,6 +621,9 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
                 function must take numpy (or sparse) arrays as its positional arguments. The number
                 of arguments must match the number of provided operands.
             operands: a sequence of ``PolynomialTensor`` instances on which to operate.
+            multi: when set to True this indicates that the provided numpy function will return
+                multiple new numpy arrays which will each be wrapped into a ``PolynomialTensor``
+                instance separately.
             validate: when set to False the ``data`` will not be validated. Disable this setting
                 with care!
 
@@ -621,10 +631,23 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
             A new ``PolynomialTensor`` instance with the resulting arrays.
         """
         common_keys = set.intersection(*(set(op) for op in operands))
-        new_data: dict[str, Tensor] = {}
+
+        new_tensors: list[dict[str, Tensor]] = [{}]
         for key in common_keys:
-            new_data[key] = cast(Tensor, function(*(op[key] for op in operands)))
-        return cls(new_data, validate=validate)
+            results = cast(Tensor, function(*(op[key] for op in operands)))
+
+            if multi:
+                for idx, res in enumerate(results):
+                    if idx >= len(new_tensors):
+                        new_tensors.append({})
+                    new_tensors[idx][key] = res
+            else:
+                new_tensors[0][key] = results
+
+        if multi:
+            return [cls(tensor, validate=validate) for tensor in new_tensors]
+
+        return cls(new_tensors[0], validate=validate)
 
     @classmethod
     def stack(
