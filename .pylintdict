@@ -226,6 +226,8 @@ hijs
 hilbert
 histidine
 hjo
+hsplit
+hstack
 html
 https
 hubbard
@@ -629,6 +631,8 @@ vmax
 vmin
 vqe
 vscf
+vsplit
+vstack
 vwn
 vx
 vy
