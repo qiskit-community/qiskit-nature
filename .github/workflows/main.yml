@@ -147,7 +147,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.7, 3.8, 3.9, '3.10', 3.11]
+        python-version: [3.8, 3.9, '3.10', 3.11]
         include:
           - os: macos-latest
             python-version: 3.9
@@ -205,7 +205,7 @@ jobs:
         run: |
           echo "::add-matcher::./.github/problem_matchers/pylint.json"
           echo "::add-matcher::./.github/problem_matchers/mypy.json"
-        if: ${{ matrix.python-version == 3.7 }}
+        if: ${{ matrix.python-version == 3.8 }}
       - name: Run lint
         run: |
           source "$CONDA/etc/profile.d/conda.sh"
@@ -217,14 +217,7 @@ jobs:
           source "$CONDA/etc/profile.d/conda.sh"
           conda activate psi4env
           make mypy
-        if: ${{ !cancelled() && matrix.python-version != 3.7 }}
-        shell: bash
-      - name: Run mypy on Python 3.7
-        run: |
-          source "$CONDA/etc/profile.d/conda.sh"
-          conda activate psi4env
-          python -m mypy --no-warn-unused-ignores qiskit_nature test tools
-        if: ${{ !cancelled() && matrix.python-version == 3.7 }}
+        if: ${{ !cancelled() }}
         shell: bash
       - name: Stestr Cache
         uses: actions/cache@v3
@@ -240,6 +233,7 @@ jobs:
       - name: Nature Unit Tests under Python ${{ matrix.python-version }}
         uses: ./.github/actions/run-tests
         with:
+          os: ${{ matrix.os }}
           event-name: ${{ github.event_name }}
           run-slow: ${{ contains(github.event.pull_request.labels.*.name, 'run_slow') }}
           python-version: ${{ matrix.python-version }}
@@ -257,7 +251,7 @@ jobs:
           conda activate psi4env
           coverage3 combine
           mv .coverage ./ci-artifact-data/nat.dat
-        if: ${{ matrix.python-version == 3.7 }}
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == 3.8 }}
         shell: bash
       - uses: actions/upload-artifact@v3
         with:
@@ -372,16 +366,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.7]
+        python-version: [3.8]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: actions/download-artifact@v3
-        with:
-          name: ubuntu-latest-3.7
-          path: /tmp/u37
       - uses: actions/download-artifact@v3
         with:
           name: ubuntu-latest-3.8
@@ -415,10 +405,10 @@ jobs:
         shell: bash
       - name: Combined Deprecation Messages
         run: |
-          sort -f -u /tmp/u37/nat.dep /tmp/u38/nat.dep /tmp/u39/nat.dep /tmp/u310/nat.dep /tmp/m39/nat.dep /tmp/m311/nat.dep /tmp/w38/nat.dep /tmp/w311/nat.dep || true
+          sort -f -u /tmp/u38/nat.dep /tmp/u39/nat.dep /tmp/u310/nat.dep /tmp/m39/nat.dep /tmp/m311/nat.dep /tmp/w38/nat.dep /tmp/w311/nat.dep || true
         shell: bash
       - name: Coverage combine
-        run: coverage3 combine /tmp/u37/nat.dat
+        run: coverage3 combine /tmp/u38/nat.dat
         shell: bash
       - name: Upload to Coveralls
         env:
