@@ -77,22 +77,23 @@ class FermiHubbardModel(LatticeModel):
         kinetic_ham = {}
         interaction_ham = {}
         weighted_edge_list = self._lattice.weighted_edge_list
-        register_length = 2 * self._lattice.num_nodes
+        num_nodes = self._lattice.num_nodes
+        register_length = 2 * num_nodes
         # kinetic terms
         for spin in range(2):
             for node_a, node_b, weight in weighted_edge_list:
                 if node_a == node_b:
-                    index = 2 * node_a + spin
+                    index = node_a + spin * num_nodes
                     kinetic_ham[f"+_{index} -_{index}"] = weight
 
                 else:
                     if node_a < node_b:
-                        index_left = 2 * node_a + spin
-                        index_right = 2 * node_b + spin
+                        index_left = node_a + spin * num_nodes
+                        index_right = node_b + spin * num_nodes
                         hopping_parameter = weight
                     elif node_a > node_b:
-                        index_left = 2 * node_b + spin
-                        index_right = 2 * node_a + spin
+                        index_left = node_b + spin * num_nodes
+                        index_right = node_a + spin * num_nodes
                         hopping_parameter = np.conjugate(weight)
                     kinetic_ham[f"+_{index_left} -_{index_right}"] = hopping_parameter
                     kinetic_ham[f"-_{index_left} +_{index_right}"] = -np.conjugate(
@@ -100,8 +101,8 @@ class FermiHubbardModel(LatticeModel):
                     )
         # on-site interaction terms
         for node in self._lattice.node_indexes:
-            index_up = 2 * node
-            index_down = 2 * node + 1
+            index_up = node
+            index_down = node + num_nodes
             interaction_ham[
                 f"+_{index_up} -_{index_up} +_{index_down} -_{index_down}"
             ] = self._onsite_interaction
