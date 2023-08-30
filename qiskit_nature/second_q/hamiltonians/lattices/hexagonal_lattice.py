@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 """The hexagonal lattice"""
-from typing import Dict, Tuple
+from typing import Mapping, Tuple
 
 from rustworkx import generators
 
@@ -74,7 +74,7 @@ class HexagonalLattice(Lattice):
         """
         return self._onsite_parameter
 
-    def _default_position(self) -> Dict[int, Tuple]:
+    def _default_position(self) -> Mapping[int, Tuple(int, int)]:
         """Return a dictionary of default positions for visualization of
             a one- or two-dimensional lattice.
 
