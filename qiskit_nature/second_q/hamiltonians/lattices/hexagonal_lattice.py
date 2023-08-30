@@ -27,7 +27,6 @@ class HexagonalLattice(Lattice):
         cols: int,
         edge_parameter: complex = 1.0,
         onsite_parameter: complex = 0.0,
-        heavy_hex: bool = False,
     ) -> None:
         """
         Args:
@@ -37,13 +36,11 @@ class HexagonalLattice(Lattice):
                 Defaults to 1.0.
             onsite_parameter: Weight on the self-loops, which are edges connecting a node to itself.
                 Defaults to 0.0.
-            heavy_hex: When true, lattice will be drawn in heavy hex shape.
         """
         self._rows = rows
         self._cols = cols
         self._edge_parameter = edge_parameter
         self._onsite_parameter = onsite_parameter
-        self._heavy_hex = heavy_hex
 
         graph = generators.hexagonal_lattice_graph(rows, cols, multigraph=False)
 
@@ -104,22 +101,20 @@ class HexagonalLattice(Lattice):
                 else:
                     y = j
 
-                # adjust the x coords of some nodes to convert heavy hex shape to proper hexagon shape
-                if self._heavy_hex is not True:
-                    # even numbered nodes in the first, last and odd numbered columns need to be
-                    # shifted to the right
-                    if i == 0 or (i == self._cols) or (i % 2 != 0):
-                        if idx % 2 == 0:
-                            x = i + x_adjust
-                        else:
-                            x = i + i
-                    # odd numbered nodes that aren't in the first, last or odd numbered columns
-                    # need to be shifted to the right
+                # even numbered nodes in the first, last and odd numbered columns need to be
+                # shifted to the right
+                if i == 0 or (i == self._cols) or (i % 2 != 0):
+                    if idx % 2 == 0:
+                        x = i + x_adjust
                     else:
-                        if idx % 2 == 0:
-                            x = i + i
-                        else:
-                            x = i + x_adjust
+                        x = i + i
+                # odd numbered nodes that aren't in the first, last or odd numbered columns
+                # need to be shifted to the right
+                else:
+                    if idx % 2 == 0:
+                        x = i + i
+                    else:
+                        x = i + x_adjust
 
                 pos[idx] = (x, y)
 
