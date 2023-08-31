@@ -15,8 +15,8 @@ The code comprises various modules revolving around:
 - second-quantized operator construction and manipulation
 - translating from the second-quantized to the qubit space
 - a quantum circuit library of natural science targeted ansatze
-- natural science specific algorithms and utilities to make the use of Qiskit
-  Terra's algorithms easier
+- natural science specific algorithms and utilities to make the use of
+  algorithms from [Qiskit Algorithms](https://qiskit.org/ecosystem/algorithms/) easier
 - and much more
 
 ## Installation
