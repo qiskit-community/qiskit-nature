@@ -7,7 +7,7 @@ Getting started
 Installation
 ============
 
-Qiskit Nature depends Qiskit, which has its own
+Qiskit Nature depends on Qiskit, which has its own
 `Qiskit Getting Started <https://qiskit.org/documentation/getting_started.html>`__ detailing the
 installation options and its supported environments/platforms. You should refer to
 that first. Then the information here can be followed which focuses on the additional installation
