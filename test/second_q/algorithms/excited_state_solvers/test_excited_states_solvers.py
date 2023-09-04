@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,9 +12,13 @@
 
 """ Test Numerical qEOM excited states calculation """
 
+from __future__ import annotations
+
 import unittest
+import warnings
 
 from test import QiskitNatureTestCase
+from ddt import ddt, named_data
 import numpy as np
 
 from qiskit.algorithms.eigensolvers import NumPyEigensolver
@@ -31,7 +35,10 @@ from qiskit_nature.second_q.mappers import (
     BravyiKitaevMapper,
     JordanWignerMapper,
     ParityMapper,
+    QubitMapper,
+    TaperedQubitMapper,
 )
+
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.algorithms import (
     GroundStateEigensolver,
@@ -43,6 +50,7 @@ from qiskit_nature.second_q.algorithms import (
 import qiskit_nature.optionals as _optionals
 
 
+@ddt
 class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
     """Test Numerical qEOM excited states calculation"""
 
@@ -64,8 +72,10 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
             -1.8427016 + 0.95788352,
             -1.8427016 + 1.5969296,
         ]
-        self.qubit_converter = QubitConverter(JordanWignerMapper())
+        self.mapper = JordanWignerMapper()
+        self.qubit_converter = QubitConverter(self.mapper)
         self.electronic_structure_problem = self.driver.run()
+        self.num_particles = self.electronic_structure_problem.num_particles
 
         solver = NumPyEigensolver()
         self.ref = solver
@@ -81,6 +91,16 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
             with self.subTest(f"{i}. excited state"):
                 self.assertAlmostEqual(computed[i], references[i], places=places)
 
+    def _compute_and_assert_qeom_energies(self, mapper: QubitConverter | QubitMapper):
+        estimator = Estimator()
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
+        gsc = GroundStateEigensolver(mapper, solver)
+        esc = QEOM(gsc, estimator, "sd")
+        results = esc.solve(self.electronic_structure_problem)
+        self._assert_energies(results.computed_energies, self.reference_energies)
+
     def test_numpy_mes(self):
         """Test NumPyMinimumEigenSolver with QEOM"""
         solver = NumPyMinimumEigensolver()
@@ -89,55 +109,46 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         results = esc.solve(self.electronic_structure_problem)
         self._assert_energies(results.computed_energies, self.reference_energies)
 
-    def test_vqe_mes_jw(self):
-        """Test VQEUCCSDFactory with QEOM + Jordan Wigner mapping"""
-        converter = QubitConverter(JordanWignerMapper())
-        self._solve_with_vqe_mes(converter)
+    @named_data(
+        ["JWM", QubitConverter(JordanWignerMapper())],
+        ["JWM_Z2", QubitConverter(JordanWignerMapper(), z2symmetry_reduction="auto")],
+        ["PM", QubitConverter(ParityMapper())],
+        ["PM_TQR", QubitConverter(ParityMapper(), two_qubit_reduction=True)],
+        ["PM_Z2", QubitConverter(ParityMapper(), z2symmetry_reduction="auto")],
+        [
+            "PM_TQR_Z2",
+            QubitConverter(ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto"),
+        ],
+        ["BKM", QubitConverter(BravyiKitaevMapper())],
+        ["BKM_Z2", QubitConverter(BravyiKitaevMapper(), z2symmetry_reduction="auto")],
+    )
+    def test_solve_with_vqe_mes(self, converter: QubitConverter):
+        """Test QEOM with VQEUCCFactory and various QubitConverter"""
+        self._compute_and_assert_qeom_energies(converter)
 
-    def test_vqe_mes_jw_auto(self):
-        """Test VQEUCCSDFactory with QEOM + Jordan Wigner mapping + auto symmetry"""
-        converter = QubitConverter(JordanWignerMapper(), z2symmetry_reduction="auto")
-        self._solve_with_vqe_mes(converter)
+    @named_data(
+        ["JWM", JordanWignerMapper()],
+        ["PM", ParityMapper()],
+        ["PM_TQR", ParityMapper(num_particles=(1, 1))],
+    )
+    def test_solve_with_vqe_mes_mapper(self, mapper: QubitMapper):
+        """Test QEOM with VQEUCCFactory and various QubitMapper"""
+        self._compute_and_assert_qeom_energies(mapper)
 
-    def test_vqe_mes_parity(self):
-        """Test VQEUCCSDFactory with QEOM + Parity mapping"""
-        converter = QubitConverter(ParityMapper())
-        self._solve_with_vqe_mes(converter)
-
-    def test_vqe_mes_parity_2q(self):
-        """Test VQEUCCSDFactory with QEOM + Parity mapping + reduction"""
-        converter = QubitConverter(ParityMapper(), two_qubit_reduction=True)
-        self._solve_with_vqe_mes(converter)
-
-    def test_vqe_mes_parity_auto(self):
-        """Test VQEUCCSDFactory with QEOM + Parity mapping + auto symmetry"""
-        converter = QubitConverter(ParityMapper(), z2symmetry_reduction="auto")
-        self._solve_with_vqe_mes(converter)
-
-    def test_vqe_mes_parity_2q_auto(self):
-        """Test VQEUCCSDFactory with QEOM + Parity mapping + reduction + auto symmetry"""
-        converter = QubitConverter(
-            ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto"
+    @named_data(
+        ["JW", lambda n, esp: TaperedQubitMapper(JordanWignerMapper())],
+        ["JW_Z2", lambda n, esp: esp.get_tapered_mapper(JordanWignerMapper())],
+        ["PM", lambda n, esp: TaperedQubitMapper(ParityMapper())],
+        ["PM_Z2", lambda n, esp: esp.get_tapered_mapper(ParityMapper())],
+        ["PM_TQR", lambda n, esp: TaperedQubitMapper(ParityMapper(n))],
+        ["PM_TQR_Z2", lambda n, esp: esp.get_tapered_mapper(ParityMapper(n))],
+    )
+    def test_solve_with_vqe_mes_taperedmapper(self, tapered_mapper_creator):
+        """Test QEOM with VQEUCCFactory and various QubitMapper"""
+        tapered_mapper = tapered_mapper_creator(
+            self.num_particles, self.electronic_structure_problem
         )
-        self._solve_with_vqe_mes(converter)
-
-    def test_vqe_mes_bk(self):
-        """Test VQEUCCSDFactory with QEOM + Bravyi-Kitaev mapping"""
-        converter = QubitConverter(BravyiKitaevMapper())
-        self._solve_with_vqe_mes(converter)
-
-    def test_vqe_mes_bk_auto(self):
-        """Test VQEUCCSDFactory with QEOM + Bravyi-Kitaev mapping + auto symmetry"""
-        converter = QubitConverter(BravyiKitaevMapper(), z2symmetry_reduction="auto")
-        self._solve_with_vqe_mes(converter)
-
-    def _solve_with_vqe_mes(self, converter: QubitConverter):
-        estimator = Estimator()
-        solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
-        gsc = GroundStateEigensolver(converter, solver)
-        esc = QEOM(gsc, estimator, "sd")
-        results = esc.solve(self.electronic_structure_problem)
-        self._assert_energies(results.computed_energies, self.reference_energies)
+        self._compute_and_assert_qeom_energies(tapered_mapper)
 
     def test_numpy_factory(self):
         """Test NumPyEigenSolverFactory with ExcitedStatesEigensolver"""
@@ -146,7 +157,9 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         def filter_criterion(eigenstate, eigenvalue, aux_values):
             return np.isclose(aux_values["ParticleNumber"][0], 2.0)
 
-        solver = NumPyEigensolverFactory(filter_criterion=filter_criterion)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = NumPyEigensolverFactory(filter_criterion=filter_criterion)
         esc = ExcitedStatesEigensolver(self.qubit_converter, solver)
         results = esc.solve(self.electronic_structure_problem)
 
@@ -189,7 +202,9 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
                 num_particles_aux, expected_num_electrons
             )
 
-        solver = NumPyEigensolverFactory(filter_criterion=custom_filter_criterion)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = NumPyEigensolverFactory(filter_criterion=custom_filter_criterion)
         esc = ExcitedStatesEigensolver(converter, solver)
         results = esc.solve(esp)
 
@@ -209,6 +224,70 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         ]
 
         self._assert_energies(computed_energies, ref_energies, places=3)
+
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
+    def test_solver_compatibility_with_mappers(self):
+        """Test that solvers can use both QubitConverter and QubitMapper"""
+
+        # pylint: disable=unused-argument
+        def filter_criterion(eigenstate, eigenvalue, aux_values):
+            return np.isclose(aux_values["ParticleNumber"][0], 2.0)
+
+        with self.subTest("Excited states solver with qubit converter"):
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=DeprecationWarning)
+                solver = NumPyEigensolverFactory(filter_criterion=filter_criterion)
+            esc_converter = ExcitedStatesEigensolver(self.qubit_converter, solver)
+            results_converter = esc_converter.solve(self.electronic_structure_problem)
+            computed_energies_converter = [results_converter.computed_energies[0]]
+            # filter duplicates from list
+            for comp_energy in results_converter.computed_energies[1:]:
+                if not np.isclose(comp_energy, computed_energies_converter[-1]):
+                    computed_energies_converter.append(comp_energy)
+            self._assert_energies(computed_energies_converter, self.reference_energies)
+
+        with self.subTest("Excited states solver with qubit mapper"):
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=DeprecationWarning)
+                solver = NumPyEigensolverFactory(filter_criterion=filter_criterion)
+            esc_mapper = ExcitedStatesEigensolver(self.mapper, solver)
+            results_mapper = esc_mapper.solve(self.electronic_structure_problem)
+            # filter duplicates from list
+            computed_energies_mapper = [results_mapper.computed_energies[0]]
+            for comp_energy in results_mapper.computed_energies[1:]:
+                if not np.isclose(comp_energy, computed_energies_mapper[-1]):
+                    computed_energies_mapper.append(comp_energy)
+            self._assert_energies(computed_energies_mapper, self.reference_energies)
+
+        with self.subTest("QEOM with qubit converter"):
+            estimator = Estimator()
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=DeprecationWarning)
+                solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
+            gsc_converter = GroundStateEigensolver(self.qubit_converter, solver)
+            esc_converter = QEOM(gsc_converter, estimator, "sd")
+            results_converter = esc_converter.solve(self.electronic_structure_problem)
+            # filter duplicates from list
+            computed_energies_converter = [results_converter.computed_energies[0]]
+            for comp_energy in results_converter.computed_energies[1:]:
+                if not np.isclose(comp_energy, computed_energies_converter[-1]):
+                    computed_energies_converter.append(comp_energy)
+            self._assert_energies(computed_energies_converter, self.reference_energies)
+
+        with self.subTest("QEOM with qubit mapper"):
+            estimator = Estimator()
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=DeprecationWarning)
+                solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
+            gsc_mapper = GroundStateEigensolver(self.mapper, solver)
+            esc_mapper = QEOM(gsc_mapper, estimator, "sd")
+            results_mapper = esc_mapper.solve(self.electronic_structure_problem)
+            # filter duplicates from list
+            computed_energies_mapper = [results_mapper.computed_energies[0]]
+            for comp_energy in results_mapper.computed_energies[1:]:
+                if not np.isclose(comp_energy, computed_energies_mapper[-1]):
+                    computed_energies_mapper.append(comp_energy)
+            self._assert_energies(computed_energies_mapper, self.reference_energies)
 
 
 if __name__ == "__main__":

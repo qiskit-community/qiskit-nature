@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fixes the behavior of the :class:`.FreezeCoreTransformer` when a charge is
+    present on the molecule.

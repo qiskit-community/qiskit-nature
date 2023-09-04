@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -41,6 +41,8 @@ def _dump_2e_ints(
     idx_offsets = [1, 1]
     for b in range(beta):
         idx_offsets[1 - b] += len(mos)
+
+    # TODO: refactor to leverage symmetry-reduced integral containers
     hijkl_elements = set()
     for elem in itertools.product(mos, repeat=4):
         if np.isclose(hijkl[elem], 0.0, atol=1e-14):

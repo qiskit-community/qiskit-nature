@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2019, 2022.
+# (C) Copyright IBM 2019, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -20,6 +20,7 @@ from qiskit_nature.second_q.drivers import PySCFDriver, MethodType
 from qiskit_nature.second_q.mappers import BravyiKitaevMapper, ParityMapper
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.transformers import FreezeCoreTransformer
+from qiskit_nature.settings import settings
 import qiskit_nature.optionals as _optionals
 
 
@@ -228,6 +229,20 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         )
         result = self._run_driver(driver, converter=QubitConverter(BravyiKitaevMapper()))
         self._assert_energy_and_dipole(result, "oh")
+
+
+class TestDriverMethodsPySCFSymmetric(TestDriverMethodsPySCF):
+    """Driver Methods PySCF tests with symmetry-reduced integrals enabled"""
+
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
+    def setUp(self):
+        super().setUp()
+        self._prev_setting = settings.use_symmetry_reduced_integrals
+        settings.use_symmetry_reduced_integrals = True
+
+    def tearDown(self):
+        super().tearDown()
+        settings.use_symmetry_reduced_integrals = self._prev_setting
 
 
 if __name__ == "__main__":

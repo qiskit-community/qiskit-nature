@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -17,8 +17,7 @@ from __future__ import annotations
 from collections.abc import Callable, Mapping
 from itertools import product
 from numbers import Number
-from typing import Iterator, Type, Union, cast
-import string
+from typing import Iterator, Sequence, Type, Union, cast
 
 import numpy as np
 
@@ -32,16 +31,12 @@ from qiskit_nature.settings import settings
 import qiskit_nature.optionals as _optionals
 from qiskit_nature.utils import get_einsum
 
+from .tensor import Tensor
+
 if _optionals.HAS_SPARSE:
     # pylint: disable=import-error
-    from sparse import SparseArray, COO, DOK, GCXS, zeros_like
+    from sparse import SparseArray, COO, DOK, GCXS
 else:
-
-    def zeros_like(*args):
-        """Empty zeros_like function
-        Replacement if sparse.zeros_like is not present.
-        """
-        del args
 
     class COO:  # type: ignore
         """Empty COO class
@@ -72,23 +67,22 @@ else:
         pass
 
 
-# pylint: disable=invalid-name
-ARRAY_TYPE = Union[np.ndarray, SparseArray]
-
-
 class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
     """A container class to store arbitrary operator coefficients.
 
-    This class generalizes the storing of operator coefficients in matrix format. Actual operators
+    This class generalizes the storing of operator coefficients in tensor format. Actual operators
     can be extracted from it using the
     :meth:`qiskit_nature.second_q.operators.SparseLabelOp.from_polynomial_tensor` method on the
     respective subclasses of the ``SparseLabelOp``.
 
-    The storage format maps from string keys to matrix values. By design, **no** assumptions are
-    made about the *contents* of the keys. However, the length of each key determines the dimension
-    of the matrix which it maps, too. For example:
+    Internally, this class stores tensors as instances of
+    :class:`~qiskit_nature.second_q.operators.Tensor`. Refer to its documentation for more details.
+    The storage format maps from string keys to these ``Tensor`` objects. By design, **no**
+    assumptions are made about the *contents* of the keys. However, the length of each key
+    determines the dimension of the tensor which it maps, too. For example (using numpy arrays for
+    the sake of simplicity):
 
-    .. jupyter-execute::
+    .. code-block:: python
 
         import numpy as np
 
@@ -102,10 +96,10 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         # ... and so on
 
     In general, the idea is that each character in a key will be associated with the corresponding
-    axis of the matrix, when an operator gets built from the tensor. This means, that the previous
-    example would expand for example like so:
+    axis of the tensor, when an operator gets built from the ``PolynomialTensor`` instance. This
+    means, that the previous example would expand for example like so:
 
-    .. jupyter-execute::
+    .. code-block:: python
 
         from qiskit_nature.second_q.operators import FermionicOp, PolynomialTensor
 
@@ -113,6 +107,15 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         operator = FermionicOp.from_polynomial_tensor(tensor)
 
         print(operator)
+        # Fermionic Operator
+        # number spin orbitals=2, number terms=7
+        #   1.0
+        # + 1 * ( +_0 )
+        # + 2 * ( +_1 )
+        # + 1 * ( +_0 -_0 )
+        # + 2 * ( +_0 -_1 )
+        # + 3 * ( +_1 -_0 )
+        # + 4 * ( +_1 -_1 )
 
     **Algebra**
 
@@ -122,28 +125,28 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
 
     Addition
 
-    .. jupyter-execute::
+    .. code-block:: python
 
       matrix = np.array([[0, 1], [2, 3]], dtype=float)
       0.5 * PolynomialTensor({"+-": matrix}) + PolynomialTensor({"+-": matrix})
 
     Operator multiplication
 
-    .. jupyter-execute::
+    .. code-block:: python
 
       tensor = PolynomialTensor({"+-": matrix})
       print(tensor @ tensor)
 
     Tensor multiplication
 
-    .. jupyter-execute::
+    .. code-block:: python
 
       print(tensor ^ tensor)
 
     You can also implement more advanced arithmetic via the :meth:`apply` and :meth:`einsum`
     methods.
 
-    .. jupyter-execute::
+    .. code-block:: python
 
       print(PolynomialTensor.apply(np.transpose, tensor))
       print(PolynomialTensor.apply(np.conjugate, 1j * tensor))
@@ -153,11 +156,12 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
 
     **Sparse Arrays**
 
-    Furthermore, the ``PolynomialTensor`` supports both, dense numpy arrays and sparse arrays. Since
-    it needs to support more than 2-dimensional arrays, we rely on the
+    Furthermore, since the ``PolynomialTensor`` is building on top of the
+    :class:`~qiskit_nature.second_q.operators.Tensor` class it supports both, dense numpy arrays and
+    sparse arrays. Since it needs to support more than 2-dimensional arrays, we rely on the
     `sparse <https://sparse.pydata.org/en/stable/index.html>`_ library.
 
-    .. jupyter-execute::
+    .. code-block:: python
 
         import sparse as sp
 
@@ -170,28 +174,35 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
 
     def __init__(
         self,
-        data: Mapping[str, np.ndarray | SparseArray | Number],
+        data: Mapping[str, np.ndarray | SparseArray | complex | Tensor],
         *,
         validate: bool = True,
     ) -> None:
         """
         Args:
-            data: mapping of string-based operator keys to coefficient matrix values.
-            validate: when set to False the ``data`` will not be validated. Disable this setting with
-                care!
+            data: mapping of string-based operator keys to coefficient tensor values. If the values
+                are not already of type :class:`~qiskit_nature.second_q.operators.Tensor`, they will
+                automatically be wrapped into one. Upon retrieval via item access (``__getitem__``)
+                automatically wrapped objects will be unwrapped again depending on the value of
+                :attr:`~qiskit_nature.settings.tensor_unwrapping`.
+            validate: when set to False the ``data`` will not be validated. Disable this setting
+                with care!
 
         Raises:
             ValueError: when length of operator key does not match dimensions of value matrix.
             ValueError: when value matrix does not have consistent dimensions.
             ValueError: when some or all value matrices in ``data`` have different dimensions.
         """
-        copy_dict: dict[str, ARRAY_TYPE] = {}
+        copy_dict: dict[str, Tensor] = {}
 
         dim: int | None = None
 
         for key, value in data.items():
-            if isinstance(value, Number):
-                value = np.asarray(value)
+            if not isinstance(value, Tensor):
+                value = Tensor(value)
+                # NOTE: the following monkey patch attribute is used only for the deprecation period
+                # during which this Tensor class is being introduced into the stack
+                value._monkey_patched_unwrap_toggle = True
 
             if validate and len(value.shape) != len(key):
                 raise ValueError(
@@ -227,7 +238,8 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         for key in self._data:
             if key == "":
                 continue
-            return cast(ARRAY_TYPE, self[key]).shape[0]
+            # TODO: remove unnecessary cast once settings.tensor_unwrapping is removed
+            return cast(Union[np.ndarray, SparseArray, Tensor], self[key]).shape[0]
         return None
 
     def __repr__(self) -> str:
@@ -256,22 +268,31 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
     @_optionals.HAS_SPARSE.require_in_call
     def is_sparse(self) -> bool:
         """Returns whether all matrices in this tensor are sparse."""
-        return all(isinstance(self[key], SparseArray) for key in self if key != "")
+        # TODO: remove extra-wrapping of Tensor once settings.tensor_unwrapping is removed
+        return all(Tensor(self[key]).is_sparse() for key in self if key != "")
 
     def is_dense(self) -> bool:
         """Returns whether all matrices in this tensor are dense."""
-        return all(isinstance(self[key], np.ndarray) for key in self if key != "")
+        # TODO: remove extra-wrapping of Tensor once settings.tensor_unwrapping is removed
+        return all(Tensor(self[key]).is_dense() for key in self if key != "")
 
-    def __getitem__(self, __k: str) -> (np.ndarray | SparseArray | Number):
+    def __getitem__(self, __k: str) -> np.ndarray | SparseArray | Number | Tensor:
         """Gets the value from the ``PolynomialTensor``.
 
         Args:
             __k: operator key string in the ``PolynomialTensor``.
 
         Returns:
-            Value corresponding to the operator key ``__k``.
+            Value corresponding to the operator key ``__k``. If
+            :attr:`~qiskit_nature.settings.tensor_unwrapping` is ``False``, the returned is
+            guaranteed to be of type :class:`~qiskit_nature.second_q.operators.Tensor`.
         """
-        return self._data.__getitem__(__k)
+        item = self._data.__getitem__(__k)
+
+        if settings.tensor_unwrapping and hasattr(item, "_monkey_patched_unwrap_toggle"):
+            return item.array
+
+        return item
 
     def __len__(self) -> int:
         """Returns the length of the ``PolynomialTensor``."""
@@ -282,7 +303,7 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         return self._data.__iter__()
 
     def to_dense(self) -> PolynomialTensor:
-        """Returns a new instance where all matrices are now dense numpy arrays.
+        """Returns a new instance where all matrices are now dense tensors.
 
         If the instance on which this method was called already fulfilled this requirement, it is
         returned unchanged.
@@ -291,12 +312,9 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
             return self
 
         _optionals.HAS_SPARSE.require_now("SparseArray")
-        dense_dict: dict[str, ARRAY_TYPE] = {}
+        dense_dict: dict[str, Tensor] = {}
         for key, value in self._data.items():
-            if isinstance(value, SparseArray):
-                dense_dict[key] = value.todense()
-            else:
-                dense_dict[key] = value
+            dense_dict[key] = value.to_dense()
         return PolynomialTensor(dense_dict, validate=False)
 
     # TODO: change the following type-hint if/when SparseArray dictates the existence of from_numpy
@@ -304,15 +322,15 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
     def to_sparse(
         self, *, sparse_type: Type[COO] | Type[DOK] | Type[GCXS] = COO
     ) -> PolynomialTensor:
-        """Returns a new instance where all matrices are now sparse arrays.
+        """Returns a new instance where all matrices are now sparse tensors.
 
         If the instance on which this method was called already fulfilled this requirement, it is
         returned unchanged.
 
         Args:
             sparse_type: the type to use for the conversion to sparse matrices. Note, that this will
-                only be applied to matrices which were previously dense numpy arrays. Sparse arrays
-                of another type will not be explicitly converted.
+                only be applied to matrices which were previously dense tensors. Sparse arrays of
+                another type will not be explicitly converted.
 
         Returns:
             A new ``PolynomialTensor`` with all its matrices converted to the requested sparse array
@@ -321,12 +339,10 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         if self.is_sparse():
             return self
 
-        sparse_dict: dict[str, ARRAY_TYPE] = {}
+        sparse_dict: dict[str, Tensor] = {}
         for key, value in self._data.items():
-            if isinstance(value, np.ndarray):
-                sparse_dict[key] = sparse_type.from_numpy(value)
-            else:
-                sparse_dict[key] = value
+            sparse_dict[key] = value.to_sparse(sparse_type=sparse_type)
+
         return PolynomialTensor(sparse_dict, validate=False)
 
     def _multiply(self, other: complex) -> PolynomialTensor:
@@ -339,14 +355,14 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
             The new ``PolynomialTensor`` product object.
 
         Raises:
-            TypeError: if ``other`` is not a ``Number``.
+            TypeError: if ``other`` is not a number.
         """
         if not isinstance(other, Number):
             raise TypeError(f"other {other} must be a number")
 
-        prod_dict: dict[str, ARRAY_TYPE] = {}
+        prod_dict: dict[str, Tensor] = {}
         for key, matrix in self._data.items():
-            prod_dict[key] = np.multiply(matrix, other)
+            prod_dict[key] = other * matrix
 
         return PolynomialTensor(prod_dict, validate=False)
 
@@ -373,21 +389,20 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
 
         return PolynomialTensor(sum_dict, validate=False)
 
-    # pylint: disable=too-many-return-statements
     def __eq__(self, other: object) -> bool:
         """Check equality of ``PolynomialTensor`` instances.
 
         .. note::
-            This check only assert the internal matrix elements for equality but ignores the type of
-            the matrices. As such, it will indicate equality of two ``PolynomialTensor`` instances
-            even if one contains sparse and the other dense numpy arrays, as long as their elements
-            are identical.
+            This check only asserts the internal matrix elements for equality but ignores the type
+            of the matrices. As such, it will indicate equality of two ``PolynomialTensor``
+            instances even if one contains sparse and the other dense numpy arrays, as long as their
+            elements are identical.
 
         Args:
-            other: second ``PolynomialTensor`` object to be compared with the first.
+            other: the second ``PolynomialTensor`` object to be compared with the first.
 
         Returns:
-            True when ``PolynomialTensor`` objects are equal, False when unequal.
+            True when the ``PolynomialTensor`` objects are equal, False when unequal.
         """
         if not isinstance(other, PolynomialTensor):
             return False
@@ -398,47 +413,25 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         for key, value in self._data.items():
             other_value = other._data[key]
 
-            self_is_sparse = isinstance(value, SparseArray)
-            other_is_sparse = isinstance(other_value, SparseArray)
-
-            if self_is_sparse:
-                value = cast(SparseArray, value)
-                if other_is_sparse:
-                    other_value = cast(SparseArray, other_value)
-                    if value.ndim != other_value.ndim:
-                        return False
-                    if value.nnz != other_value.nnz:
-                        return False
-                    if value.size != other_value.size:
-                        return False
-                    diff = value - other_value
-                    if diff.nnz != 0:
-                        return False
-                    continue
-                value = value.todense()
-            elif other_is_sparse:
-                other_value = cast(SparseArray, other_value).todense()
-
-            if not np.array_equal(value, other_value):
+            if value != other_value:
                 return False
 
         return True
 
-    # pylint: disable=too-many-return-statements
     def equiv(self, other: object) -> bool:
         """Check equivalence of ``PolynomialTensor`` instances.
 
         .. note::
-            This check only assert the internal matrix elements for equivalence but ignores the type
-            of the matrices. As such, it will indicate equivalence of two ``PolynomialTensor``
+            This check only asserts the internal matrix elements for equivalence but ignores the
+            type of the matrices. As such, it will indicate equivalence of two ``PolynomialTensor``
             instances even if one contains sparse and the other dense numpy arrays, as long as their
             elements match.
 
         Args:
-            other: second ``PolynomialTensor`` object to be compared with the first.
+            other: the second ``PolynomialTensor`` object to be compared with the first.
 
         Returns:
-            True when ``PolynomialTensor`` objects are equivalent, False when not.
+            True when the ``PolynomialTensor`` objects are equivalent, False when not.
         """
         if not isinstance(other, PolynomialTensor):
             return False
@@ -449,29 +442,7 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         for key, value in self._data.items():
             other_value = other._data[key]
 
-            self_is_sparse = isinstance(value, SparseArray)
-            other_is_sparse = isinstance(other_value, SparseArray)
-
-            if self_is_sparse:
-                value = cast(SparseArray, value)
-                if other_is_sparse:
-                    other_value = cast(SparseArray, other_value)
-                    if value.ndim != other_value.ndim:
-                        return False
-                    diff = value - other_value
-                    if not np.allclose(
-                        diff.todense(),
-                        zeros_like(diff).todense(),
-                        atol=self.atol,
-                        rtol=self.rtol,
-                    ):
-                        return False
-                    continue
-                value = value.todense()
-            elif other_is_sparse:
-                other_value = cast(SparseArray, other_value).todense()
-
-            if not np.allclose(value, other_value, atol=self.atol, rtol=self.rtol):
+            if not value.equiv(other_value):
                 return False
 
         return True
@@ -484,14 +455,14 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         Args:
             other: the other PolynomialTensor.
             qargs: UNUSED.
-            front: If True composition uses right matrix multiplication, otherwise left
+            front: If ``True``, composition uses right matrix multiplication, otherwise left
                 multiplication is used (the default).
 
         Raises:
             NotImplementedError: when the two tensors do not have the same :attr:`register_length`.
 
         Returns:
-            The operator resulting from the composition.
+            The tensor resulting from the composition.
 
         .. note::
             Composition (``&``) by default is defined as `left` matrix multiplication for operators,
@@ -509,14 +480,19 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         if a.register_length != b.register_length:
             raise NotImplementedError()
 
-        new_data: dict[str, ARRAY_TYPE | Number] = {}
+        new_data: dict[str, Tensor] = {}
         for akey, bkey in product(a, b):
             new_key = akey + bkey
 
-            amat = cast(ARRAY_TYPE, a[akey])
-            bmat = cast(ARRAY_TYPE, b[bkey])
+            atensor = a[akey]
+            btensor = b[bkey]
+            # TODO: remove these once settings.tensor_unwrapping is removed
+            if not isinstance(atensor, Tensor):
+                atensor = Tensor(atensor)
+            if not isinstance(btensor, Tensor):
+                btensor = Tensor(btensor)
 
-            outer = np.outer(amat, bmat).reshape(amat.shape + bmat.shape)
+            outer = atensor.compose(btensor, qargs=qargs, front=True)
 
             if new_key in new_data:
                 new_data[new_key] = new_data[new_key] + outer
@@ -541,7 +517,7 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
             The tensor product can be obtained using the ``^`` binary operator.
             Hence ``a.tensor(b)`` is equivalent to ``a ^ b``.
 
-        .. note:
+        .. note::
             Tensor uses reversed operator ordering to :meth:`expand`.
             For two tensors of the same type ``a.tensor(b) = b.expand(a)``.
         """
@@ -557,9 +533,9 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
             NotImplementedError: when the two tensors do not have the same :attr:`register_length`.
 
         Returns:
-            The tensor resulting from the tensor product, :math:`othr \otimes self`.
+            The tensor resulting from the tensor product, :math:`other \otimes self`.
 
-        .. note:
+        .. note::
             Expand is the opposite operator ordering to :meth:`tensor`.
             For two tensors of the same type ``a.expand(b) = b.tensor(a)``.
         """
@@ -570,37 +546,18 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         if a.register_length != b.register_length:
             raise NotImplementedError()
 
-        # NOTE: mypy really does not like Number, so a lot of casts are necessary for the time being
-        new_data: dict[str, ARRAY_TYPE | Number] = {}
+        new_data: dict[str, Tensor] = {}
         for akey, bkey in product(a, b):
-            # expand a-matrix into upper left sector
-            amat = cast(ARRAY_TYPE, a[akey])
-            adim = len(amat.shape)
-            aones = np.zeros((2,) * adim)
-            aones[(0,) * adim] = 1.0
-            amat = np.kron(aones, amat)
-            aeinsum = string.ascii_lowercase[:adim] if adim > 0 else ""
 
-            # expand b-matrix into lower right sector
-            bmat = cast(ARRAY_TYPE, b[bkey])
-            bdim = len(bmat.shape)
-            bones = np.zeros((2,) * bdim)
-            bones[(1,) * bdim] = 1.0
-            bmat = np.kron(bones, bmat)
-            beinsum = string.ascii_lowercase[-bdim:] if bdim > 0 else ""
+            atensor = a[akey]
+            btensor = b[bkey]
+            # TODO: remove these once settings.tensor_unwrapping is removed
+            if not isinstance(atensor, Tensor):
+                atensor = Tensor(atensor)
+            if not isinstance(btensor, Tensor):
+                btensor = Tensor(btensor)
 
-            make_sparse = False
-            if isinstance(amat, SparseArray):
-                # pylint: disable=no-member
-                amat = amat.todense()
-                make_sparse = True
-            if isinstance(bmat, SparseArray):
-                # pylint: disable=no-member
-                bmat = bmat.todense()
-                make_sparse = True
-            einsum = np.einsum(f"{aeinsum},{beinsum}", amat, bmat)
-            if make_sparse:
-                einsum = COO(einsum)
+            einsum = atensor.tensor(btensor)
 
             new_key = akey + bkey
             if new_key in new_data:
@@ -613,10 +570,11 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
     @classmethod
     def apply(
         cls,
-        function: Callable[..., np.ndarray | SparseArray | Number],
+        function: Callable[..., np.ndarray | SparseArray | complex],
         *operands: PolynomialTensor,
+        multi: bool = False,
         validate: bool = True,
-    ) -> PolynomialTensor:
+    ) -> PolynomialTensor | list[PolynomialTensor]:
         """Applies the provided function to the common set of keys of the provided tensors.
 
         The usage of this method is best explained by some examples:
@@ -646,6 +604,12 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
             # "+" key. That is because the function only gets applied to the keys which are common
             # to all tensors passed to it.
 
+            # computing eigenvectors
+            hermi_a = np.array([[1, -2j], [2j, 5]])
+            a = PolynomialTensor({"+-": hermi_a})
+            _, eigenvectors = PolynomialTensor.apply(np.linalg.eigh, a, multi=True, validate=False)
+            print(eigenvectors == PolynomialTensor({"+-": np.eigh(hermi_a)[1]}))  # True
+
         .. note::
 
             The provided function will only be applied to the internal arrays of the common keys of
@@ -657,17 +621,153 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
                 function must take numpy (or sparse) arrays as its positional arguments. The number
                 of arguments must match the number of provided operands.
             operands: a sequence of ``PolynomialTensor`` instances on which to operate.
-            validate: when set to False the `data` will not be validated. Disable this setting with
-                care!
+            multi: when set to True this indicates that the provided numpy function will return
+                multiple new numpy arrays which will each be wrapped into a ``PolynomialTensor``
+                instance separately.
+            validate: when set to False the ``data`` will not be validated. Disable this setting
+                with care!
 
         Returns:
             A new ``PolynomialTensor`` instance with the resulting arrays.
         """
         common_keys = set.intersection(*(set(op) for op in operands))
-        new_data: dict[str, ARRAY_TYPE | Number] = {}
+
+        new_tensors: list[dict[str, Tensor]] = [{}]
         for key in common_keys:
-            new_data[key] = function(*(op[key] for op in operands))
+            results = cast(Tensor, function(*(op[key] for op in operands)))
+
+            if multi:
+                for idx, res in enumerate(results):
+                    if idx >= len(new_tensors):
+                        new_tensors.append({})
+                    new_tensors[idx][key] = res
+            else:
+                new_tensors[0][key] = results
+
+        if multi:
+            return [cls(tensor, validate=validate) for tensor in new_tensors]
+
+        return cls(new_tensors[0], validate=validate)
+
+    @classmethod
+    def stack(
+        cls,
+        function: Callable[..., np.ndarray | SparseArray | Number],
+        operands: Sequence[PolynomialTensor],
+        *,
+        validate: bool = True,
+    ) -> PolynomialTensor:
+        """Stacks the provided sequence of tensors using the given numpy stacking function.
+
+        The usage of this method is best explained by some examples:
+
+        .. code-block:: python
+
+            import numpy as np
+            from qiskit_nature.second_q.opertors import PolynomialTensor
+            rand_a = np.random.random((2, 2))
+            rand_b = np.random.random((2, 2))
+            a = PolynomialTensor({"+-": rand_a})
+            b = PolynomialTensor({"+": np.random.random(2), "+-": rand_b})
+
+            # np.hstack
+            ab_hstack = PolynomialTensor.stack(np.hstack, [a, b], validate=False)
+            print(ab_hstack == PolynomialTensor({"+-": np.hstack([a, b], validate=False)}))  # True
+
+            # np.vstack
+            ab_vstack = PolynomialTensor.stack(np.vstack, [a, b], validate=False)
+            print(ab_vstack == PolynomialTensor({"+-": np.vstack([a, b], validate=False)}))  # True
+
+        .. note::
+
+            The provided function will only be applied to the internal arrays of the common keys of
+            all provided ``PolynomialTensor`` instances. That means, that no cross-products will be
+            generated.
+
+        .. note::
+
+            When stacking arrays this will likely lead to array shapes which would fail the shape
+            validation check (as you can see from the examples above where we explicitly disable
+            them). This is considered an advanced use case which is why the user is left to disable
+            this check themselves, to ensure they know what they are doing.
+
+        Args:
+            function: the stacking function to apply to the internal arrays of the provided
+                operands. This function must take a sequence of numpy (or sparse) arrays as its
+                first argument. You should use :code:`functools.partial` if you need to provide
+                keyword arguments (e.g. :code:`partial(np.stack, axis=-1)`). Common methods to use
+                here are :func:`numpy.hstack` and :func:`numpy.vstack`.
+            operands: a sequence of ``PolynomialTensor`` instances on which to operate.
+            validate: when set to False the ``data`` will not be validated. Disable this setting
+                with care!
+
+        Returns:
+            A new ``PolynomialTensor`` instance with the resulting arrays.
+        """
+        common_keys = set.intersection(*(set(op) for op in operands))
+        new_data: dict[str, Tensor | Number] = {}
+        for key in common_keys:
+            new_data[key] = cast(Tensor, function([*(op[key] for op in operands)]))
         return cls(new_data, validate=validate)
+
+    def split(
+        self,
+        function: Callable[..., np.ndarray | SparseArray | Number],
+        indices_or_sections: int | Sequence[int],
+        *,
+        validate: bool = True,
+    ) -> list[PolynomialTensor]:
+        """Splits the acted on tensor instance using the given numpy splitting function.
+
+        The usage of this method is best explained by some examples:
+
+        .. code-block:: python
+
+            import numpy as np
+            from qiskit_nature.second_q.opertors import PolynomialTensor
+            rand_ab = np.random.random((4, 4))
+            ab = PolynomialTensor({"+-": rand_ab})
+
+            # np.hsplit
+            a, b = ab.split(np.hsplit, [2], validate=False)
+            print(a == PolynomialTensor({"+-": np.hsplit(ab, [2])[0], validate=False)}))  # True
+            print(b == PolynomialTensor({"+-": np.hsplit(ab, [2])[1], validate=False)}))  # True
+
+            # np.vsplit
+            a, b = ab.split(np.vsplit, [2], validate=False)
+            print(a == PolynomialTensor({"+-": np.vsplit(ab, [2])[0], validate=False)}))  # True
+            print(b == PolynomialTensor({"+-": np.vsplit(ab, [2])[1], validate=False)}))  # True
+
+        .. note::
+
+            When splitting arrays this will likely lead to array shapes which would fail the shape
+            validation check (as you can see from the examples above where we explicitly disable
+            them). This is considered an advanced use case which is why the user is left to disable
+            this check themselves, to ensure they know what they are doing.
+
+        Args:
+            function: the splitting function to use. This function must take a single numpy (or
+                sparse) array as its first input followed by a sequence of indices to split on.
+                You should use :code:`functools.partial` if you need to provide keyword arguments
+                (e.g. :code:`partial(np.split, axis=-1)`). Common methods to use here are
+                :func:`numpy.hsplit` and :func:`numpy.vsplit`.
+            indices_or_sections: a single index or sequence of indices to split on.
+            validate: when set to False the ``data`` will not be validated. Disable this setting
+                with care!
+
+        Returns:
+            New ``PolynomialTensor`` instances containing the split arrays.
+        """
+        new_tensors: list[dict[str, Tensor | Number]] = []
+        for key, arr in self._data.items():
+            for idx, new_arr in enumerate(
+                function(arr, indices_or_sections)  # type: ignore[arg-type]
+            ):
+                if idx < len(new_tensors):
+                    new_tensors[idx][key] = new_arr
+                else:
+                    new_tensors.append({key: new_arr})
+        return [self.__class__(new_data, validate=validate) for new_data in new_tensors]
 
     @classmethod
     def einsum(
@@ -736,23 +836,26 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
                 provided ``PolynomialTensor`` operands. The last string in this tuple indicates the
                 key under which to store the result in the returned ``PolynomialTensor``.
             operands: a sequence of ``PolynomialTensor`` instances on which to operate.
-            validate: when set to False the `data` will not be validated. Disable this setting with
-                care!
+            validate: when set to False the ``data`` will not be validated. Disable this setting
+                with care!
 
         Returns:
             A new ``PolynomialTensor``.
         """
         einsum_func, uses_sparse = get_einsum()
         operand_list = list(operands) if uses_sparse else [op.to_dense() for op in operands]
-        new_data: dict[str, ARRAY_TYPE] = {}
+        new_data: dict[str, Tensor] = {}
         for einsum, terms in einsum_map.items():
             *inputs, output = terms
             try:
-                result = einsum_func(
-                    einsum,
-                    *[operand_list[idx]._data[term] for idx, term in enumerate(inputs)],
-                    optimize=settings.optimize_einsum,
-                )
+                # TODO: remove extra-wrapping of Tensor once settings.tensor_unwrapping is removed
+                ops = []
+                for idx, term in enumerate(inputs):
+                    op = operand_list[idx]._data[term]
+                    if not isinstance(op, Tensor):
+                        op = Tensor(op)
+                    ops.append(op)
+                result = einsum_func(einsum, *ops, optimize=settings.optimize_einsum)
             except KeyError:
                 continue
             if output in new_data:

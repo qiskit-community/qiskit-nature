@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -17,17 +17,18 @@ from __future__ import annotations
 import re
 from collections import defaultdict
 from collections.abc import Collection, Mapping
-from typing import cast, Iterator
+from typing import Iterator, Sequence
 
 import numpy as np
 from scipy.sparse import csc_matrix
 
+from qiskit_nature.deprecation import deprecate_method
 from qiskit_nature.exceptions import QiskitNatureError
-import qiskit_nature.optionals as _optionals
 
 from ._bits_container import _BitsContainer
 from .polynomial_tensor import PolynomialTensor
 from .sparse_label_op import _TCoeff, SparseLabelOp, _to_number
+from .tensor import Tensor
 
 
 class FermionicOp(SparseLabelOp):
@@ -46,7 +47,7 @@ class FermionicOp(SparseLabelOp):
     A ``FermionicOp`` is initialized with a dictionary, mapping terms to their respective
     coefficients:
 
-    .. jupyter-execute::
+    .. code-block:: python
 
         from qiskit_nature.second_q.operators import FermionicOp
 
@@ -62,7 +63,7 @@ class FermionicOp(SparseLabelOp):
     If you have very restricted memory resources available, or would like to avoid the additional
     copy, the dictionary will be stored by reference if you disable ``copy`` like so:
 
-    .. jupyter-execute::
+    .. code-block:: python
 
         some_big_data = {
             "+_0 -_0": 1.0,
@@ -91,25 +92,25 @@ class FermionicOp(SparseLabelOp):
 
     Addition
 
-    .. jupyter-execute::
+    .. code-block:: python
 
       FermionicOp({"+_1": 1}, num_spin_orbitals=2) + FermionicOp({"+_0": 1}, num_spin_orbitals=2)
 
     Sum
 
-    .. jupyter-execute::
+    .. code-block:: python
 
       sum(FermionicOp({label: 1}, num_spin_orbitals=3) for label in ["+_0", "-_1", "+_2 -_2"])
 
     Scalar multiplication
 
-    .. jupyter-execute::
+    .. code-block:: python
 
       0.5 * FermionicOp({"+_1": 1}, num_spin_orbitals=2)
 
     Operator multiplication
 
-    .. jupyter-execute::
+    .. code-block:: python
 
       op1 = FermionicOp({"+_0 -_1": 1}, num_spin_orbitals=2)
       op2 = FermionicOp({"-_0 +_0 +_1": 1}, num_spin_orbitals=2)
@@ -117,27 +118,16 @@ class FermionicOp(SparseLabelOp):
 
     Tensor multiplication
 
-    .. jupyter-execute::
+    .. code-block:: python
 
       op = FermionicOp({"+_0 -_1": 1}, num_spin_orbitals=2)
       print(op ^ op)
 
     Adjoint
 
-    .. jupyter-execute::
-
-      FermionicOp({"+_0 -_1": 1j}, num_spin_orbitals=2).adjoint()
-
-    In principle, you can also add `FermionicOp` and integers, but the only valid case is the
-    addition of `0 + FermionicOp`. This makes the `sum` operation from the example above possible
-    and it is useful in the following scenario:
-
     .. code-block:: python
 
-        fermion = 0
-        for i in some_iterable:
-            # some processing
-            fermion += FermionicOp(somedata)
+      FermionicOp({"+_0 -_1": 1j}, num_spin_orbitals=2).adjoint()
 
     **Iteration**
 
@@ -254,27 +244,20 @@ class FermionicOp(SparseLabelOp):
 
         for key in tensor:
             if key == "":
-                # TODO: deal with complexity
-                data[""] = cast(float, tensor[key])
+                data[""] = tensor[key]
                 continue
 
-            label_template = " ".join(f"{op}_{{}}" for op in key)
-
-            # PERF: the following matrix unpacking is a performance bottleneck!
-            # We could consider using Rust in the future to improve upon this.
-
             mat = tensor[key]
-            if isinstance(mat, np.ndarray):
-                for index in np.ndindex(*mat.shape):
-                    data[label_template.format(*index)] = mat[index]
-            else:
-                _optionals.HAS_SPARSE.require_now("SparseArray")
-                import sparse as sp  # pylint: disable=import-error
 
-                if isinstance(mat, sp.SparseArray):
-                    coo = sp.as_coo(mat)
-                    for value, *index in zip(coo.data, *coo.coords):
-                        data[label_template.format(*index)] = value
+            if not isinstance(mat, Tensor):
+                # TODO: this case is to be removed once qiskit_nature.settings.tensor_unwrapping is
+                # deprecated and the PolynomialTensor item is guaranteed to be of type Tensor
+                mat = Tensor(mat)
+
+            label_template = mat.label_template.format(*key)
+
+            for value, index in mat.coord_iter():
+                data[label_template.format(*index)] = value
 
         return cls(data, copy=False, num_spin_orbitals=tensor.register_length).chop()
 
@@ -313,6 +296,19 @@ class FermionicOp(SparseLabelOp):
             terms = [(lbl[0], int(lbl[2:])) for lbl in label.split()]
             yield (terms, self[label])
 
+    @classmethod
+    def from_terms(cls, terms: Sequence[tuple[list[tuple[str, int]], _TCoeff]]) -> FermionicOp:
+        data = {
+            " ".join(f"{action}_{index}" for action, index in label): value
+            for label, value in terms
+        }
+        return cls(data)
+
+    def _permute_term(
+        self, term: list[tuple[str, int]], permutation: Sequence[int]
+    ) -> list[tuple[str, int]]:
+        return [(action, permutation[index]) for action, index in term]
+
     def compose(self, other: FermionicOp, qargs=None, front: bool = False) -> FermionicOp:
         if not isinstance(other, FermionicOp):
             raise TypeError(
@@ -348,10 +344,20 @@ class FermionicOp(SparseLabelOp):
             new_op.num_spin_orbitals = a.num_spin_orbitals + b.num_spin_orbitals
         return new_op
 
-    # TODO: do we want to change the returned type to be non-scipy sparse matrix?
+    # pylint: disable=bad-docstring-quotes
+    @deprecate_method(
+        "0.6.0",
+        additional_msg=(
+            ". This method has no direct replacement. Instead, use the "
+            "`qiskit_nature.second_q.mappers.JordanWignerMapper` to create a qubit operator and "
+            "subsequently use its `to_matrix()` method. Be advised, that the basis state ordering "
+            "of that output will differ due to the bitstring endianness. For more information "
+            "refer to https://github.com/Qiskit/qiskit-nature/issues/875."
+        ),
+    )
     def to_matrix(self, sparse: bool | None = True) -> csc_matrix | np.ndarray:
-        """Convert to a matrix representation over the full fermionic Fock space in the occupation
-        number basis.
+        """DEPRECATED Convert to a matrix representation over the full fermionic Fock space in the
+        occupation number basis.
 
         The basis states are ordered in increasing bitstring order as 0000, 0001, ..., 1111.
 

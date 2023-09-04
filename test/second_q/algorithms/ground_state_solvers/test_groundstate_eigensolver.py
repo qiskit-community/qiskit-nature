@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -16,6 +16,7 @@ import contextlib
 import copy
 import io
 import unittest
+import warnings
 
 from test import QiskitNatureTestCase
 
@@ -54,7 +55,8 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
         self.reference_energy = -1.1373060356951838
 
-        self.qubit_converter = QubitConverter(JordanWignerMapper())
+        self.mapper = JordanWignerMapper()
+        self.qubit_converter = QubitConverter(self.mapper)
         self.electronic_structure_problem = self.driver.run()
 
         self.num_spatial_orbitals = 2
@@ -63,22 +65,37 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
     def test_npme(self):
         """Test NumPyMinimumEigensolver"""
-        solver = NumPyMinimumEigensolverFactory()
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = NumPyMinimumEigensolverFactory()
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
     def test_npme_with_default_filter(self):
         """Test NumPyMinimumEigensolver with default filter"""
-        solver = NumPyMinimumEigensolverFactory(use_default_filter_criterion=True)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = NumPyMinimumEigensolverFactory(use_default_filter_criterion=True)
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
     def test_vqe_uccsd(self):
         """Test VQE UCCSD case"""
-        solver = VQEUCCFactory(Estimator(), UCC(excitations="d"), SLSQP())
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = VQEUCCFactory(Estimator(), UCC(excitations="d"), SLSQP())
         calc = GroundStateEigensolver(self.qubit_converter, solver)
+        res = calc.solve(self.electronic_structure_problem)
+        self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
+
+    def test_vqe_uccsd_mapper(self):
+        """Test VQE UCCSD case with QubitMapper"""
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = VQEUCCFactory(Estimator(), UCC(excitations="d"), SLSQP())
+        calc = GroundStateEigensolver(self.mapper, solver)
         res = calc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
@@ -89,7 +106,9 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
             # pylint: disable=unused-argument
             print(f"iterations {nfev}: energy: {energy}")
 
-        solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP(), callback=callback)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP(), callback=callback)
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         with contextlib.redirect_stdout(io.StringIO()) as out:
             res = calc.solve(self.electronic_structure_problem)
@@ -100,7 +119,9 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
     def test_vqe_ucc_custom(self):
         """Test custom ansatz in Factory use case"""
-        solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP())
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP())
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
@@ -108,7 +129,9 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
     def test_aux_ops_reusability(self):
         """Test that the auxiliary operators can be reused"""
         # Regression test against #1475
-        solver = NumPyMinimumEigensolverFactory()
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = NumPyMinimumEigensolverFactory()
         calc = GroundStateEigensolver(self.qubit_converter, solver)
 
         modes = 4
@@ -125,7 +148,9 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
     def _setup_evaluation_operators(self):
         # first we run a ground state calculation
-        solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP())
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP())
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
 
@@ -199,7 +224,9 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
             z2symmetry_reduction="auto",
         )
 
-        solver = NumPyMinimumEigensolverFactory()
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = NumPyMinimumEigensolverFactory()
         gsc = GroundStateEigensolver(qubit_converter, solver)
 
         result = gsc.solve(problem)
@@ -210,26 +237,31 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
         An issue with calculating the dipole moment that had division None/float.
         """
-        solver = NumPyMinimumEigensolverFactory()
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = NumPyMinimumEigensolverFactory()
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
         self.assertAlmostEqual(res.total_dipole_moment_in_debye[0], 0.0, places=1)
 
     def test_print_result(self):
         """Regression test against #198 and general issues with printing results."""
-        solver = NumPyMinimumEigensolverFactory()
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = NumPyMinimumEigensolverFactory()
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
+        res.formatting_precision = 6
         with contextlib.redirect_stdout(io.StringIO()) as out:
             print(res)
         # do NOT change the below! Lines have been truncated as to not force exact numerical matches
         expected = """\
             === GROUND STATE ENERGY ===
 
-            * Electronic ground state energy (Hartree): -1.857
-              - computed part:      -1.857
-            ~ Nuclear repulsion energy (Hartree): 0.719
-            > Total ground state energy (Hartree): -1.137
+            * Electronic ground state energy (Hartree): -1.857275
+              - computed part:      -1.857275
+            ~ Nuclear repulsion energy (Hartree): 0.719969
+            > Total ground state energy (Hartree): -1.137306
 
             === MEASURED OBSERVABLES ===
 
@@ -237,13 +269,13 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
             === DIPOLE MOMENTS ===
 
-            ~ Nuclear dipole moment (a.u.): [0.0  0.0  1.38
+            ~ Nuclear dipole moment (a.u.): [0.0  0.0  1.388949]
 
               0:
-              * Electronic dipole moment (a.u.): [0.0  0.0  1.38
-                - computed part:      [0.0  0.0  1.38
-              > Dipole moment (a.u.): [0.0  0.0  0.0]  Total: 0.
-                             (debye): [0.0  0.0  0.0]  Total: 0.
+              * Electronic dipole moment (a.u.): [0.0  0.0  1.388949]
+                - computed part:      [0.0  0.0  1.388949]
+              > Dipole moment (a.u.): [0.0  0.0  0.0]  Total: 0.0
+                             (debye): [0.0  0.0  0.0]  Total: 0.0
         """
         for truth, expected in zip(out.getvalue().split("\n"), expected.split("\n")):
             assert truth.strip().startswith(expected.strip())
@@ -251,18 +283,46 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
     def test_default_initial_point(self):
         """Test when using the default initial point."""
 
-        solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP())
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP())
+        calc = GroundStateEigensolver(self.qubit_converter, solver)
+        res = calc.solve(self.electronic_structure_problem)
+        # pylint: disable=no-member
+        np.testing.assert_array_equal(solver.initial_point.to_numpy_array(), [0.0, 0.0, 0.0])
+        self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
+
+    def test_default_initial_point_with_imaginary_ucc(self):
+        """Test when using the default initial point and the imaginary parts of the UCC ansatz."""
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            ansatz = UCCSD(
+                self.num_spatial_orbitals,
+                self.num_particles,
+                self.qubit_converter,
+                include_imaginary=True,
+            )
+
+            solver = VQEUCCFactory(Estimator(), ansatz, SLSQP())
+
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
 
-        np.testing.assert_array_equal(solver.initial_point.to_numpy_array(), [0.0, 0.0, 0.0])
+        # pylint: disable=no-member
+        np.testing.assert_array_equal(
+            solver.initial_point.to_numpy_array(), [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        )
         self.assertAlmostEqual(res.total_energies[0], self.reference_energy, places=6)
 
     def test_vqe_ucc_factory_with_user_initial_point(self):
         """Test VQEUCCFactory when using it with a user defined initial point."""
 
         initial_point = np.asarray([1.28074029e-19, 5.92226076e-08, 1.11762559e-01])
-        solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP(maxiter=1), initial_point=initial_point)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = VQEUCCFactory(
+                Estimator(), UCCSD(), SLSQP(maxiter=1), initial_point=initial_point
+            )
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
         np.testing.assert_array_almost_equal(res.raw_result.optimal_point, initial_point)
@@ -272,10 +332,12 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
         initial_point = MP2InitialPoint()
 
-        solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP(), initial_point=initial_point)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = VQEUCCFactory(Estimator(), UCCSD(), SLSQP(), initial_point=initial_point)
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
-
+        # pylint: disable=no-member
         np.testing.assert_array_almost_equal(
             solver.initial_point.to_numpy_array(), self.mp2_initial_point
         )
@@ -283,17 +345,20 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
     def test_vqe_ucc_factory_with_reps(self):
         """Test when using the default initial point with repeated evolved operators."""
-        ansatz = UCCSD(
-            qubit_converter=self.qubit_converter,
-            num_particles=self.num_particles,
-            num_spatial_orbitals=self.num_spatial_orbitals,
-            reps=2,
-        )
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            ansatz = UCCSD(
+                qubit_converter=self.qubit_converter,
+                num_particles=self.num_particles,
+                num_spatial_orbitals=self.num_spatial_orbitals,
+                reps=2,
+            )
 
-        solver = VQEUCCFactory(Estimator(), ansatz, SLSQP())
+            solver = VQEUCCFactory(Estimator(), ansatz, SLSQP())
+
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
-
+        # pylint: disable=no-member
         np.testing.assert_array_almost_equal(
             solver.initial_point.to_numpy_array(), np.zeros(6, dtype=float)
         )
@@ -306,17 +371,20 @@ class TestGroundStateEigensolver(QiskitNatureTestCase):
 
         initial_point = MP2InitialPoint()
 
-        ansatz = UCCSD(
-            qubit_converter=self.qubit_converter,
-            num_particles=self.num_particles,
-            num_spatial_orbitals=self.num_spatial_orbitals,
-            reps=2,
-        )
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            ansatz = UCCSD(
+                qubit_converter=self.qubit_converter,
+                num_particles=self.num_particles,
+                num_spatial_orbitals=self.num_spatial_orbitals,
+                reps=2,
+            )
 
-        solver = VQEUCCFactory(Estimator(), ansatz, SLSQP(), initial_point=initial_point)
+            solver = VQEUCCFactory(Estimator(), ansatz, SLSQP(), initial_point=initial_point)
+
         calc = GroundStateEigensolver(self.qubit_converter, solver)
         res = calc.solve(self.electronic_structure_problem)
-
+        # pylint: disable=no-member
         np.testing.assert_array_almost_equal(
             solver.initial_point.to_numpy_array(), np.tile(self.mp2_initial_point, 2)
         )

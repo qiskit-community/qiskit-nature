@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2019, 2022.
+# (C) Copyright IBM 2019, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -73,10 +73,6 @@ class TestCHCVSCF(QiskitNatureTestCase):
 
         vibr_op = VibrationalOp(vibrational_op_labels, num_modals)
 
-        converter = QubitConverter(DirectMapper())
-
-        qubit_op = converter.convert_match(vibr_op)
-
         init_state = VSCF(num_modals)
 
         num_qubits = sum(num_modals)
@@ -88,12 +84,22 @@ class TestCHCVSCF(QiskitNatureTestCase):
         )
 
         optimizer = COBYLA(maxiter=1000)
-
         algo = VQE(Estimator(), chc_ansatz, optimizer)
-        vqe_result = algo.compute_minimum_eigenvalue(qubit_op)
-        energy = vqe_result.optimal_value
 
-        self.assertAlmostEqual(energy, self.reference_energy, places=4)
+        mapper = DirectMapper()
+        converter = QubitConverter(mapper)
+
+        with self.subTest("Qubit Converter object"):
+            qubit_op = converter.convert_match(vibr_op)
+            vqe_result = algo.compute_minimum_eigenvalue(qubit_op)
+            energy = vqe_result.optimal_value
+            self.assertAlmostEqual(energy, self.reference_energy, places=4)
+
+        with self.subTest("Qubit Mapper object"):
+            qubit_op = mapper.map(vibr_op)
+            vqe_result = algo.compute_minimum_eigenvalue(qubit_op)
+            energy = vqe_result.optimal_value
+            self.assertAlmostEqual(energy, self.reference_energy, places=4)
 
 
 if __name__ == "__main__":

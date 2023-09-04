@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -15,9 +15,9 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional, Union, Tuple
 
 from qiskit.opflow import PauliSumOp
+from qiskit.quantum_info import SparsePauliOp
 
 from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.problems import BaseProblem
@@ -31,7 +31,7 @@ class ExcitedStatesSolver(ABC):
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[dict[str, Union[SparseLabelOp, PauliSumOp]]] = None,
+        aux_operators: dict[str, SparseLabelOp | PauliSumOp | SparsePauliOp] | None = None,
     ) -> EigenstateResult:
         r"""Compute the excited states energies of the molecule that was supplied via the driver.
 
@@ -54,17 +54,19 @@ class ExcitedStatesSolver(ABC):
     def get_qubit_operators(
         self,
         problem: BaseProblem,
-        aux_operators: Optional[dict[str, Union[SparseLabelOp, PauliSumOp]]] = None,
-    ) -> Tuple[PauliSumOp, Optional[dict[str, PauliSumOp]]]:
-        """Construct qubit operators by getting the second quantized operators from the problem
-        (potentially running a driver in doing so [can be computationally expensive])
-        and using a QubitConverter to map and reduce the operators to qubit operators.
+        aux_operators: dict[str, SparseLabelOp | SparsePauliOp | PauliSumOp] | None = None,
+    ) -> tuple[PauliSumOp | SparseLabelOp, dict[str, PauliSumOp | SparseLabelOp] | None]:
+        """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators
+        using a ``QubitConverter`` or ``QubitMapper``.
+        If the user-provided ``aux_operators`` contain a name which clashes with an internally
+        constructed auxiliary operator, then the corresponding internal operator will be overridden by
+        the user-provided operator.
 
         Args:
-            problem: A class encoding a problem to be solved.
-            aux_operators: Additional auxiliary operators to evaluate.
+            problem:  A class encoding a problem defining the qubit operators.
+            aux_operators: Additional auxiliary operators to transform.
 
         Returns:
-            Qubit operator.
-            Additional auxiliary operators.
+            A tuple with the main operator (hamiltonian) and a dictionary of auxiliary default and
+            custom operators.
         """

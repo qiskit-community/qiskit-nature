@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -14,6 +14,7 @@
 
 from __future__ import annotations
 
+import warnings
 from functools import partial
 from typing import cast, Callable, List, Optional, Union, TYPE_CHECKING
 
@@ -21,13 +22,15 @@ import numpy as np
 
 from qiskit.algorithms.eigensolvers import EigensolverResult
 from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
-from qiskit.opflow.primitive_ops import Z2Symmetries
+from qiskit.opflow.primitive_ops import Z2Symmetries as OpflowZ2Symmetries
+from qiskit.quantum_info.analysis.z2_symmetries import Z2Symmetries
 
+from qiskit_nature.deprecation import deprecate_function, warn_deprecated_type
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library.initial_states.hartree_fock import (
     hartree_fock_bitstring_mapped,
 )
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.properties import Interpretable
 
@@ -59,7 +62,8 @@ class ElectronicStructureProblem(BaseProblem):
     about the problem which you are trying to solve, which can be used by various modules in the
     stack. For example, specifying the number of particles in the system :attr:`num_particles` is
     useful (and even required) for many components that interact with this problem instance to make
-    your life easier (for example the :class:`qiskit_nature.second_q.algorithms.VQEUCCFactory`).
+    your life easier (for example the
+    :class:`qiskit_nature.second_q.transformers.ActiveSpaceTransformer`).
 
     In the fermionic case the default filter ensures that the number of particles is being
     preserved.
@@ -75,7 +79,7 @@ class ElectronicStructureProblem(BaseProblem):
     .. code-block:: python
 
         import numpy as np
-        from qiskit_nature.second_q.algorithms import NumPyEigensolverFactory
+        from qiskit.algorithms.minimum_eigensolvers import NumPyMinimumEigensolver
 
         expected_spin = 2
         expected_num_electrons = 6
@@ -89,7 +93,8 @@ class ElectronicStructureProblem(BaseProblem):
                 np.isclose(num_particles_aux, expected_num_electrons)
             )
 
-        solver = NumPyEigensolverFactory(filter_criterion=filter_criterion_spin)
+        solver = NumPyEigensolver()
+        solver.filter_criterion = filter_criterion_custom
 
     The following attributes can be read and updated once the ``ElectronicStructureProblem`` object
     has been constructed.
@@ -188,6 +193,7 @@ class ElectronicStructureProblem(BaseProblem):
         num_alpha = self.num_alpha
         if num_alpha is None:
             return None
+
         return np.asarray([1.0] * num_alpha + [0.0] * (num_orbs - num_alpha))
 
     @orbital_occupations.setter
@@ -238,6 +244,8 @@ class ElectronicStructureProblem(BaseProblem):
             if isinstance(prop, Interpretable):
                 prop.interpret(result)
         result.computed_energies = np.asarray([e.real for e in eigenstate_result.eigenvalues])
+        if self.reference_energy is not None:
+            result.hartree_fock_energy = self.reference_energy
         return result
 
     def get_default_filter_criterion(
@@ -267,18 +275,28 @@ class ElectronicStructureProblem(BaseProblem):
 
         return partial(filter_criterion, self)
 
+    # pylint: disable=bad-docstring-quotes
+    @deprecate_function(
+        "0.6.0",
+        additional_msg=(
+            ". This function is deprecated because it has been removed from the public API. It is "
+            "no longer necessary to be used when working directly with QubitMapper objects outside "
+            "a QubitConverter because a TaperedQubitMapper can now be obtained using the new "
+            "get_tapered_mapper function provided by the problem classes."
+        ),
+    )
     def symmetry_sector_locator(
         self,
-        z2_symmetries: Z2Symmetries,
-        converter: QubitConverter,
+        z2_symmetries: OpflowZ2Symmetries | Z2Symmetries,
+        converter: QubitConverter | QubitMapper,
     ) -> Optional[List[int]]:
         """Given the detected Z2Symmetries this determines the correct sector of the tapered
         operator that contains the ground state we need and returns that information.
 
         Args:
             z2_symmetries: the z2 symmetries object.
-            converter: the qubit converter instance used for the operator conversion that
-                symmetries are to be determined for.
+            converter: the ``QubitConverter`` or ``QubitMapper`` instance used for the operator
+                conversion that symmetries are to be determined for.
 
         Raises:
             QiskitNatureError: if the :attr:`num_particles` attribute is ``None``.
@@ -301,18 +319,70 @@ class ElectronicStructureProblem(BaseProblem):
         # We need the HF bitstring mapped to the qubit space but without any tapering done
         # by the converter (just qubit mapping and any two qubit reduction) since we are
         # going to determine the tapering sector
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            hf_bitstr = hartree_fock_bitstring_mapped(
+                num_spatial_orbitals=self.num_spatial_orbitals,
+                num_particles=num_particles,
+                qubit_mapper=converter,
+                match_convert=False,
+            )
+        sector = ElectronicStructureProblem._pick_sector(z2_symmetries, hf_bitstr)
+
+        return sector
+
+    def _symmetry_sector_locator(
+        self,
+        z2_symmetries: OpflowZ2Symmetries | Z2Symmetries,
+        mapper: QubitConverter | QubitMapper,
+    ) -> Optional[List[int]]:
+        """Given the detected Z2Symmetries this determines the correct sector of the tapered
+        operator that contains the ground state we need and returns that information.
+
+        Args:
+            z2_symmetries: the z2 symmetries object.
+            mapper: the ``QubitMapper`` or ``QubitConverter`` instance (use of the latter is
+                deprecated) used for the operator conversion that symmetries are to be determined
+                for.
+
+        Raises:
+            QiskitNatureError: if the :attr:`num_particles` attribute is ``None``.
+
+        Returns:
+            The sector of the tapered operators with the problem solution.
+        """
+        if self.num_particles is None:
+            raise QiskitNatureError(
+                "Determining the correct symmetry sector for Z2 symmetry reduction requires the "
+                "number of particles to be set on the problem instance. Please set "
+                "ElectronicStructureProblem.num_particles or disable the use of Z2Symmetries to "
+                "fix this."
+            )
+        if isinstance(mapper, QubitConverter):
+            warn_deprecated_type(
+                "0.6.0",
+                argument_name="mapper",
+                old_type="QubitConverter",
+                new_type="QubitMapper",
+            )
+
+        num_particles = self.num_particles
+        if not isinstance(num_particles, tuple):
+            num_particles = (self.num_alpha, self.num_beta)
+
         hf_bitstr = hartree_fock_bitstring_mapped(
             num_spatial_orbitals=self.num_spatial_orbitals,
             num_particles=num_particles,
-            qubit_converter=converter,
-            match_convert=False,
+            qubit_mapper=mapper,
         )
         sector = ElectronicStructureProblem._pick_sector(z2_symmetries, hf_bitstr)
 
         return sector
 
     @staticmethod
-    def _pick_sector(z2_symmetries: Z2Symmetries, hf_str: List[bool]) -> List[int]:
+    def _pick_sector(
+        z2_symmetries: OpflowZ2Symmetries | Z2Symmetries, hf_str: List[bool]
+    ) -> List[int]:
         # Finding all the symmetries using the find_Z2_symmetries:
         taper_coeff: List[int] = []
         for sym in z2_symmetries.symmetries:

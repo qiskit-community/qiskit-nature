@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -31,11 +31,15 @@ Utility functions to detect and transform the index-ordering convention of two-b
 from __future__ import annotations
 
 from enum import Enum
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
 import qiskit_nature.optionals as _optionals
+
+if TYPE_CHECKING:
+    from .symmetric_two_body import SymmetricTwoBodyIntegrals
 
 if _optionals.HAS_SPARSE:
     # pylint: disable=import-error
@@ -238,7 +242,7 @@ def _check_two_body_symmetries(
 
 
 def find_index_order(
-    two_body_tensor: np.ndarray | SparseArray,
+    two_body_tensor: np.ndarray | SparseArray | SymmetricTwoBodyIntegrals,
     *,
     rtol: float = 1e-5,
     atol: float = 1e-8,
@@ -267,6 +271,11 @@ def find_index_order(
     Returns:
         The index order of the provided rank-four tensor.
     """
+    from .symmetric_two_body import SymmetricTwoBodyIntegrals
+
+    if isinstance(two_body_tensor, SymmetricTwoBodyIntegrals):
+        return IndexType.CHEMIST
+
     if _check_two_body_symmetries(two_body_tensor, rtol=rtol, atol=atol):
         return IndexType.CHEMIST
     permuted_tensor = _phys_to_chem(two_body_tensor)

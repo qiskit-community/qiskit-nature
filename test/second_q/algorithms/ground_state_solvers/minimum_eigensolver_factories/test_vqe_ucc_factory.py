@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -13,6 +13,7 @@
 """ Test VQE UCC MinimumEigensolver Factory """
 
 import unittest
+import warnings
 
 from test import QiskitNatureTestCase
 
@@ -35,8 +36,10 @@ class TestVQEUCCFactory(QiskitNatureTestCase):
 
     def setUp(self):
         super().setUp()
-        self.converter = QubitConverter(JordanWignerMapper())
-        self._vqe_ucc_factory = VQEUCCFactory(Estimator(), UCCSD(), SLSQP())
+        self.mapper = QubitConverter(JordanWignerMapper())
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            self._vqe_ucc_factory = VQEUCCFactory(Estimator(), UCCSD(), SLSQP())
 
     def auxiliary_tester(self, title: str, prop: str, cases: tuple):
         """
@@ -110,7 +113,7 @@ class TestVQEUCCFactory(QiskitNatureTestCase):
 
         with self.subTest("Initial State"):
             self.assertEqual(self._vqe_ucc_factory.initial_state, None)
-            initial_state = HartreeFock(4, (1, 1), self.converter)
+            initial_state = HartreeFock(4, (1, 1), self.mapper)
             self._vqe_ucc_factory.initial_state = initial_state
             self.assertEqual(self._vqe_ucc_factory.initial_state, initial_state)
 

@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,26 +12,23 @@
 
 """Fermionic Mapper."""
 
-from abc import abstractmethod
+from __future__ import annotations
 
 from qiskit.opflow import PauliSumOp
+from qiskit.quantum_info import SparsePauliOp
+
 from qiskit_nature.second_q.operators import FermionicOp
 
-from .qubit_mapper import QubitMapper
+from .qubit_mapper import ListOrDictType, QubitMapper
 
 
 class FermionicMapper(QubitMapper):
     """Mapper of Fermionic Operator to Qubit Operator"""
 
-    @abstractmethod
-    def map(self, second_q_op: FermionicOp) -> PauliSumOp:
-        """Maps a :class:`~qiskit_nature.second_q.operators.FermionicOp`
-        to a `PauliSumOp`.
-
-        Args:
-            second_q_op: the `FermionicOp` to be mapped.
-
-        Returns:
-            The `PauliSumOp` corresponding to the problem-Hamiltonian in the qubit space.
-        """
-        raise NotImplementedError()
+    def map(
+        self,
+        second_q_ops: FermionicOp | ListOrDictType[FermionicOp],
+        *,
+        register_length: int | None = None,
+    ) -> SparsePauliOp | PauliSumOp | ListOrDictType[SparsePauliOp | PauliSumOp]:
+        return super().map(second_q_ops, register_length=register_length)

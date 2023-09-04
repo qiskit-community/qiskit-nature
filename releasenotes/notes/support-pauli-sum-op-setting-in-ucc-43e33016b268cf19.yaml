@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fixed the support of :attr:`~qiskit_nature.settings.use_pauli_sum_op` in the
+    :class:`.UCC` and :class:`.UVCC` classes as well as their extensions.
+    This requires version 0.24 or higher of the ``qiskit-terra`` package.

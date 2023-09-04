@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -19,7 +19,7 @@ Excited State Solving Algorithms (:mod:`qiskit_nature.second_q.algorithms.excite
 """
 
 from .excited_states_solver import ExcitedStatesSolver
-from .qeom import QEOM
+from .qeom import QEOM, QEOMResult, EvaluationRule
 from .eigensolver_factories import EigensolverFactory, NumPyEigensolverFactory
 from .excited_states_eigensolver import ExcitedStatesEigensolver
 
@@ -29,4 +29,6 @@ __all__ = [
     "EigensolverFactory",
     "NumPyEigensolverFactory",
     "QEOM",
+    "QEOMResult",
+    "EvaluationRule",
 ]

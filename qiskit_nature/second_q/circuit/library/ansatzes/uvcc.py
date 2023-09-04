@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -20,10 +20,10 @@ from typing import Callable, Sequence
 
 from qiskit.circuit import QuantumCircuit
 from qiskit.circuit.library import EvolvedOperatorAnsatz
-from qiskit.opflow import PauliTrotterEvolution
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.deprecation import deprecate_arguments, deprecate_property, warn_deprecated_type
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper, TaperedQubitMapper
 from qiskit_nature.second_q.operators import SparseLabelOp, VibrationalOp
 
 from .utils.vibration_excitation_generator import generate_vibration_excitations
@@ -39,14 +39,12 @@ class UVCC(EvolvedOperatorAnsatz):
     :class:`~qiskit_nature.second_q.circuit.library.VSCF` reference state by default. When setting
     up a ``VQE`` algorithm using this ansatz and initial state, it is likely you will also want to
     use a :class:`~qiskit_nature.second_q.algorithms.initial_points.VSCFInitialPoint` that has been
-    configured using the corresponding ansatz parameters. When using a
-    :class:`~qiskit_nature.second_q.algorithms.VQEUVCCFactory` this is set by default. When directly
-    using ``VQE``, you can set it manually. For example:
+    configured using the corresponding ansatz parameters. This can be done as follows:
 
     .. code-block:: python
 
-        qubit_converter = QubitConverter(JordanWignerMapper())
-        uvcc = UVCC([2, 2], 'sd', qubit_converter)
+        qubit_mapper = JordanWignerMapper()
+        uvcc = UVCC([2, 2], 'sd', qubit_mapper)
         vscf_initial_point = VSCFInitialPoint()
         vscf_initial_point.ansatz = uvcc
         initial_point = vscf_initial_point.to_numpy_array()
@@ -62,6 +60,14 @@ class UVCC(EvolvedOperatorAnsatz):
         "q": 4,
     }
 
+    @deprecate_arguments(
+        "0.6.0",
+        {"qubit_converter": "qubit_mapper"},
+        additional_msg=(
+            ". Additionally, the QubitConverter type in the qubit_mapper argument is deprecated "
+            "and support for it will be removed together with the qubit_converter argument."
+        ),
+    )
     def __init__(
         self,
         num_modals: list[int] | None = None,
@@ -73,11 +79,13 @@ class UVCC(EvolvedOperatorAnsatz):
             list[tuple[tuple[int, ...], tuple[int, ...]]],
         ]
         | None = None,
-        qubit_converter: QubitConverter | None = None,
+        qubit_mapper: QubitConverter | QubitMapper | None = None,
         *,
         reps: int = 1,
         initial_state: QuantumCircuit | None = None,
-    ):
+        qubit_converter: QubitConverter | QubitMapper | None = None,
+    ) -> None:
+        # pylint: disable=unused-argument
         """
 
         Args:
@@ -97,8 +105,9 @@ class UVCC(EvolvedOperatorAnsatz):
                     ``list[tuple[tuple[int, ...], tuple[int, ...]]]``. For more information on
                     how to write such a callable refer to the default method :meth:`~qiskit_nature.\
                     second_q.circuit.library.ansatzes.utils.generate_vibration_excitations`.
-            qubit_converter: The :class:`~qiskit_nature.second_q.mappers.QubitConverter` instance
-                which takes care of mapping to a qubit operator.
+            qubit_mapper: The :class:`~qiskit_nature.second_q.mappers.QubitMapper` or
+                :class:`~qiskit_nature.second_q.mappers.QubitConverter` instance (use of the latter
+                is deprecated) which takes care of mapping to a qubit operator.
             reps: The number of repetitions of basic module.
             initial_state: A ``QuantumCircuit`` object to prepend to the circuit. Note that this
                 setting does *not* influence the ``excitations``. When relying on the default
@@ -109,12 +118,15 @@ class UVCC(EvolvedOperatorAnsatz):
                 also want to use a
                 :class:`~qiskit_nature.second_q.algorithms.initial_points.VSCFInitialPoint` that has
                 been configured using the corresponding ansatz parameters.
+            qubit_converter: DEPRECATED The :class:`~qiskit_nature.second_q.mappers.QubitConverter`
+                or :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance which takes care of
+                mapping to a qubit operator.
         """
-        self._qubit_converter = qubit_converter
+        self._qubit_mapper = qubit_mapper
         self._num_modals = num_modals
         self._excitations = excitations
 
-        super().__init__(reps=reps, evolution=PauliTrotterEvolution(), initial_state=initial_state)
+        super().__init__(reps=reps, initial_state=initial_state)
 
         # To give read access to the actual excitation list that UVCC is using.
         self._excitation_list: list[tuple[tuple[int, ...], tuple[int, ...]]] | None = None
@@ -132,16 +144,34 @@ class UVCC(EvolvedOperatorAnsatz):
         _ = self.operators
 
     @property
-    def qubit_converter(self) -> QubitConverter | None:
-        """The qubit operator converter."""
-        return self._qubit_converter
+    @deprecate_property("0.6.0", new_name="qubit_mapper")
+    def qubit_converter(self) -> QubitConverter | QubitMapper | None:
+        """DEPRECATED The qubit operator converter."""
+        return self._qubit_mapper
 
     @qubit_converter.setter
-    def qubit_converter(self, conv: QubitConverter) -> None:
+    def qubit_converter(self, conv: QubitConverter | QubitMapper) -> None:
         """Sets the qubit operator converter."""
+        self.qubit_mapper = conv
+
+    @property
+    def qubit_mapper(self) -> QubitConverter | QubitMapper | None:
+        """The qubit operator mapper."""
+        return self._qubit_mapper
+
+    @qubit_mapper.setter
+    def qubit_mapper(self, mapper: QubitConverter | QubitMapper) -> None:
+        """Sets the qubit operator mapper."""
+        if isinstance(mapper, QubitConverter):
+            warn_deprecated_type(
+                "0.6.0",
+                argument_name="mapper",
+                old_type="QubitConverter",
+                new_type="QubitMapper",
+            )
         self._operators = None
         self._invalidate()
-        self._qubit_converter = conv
+        self._qubit_mapper = mapper
 
     @property
     def num_modals(self) -> list[int] | None:
@@ -198,7 +228,7 @@ class UVCC(EvolvedOperatorAnsatz):
                 # by algorithms such as `AdaptVQE`.
                 excitation_ops = self.excitation_ops()
 
-                logger.debug("Converting SparseLabelOps into PauliSumOps...")
+                logger.debug("Converting second-quantized into qubit operators...")
                 # Convert operators according to saved state in converter from the conversion of the
                 # main operator since these need to be compatible. If Z2 Symmetry tapering was done
                 # it may be that one or more excitation operators do not commute with the symmetry.
@@ -206,17 +236,27 @@ class UVCC(EvolvedOperatorAnsatz):
                 # inserting ``None`` as the result if an operator did not commute. To ensure that
                 # the ``excitation_list`` is transformed identically to the operators, we retain
                 # ``None`` for non-commuting operators in order to manually remove them in unison.
-                operators = self.qubit_converter.convert_match(excitation_ops, suppress_none=False)
-                valid_operators, valid_excitations = [], []
-                for op, ex in zip(operators, self._excitation_list):
-                    if op is not None:
-                        valid_operators.append(op)
-                        valid_excitations.append(ex)
+                if isinstance(self.qubit_mapper, QubitConverter):
+                    operators = self.qubit_mapper.convert_match(excitation_ops, suppress_none=False)
+                elif isinstance(self.qubit_mapper, TaperedQubitMapper):
+                    operators = self.qubit_mapper.map_clifford(excitation_ops)
+                    operators = self.qubit_mapper.taper_clifford(operators, suppress_none=False)
+                else:
+                    operators = self.qubit_mapper.map(excitation_ops)
 
-                self._excitation_list = valid_excitations
-                self.operators = valid_operators
+                self._filter_operators(operators=operators)
 
         return super(UVCC, self.__class__).operators.__get__(self)
+
+    def _filter_operators(self, operators):
+        valid_operators, valid_excitations = [], []
+        for op, ex in zip(operators, self._excitation_list):
+            if op is not None:
+                valid_operators.append(op)
+                valid_excitations.append(ex)
+
+        self._excitation_list = valid_excitations
+        self.operators = valid_operators
 
     def _invalidate(self):
         self._excitation_ops = None
@@ -252,9 +292,9 @@ class UVCC(EvolvedOperatorAnsatz):
                 raise ValueError("The excitations cannot be `None`.")
             return False
 
-        if self.qubit_converter is None:
+        if self.qubit_mapper is None:
             if raise_on_failure:
-                raise ValueError("The qubit_converter cannot be `None`.")
+                raise ValueError("The qubit_mapper cannot be `None`.")
             return False
 
         return True
@@ -287,7 +327,7 @@ class UVCC(EvolvedOperatorAnsatz):
         excitations = []
         for gen in generators:
             excitations.extend(
-                gen(
+                gen(  # pylint: disable=not-callable
                     num_modals=self.num_modals,
                 )
             )
@@ -348,8 +388,8 @@ class UVCC(EvolvedOperatorAnsatz):
                 label.append(f"-_{VibrationalOp.build_dual_index(self.num_modals, unocc)}")
             op = VibrationalOp({" ".join(label): 1}, self.num_modals)
             op -= op.adjoint()
-            # we need to account for an additional imaginary phase in the exponent (see also
-            # `PauliTrotterEvolution.convert`)
+            # we need to account for an additional imaginary phase in the exponent accumulated from
+            # the first-order trotterization routine implemented in Qiskit Terra
             op *= 1j  # type: ignore
             operators.append(op)
 

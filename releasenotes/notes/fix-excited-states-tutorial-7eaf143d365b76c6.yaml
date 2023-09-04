@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fixes the tutorial for the excited state solvers.
+    In doing so, the :class:`.EvaluationRule` is properly exposed for importing
+    and documenting accordingly.

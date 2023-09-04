@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -20,7 +20,12 @@ from typing import MutableMapping
 import numpy as np
 
 import qiskit_nature  # pylint: disable=unused-import
-from qiskit_nature.second_q.operators import ElectronicIntegrals, FermionicOp, PolynomialTensor
+from qiskit_nature.second_q.operators import (
+    ElectronicIntegrals,
+    FermionicOp,
+    PolynomialTensor,
+    Tensor,
+)
 
 from .hamiltonian import Hamiltonian
 
@@ -218,23 +223,34 @@ class ElectronicEnergy(Hamiltonian):
 
         Returns:
             The Coulomb operator coefficients.
+
+        Raises:
+            NotImplementedError: when encountering :class:`.SymmetricTwoBodyIntegrals` inside of
+                :attr:`.ElectronicEnergy.electronic_integrals`.
         """
+        two_body_aa = self.electronic_integrals.alpha.get("++--", None)
+        # TODO: remove extra-wrapping of Tensor once settings.tensor_unwrapping is removed
+        if not isinstance(two_body_aa, Tensor):
+            two_body_aa = Tensor(two_body_aa)
+
+        einsum = f"{''.join(two_body_aa._reverse_label_template('pqrs'))},ps->qr"
         coulomb = ElectronicIntegrals.einsum(
-            {"pqrs,ps->qr": ("++--", "+-", "+-")}, self.electronic_integrals, density
+            {einsum: ("++--", "+-", "+-")}, self.electronic_integrals, density
         )
 
-        if self.electronic_integrals.beta_alpha.is_empty():
+        if self.electronic_integrals.beta_alpha.is_empty() and density.beta.is_empty():
             coulomb *= 2.0  # type: ignore
         else:
+            if self.electronic_integrals.beta_alpha.is_empty():
+                beta_alpha = self.electronic_integrals.two_body.alpha
+            else:
+                beta_alpha = self.electronic_integrals.beta_alpha
             coulomb.alpha += PolynomialTensor.einsum(
-                {"pqrs,ps->qr": ("++--", "+-", "+-")},
-                self.electronic_integrals.beta_alpha,
-                density.beta,
+                {einsum: ("++--", "+-", "+-")}, beta_alpha, density.beta
             )
+            einsum = einsum[2:4] + einsum[:2] + einsum[4:]
             coulomb.beta += PolynomialTensor.einsum(
-                {"rspq,ps->rq": ("++--", "+-", "+-")},
-                self.electronic_integrals.beta_alpha,
-                density.alpha,
+                {einsum: ("++--", "+-", "+-")}, beta_alpha, density.alpha
             )
 
         return coulomb
@@ -250,9 +266,19 @@ class ElectronicEnergy(Hamiltonian):
 
         Returns:
             The Exchange operator coefficients.
+
+        Raises:
+            NotImplementedError: when encountering :class:`.SymmetricTwoBodyIntegrals` inside of
+                :attr:`.ElectronicEnergy.electronic_integrals`.
         """
+        two_body_aa = self.electronic_integrals.alpha.get("++--", None)
+        # TODO: remove extra-wrapping of Tensor once settings.tensor_unwrapping is removed
+        if not isinstance(two_body_aa, Tensor):
+            two_body_aa = Tensor(two_body_aa)
+
+        einsum = f"{''.join(two_body_aa._reverse_label_template('pqrs'))},qs->pr"
         exchange = ElectronicIntegrals.einsum(
-            {"pqrs,qs->pr": ("++--", "+-", "+-")}, self.electronic_integrals, density
+            {einsum: ("++--", "+-", "+-")}, self.electronic_integrals, density
         )
         return exchange
 

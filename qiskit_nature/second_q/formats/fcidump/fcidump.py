@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -14,13 +14,20 @@
 
 from __future__ import annotations
 
-from typing import Sequence
+import warnings
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Sequence
+
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_q.operators.tensor_ordering import find_index_order, to_chemist_ordering
+from qiskit_nature.second_q.operators.symmetric_two_body import SymmetricTwoBodyIntegrals
+from qiskit_nature.second_q.operators.tensor_ordering import (
+    IndexType,
+    find_index_order,
+    to_chemist_ordering,
+)
 
 from .dumper import _dump_1e_ints, _dump_2e_ints, _write_to_outfile
 
@@ -43,14 +50,14 @@ class FCIDump:
     """The number of electrons."""
     hij: np.ndarray
     """The alpha 1-electron integrals."""
-    hijkl: np.ndarray
-    """The alpha/alpha 2-electron integrals."""
+    hijkl: np.ndarray | SymmetricTwoBodyIntegrals
+    """The alpha/alpha 2-electron integrals ordered in chemist' notation."""
     hij_b: np.ndarray | None = None
     """The beta 1-electron integrals."""
-    hijkl_bb: np.ndarray | None = None
-    """The beta/beta 2-electron integrals."""
-    hijkl_ba: np.ndarray | None = None
-    """The beta/alpha 2-electron integrals."""
+    hijkl_bb: np.ndarray | SymmetricTwoBodyIntegrals | None = None
+    """The beta/beta 2-electron integrals ordered in chemist' notation."""
+    hijkl_ba: np.ndarray | SymmetricTwoBodyIntegrals | None = None
+    """The beta/alpha 2-electron integrals ordered in chemist' notation."""
     constant_energy: float | None = None
     """The constant energy comprising (for example) the nuclear repulsion energy and inactive
     energies."""
@@ -67,37 +74,124 @@ class FCIDump:
         return self.hij.shape[0]
 
     @property
-    def _hijkl(self) -> np.ndarray:
+    def _hijkl(self) -> np.ndarray | SymmetricTwoBodyIntegrals:
+        if not isinstance(self._chemist_hijkl, SymmetricTwoBodyIntegrals):
+            warnings.warn(
+                DeprecationWarning(
+                    "The `np.ndarray` return type of the `FCIDump.hijkl` property is deprecated as "
+                    "of version 0.6.0 and support for it will be removed no sooner than 3 months "
+                    "after the release. Instead, the new return type will be a "
+                    "`qiskit_nature.second_q.operators.symmetric_two_body.SymmetricTwoBodyIntegrals`"
+                    " (which can be used in place of `np.ndarray` objects). You may switch to the "
+                    "new return type immediately by setting "
+                    "`qiskit_nature.settings.use_symmetry_reduced_integrals` to `True`."
+                ),
+                stacklevel=3,
+            )
         return self._chemist_hijkl
 
     @_hijkl.setter
-    def _hijkl(self, hijkl: np.ndarray) -> None:
+    def _hijkl(self, hijkl: np.ndarray | SymmetricTwoBodyIntegrals) -> None:
         self._original_index_order = find_index_order(hijkl)
-        self._chemist_hijkl = to_chemist_ordering(hijkl)
+        if self._original_index_order != IndexType.CHEMIST:
+            warnings.warn(
+                DeprecationWarning(
+                    "Setting `FCIDump.hijkl` to non-chemistry ordered integrals is deprecated as of "
+                    "version 0.6.0 and support for it will be removed no sooner than 3 months after "
+                    "the release. Instead, ensure that your integrals are already ordered in "
+                    "chemist' notation for example by using the "
+                    "`qiskit_nature.second_q.operators.tensor_ordering.to_chemist_ordering` utility."
+                ),
+                stacklevel=3,
+            )
+        if isinstance(hijkl, SymmetricTwoBodyIntegrals):
+            self._chemist_hijkl = hijkl
+        else:
+            self._chemist_hijkl = to_chemist_ordering(hijkl)  # type: ignore[assignment]
 
     @property
-    def _hijkl_bb(self) -> np.ndarray | None:
+    def _hijkl_bb(self) -> np.ndarray | SymmetricTwoBodyIntegrals | None:
+        if self._chemist_hijkl_bb is not None and not isinstance(
+            self._chemist_hijkl_bb, SymmetricTwoBodyIntegrals
+        ):
+            warnings.warn(
+                DeprecationWarning(
+                    "The `np.ndarray` return type of the `FCIDump.hijkl_bb` property is deprecated as "
+                    "of version 0.6.0 and support for it will be removed no sooner than 3 months "
+                    "after the release. Instead, the new return type will be a "
+                    "`qiskit_nature.second_q.operators.symmetric_two_body.SymmetricTwoBodyIntegrals`"
+                    " (which can be used in place of `np.ndarray` objects). You may switch to the "
+                    "new return type immediately by setting "
+                    "`qiskit_nature.settings.use_symmetry_reduced_integrals` to `True`."
+                ),
+                stacklevel=3,
+            )
         return self._chemist_hijkl_bb
 
     @_hijkl_bb.setter
-    def _hijkl_bb(self, hijkl_bb: np.ndarray | None) -> None:
+    def _hijkl_bb(self, hijkl_bb: np.ndarray | SymmetricTwoBodyIntegrals | None) -> None:
         if hijkl_bb is None:
             self._chemist_hijkl_bb = None
             return
-        self._chemist_hijkl_bb = to_chemist_ordering(hijkl_bb)
+        if isinstance(hijkl_bb, SymmetricTwoBodyIntegrals):
+            self._chemist_hijkl_bb = hijkl_bb
+        else:
+            if find_index_order(hijkl_bb) != IndexType.CHEMIST:
+                warnings.warn(
+                    DeprecationWarning(
+                        "Setting `FCIDump.hijkl_bb` to non-chemistry ordered integrals is deprecated "
+                        "as of version 0.6.0 and support for it will be removed no sooner than 3 "
+                        "months after the release. Instead, ensure that your integrals are already "
+                        "ordered in chemist' notation for example by using the "
+                        "`qiskit_nature.second_q.operators.tensor_ordering.to_chemist_ordering` "
+                        "utility."
+                    ),
+                    stacklevel=3,
+                )
+            self._chemist_hijkl_bb = to_chemist_ordering(hijkl_bb)  # type: ignore[assignment]
 
     @property
-    def _hijkl_ba(self) -> np.ndarray | None:
+    def _hijkl_ba(self) -> np.ndarray | SymmetricTwoBodyIntegrals | None:
+        if self._chemist_hijkl_ba is not None and not isinstance(
+            self._chemist_hijkl_ba, SymmetricTwoBodyIntegrals
+        ):
+            warnings.warn(
+                DeprecationWarning(
+                    "The `np.ndarray` return type of the `FCIDump.hijkl_ba` property is deprecated as "
+                    "of version 0.6.0 and support for it will be removed no sooner than 3 months "
+                    "after the release. Instead, the new return type will be a "
+                    "`qiskit_nature.second_q.operators.symmetric_two_body.SymmetricTwoBodyIntegrals`"
+                    " (which can be used in place of `np.ndarray` objects). You may switch to the "
+                    "new return type immediately by setting "
+                    "`qiskit_nature.settings.use_symmetry_reduced_integrals` to `True`."
+                ),
+                stacklevel=3,
+            )
         return self._chemist_hijkl_ba
 
     @_hijkl_ba.setter
-    def _hijkl_ba(self, hijkl_ba: np.ndarray | None) -> None:
+    def _hijkl_ba(self, hijkl_ba: np.ndarray | SymmetricTwoBodyIntegrals | None) -> None:
         if hijkl_ba is None:
             self._chemist_hijkl_ba = None
             return
-        self._chemist_hijkl_ba = to_chemist_ordering(
-            hijkl_ba, index_order=self._original_index_order
-        )
+        if isinstance(hijkl_ba, SymmetricTwoBodyIntegrals):
+            self._chemist_hijkl_ba = hijkl_ba
+        else:
+            if self._original_index_order != IndexType.CHEMIST:
+                warnings.warn(
+                    DeprecationWarning(
+                        "Setting `FCIDump.hijkl_ba` to non-chemistry ordered integrals is deprecated "
+                        "as of version 0.6.0 and support for it will be removed no sooner than 3 "
+                        "months after the release. Instead, ensure that your integrals are already "
+                        "ordered in chemist' notation for example by using the "
+                        "`qiskit_nature.second_q.operators.tensor_ordering.to_chemist_ordering` "
+                        "utility."
+                    ),
+                    stacklevel=3,
+                )
+            self._chemist_hijkl_ba = to_chemist_ordering(  # type: ignore[assignment]
+                hijkl_ba, index_order=self._original_index_order
+            )
 
     @classmethod
     def from_file(cls, fcidump: str | Path) -> FCIDump:
@@ -153,7 +247,7 @@ class FCIDump:
             # append 2e integrals
             _dump_2e_ints(self.hijkl, mos, outfile)
             if self.hijkl_ba is not None:
-                _dump_2e_ints(self.hijkl_ba.transpose(), mos, outfile, beta=1)
+                _dump_2e_ints(np.transpose(self.hijkl_ba), mos, outfile, beta=1)
             if self.hijkl_bb is not None:
                 _dump_2e_ints(self.hijkl_bb, mos, outfile, beta=2)
             # append 1e integrals

@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2019, 2022.
+# (C) Copyright IBM 2019, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -19,7 +19,8 @@ import numpy as np
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import UCC
 from qiskit_nature.second_q.operators import ElectronicIntegrals
-from qiskit_nature.second_q.operators.tensor_ordering import IndexType, to_chemist_ordering
+from qiskit_nature.second_q.operators.tensor import ARRAY_TYPE, Tensor
+from qiskit_nature.second_q.operators.symmetric_two_body import SymmetricTwoBodyIntegrals, unfold
 from qiskit_nature.second_q.problems import BaseProblem, ElectronicStructureProblem
 from qiskit_nature.utils import get_einsum
 
@@ -27,13 +28,13 @@ from .initial_point import InitialPoint
 
 
 def _compute_mp2(
-    num_occ: int, integral_matrix: np.ndarray, orbital_energies: np.ndarray
+    num_occ: int, integral_matrix: ARRAY_TYPE | Tensor, orbital_energies: np.ndarray
 ) -> tuple[np.ndarray, float]:
     """Compute the T2 amplitudes and MP2 energy correction.
 
     Args:
         num_occ: The number of occupied molecular orbitals.
-        integral_matrix: The two-body molecular orbitals matrix.
+        integral_matrix: The two-body molecular orbitals tensor.
         orbital_energies: The orbital energies.
 
     Returns:
@@ -42,10 +43,16 @@ def _compute_mp2(
         - The MP2 energy correction.
 
     """
+    if isinstance(integral_matrix, SymmetricTwoBodyIntegrals):
+        integral_matrix = unfold(integral_matrix)
+    elif not isinstance(integral_matrix, Tensor):
+        # TODO: remove extra-wrapping of Tensor once settings.tensor_unwrapping is removed
+        integral_matrix = Tensor(integral_matrix)
+
     # We use NumPy broadcasting to compute the matrix of occupied - virtual energy deltas with
     # shape (num_occ, num_vir), such that
     # energy_deltas[i, a] = orbital_energy[i] - orbital_energy[a].
-    # NOTE In the unrestricted-spin calculation, the orbital energies will be a 2D array, and this
+    # NOTE: In the unrestricted-spin calculation, the orbital energies will be a 2D array, and this
     # logic will need to be revisited.
     energy_deltas = orbital_energies[:num_occ, np.newaxis] - orbital_energies[num_occ:]
 
@@ -56,16 +63,26 @@ def _compute_mp2(
     # Again we can use NumPy broadcasting to speed this up.
     double_deltas = energy_deltas[:, :, np.newaxis, np.newaxis] + energy_deltas
 
+    # Now we transpose this matrix into (num_occ, num_occ, num_vir, num_vir) which is the expected
+    # ordering of T2 amplitudes following the convention set out by PySCF
+    double_deltas = double_deltas.transpose(0, 2, 1, 3)
+
+    # We must swap the last two axes in order to match the ordering of double_deltas as
+    # explained above. We use the _reverse_label_template routine here to handle non-default label
+    # templates in the integral_matrix Tensor, too.
+    integral_matrix = integral_matrix.transpose(
+        integral_matrix._reverse_label_template((0, 1, 3, 2))
+    )
     # Create integral matrix that uses occupied and virtual indices rather than MO indices.
-    integral_matrix_ovov = integral_matrix[:num_occ, num_occ:, :num_occ, num_occ:]
+    integral_matrix_oovv = integral_matrix[:num_occ, :num_occ, num_occ:, num_occ:]
 
     # Compute T2 amplitudes and transpose to num_occ, num_occ, num_vir, num_vir.
-    t2_amplitudes = (integral_matrix_ovov / double_deltas).transpose(0, 2, 1, 3)
+    t2_amplitudes = integral_matrix_oovv / double_deltas
 
     # Compute MP2 energy correction.
     einsum_func, _ = get_einsum()
-    energy_correction = einsum_func("ijab,iajb", t2_amplitudes, integral_matrix_ovov) * 2
-    energy_correction -= einsum_func("ijab,ibja", t2_amplitudes, integral_matrix_ovov)
+    energy_correction = einsum_func("ijab,ijab", t2_amplitudes, integral_matrix_oovv) * 2
+    energy_correction -= einsum_func("ijab,ijba", t2_amplitudes, integral_matrix_oovv)
 
     return t2_amplitudes, energy_correction
 
@@ -179,9 +196,7 @@ class MP2InitialPoint(InitialPoint):
                 "the MP2InitialPoint."
             )
 
-        integral_matrix = to_chemist_ordering(
-            two_body_mo_integral.alpha.get("++--"), index_order=IndexType.PHYSICIST
-        )
+        integral_matrix = two_body_mo_integral.alpha.get("++--")
 
         reference_energy = problem.reference_energy if not None else 0.0
 

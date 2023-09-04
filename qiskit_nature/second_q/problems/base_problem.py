@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -9,7 +9,6 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-# This code is part of Qiskit.
 
 """The Base Problem class."""
 
@@ -20,9 +19,12 @@ from typing import Callable
 import numpy as np
 from qiskit.algorithms.eigensolvers import EigensolverResult
 from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
-from qiskit.opflow import Z2Symmetries
+from qiskit.opflow import PauliSumOp
+from qiskit.opflow.primitive_ops import Z2Symmetries as OpflowZ2Symmetries
+from qiskit.quantum_info.analysis.z2_symmetries import Z2Symmetries
 
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.deprecation import deprecate_function
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper, TaperedQubitMapper
 from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.hamiltonians import Hamiltonian
 
@@ -75,10 +77,20 @@ class BaseProblem:
 
         return main_op, aux_ops
 
+    # pylint: disable=bad-docstring-quotes
+    @deprecate_function(
+        "0.6.0",
+        additional_msg=(
+            ". This function is deprecated because it will be removed from the public API. It is "
+            "no longer necessary to be used when working directly with QubitMapper objects outside "
+            "a QubitConverter because a TaperedQubitMapper can now be obtained using the new "
+            "get_tapered_mapper function provided by the problem classes"
+        ),
+    )
     def symmetry_sector_locator(
         self,
-        z2_symmetries: Z2Symmetries,
-        converter: QubitConverter,
+        z2_symmetries: OpflowZ2Symmetries | Z2Symmetries,
+        converter: QubitConverter | QubitMapper,
     ) -> list[int] | None:
         # pylint: disable=unused-argument
         """Given the detected Z2Symmetries, it can determine the correct sector of the tapered
@@ -86,13 +98,66 @@ class BaseProblem:
 
         Args:
             z2_symmetries: the z2 symmetries object.
-            converter: the qubit converter instance used for the operator conversion that
-                symmetries are to be determined for.
+            converter: the ``QubitConverter`` or ``QubitMapper`` instance used for the operator
+                conversion that symmetries are to be determined for.
 
         Returns:
             the sector of the tapered operators with the problem solution
         """
         return None
+
+    def _symmetry_sector_locator(
+        self,
+        z2_symmetries: OpflowZ2Symmetries | Z2Symmetries,
+        mapper: QubitConverter | QubitMapper,
+    ) -> list[int] | None:
+        # pylint: disable=unused-argument
+        """Given the detected Z2Symmetries, it can determine the correct sector of the tapered
+        operators so the correct one can be returned
+
+        Args:
+            z2_symmetries: the z2 symmetries object.
+            mapper: the ``QubitMapper`` or ``QubitConverter`` instance (use of the latter is
+                deprecated) used for the operator conversion that symmetries are to be determined
+                for.
+
+        Returns:
+            the sector of the tapered operators with the problem solution
+        """
+        return None
+
+    def get_tapered_mapper(self, mapper: QubitMapper) -> TaperedQubitMapper:
+        """Builds a ``TaperedQubitMapper`` from one of the mappers.
+        This simplifies the identification of the Pauli operator symmetries and of the symmetry sector
+        in which lies the solution of the problem.
+
+        Args:
+            mapper: ``QubitMapper`` object implementing the mapping of second quantized operators to
+                Pauli operators.
+
+        Raises:
+            ValueError: If the mapper is a ``TaperedQubitMapper``.
+
+        Returns:
+            A ``TaperedQubitMapper`` with pre-built symmetry specifications.
+        """
+        if isinstance(mapper, TaperedQubitMapper):
+            raise ValueError(
+                "TaperedQubitMapper instance cannot be built from another "
+                "TaperedQubitMapper. If you want to update your TaperedQubitMapper "
+                "instance please build a new one starting from the standard mappers."
+            )
+
+        qubit_op, _ = self.second_q_ops()
+        mapped_op = mapper.map(qubit_op)
+        if isinstance(mapped_op, PauliSumOp):
+            mapped_op = mapped_op.primitive
+        z2_symmetries = Z2Symmetries.find_z2_symmetries(mapped_op)
+        # pylint: disable=assignment-from-none
+        # Known issue for abstract class methods https://github.com/PyCQA/pylint/issues/2559
+        tapering_values = self._symmetry_sector_locator(z2_symmetries, mapper)
+        z2_symmetries.tapering_values = tapering_values
+        return TaperedQubitMapper(mapper, z2_symmetries)
 
     def interpret(
         self,

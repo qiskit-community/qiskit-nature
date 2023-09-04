@@ -43,6 +43,7 @@ avogadro
 äquivalenzverbot
 bac
 backend
+backends
 barkoutsos
 bb
 bergholm
@@ -57,7 +58,9 @@ boolean
 bools
 bopes
 boson
+bosons
 bosonic
+bosonicop
 bravyi
 calcinfo
 cargs
@@ -70,6 +73,7 @@ chc
 chiral
 chirality
 chkfile
+cholesky
 chuang
 ci
 clbit
@@ -85,6 +89,7 @@ coeffs
 colormap
 commutativities
 commutativity
+computable
 conda
 conf
 config
@@ -145,6 +150,7 @@ eigen
 eigenfunctions
 eigensolution
 eigensolver
+eigensolverfactory
 eigensolvers
 eigenstate
 eigenstateresult
@@ -156,6 +162,7 @@ einsum
 electronicintegrals
 electronicstructureproblem
 endian
+endianness
 endif
 enum
 eom
@@ -219,6 +226,8 @@ hijs
 hilbert
 histidine
 hjo
+hsplit
+hstack
 html
 https
 hubbard
@@ -241,6 +250,7 @@ intel
 intelvem
 interatomic
 internuclear
+interoperability
 interpretable
 ints
 io
@@ -250,9 +260,11 @@ ising
 iso
 isoleucine
 isometry
+isospectral
 iswap
 isym
 iten
+iter
 iterable
 iteratively
 itertools
@@ -300,6 +312,7 @@ lijh
 linewidths
 linux
 listordict
+listordicttype
 ljik
 lk
 logfile
@@ -327,6 +340,7 @@ metadata
 meth
 methionine
 microsoft
+miessen
 minao
 mixin
 miyazawa
@@ -351,6 +365,7 @@ natom
 nbasis
 nd
 ndarray
+ndim
 nelec
 neq
 networkx
@@ -453,12 +468,14 @@ quantized
 quantumcircuit
 quartic
 qubit
+qubitmapper
 qubits
 qutrit
 radians
 rangle
 rcccx
 rccx
+rdm
 readme
 readthedocs
 realise
@@ -509,9 +526,11 @@ sklearn
 sl
 slater
 soham
+somma
 sp
 sparsearray
 sparselabelop
+sparsepauliop
 spinop
 springer
 spsa
@@ -528,6 +547,8 @@ str
 stylesheet
 subcircuits
 subclasses
+submatrix
+submatrices
 submodule
 submodules
 subtest
@@ -545,6 +566,7 @@ tavernelli
 taylor
 tb
 tdg
+tcoeff
 tensored
 tensoring
 terra
@@ -577,6 +599,7 @@ uccsd
 ucrx
 ucry
 ucrz
+ufuncs
 uhf
 ulimit
 un
@@ -608,6 +631,8 @@ vmax
 vmin
 vqe
 vscf
+vsplit
+vstack
 vwn
 vx
 vy

@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -28,7 +28,7 @@ from qiskit_nature import logging as nature_logging
 class TestHandler(logging.StreamHandler):
     """Unit Test Handler"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Initialize the handler.
         """
@@ -64,7 +64,7 @@ class TestLogging(QiskitNatureTestCase):
         nature_logging.set_levels_for_names(self._old_logging_dict, add_default_handler=False)
         nature_logging.remove_default_handler(self._logging_dict.keys())
 
-    def _validate_records(self, records):
+    def _validate_records(self, records: dict) -> None:
         name_levels: Dict[str, Set[int]] = {}
         for record in records:
             names = record.name.split(".")

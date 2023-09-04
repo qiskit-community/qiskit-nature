@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -16,78 +16,28 @@ from __future__ import annotations
 
 import copy
 import logging
-from typing import (
-    cast,
-    Callable,
-    Dict,
-    Generator,
-    Generic,
-    Iterable,
-    List,
-    Optional,
-    Tuple,
-    TypeVar,
-    Union,
-)
+from typing import Callable
 
 import numpy as np
 
 from qiskit.algorithms.list_or_dict import ListOrDict as ListOrDictType
 from qiskit.opflow import PauliSumOp
-from qiskit.opflow.converters import TwoQubitReduction
+from qiskit.quantum_info import SparsePauliOp
 from qiskit.opflow.primitive_ops import Z2Symmetries
 
-from qiskit_nature import QiskitNatureError
-
+from qiskit_nature import QiskitNatureError, settings
+from qiskit_nature.deprecation import warn_deprecated, DeprecatedType
 from qiskit_nature.second_q.operators import SparseLabelOp
-from .qubit_mapper import QubitMapper
 
-# pylint: disable=invalid-name
-T = TypeVar("T")
+from .qubit_mapper import QubitMapper, _ListOrDict
+from .parity_mapper import ParityMapper
+from .tapered_qubit_mapper import TaperedQubitMapper
 
 logger = logging.getLogger(__name__)
 
 
-class _ListOrDict(Dict, Iterable, Generic[T]):
-    """The ListOrDict utility class.
-
-    This is a utility which allows seamless iteration of a `list` or `dict` object.
-    """
-
-    def __init__(self, values: Optional[ListOrDictType] = None):
-        """
-        Args:
-            values: an optional object of `list` or `dict` type.
-        """
-        if isinstance(values, list):
-            values = dict(enumerate(values))
-        elif values is None:
-            values = {}
-        super().__init__(values)
-
-    def __iter__(self) -> Generator[Tuple[Union[int, str], T], T, None]:
-        """Return the generator-iterator method."""
-        return self._generator()
-
-    def _generator(self) -> Generator[Tuple[Union[int, str], T], T, None]:
-        """Return generator method iterating the contents of this class.
-
-        This generator yields the `(key, value)` pairs of the underlying dictionary. If this object
-        was constructed from a list, the keys in this generator are simply the numeric indices.
-
-        This generator also supports overriding the yielded value upon receiving any value other
-        than `None` from a `send` [1] instruction.
-
-        [1]: https://docs.python.org/3/reference/expressions.html#generator.send
-        """
-        for key, value in self.items():
-            new_value = yield (key, value)
-            if new_value is not None:
-                self[key] = new_value
-
-
 class QubitConverter:
-    """A converter from Second-Quantized to Qubit Operators.
+    """DEPRECATED A converter from Second-Quantized to Qubit Operators.
 
     This converter can be configured with a mapper instance which will later be used
     when 2nd quantized operators are requested to be converted (mapped) to qubit operators.
@@ -111,7 +61,7 @@ class QubitConverter:
         mapper: QubitMapper,
         *,
         two_qubit_reduction: bool = False,
-        z2symmetry_reduction: Optional[Union[str, List[int]]] = None,
+        z2symmetry_reduction: str | list[int] | None = None,
         sort_operators: bool = False,
     ):
         """
@@ -134,15 +84,33 @@ class QubitConverter:
                 results which can occur when operator terms are not consistently ordered.
                 This is disabled by default, because in practice the Pauli-terms will be grouped
                 later on anyways.
+
+        Raises:
+            ValueError: If the mapper is a ``TaperedQubitMapper``.
         """
-
+        warn_deprecated(
+            "0.6.0",
+            DeprecatedType.CLASS,
+            "QubitConverter",
+            additional_msg=(
+                ". Instead you should directly use the QubitMapper instance which you used to pass "
+                "into the QubitConverter as the first argument. Refer to the documentation of the "
+                "qiskit_nature.second_q.mappers module for more information"
+            ),
+        )
+        if isinstance(mapper, TaperedQubitMapper):
+            raise ValueError(
+                "The TaperedQubitMapper is not supported by the QubitConverter. "
+                "If you want to use tapering please either use the tapering built "
+                "directly into the QubitConverter (see its documentation) "
+                "or use the TaperedQubitMapper standalone (recommended)."
+            )
         self._mapper: QubitMapper = mapper
-        self._two_qubit_reduction: bool = two_qubit_reduction
-        self._z2symmetry_reduction: Optional[Union[str, List[int]]] = None
-        self.z2symmetry_reduction = z2symmetry_reduction  # Setter does validation
 
-        self._did_two_qubit_reduction: bool = False
-        self._num_particles: Optional[Tuple[int, int]] = None
+        self._two_qubit_reduction: bool = two_qubit_reduction
+        self._z2symmetry_reduction: str | list[int] | None = None
+        # We use the setter for the additional validation
+        self.z2symmetry_reduction = z2symmetry_reduction
         self._z2symmetries: Z2Symmetries = self._no_symmetries
 
         self._sort_operators: bool = sort_operators
@@ -174,12 +142,12 @@ class QubitConverter:
         self._z2symmetries = None  # Reset as symmetries my change due to this reduction
 
     @property
-    def z2symmetry_reduction(self) -> Optional[Union[str, List[int]]]:
+    def z2symmetry_reduction(self) -> str | list[int] | None:
         """Get z2symmetry_reduction"""
         return self._z2symmetry_reduction
 
     @z2symmetry_reduction.setter
-    def z2symmetry_reduction(self, z2symmetry_reduction: Optional[Union[str, List[int]]]) -> None:
+    def z2symmetry_reduction(self, z2symmetry_reduction: str | list[int] | None) -> None:
         """Set z2symmetry_reduction"""
         if z2symmetry_reduction is not None:
             if isinstance(z2symmetry_reduction, str):
@@ -197,12 +165,15 @@ class QubitConverter:
         self._z2symmetry_reduction = z2symmetry_reduction
 
     @property
-    def num_particles(self) -> Optional[Tuple[int, int]]:
+    def num_particles(self) -> tuple[int, int] | None:
         """Get the number of particles as supplied to :meth:`convert`.
 
         This can also be set, for advanced usage, using :meth:`force_match`
         """
-        return self._num_particles
+        if isinstance(self._mapper, ParityMapper):
+            return self._mapper.num_particles
+        else:
+            return None
 
     @property
     def z2symmetries(self) -> Z2Symmetries:
@@ -214,14 +185,21 @@ class QubitConverter:
         """
         return copy.deepcopy(self._z2symmetries)
 
+    def _check_reset_mapper(self) -> None:
+        """Resets the ``ParityMapper`` if the attribute :attr:`two_qubit_reduction` is set to False. This
+        makes the behavior of the QubitConverter compatible with the new ParityMapper class which only
+        has one attribute :attr:`num_particles`. This must be called right before any mapping method of
+        the mappers.
+        """
+        if not self.two_qubit_reduction and isinstance(self._mapper, ParityMapper):
+            self._mapper.num_particles = None
+
     def convert(
         self,
         second_q_op: SparseLabelOp,
-        num_particles: Optional[Tuple[int, int]] = None,
-        sector_locator: Optional[
-            Callable[[Z2Symmetries, "QubitConverter"], Optional[List[int]]]
-        ] = None,
-    ) -> PauliSumOp:
+        num_particles: tuple[int, int] | None = None,
+        sector_locator: Callable[[Z2Symmetries, "QubitConverter"], list[int] | None] | None = None,
+    ) -> SparsePauliOp | PauliSumOp:
         """
         Map the given second quantized operator to a qubit operators. Also it will
         carry out z2 symmetry reduction on the qubit operators if z2symmetry_reduction has
@@ -238,13 +216,16 @@ class QubitConverter:
                 out of the set that are the result of tapering.
 
         Returns:
-            PauliSumOp qubit operator
+            A qubit operator.
         """
-        qubit_op = self._map(second_q_op)
-        reduced_op = self._two_qubit_reduce(qubit_op, num_particles)
-        tapered_op, z2symmetries = self._find_taper_op(reduced_op, sector_locator)
+        if isinstance(self._mapper, ParityMapper):
+            self._mapper.num_particles = num_particles
 
-        self._num_particles = num_particles
+        self._check_reset_mapper()
+
+        reduced_op = self._mapper.map(second_q_op)
+        tapered_op, z2symmetries = self.find_taper_op(reduced_op, sector_locator)
+
         self._z2symmetries = z2symmetries
 
         return tapered_op
@@ -252,8 +233,8 @@ class QubitConverter:
     def convert_only(
         self,
         second_q_op: SparseLabelOp,
-        num_particles: Optional[Tuple[int, int]] = None,
-    ) -> PauliSumOp:
+        num_particles: tuple[int, int] | None = None,
+    ) -> SparsePauliOp | PauliSumOp:
         """
         Map the given second quantized operator to a qubit operators using the mapper
         and possibly two qubit reduction. No tapering is done, nor is any conversion state saved,
@@ -266,18 +247,22 @@ class QubitConverter:
                 not supplied, even if two_qubit_reduction is possible, it will not be done.
 
         Returns:
-            PauliSumOp qubit operator
+            A qubit operator.
         """
-        qubit_op = self._map(second_q_op)
-        reduced_op = self._two_qubit_reduce(qubit_op, num_particles)
+        if num_particles is not None and isinstance(self._mapper, ParityMapper):
+            self._mapper.num_particles = num_particles
+
+        self._check_reset_mapper()
+
+        reduced_op = self._mapper.map(second_q_op)
 
         return reduced_op
 
     def force_match(
         self,
         *,
-        num_particles: Optional[Tuple[int, int]] = None,
-        z2symmetries: Optional[Z2Symmetries] = None,
+        num_particles: tuple[int, int] | None = None,
+        z2symmetries: Z2Symmetries | None = None,
     ) -> None:
         """This is for advanced use where :meth:`convert` may not have been called or the
         converter should be used to taper to some external characteristics to be matched
@@ -291,8 +276,8 @@ class QubitConverter:
         Raises:
             ValueError: If format of Z2Symmetry tapering values is invalid
         """
-        if num_particles is not None:
-            self._num_particles = num_particles
+        if num_particles is not None and isinstance(self._mapper, ParityMapper):
+            self._mapper.num_particles = num_particles
 
         if z2symmetries is not None:
             if not z2symmetries.is_empty():
@@ -316,7 +301,7 @@ class QubitConverter:
         *,
         suppress_none: bool = False,
         check_commutes: bool = True,
-    ) -> Union[PauliSumOp, ListOrDictType[PauliSumOp]]:
+    ) -> SparsePauliOp | PauliSumOp | ListOrDictType[SparsePauliOp | PauliSumOp]:
         """Convert further operators to match that done in :meth:`convert`, or as set by
             :meth:`force_match`.
 
@@ -325,7 +310,7 @@ class QubitConverter:
             suppress_none: If None should be placed in the output list where an operator
                 did not commute with symmetry, to maintain order, or whether that should
                 be suppressed where the output list length may then be smaller than the input
-            check_commutes: If True (default) a tapered operator must commute with the
+            check_commutes: If True (default) an operator must commute with the
                 symmetry to be tapered otherwise None is returned for that operator. When
                 False the operator is tapered with no check so due consideration needs to
                 be given in this case to how such operator(s) are eventually used.
@@ -338,6 +323,9 @@ class QubitConverter:
             be directly returned in the case when a single operator is provided (that cannot be
             suppressed as it's a single value)
         """
+
+        self._check_reset_mapper()
+
         # To allow a single operator to be converted, but use the same logic that does the
         # actual conversions, we make a single entry list of it here and unwrap to return.
         wrapped_type = type(second_q_ops)
@@ -348,93 +336,52 @@ class QubitConverter:
 
         wrapped_second_q_ops: _ListOrDict[SparseLabelOp] = _ListOrDict(second_q_ops)
 
-        qubit_ops: _ListOrDict[PauliSumOp] = _ListOrDict()
-        for name, second_q_op in iter(wrapped_second_q_ops):
-            qubit_ops[name] = self._map(second_q_op)
-
         reduced_ops: _ListOrDict[PauliSumOp] = _ListOrDict()
-        for name, qubit_op in iter(qubit_ops):
-            reduced_ops[name] = self._two_qubit_reduce(qubit_op, self._num_particles)
+        for name, second_q_op in iter(wrapped_second_q_ops):
+            reduced_op = self._mapper.map(second_q_op)
+            # NOTE: we ensure all operators are PauliSumOp here, because this is required by the
+            # opflow-based Z2Symmetries class still used by the QubitConverter
+            reduced_ops[name] = (
+                PauliSumOp(reduced_op) if not isinstance(reduced_op, PauliSumOp) else reduced_op
+            )
 
-        tapered_ops = self._symmetry_reduce(reduced_ops, check_commutes)
+        tapered_ops: _ListOrDict[PauliSumOp] = self._symmetry_reduce(reduced_ops, check_commutes)
 
-        returned_ops: Union[PauliSumOp, ListOrDictType[PauliSumOp]]
-
-        if issubclass(wrapped_type, SparseLabelOp):
-            returned_ops = list(iter(tapered_ops))[0][1]
-        elif wrapped_type == list:
-            if suppress_none:
-                returned_ops = [op for _, op in iter(tapered_ops) if op is not None]
-            else:
-                returned_ops = [op for _, op in iter(tapered_ops)]
-        elif wrapped_type == dict:
-            returned_ops = dict(iter(tapered_ops))
+        # NOTE: _ListOrDict.unwrap takes care of the conversion to/from PauliSumOp based on
+        # settings.use_pauli_sum_op
+        returned_ops: PauliSumOp | ListOrDictType[PauliSumOp] = tapered_ops.unwrap(
+            wrapped_type, suppress_none=suppress_none
+        )
 
         return returned_ops
 
-    def map(
+    def find_taper_op(
         self,
-        second_q_ops: SparseLabelOp | ListOrDictType[SparseLabelOp],
-    ) -> Union[PauliSumOp, ListOrDictType[PauliSumOp]]:
-        """A convenience method to map second quantized operators based on current mapper.
+        qubit_op: SparsePauliOp | PauliSumOp,
+        sector_locator: Callable[[Z2Symmetries, "QubitConverter"], list[int] | None] | None = None,
+    ) -> tuple[SparsePauliOp | PauliSumOp, Z2Symmetries]:
+        r"""
+        Find the $Z_2$-symmetries associated with the qubit operator and taper it accordingly.
 
         Args:
-            second_q_ops: A second quantized operator, or list thereof
+            qubit_op: Qubit main operator - often the hamiltonian - from which symmetries
+                will be identified.
+            sector_locator: Method associated to the problem of interest which identifies the
+                symmetry sector of the solution. Defaults to None.
+
+        Raises:
+            QiskitNatureError: The user-specified or identified symmetry sector is not compatible with
+                the symmetries found for this problem.
+            QiskitNatureError: The main operator does not commute with its expected symmetries.
 
         Returns:
-            A qubit operator in the form of a PauliSumOp, or list thereof if a list of
-            second quantized operators was supplied
+            Tuple of the form (tapered qubit operator, identified $Z_2$-symmetry object)
         """
-        if isinstance(second_q_ops, SparseLabelOp):
-            qubit_ops = self._map(second_q_ops)
-        else:
-            wrapped_type = type(second_q_ops)
+        if not isinstance(qubit_op, PauliSumOp):
+            # NOTE: we ensure the operator is a PauliSumOp here, because this is required by the
+            # opflow-based Z2Symmetries class still used by the QubitConverter
+            qubit_op = PauliSumOp(qubit_op)
 
-            wrapped_second_q_ops: _ListOrDict[SparseLabelOp] = _ListOrDict(second_q_ops)
-
-            qubit_ops = _ListOrDict()
-            for name, second_q_op in iter(wrapped_second_q_ops):
-                qubit_ops[name] = self._map(second_q_op)
-
-            if wrapped_type == list:
-                qubit_ops = [op for _, op in iter(qubit_ops)]
-            elif wrapped_type == dict:
-                qubit_ops = dict(iter(qubit_ops))
-
-        return qubit_ops
-
-    def _map(self, second_q_op: SparseLabelOp) -> PauliSumOp:
-        if self._sort_operators and isinstance(second_q_op, SparseLabelOp):
-            second_q_op = second_q_op.sort()
-        return self._mapper.map(second_q_op)
-
-    def _two_qubit_reduce(
-        self, qubit_op: PauliSumOp, num_particles: Optional[Tuple[int, int]]
-    ) -> PauliSumOp:
-        reduced_op = qubit_op
-
-        if num_particles is not None:
-            if self._two_qubit_reduction and self._mapper.allows_two_qubit_reduction:
-                if qubit_op.num_qubits <= 2:
-                    logger.warning(
-                        "The original qubit operator only contains %s qubits! Skipping the requested "
-                        "two-qubit reduction!",
-                        qubit_op.num_qubits,
-                    )
-                    return reduced_op
-
-                two_q_reducer = TwoQubitReduction(num_particles)
-                reduced_op = cast(PauliSumOp, two_q_reducer.convert(qubit_op))
-
-        return reduced_op
-
-    def _find_taper_op(
-        self,
-        qubit_op: PauliSumOp,
-        sector_locator: Optional[
-            Callable[[Z2Symmetries, "QubitConverter"], Optional[List[int]]]
-        ] = None,
-    ) -> Tuple[PauliSumOp, Z2Symmetries]:
         # Return operator unchanged and empty symmetries if we do not taper
         tapered_qubit_op = qubit_op
         z2_symmetries = self._no_symmetries
@@ -486,6 +433,13 @@ class QubitConverter:
             z2_symmetries.tapering_values = self._z2symmetry_reduction
             tapered_qubit_op = z2_symmetries.taper(qubit_op) if commutes else None
 
+        if (
+            tapered_qubit_op is not None
+            and not isinstance(tapered_qubit_op, SparsePauliOp)
+            and not settings.use_pauli_sum_op
+        ):
+            tapered_qubit_op = tapered_qubit_op.primitive
+
         return tapered_qubit_op, z2_symmetries
 
     def _symmetry_reduce(
@@ -521,8 +475,103 @@ class QubitConverter:
 
         return tapered_qubit_ops
 
+    def symmetry_reduce_clifford(
+        self,
+        converted_ops: ListOrDictType[SparsePauliOp | PauliSumOp],
+        *,
+        check_commutes: bool = True,
+    ) -> ListOrDictType[SparsePauliOp | PauliSumOp]:
+        """
+        Applies the tapering to a list of operators previously converted with the Clifford
+        transformation from the current symmetry.
+
+        Args:
+            converted_ops: Operators to taper.
+            check_commutes: If True (default) an operator must commute with the
+                symmetry to be tapered otherwise None is returned for that operator. When
+                False the operator is tapered with no check so due consideration needs to
+                be given in this case to how such operator(s) are eventually used.
+
+        Returns:
+            Tapered operators.
+        """
+        if converted_ops is None or self._z2symmetries is None or self._z2symmetries.is_empty():
+            return_ops = converted_ops
+        else:
+            wrapped_converted_ops, wrapped_type = _ListOrDict.wrap(converted_ops)
+
+            pauli_sum_ops: ListOrDictType[PauliSumOp] = _ListOrDict()
+            for name, qubit_op in iter(wrapped_converted_ops):
+                if not isinstance(qubit_op, PauliSumOp):
+                    qubit_op = PauliSumOp(qubit_op)
+                pauli_sum_ops[name] = qubit_op
+
+            if check_commutes:
+                logger.debug("Checking operators commute with symmetry:")
+                symmetry_ops = []
+                for sq_pauli in self._z2symmetries._sq_paulis:
+                    symmetry_ops.append(PauliSumOp.from_list([(sq_pauli.to_label(), 1.0)]))
+                commuted = {}
+                for name, qubit_op in iter(pauli_sum_ops):
+                    commutes = QubitConverter._check_commutes(symmetry_ops, qubit_op)
+                    commuted[name] = commutes
+                    logger.debug("Qubit operator '%s' commuted with symmetry: %s", name, commutes)
+
+                # Tapering values were set from prior convert, so we go ahead and taper operators
+                tapered_qubit_ops: _ListOrDict[PauliSumOp] = _ListOrDict()
+                for name, commutes in commuted.items():
+                    if commutes:
+                        tapered_qubit_ops[name] = self._z2symmetries.taper_clifford(
+                            pauli_sum_ops[name]
+                        )
+            else:
+                logger.debug("Tapering operators whether they commute with symmetry or not:")
+                tapered_qubit_ops = _ListOrDict()
+                for name, qubit_op in iter(pauli_sum_ops):
+                    tapered_qubit_ops[name] = self._z2symmetries.taper_clifford(pauli_sum_ops[name])
+
+            # NOTE: _ListOrDict.unwrap takes care of the conversion to/from PauliSumOp based on
+            # settings.use_pauli_sum_op
+            return_ops = tapered_qubit_ops.unwrap(wrapped_type)
+
+        return return_ops
+
+    def convert_clifford(
+        self,
+        qubit_ops: SparsePauliOp | PauliSumOp | ListOrDictType[SparsePauliOp | PauliSumOp],
+    ) -> SparsePauliOp | PauliSumOp | ListOrDictType[SparsePauliOp | PauliSumOp]:
+        """
+        Applies the Clifford transformation from the current symmetry to all operators.
+
+        Args:
+            qubit_ops: Operators to convert.
+
+        Returns:
+            Converted operators
+        """
+        if qubit_ops is None or self._z2symmetries is None or self._z2symmetries.is_empty():
+            converted_ops = qubit_ops
+        else:
+            wrapped_second_q_ops, wrapped_type = _ListOrDict.wrap(qubit_ops)
+
+            pauli_sum_ops: ListOrDictType[PauliSumOp] = _ListOrDict()
+            for name, qubit_op in iter(wrapped_second_q_ops):
+                if not isinstance(qubit_op, PauliSumOp):
+                    qubit_op = PauliSumOp(qubit_op)
+                pauli_sum_ops[name] = qubit_op
+
+            converted_ops = _ListOrDict()
+            for name, second_q_op in iter(pauli_sum_ops):
+                converted_ops[name] = self._z2symmetries.convert_clifford(second_q_op)
+
+            # NOTE: _ListOrDict.unwrap takes care of the conversion to/from PauliSumOp based on
+            # settings.use_pauli_sum_op
+            converted_ops = converted_ops.unwrap(wrapped_type)
+
+        return converted_ops
+
     @staticmethod
-    def _check_commutes(cliffords: List[PauliSumOp], qubit_op: PauliSumOp) -> bool:
+    def _check_commutes(cliffords: list[PauliSumOp], qubit_op: PauliSumOp) -> bool:
         commutes = []
         for clifford in cliffords:
             commuting_rows = qubit_op.primitive.paulis.commutes_with_all(clifford.primitive.paulis)

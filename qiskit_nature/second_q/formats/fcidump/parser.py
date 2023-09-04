@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,13 +12,16 @@
 
 """FCIDump parser."""
 
-from typing import Any, Dict, Set, Tuple, Iterator
-import itertools
+from __future__ import annotations
+
+from typing import Any
 import re
 from pathlib import Path
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
+from qiskit_nature.second_q.operators.symmetric_two_body import unfold, S4Integrals, S8Integrals
+from qiskit_nature.settings import settings
 from .fcidump import FCIDump
 
 
@@ -40,7 +43,7 @@ def _parse(fcidump: Path) -> FCIDump:
     except OSError as ex:
         raise QiskitNatureError(f"Input file '{fcidump}' cannot be read!") from ex
 
-    output = {}  # type: Dict[str, Any]
+    output: dict[str, Any] = {}
 
     # FCIDump starts with a Fortran namelist of meta data
     namelist_end = re.search("(/|&END)", fcidump_str)
@@ -106,21 +109,13 @@ def _parse(fcidump: Path) -> FCIDump:
     # j and b are both zero: x is the 1e-integral between i and a (x = <i|h|a>)
     # otherwise: x is the Coulomb integral ( x = (ia|jb) )
     hij = np.zeros((norb, norb))
-    hij_elements = set(itertools.product(range(norb), repeat=2))
-    hijkl = np.zeros((norb, norb, norb, norb))
-    hijkl_elements = set(itertools.product(range(norb), repeat=4))
-    hij_b = hijkl_ab = hijkl_ba = hijkl_bb = None
-    hij_b_elements = hijkl_ab_elements = hijkl_ba_elements = hijkl_bb_elements = set()
+    s8_hijkl = S8Integrals.zero(norb)
+    hij_b = s4_hijkl_ba = s8_hijkl_bb = None
     if _uhf:
-        beta_range = [n + norb for n in range(norb)]
         hij_b = np.zeros((norb, norb))
-        hij_b_elements = set(itertools.product(beta_range, repeat=2))
-        hijkl_ab = np.zeros((norb, norb, norb, norb))
-        hijkl_ba = np.zeros((norb, norb, norb, norb))
-        hijkl_bb = np.zeros((norb, norb, norb, norb))
-        hijkl_ab_elements = set(itertools.product(range(norb), range(norb), beta_range, beta_range))
-        hijkl_ba_elements = set(itertools.product(beta_range, beta_range, range(norb), range(norb)))
-        hijkl_bb_elements = set(itertools.product(beta_range, repeat=4))
+        s4_hijkl_ba = S4Integrals.zero(norb)
+        s8_hijkl_bb = S8Integrals.zero(norb)
+
     orbital_data = fcidump_str[namelist_end.end(0) :].split("\n")
     for orbital in orbital_data:
         if not orbital:
@@ -135,12 +130,13 @@ def _parse(fcidump: Path) -> FCIDump:
             # TODO: x is the energy of the i-th MO
             continue
         elif j == b == 0:
+            if i > a:
+                # ensure that we set the upper triangular values
+                i, a = a, i
             try:
-                hij_elements.remove((i - 1, a - 1))
                 hij[i - 1][a - 1] = x
-            except KeyError as ex:
+            except IndexError as ex:
                 if _uhf:
-                    hij_b_elements.remove((i - 1, a - 1))
                     hij_b[i - 1 - norb][a - 1 - norb] = x
                 else:
                     raise QiskitNatureError(
@@ -148,104 +144,52 @@ def _parse(fcidump: Path) -> FCIDump:
                     ) from ex
         else:
             try:
-                hijkl_elements.remove((i - 1, a - 1, j - 1, b - 1))
-                hijkl[i - 1][a - 1][j - 1][b - 1] = x
-            except KeyError as ex:
+                s8_hijkl[i - 1, a - 1, j - 1, b - 1] = x  # type: ignore[assignment]
+            except IndexError as ex:
                 if _uhf:
                     try:
-                        hijkl_ab_elements.remove((i - 1, a - 1, j - 1, b - 1))
-                        hijkl_ab[i - 1][a - 1][j - 1 - norb][b - 1 - norb] = x
-                    except KeyError:
+                        # NOTE: we exploit the 4-fold symmetry here and greedily use j and b to
+                        # index the beta-spin
+                        s4_hijkl_ba[
+                            j - 1 - norb, b - 1 - norb, i - 1, a - 1
+                        ] = x  # type: ignore[assignment]
+                    except IndexError:
                         try:
-                            hijkl_ba_elements.remove((i - 1, a - 1, j - 1, b - 1))
-                            hijkl_ba[i - 1 - norb][a - 1 - norb][j - 1][b - 1] = x
-                        except KeyError:
-                            hijkl_bb_elements.remove((i - 1, a - 1, j - 1, b - 1))
-                            hijkl_bb[i - 1 - norb][a - 1 - norb][j - 1 - norb][b - 1 - norb] = x
+                            s4_hijkl_ba[
+                                i - 1 - norb, a - 1 - norb, j - 1, b - 1
+                            ] = x  # type: ignore[assignment]
+                        except IndexError:
+                            s8_hijkl_bb[
+                                i - 1 - norb, a - 1 - norb, j - 1 - norb, b - 1 - norb
+                            ] = x  # type: ignore[assignment]
                 else:
                     raise QiskitNatureError(
                         "Unknown 2-electron integral indices encountered in " f"'{(i, a, j, b)}'"
                     ) from ex
 
-    # iterate over still empty elements in 1-electron matrix and populate with symmetric ones
-    # if any elements are not populated these will be zero
-    _permute_1e_ints(hij, hij_elements, norb)
+    # complement the 1-body matrices by placing the upper-triangular values into the lower-triangle
+    tril_indices = np.tril_indices_from(hij)
+    hij[tril_indices] = hij.T[tril_indices]
 
     if _uhf:
-        # do the same for beta spin
-        _permute_1e_ints(hij_b, hij_b_elements, norb, beta=True)
+        hij_b[tril_indices] = hij_b.T[tril_indices]
 
-    # do the same of the 2-electron 4D matrix
-    _permute_2e_ints(hijkl, hijkl_elements, norb)
-
-    if _uhf:
-        # do the same for beta spin
-        _permute_2e_ints(hijkl_bb, hijkl_bb_elements, norb, beta=2)
-        _permute_2e_ints(hijkl_ab, hijkl_ab_elements, norb, beta=1)  # type: ignore
-        _permute_2e_ints(hijkl_ba, hijkl_ba_elements, norb, beta=1)  # type: ignore
-
-        # assert that EITHER hijkl_ab OR hijkl_ba were given
-        if np.allclose(hijkl_ab, 0.0) == np.allclose(hijkl_ba, 0.0):
-            raise QiskitNatureError(
-                "Encountered mixed sets of indices for the 2-electron \
-                    integrals. Either alpha/beta or beta/alpha matrix should be specified."
-            )
-
-        if np.allclose(hijkl_ba, 0.0):
-            hijkl_ba = hijkl_ab.transpose()
+    if not settings.use_symmetry_reduced_integrals:
+        s8_hijkl = unfold(s8_hijkl).to_dense().array  # type: ignore[assignment]
+        if s8_hijkl_bb is not None:
+            s8_hijkl_bb = unfold(s8_hijkl_bb).to_dense().array  # type: ignore[assignment]
+        if s4_hijkl_ba is not None:
+            s4_hijkl_ba = unfold(s4_hijkl_ba).to_dense().array  # type: ignore[assignment]
 
     return FCIDump(
         num_electrons=output.get("NELEC"),
         hij=hij,
-        hijkl=hijkl,
+        hijkl=s8_hijkl,
         hij_b=hij_b,
-        hijkl_ba=hijkl_ba,
-        hijkl_bb=hijkl_bb,
+        hijkl_ba=s4_hijkl_ba,
+        hijkl_bb=s8_hijkl_bb,
         multiplicity=output.get("MS2", 0) + 1,
         constant_energy=output.get("ecore", None),
         orbsym=output.get("ORBSYM", None),
         isym=output.get("ISYM"),
     )
-
-
-def _permute_1e_ints(
-    hij: np.ndarray, elements: Set[Tuple[int, ...]], norb: int, beta: bool = False
-) -> None:
-    for elem in elements.copy():
-        shifted = tuple(e - (beta * norb) for e in elem)
-        hij[shifted] = hij[shifted[::-1]]
-        elements.remove(elem)
-
-
-def _permute_2e_ints(
-    hijkl: np.ndarray, elements: Set[Tuple[int, ...]], norb: int, beta: int = 0
-) -> None:
-    for elem in elements.copy():
-        shifted = tuple(e - ((e >= norb) * norb) for e in elem)
-        # initially look for "transposed" element if spins are equal
-        if beta != 1 and elem[::-1] not in elements:
-            hijkl[shifted] = hijkl[shifted[::-1]]
-            elements.remove(elem)
-            continue
-        # then look at permutations of indices within the bra and ket respectively
-        bra_perms = set(itertools.permutations(elem[:2]))
-        ket_perms = set(itertools.permutations(elem[2:]))
-        permutations: Iterator[Any]
-        if beta == 1:
-            # generally (ij|ab) != (ab|ij)
-            # thus, the possible permutations are much less when the spins differ
-            permutations = itertools.product(bra_perms, ket_perms)
-        else:
-            # ( ij | kl ) gives { ( ij | kl ), ( ij | lk ), ( ji | kl ), ( ji | lk ) }
-            # AND { ( kl | ij ), ( kl | ji ), ( lk | ij ), ( lk | ji ) }
-            # BUT NOT ( ik | jl ) etc.
-            permutations = itertools.chain(
-                itertools.product(bra_perms, ket_perms),
-                itertools.product(ket_perms, bra_perms),
-            )
-        for perm in {e1 + e2 for e1, e2 in permutations}:
-            if perm in elements:
-                continue
-            hijkl[shifted] = hijkl[tuple(e - (e >= norb) * norb for e in perm)]
-            elements.remove(elem)
-            break

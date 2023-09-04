@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -30,7 +30,7 @@ class InitialPoint(ABC):
     """
 
     @abstractmethod
-    def __init__(self):
+    def __init__(self) -> None:
         self._ansatz: EvolvedOperatorAnsatz | None = None
         self._problem: BaseProblem | None = None
 

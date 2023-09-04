@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -15,35 +15,51 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Union
 
 from qiskit.opflow import PauliSumOp
-from qiskit.quantum_info.operators.base_operator import BaseOperator
+from qiskit.quantum_info import SparsePauliOp
 
 from qiskit_nature.second_q.operators import SparseLabelOp
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.second_q.problems import EigenstateResult
-
-QubitOperator = Union[BaseOperator, PauliSumOp]
+from qiskit_nature.deprecation import deprecate_arguments, deprecate_property
 
 
 class GroundStateSolver(ABC):
     """The ground state calculation interface."""
 
-    def __init__(self, qubit_converter: QubitConverter) -> None:
+    @deprecate_arguments(
+        "0.6.0",
+        {"qubit_converter": "qubit_mapper"},
+        additional_msg=(
+            ". Additionally, the QubitConverter type in the qubit_mapper argument is deprecated "
+            "and support for it will be removed together with the qubit_converter argument."
+        ),
+    )
+    def __init__(
+        self,
+        qubit_mapper: QubitConverter | QubitMapper,
+        *,
+        qubit_converter: QubitConverter | QubitMapper | None = None,
+    ) -> None:
+        # pylint: disable=unused-argument
         """
         Args:
-            qubit_converter: A class that converts second quantized operator to qubit operator
-                             according to a mapper it is initialized with.
+            qubit_mapper: The :class:`~qiskit_nature.second_q.mappers.QubitMapper`
+                or :class:`~qiskit_nature.second_q.mappers.QubitConverter` (use of the latter is
+                deprecated) instance that converts a second quantized operator to qubit operators.
+            qubit_converter: DEPRECATED The :class:`~qiskit_nature.second_q.mappers.QubitConverter`
+                or :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance that converts a
+                second quantized operator to qubit operators and applies subsequent qubit reduction.
         """
-        self._qubit_converter = qubit_converter
+        self._qubit_mapper = qubit_mapper
 
     @abstractmethod
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: dict[str, SparseLabelOp | QubitOperator] | None = None,
+        aux_operators: dict[str, SparseLabelOp | SparsePauliOp | PauliSumOp] | None = None,
     ) -> EigenstateResult:
         """Compute the ground state energy of the molecule that was supplied via the driver.
 
@@ -61,19 +77,21 @@ class GroundStateSolver(ABC):
     def get_qubit_operators(
         self,
         problem: BaseProblem,
-        aux_operators: dict[str, SparseLabelOp | QubitOperator] | None = None,
-    ) -> tuple[QubitOperator, dict[str, QubitOperator] | None]:
-        """Construct qubit operators by getting the second quantized operators from the problem
-        (potentially running a driver in doing so [can be computationally expensive])
-        and using a QubitConverter to map and reduce the operators to qubit operators.
+        aux_operators: dict[str, SparseLabelOp | SparsePauliOp | PauliSumOp] | None = None,
+    ) -> tuple[SparsePauliOp | PauliSumOp, dict[str, SparsePauliOp | PauliSumOp] | None]:
+        """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators
+        using a ``QubitConverter`` or ``QubitMapper``.
+        If the user-provided ``aux_operators`` contain a name which clashes with an internally
+        constructed auxiliary operator, then the corresponding internal operator will be overridden by
+        the user-provided operator.
 
         Args:
-            problem: A class encoding a problem to be solved.
-            aux_operators: Additional auxiliary operators to evaluate.
+            problem:  A class encoding a problem defining the qubit operators.
+            aux_operators: Additional auxiliary operators to transform.
 
         Returns:
-            Qubit operator.
-            Additional auxiliary operators.
+            A tuple with the main operator (hamiltonian) and a dictionary of auxiliary default and
+            custom operators.
         """
 
     @abstractmethod
@@ -82,9 +100,15 @@ class GroundStateSolver(ABC):
         raise NotImplementedError
 
     @property
+    @deprecate_property("0.6.0", new_name="qubit_mapper")
     def qubit_converter(self):
-        """Returns the qubit converter."""
-        return self._qubit_converter
+        """DEPRECATED Returns the qubit converter."""
+        return self._qubit_mapper
+
+    @property
+    def qubit_mapper(self):
+        """Returns the qubit mapper."""
+        return self._qubit_mapper
 
     @property
     @abstractmethod

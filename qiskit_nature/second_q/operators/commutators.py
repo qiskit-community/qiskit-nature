@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -45,7 +45,7 @@ def commutator(op_a: SparseLabelOp, op_b: SparseLabelOp) -> SparseLabelOp:
     Returns:
         The computed commutator.
     """
-    return (op_a @ op_b - op_b @ op_a).simplify()
+    return (op_a @ op_b - op_b @ op_a).normal_order().simplify(atol=0)
 
 
 def anti_commutator(op_a: SparseLabelOp, op_b: SparseLabelOp) -> SparseLabelOp:
@@ -61,7 +61,7 @@ def anti_commutator(op_a: SparseLabelOp, op_b: SparseLabelOp) -> SparseLabelOp:
     Returns:
         The computed anti-commutator.
     """
-    return (op_a @ op_b + op_b @ op_a).simplify()
+    return (op_a @ op_b + op_b @ op_a).normal_order().simplify(atol=0)
 
 
 def double_commutator(
@@ -120,4 +120,4 @@ def double_commutator(
         + 0.5 * (-op_bac + sign_num * op_cab - op_acb + sign_num * op_bca)
     )
 
-    return res.simplify()
+    return res.simplify(atol=0)

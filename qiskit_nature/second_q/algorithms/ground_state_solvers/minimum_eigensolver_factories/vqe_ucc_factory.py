@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -16,17 +16,18 @@ from __future__ import annotations
 
 import logging
 import numpy as np
-
 from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolver, VQE
 from qiskit.algorithms.optimizers import Minimizer, Optimizer
 from qiskit.circuit import QuantumCircuit
 from qiskit.primitives import BaseEstimator
 
+from qiskit_nature.deprecation import DeprecatedType, warn_deprecated
 from qiskit_nature.second_q.circuit.library import HartreeFock, UCC
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
 from qiskit_nature.second_q.problems import (
     ElectronicStructureProblem,
 )
+from qiskit_nature.deprecation import deprecate_arguments
 
 from ...initial_points import InitialPoint, HFInitialPoint
 from .minimum_eigensolver_factory import MinimumEigensolverFactory
@@ -35,8 +36,13 @@ logger = logging.getLogger(__name__)
 
 
 class VQEUCCFactory(MinimumEigensolverFactory):
-    """Factory to construct a :class:`~qiskit.algorithms.minimum_eigensolvers.VQE` minimum
-    eigensolver with :class:`~.UCC` ansatz wavefunction.
+    """DEPRECATED Factory to construct a :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`
+    minimum eigensolver with :class:`~.UCC` ansatz wavefunction.
+
+    .. warning::
+
+        This class is deprecated! Please see :ref:`this guide <how-to-vqe-ucc>` for how to replace
+        your usage of it!
     """
 
     def __init__(
@@ -53,7 +59,7 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         Args:
             estimator: The ``BaseEstimator`` class to use for the internal
                 :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`.
-            ansatz: The ``UCC`` ansatz. Its attributes ``qubit_converter``, ``num_particles``,
+            ansatz: The ``UCC`` ansatz. Its attributes ``qubit_mapper``, ``num_particles``,
                 ``num_spatial_orbitals``, and ``initial_point`` will be completed at runtime based on
                 the problem being solved.
             optimizer: The ``Optimizer`` or ``Minimizer`` to use for the internal
@@ -73,6 +79,16 @@ class VQEUCCFactory(MinimumEigensolverFactory):
             kwargs: Remaining keyword arguments are passed to the
                 :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`.
         """
+        warn_deprecated(
+            "0.6.0",
+            DeprecatedType.CLASS,
+            "VQEUCCFactory",
+            additional_msg=(
+                ". This class is deprecated without replacement. Instead, refer to this how-to "
+                "guide which explains the steps you need to take to replace the use of this class: "
+                "https://qiskit.org/documentation/nature/howtos/vqe_ucc.html"
+            ),
+        )
         self._initial_state = initial_state
         self._initial_point = initial_point if initial_point is not None else HFInitialPoint()
 
@@ -114,17 +130,30 @@ class VQEUCCFactory(MinimumEigensolverFactory):
         """
         self._initial_state = initial_state
 
-    def get_solver(  # type: ignore[override]
+    @deprecate_arguments(
+        "0.6.0",
+        {"qubit_converter": "qubit_mapper"},
+        additional_msg=(
+            ". Additionally, the QubitConverter type in the qubit_mapper argument is deprecated "
+            "and support for it will be removed together with the qubit_converter argument."
+        ),
+    )
+    def get_solver(
         self,
         problem: ElectronicStructureProblem,
-        qubit_converter: QubitConverter,
+        qubit_mapper: QubitConverter | QubitMapper,
+        *,
+        qubit_converter: QubitConverter | QubitMapper | None = None,
     ) -> MinimumEigensolver:
-        """Returns a VQE with a UCC wavefunction ansatz, based on ``qubit_converter``.
+        # pylint: disable=unused-argument
+        """Returns a VQE with a UCC wavefunction ansatz, based on ``qubit_mapper``.
 
         Args:
             problem: A class encoding a problem to be solved.
-            qubit_converter: A class that converts second quantized operator to qubit operator
-                according to a mapper it is initialized with.
+            qubit_mapper: A class that converts second quantized operator to qubit operator.
+                Providing a ``QubitConverter`` instance here is deprecated.
+            qubit_converter: DEPRECATED A class that converts second quantized operator to qubit
+                operator according to a mapper it is initialized with.
 
         Returns:
             A VQE suitable to compute the ground state of the molecule.
@@ -135,9 +164,9 @@ class VQEUCCFactory(MinimumEigensolverFactory):
 
         initial_state = self.initial_state
         if initial_state is None:
-            initial_state = HartreeFock(num_spatial_orbitals, num_particles, qubit_converter)
+            initial_state = HartreeFock(num_spatial_orbitals, num_particles, qubit_mapper)
 
-        self.ansatz.qubit_converter = qubit_converter
+        self.ansatz.qubit_mapper = qubit_mapper
         self.ansatz.num_particles = num_particles
         self.ansatz.num_spatial_orbitals = num_spatial_orbitals
         self.ansatz.initial_state = initial_state

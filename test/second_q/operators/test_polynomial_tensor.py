@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -15,13 +15,14 @@
 from __future__ import annotations
 
 import unittest
+from functools import partial
 from test import QiskitNatureTestCase
 
 import numpy as np
 from ddt import ddt, idata
 
-from qiskit_nature.second_q.operators import PolynomialTensor
 import qiskit_nature.optionals as _optionals
+from qiskit_nature.second_q.operators import PolynomialTensor, Tensor
 
 
 @ddt
@@ -185,7 +186,7 @@ class TestPolynomialTensor(QiskitNatureTestCase):
         """Test for getting value matrices corresponding to keys in PolynomialTensor"""
         og_poly_tensor = PolynomialTensor(self.og_poly)
         for key, value in self.og_poly.items():
-            np.testing.assert_array_equal(value, og_poly_tensor[key])
+            np.testing.assert_array_almost_equal(value - og_poly_tensor[key], np.zeros_like(value))
 
     def test_len(self):
         """Test for the length of PolynomialTensor"""
@@ -294,9 +295,10 @@ class TestPolynomialTensor(QiskitNatureTestCase):
             expected["++--"][0, 0, 0, 1] += 1
             expected["++--"][1, 0, 2, 1] += 2
             self.assertEqual(result, PolynomialTensor(expected))
-            self.assertIsInstance(result["+"], np.ndarray)
-            self.assertIsInstance(result["+-"], np.ndarray)
-            self.assertIsInstance(result["++--"], np.ndarray)
+            # TODO: remove extra-wrapping of Tensor once settings.tensor_unwrapping is removed
+            self.assertIsInstance(Tensor(result["+"]).array, np.ndarray)
+            self.assertIsInstance(Tensor(result["+-"]).array, np.ndarray)
+            self.assertIsInstance(Tensor(result["++--"]).array, np.ndarray)
 
         with self.subTest("sparse + sparse"):
             result = PolynomialTensor(self.sparse_1) + PolynomialTensor(self.sparse_2)
@@ -307,9 +309,10 @@ class TestPolynomialTensor(QiskitNatureTestCase):
                 "++--": sp.as_coo({(0, 0, 0, 1): 1, (0, 1, 0, 1): 1}, shape=(4, 4, 4, 4)),
             }
             self.assertEqual(result, PolynomialTensor(expected))
-            self.assertIsInstance(result["+"], sp.COO)
-            self.assertIsInstance(result["+-"], sp.COO)
-            self.assertIsInstance(result["++--"], sp.COO)
+            # TODO: remove extra-wrapping of Tensor once settings.tensor_unwrapping is removed
+            self.assertIsInstance(Tensor(result["+"]).array, sp.COO)
+            self.assertIsInstance(Tensor(result["+-"]).array, sp.COO)
+            self.assertIsInstance(Tensor(result["++--"]).array, sp.COO)
 
         with self.assertRaisesRegex(
             TypeError, "Incorrect argument type: other should be PolynomialTensor"
@@ -722,6 +725,101 @@ class TestPolynomialTensor(QiskitNatureTestCase):
         with self.subTest("np.kron"):
             ab_kron = PolynomialTensor.apply(np.kron, a, b)
             self.assertEqual(ab_kron, PolynomialTensor({"+-": np.kron(rand_a, rand_b)}))
+
+        with self.subTest("np.linalg.eigh"):
+            hermi_a = np.array([[1, -2j], [2j, 5]])
+            a = PolynomialTensor({"+-": hermi_a})
+            _, eigvecs = PolynomialTensor.apply(np.linalg.eigh, a, multi=True, validate=False)
+            self.assertEqual(eigvecs, PolynomialTensor({"+-": np.linalg.eigh(hermi_a)[1]}))
+
+        with self.subTest("np.linalg.svd"):
+            hermi_a = np.array([[1, -2j], [2j, 5]])
+            a = PolynomialTensor({"+-": hermi_a})
+            _, _, v_t = PolynomialTensor.apply(
+                partial(np.linalg.svd, full_matrices=True), a, multi=True, validate=False
+            )
+            self.assertEqual(
+                v_t, PolynomialTensor({"+-": np.linalg.svd(hermi_a, full_matrices=True)[2]})
+            )
+
+    def test_stack(self):
+        """Test PolynomialTensor.stack"""
+        rand_a = np.random.random((2, 2))
+        rand_b = np.random.random((2, 2))
+        a = PolynomialTensor({"+-": rand_a})
+        b = PolynomialTensor({"+": np.random.random(2), "+-": rand_b})
+
+        with self.subTest("np.hstack"):
+            ab_exp = PolynomialTensor({"+-": np.hstack([rand_a, rand_b])}, validate=False)
+            ab_real = PolynomialTensor.stack(np.hstack, [a, b], validate=False)
+            self.assertEqual(ab_real, ab_exp)
+
+        with self.subTest("np.vstack"):
+            ab_exp = PolynomialTensor({"+-": np.vstack([rand_a, rand_b])}, validate=False)
+            ab_real = PolynomialTensor.stack(np.vstack, [a, b], validate=False)
+            self.assertEqual(ab_real, ab_exp)
+
+        with self.subTest("np.dstack"):
+            ab_exp = PolynomialTensor({"+-": np.dstack([rand_a, rand_b])}, validate=False)
+            ab_real = PolynomialTensor.stack(np.dstack, [a, b], validate=False)
+            self.assertEqual(ab_real, ab_exp)
+
+        with self.subTest("np.stack"):
+            ab_exp = PolynomialTensor({"+-": np.stack([rand_a, rand_b])}, validate=False)
+            ab_real = PolynomialTensor.stack(np.stack, [a, b], validate=False)
+            self.assertEqual(ab_real, ab_exp)
+
+        with self.subTest("np.stack axis=-1"):
+            ab_exp = PolynomialTensor({"+-": np.stack([rand_a, rand_b], axis=-1)}, validate=False)
+            ab_real = PolynomialTensor.stack(partial(np.stack, axis=-1), [a, b], validate=False)
+            self.assertEqual(ab_real, ab_exp)
+
+    def test_split(self):
+        """Test PolynomialTensor.split"""
+        rand_ab = np.random.random((4, 4))
+        poly_ab = PolynomialTensor({"+-": rand_ab})
+
+        with self.subTest("np.hsplit"):
+            a_exp, b_exp = np.hsplit(rand_ab, 2)
+            a_real, b_real = poly_ab.split(np.hsplit, 2, validate=False)
+            self.assertEqual(a_real, PolynomialTensor({"+-": a_exp}, validate=False))
+            self.assertEqual(b_real, PolynomialTensor({"+-": b_exp}, validate=False))
+
+        with self.subTest("np.vsplit"):
+            a_exp, b_exp = np.vsplit(rand_ab, 2)
+            a_real, b_real = poly_ab.split(np.vsplit, 2, validate=False)
+            self.assertEqual(a_real, PolynomialTensor({"+-": a_exp}, validate=False))
+            self.assertEqual(b_real, PolynomialTensor({"+-": b_exp}, validate=False))
+
+        with self.subTest("np.split"):
+            a_exp, b_exp = np.split(rand_ab, 2)
+            a_real, b_real = poly_ab.split(np.split, 2, validate=False)
+            self.assertEqual(a_real, PolynomialTensor({"+-": a_exp}, validate=False))
+            self.assertEqual(b_real, PolynomialTensor({"+-": b_exp}, validate=False))
+
+        with self.subTest("np.split axis=-1"):
+            a_exp, b_exp = np.split(rand_ab, 2, axis=-1)
+            a_real, b_real = poly_ab.split(partial(np.split, axis=-1), 2, validate=False)
+            self.assertEqual(a_real, PolynomialTensor({"+-": a_exp}, validate=False))
+            self.assertEqual(b_real, PolynomialTensor({"+-": b_exp}, validate=False))
+
+        with self.subTest("np.dsplit"):
+            rand_ab = np.random.random((2, 2, 2))
+            poly_ab = PolynomialTensor({"+++": rand_ab})
+            a_exp, b_exp = np.dsplit(rand_ab, [1])
+            a_real, b_real = poly_ab.split(np.dsplit, [1], validate=False)
+            self.assertEqual(a_real, PolynomialTensor({"+++": a_exp}, validate=False))
+            self.assertEqual(b_real, PolynomialTensor({"+++": b_exp}, validate=False))
+
+        with self.subTest("multi np.split"):
+            rand_abcd = np.random.random((8, 8))
+            abcd = PolynomialTensor({"+-": rand_abcd})
+            a_exp, b_exp, c_exp, d_exp = np.split(rand_abcd, [2, 4, 6])
+            a_real, b_real, c_real, d_real = abcd.split(np.split, [2, 4, 6], validate=False)
+            self.assertEqual(a_real, PolynomialTensor({"+-": a_exp}, validate=False))
+            self.assertEqual(b_real, PolynomialTensor({"+-": b_exp}, validate=False))
+            self.assertEqual(c_real, PolynomialTensor({"+-": c_exp}, validate=False))
+            self.assertEqual(d_real, PolynomialTensor({"+-": d_exp}, validate=False))
 
     def test_einsum(self):
         """Test PolynomialTensor.einsum"""

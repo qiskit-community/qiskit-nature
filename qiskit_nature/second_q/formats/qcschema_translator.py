@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -22,6 +22,11 @@ from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.problems import ElectronicBasis, ElectronicStructureProblem
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.operators import ElectronicIntegrals
+from qiskit_nature.second_q.operators.symmetric_two_body import (
+    S1Integrals,
+    S4Integrals,
+    S8Integrals,
+)
 from qiskit_nature.second_q.properties import (
     AngularMomentum,
     ElectronicDipoleMoment,
@@ -29,6 +34,7 @@ from qiskit_nature.second_q.properties import (
     ParticleNumber,
 )
 from qiskit_nature.second_q.transformers import BasisTransformer
+from qiskit_nature.settings import settings
 
 from .molecule_info import MoleculeInfo
 from .qcschema import QCSchema
@@ -129,10 +135,23 @@ def _reshape_2(arr, dim, dim_2=None):
 
 
 def _reshape_4(arr, dim):
-    return np.asarray(arr).reshape((dim,) * 4)
+    npair = dim * (dim + 1) // 2
+
+    if len(arr) == npair * (npair + 1) // 2:
+        return S8Integrals(np.asarray(arr))
+
+    if len(arr) == npair**2:
+        return S4Integrals(np.asarray(arr).reshape((npair,) * 2))
+
+    if len(arr) == dim**4:
+        if not settings.use_symmetry_reduced_integrals:
+            return np.asarray(arr).reshape((dim,) * 4)
+        return S1Integrals(np.asarray(arr).reshape((dim,) * 4))
+
+    return arr
 
 
-def _get_ao_hamiltonian(qcschema) -> ElectronicEnergy:
+def _get_ao_hamiltonian(qcschema: QCSchema) -> ElectronicEnergy:
     nao = int(np.sqrt(len(qcschema.wavefunction.scf_fock_a)))
     hcore = _reshape_2(qcschema.wavefunction.scf_fock_a, nao)
     hcore_b = None
@@ -145,7 +164,7 @@ def _get_ao_hamiltonian(qcschema) -> ElectronicEnergy:
     return hamiltonian
 
 
-def _get_mo_hamiltonian(qcschema) -> ElectronicEnergy:
+def _get_mo_hamiltonian(qcschema: QCSchema) -> ElectronicEnergy:
     if qcschema.wavefunction.scf_fock_mo_a is not None:
         return _get_mo_hamiltonian_direct(qcschema)
 
@@ -155,7 +174,7 @@ def _get_mo_hamiltonian(qcschema) -> ElectronicEnergy:
     return cast(ElectronicEnergy, transformer.transform_hamiltonian(hamiltonian))
 
 
-def _get_mo_hamiltonian_direct(qcschema) -> ElectronicEnergy:
+def _get_mo_hamiltonian_direct(qcschema: QCSchema) -> ElectronicEnergy:
     norb = qcschema.properties.calcinfo_nmo
     hij = _reshape_2(qcschema.wavefunction.scf_fock_mo_a, norb)
     hijkl = _reshape_4(qcschema.wavefunction.scf_eri_mo_aa, norb)
@@ -168,6 +187,8 @@ def _get_mo_hamiltonian_direct(qcschema) -> ElectronicEnergy:
         hijkl_bb = _reshape_4(qcschema.wavefunction.scf_eri_mo_bb, norb)
     if qcschema.wavefunction.scf_eri_mo_ba is not None:
         hijkl_ba = _reshape_4(qcschema.wavefunction.scf_eri_mo_ba, norb)
+    if qcschema.wavefunction.scf_eri_mo_ab is not None and hijkl_ba is None:
+        hijkl_ba = np.transpose(_reshape_4(qcschema.wavefunction.scf_eri_mo_ab, norb))
 
     hamiltonian = ElectronicEnergy.from_raw_integrals(hij, hijkl, hij_b, hijkl_bb, hijkl_ba)
 
