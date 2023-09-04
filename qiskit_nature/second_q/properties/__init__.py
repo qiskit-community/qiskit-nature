@@ -36,6 +36,14 @@ Electronic Properties
    Magnetization
    ParticleNumber
 
+The following submodule provides multiple functions which can be used to generator more modular
+spin-operator components.
+
+.. autosummary::
+   :toctree:
+
+   s_operators
+
 Vibrational Properties
 ----------------------
 
