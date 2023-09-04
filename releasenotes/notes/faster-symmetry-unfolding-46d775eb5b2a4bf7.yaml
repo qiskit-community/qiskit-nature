@@ -1,0 +1,13 @@
+---
+features:
+  - |
+    The symmetry folding and unfolding routines listed below could become severe
+    bottlenecks for larger system sizes. Now, when PySCF is installed, its routine will be
+    used which is significantly faster.
+
+    - :func:`.unfold_s4_to_s1`
+    - :func:`.unfold_s8_to_s1`
+    - :func:`.unfold_s8_to_s4`
+    - :func:`.fold_s1_to_s4`
+    - :func:`.fold_s1_to_s8`
+    - :func:`.fold_s4_to_s8`

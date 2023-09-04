@@ -601,6 +601,16 @@ def fold_s1_to_s4(eri: Tensor | ARRAY_TYPE, *, validate: bool = True) -> S4Integ
             "convention for two-body electronic integral storage. Instead, the following index "
             f"ordering was determined: {index_order}"
         )
+
+    try:
+        from pyscf.ao2mo.addons import restore
+
+        LOGGER.info("Using PySCF's conversion routine")
+        norb, _ = _get_norb_and_npair(eri)
+        return S4Integrals(restore("4", eri, norb))
+    except ImportError:
+        pass
+
     norb, npair = _get_norb_and_npair(eri)
     new_eri = np.zeros((npair, npair))
     for ij, (i, j) in enumerate(zip(*np.tril_indices(norb))):
@@ -641,6 +651,16 @@ def fold_s1_to_s8(eri: Tensor | ARRAY_TYPE, *, validate: bool = True) -> S8Integ
             "convention for two-body electronic integral storage. Instead, the following index "
             f"ordering was determined: {index_order}"
         )
+
+    try:
+        from pyscf.ao2mo.addons import restore
+
+        LOGGER.info("Using PySCF's conversion routine")
+        norb, _ = _get_norb_and_npair(eri)
+        return S8Integrals(restore("8", eri, norb))
+    except ImportError:
+        pass
+
     norb, npair = _get_norb_and_npair(eri)
     new_eri = np.zeros(npair * (npair + 1) // 2)
     ijkl = 0
@@ -676,6 +696,16 @@ def fold_s4_to_s8(eri: Tensor | ARRAY_TYPE, *, validate: bool = True) -> S8Integ
         )
     if validate and not np.allclose(eri, eri.T):
         raise ValueError("Expected a symmetric tensor.")
+
+    try:
+        from pyscf.ao2mo.addons import restore
+
+        LOGGER.info("Using PySCF's conversion routine")
+        norb, _ = _get_norb_and_npair(eri)
+        return S8Integrals(restore("8", eri, norb))
+    except ImportError:
+        pass
+
     return S8Integrals(eri[np.tril_indices_from(eri)])
 
 
@@ -692,6 +722,16 @@ def unfold_s8_to_s4(eri: Tensor | ARRAY_TYPE, *, validate: bool = True) -> S4Int
     Raises:
         ValueError: if ``eri`` is not 1-dimensional.
     """
+    LOGGER.info("Unfolding 8-fold to 4-fold symmetric integrals.")
+    try:
+        from pyscf.ao2mo.addons import restore
+
+        LOGGER.info("Using PySCF's conversion routine")
+        norb, _ = _get_norb_and_npair(eri)
+        return S4Integrals(restore("4", eri, norb))
+    except ImportError:
+        pass
+
     if isinstance(eri, Tensor):
         eri = eri.array
     if validate and len(eri.shape) != 1:
@@ -719,6 +759,16 @@ def unfold_s4_to_s1(eri: Tensor | ARRAY_TYPE, *, validate: bool = True) -> S1Int
     Raises:
         ValueError: if ``eri`` is not 2-dimensional.
     """
+    LOGGER.info("Unfolding 4-fold to 1-fold symmetric integrals.")
+    try:
+        from pyscf.ao2mo.addons import restore
+
+        LOGGER.info("Using PySCF's conversion routine")
+        norb, _ = _get_norb_and_npair(eri)
+        return S1Integrals(restore("1", eri, norb))
+    except ImportError:
+        pass
+
     if isinstance(eri, Tensor):
         eri = eri.array
     if validate and len(eri.shape) != 2:
@@ -773,6 +823,16 @@ def unfold_s8_to_s1(eri: Tensor | ARRAY_TYPE, *, validate: bool = True) -> S1Int
     Raises:
         ValueError: if ``eri`` is not 1-dimensional.
     """
+    LOGGER.info("Unfolding 8-fold to 1-fold symmetric integrals.")
+    try:
+        from pyscf.ao2mo.addons import restore
+
+        LOGGER.info("Using PySCF's conversion routine")
+        norb, _ = _get_norb_and_npair(eri)
+        return S1Integrals(restore("1", eri, norb))
+    except ImportError:
+        pass
+
     if isinstance(eri, Tensor):
         eri = eri.array
     if validate and len(eri.shape) != 1:
