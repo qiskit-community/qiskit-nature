@@ -52,6 +52,7 @@ Ansatzes
    UCC
    UCCSD
    PUCCD
+   PUCCSD
    SUCCD
    CHC
    UVCC
@@ -73,6 +74,7 @@ from .ansatzes import (
     UCC,
     UCCSD,
     PUCCD,
+    PUCCSD,
     SUCCD,
     CHC,
     UVCC,
@@ -87,6 +89,7 @@ __all__ = [
     "UCC",
     "UCCSD",
     "PUCCD",
+    "PUCCSD",
     "SUCCD",
     "HartreeFock",
     "CHC",

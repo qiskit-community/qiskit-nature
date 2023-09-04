@@ -13,6 +13,7 @@
 
 from .chc import CHC
 from .puccd import PUCCD
+from .puccsd import PUCCSD
 from .succd import SUCCD
 from .ucc import UCC
 from .uccsd import UCCSD
@@ -22,6 +23,7 @@ from .uvccsd import UVCCSD
 __all__ = [
     "CHC",
     "PUCCD",
+    "PUCCSD",
     "SUCCD",
     "UCC",
     "UCCSD",
