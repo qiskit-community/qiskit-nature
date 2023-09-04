@@ -639,6 +639,12 @@ class TestBosonicOp(QiskitNatureTestCase):
 
             self.assertEqual(permuted_op, BosonicOp({"+_2 -_1": 1, "+_1 -_3": 2}, num_modes=4))
 
+    def test_reg_len_with_skipped_key_validation(self):
+        """Test the behavior of `register_length` after key validation was skipped."""
+        new_op = BosonicOp({"+_0 -_1": 1}, validate=False)
+        self.assertIsNone(new_op.num_modes)
+        self.assertEqual(new_op.register_length, 2)
+
 
 if __name__ == "__main__":
     unittest.main()

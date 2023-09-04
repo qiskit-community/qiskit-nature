@@ -398,6 +398,12 @@ class TestVibrationalOp(QiskitNatureTestCase):
         with self.assertRaises(NotImplementedError):
             VibrationalOp({"+_0_0 -_1_0": 2}).permute_indices([1, 0])
 
+    def test_reg_len_with_skipped_key_validation(self):
+        """Test the behavior of `register_length` after key validation was skipped."""
+        new_op = VibrationalOp({"+_0_0 -_1_1": 1}, validate=False)
+        self.assertIsNone(new_op.num_modals)
+        self.assertEqual(new_op.register_length, 3)
+
 
 if __name__ == "__main__":
     unittest.main()
