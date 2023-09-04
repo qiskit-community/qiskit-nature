@@ -11,9 +11,10 @@
 # that they have been altered from the originals.
 
 """The hexagonal lattice"""
-from typing import Dict, Tuple
 
-from rustworkx import generators
+from __future__ import annotations
+
+from rustworkx import generators  # type: ignore[attr-defined]
 
 from .lattice import Lattice
 
@@ -74,13 +75,13 @@ class HexagonalLattice(Lattice):
         """
         return self._onsite_parameter
 
-    def _default_position(self) -> Dict[int, Tuple]:
+    def _default_position(self) -> dict[int, tuple[int, int]]:
         """Return a dictionary of default positions for visualization of
             a one- or two-dimensional lattice.
 
         Returns:
-            Dict[int, Tuple]: The keys are the labels of lattice points,
-                and the values are two-dimensional coordinates.
+            A dictionary where the keys are the labels of lattice points, and the values are
+            two-dimensional coordinates.
         """
         pos = {}
         rowlen = 2 * self._rows + 2

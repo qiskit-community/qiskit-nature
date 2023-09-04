@@ -14,7 +14,7 @@
 from test import QiskitNatureTestCase
 import numpy as np
 from numpy.testing import assert_array_equal
-from rustworkx import PyGraph, is_isomorphic
+from rustworkx import PyGraph, is_isomorphic  # type: ignore[attr-defined]
 from qiskit_nature.second_q.hamiltonians.lattices import HexagonalLattice
 
 
