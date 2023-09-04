@@ -175,7 +175,11 @@ class BosonicOp(SparseLabelOp):
         super().__init__(data, copy=copy, validate=validate)
 
     @property
-    def register_length(self) -> int | None:
+    def register_length(self) -> int:
+        if self.num_modes is None:
+            max_index = max(int(term[2:]) for key in self._data for term in key.split())
+            return max_index + 1
+
         return self.num_modes
 
     def _new_instance(

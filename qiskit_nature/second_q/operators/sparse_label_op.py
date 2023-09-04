@@ -103,7 +103,7 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
 
     @property
     @abstractmethod
-    def register_length(self) -> int | None:
+    def register_length(self) -> int:
         """Returns the register length"""
 
     @abstractmethod
