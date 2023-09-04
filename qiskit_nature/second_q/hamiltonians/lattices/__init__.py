@@ -24,6 +24,7 @@ Lattices (:mod:`qiskit_nature.second_q.hamiltonians.lattices`)
    SquareLattice
    TriangularLattice
    HyperCubicLattice
+   HexagonalLattice
    KagomeLattice
 
 """
@@ -34,6 +35,7 @@ from .lattice import LatticeDrawStyle, Lattice
 from .line_lattice import LineLattice
 from .square_lattice import SquareLattice
 from .triangular_lattice import TriangularLattice
+from .hexagonal_lattice import HexagonalLattice
 from .kagome_lattice import KagomeLattice
 
 __all__ = [
@@ -44,5 +46,6 @@ __all__ = [
     "SquareLattice",
     "TriangularLattice",
     "HyperCubicLattice",
+    "HexagonalLattice",
     "KagomeLattice",
 ]
