@@ -21,7 +21,7 @@ from typing import Sequence, cast
 from collections import defaultdict
 
 from qiskit.circuit import QuantumCircuit
-from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
+from qiskit_nature.second_q.mappers import QubitMapper
 from qiskit_nature.second_q.operators import FermionicOp
 
 from .ucc import UCC
@@ -52,7 +52,7 @@ class PUCCSD(UCC):
         self,
         num_spatial_orbitals: int | None = None,
         num_particles: tuple[int, int] | None = None,
-        qubit_mapper: QubitConverter | QubitMapper | None = None,
+        qubit_mapper: QubitMapper | None = None,
         *,
         reps: int = 1,
         initial_state: QuantumCircuit | None = None,
@@ -63,9 +63,8 @@ class PUCCSD(UCC):
         Args:
             num_spatial_orbitals: The number of spatial orbitals.
             num_particles: The tuple of the number of alpha- and beta-spin particles.
-            qubit_mapper: The :class:`~qiskit_nature.second_q.mappers.QubitMapper` or
-                :class:`~qiskit_nature.second_q.mappers.QubitConverter` instance (use of the latter
-                is deprecated) which takes care of mapping to a qubit operator.
+            qubit_mapper: The :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance which
+                takes care of mapping to a qubit operator.
             reps: The number of times to repeat the evolved operators.
             initial_state: A ``QuantumCircuit`` object to prepend to the circuit.
         """
