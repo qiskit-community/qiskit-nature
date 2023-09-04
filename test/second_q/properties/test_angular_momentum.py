@@ -38,8 +38,9 @@ class TestAngularMomentum(PropertyTest):
             encoding="utf8",
         ) as file:
             expected = json.load(file)
-            expected_op = FermionicOp(expected, num_spin_orbitals=8).simplify()
-        self.assertEqual(op, expected_op)
+            expected_op = FermionicOp(expected, num_spin_orbitals=8)
+
+        self.assertEqual(op.normal_order(), expected_op.normal_order())
 
 
 if __name__ == "__main__":
