@@ -1,0 +1,20 @@
+---
+features:
+  - |
+    Adds a new convenience subclass of the :class:`.UCC` ansatz. Namely, the
+    spin-symmetry-adapted ansatz, :class:`.PUCCSD`, which includes single and double
+    excitations while always pairing the excitations such that both, the number of
+    particles and the total spin, will be preserved.
+
+    You can use it like any of the other :class:`.UCC`-style ansätze, for example:
+
+    .. code-block:: python
+
+       from qiskit_nature.second_q.circuit.library import PUCCSD
+       from qiskit_nature.second_q.mappers import JordanWignerMapper
+
+       ansatz = PUCCSD(
+           num_spatial_orbitals=4,
+           num_particles=(2, 2),
+           qubit_mapper=JordanWignerMapper(),
+       )
