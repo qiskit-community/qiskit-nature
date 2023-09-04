@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -52,12 +52,6 @@ class NatureLazySubprocessTester(LazySubprocessTester):
             return False
         return super()._is_available() if self._run else True
 
-
-HAS_PYQUANTE2 = LazyImportTester(
-    "pyquante2",
-    name="pyquante2",
-    msg="See https://github.com/rpmuller/pyquante2",
-)
 
 HAS_PYSCF = LazyImportTester(
     "pyscf",
