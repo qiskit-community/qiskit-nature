@@ -135,10 +135,10 @@ class FermionicOp(SparseLabelOp):
     pairs describing the terms contained in the operator.
 
     Attributes:
-        num_spin_orbitals: the number of spin orbitals on which this operator acts. This is
-            considered a lower bound, which means that mathematical operations acting on two or more
-            operators will result in a new operator with the maximum number of spin orbitals of any
-            of the involved operators.
+        num_spin_orbitals (int | None): the number of spin orbitals on which this operator acts.
+            This is considered a lower bound, which means that mathematical operations acting on two
+            or more operators will result in a new operator with the maximum number of spin orbitals
+            of any of the involved operators.
 
     .. note::
 

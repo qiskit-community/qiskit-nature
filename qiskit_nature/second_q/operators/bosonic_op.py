@@ -132,10 +132,10 @@ class BosonicOp(SparseLabelOp):
     pairs describing the terms contained in the operator.
 
     Attributes:
-        num_modes: the number of modes on which this operator acts. This is
-            considered a lower bound, which means that mathematical operations acting on two or more
-            operators will result in a new operator with the maximum number of modes of any
-            of the involved operators.
+        num_modes (int | None): the number of modes on which this operator acts. This is considered
+            a lower bound, which means that mathematical operations acting on two or more operators
+            will result in a new operator with the maximum number of modes of any of the involved
+            operators.
 
     .. note::
 
