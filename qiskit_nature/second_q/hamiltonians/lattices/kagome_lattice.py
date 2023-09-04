@@ -105,7 +105,7 @@ class KagomeLattice(Lattice):
         self._onsite_parameter = onsite_parameter
 
         if isinstance(boundary_condition, BoundaryCondition):
-            boundary_condition = (boundary_condition,) * self._dim
+            _boundary_condition = (boundary_condition,) * self._dim
         elif isinstance(boundary_condition, tuple):
             if len(boundary_condition) != self._dim:
                 raise ValueError(
@@ -113,8 +113,9 @@ class KagomeLattice(Lattice):
                     f"`boundary_condition`: {len(boundary_condition)}, `size`: {self._dim}."
                     "The length of `boundary_condition` must be the same as that of size."
                 )
+            _boundary_condition = boundary_condition
 
-        self._boundary_condition = boundary_condition
+        self._boundary_condition = _boundary_condition
 
         graph = PyGraph(multigraph=False)
         graph.add_nodes_from(range(self._num_sites_per_cell * np.prod(self._size)))
@@ -300,12 +301,13 @@ class KagomeLattice(Lattice):
         boundary_condition = self._boundary_condition
         num_sites_per_cell = self._num_sites_per_cell
         pos = {}
-        width = 0.0
-        if boundary_condition == BoundaryCondition.PERIODIC:
-            # the positions are shifted along the x- and y-direction
-            # when the boundary condition is periodic.
-            # The width of the shift is fixed to 0.2.
-            width = 0.2
+        width = np.array([0.0, 0.0])
+        for i in (0, 1):
+            if boundary_condition[i] == BoundaryCondition.PERIODIC:
+                # the positions are shifted along the y-direction
+                # when the boundary condition in the x-direction is periodic and vice versa.
+                # The width of the shift is fixed to 0.2.
+                width[(i + 1) % 2] = 0.2
         for cell_idx in range(np.prod(self._size)):
             # maps an cell index to two-dimensional coordinate
             # the positions are shifted so that the edges between boundaries can be seen
