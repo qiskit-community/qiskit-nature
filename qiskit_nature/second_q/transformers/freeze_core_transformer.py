@@ -106,6 +106,8 @@ class FreezeCoreTransformer(BaseTransformer):
         self._remove_orbitals = remove_orbitals
 
         self._active_orbs_indices: list[int] = None
+        self._active_alpha: list[int] = None
+        self._active_beta: list[int] = None
         self._active_basis: BasisTransformer = None
         self._active_density: ElectronicIntegrals = None
         self._density_total: ElectronicIntegrals = None
@@ -211,11 +213,15 @@ class FreezeCoreTransformer(BaseTransformer):
             molecule, total_num_spatial_orbitals
         )
         active_num_spatial_orbitals = len(self._active_orbs_indices)
+        # NOTE: in this automatic active orbital index generation, the alpha- and beta-spin cases
+        # will always be identical
+        self._active_alpha = self._active_orbs_indices
+        self._active_beta = self._active_orbs_indices
 
         coeff_alpha = np.zeros((total_num_spatial_orbitals, active_num_spatial_orbitals))
-        coeff_alpha[self._active_orbs_indices, range(active_num_spatial_orbitals)] = 1.0
+        coeff_alpha[self._active_alpha, range(active_num_spatial_orbitals)] = 1.0
         coeff_beta = np.zeros((total_num_spatial_orbitals, active_num_spatial_orbitals))
-        coeff_beta[self._active_orbs_indices, range(active_num_spatial_orbitals)] = 1.0
+        coeff_beta[self._active_beta, range(active_num_spatial_orbitals)] = 1.0
 
         self._active_basis = BasisTransformer(
             ElectronicBasis.MO,
