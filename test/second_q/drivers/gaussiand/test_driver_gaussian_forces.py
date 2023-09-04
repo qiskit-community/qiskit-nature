@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -231,7 +231,6 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
         return exp_vals
 
     @unittest.skipIf(not _optionals.HAS_GAUSSIAN, "gaussian not available.")
-    @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     def test_driver_jcf(self):
         """Test the driver works with job control file"""
         driver = GaussianForcesDriver(
@@ -266,7 +265,6 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
         print("]\n")
 
     @unittest.skipIf(not _optionals.HAS_GAUSSIAN, "gaussian not available.")
-    @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     @data("B3LYP", "PBEPBE")
     def test_driver_molecule(self, xcf: str):
         """Test the driver works with Molecule"""
@@ -291,7 +289,6 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
         ("C01", _C01_REV_EXPECTED),
     )
     @unpack
-    @unittest.skipIf(not _optionals.HAS_SPARSE, "Sparse not available.")
     def test_driver_logfile(self, suffix, expected):
         """Test the driver works with logfile (Gaussian does not need to be installed)"""
 

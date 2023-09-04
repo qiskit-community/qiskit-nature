@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2019, 2022.
+# (C) Copyright IBM 2019, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -42,7 +42,7 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         algorithm_globals.random_seed = 42
         self.driver = PySCFDriver(atom="H 0 0 0.735; H 0 0 0", basis="631g")
 
-        self.qubit_converter = QubitConverter(ParityMapper(), two_qubit_reduction=True)
+        self.mapper = QubitConverter(ParityMapper(), two_qubit_reduction=True)
 
         self.electronic_structure_problem = FreezeCoreTransformer().transform(self.driver.run())
 
@@ -50,9 +50,9 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         self.num_particles = (1, 1)
 
         # because we create the initial state and ansatzes early, we need to ensure the qubit
-        # converter already ran such that convert_match works as expected
+        # mapper already ran such that convert_match works as expected
         main_op, _ = self.electronic_structure_problem.second_q_ops()
-        _ = self.qubit_converter.convert(
+        _ = self.mapper.convert(
             main_op,
             self.num_particles,
         )
@@ -88,14 +88,12 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         """paired uccd test"""
         optimizer = SLSQP(maxiter=100)
 
-        initial_state = HartreeFock(
-            self.num_spatial_orbitals, self.num_particles, self.qubit_converter
-        )
+        initial_state = HartreeFock(self.num_spatial_orbitals, self.num_particles, self.mapper)
 
         ansatz = PUCCD(
             self.num_spatial_orbitals,
             self.num_particles,
-            self.qubit_converter,
+            self.mapper,
             initial_state=initial_state,
         )
 
@@ -106,7 +104,7 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
             initial_point=[0.0] * ansatz.num_parameters,
         )
 
-        gsc = GroundStateEigensolver(self.qubit_converter, solver)
+        gsc = GroundStateEigensolver(self.mapper, solver)
 
         result = gsc.solve(self.electronic_structure_problem)
 
@@ -117,14 +115,12 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         """singlet uccd test"""
         optimizer = SLSQP(maxiter=100)
 
-        initial_state = HartreeFock(
-            self.num_spatial_orbitals, self.num_particles, self.qubit_converter
-        )
+        initial_state = HartreeFock(self.num_spatial_orbitals, self.num_particles, self.mapper)
 
         ansatz = SUCCD(
             self.num_spatial_orbitals,
             self.num_particles,
-            self.qubit_converter,
+            self.mapper,
             initial_state=initial_state,
         )
 
@@ -135,7 +131,7 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
             initial_point=[0.0] * ansatz.num_parameters,
         )
 
-        gsc = GroundStateEigensolver(self.qubit_converter, solver)
+        gsc = GroundStateEigensolver(self.mapper, solver)
 
         result = gsc.solve(self.electronic_structure_problem)
 
@@ -146,14 +142,12 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         """singlet full uccd test"""
         optimizer = SLSQP(maxiter=100)
 
-        initial_state = HartreeFock(
-            self.num_spatial_orbitals, self.num_particles, self.qubit_converter
-        )
+        initial_state = HartreeFock(self.num_spatial_orbitals, self.num_particles, self.mapper)
 
         ansatz = SUCCD(
             self.num_spatial_orbitals,
             self.num_particles,
-            self.qubit_converter,
+            self.mapper,
             initial_state=initial_state,
             mirror=True,
         )
@@ -165,7 +159,7 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
             initial_point=[0.0] * ansatz.num_parameters,
         )
 
-        gsc = GroundStateEigensolver(self.qubit_converter, solver)
+        gsc = GroundStateEigensolver(self.mapper, solver)
 
         result = gsc.solve(self.electronic_structure_problem)
 

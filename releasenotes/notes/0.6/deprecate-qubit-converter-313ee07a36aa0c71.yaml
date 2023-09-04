@@ -1,0 +1,26 @@
+---
+deprecations:
+  - |
+    The :class:`~qiskit_nature.second_q.mappers.QubitConverter` class is
+    deprecated in favor of using the :class:`~qiskit_nature.second_q.mappers.QubitMapper`
+    implementations directly.
+    As a consequence of this, all public properties and function arguments which
+    referred to the ``QubitConverter`` by name (e.g. ``qubit_converter``) have
+    been deprecated in favor of properties and function arguments referring to
+    ``QubitMapper`` (e.g. ``qubit_mapper``), respectively.
+  - |
+    The :meth:`~qiskit_nature.second_q.problems.BaseProblem.symmetry_sector_locator`
+    method has been deprecated without a direct replacement. This utility is no
+    longer needed in the new workflow which uses
+    :class:`~qiskit_nature.second_q.mappers.QubitMapper` instances directly.
+    Qubit tapering can instead now be done using the
+    :class:`~qiskit_nature.second_q.mappers.TaperedQubitMapper` which can be
+    constructed easily using the
+    :meth:`~qiskit_nature.second_q.problems.BaseProblem.get_tapered_mapper`
+    method.
+  - |
+    The ``match_convert`` argument of the
+    :meth:`~qiskit_nature.second_q.circuit.library.initial_states.hartree_fock.hartree_fock_bitstring_mapped`
+    method has been deprecated without replacement. This utility is no longer
+    needed in the new workflow which uses
+    :class:`~qiskit_nature.second_q.mappers.QubitMapper` instances directly.

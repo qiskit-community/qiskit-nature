@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -14,18 +14,10 @@
 
 from __future__ import annotations
 
-from typing import Mapping
-
-import sys
+from typing import Mapping, Protocol, runtime_checkable
 
 import qiskit_nature  # pylint: disable=unused-import
 from qiskit_nature.second_q.operators import SparseLabelOp
-
-if sys.version_info >= (3, 8):
-    # pylint: disable=no-name-in-module
-    from typing import runtime_checkable, Protocol
-else:
-    from typing_extensions import runtime_checkable, Protocol
 
 
 @runtime_checkable
@@ -48,7 +40,7 @@ class Interpretable(Protocol):
     """
 
     def interpret(
-        self, result: "qiskit_nature.second_q.problemsEigenstateResult"  # type: ignore[name-defined]
+        self, result: "qiskit_nature.second_q.problems.EigenstateResult"  # type: ignore[name-defined]
     ) -> None:
         """Interprets an :class:`~qiskit_nature.second_q.problems.EigenstateResult`
         in the object's context.

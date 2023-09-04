@@ -1,0 +1,495 @@
+Electronic Structure Problems with v0.5
+=======================================
+
+Further resources
+-----------------
+
+Be sure to check out the following tutorials for how to use the new
+code:
+
+-  `Electronic Structure
+   Problems <../tutorials/01_electronic_structure.ipynb>`__
+-  `Problem Transformers <../tutorials/05_problem_transformers.ipynb>`__
+-  `The QCSchema <../tutorials/08_qcschema.ipynb>`__
+-  `Properties <../tutorials/09_properties.ipynb>`__
+
+TL;DR
+-----
+
+This section gives you one cell with a v0.4 code followed by one cell
+with v0.5 code doing the same things. Hopefully this already gives you
+all the information which you were looking for.
+
+Previously
+~~~~~~~~~~
+
+.. code:: ipython3
+
+    from qiskit_nature.drivers import Molecule
+    from qiskit_nature.drivers.second_quantization import (
+        ElectronicStructureDriverType,
+        ElectronicStructureMoleculeDriver,
+        PySCFDriver,
+    )
+    from qiskit_nature.problems.second_quantization import ElectronicStructureProblem
+    from qiskit_nature.transformers.second_quantization.electronic import FreezeCoreTransformer
+    from qiskit_nature.settings import settings
+
+    settings.dict_aux_operators = True
+
+    molecule = Molecule(
+        geometry=[["H", [0.0, 0.0, 0.0]], ["H", [0.0, 0.0, 0.735]]], charge=0, multiplicity=1
+    )
+
+    driver = ElectronicStructureMoleculeDriver(
+        molecule, basis="sto3g", driver_type=ElectronicStructureDriverType.PYSCF
+    )
+    # or equivalently:
+    driver = PySCFDriver.from_molecule(molecule, basis="sto3g")
+
+    transformer = FreezeCoreTransformer()
+
+    problem = ElectronicStructureProblem(driver, transformers=[transformer])
+
+    # Note: at this point, `driver.run()` has NOT been called yet. We can trigger this indirectly like so:
+    second_q_ops = problem.second_q_ops()
+
+    hamiltonian = second_q_ops["ElectronicEnergy"]
+    print(hamiltonian)
+
+
+.. parsed-literal::
+
+    Fermionic Operator
+    register length=4, number terms=36
+      -1.2563390730032498 * ( +_0 -_0 )
+    + -0.47189600728114245 * ( +_1 -_1 )
+    + -1.2563390730032498 * ( +_2 -_2 )
+    + -0.47189600728114245 * ( +_3 -_3 )
+    + -0.33785507740175813 * ( +_0 +_0 -_0 -_0 )
+    + -0. ...
+
+
+New
+~~~
+
+.. code:: ipython3
+
+    from qiskit_nature.second_q.drivers import PySCFDriver
+    from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
+    from qiskit_nature.second_q.transformers import FreezeCoreTransformer
+
+    molecule = MoleculeInfo(["H", "H"], [(0.0, 0.0, 0.0), (0.0, 0.0, 0.735)], charge=0, multiplicity=1)
+
+    driver = PySCFDriver.from_molecule(molecule, basis="sto3g")
+
+    # this is now done explicitly
+    problem = driver.run()
+
+    transformer = FreezeCoreTransformer()
+
+    # and you also apply transformers explicitly
+    problem = transformer.transform(problem)
+
+    hamiltonian = problem.hamiltonian.second_q_op()
+    print("\n".join(str(hamiltonian).splitlines()[:10] + ["..."]))
+
+
+.. parsed-literal::
+
+    Fermionic Operator
+    number spin orbitals=4, number terms=36
+      0.33785507740175813 * ( +_0 +_0 -_0 -_0 )
+    + 0.09046559989211565 * ( +_0 +_0 -_1 -_1 )
+    + 0.09046559989211556 * ( +_0 +_1 -_0 -_1 )
+    + 0.33229086512764827 * ( +_0 +_1 -_1 -_0 )
+    + 0.33785507740175813 * ( +_0 +_2 -_2 -_0 )
+    + 0.09046559989211564 * ( +_0 +_2 -_3 -_1 )
+    + 0.09046559989211556 * ( +_0 +_3 -_2 -_1 )
+    + 0.33229086512764816 * ( +_0 +_3 -_3 -_0 )
+    ...
+
+
+``qiskit_nature.drivers``
+-------------------------
+
+This section deals exclusively with the migration of the drivers.
+
+The contents of the ``drivers`` submodule has been split into multiple
+places. The table below summarizes where each of the components of
+``qiskit_nature.drivers.second_quantization`` has ended up.
+
++---------------------------------------+--------------------------------------------------------------+
+| Legacy component                      | New location                                                 |
++=======================================+==============================================================+
+| BaseDriver                            | ``qiskit_nature.second_q.drivers.BaseDriver``                |
++---------------------------------------+--------------------------------------------------------------+
+| BasisType                             | **removed**                                                  |
++---------------------------------------+--------------------------------------------------------------+
+| ElectronicStructureDriver             | ``qiskit_nature.second_q.drivers.ElectronicStructureDriver`` |
++---------------------------------------+--------------------------------------------------------------+
+| ElectronicStructureDriverType         | **removed**                                                  |
++---------------------------------------+--------------------------------------------------------------+
+| ElectronicStructureMoleculeDriver     | **removed**                                                  |
++---------------------------------------+--------------------------------------------------------------+
+| FCIDumpDriver                         | ``qiskit_nature.second_q.formats.fcidump.FCIDump``           |
++---------------------------------------+--------------------------------------------------------------+
+| GaussianDriver                        | ``qiskit_nature.second_q.drivers.GaussianDriver``            |
++---------------------------------------+--------------------------------------------------------------+
+| HDF5Driver                            | **removed**                                                  |
++---------------------------------------+--------------------------------------------------------------+
+| InitialGuess                          | ``qiskit_nature.second_q.drivers.InitialGuess``              |
++---------------------------------------+--------------------------------------------------------------+
+| MethodType                            | ``qiskit_nature.second_q.drivers.MethodType``                |
++---------------------------------------+--------------------------------------------------------------+
+| PSI4Driver                            | ``qiskit_nature.second_q.drivers.Psi4Driver``                |
++---------------------------------------+--------------------------------------------------------------+
+| PyQuanteDriver                        | **removed**                                                  |
++---------------------------------------+--------------------------------------------------------------+
+| PySCFDriver                           | ``qiskit_nature.second_q.drivers.PySCFDriver``               |
++---------------------------------------+--------------------------------------------------------------+
+
+Furthermore, the two components from ``qiskit_nature.drivers`` were
+moved like so:
+
++------------------+---------------------------------------------------------------+
+| Legacy component | New location                                                  |
++==================+===============================================================+
+| Molecule         | ``qiskit_nature.second_q.formats.molecule_info.MoleculeInfo`` |
++------------------+---------------------------------------------------------------+
+| UnitsType        | ``qiskit_nature.units.DistanceUnit``                          |
++------------------+---------------------------------------------------------------+
+
+A few notes are worth adding:
+
+-  The driver for `pyquante2 <https://github.com/rpmuller/pyquante2>`__
+   was removed, because its source code has not been updated for more
+   than 3 years. Originally, it was supported to enable usage of Qiskit
+   Nature on Windows, however, since then
+   `psi4 <https://github.com/psi4/psi4>`__ has also added Windows
+   support and the integration of the `Windows Subsystem for
+   Linux <https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux>`__
+   has opened up further development possibilities.
+-  The ``HDF5Driver`` was removed in favor of supporting the
+   standardized `QCSchema <https://github.com/MolSSI/QCSchema>`__ (see
+   ``qiskit_nature.second_q.formats.qcschema``).
+-  The ``ElectronicStructureMoleculeDriver`` was removed because we are
+   steering towards a future with tighter, plugin-like integration with
+   classical codes, making the concept of drivers where Qiskit starts a
+   classical simulation outdated. You can still use the
+   ``.from_molecule(...)`` methods of the remaining drivers in
+   combination with the ``MoleculeInfo`` class.
+-  The ``MoleculeInfo`` has become a pure data container and no longer
+   supports *degrees of freedom*.
+-  The ``MoleculeInfo`` now separately defines the ``atoms`` and
+   ``coords`` (coordinates) in favor of the previously combined
+   ``geometry`` approach.
+
+Using drivers that were migrated to ``qiskit_nature.second_q.drivers``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously
+^^^^^^^^^^
+
+.. code:: ipython3
+
+    from qiskit_nature.drivers import Molecule
+    from qiskit_nature.drivers.second_quantization import PySCFDriver
+
+    molecule = Molecule(
+        geometry=[["H", [0.0, 0.0, 0.0]], ["H", [0.0, 0.0, 0.735]]], charge=0, multiplicity=1
+    )
+
+    driver = PySCFDriver.from_molecule(molecule)
+
+    result = driver.run()
+    print(type(result))
+
+
+.. parsed-literal::
+
+    <class 'qiskit_nature.properties.second_quantization.electronic.electronic_structure_driver_result.ElectronicStructureDriverResult'>
+
+
+New
+^^^
+
+.. code:: ipython3
+
+    from qiskit_nature.second_q.drivers import PySCFDriver
+    from qiskit_nature.second_q.formats.molecule_info import MoleculeInfo
+
+    molecule = MoleculeInfo(["H", "H"], [(0.0, 0.0, 0.0), (0.0, 0.0, 0.735)], charge=0, multiplicity=1)
+
+    driver = PySCFDriver.from_molecule(molecule, basis="sto3g")
+
+    result = driver.run()
+    print(type(result))
+
+
+.. parsed-literal::
+
+    <class 'qiskit_nature.second_q.problems.electronic_structure_problem.ElectronicStructureProblem'>
+
+
+Notice how the return types differ significantly! For more information
+on this be sure to read the section on ``qiskit_nature.problems``.
+
+Using drivers that were migrated to ``qiskit_nature.second_q.formats``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously
+^^^^^^^^^^
+
+.. code:: ipython3
+
+    from qiskit_nature.drivers.second_quantization import FCIDumpDriver
+
+    path_to_fcidump = "aux_files/h2.fcidump"
+    driver = FCIDumpDriver(path_to_fcidump)
+
+    result = driver.run()
+    print(type(result))
+
+
+.. parsed-literal::
+
+    <class 'qiskit_nature.properties.second_quantization.electronic.electronic_structure_driver_result.ElectronicStructureDriverResult'>
+
+
+New
+^^^
+
+.. code:: ipython3
+
+    from qiskit_nature.second_q.formats.fcidump import FCIDump
+
+    path_to_fcidump = "aux_files/h2.fcidump"
+    fcidump = FCIDump.from_file(path_to_fcidump)
+    print(type(fcidump))
+
+    from qiskit_nature.second_q.formats.fcidump_translator import fcidump_to_problem
+
+    problem = fcidump_to_problem(fcidump)
+    print(type(problem))
+
+
+.. parsed-literal::
+
+    <class 'qiskit_nature.second_q.formats.fcidump.fcidump.FCIDump'>
+    <class 'qiskit_nature.second_q.problems.electronic_structure_problem.ElectronicStructureProblem'>
+
+
+The reason for distinguishing between ``drivers`` and ``formats`` is
+motivated by the fact that the concept of ``drivers`` (in which Qiskit
+Nature starts a classical simulation via another program) will become
+obsolete when moving towards tighter integration with classical codes
+via plugins.
+
+Supporting various ``formats`` and converting them to native objects or
+representations of Qiskit Nature, however, is critical to enable fast
+adoption and integration with other classical codes. The conceptual
+difference is also reflected since loading a problem from a format does
+not run another code but merely loads the data from disk.
+
+``qiskit_nature.transformers``
+------------------------------
+
+This section deals exclusively with the migration of the transformers.
+
+The table below summarizes where each of the components of
+``qiskit_nature.transformers`` has ended up.
+
++---------------------------------------+----------------------------------------------------------------+
+| Legacy component                      | New location                                                   |
++=======================================+================================================================+
+| BaseTransformer                       | ``qiskit_nature.second_q.transformers.BaseTransformer``        |
++---------------------------------------+----------------------------------------------------------------+
+| ActiveSpaceTransformer                | ``qiskit_nature.second_q.transformers.ActiveSpaceTransformer`` |
++---------------------------------------+----------------------------------------------------------------+
+| FreezeCoreTransformer                 | ``qiskit_nature.second_q.transformers.FreezeCoreTransformer``  |
++---------------------------------------+----------------------------------------------------------------+
+
+Transformers still retain their functionality of transforming the result
+of a driver into a transformed version of it. However, since the output
+type of the ``drivers`` has changed (see above), so has the input and
+output type of our ``transformers``.
+
+Realistically, all you need to do here, is update your import
+statements, as shown below.
+
+Previously
+~~~~~~~~~~
+
+.. code:: ipython3
+
+    from qiskit_nature.drivers.second_quantization import PySCFDriver
+    from qiskit_nature.transformers.second_quantization.electronic import FreezeCoreTransformer
+
+    transformer = FreezeCoreTransformer()
+    driver = PySCFDriver()
+
+    transformed_result = transformer.transform(driver.run())
+    print(type(transformed_result))
+
+
+.. parsed-literal::
+
+    <class 'qiskit_nature.properties.second_quantization.electronic.electronic_structure_driver_result.ElectronicStructureDriverResult'>
+
+
+New
+~~~
+
+.. code:: ipython3
+
+    from qiskit_nature.second_q.drivers import PySCFDriver
+    from qiskit_nature.second_q.transformers import FreezeCoreTransformer
+
+    transformer = FreezeCoreTransformer()
+    driver = PySCFDriver()
+
+    transformed_result = transformer.transform(driver.run())
+    print(type(transformed_result))
+
+
+.. parsed-literal::
+
+    <class 'qiskit_nature.second_q.problems.electronic_structure_problem.ElectronicStructureProblem'>
+
+
+The ``ElectronicStructureProblem`` (``qiskit_nature.problems``)
+---------------------------------------------------------------
+
+This section details all the changes around the
+``ElectronicStructureProblem``.
+
+Arguably, the ``ElectronicStructureProblem`` is the class which has
+received the most significant changes, because it was the main motivator
+for this refactoring. To get started, the table below summarizes the
+electronic components of the **new** ``qiskit_nature.second_q.problems``
+module, and shows from where these parts originated in the old code:
+
++-----------------------------------+--------------------------------------------------------------------------------------+
+| New component                     | Legacy location                                                                      |
++===================================+======================================================================================+
+| ``BaseProblem``                   | ``qiskit_nature.problems.second_quantization.BaseProblem``                           |
++-----------------------------------+--------------------------------------------------------------------------------------+
+| ``EigenstateResult``              | ``qiskit_nature.results.EigenstateResult``                                           |
++-----------------------------------+--------------------------------------------------------------------------------------+
+| ``PropertiesContainer``           | similar to                                                                           |
+|                                   | ``qiskit_nature.properties.GroupedProperty``                                         |
++-----------------------------------+--------------------------------------------------------------------------------------+
+| ``ElectronicBasis``               | ``qiskit_nature.properties.second_quantization.electronic.bases.ElectronicBasis``    |
++-----------------------------------+--------------------------------------------------------------------------------------+
+| ``ElectronicStructureProblem``    | ``qiskit_nature.problems.second_quantization.electronic.ElectronicStructureProblem`` |
++-----------------------------------+--------------------------------------------------------------------------------------+
+| ``ElectronicPropertiesContainer`` | *did not exist yet*                                                                  |
++-----------------------------------+--------------------------------------------------------------------------------------+
+| ``ElectronicStructureResult``     | ``qiskit_nature.results.ElectronicStructureResult``                                  |
++-----------------------------------+--------------------------------------------------------------------------------------+
+
+Previously
+~~~~~~~~~~
+
+.. code:: ipython3
+
+    from qiskit_nature.drivers.second_quantization import PySCFDriver
+    from qiskit_nature.problems.second_quantization.electronic import ElectronicStructureProblem
+    from qiskit_nature.transformers.second_quantization.electronic import FreezeCoreTransformer
+
+    driver = PySCFDriver()
+    transformer = FreezeCoreTransformer()
+    problem = ElectronicStructureProblem(driver, transformers=[transformer])
+
+    # we trigger driver.run() implicitly like so:
+    second_q_ops = problem.second_q_ops()
+
+    hamiltonian_op = second_q_ops.pop("ElectronicEnergy")
+    aux_ops = second_q_ops
+
+New
+~~~
+
+.. code:: ipython3
+
+    from qiskit_nature.second_q.drivers import PySCFDriver
+    from qiskit_nature.second_q.transformers import FreezeCoreTransformer
+
+    driver = PySCFDriver()
+
+    problem = driver.run()
+
+    transformer = FreezeCoreTransformer()
+
+    problem = transformer.transform(problem)
+
+    hamiltonian_op, aux_ops = problem.second_q_ops()
+
+For more information on the new and improved
+``ElectronicStructureProblem``, please refer to the `electronic
+structure tutorial <../tutorials/01_electronic_structure.ipynb>`__.
+
+``qiskit_nature.properties``
+----------------------------
+
+The properties module has been refactored and split into multiple
+locations. In this section, we will only be focusing on its *electronic*
+components.
+
+The following table lists where each component of
+``qiskit_nature.properties`` has been moved to.
+
++-------------------------------------------------------------------------+--------------------------------------------------------------+
+| Legacy component                                                        | New location                                                 |
++=========================================================================+==============================================================+
+| ``Property``                                                            | ``qiskit_nature.second_q.properties.SparseLabelOpsFactory``  |
++-------------------------------------------------------------------------+--------------------------------------------------------------+
+| ``GroupedProperty``                                                     | succeeded by                                                 |
+|                                                                         | ``qiskit_nature.second_q.problems.PropertiesContainer``      |
++-------------------------------------------------------------------------+--------------------------------------------------------------+
+| ``second_quantization.DriverMetadata``                                  | **removed**                                                  |
++-------------------------------------------------------------------------+--------------------------------------------------------------+
+| ``second_quantization.electronic.ElectronicEnergy``                     | ``qiskit_nature.second_q.hamiltonians.ElectronicEnergy``     |
++-------------------------------------------------------------------------+--------------------------------------------------------------+
+| ``second_quantization.electronic.ElectronicDipoleMoment``               | ``qiskit_nature.second_q.properties.ElectronicDipoleMoment`` |
++-------------------------------------------------------------------------+--------------------------------------------------------------+
+| ``second_quantization.electronic.AngularMomentum``                      | ``qiskit_nature.second_q.properties.AngularMomentum``        |
++-------------------------------------------------------------------------+--------------------------------------------------------------+
+| ``second_quantization.electronic.Magnetization``                        | ``qiskit_nature.second_q.properties.Magnetization``          |
++-------------------------------------------------------------------------+--------------------------------------------------------------+
+| ``second_quantization.electronic.ParticleNumber``                       | ``qiskit_nature.second_q.properties.ParticleNumber``         |
++-------------------------------------------------------------------------+--------------------------------------------------------------+
+| ``second_quantization.electronic.bases.ElectronicBasis``                | ``qiskit_nature.second_q.problems.ElectronicBasis``          |
++-------------------------------------------------------------------------+--------------------------------------------------------------+
+| ``second_quantization.electronic.bases.ElectronicBasisTransform``       | ``qiskit_nature.second_q.transformers.BasisTransformer``     |
++-------------------------------------------------------------------------+--------------------------------------------------------------+
+| ``second_quantization.electronic.integrals.IntegralProperty``           | **removed**                                                  |
++-------------------------------------------------------------------------+--------------------------------------------------------------+
+| ``second_quantization.electronic.integrals.ElectronicIntegrals``        | succeeded by                                                 |
+|                                                                         | ``qiskit_nature.second_q.operators.ElectronicIntegrals``     |
++-------------------------------------------------------------------------+--------------------------------------------------------------+
+| ``second_quantization.electronic.integrals.OneBodyElectronicIntegrals`` | **removed**                                                  |
++-------------------------------------------------------------------------+--------------------------------------------------------------+
+| ``second_quantization.electronic.integrals.TwoBodyElectronicIntegrals`` | **removed**                                                  |
++-------------------------------------------------------------------------+--------------------------------------------------------------+
+
+We suggest that you look at the `electronic structure
+tutorial <../tutorials/01_electronic_structure.ipynb>`__ for more
+in-depth explanations, but we will leave a few comments here:
+
+-  the ``ElectronicBasis`` is now only tracked on the
+   ``ElectronicStructureProblem`` and not for each operator individually
+-  the ``BasisTransformer`` handles basis transformations centrally from
+   the ``second_q.transformers`` module
+-  the new ``second_q.properties`` components do **not** store any data
+   which is not needed for operator construction
+-  the ``ElectronicEnergy`` (which has always been *special*) is in the
+   new ``second_q.hamiltonians`` module to highlight this special role
+
+If you were previously building custom ``Property`` instances using for
+example your own one- and two-body integrals, we suggest that you check
+out the documentation of the new
+``qiskit_nature.second_q.operators.ElectronicIntegrals``. It shows
+examples of how to do this in Qiskit Nature v0.5.
+

@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018, 2022.
+# (C) Copyright IBM 2018, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -20,11 +20,13 @@ import logging
 import os
 import unittest
 import time
-from qiskit_nature import settings
+import math
+from qiskit.quantum_info import SparsePauliOp
 from qiskit_nature.deprecation import NatureDeprecationWarning
 
 # disable unit tests NatureDeprecationWarning warnings on imports
 warnings.filterwarnings("ignore", category=NatureDeprecationWarning)
+
 
 # disable deprecation warnings that can cause log output overflow
 # pylint: disable=unused-argument
@@ -45,7 +47,6 @@ class QiskitNatureTestCase(unittest.TestCase, ABC):
     log = None
 
     def setUp(self) -> None:
-        settings.dict_aux_operators = True
         warnings.filterwarnings("default", category=DeprecationWarning)
         # disable unit tests NatureDeprecationWarning warnings previously reset
         warnings.filterwarnings("ignore", category=NatureDeprecationWarning)
@@ -106,6 +107,53 @@ class QiskitNatureTestCase(unittest.TestCase, ABC):
         root = os.path.dirname(self._class_location)
         path = root if path is None else os.path.join(root, path)
         return os.path.normpath(os.path.join(path, filename))
+
+    def assertEqualSparsePauliOp(
+        self, expected: SparsePauliOp, observed: SparsePauliOp, message: str = ""
+    ) -> None:
+        """Assert that 'expected' is equal to 'observed'.
+        Args:
+            expected: expected SparsePauliOp value.
+            observed: observed SparsePauliOp value.
+            message: additional message
+        Raises:
+            AssertionError: arguments are different
+        """
+
+        def _key_func(list_item):
+            return list_item[0]
+
+        for (lbl1, coeff1), (lbl2, coeff2) in zip(
+            sorted(expected.to_list(), key=_key_func), sorted(observed.to_list(), key=_key_func)
+        ):
+            if lbl1 != lbl2 or not math.isclose(coeff1.real, coeff2.real, rel_tol=1e-05):
+                msg = f"labels: {lbl1}, {lbl2} != coefficients: {coeff1.real}. {coeff2.real}"
+                if len(message) > 0:
+                    msg = f"{msg} : {message}"
+
+                raise AssertionError(msg)
+
+    def assertNotEqualSparsePauliOp(
+        self, expected: SparsePauliOp, observed: SparsePauliOp, message: str = ""
+    ) -> None:
+        """Assert that 'expected' is not equal to 'observed'.
+        Args:
+            expected: expected SparsePauliOp value.
+            observed: observed SparsePauliOp value.
+            message: additional message
+        Raises:
+            AssertionError: arguments are different
+        """
+
+        try:
+            self.assertEqualSparsePauliOp(expected, observed, message)
+        except AssertionError:
+            return
+
+        msg = f"{expected} == {observed}"
+        if len(message) > 0:
+            msg = f"{msg} : {message}"
+        raise AssertionError(msg)
 
 
 class QiskitNatureDeprecatedTestCase(QiskitNatureTestCase):

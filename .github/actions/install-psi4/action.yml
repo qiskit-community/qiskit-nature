@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -29,17 +29,10 @@ runs:
           release=1.6
           echo "installs psi4 release $release"
           conda install -y psi4=$release python=${{ inputs.python-version }} -c psi4 -c conda-forge
-        elif [[ "${{ inputs.os }}" == "ubuntu-latest" && "${{ inputs.python-version }}" == "3.7" ]]; then
-          release=2.6.0
-          echo "installs libint2 release $release"
-          conda install -y libint2=$release -c psi4
-          release=1.5
-          echo "installs psi4 release $release"
-          conda install -y psi4=$release python=${{ inputs.python-version }} -c psi4
-          pip install -U numpy
         elif [[ "${{ inputs.os }}" == "macos-latest" ]]; then
-          echo 'installs psi4 stable release'
-          conda install -y psi4 python=${{ inputs.python-version }} -c psi4
+          release=1.6
+          echo 'installs psi4 release $release'
+          conda install -y psi4=$release python=${{ inputs.python-version }} -c psi4
           echo 'update intel-openmp'
           conda update -y -c anaconda intel-openmp
           echo 'update llvm-openmp'

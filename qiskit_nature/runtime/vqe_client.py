@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -20,7 +20,7 @@ import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.exceptions import QiskitError
 from qiskit.providers import Provider
-from qiskit.providers.backend import Backend
+from qiskit.providers.backend import Backend, BackendV2
 from qiskit.algorithms import (
     MinimumEigensolver,
     MinimumEigensolverResult,
@@ -30,13 +30,14 @@ from qiskit.algorithms import (
 from qiskit.algorithms.optimizers import Optimizer, SPSA
 from qiskit.opflow import OperatorBase, PauliSumOp
 from qiskit.quantum_info import SparsePauliOp
-from qiskit_nature import ListOrDictType
 
-from ..converters.second_quantization.utils import ListOrDict
+from qiskit_nature import ListOrDictType
+from qiskit_nature.deprecation import warn_deprecated, DeprecatedType
+from qiskit_nature.second_q.mappers.qubit_mapper import _ListOrDict
 
 
 class VQEClient(VariationalAlgorithm, MinimumEigensolver):
-    """The Qiskit Nature VQE Runtime Client.
+    """DEPRECATED The Qiskit Nature VQE Runtime Client.
 
     This class is a client to call the VQE program in Qiskit Runtime."""
 
@@ -74,6 +75,16 @@ class VQEClient(VariationalAlgorithm, MinimumEigensolver):
             store_intermediate: Whether or not to store intermediate values of the optimization
                 steps. Per default False.
         """
+        warn_deprecated(
+            "0.6.0",
+            DeprecatedType.CLASS,
+            "VQEClient",
+            additional_msg=(
+                ". Instead you should use the new primitives based VQE with the Qiskit IBM Runtime "
+                "Estimator primitive. For more details on how to migrate check out this guide, "
+                "here: https://qisk.it/algo_migration#vqe"
+            ),
+        )
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             super().__init__()
@@ -273,7 +284,7 @@ class VQEClient(VariationalAlgorithm, MinimumEigensolver):
         wrapped_type = type(aux_operators)
         wrapped_aux_operators = {
             str(aux_op_name_or_idx): _convert_to_paulisumop(aux_op)
-            for aux_op_name_or_idx, aux_op in ListOrDict(aux_operators).items()
+            for aux_op_name_or_idx, aux_op in _ListOrDict(aux_operators).items()
         }
 
         # combine the settings with the given operator to runtime inputs
@@ -289,7 +300,11 @@ class VQEClient(VariationalAlgorithm, MinimumEigensolver):
         }
 
         # define runtime options
-        options = {"backend_name": self.backend.name()}
+        options = {
+            "backend_name": self.backend.name
+            if isinstance(self.backend, BackendV2)
+            else self.backend.name()
+        }
 
         # send job to runtime and return result
         job = self.provider.runtime.run(
@@ -334,13 +349,14 @@ class VQEClient(VariationalAlgorithm, MinimumEigensolver):
 
 
 class VQERuntimeResult(VQEResult):
-    """The VQEClient result object.
+    """DEPRECATED The VQEClient result object.
 
     This result objects contains the same as the VQEResult and additionally the history
     of the optimizer, containing information such as the function and parameter values per step.
     """
 
     def __init__(self) -> None:
+        warn_deprecated("0.6.0", DeprecatedType.CLASS, "VQERuntimeResult")
         super().__init__()
         self._job_id = None  # type: str
         self._optimizer_history = None  # type: Dict[str, Any]

@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -14,11 +14,12 @@
 Test The deprecation methods
 """
 
+from __future__ import annotations
+
 import unittest
 import sys
 import inspect
 import warnings
-from typing import Tuple, Optional
 from test import QiskitNatureTestCase
 from ddt import data, ddt
 from qiskit_nature.deprecation import (
@@ -27,6 +28,7 @@ from qiskit_nature.deprecation import (
     DeprecatedType,
     warn_deprecated,
     warn_deprecated_same_type_name,
+    warn_deprecated_type,
     deprecate_function,
     deprecate_property,
     deprecate_method,
@@ -64,7 +66,7 @@ def func2(arg2: int) -> int:
 
 
 @deprecate_arguments("0.1.2", {"old_arg": "new_arg"})
-def func3(new_arg: Optional[int] = None, old_arg: Optional[int] = None) -> Tuple[int, int]:
+def func3(new_arg: int | None = None, old_arg: int | None = None) -> tuple[int, int]:
     """function 3"""
     return new_arg, old_arg
 
@@ -118,6 +120,17 @@ class DeprecatedClass4:
         self.status = status
 
 
+class DeprecatedClass5:
+    """Deprecated Test class 5"""
+
+    def __init__(self, value: int | str):
+        if isinstance(value, str):
+            warn_deprecated_type("0.6.0", "value", "str", "int")
+            self.value = int(value)
+        else:
+            self.value = value
+
+
 @deprecate_positional_arguments(
     version="0.1",
     func_name="function_positional",
@@ -168,9 +181,7 @@ class TestClass:
         return arg
 
     @deprecate_arguments("0.1.2", {"old_arg": "new_arg"})
-    def method3(
-        self, new_arg: Optional[int] = None, old_arg: Optional[int] = None
-    ) -> Tuple[int, int]:
+    def method3(self, new_arg: int | None = None, old_arg: int | None = None) -> tuple[int, int]:
         """method3"""
         return new_arg, old_arg
 
@@ -479,6 +490,30 @@ class TestDeprecation(QiskitNatureTestCase):
         with warnings.catch_warnings(record=True) as c_m:
             warnings.simplefilter("always")
             self.assertEqual(("hello", None), obj.method3(old_arg="hello"))
+            self.assertListEqual(c_m, [])
+
+    def test_method_argument_type_deprecation(self):
+        """test method argument type deprecation"""
+
+        msg_ref = (
+            "The str type in the 'value' argument is deprecated as of version 0.6.0 "
+            "and will be removed no sooner than 3 months after the release. "
+            "Instead use the int type."
+        )
+
+        # emit deprecation the first time it is used
+        with warnings.catch_warnings(record=True) as c_m:
+            warnings.simplefilter("always")
+            _ = DeprecatedClass5("10")
+            msg = str(c_m[0].message)
+            self.assertEqual(msg, msg_ref)
+            self.assertTrue("test_deprecation.py" in c_m[0].filename, c_m[0].filename)
+            self.assertEqual(self._get_line_from_str('DeprecatedClass5("10")'), c_m[0].lineno)
+
+        # trying again should not emit deprecation
+        with warnings.catch_warnings(record=True) as c_m:
+            warnings.simplefilter("always")
+            _ = DeprecatedClass5("10")
             self.assertListEqual(c_m, [])
 
     def test_property_deprecation(self):

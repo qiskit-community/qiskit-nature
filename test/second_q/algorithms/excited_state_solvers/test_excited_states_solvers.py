@@ -12,7 +12,10 @@
 
 """ Test Numerical qEOM excited states calculation """
 
+from __future__ import annotations
+
 import unittest
+import warnings
 
 from test import QiskitNatureTestCase
 from ddt import ddt, named_data
@@ -32,7 +35,10 @@ from qiskit_nature.second_q.mappers import (
     BravyiKitaevMapper,
     JordanWignerMapper,
     ParityMapper,
+    QubitMapper,
+    TaperedQubitMapper,
 )
+
 from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.algorithms import (
     GroundStateEigensolver,
@@ -69,6 +75,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         self.mapper = JordanWignerMapper()
         self.qubit_converter = QubitConverter(self.mapper)
         self.electronic_structure_problem = self.driver.run()
+        self.num_particles = self.electronic_structure_problem.num_particles
 
         solver = NumPyEigensolver()
         self.ref = solver
@@ -83,6 +90,16 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         for i in range(1, len(computed)):
             with self.subTest(f"{i}. excited state"):
                 self.assertAlmostEqual(computed[i], references[i], places=places)
+
+    def _compute_and_assert_qeom_energies(self, mapper: QubitConverter | QubitMapper):
+        estimator = Estimator()
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
+        gsc = GroundStateEigensolver(mapper, solver)
+        esc = QEOM(gsc, estimator, "sd")
+        results = esc.solve(self.electronic_structure_problem)
+        self._assert_energies(results.computed_energies, self.reference_energies)
 
     def test_numpy_mes(self):
         """Test NumPyMinimumEigenSolver with QEOM"""
@@ -107,13 +124,31 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
     )
     def test_solve_with_vqe_mes(self, converter: QubitConverter):
         """Test QEOM with VQEUCCFactory and various QubitConverter"""
+        self._compute_and_assert_qeom_energies(converter)
 
-        estimator = Estimator()
-        solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
-        gsc = GroundStateEigensolver(converter, solver)
-        esc = QEOM(gsc, estimator, "sd")
-        results = esc.solve(self.electronic_structure_problem)
-        self._assert_energies(results.computed_energies, self.reference_energies)
+    @named_data(
+        ["JWM", JordanWignerMapper()],
+        ["PM", ParityMapper()],
+        ["PM_TQR", ParityMapper(num_particles=(1, 1))],
+    )
+    def test_solve_with_vqe_mes_mapper(self, mapper: QubitMapper):
+        """Test QEOM with VQEUCCFactory and various QubitMapper"""
+        self._compute_and_assert_qeom_energies(mapper)
+
+    @named_data(
+        ["JW", lambda n, esp: TaperedQubitMapper(JordanWignerMapper())],
+        ["JW_Z2", lambda n, esp: esp.get_tapered_mapper(JordanWignerMapper())],
+        ["PM", lambda n, esp: TaperedQubitMapper(ParityMapper())],
+        ["PM_Z2", lambda n, esp: esp.get_tapered_mapper(ParityMapper())],
+        ["PM_TQR", lambda n, esp: TaperedQubitMapper(ParityMapper(n))],
+        ["PM_TQR_Z2", lambda n, esp: esp.get_tapered_mapper(ParityMapper(n))],
+    )
+    def test_solve_with_vqe_mes_taperedmapper(self, tapered_mapper_creator):
+        """Test QEOM with VQEUCCFactory and various QubitMapper"""
+        tapered_mapper = tapered_mapper_creator(
+            self.num_particles, self.electronic_structure_problem
+        )
+        self._compute_and_assert_qeom_energies(tapered_mapper)
 
     def test_numpy_factory(self):
         """Test NumPyEigenSolverFactory with ExcitedStatesEigensolver"""
@@ -122,7 +157,9 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         def filter_criterion(eigenstate, eigenvalue, aux_values):
             return np.isclose(aux_values["ParticleNumber"][0], 2.0)
 
-        solver = NumPyEigensolverFactory(filter_criterion=filter_criterion)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = NumPyEigensolverFactory(filter_criterion=filter_criterion)
         esc = ExcitedStatesEigensolver(self.qubit_converter, solver)
         results = esc.solve(self.electronic_structure_problem)
 
@@ -165,7 +202,9 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
                 num_particles_aux, expected_num_electrons
             )
 
-        solver = NumPyEigensolverFactory(filter_criterion=custom_filter_criterion)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = NumPyEigensolverFactory(filter_criterion=custom_filter_criterion)
         esc = ExcitedStatesEigensolver(converter, solver)
         results = esc.solve(esp)
 
@@ -195,7 +234,9 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
             return np.isclose(aux_values["ParticleNumber"][0], 2.0)
 
         with self.subTest("Excited states solver with qubit converter"):
-            solver = NumPyEigensolverFactory(filter_criterion=filter_criterion)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=DeprecationWarning)
+                solver = NumPyEigensolverFactory(filter_criterion=filter_criterion)
             esc_converter = ExcitedStatesEigensolver(self.qubit_converter, solver)
             results_converter = esc_converter.solve(self.electronic_structure_problem)
             computed_energies_converter = [results_converter.computed_energies[0]]
@@ -206,7 +247,9 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
             self._assert_energies(computed_energies_converter, self.reference_energies)
 
         with self.subTest("Excited states solver with qubit mapper"):
-            solver = NumPyEigensolverFactory(filter_criterion=filter_criterion)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=DeprecationWarning)
+                solver = NumPyEigensolverFactory(filter_criterion=filter_criterion)
             esc_mapper = ExcitedStatesEigensolver(self.mapper, solver)
             results_mapper = esc_mapper.solve(self.electronic_structure_problem)
             # filter duplicates from list
@@ -218,7 +261,9 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
 
         with self.subTest("QEOM with qubit converter"):
             estimator = Estimator()
-            solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=DeprecationWarning)
+                solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
             gsc_converter = GroundStateEigensolver(self.qubit_converter, solver)
             esc_converter = QEOM(gsc_converter, estimator, "sd")
             results_converter = esc_converter.solve(self.electronic_structure_problem)
@@ -231,7 +276,9 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
 
         with self.subTest("QEOM with qubit mapper"):
             estimator = Estimator()
-            solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=DeprecationWarning)
+                solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
             gsc_mapper = GroundStateEigensolver(self.mapper, solver)
             esc_mapper = QEOM(gsc_mapper, estimator, "sd")
             results_mapper = esc_mapper.solve(self.electronic_structure_problem)

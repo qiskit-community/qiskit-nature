@@ -61,7 +61,7 @@ class TestSUCCD(QiskitNatureTestCase):
 
         with self.subTest("Qubit Converter object"):
             ansatz = SUCCD(
-                qubit_converter=converter,
+                qubit_mapper=converter,
                 num_particles=num_particles,
                 num_spatial_orbitals=num_spatial_orbitals,
             )
@@ -69,7 +69,7 @@ class TestSUCCD(QiskitNatureTestCase):
 
         with self.subTest("Qubit Mapper object"):
             ansatz = SUCCD(
-                qubit_converter=mapper,
+                qubit_mapper=mapper,
                 num_particles=num_particles,
                 num_spatial_orbitals=num_spatial_orbitals,
             )
@@ -115,7 +115,7 @@ class TestSUCCD(QiskitNatureTestCase):
 
         with self.subTest("Qubit Converter object"):
             ansatz = SUCCD(
-                qubit_converter=converter,
+                qubit_mapper=converter,
                 num_particles=num_particles,
                 num_spatial_orbitals=num_spatial_orbitals,
                 include_singles=include_singles,
@@ -124,7 +124,7 @@ class TestSUCCD(QiskitNatureTestCase):
 
         with self.subTest("Qubit Mapper object"):
             ansatz = SUCCD(
-                qubit_converter=mapper,
+                qubit_mapper=mapper,
                 num_particles=num_particles,
                 num_spatial_orbitals=num_spatial_orbitals,
                 include_singles=include_singles,
@@ -170,7 +170,7 @@ class TestSUCCD(QiskitNatureTestCase):
 
         with self.subTest("Qubit Converter object"):
             ansatz = SUCCD(
-                qubit_converter=converter,
+                qubit_mapper=converter,
                 num_particles=num_particles,
                 num_spatial_orbitals=num_spatial_orbitals,
                 generalized=True,
@@ -179,7 +179,7 @@ class TestSUCCD(QiskitNatureTestCase):
 
         with self.subTest("Qubit Mapper object"):
             ansatz = SUCCD(
-                qubit_converter=mapper,
+                qubit_mapper=mapper,
                 num_particles=num_particles,
                 num_spatial_orbitals=num_spatial_orbitals,
                 generalized=True,
@@ -213,7 +213,7 @@ class TestSUCCD(QiskitNatureTestCase):
 
         with self.subTest("Qubit Converter object"):
             ansatz = SUCCD(
-                qubit_converter=converter,
+                qubit_mapper=converter,
                 num_particles=num_particles,
                 num_spatial_orbitals=num_spatial_orbitals,
                 mirror=True,
@@ -222,7 +222,7 @@ class TestSUCCD(QiskitNatureTestCase):
 
         with self.subTest("Qubit Mapper object"):
             ansatz = SUCCD(
-                qubit_converter=mapper,
+                qubit_mapper=mapper,
                 num_particles=num_particles,
                 num_spatial_orbitals=num_spatial_orbitals,
                 mirror=True,
@@ -303,7 +303,7 @@ class TestSUCCD(QiskitNatureTestCase):
 
         with self.subTest("Qubit Converter object"):
             ansatz = SUCCD(
-                qubit_converter=converter,
+                qubit_mapper=converter,
                 num_particles=num_particles,
                 num_spatial_orbitals=num_spatial_orbitals,
                 include_singles=include_singles,
@@ -313,7 +313,7 @@ class TestSUCCD(QiskitNatureTestCase):
 
         with self.subTest("Qubit Mapper object"):
             ansatz = SUCCD(
-                qubit_converter=mapper,
+                qubit_mapper=mapper,
                 num_particles=num_particles,
                 num_spatial_orbitals=num_spatial_orbitals,
                 include_singles=include_singles,
@@ -367,7 +367,7 @@ class TestSUCCD(QiskitNatureTestCase):
 
         with self.subTest("Qubit Converter object"):
             ansatz = SUCCD(
-                qubit_converter=converter,
+                qubit_mapper=converter,
                 num_particles=num_particles,
                 num_spatial_orbitals=num_spatial_orbitals,
                 generalized=True,
@@ -377,7 +377,7 @@ class TestSUCCD(QiskitNatureTestCase):
 
         with self.subTest("Qubit Mapper object"):
             ansatz = SUCCD(
-                qubit_converter=mapper,
+                qubit_mapper=mapper,
                 num_particles=num_particles,
                 num_spatial_orbitals=num_spatial_orbitals,
                 generalized=True,

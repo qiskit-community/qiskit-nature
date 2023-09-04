@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -65,6 +65,11 @@ class TestSpinOp(QiskitNatureTestCase):
         spin_op = self.op1 + self.op2
         targ = self.op3
         self.assertEqual(spin_op, targ)
+
+        with self.subTest("sum"):
+            spin_op = sum(SpinOp({label: 1}, num_spins=3) for label in ["X_0", "Z_1", "X_2 Z_2"])
+            targ = SpinOp({"X_0": 1, "Z_1": 1, "X_2 Z_2": 1})
+            self.assertEqual(spin_op, targ)
 
     def test_sub(self):
         """Test __sub__"""
@@ -187,6 +192,48 @@ class TestSpinOp(QiskitNatureTestCase):
         actual = actual.to_matrix()
         np.testing.assert_array_almost_equal(actual, self.spin_1_matrix[label])
 
+    def test_to_matrix_multi_site(self):
+        """Test the to_matrix method when multiple sites are involved.
+
+        This is a regression test against https://github.com/Qiskit/qiskit-nature/issues/1187.
+        """
+        with self.subTest("spin 1/2; 2 sites"):
+            op = SpinOp({"X_0 X_1": 1, "Y_0 Y_1": 1, "Z_0 Z_1": 1})
+            actual = op.to_matrix()
+            expected = 0.25 * np.diag([1, -1, -1, 1])
+            expected[1, 2] = 0.5
+            expected[2, 1] = 0.5
+            np.testing.assert_array_almost_equal(actual, expected)
+
+        with self.subTest("spin 1; 2 sites"):
+            op = SpinOp({"X_0 X_1": 1, "Y_0 Y_1": 1, "Z_0 Z_1": 1}, spin=1)
+            actual = op.to_matrix()
+            expected = np.zeros((9, 9))
+            for i, j, v in zip(
+                [0, 1, 2, 2, 3, 4, 4, 5, 6, 6, 7, 8],
+                [0, 3, 2, 4, 1, 2, 6, 7, 4, 6, 5, 8],
+                [1, 1, -1, 1, 1, 1, 1, 1, 1, -1, 1, 1],
+            ):
+                expected[i, j] = v
+            np.testing.assert_array_almost_equal(actual, expected)
+
+        with self.subTest("spin 1/2; 3 sites"):
+            op = SpinOp({"X_0 X_1 X_2": 1, "Y_0 Y_2": 1, "Z_1": 1})
+            actual = op.to_matrix()
+            expected = np.zeros((8, 8))
+            for i, j, v in zip(
+                [0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7],
+                [0, 5, 7, 1, 4, 6, 2, 5, 7, 3, 4, 6, 1, 3, 4, 0, 2, 5, 1, 3, 6, 0, 2, 7],
+                # fmt: off
+                [
+                    0.5, -0.25, 0.125, 0.5, 0.25, 0.125, -0.5, 0.125, -0.25, -0.5, 0.125, 0.25,
+                     0.25, 0.125, 0.5, -0.25, 0.125, 0.5, 0.125, 0.25, -0.5, 0.125, -0.25, -0.5,
+                ],
+                # fmt: on
+            ):
+                expected[i, j] = v
+            np.testing.assert_array_almost_equal(actual, expected)
+
     def test_index_order(self):
         """Test index_order method"""
         with self.subTest("Test for single operators"):
@@ -217,6 +264,43 @@ class TestSpinOp(QiskitNatureTestCase):
             spin_op = orig.index_order().simplify()
             targ = SpinOp({"X_0 Y_0 Y_0 X_1": 1, "X_0 X_1": 2})
             self.assertEqual(spin_op, targ)
+
+    def test_terms(self):
+        """Test terms generator."""
+        op = SpinOp(
+            {
+                "X_0": 1,
+                "X_0 Z_1": 2,
+                "Z_1 Y_1 X_2": 2,
+            }
+        )
+
+        terms = [([("X", 0)], 1), ([("X", 0), ("Z", 1)], 2), ([("Z", 1), ("Y", 1), ("X", 2)], 2)]
+
+        with self.subTest("terms"):
+            self.assertEqual(list(op.terms()), terms)
+
+        with self.subTest("from_terms"):
+            self.assertEqual(SpinOp.from_terms(terms), op)
+
+    def test_permute_indices(self):
+        """Test index permutation method."""
+        op = SpinOp(
+            {
+                "X_0 Y_1": 1,
+                "Z_1 X_2": 2,
+            },
+            num_spins=4,
+        )
+
+        with self.subTest("wrong permutation length"):
+            with self.assertRaises(ValueError):
+                _ = op.permute_indices([1, 0])
+
+        with self.subTest("actual permutation"):
+            permuted_op = op.permute_indices([2, 1, 3, 0])
+
+            self.assertEqual(permuted_op, SpinOp({"X_2 Y_1": 1, "Z_1 X_3": 2}, num_spins=4))
 
 
 if __name__ == "__main__":

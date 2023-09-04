@@ -1,0 +1,290 @@
+The QubitConverter Migration Guide
+==================================
+
+The :class:`~qiskit_nature.second_q.mappers.QubitConverter` class has been deprecated as part of
+version 0.6 of Qiskit Nature. Instead of wrapping this class around one of the available
+:class:`~qiskit_nature.second_q.mappers.QubitMapper` classes, the latter can now instead be used
+directly. To support this, the mappers have been improved and now ship with more advanced
+functionality out of the box.
+
+To keep this guide simple, we will focus on examples on how to replace specific use cases of the
+:class:`~qiskit_nature.second_q.mappers.QubitConverter`. For more details on the mappers we suggest
+you check out the `tutorial on qubit mappers <../tutorials/06_qubit_mappers.ipynb>`_.
+
+Setup
+-----
+
+For the examples in this guide, we will always be using the following
+:class:`~qiskit_nature.second_q.operators.FermionicOp`:
+
+.. testcode::
+
+   from qiskit_nature.second_q.drivers import PySCFDriver
+
+   driver = PySCFDriver(atom="H 0 0 0; H 0 0 0.735")
+   problem = driver.run()
+
+   hamiltonian = problem.hamiltonian.second_q_op()
+
+   for label, coeff in sorted(hamiltonian.items()):
+       print(f"{coeff:+.8f} * '{label}'")
+
+.. testoutput::
+
+    +0.33785508 * '+_0 +_0 -_0 -_0'
+    +0.09046560 * '+_0 +_0 -_1 -_1'
+    +0.09046560 * '+_0 +_1 -_0 -_1'
+    +0.33229087 * '+_0 +_1 -_1 -_0'
+    +0.33785508 * '+_0 +_2 -_2 -_0'
+    +0.09046560 * '+_0 +_2 -_3 -_1'
+    +0.09046560 * '+_0 +_3 -_2 -_1'
+    +0.33229087 * '+_0 +_3 -_3 -_0'
+    -1.25633907 * '+_0 -_0'
+    +0.33229087 * '+_1 +_0 -_0 -_1'
+    +0.09046560 * '+_1 +_0 -_1 -_0'
+    +0.09046560 * '+_1 +_1 -_0 -_0'
+    +0.34928686 * '+_1 +_1 -_1 -_1'
+    +0.33229087 * '+_1 +_2 -_2 -_1'
+    +0.09046560 * '+_1 +_2 -_3 -_0'
+    +0.09046560 * '+_1 +_3 -_2 -_0'
+    +0.34928686 * '+_1 +_3 -_3 -_1'
+    -0.47189601 * '+_1 -_1'
+    +0.33785508 * '+_2 +_0 -_0 -_2'
+    +0.09046560 * '+_2 +_0 -_1 -_3'
+    +0.09046560 * '+_2 +_1 -_0 -_3'
+    +0.33229087 * '+_2 +_1 -_1 -_2'
+    +0.33785508 * '+_2 +_2 -_2 -_2'
+    +0.09046560 * '+_2 +_2 -_3 -_3'
+    +0.09046560 * '+_2 +_3 -_2 -_3'
+    +0.33229087 * '+_2 +_3 -_3 -_2'
+    -1.25633907 * '+_2 -_2'
+    +0.33229087 * '+_3 +_0 -_0 -_3'
+    +0.09046560 * '+_3 +_0 -_1 -_2'
+    +0.09046560 * '+_3 +_1 -_0 -_2'
+    +0.34928686 * '+_3 +_1 -_1 -_3'
+    +0.33229087 * '+_3 +_2 -_2 -_3'
+    +0.09046560 * '+_3 +_2 -_3 -_2'
+    +0.09046560 * '+_3 +_3 -_2 -_2'
+    +0.34928686 * '+_3 +_3 -_3 -_3'
+    -0.47189601 * '+_3 -_3'
+
+PauliSumOp vs. SparsePauliOp
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+One more note: the :mod:`qiskit.opflow` module is going to be deprecated in the future. In order to
+transition from the :class:`~qiskit.opflow.primitive_ops.PauliSumOp` class and its widespread use to the
+:mod:`qiskit.quantum_info` module and its :class:`~qiskit.quantum_info.SparsePauliOp` class, you can
+now set the value of :attr:`~qiskit_nature.settings.QiskitNatureSettings.use_pauli_sum_op` to
+``False``. This will become the default in a later release.
+
+To ensure that we can consistently rely on using the :class:`~qiskit.quantum_info.SparsePauliOp` in
+the following parts of this guide, we are applying this setting here:
+
+.. testcode::
+
+   from qiskit_nature import settings
+
+   settings.use_pauli_sum_op = False
+
+As a consequence of this upcoming deprecation, Qiskit Nature now fully supports the use
+:class:`~qiskit.quantum_info.SparsePauliOp` instances in all places which previously allowed
+:class:`~qiskit.opflow.primitive_ops.PauliSumOp` objects. In order to leverage this, it is **not**
+required to change the setting above. Thus, it is recommended that you switch to using
+:class:`~qiskit.quantum_info.SparsePauliOp`.
+
+For more in-depth information about the :mod:`qiskit.opflow` deprecation please refer to its
+`migration guide`_.
+
+Simplest cases
+--------------
+
+In the simplest cases, all you did was pass a :class:`~qiskit_nature.second_q.mappers.QubitMapper`
+object into the :class:`~qiskit_nature.second_q.mappers.QubitConverter`. For example, somewhat like
+this:
+
+.. testcode::
+
+   from qiskit_nature.second_q.mappers import JordanWignerMapper, QubitConverter
+
+   mapper = JordanWignerMapper()
+   converter = QubitConverter(mapper)
+
+All you need to do in order to update your code, is stop doing that and simply pass the ``mapper``
+object from the example above into whichever place you were using it before.
+
+If you were working directly with some :class:`~qiskit_nature.second_q.operators.SparseLabelOp` like
+so:
+
+.. testcode::
+
+   qubit_op = converter.convert(hamiltonian)
+
+   for pauli, coeff in sorted(qubit_op.label_iter()):
+       print(f"{coeff.real:+.8f} * {pauli}")
+
+.. testoutput::
+
+    -0.81054798 * IIII
+    +0.17218393 * IIIZ
+    -0.22575349 * IIZI
+    +0.12091263 * IIZZ
+    +0.17218393 * IZII
+    +0.16892754 * IZIZ
+    +0.16614543 * IZZI
+    +0.04523280 * XXXX
+    +0.04523280 * XXYY
+    +0.04523280 * YYXX
+    +0.04523280 * YYYY
+    -0.22575349 * ZIII
+    +0.16614543 * ZIIZ
+    +0.17464343 * ZIZI
+    +0.12091263 * ZZII
+
+You should now directly use the ``mapper`` again, but its method is called ``.map``:
+
+.. testcode::
+
+   qubit_op = mapper.map(hamiltonian)
+
+   for pauli, coeff in sorted(qubit_op.label_iter()):
+       print(f"{coeff.real:+.8f} * {pauli}")
+
+.. testoutput::
+
+    -0.81054798 * IIII
+    +0.17218393 * IIIZ
+    -0.22575349 * IIZI
+    +0.12091263 * IIZZ
+    +0.17218393 * IZII
+    +0.16892754 * IZIZ
+    +0.16614543 * IZZI
+    +0.04523280 * XXXX
+    +0.04523280 * XXYY
+    +0.04523280 * YYXX
+    +0.04523280 * YYYY
+    -0.22575349 * ZIII
+    +0.16614543 * ZIIZ
+    +0.17464343 * ZIZI
+    +0.12091263 * ZZII
+
+This is likely what you were doing when you were working with any of the following mappers:
+
+- :class:`~qiskit_nature.second_q.mappers.JordanWignerMapper`
+- :class:`~qiskit_nature.second_q.mappers.BravyiKitaevMapper`
+- :class:`~qiskit_nature.second_q.mappers.BravyiKitaevSuperFastMapper`
+- :class:`~qiskit_nature.second_q.mappers.DirectMapper`
+- :class:`~qiskit_nature.second_q.mappers.LinearMapper`
+- :class:`~qiskit_nature.second_q.mappers.LogarithmicMapper`
+
+The ParityMapper
+----------------
+
+However, when you were using the :class:`~qiskit_nature.second_q.mappers.ParityMapper`, you were
+able to use the ``two_qubit_reduction=True`` option of the
+:class:`~qiskit_nature.second_q.mappers.QubitConverter`. This ability, which has always been unique
+to the :class:`~qiskit_nature.second_q.mappers.ParityMapper`, is now directly built into said
+mapper. So if you were doing something along these lines:
+
+.. testcode::
+
+   from qiskit_nature.second_q.mappers import ParityMapper
+
+   converter = QubitConverter(ParityMapper(), two_qubit_reduction=True)
+
+   reduced_op = converter.convert(hamiltonian, num_particles=problem.num_particles)
+
+   for pauli, coeff in sorted(reduced_op.label_iter()):
+       print(f"{coeff.real:+.8f} * {pauli}")
+
+.. testoutput::
+
+    -1.05237325 * II
+    +0.39793742 * IZ
+    +0.18093120 * XX
+    -0.39793742 * ZI
+    -0.01128010 * ZZ
+
+The equivalent code now looks like the following:
+
+.. testcode::
+
+   mapper = ParityMapper(num_particles=problem.num_particles)
+
+   reduced_op = mapper.map(hamiltonian)
+
+   for pauli, coeff in sorted(reduced_op.label_iter()):
+       print(f"{coeff.real:+.8f} * {pauli}")
+
+.. testoutput::
+
+    -1.05237325 * II
+    +0.39793742 * IZ
+    +0.18093120 * XX
+    -0.39793742 * ZI
+    -0.01128010 * ZZ
+
+Z2Symmetries
+------------
+
+Finally, the :class:`~qiskit_nature.second_q.mappers.QubitConverter` class also supported further
+reduction of qubit resources by exploiting the :class:`~qiskit.opflow.primitive_ops.Z2Symmetries`
+implemented in the :mod:`qiskit.opflow` module. Although we did extend the deprecated class to also
+support the updated implementation in the :mod:`qiskit.quantum_info` module (which has the same
+name: :class:`~qiskit.quantum_info.analysis.z2_symmetries.Z2Symmetries`), you should now use the new
+:class:`~qiskit_nature.second_q.mappers.TaperedQubitMapper` instead.
+
+In the past, you would have enabled this like so:
+
+.. testcode::
+
+   mapper = JordanWignerMapper()
+   converter = QubitConverter(mapper, z2symmetry_reduction="auto")
+
+which would then later use
+:meth:`~qiskit_nature.second_q.problems.BaseProblem.symmetry_sector_locator` to find the symmetry
+sector of the Hilbert space in which the solution of your problem lies. This was only supported by
+the :class:`~qiskit_nature.second_q.problems.ElectronicStructureProblem`. Below is a quick example:
+
+.. testcode::
+
+   tapered_op = converter.convert(
+       hamiltonian,
+       num_particles=problem.num_particles,
+       sector_locator=problem.symmetry_sector_locator,
+   )
+
+   for pauli, coeff in sorted(tapered_op.label_iter()):
+       print(f"{coeff.real:+.8f} * {pauli}")
+
+.. testoutput::
+
+    -1.04109314 * I
+    +0.18093120 * X
+    -0.79587485 * Z
+
+Now, all you need to do is the use the
+:meth:`~qiskit_nature.second_q.problems.BaseProblem.get_tapered_mapper` method and provide the
+original mapper which you would like to wrap:
+
+.. testcode::
+
+   tapered_mapper = problem.get_tapered_mapper(mapper)
+
+   tapered_op = tapered_mapper.map(hamiltonian)
+
+   for pauli, coeff in sorted(tapered_op.label_iter()):
+       print(f"{coeff.real:+.8f} * {pauli}")
+
+.. testoutput::
+
+    -1.04109314 * I
+    +0.18093120 * X
+    -0.79587485 * Z
+
+If you were not using the automatic symmetry detection but instead provided a custom symmetry
+sector, you can construct your :class:`~qiskit_nature.second_q.mappers.TaperedQubitMapper` instance
+directly. Be sure to check out its documentation for more details.
+
+.. _migration guide: http://qisk.it/opflow_migration
+
+.. vim: set tw=100:

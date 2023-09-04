@@ -1,0 +1,27 @@
+---
+features:
+  - |
+    Introduced a new feature that implements the bosonic operator :class:`.BosonicOp`.
+    Its functionalities are analogous to the :class:`.FermioniOp`, but for commuting bosonic particles.
+    It should be used to represent a bosonic operator, so if one wants to represent the boson number
+    operator it should do for example:
+
+    .. code-block:: python
+
+      from qiskit_nature.second_q.operators import BosonicOp
+      bosonic_op = BosonicOp({'+_0 -_0': 1}, num_modes=1)
+
+    Due to the nature of bosonic particles, this class uses the commutator relations instead of the
+    anti-commutator ones (used by fermionic particles).
+
+  - |
+    In order to use the bosonic operator for quantum applications, this feature also introduces the
+    bosonic linear mapper, which allows to map the BosonicOp to the qubit space. This mapper is based
+    on `this paper <https://link.aps.org/doi/10.1103/PhysRevResearch.3.043212>`.
+    To use this mapper one can for example:
+
+    .. code-block:: python
+
+      from qiskit_nature.second_q.mappers import BosonicLinearMapper
+      mapper = BosonicLinearMapper(truncation=1)
+      qubit_op = mapper.map(bos_op)

@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    The :attr:`.ElectronicStructureProblem.reference_energy` is now properly
+    propagated to the :attr:`.ElectronicStructureResult.hartree_fock_energy`.

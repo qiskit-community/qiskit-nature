@@ -242,7 +242,7 @@ particular will be located at `docs/_build/html/release_notes.html`
 ## Installing Qiskit Nature from source
 
 Please see the [Installing Qiskit Nature from
-Source](https://github.com/Qiskit/qiskit-nature#installation)
+Source](https://github.com/qiskit-community/qiskit-nature#installation)
 
 Note: Nature depends on Terra, and has optional dependence on Aer and IBM Q Provider, so
 these should be installed too. The main branch of Nature is kept working with those other element
@@ -250,7 +250,7 @@ main branches so these should be installed from source too following the instruc
 the same location
 
 Nature also has some other optional dependents see 
-[Nature optional installs](https://github.com/Qiskit/qiskit-nature#optional-installs) for
+[Nature optional installs](https://github.com/qiskit-community/qiskit-nature#optional-installs) for
 further information. Unit tests that require any of the optional dependents will check
 and skip the test if not installed.
 

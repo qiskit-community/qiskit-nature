@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,9 +12,9 @@
 
 """Tests for the ElectronicStructureResult."""
 
-import unittest
 import contextlib
 import io
+import unittest
 from itertools import zip_longest
 from test import QiskitNatureTestCase
 
@@ -58,6 +58,7 @@ class TestElectronicStructureResult(QiskitNatureTestCase):
     def test_print_complex_dipole(self):
         """Test printing complex dipoles."""
         res = ElectronicStructureResult()
+        res.formatting_precision = 8
         res.computed_energies = np.asarray([1.0])
         res.nuclear_dipole_moment = (0.0, 0.0, 1.0)
         res.computed_dipole_moment = [(0.0, 0.0, 1.0j)]
@@ -79,6 +80,12 @@ class TestElectronicStructureResult(QiskitNatureTestCase):
                              (debye): [0.0  0.0  2.54174623+2.54174623j]  Total: 2.54174623+2.54174623j
         """
         self._assert_printed_result(res)
+
+    def test_print_debye_dipole(self):
+        """Test printing debye dipoles."""
+        res = ElectronicStructureResult()
+        res.computed_dipole_moment = None
+        self.assertIsNone(res.total_dipole_moment_in_debye)
 
 
 if __name__ == "__main__":

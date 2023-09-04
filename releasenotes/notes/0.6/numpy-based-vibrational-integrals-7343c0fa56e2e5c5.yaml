@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Extends the :class:`~qiskit_nature.second_q.operators.VibrationalIntegrals`
+    to fall back to using ``numpy`` arrays when the optional ``sparse`` dependency
+    is not installed.

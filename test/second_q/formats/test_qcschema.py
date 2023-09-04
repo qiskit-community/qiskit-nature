@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -13,6 +13,7 @@
 """Test the QCSchema implementation."""
 
 import unittest
+import warnings
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -92,11 +93,13 @@ class TestQCSchemaLegacy(QiskitNatureTestCase):
 
     def test_legacy_from_hdf5(self):
         """Tests the legacy_from_hdf5 method."""
-        with self.subTest("ElectronicStructureDriverResult"):
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+
             qcschema = QCSchema.from_legacy_hdf5(
                 self.get_resource_path(
-                    "electronic_structure_driver_result.hdf5",
-                    "properties/second_quantization/electronic/resources",
+                    "legacy_electronic_structure_driver_result.hdf5",
+                    "second_q/formats/qcschema",
                 )
             )
 
@@ -109,14 +112,16 @@ class TestQCSchemaLegacy(QiskitNatureTestCase):
 
             self.assertEqual(qcschema, expected)
 
-        with self.subTest("Error on non-electronic case"):
-            with self.assertRaises(ValueError):
-                qcschema = QCSchema.from_legacy_hdf5(
-                    self.get_resource_path(
-                        "vibrational_structure_driver_result.hdf5",
-                        "properties/second_quantization/vibrational/resources",
-                    )
+    @unittest.skip("Deprecated and no more HDF5 files available to test against.")
+    def test_legacy_from_hdf5_error(self):
+        """Tests the legacy_from_hdf5 method error."""
+        with self.assertRaises(ValueError):
+            _ = QCSchema.from_legacy_hdf5(
+                self.get_resource_path(
+                    "vibrational_structure_driver_result.hdf5",
+                    "properties/second_quantization/vibrational/resources",
                 )
+            )
 
 
 if __name__ == "__main__":

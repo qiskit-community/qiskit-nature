@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Adds the new :attr:`~qiskit_nature.second_q.problems.EigenstateResult.formatting_precision`
+    attribute to all result objects. This attribute sets the number of decimal places to be used
+    when formatting the result object for printing. It defaults to 12.

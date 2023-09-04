@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -20,6 +20,8 @@ import copy
 import logging
 import re
 
+import numpy as np
+
 from qiskit_nature.second_q.formats.watson import WatsonHamiltonian
 import qiskit_nature.optionals as _optionals
 
@@ -33,12 +35,12 @@ else:
         Replacement if sparse.as_coo is not present.
         """
         del args
+        return 0
 
 
 logger = logging.getLogger(__name__)
 
 
-@_optionals.HAS_SPARSE.require_in_instance
 class GaussianLogResult:
     """Result for Gaussian™ 16 log driver.
 
@@ -274,10 +276,28 @@ class GaussianLogResult:
 
         max_index = max(quadratic_max_index, cubic_max_index, quartic_max_index)
 
-        watson = WatsonHamiltonian(
-            as_coo(quadratic_data, shape=(max_index,) * 2),
-            as_coo(cubic_data, shape=(max_index,) * 3),
-            as_coo(quartic_data, shape=(max_index,) * 4),
-            -as_coo(quadratic_data, shape=(max_index,) * 2),
-        )
+        if _optionals.HAS_SPARSE:
+            watson = WatsonHamiltonian(
+                as_coo(quadratic_data, shape=(max_index,) * 2),
+                as_coo(cubic_data, shape=(max_index,) * 3),
+                as_coo(quartic_data, shape=(max_index,) * 4),
+                -as_coo(quadratic_data, shape=(max_index,) * 2),
+            )
+        else:
+            quadratic_numpy = np.zeros((max_index,) * 2)
+            for coord, value in quadratic_data.items():
+                quadratic_numpy[coord] = value
+            cubic_numpy = np.zeros((max_index,) * 3)
+            for coord, value in cubic_data.items():
+                cubic_numpy[coord] = value
+            quartic_numpy = np.zeros((max_index,) * 4)
+            for coord, value in quartic_data.items():
+                quartic_numpy[coord] = value
+            watson = WatsonHamiltonian(
+                quadratic_numpy,
+                cubic_numpy,
+                quartic_numpy,
+                -quadratic_numpy,
+            )
+
         return watson

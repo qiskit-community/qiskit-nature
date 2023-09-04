@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "The Qiskit Nature developers and contributors"
+title: "Qiskit Nature"
+version: 0.6.0
+doi: 10.5281/zenodo.7828767
+date-released: 2023-04-14
+url: "https://github.com/qiskit-community/qiskit-nature"

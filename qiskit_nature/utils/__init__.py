@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -25,9 +25,22 @@ Linear algebra utilities
 
    apply_matrix_to_slices
    givens_matrix
+   double_factorized
+   modified_cholesky
 """
 
-from .linalg import apply_matrix_to_slices, givens_matrix
+from .linalg import (
+    apply_matrix_to_slices,
+    double_factorized,
+    givens_matrix,
+    modified_cholesky,
+)
 from .opt_einsum import get_einsum
 
-__all__ = ["apply_matrix_to_slices", "givens_matrix", "get_einsum"]
+__all__ = [
+    "apply_matrix_to_slices",
+    "double_factorized",
+    "givens_matrix",
+    "get_einsum",
+    "modified_cholesky",
+]

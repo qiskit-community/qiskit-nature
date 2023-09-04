@@ -1,0 +1,33 @@
+---
+features:
+  - |
+    Adds the :meth:`.SparseLabelOp.from_terms` method which is the inverse of
+    :meth:`.SparseLabelOp.terms`.
+  - |
+    Adds the :meth:`.SparseLabelOp.permute_indices` method which allows index
+    permutations to be applied to an operator. For example:
+
+    .. code-block:: python
+
+      from qiskit_nature.second_q.operators import FermionicOp
+
+      op = FermionicOp({"+_0 +_2 -_1 -_3": 1.0}, num_spin_orbitals=4)
+
+      permuted_op = op.permute_indices([3, 1, 0, 2])
+      print(permuted_op)
+      # Fermionic Operator
+      # number spin orbitals=4, number terms=1
+      #   1.0 * ( +_3 +_0 -_1 -_2 )
+
+    This is a very powerful method so caution is advised when using it as other
+    components of the stack may rely on assumptions which are no longer valid
+    after such a permutation (for example the builtin two-qubit reduction of the
+    :class:`.ParityMapper`).
+fixes:
+  - |
+    Fixes the logic of the :class:`.InterleavedQubitMapper` to actually perform
+    the interleaving on the second-quantization level rather than the qubit level.
+    This ensures that the actually expected benefits from using an interleaved
+    ordering (for example when mapping a paired double-excitation where all Z
+    terms cancel each other) occur, rather than a naive re-shuffling of the
+    already mapped qubit operator.

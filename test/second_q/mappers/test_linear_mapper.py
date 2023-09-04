@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -22,6 +22,7 @@ from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info import SparsePauliOp
 from qiskit_nature.second_q.operators import SpinOp
 from qiskit_nature.second_q.mappers import LinearMapper
+from qiskit_nature import settings
 
 
 @ddt
@@ -80,8 +81,23 @@ class TestLinearMapper(QiskitNatureTestCase):
     def test_mapping(self, spin_op, ref_qubit_op):
         """Test mapping to qubit operator"""
         mapper = LinearMapper()
-        qubit_op = mapper.map(spin_op)
-        self.assertEqual(qubit_op, PauliSumOp(ref_qubit_op))
+        aux = settings.use_pauli_sum_op
+        try:
+            settings.use_pauli_sum_op = True
+            qubit_op = mapper.map(spin_op)
+            self.assertEqual(qubit_op, PauliSumOp(ref_qubit_op))
+            settings.use_pauli_sum_op = False
+            qubit_op = mapper.map(spin_op)
+            self.assertEqualSparsePauliOp(qubit_op, ref_qubit_op)
+        finally:
+            settings.use_pauli_sum_op = aux
+
+    def test_mapping_overwrite_reg_len(self):
+        """Test overwriting the register length."""
+        op = SpinOp({"Y_0^2": -0.432 + 1.32j}, 0.5, 1)
+        expected = SpinOp({"Y_0^2": -0.432 + 1.32j}, 0.5, 3)
+        mapper = LinearMapper()
+        self.assertEqual(mapper.map(op, register_length=3), mapper.map(expected))
 
 
 if __name__ == "__main__":

@@ -1,0 +1,7 @@
+---
+deprecations:
+  - |
+    The :class:`.VQEClient` and its matching :class:`.VQERuntimeResult` are now
+    deprecated. Instead, users should migrate their code to use the Qiskit
+    Runtime Primitives. A guide on how to use this can be found
+    `here <https://qisk.it/algo_migration#vqe>`_.

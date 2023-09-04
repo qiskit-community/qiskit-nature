@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -59,7 +59,8 @@ class LatticeModelResult(EigenstateResult):
         lines.append("=== GROUND STATE ===")
         lines.append(" ")
         lines.append(
-            "* Lattice ground state energy " f": {np.round(self.computed_lattice_energies[0], 12)}"
+            "* Lattice ground state energy "
+            f": {np.round(self.computed_lattice_energies[0], self.formatting_precision)}"
         )
 
         if self.computed_lattice_energies is not None and len(self.computed_lattice_energies) > 1:
@@ -69,6 +70,7 @@ class LatticeModelResult(EigenstateResult):
 
             for idx, lattice_energy in enumerate(self.computed_lattice_energies[1:]):
                 lines.append(
-                    f"* {(idx + 1): 3d}: Lattice excited state energy: {np.round(lattice_energy, 12)}"
+                    f"* {(idx + 1): 3d}: Lattice excited state energy: "
+                    f"{np.round(lattice_energy, self.formatting_precision)}"
                 )
         return lines

@@ -12,7 +12,10 @@
 
 """ Test Numerical qEOM excited states calculation."""
 
+from __future__ import annotations
+
 import unittest
+import warnings
 
 from test import QiskitNatureTestCase
 from ddt import ddt, named_data
@@ -30,7 +33,7 @@ from qiskit_nature.second_q.mappers import (
     JordanWignerMapper,
     ParityMapper,
 )
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper, TaperedQubitMapper
 from qiskit_nature.second_q.operators.fermionic_op import FermionicOp
 from qiskit_nature.second_q.algorithms import (
     GroundStateEigensolver,
@@ -67,6 +70,7 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
 
         self.reference_trans_amps = reference_trans_amps
         self.electronic_structure_problem = self.driver.run()
+        self.num_particles = self.electronic_structure_problem.num_particles
 
     def _hamiltonian_derivative(self):
 
@@ -126,6 +130,68 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
                     trans_amp_expected = np.abs(references[key][opkey][0])
                     self.assertAlmostEqual(trans_amp, trans_amp_expected, places=places)
 
+    def _compute_and_assert_qeom_aux_eigenvalues(self, mapper: QubitConverter | QubitMapper):
+        hamiltonian_op, _ = self.electronic_structure_problem.second_q_ops()
+        aux_ops = {"hamiltonian": hamiltonian_op}
+        estimator = Estimator()
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
+        gsc = GroundStateEigensolver(mapper, solver)
+        esc = QEOM(gsc, estimator, "sd", aux_eval_rules=EvaluationRule.DIAG)
+        results = esc.solve(self.electronic_structure_problem, aux_operators=aux_ops)
+
+        energies_recalculated = np.zeros_like(results.computed_energies)
+        for estate, aux_op in enumerate(results.aux_operators_evaluated):
+            energies_recalculated[estate] = aux_op["hamiltonian"]
+
+        self._assert_energies(results.computed_energies, self.reference_energies)
+        self._assert_energies(energies_recalculated, self.reference_energies)
+
+    def _compute_and_assert_qeom_trans_amp(self, mapper: QubitConverter | QubitMapper):
+        aux_eval_rules = {
+            "hamiltonian_derivative": [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)]
+        }
+        aux_ops = {"hamiltonian_derivative": self._hamiltonian_derivative()}
+
+        estimator = Estimator()
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=DeprecationWarning)
+            solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
+        gsc = GroundStateEigensolver(mapper, solver)
+        esc = QEOM(gsc, estimator, excitations="sd", aux_eval_rules=aux_eval_rules)
+        results = esc.solve(self.electronic_structure_problem, aux_operators=aux_ops)
+
+        transition_amplitudes = results.raw_result.transition_amplitudes
+
+        self._assert_transition_amplitudes(
+            transition_amplitudes, self.reference_trans_amps, places=3
+        )
+
+    @named_data(
+        ["JWM", JordanWignerMapper()],
+        ["PM", ParityMapper()],
+        ["PM_TQR", ParityMapper(num_particles=(1, 1))],
+    )
+    def test_aux_ops_qeom_mapper(self, mapper: QubitMapper):
+        """Test QEOM evaluation of excited state properties"""
+        self._compute_and_assert_qeom_aux_eigenvalues(mapper)
+
+    @named_data(
+        ["JW", lambda n, esp: TaperedQubitMapper(JordanWignerMapper())],
+        ["JW_Z2", lambda n, esp: esp.get_tapered_mapper(JordanWignerMapper())],
+        ["PM", lambda n, esp: TaperedQubitMapper(ParityMapper())],
+        ["PM_Z2", lambda n, esp: esp.get_tapered_mapper(ParityMapper())],
+        ["PM_TQR", lambda n, esp: TaperedQubitMapper(ParityMapper(n))],
+        ["PM_TQR_Z2", lambda n, esp: esp.get_tapered_mapper(ParityMapper(n))],
+    )
+    def test_aux_ops_qeom_taperedmapper(self, tapered_mapper_creator):
+        """Test QEOM evaluation of excited state properties"""
+        tapered_mapper = tapered_mapper_creator(
+            self.num_particles, self.electronic_structure_problem
+        )
+        self._compute_and_assert_qeom_aux_eigenvalues(tapered_mapper)
+
     @named_data(
         ["JWM", QubitConverter(JordanWignerMapper())],
         ["JWM_Z2", QubitConverter(JordanWignerMapper(), z2symmetry_reduction="auto")],
@@ -141,21 +207,31 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
     )
     def test_aux_ops_qeom(self, converter: QubitConverter):
         """Test QEOM evaluation of excited state properties"""
+        self._compute_and_assert_qeom_aux_eigenvalues(converter)
 
-        hamiltonian_op, _ = self.electronic_structure_problem.second_q_ops()
-        aux_ops = {"hamiltonian": hamiltonian_op}
-        estimator = Estimator()
-        solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
-        gsc = GroundStateEigensolver(converter, solver)
-        esc = QEOM(gsc, estimator, "sd", aux_eval_rules=EvaluationRule.DIAG)
-        results = esc.solve(self.electronic_structure_problem, aux_operators=aux_ops)
+    @named_data(
+        ["JWM", JordanWignerMapper()],
+        ["PM", ParityMapper()],
+        ["PM_TQR", ParityMapper(num_particles=(1, 1))],
+    )
+    def test_trans_amps_qeom_mapper(self, mapper: QubitMapper):
+        """Test QEOM evaluation of transition amplitudes"""
+        self._compute_and_assert_qeom_trans_amp(mapper)
 
-        energies_recalculated = np.zeros_like(results.computed_energies)
-        for estate, aux_op in enumerate(results.aux_operators_evaluated):
-            energies_recalculated[estate] = aux_op["hamiltonian"]
-
-        self._assert_energies(results.computed_energies, self.reference_energies)
-        self._assert_energies(energies_recalculated, self.reference_energies)
+    @named_data(
+        ["JW", lambda n, esp: TaperedQubitMapper(JordanWignerMapper())],
+        ["JW_Z2", lambda n, esp: esp.get_tapered_mapper(JordanWignerMapper())],
+        ["PM", lambda n, esp: TaperedQubitMapper(ParityMapper())],
+        ["PM_Z2", lambda n, esp: esp.get_tapered_mapper(ParityMapper())],
+        ["PM_TQR", lambda n, esp: TaperedQubitMapper(ParityMapper(n))],
+        ["PM_TQR_Z2", lambda n, esp: esp.get_tapered_mapper(ParityMapper(n))],
+    )
+    def test_trans_amps_qeom_taperedmapper(self, tapered_mapper_creator):
+        """Test QEOM evaluation of transition amplitudes"""
+        tapered_mapper = tapered_mapper_creator(
+            self.num_particles, self.electronic_structure_problem
+        )
+        self._compute_and_assert_qeom_trans_amp(tapered_mapper)
 
     @named_data(
         ["JWM", QubitConverter(JordanWignerMapper())],
@@ -170,25 +246,9 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
         ["BKM", QubitConverter(BravyiKitaevMapper())],
         ["BKM_Z2", QubitConverter(BravyiKitaevMapper(), z2symmetry_reduction="auto")],
     )
-    def _test_trans_amps_qeom(self, converter: QubitConverter):
+    def test_trans_amps_qeom(self, converter: QubitConverter):
         """Test QEOM evaluation of transition amplitudes"""
-
-        aux_eval_rules = {
-            "hamiltonian_derivative": [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)]
-        }
-        aux_ops = {"hamiltonian_derivative": self._hamiltonian_derivative()}
-
-        estimator = Estimator()
-        solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
-        gsc = GroundStateEigensolver(converter, solver)
-        esc = QEOM(gsc, estimator, excitations="sd", aux_eval_rules=aux_eval_rules)
-        results = esc.solve(self.electronic_structure_problem, aux_operators=aux_ops)
-
-        transition_amplitudes = results.raw_result.transition_amplitudes
-
-        self._assert_transition_amplitudes(
-            transition_amplitudes, self.reference_trans_amps, places=3
-        )
+        self._compute_and_assert_qeom_trans_amp(converter)
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -15,6 +15,7 @@
 import unittest
 
 from test import QiskitNatureTestCase
+from test.second_q.utils import get_expected_two_body_ints
 
 from ddt import ddt, idata, unpack
 import numpy as np
@@ -26,6 +27,7 @@ from qiskit_nature.second_q.formats.qcschema import QCSchema
 from qiskit_nature.second_q.formats.qcschema_translator import qcschema_to_problem
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
 from qiskit_nature.second_q.operators import ElectronicIntegrals
+from qiskit_nature.second_q.operators.tensor_ordering import to_chemist_ordering
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.properties import ElectronicDensity, ElectronicDipoleMoment
 from qiskit_nature.second_q.transformers import ActiveSpaceTransformer
@@ -35,26 +37,33 @@ from qiskit_nature.second_q.transformers import ActiveSpaceTransformer
 class TestActiveSpaceTransformer(QiskitNatureTestCase):
     """ActiveSpaceTransformer tests."""
 
-    def assertDriverResult(self, driver_result, expected):
-        """Asserts that the two `DriverResult` object's relevant fields are equivalent."""
-        electronic_energy = driver_result.hamiltonian
-        electronic_energy_exp = expected.hamiltonian
+    def assertElectronicEnergy(self, electronic_energy, expected):
+        """Assets that the two ``ElectronicEnergy`` object's relevant fields are equivalent."""
         with self.subTest("MO 1-electron integrals"):
             np.testing.assert_array_almost_equal(
                 np.abs(electronic_energy.electronic_integrals.second_q_coeffs()["+-"]),
-                np.abs(electronic_energy_exp.electronic_integrals.second_q_coeffs()["+-"]),
+                np.abs(expected.electronic_integrals.second_q_coeffs()["+-"]),
             )
         with self.subTest("MO 2-electron integrals"):
+            actual_ints = electronic_energy.electronic_integrals.second_q_coeffs()["++--"]
+            expected_ints = get_expected_two_body_ints(
+                actual_ints,
+                to_chemist_ordering(expected.electronic_integrals.second_q_coeffs()["++--"]),
+            )
             np.testing.assert_array_almost_equal(
-                np.abs(electronic_energy.electronic_integrals.second_q_coeffs()["++--"]),
-                np.abs(electronic_energy_exp.electronic_integrals.second_q_coeffs()["++--"]),
+                np.abs(actual_ints),
+                np.abs(expected_ints),
             )
         with self.subTest("Inactive energy"):
-            for key in electronic_energy_exp.constants.keys():
+            for key in expected.constants.keys():
                 self.assertAlmostEqual(
                     electronic_energy.constants[key],
-                    electronic_energy_exp.constants[key],
+                    expected.constants[key],
                 )
+
+    def assertDriverResult(self, driver_result, expected):
+        """Asserts that the two ``DriverResult`` object's relevant fields are equivalent."""
+        self.assertElectronicEnergy(driver_result.hamiltonian, expected.hamiltonian)
 
         if expected.properties.electronic_dipole_moment is not None:
             dip_moment = driver_result.properties.electronic_dipole_moment
@@ -239,8 +248,6 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
             [2, 3, None, "More active orbitals requested than available in total."],
             [4, 2, None, "More active electrons requested than available in total."],
             [(1, 0), 2, None, "The number of inactive electrons may not be odd."],
-            [2, 2, [0, 1, 2], "The number of active orbitals do not match."],
-            [2, 2, [1, 2], "The number of active electrons do not match."],
             [1, 2, None, "The number of active electrons must be even when not a tuple."],
             [-2, 2, None, "The number of active electrons must not be negative."],
         ]
@@ -317,6 +324,41 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
 
         trafo = ActiveSpaceTransformer(driver_result.num_particles, 2)
         _ = trafo.transform(driver_result)
+
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
+    def test_standalone_usage(self):
+        """Test usage on a standalone Hamiltonian."""
+        driver = PySCFDriver(basis="631g")
+        problem = driver.run()
+
+        trafo = ActiveSpaceTransformer(2, 2)
+
+        with self.subTest("prepare_active_space not called yet"):
+            with self.assertRaises(QiskitNatureError):
+                reduced_hamiltonian = trafo.transform_hamiltonian(problem.hamiltonian)
+
+        trafo.prepare_active_space(problem.num_particles, problem.num_spatial_orbitals)
+
+        reduced_hamiltonian = trafo.transform_hamiltonian(problem.hamiltonian)
+
+        electronic_energy = ElectronicEnergy.from_raw_integrals(
+            np.asarray([[-1.24943841, 0.0], [0.0, -0.547816138]]),
+            np.asarray(
+                [
+                    [
+                        [[0.652098466, 0.0], [0.0, 0.433536565]],
+                        [[0.0, 0.0794483182], [0.0794483182, 0.0]],
+                    ],
+                    [
+                        [[0.0, 0.0794483182], [0.0794483182, 0.0]],
+                        [[0.433536565, 0.0], [0.0, 0.385524695]],
+                    ],
+                ]
+            ),
+        )
+        electronic_energy.constants["ActiveSpaceTransformer"] = 0.0
+
+        self.assertElectronicEnergy(reduced_hamiltonian, electronic_energy)
 
 
 if __name__ == "__main__":
