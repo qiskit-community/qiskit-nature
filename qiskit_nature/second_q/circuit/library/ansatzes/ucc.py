@@ -575,7 +575,7 @@ class UCC(EvolvedOperatorAnsatz):
             op = FermionicOp({" ".join(label): 1}, num_spin_orbitals=num_spin_orbitals)
             op_adj = op.adjoint()
             # we need to account for an additional imaginary phase in the exponent accumulated from
-            # the first-order trotterization routine implemented in Qiskit Terra
+            # the first-order trotterization routine implemented in Qiskit
             op_minus = 1j * (op - op_adj)
             operators.append(op_minus)
 
