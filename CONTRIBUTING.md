@@ -225,7 +225,7 @@ particular will be located at `docs/_build/html/release_notes.html`
 Please see the [Installing Qiskit Nature from
 Source](https://github.com/qiskit-community/qiskit-nature#installation)
 
-Note: Nature depends on Qiskit, and has optional dependence on Aer so
+Note: Nature depends on Qiskit, and has an optional dependence on Aer so that
 should be installed too.
 
 Nature also has some other optional dependents see 
