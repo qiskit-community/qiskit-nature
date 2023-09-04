@@ -177,7 +177,7 @@ class VibrationalOp(SparseLabelOp):
             data: the operator data, mapping string-based keys to numerical values.
             num_modals: number of modals - described by a sequence of integers where each integer
                 describes the number of modals in the corresponding mode; the total number of modals
-                defines a ``register_length``.
+                defines the ``register_length``.
             copy: when set to False the `data` will not be copied and the dictionary will be
                 stored by reference rather than by value (which is the default; ``copy=True``). Note,
                 that this requires you to not change the contents of the dictionary after
@@ -194,7 +194,7 @@ class VibrationalOp(SparseLabelOp):
         super().__init__(data, copy=copy, validate=validate)
 
     @property
-    def num_modals(self) -> Sequence[int]:
+    def num_modals(self) -> Sequence[int] | None:
         """The number of modals for each mode on which this operator acts.
 
         This is an optional sequence of integers which are considered lower bounds. That means that
@@ -207,11 +207,27 @@ class VibrationalOp(SparseLabelOp):
 
     @num_modals.setter
     def num_modals(self, num_modals: Sequence[int] | None):
-        self._num_modals = list(num_modals) if num_modals is not None else []
+        self._num_modals = list(num_modals) if num_modals is not None else None
 
     @property
-    def register_length(self) -> int | None:
-        return sum(self.num_modals) if self.num_modals is not None else None
+    def register_length(self) -> int:
+        if self._num_modals is None:
+            num_modals: list[int] = []
+            for key in self._data:
+                for term in key.split():
+                    _, mode_index_str, modal_index_str = term.split("_")
+                    mode_index = int(mode_index_str)
+                    modal_index = int(modal_index_str)
+
+                    if mode_index + 1 > len(num_modals):
+                        num_modals += [0] * (mode_index + 1 - len(num_modals))
+
+                    if modal_index > num_modals[mode_index] - 1:
+                        num_modals[mode_index] = modal_index + 1
+
+            return sum(num_modals)
+
+        return sum(self.num_modals)
 
     def _new_instance(
         self, data: Mapping[str, _TCoeff], *, other: VibrationalOp | None = None
@@ -228,13 +244,14 @@ class VibrationalOp(SparseLabelOp):
             def elementwise_max(a, b):
                 return [max(i, j) for i, j in zip(*pad_to_length(a, b))]
 
-            num_modals = elementwise_max(num_modals, other_num_modals)
+            if num_modals is not None and other_num_modals is not None:
+                num_modals = elementwise_max(num_modals, other_num_modals)
 
         return self.__class__(data, copy=False, num_modals=num_modals)
 
     def _validate_keys(self, keys: Collection[str]) -> None:
         super()._validate_keys(keys)
-        num_modals = list(self.num_modals)
+        num_modals = self._num_modals if self._num_modals is not None else []
 
         for key in keys:
             # 0. explicitly allow the empty key
