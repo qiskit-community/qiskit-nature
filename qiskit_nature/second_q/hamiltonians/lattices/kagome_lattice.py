@@ -1,4 +1,4 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
 # (C) Copyright IBM 2023.
 #
@@ -105,7 +105,7 @@ class KagomeLattice(Lattice):
         self._onsite_parameter = onsite_parameter
 
         if isinstance(boundary_condition, BoundaryCondition):
-            _boundary_condition = (boundary_condition,) * self._dim
+            boundary_condition = (boundary_condition, boundary_condition)
         elif isinstance(boundary_condition, tuple):
             if len(boundary_condition) != self._dim:
                 raise ValueError(
@@ -113,11 +113,10 @@ class KagomeLattice(Lattice):
                     f"`boundary_condition`: {len(boundary_condition)}, `size`: {self._dim}."
                     "The length of `boundary_condition` must be the same as that of size."
                 )
-            _boundary_condition = boundary_condition
 
-        self._boundary_condition = _boundary_condition
+        self._boundary_condition = boundary_condition
 
-        graph = PyGraph(multigraph=False)
+        graph: PyGraph = PyGraph(multigraph=False)
         graph.add_nodes_from(range(self._num_sites_per_cell * np.prod(self._size)))
 
         # add edges excluding the boundary edges

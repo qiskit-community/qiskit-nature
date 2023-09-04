@@ -1,4 +1,4 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
 # (C) Copyright IBM 2021, 2023.
 #
@@ -15,7 +15,7 @@ import unittest
 from test import QiskitNatureTestCase
 from numpy.testing import assert_array_equal
 import numpy as np
-from rustworkx import PyGraph, is_isomorphic
+from rustworkx import PyGraph, is_isomorphic  # type: ignore[attr-defined]
 from qiskit_nature.second_q.hamiltonians.lattices import (
     BoundaryCondition,
     KagomeLattice,
