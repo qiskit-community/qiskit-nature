@@ -53,12 +53,6 @@ class NatureLazySubprocessTester(LazySubprocessTester):
         return super()._is_available() if self._run else True
 
 
-HAS_PYQUANTE2 = LazyImportTester(
-    "pyquante2",
-    name="pyquante2",
-    msg="See https://github.com/rpmuller/pyquante2",
-)
-
 HAS_PYSCF = LazyImportTester(
     "pyscf",
     name="pyscf",
