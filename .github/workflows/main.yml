@@ -198,7 +198,7 @@ jobs:
         run: |
           echo "::add-matcher::./.github/problem_matchers/pylint.json"
           echo "::add-matcher::./.github/problem_matchers/mypy.json"
-        if: ${{ matrix.python-version == 3.8 }}
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == 3.8 }}
       - name: Run lint
         run: |
           source "$CONDA/etc/profile.d/conda.sh"
