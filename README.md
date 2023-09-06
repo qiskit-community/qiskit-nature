@@ -47,6 +47,15 @@ to be installed separately.
 - [PSI4](https://qiskit.org/ecosystem/nature/apidocs/qiskit_nature.second_q.drivers.psi4d.html), a chemistry program that exposes a Python interface allowing for accessing internal objects
 - [PySCF](https://qiskit.org/ecosystem/nature/apidocs/qiskit_nature.second_q.drivers.pyscfd.html), an open-source Python chemistry program
 
+The above codes can be used in a very limited fashion through Qiskit Nature.
+While this is useful for getting started and testing purposes, a better experience can be had in the reversed order of responsibility.
+That is, in a setup where the classical code runs the Qiskit Nature components.
+Such an integration currently exists for the following packages:
+
+- PySCF via [qiskit-nature-pyscf](https://github.com/qiskit-community/qiskit-nature-pyscf)
+
+If you are interested in using Psi4, we are actively looking for help to get started on a similar integration in [qiskit-nature-psi4](https://github.com/qiskit-community/qiskit-nature-psi4).
+
 Additionally, you may find the following optional dependencies useful:
 
 - [sparse](https://github.com/pydata/sparse/), a library for sparse multi-dimensional arrays. When installed, Qiskit Nature can leverage this to reduce the memory requirements of your calculations.
