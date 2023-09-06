@@ -1,7 +1,7 @@
 ---
 features:
   - |
-    The ``active_orbitals`` argument of the :class:`.ActiveSpaceTransformer` may now take
-    a list of integers that is twice as long as the number of available spatial orbitals.
-    In this case, the first half is treated as the alpha-spin indices and the second half
-    as the beta-spin indices.
+    The ``active_orbitals`` argument of the :class:`.ActiveSpaceTransformer` may now also
+    take a pair of lists of integers, each of which have a length identical to the number
+    of active spatial orbitals. In this case, the first list indicates the alpha- and the
+    second list the beta-spin orbital indices, respectively.
