@@ -106,7 +106,7 @@ While this is useful for getting started and testing purposes, a better experien
 That is, in a setup where the classical code runs the Qiskit Nature components.
 Such an integration currently exists for the following packages:
 
-- PySCF via `qiskit-nature-pyscf <https://github.com/qiskit-community/qiskit-nature-pyscf>`_
+- PySCF via `qiskit-nature-pyscf <https://qiskit-community.github.io/qiskit-nature-pyscf/>`_
 
 If you are interested in using Psi4, we are actively looking for help to get started on a similar integration in `qiskit-nature-psi4 <https://github.com/qiskit-community/qiskit-nature-psi4>`_
 
