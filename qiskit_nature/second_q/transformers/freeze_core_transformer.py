@@ -105,7 +105,8 @@ class FreezeCoreTransformer(BaseTransformer):
         self._freeze_core = freeze_core
         self._remove_orbitals = remove_orbitals
 
-        self._active_orbs_indices: list[int] = None
+        self._active_alpha_indices: list[int] = None
+        self._active_beta_indices: list[int] = None
         self._active_basis: BasisTransformer = None
         self._active_density: ElectronicIntegrals = None
         self._density_total: ElectronicIntegrals = None
@@ -207,15 +208,15 @@ class FreezeCoreTransformer(BaseTransformer):
                 [1.0] * num_beta + [0.0] * (total_num_spatial_orbitals - num_beta)
             )
 
-        self._active_orbs_indices = self._determine_active_space(
+        self._active_alpha_indices, self._active_beta_indices = self._determine_active_space(
             molecule, total_num_spatial_orbitals
         )
-        active_num_spatial_orbitals = len(self._active_orbs_indices)
+        active_num_spatial_orbitals = len(self._active_alpha_indices)
 
         coeff_alpha = np.zeros((total_num_spatial_orbitals, active_num_spatial_orbitals))
-        coeff_alpha[self._active_orbs_indices, range(active_num_spatial_orbitals)] = 1.0
+        coeff_alpha[self._active_alpha_indices, range(active_num_spatial_orbitals)] = 1.0
         coeff_beta = np.zeros((total_num_spatial_orbitals, active_num_spatial_orbitals))
-        coeff_beta[self._active_orbs_indices, range(active_num_spatial_orbitals)] = 1.0
+        coeff_beta[self._active_beta_indices, range(active_num_spatial_orbitals)] = 1.0
 
         self._active_basis = BasisTransformer(
             ElectronicBasis.MO,
@@ -259,7 +260,7 @@ class FreezeCoreTransformer(BaseTransformer):
 
     def _determine_active_space(
         self, molecule: MoleculeInfo, total_num_spatial_orbitals: int
-    ) -> list[int]:
+    ) -> tuple[list[int], list[int]]:
         """Determines the active and inactive orbital indices.
 
         Args:
@@ -267,7 +268,7 @@ class FreezeCoreTransformer(BaseTransformer):
             total_num_spatial_orbitals: the total number of spatial orbitals in the system.
 
         Returns:
-            The list of active orbital indices.
+            The pair of active alpha- and beta-spin orbital indices.
         """
         inactive_orbs_idxs: list[int] = []
         if self._freeze_core:
@@ -277,7 +278,7 @@ class FreezeCoreTransformer(BaseTransformer):
         active_orbs_idxs = [
             o for o in range(total_num_spatial_orbitals) if o not in inactive_orbs_idxs
         ]
-        return active_orbs_idxs
+        return (active_orbs_idxs, active_orbs_idxs)
 
     def _get_active_density_component(
         self, total_density: ElectronicIntegrals

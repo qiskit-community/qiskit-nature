@@ -22,7 +22,7 @@ import numpy as np
 
 import qiskit_nature.optionals as _optionals
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_q.drivers import PySCFDriver
+from qiskit_nature.second_q.drivers import PySCFDriver, MethodType
 from qiskit_nature.second_q.formats.qcschema import QCSchema
 from qiskit_nature.second_q.formats.qcschema_translator import qcschema_to_problem
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
@@ -236,6 +236,71 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
             ElectronicIntegrals.from_raw_integrals(np.zeros((2, 2))),
             ElectronicIntegrals.from_raw_integrals(
                 np.asarray([[0.69447435, 0.0], [0.0, 0.69447435]]),
+            ),
+        )
+        dipole_moment.constants["ActiveSpaceTransformer"] = (0.0, 0.0, 0.0)
+        expected.properties.electronic_dipole_moment = dipole_moment
+        self.assertDriverResult(driver_result_reduced, expected)
+
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
+    def test_arbitrary_unrestricted_active_orbitals(self):
+        """Test manual selection of active orbital indices."""
+        driver = PySCFDriver(basis="631g", method=MethodType.UHF)
+        driver_result = driver.run()
+
+        trafo = ActiveSpaceTransformer(2, 2, ([0, 2], [0, 1]))
+        driver_result_reduced = trafo.transform(driver_result)
+
+        electronic_energy = ElectronicEnergy.from_raw_integrals(
+            np.asarray([[-1.24943841, -0.16790838], [-0.16790838, -0.18307469]]),
+            np.asarray(
+                [
+                    [
+                        [[0.65209858, 0.16790824], [0.16790824, 0.10962906]],
+                        [[0.16790824, 0.10962906], [0.53250904, 0.11981424]],
+                    ],
+                    [
+                        [[0.16790824, 0.53250904], [0.10962906, 0.11981424]],
+                        [[0.10962906, 0.11981424], [0.11981424, 0.46345609]],
+                    ],
+                ]
+            ),
+            np.asarray([[-1.24943841, 0.0], [0.0, -0.547816138]]),
+            np.asarray(
+                [
+                    [
+                        [[0.652098595, 0.0], [0.0, 0.0794482795]],
+                        [[0.0, 0.0794482795], [0.433536528, 0.0]],
+                    ],
+                    [
+                        [[0.0, 0.433536528], [0.0794482795, 0.0]],
+                        [[0.0794482795, 0.0], [0.0, 0.385524652]],
+                    ],
+                ]
+            ),
+            np.asarray(
+                [
+                    [
+                        [[0.652098588, 0.0], [0.167908243, 0.0]],
+                        [[0.167908243, 0.0], [0.532509041, 0.0]],
+                    ],
+                    [
+                        [[0.0, 0.433536525], [0.0, 0.0496217693]],
+                        [[0.0, 0.0496217693], [0.0, 0.380948206]],
+                    ],
+                ]
+            ),
+        )
+        electronic_energy.constants["ActiveSpaceTransformer"] = 0.0
+        expected = ElectronicStructureProblem(electronic_energy)
+        expected.num_particles = (1, 1)
+        expected.num_spatial_orbitals = 2
+        dipole_moment = ElectronicDipoleMoment(
+            ElectronicIntegrals.from_raw_integrals(np.zeros((2, 2))),
+            ElectronicIntegrals.from_raw_integrals(np.zeros((2, 2))),
+            ElectronicIntegrals.from_raw_integrals(
+                np.asarray([[0.69447435, 0.0], [0.0, 0.69447435]]),
+                h1_b=np.asarray([[0.69447435, -1.01418298], [-1.01418298, 0.69447435]]),
             ),
         )
         dipole_moment.constants["ActiveSpaceTransformer"] = (0.0, 0.0, 0.0)
