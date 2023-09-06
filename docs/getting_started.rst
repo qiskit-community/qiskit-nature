@@ -101,6 +101,15 @@ many, or as few as you wish, that are supported by your platform etc.
 See `Driver installation <./apidocs/qiskit_nature.second_q.drivers.html>`__ which lists each driver
 and how to install the dependent library/program that it requires.
 
+The drivers only provide a very limited set of capabilities of the underlying classical codes.
+While this is useful for getting started and testing purposes, a better experience can be had in the reversed order of responsibility.
+That is, in a setup where the classical code runs the Qiskit Nature components.
+Such an integration currently exists for the following packages:
+
+- PySCF via `qiskit-nature-pyscf <https://qiskit-community.github.io/qiskit-nature-pyscf/>`_
+
+If you are interested in using Psi4, we are actively looking for help to get started on a similar integration in `qiskit-nature-psi4 <https://github.com/qiskit-community/qiskit-nature-psi4>`_
+
 Additionally, you may find the following optional dependencies useful:
 
 - `sparse <https://github.com/pydata/sparse/>`_, a library for sparse multi-dimensional arrays. When installed, Qiskit Nature can leverage this to reduce the memory requirements of your calculations.
