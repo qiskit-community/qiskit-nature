@@ -13,7 +13,6 @@
 """Test the QCSchema implementation."""
 
 import unittest
-import warnings
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -86,42 +85,6 @@ class TestQCSchemaHDF5(QiskitNatureTestCase):
                 EXPECTED_WATER_OUTPUT_V3.to_hdf5(file)
             qcs = QCSchema.from_hdf5(file_path)
             self.assertEqual(qcs, EXPECTED_WATER_OUTPUT_V3)
-
-
-class TestQCSchemaLegacy(QiskitNatureTestCase):
-    """Tests the QCSchema.from_legacy_hdf5 method."""
-
-    def test_legacy_from_hdf5(self):
-        """Tests the legacy_from_hdf5 method."""
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", category=DeprecationWarning)
-
-            qcschema = QCSchema.from_legacy_hdf5(
-                self.get_resource_path(
-                    "legacy_electronic_structure_driver_result.hdf5",
-                    "second_q/formats/qcschema",
-                )
-            )
-
-            expected = QCSchema.from_json(
-                self.get_resource_path(
-                    "legacy_electronic_structure_driver_result.json",
-                    "second_q/formats/qcschema",
-                )
-            )
-
-            self.assertEqual(qcschema, expected)
-
-    @unittest.skip("Deprecated and no more HDF5 files available to test against.")
-    def test_legacy_from_hdf5_error(self):
-        """Tests the legacy_from_hdf5 method error."""
-        with self.assertRaises(ValueError):
-            _ = QCSchema.from_legacy_hdf5(
-                self.get_resource_path(
-                    "vibrational_structure_driver_result.hdf5",
-                    "properties/second_quantization/vibrational/resources",
-                )
-            )
 
 
 if __name__ == "__main__":

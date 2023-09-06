@@ -23,8 +23,7 @@ import logging
 
 from qiskit.circuit import QuantumCircuit
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.deprecation import deprecate_arguments
-from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
+from qiskit_nature.second_q.mappers import QubitMapper
 
 from qiskit_nature.second_q.operators import FermionicOp
 
@@ -54,35 +53,25 @@ class SUCCD(UCC):
 
     """
 
-    @deprecate_arguments(
-        "0.6.0",
-        {"qubit_converter": "qubit_mapper"},
-        additional_msg=(
-            ". Additionally, the QubitConverter type in the qubit_mapper argument is deprecated "
-            "and support for it will be removed together with the qubit_converter argument."
-        ),
-    )
     def __init__(
         self,
         num_spatial_orbitals: int | None = None,
         num_particles: tuple[int, int] | None = None,
-        qubit_mapper: QubitConverter | QubitMapper | None = None,
+        qubit_mapper: QubitMapper | None = None,
         *,
         reps: int = 1,
         initial_state: QuantumCircuit | None = None,
         include_singles: tuple[bool, bool] = (False, False),
         generalized: bool = False,
         mirror: bool = False,
-        qubit_converter: QubitConverter | QubitMapper | None = None,
     ) -> None:
         # pylint: disable=unused-argument
         """
         Args:
             num_spatial_orbitals: The number of spatial orbitals.
             num_particles: The tuple of the number of alpha- and beta-spin particles.
-            qubit_mapper: The :class:`~qiskit_nature.second_q.mappers.QubitMapper` or
-                :class:`~qiskit_nature.second_q.mappers.QubitConverter` instance (use of the latter
-                is deprecated) which takes care of mapping to a qubit operator.
+            qubit_mapper: The :class:`~qiskit_nature.second_q.mappers.QubitMapper` which takes care
+                of mapping to a qubit operator.
             reps: The number of times to repeat the evolved operators.
             initial_state: A ``QuantumCircuit`` object to prepend to the circuit.
             include_singles: enables the inclusion of single excitations per spin species.
@@ -95,9 +84,7 @@ class SUCCD(UCC):
                 parameters. This results in mirrored excitations having identical parameter values.
                 Enabling this parameter will result in the SUCCD ansatz referred to as
                 "q-UCCSD0-full" in reference [1].
-            qubit_converter: DEPRECATED The :class:`~qiskit_nature.second_q.mappers.QubitConverter`
-                or :class:`~qiskit_nature.second_q.mappers.QubitMapper` instance which takes care of
-                mapping to a qubit operator.
+
         Raises:
             QiskitNatureError: if the number of alpha and beta electrons is not equal.
         """

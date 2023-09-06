@@ -17,11 +17,9 @@ from __future__ import annotations
 from enum import Enum
 import numpy as np
 
-from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info import SparsePauliOp
 from qiskit.quantum_info.operators import Pauli
 
-from qiskit_nature import settings
 from qiskit_nature.second_q.operators import FermionicOp
 from .fermionic_mapper import FermionicMapper
 
@@ -39,7 +37,7 @@ class BravyiKitaevSuperFastMapper(FermionicMapper):
 
     def _map_single(
         self, second_q_op: FermionicOp, *, register_length: int | None = None
-    ) -> SparsePauliOp | PauliSumOp:
+    ) -> SparsePauliOp:
         if register_length is None:
             register_length = second_q_op.register_length
 
@@ -56,7 +54,7 @@ class BravyiKitaevSuperFastMapper(FermionicMapper):
         coeffs = sparse_pauli.coeffs[indices]
         sorted_sparse_pauli = SparsePauliOp(table, coeffs)
 
-        return PauliSumOp(sorted_sparse_pauli) if settings.use_pauli_sum_op else sorted_sparse_pauli
+        return sorted_sparse_pauli
 
 
 class TermType(Enum):

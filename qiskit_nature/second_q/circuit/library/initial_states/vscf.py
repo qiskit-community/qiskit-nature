@@ -20,12 +20,10 @@ import numpy as np
 
 from qiskit import QuantumRegister
 from qiskit.circuit.library import BlueprintCircuit
-from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info import SparsePauliOp
 from qiskit_nature.second_q.mappers import DirectMapper
-from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper, TaperedQubitMapper
+from qiskit_nature.second_q.mappers import QubitMapper, TaperedQubitMapper
 from qiskit_nature.second_q.operators import VibrationalOp
-from qiskit_nature.deprecation import deprecate_arguments, deprecate_property, warn_deprecated_type
 
 logger = logging.getLogger(__name__)
 
@@ -41,35 +39,20 @@ class VSCF(BlueprintCircuit):
         [1] Ollitrault Pauline J., Chemical science 11 (2020): 6842-6855.
     """
 
-    @deprecate_arguments(
-        "0.6.0",
-        {"qubit_converter": "qubit_mapper"},
-        additional_msg=(
-            ". Additionally, the QubitConverter type in the qubit_mapper argument is deprecated "
-            "and support for it will be removed together with the qubit_converter argument."
-        ),
-    )
     def __init__(
         self,
         num_modals: list[int] | None = None,
-        qubit_mapper: QubitConverter | QubitMapper | None = None,
-        *,
-        qubit_converter: QubitConverter | QubitMapper | None = None,
+        qubit_mapper: QubitMapper | None = None,
     ) -> None:
         # pylint: disable=unused-argument
         """
         Args:
             num_modals: Is a list defining the number of modals per mode. E.g. for a 3 modes system
                 with 4 modals per mode num_modals = [4,4,4]
-            qubit_mapper: a QubitMapper or QubitConverter instance (use of the latter is
-                deprecated). This argument is currently being ignored because only a single use-case
-                is supported at the time of release: that of the :class:`.DirectMapper`. However,
-                for future-compatibility of this functions signature, the argument has already been
-                inserted.
-            qubit_converter: DEPRECATED a QubitConverter or QubitMapper instance. This argument is
-                currently being ignored because only a single use-case is supported at the time of
-                release: that of the :class:`.DirectMapper`. However, for future-compatibility of
-                this functions signature, the argument has already been inserted.
+            qubit_mapper: a QubitMapper. This argument is currently being ignored because only a
+                single use-case is supported at the time of release: that of the
+                :class:`.DirectMapper`. However, for future-compatibility of this functions
+                signature, the argument has already been inserted.
         """
         super().__init__()
         self._num_modals = num_modals
@@ -79,45 +62,24 @@ class VSCF(BlueprintCircuit):
         self.qubit_mapper = DirectMapper() if qubit_mapper is None else qubit_mapper
 
     @property
-    @deprecate_property("0.6.0", new_name="qubit_mapper")
-    def qubit_converter(self) -> QubitConverter | QubitMapper | None:
-        """DEPRECATED The qubit converter."""
-        return self._qubit_mapper
-
-    @qubit_converter.setter
-    def qubit_converter(self, conv: QubitConverter | QubitMapper | None) -> None:
-        """Sets the qubit converter."""
-        self.qubit_mapper = conv
-
-    @property
-    def qubit_mapper(self) -> QubitConverter | QubitMapper | None:
+    def qubit_mapper(self) -> QubitMapper | None:
         """The qubit mapper."""
         return self._qubit_mapper
 
     @qubit_mapper.setter
-    def qubit_mapper(self, mapper: QubitConverter | QubitMapper | None) -> None:
+    def qubit_mapper(self, mapper: QubitMapper | None) -> None:
         """Sets the qubit mapper."""
-        if isinstance(mapper, QubitConverter):
-            warn_deprecated_type(
-                "0.6.0",
-                argument_name="mapper",
-                old_type="QubitConverter",
-                new_type="QubitMapper",
-            )
         self._invalidate()
 
-        if isinstance(mapper, QubitConverter):
-            mapper = mapper.mapper
-        elif isinstance(mapper, TaperedQubitMapper):
+        if isinstance(mapper, TaperedQubitMapper):
             # we also include the TaperedQubitMapper here, purely for the check done below
             mapper = mapper.mapper
 
         if not isinstance(mapper, DirectMapper):
             logger.warning(
-                "The only supported `QubitConverter` or `QubitMapper` for this application are those "
-                "based on the `DirectMapper`. "
-                "However you specified %s as an input, which will be ignored until more "
-                "variants will be supported.",
+                "The only supported `QubitMapper` for this application are those based on the "
+                "`DirectMapper`. However you specified %s as an input, which will be ignored until "
+                "more variants will be supported.",
                 type(mapper),
             )
             mapper = DirectMapper()
@@ -197,29 +159,18 @@ class VSCF(BlueprintCircuit):
                     self.x(i)
 
 
-@deprecate_arguments(
-    "0.6.0",
-    {"qubit_converter": "qubit_mapper"},
-    additional_msg=(
-        ". Additionally, the QubitConverter type in the qubit_mapper argument is deprecated "
-        "and support for it will be removed together with the qubit_converter argument."
-    ),
-)
 def vscf_bitstring_mapped(
     num_modals: list[int],
-    qubit_mapper: QubitConverter | QubitMapper,
-    *,
-    qubit_converter: QubitConverter | QubitMapper | None = None,
+    qubit_mapper: QubitMapper,
 ) -> list[bool]:
     # pylint: disable=unused-argument
     """Compute the bitstring representing the mapped VSCF initial state
-    based on the given the number of modals per mode and qubit converter.
+    based on the given the number of modals per mode and qubit mapper.
 
     Args:
         num_modals: A list defining the number of modals per mode. E.g. for a 3 modes system
             with 4 modals per mode num_modals = [4,4,4].
-        qubit_mapper: A QubitMapper or QubitConverter instance (use of the latter is deprecated).
-        qubit_converter: DEPRECATED A QubitConverter or QubitMapper instance.
+        qubit_mapper: A QubitMapper.
 
     Returns:
         The bitstring representing the mapped state of the VSCF initial state as array of bools.
@@ -241,17 +192,12 @@ def vscf_bitstring_mapped(
     )
     # map the `VibrationalOp` to a qubit operator
     qubit_op: SparsePauliOp
-    if isinstance(qubit_mapper, QubitConverter):
-        qubit_op = qubit_mapper.convert_match(bitstr_op, check_commutes=False)
-    elif isinstance(qubit_mapper, TaperedQubitMapper):
+    if isinstance(qubit_mapper, TaperedQubitMapper):
         # To avoid checking commutativity, we call the two methods separately.
         qubit_op = qubit_mapper.map_clifford(bitstr_op)
         qubit_op = qubit_mapper.taper_clifford(qubit_op, check_commutes=False)
     else:
         qubit_op = qubit_mapper.map(bitstr_op)
-
-    if isinstance(qubit_op, PauliSumOp):
-        qubit_op = qubit_op.primitive
 
     # We check the mapped operator `x` part of the paulis because we want to have particles
     # i.e. True, where the initial state introduced a creation (`+`) operator.

@@ -34,7 +34,6 @@ from qiskit_nature.second_q.properties import (
     ParticleNumber,
 )
 from qiskit_nature.second_q.transformers import BasisTransformer
-from qiskit_nature.settings import settings
 
 from .molecule_info import MoleculeInfo
 from .qcschema import QCSchema
@@ -144,8 +143,6 @@ def _reshape_4(arr, dim):
         return S4Integrals(np.asarray(arr).reshape((npair,) * 2))
 
     if len(arr) == dim**4:
-        if not settings.use_symmetry_reduced_integrals:
-            return np.asarray(arr).reshape((dim,) * 4)
         return S1Integrals(np.asarray(arr).reshape((dim,) * 4))
 
     return arr

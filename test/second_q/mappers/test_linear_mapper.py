@@ -18,11 +18,9 @@ from test import QiskitNatureTestCase
 
 from ddt import ddt, data, unpack
 
-from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info import SparsePauliOp
 from qiskit_nature.second_q.operators import SpinOp
 from qiskit_nature.second_q.mappers import LinearMapper
-from qiskit_nature import settings
 
 
 @ddt
@@ -81,16 +79,8 @@ class TestLinearMapper(QiskitNatureTestCase):
     def test_mapping(self, spin_op, ref_qubit_op):
         """Test mapping to qubit operator"""
         mapper = LinearMapper()
-        aux = settings.use_pauli_sum_op
-        try:
-            settings.use_pauli_sum_op = True
-            qubit_op = mapper.map(spin_op)
-            self.assertEqual(qubit_op, PauliSumOp(ref_qubit_op))
-            settings.use_pauli_sum_op = False
-            qubit_op = mapper.map(spin_op)
-            self.assertEqualSparsePauliOp(qubit_op, ref_qubit_op)
-        finally:
-            settings.use_pauli_sum_op = aux
+        qubit_op = mapper.map(spin_op)
+        self.assertEqualSparsePauliOp(qubit_op, ref_qubit_op)
 
     def test_mapping_overwrite_reg_len(self):
         """Test overwriting the register length."""

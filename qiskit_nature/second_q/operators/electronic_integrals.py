@@ -265,12 +265,7 @@ class ElectronicIntegrals(LinearMixin):
             # we delegate the conjugation to the objects themselves
             return PolynomialTensor({"++--": two_body_ba.conjugate()}, validate=False)
 
-        alpha_beta: Tensor | np.ndarray | SparseArray
-        if not isinstance(two_body_ba, Tensor):
-            # TODO: remove extra-wrapping of Tensor once settings.tensor_unwrapping is removed
-            alpha_beta = Tensor(np.moveaxis(Tensor(two_body_ba), (0, 1), (2, 3)))
-        else:
-            alpha_beta = np.moveaxis(two_body_ba, (0, 1), (2, 3))
+        alpha_beta = cast(Tensor, np.moveaxis(two_body_ba, (0, 1), (2, 3)))
         return PolynomialTensor({"++--": alpha_beta}, validate=False)
 
     @property

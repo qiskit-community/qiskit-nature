@@ -20,15 +20,12 @@ from collections.abc import Collection, Mapping
 from typing import Iterator, Sequence
 
 import numpy as np
-from scipy.sparse import csc_matrix
 
-from qiskit_nature.deprecation import deprecate_method
 from qiskit_nature.exceptions import QiskitNatureError
 
 from ._bits_container import _BitsContainer
 from .polynomial_tensor import PolynomialTensor
 from .sparse_label_op import _TCoeff, SparseLabelOp, _to_number
-from .tensor import Tensor
 
 
 class FermionicOp(SparseLabelOp):
@@ -253,11 +250,6 @@ class FermionicOp(SparseLabelOp):
 
             mat = tensor[key]
 
-            if not isinstance(mat, Tensor):
-                # TODO: this case is to be removed once qiskit_nature.settings.tensor_unwrapping is
-                # deprecated and the PolynomialTensor item is guaranteed to be of type Tensor
-                mat = Tensor(mat)
-
             label_template = mat.label_template.format(*key)
 
             for value, index in mat.coord_iter():
@@ -347,85 +339,6 @@ class FermionicOp(SparseLabelOp):
         if offset:
             new_op.num_spin_orbitals = a.num_spin_orbitals + b.num_spin_orbitals
         return new_op
-
-    # pylint: disable=bad-docstring-quotes
-    @deprecate_method(
-        "0.6.0",
-        additional_msg=(
-            ". This method has no direct replacement. Instead, use the "
-            "`qiskit_nature.second_q.mappers.JordanWignerMapper` to create a qubit operator and "
-            "subsequently use its `to_matrix()` method. Be advised, that the basis state ordering "
-            "of that output will differ due to the bitstring endianness. For more information "
-            "refer to https://github.com/Qiskit/qiskit-nature/issues/875."
-        ),
-    )
-    def to_matrix(self, sparse: bool | None = True) -> csc_matrix | np.ndarray:
-        """DEPRECATED Convert to a matrix representation over the full fermionic Fock space in the
-        occupation number basis.
-
-        The basis states are ordered in increasing bitstring order as 0000, 0001, ..., 1111.
-
-        Args:
-            sparse: If true, the matrix is returned as a sparse matrix, otherwise it is returned as
-                a dense numpy array.
-
-        Returns:
-            The matrix of the operator in the Fock basis
-
-        Raises:
-            ValueError: Operator contains parameters.
-        """
-        if self.is_parameterized():
-            raise ValueError("to_matrix is not supported for operators containing parameters.")
-
-        csc_data, csc_col, csc_row = [], [], []
-
-        dimension = 1 << self.num_spin_orbitals
-
-        # loop over all columns of the matrix
-        for col_idx in range(dimension):
-            initial_occupations = [occ == "1" for occ in f"{col_idx:0{self.num_spin_orbitals}b}"]
-            # loop over the terms in the operator data
-            for terms, prefactor in self.simplify().terms():
-                # check if op string is the identity
-                if not terms:
-                    csc_data.append(prefactor)
-                    csc_row.append(col_idx)
-                    csc_col.append(col_idx)
-                else:
-                    occupations = initial_occupations.copy()
-                    sign = 1
-                    mapped_to_zero = False
-
-                    # apply terms sequentially to the current basis state
-                    for char, index in reversed(terms):
-                        index = int(index)
-                        occ = occupations[index]
-                        if (char == "+") == occ:
-                            # Applying the creation operator on an occupied state maps to zero. So
-                            # does applying the annihilation operator on an unoccupied state.
-                            mapped_to_zero = True
-                            break
-                        sign *= (-1) ** sum(occupations[:index])
-                        occupations[index] = not occ
-
-                    # add data point to matrix in the correct row
-                    if not mapped_to_zero:
-                        row_idx = sum(int(occ) << idx for idx, occ in enumerate(occupations[::-1]))
-                        csc_data.append(sign * prefactor)
-                        csc_row.append(row_idx)
-                        csc_col.append(col_idx)
-
-        sparse_mat = csc_matrix(
-            (csc_data, (csc_row, csc_col)),
-            shape=(dimension, dimension),
-            dtype=complex,
-        )
-
-        if sparse:
-            return sparse_mat
-        else:
-            return sparse_mat.toarray()
 
     def transpose(self) -> FermionicOp:
         data = {}

@@ -29,7 +29,6 @@ from qiskit_nature.exceptions import QiskitNatureError
 from ._bits_container import _BitsContainer
 from .polynomial_tensor import PolynomialTensor
 from .sparse_label_op import _TCoeff, SparseLabelOp, _to_number
-from .tensor import Tensor
 
 logger = logging.getLogger(__name__)
 
@@ -305,11 +304,6 @@ class VibrationalOp(SparseLabelOp):
                 continue
 
             mat = tensor[key]
-
-            if not isinstance(mat, Tensor):
-                # TODO: this case is to be removed once qiskit_nature.settings.tensor_unwrapping is
-                # deprecated and the PolynomialTensor item is guaranteed to be of type Tensor
-                mat = Tensor(mat)
 
             label_template = mat.label_template.format(*key.replace("_", ""))
 

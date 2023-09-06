@@ -19,7 +19,7 @@ import numpy as np
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import UCC
 from qiskit_nature.second_q.operators import ElectronicIntegrals
-from qiskit_nature.second_q.operators.tensor import ARRAY_TYPE, Tensor
+from qiskit_nature.second_q.operators.tensor import Tensor
 from qiskit_nature.second_q.operators.symmetric_two_body import SymmetricTwoBodyIntegrals, unfold
 from qiskit_nature.second_q.problems import BaseProblem, ElectronicStructureProblem
 from qiskit_nature.utils import get_einsum
@@ -28,7 +28,7 @@ from .initial_point import InitialPoint
 
 
 def _compute_mp2(
-    num_occ: int, integral_matrix: ARRAY_TYPE | Tensor, orbital_energies: np.ndarray
+    num_occ: int, integral_matrix: Tensor, orbital_energies: np.ndarray
 ) -> tuple[np.ndarray, float]:
     """Compute the T2 amplitudes and MP2 energy correction.
 
@@ -45,9 +45,6 @@ def _compute_mp2(
     """
     if isinstance(integral_matrix, SymmetricTwoBodyIntegrals):
         integral_matrix = unfold(integral_matrix)
-    elif not isinstance(integral_matrix, Tensor):
-        # TODO: remove extra-wrapping of Tensor once settings.tensor_unwrapping is removed
-        integral_matrix = Tensor(integral_matrix)
 
     # We use NumPy broadcasting to compute the matrix of occupied - virtual energy deltas with
     # shape (num_occ, num_vir), such that

@@ -29,26 +29,17 @@ from qiskit.algorithms.list_or_dict import ListOrDict as ListOrDictType
 from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolver
 from qiskit.algorithms.observables_evaluator import estimate_observables
 from qiskit.circuit import QuantumCircuit
-from qiskit.opflow import PauliSumOp
 from qiskit.tools import parallel_map
 from qiskit.tools.events import TextProgressBar
 from qiskit.utils import algorithm_globals
-from qiskit.utils.deprecation import deprecate_function
 from qiskit.quantum_info import SparsePauliOp
 from qiskit.primitives import BaseEstimator
 
 from qiskit_nature.second_q.algorithms.ground_state_solvers import GroundStateSolver
-from qiskit_nature.second_q.algorithms.ground_state_solvers.minimum_eigensolver_factories import (
-    MinimumEigensolverFactory,
-)
 from qiskit_nature.second_q.algorithms.excited_states_solvers.excited_states_solver import (
     ExcitedStatesSolver,
 )
-from qiskit_nature.second_q.mappers import (
-    QubitConverter,
-    QubitMapper,
-    TaperedQubitMapper,
-)
+from qiskit_nature.second_q.mappers import QubitMapper, TaperedQubitMapper
 from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.problems import (
     BaseProblem,
@@ -57,7 +48,6 @@ from qiskit_nature.second_q.problems import (
     EigenstateResult,
     ElectronicStructureResult,
 )
-from qiskit_nature.deprecation import deprecate_property, warn_deprecated_type
 
 from .qeom_electronic_ops_builder import build_electronic_ops
 from .qeom_vibrational_ops_builder import build_vibrational_ops
@@ -238,38 +228,28 @@ class QEOM(ExcitedStatesSolver):
         self._problem_generated_aux_op_names: set[str] = set()
 
     @property
-    @deprecate_property("0.6.0", new_name="qubit_mapper")
-    def qubit_converter(self) -> QubitConverter | QubitMapper:
-        """DEPRECATED Returns the qubit_converter object defined in the ground state solver."""
-        return self._gsc.qubit_mapper
-
-    @property
-    def qubit_mapper(self) -> QubitConverter | QubitMapper:
+    def qubit_mapper(self) -> QubitMapper:
         """Returns the qubit_mapper object defined in the ground state solver."""
         return self._gsc.qubit_mapper
 
     @property
-    def solver(self) -> MinimumEigensolver | MinimumEigensolverFactory:
+    def solver(self) -> MinimumEigensolver:
         """Returns the solver object defined in the ground state solver."""
         return self._gsc.solver
 
     def _map_operators(
         self, operators: SparseLabelOp | ListOrDictType[SparseLabelOp]
-    ) -> PauliSumOp | ListOrDictType[PauliSumOp]:
-        if isinstance(self.qubit_mapper, QubitConverter):
-            mapped_ops = self.qubit_mapper.convert_match(operators)
-        elif isinstance(self.qubit_mapper, TaperedQubitMapper):
+    ) -> SparsePauliOp | ListOrDictType[SparsePauliOp]:
+        if isinstance(self.qubit_mapper, TaperedQubitMapper):
             mapped_ops = self.qubit_mapper.map_clifford(operators)
         else:
             mapped_ops = self.qubit_mapper.map(operators)
         return mapped_ops
 
     def _taper_operators(
-        self, operators: PauliSumOp | ListOrDictType[PauliSumOp]
-    ) -> PauliSumOp | ListOrDictType[PauliSumOp]:
-        if isinstance(self.qubit_mapper, QubitConverter):
-            tapered_ops = self.qubit_mapper.symmetry_reduce_clifford(operators)
-        elif isinstance(self.qubit_mapper, TaperedQubitMapper):
+        self, operators: SparsePauliOp | ListOrDictType[SparsePauliOp]
+    ) -> SparsePauliOp | ListOrDictType[SparsePauliOp]:
+        if isinstance(self.qubit_mapper, TaperedQubitMapper):
             tapered_ops = self.qubit_mapper.taper_clifford(operators, suppress_none=True)
         else:
             tapered_ops = operators
@@ -278,8 +258,8 @@ class QEOM(ExcitedStatesSolver):
     def get_qubit_operators(
         self,
         problem: BaseProblem,
-        aux_operators: dict[str, SparseLabelOp | SparsePauliOp | PauliSumOp] | None = None,
-    ) -> tuple[SparsePauliOp | PauliSumOp, dict[str, SparsePauliOp | PauliSumOp] | None]:
+        aux_operators: dict[str, SparseLabelOp | SparsePauliOp] | None = None,
+    ) -> tuple[SparsePauliOp, dict[str, SparsePauliOp] | None]:
         """
         Gets the operator and auxiliary operators, and transforms the provided auxiliary operators.
         If the user-provided ``aux_operators`` contain a name which clashes with an internally
@@ -299,13 +279,9 @@ class QEOM(ExcitedStatesSolver):
 
         main_operator, aux_second_q_operators = problem.second_q_ops()
         self._problem_generated_aux_op_names = set(aux_second_q_operators.keys())
-        num_particles = getattr(problem, "num_particles", None)
 
         # 1. Convert the main operator (hamiltonian) to a Qubit Operator and apply two qubit reduction
-        if isinstance(self.qubit_mapper, QubitConverter):
-            self.qubit_mapper.force_match(num_particles=num_particles)
-            main_op = self.qubit_mapper.convert_only(main_operator, num_particles=num_particles)
-        elif isinstance(self.qubit_mapper, TaperedQubitMapper):
+        if isinstance(self.qubit_mapper, TaperedQubitMapper):
             main_op = self.qubit_mapper.map_clifford(main_operator)
         else:
             main_op = self.qubit_mapper.map(main_operator)
@@ -319,13 +295,6 @@ class QEOM(ExcitedStatesSolver):
 
             if aux_operators is not None:
                 for name, op in aux_operators.items():
-                    if isinstance(op, PauliSumOp):
-                        warn_deprecated_type(
-                            "0.6.0",
-                            argument_name="aux_operators",
-                            old_type="PauliSumOp",
-                            new_type="SparsePauliOp",
-                        )
                     if isinstance(op, (SparseLabelOp)):
                         converted_aux_op = self._map_operators(op)
                     else:
@@ -342,30 +311,15 @@ class QEOM(ExcitedStatesSolver):
                     # The custom op overrides the default op if the key is already taken.
                     aux_ops[name] = converted_aux_op
 
-        if isinstance(self.qubit_mapper, QubitConverter):
-            # 4. Find the z2symmetries, set them in the QubitConverter, and apply the first step of
-            # the tapering.
-            _, z2symmetries = self.qubit_mapper.find_taper_op(
-                main_op, problem.symmetry_sector_locator
-            )
-            self.qubit_mapper.force_match(z2symmetries=z2symmetries)
-            untap_main_op = self.qubit_mapper.convert_clifford(main_op)
-            untap_aux_ops = self.qubit_mapper.convert_clifford(aux_ops)
-        else:
-            untap_main_op = main_op
-            untap_aux_ops = aux_ops
-
-        # 5. If a MinimumEigensolverFactory was provided, then an additional call to get_solver() is
-        # required.
-        if isinstance(self.solver, MinimumEigensolverFactory):
-            self._gsc._solver = self.solver.get_solver(problem, self.qubit_mapper)  # type: ignore
+        untap_main_op = main_op
+        untap_aux_ops = aux_ops
 
         return untap_main_op, untap_aux_ops
 
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: dict[str, SparseLabelOp | SparsePauliOp | PauliSumOp] | None = None,
+        aux_operators: dict[str, SparseLabelOp | SparsePauliOp] | None = None,
     ) -> EigenstateResult:
         """Run the excited-states calculation.
 
@@ -383,36 +337,25 @@ class QEOM(ExcitedStatesSolver):
             instance which holds additional information specific to the qEOM problem.
         """
 
-        # 1. Prepare all operators and set the particle number in the qubit converter
+        # 1. Prepare all operators and set the particle number in the qubit mapper
         (
-            untap_main_op_sumop,  # Hamiltonian
-            untap_aux_ops_sumop,  # Auxiliary observables
+            untap_main_op,  # Hamiltonian
+            untap_aux_ops,  # Auxiliary observables
         ) = self.get_qubit_operators(problem, aux_operators)
-
-        untap_main_op = untap_main_op_sumop
-        if isinstance(untap_main_op, PauliSumOp):
-            untap_main_op = untap_main_op.primitive
-
-        untap_aux_ops = None
-        if untap_aux_ops_sumop is not None:
-            untap_aux_ops = {
-                key: op.primitive if isinstance(op, PauliSumOp) else op
-                for key, op in untap_aux_ops_sumop.items()
-            }
 
         # before we taper our operators we filter the ones which come from the problem internally as
         # to not trigger a bunch of warnings being raised about overwritten auxiliary operators
         filtered_aux_ops = {
             k: v
-            for k, v in untap_aux_ops_sumop.items()
+            for k, v in untap_aux_ops.items()
             if k not in self._problem_generated_aux_op_names and k not in aux_operators.keys()
         }
 
         # 2. Run ground state calculation with fully tapered custom auxiliary operators
         # Note that the solve() method includes the `second_q' auxiliary operators
-        tap_aux_operators_sumop = self._taper_operators(filtered_aux_ops)
+        tap_aux_operators = self._taper_operators(filtered_aux_ops)
 
-        groundstate_result = self._gsc.solve(problem, tap_aux_operators_sumop)
+        groundstate_result = self._gsc.solve(problem, tap_aux_operators)
         ground_state = groundstate_result.eigenstates[0]
 
         # 3. Prepare the expansion operators for the excited state calculation
@@ -464,7 +407,7 @@ class QEOM(ExcitedStatesSolver):
     def _build_hopping_ops(
         self, problem: BaseProblem
     ) -> tuple[
-        dict[str, SparsePauliOp | PauliSumOp],
+        dict[str, SparsePauliOp],
         dict[str, list[bool]],
         dict[str, tuple[tuple[int, ...], tuple[int, ...]]],
     ]:
@@ -529,7 +472,7 @@ class QEOM(ExcitedStatesSolver):
                 to_be_computed_list.append((m_u, n_u, left_op_1, right_op_1, right_op_2))
 
         if (
-            isinstance(self.qubit_mapper, (QubitConverter, TaperedQubitMapper))
+            isinstance(self.qubit_mapper, TaperedQubitMapper)
             and not self.qubit_mapper.z2symmetries.is_empty()
         ):
 
@@ -724,17 +667,7 @@ class QEOM(ExcitedStatesSolver):
         hopping_operators, type_of_commutativities, excitation_indices = data
         size = int(len(list(excitation_indices.keys())) // 2)
 
-        if isinstance(self.qubit_mapper, QubitConverter):
-            untap_hopping_ops = self.qubit_mapper.convert_clifford(hopping_operators)
-        else:
-            untap_hopping_ops = hopping_operators
-
-        untap_hopping_ops_sparse = {
-            key: op.primitive if isinstance(op, PauliSumOp) else op
-            for key, op in untap_hopping_ops.items()
-        }
-
-        return untap_hopping_ops_sparse, type_of_commutativities, size
+        return hopping_operators, type_of_commutativities, size
 
     def _build_qeom_pseudoeigenvalue_problem(
         self,
@@ -764,17 +697,13 @@ class QEOM(ExcitedStatesSolver):
             expansion_basis_data,
         )
 
-        untap_eom_matrix_ops_sumop = {
-            key: PauliSumOp(op) for key, op in untap_eom_matrix_ops.items()
-        }
-
-        tap_eom_matrix_ops_sumop = self._taper_operators(untap_eom_matrix_ops_sumop)
+        tap_eom_matrix_ops = self._taper_operators(untap_eom_matrix_ops)
 
         # 2. Evaluate all EOM operators on the ground state
         measurement_results = estimate_observables(
             self._estimator,
             reference_state[0],
-            tap_eom_matrix_ops_sumop,
+            tap_eom_matrix_ops,
             reference_state[1],
         )
 
@@ -850,12 +779,10 @@ class QEOM(ExcitedStatesSolver):
         """
 
         untap_hopping_ops, _, size = expansion_basis_data
-        untap_hopping_ops_sumop = {key: PauliSumOp(op) for key, op in untap_hopping_ops.items()}
-
-        tap_hopping_ops_sumop = self._taper_operators(untap_hopping_ops_sumop)
+        tap_hopping_ops = self._taper_operators(untap_hopping_ops)
 
         additionnal_measurements = estimate_observables(
-            self._estimator, reference_state[0], tap_hopping_ops_sumop, reference_state[1]
+            self._estimator, reference_state[0], tap_hopping_ops, reference_state[1]
         )
 
         num_qubits = list(untap_hopping_ops.values())[0].num_qubits
@@ -996,13 +923,11 @@ class QEOM(ExcitedStatesSolver):
                 untap_aux_ops, excitations_ops_reduced, size
             )
 
-            op_aux_op_dict_sumop = {key: PauliSumOp(op) for key, op in op_aux_op_dict.items()}
-
             # 3. Measure observables
-            tap_op_aux_op_dict_sumop = self._taper_operators(op_aux_op_dict_sumop)
+            tap_op_aux_op_dict = self._taper_operators(op_aux_op_dict)
 
             aux_measurements = estimate_observables(
-                self._estimator, reference_state[0], tap_op_aux_op_dict_sumop, reference_state[1]
+                self._estimator, reference_state[0], tap_op_aux_op_dict, reference_state[1]
             )
 
             # 4. Format aux_operators_eigenvalues
@@ -1104,15 +1029,6 @@ class QEOMResult(EigensolverResult):
         self.h_matrix_std: np.ndarray = np.zeros((2, 2))
         self.s_matrix_std: np.ndarray = np.zeros((2, 2))
 
-        self._m_matrix: np.ndarray | None = None
-        self._v_matrix: np.ndarray | None = None
-        self._q_matrix: np.ndarray | None = None
-        self._w_matrix: np.ndarray | None = None
-        self._m_matrix_std: float = 0.0
-        self._v_matrix_std: float = 0.0
-        self._q_matrix_std: float = 0.0
-        self._w_matrix_std: float = 0.0
-
         self.transition_amplitudes: list[
             ListOrDictType[tuple[complex, dict[str, Any]]]
         ] | None = None
@@ -1121,201 +1037,55 @@ class QEOMResult(EigensolverResult):
     @property
     def m_matrix(self) -> np.ndarray | None:
         """returns the M matrix"""
-        if self.h_matrix is not None and self._m_matrix is None:
-            return self.h_matrix[: len(self.h_matrix) // 2, : len(self.h_matrix) // 2]
-        else:
-            return self._m_matrix
-
-    @m_matrix.setter
-    @deprecate_function(
-        "You should now set the H matrix from which the M matrix will be extracted. "
-        "This setter will be deprecated in a future release and subsequently "
-        "removed after that.",
-        category=PendingDeprecationWarning,
-    )
-    def m_matrix(self, value: np.ndarray) -> None:
-        """sets the M matrix"""
-        self._m_matrix = value
-        logger.warning(
-            "This setter for the M matrix will not update the H matrix to match. "
-            "Using this setter will make this result object bypass the H matrix "
-            "values for M."
-        )
+        if self.h_matrix is None:
+            return None
+        return self.h_matrix[: len(self.h_matrix) // 2, : len(self.h_matrix) // 2]
 
     @property
     def v_matrix(self) -> np.ndarray | None:
         """returns the V matrix"""
-        if self.s_matrix is not None and self._v_matrix is None:
-            return self.s_matrix[: len(self.s_matrix) // 2, : len(self.s_matrix) // 2]
-        else:
-            return self._v_matrix
-
-    @v_matrix.setter
-    @deprecate_function(
-        "You should now set the S matrix from which the V matrix will be extracted. "
-        "This setter will be deprecated in a future release and subsequently "
-        "removed after that.",
-        category=PendingDeprecationWarning,
-    )
-    def v_matrix(self, value: np.ndarray) -> None:
-        """sets the V matrix"""
-        self._v_matrix = value
-        logger.warning(
-            "This setter for the V matrix will not update the S matrix to match. "
-            "Using this setter will make this result object bypass the S matrix "
-            "values for V."
-        )
+        if self.s_matrix is None:
+            return None
+        return self.s_matrix[: len(self.s_matrix) // 2, : len(self.s_matrix) // 2]
 
     @property
     def q_matrix(self) -> np.ndarray | None:
         """returns the Q matrix"""
-        q_mat: np.ndarray | None = None
-        if self.h_matrix is not None:
-            q_mat = self.h_matrix[len(self.h_matrix) // 2 :, : len(self.h_matrix) // 2]
-        if self._q_matrix is not None:
-            q_mat = self._q_matrix
-        return q_mat
-
-    @q_matrix.setter
-    @deprecate_function(
-        "You should now set the H matrix from which the Q matrix will be extracted. "
-        "This setter will be deprecated in a future release and subsequently "
-        "removed after that.",
-        category=PendingDeprecationWarning,
-    )
-    def q_matrix(self, value: np.ndarray) -> None:
-        """sets the Q matrix"""
-        self._q_matrix = value
-        logger.warning(
-            "This setter for the Q matrix will not update the H matrix to match. "
-            "Using this setter will make this result object bypass the H matrix "
-            "values for Q."
-        )
+        if self.h_matrix is None:
+            return None
+        return self.h_matrix[len(self.h_matrix) // 2 :, : len(self.h_matrix) // 2]
 
     @property
     def w_matrix(self) -> np.ndarray | None:
         """returns the W matrix"""
-        if self.s_matrix is not None and self._w_matrix is None:
-            return self.s_matrix[len(self.s_matrix) // 2 :, : len(self.s_matrix) // 2]
-        else:
-            return self._w_matrix
-
-    @w_matrix.setter
-    @deprecate_function(
-        "You should now set the S matrix from which the W matrix will be extracted. "
-        "This setter will be deprecated in a future release and subsequently "
-        "removed after that.",
-        category=PendingDeprecationWarning,
-    )
-    def w_matrix(self, value: np.ndarray) -> None:
-        """sets the W matrix"""
-        self._w_matrix = value
-        logger.warning(
-            "This setter for the W matrix will not update the S matrix to match. "
-            "Using this setter will make this result object bypass the S matrix "
-            "values for W."
-        )
+        if self.s_matrix is None:
+            return None
+        return self.s_matrix[len(self.s_matrix) // 2 :, : len(self.s_matrix) // 2]
 
     @property
     def m_matrix_std(self) -> float:
         """returns the M matrix standard deviation"""
-        if not np.isclose(self.h_matrix_std[0, 0], 0.0) and np.isclose(self._m_matrix_std, 0.0):
-            return self.h_matrix_std[0, 0]
-        else:
-            return self._m_matrix_std
-
-    @m_matrix_std.setter
-    @deprecate_function(
-        "You should now set the H matrix standard deviation from which the M matrix "
-        "standard deviation will be extracted. "
-        "This setter will be deprecated in a future release and subsequently "
-        "removed after that.",
-        category=PendingDeprecationWarning,
-    )
-    def m_matrix_std(self, value: float) -> None:
-        """sets the M matrix standard deviation"""
-        self._m_matrix_std = value
-        logger.warning(
-            "This setter for the M standard deviation matrix will not "
-            "update the H standard deviation matrix to match. "
-            "Using this setter will make this result object bypass the H "
-            "standard deviation matrix values for M."
-        )
+        if np.isclose(self.h_matrix_std[0, 0], 0.0):
+            return 0.0
+        return self.h_matrix_std[0, 0]
 
     @property
     def v_matrix_std(self) -> float:
         """returns the V matrix standard deviation"""
-        if not np.isclose(self.s_matrix_std[0, 0], 0.0) and np.isclose(self._v_matrix_std, 0.0):
-            return self.s_matrix_std[0, 0]
-        else:
-            return self._v_matrix_std
-
-    @v_matrix_std.setter
-    @deprecate_function(
-        "You should now set the S matrix standard deviation from which the V matrix "
-        "standard deviation will be extracted. "
-        "This setter will be deprecated in a future release and subsequently "
-        "removed after that.",
-        category=PendingDeprecationWarning,
-    )
-    def v_matrix_std(self, value: float) -> None:
-        """sets the V matrix standard deviation"""
-        self._v_matrix_std = value
-        logger.warning(
-            "This setter for the V standard deviation matrix will not "
-            "update the S standard deviation matrix to match. "
-            "Using this setter will make this result object bypass the S "
-            "standard deviation matrix values for V."
-        )
+        if np.isclose(self.s_matrix_std[0, 0], 0.0):
+            return 0.0
+        return self.s_matrix_std[0, 0]
 
     @property
     def q_matrix_std(self) -> float:
         """returns the Q matrix standard deviation"""
-        if not np.isclose(self.h_matrix_std[0, 1], 0.0) and np.isclose(self._q_matrix_std, 0.0):
-            return self.h_matrix_std[0, 0]
-        else:
-            return self._q_matrix_std
-
-    @q_matrix_std.setter
-    @deprecate_function(
-        "You should now set the H matrix standard deviation from which the Q matrix "
-        "standard deviation will be extracted. "
-        "This setter will be deprecated in a future release and subsequently "
-        "removed after that.",
-        category=PendingDeprecationWarning,
-    )
-    def q_matrix_std(self, value: float) -> None:
-        """sets the Q matrix standard deviation"""
-        self._q_matrix_std = value
-        logger.warning(
-            "This setter for the Q standard deviation matrix will not "
-            "update the H standard deviation matrix to match. "
-            "Using this setter will make this result object bypass the H "
-            "standard deviation matrix values for Q."
-        )
+        if np.isclose(self.h_matrix_std[0, 1], 0.0):
+            return 0.0
+        return self.h_matrix_std[0, 0]
 
     @property
     def w_matrix_std(self) -> float:
         """returns the W matrix standard deviation"""
-        if not np.isclose(self.s_matrix_std[0, 1], 0.0) and np.isclose(self._w_matrix_std, 0.0):
-            return self.s_matrix_std[0, 0]
-        else:
-            return self._w_matrix_std
-
-    @w_matrix_std.setter
-    @deprecate_function(
-        "You should now set the S matrix standard deviation from which the W matrix "
-        "standard deviation will be extracted. "
-        "This setter will be deprecated in a future release and subsequently "
-        "removed after that.",
-        category=PendingDeprecationWarning,
-    )
-    def w_matrix_std(self, value: float) -> None:
-        """sets the W matrix standard deviation"""
-        self._w_matrix_std = value
-        logger.warning(
-            "This setter for the W standard deviation matrix will not "
-            "update the S standard deviation matrix to match. "
-            "Using this setter will make this result object bypass the S "
-            "standard deviation matrix values for W."
-        )
+        if np.isclose(self.s_matrix_std[0, 1], 0.0):
+            return 0.0
+        return self.s_matrix_std[0, 0]

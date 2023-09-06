@@ -23,7 +23,6 @@ from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import SUCCD
 from qiskit_nature.second_q.mappers import JordanWignerMapper
 from qiskit_nature.second_q.operators import FermionicOp
-from qiskit_nature.second_q.mappers import QubitConverter
 
 
 @ddt
@@ -57,23 +56,13 @@ class TestSUCCD(QiskitNatureTestCase):
     def test_succd_ansatz(self, num_spatial_orbitals, num_particles, expect):
         """Tests the SUCCD Ansatz."""
         mapper = JordanWignerMapper()
-        converter = QubitConverter(mapper)
 
-        with self.subTest("Qubit Converter object"):
-            ansatz = SUCCD(
-                qubit_mapper=converter,
-                num_particles=num_particles,
-                num_spatial_orbitals=num_spatial_orbitals,
-            )
-            assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
-
-        with self.subTest("Qubit Mapper object"):
-            ansatz = SUCCD(
-                qubit_mapper=mapper,
-                num_particles=num_particles,
-                num_spatial_orbitals=num_spatial_orbitals,
-            )
-            assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
+        ansatz = SUCCD(
+            qubit_mapper=mapper,
+            num_particles=num_particles,
+            num_spatial_orbitals=num_spatial_orbitals,
+        )
+        assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
 
     @unpack
     @data(
@@ -111,25 +100,14 @@ class TestSUCCD(QiskitNatureTestCase):
     ):
         """Tests the SUCCD Ansatz with included single excitations."""
         mapper = JordanWignerMapper()
-        converter = QubitConverter(mapper)
 
-        with self.subTest("Qubit Converter object"):
-            ansatz = SUCCD(
-                qubit_mapper=converter,
-                num_particles=num_particles,
-                num_spatial_orbitals=num_spatial_orbitals,
-                include_singles=include_singles,
-            )
-            assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
-
-        with self.subTest("Qubit Mapper object"):
-            ansatz = SUCCD(
-                qubit_mapper=mapper,
-                num_particles=num_particles,
-                num_spatial_orbitals=num_spatial_orbitals,
-                include_singles=include_singles,
-            )
-            assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
+        ansatz = SUCCD(
+            qubit_mapper=mapper,
+            num_particles=num_particles,
+            num_spatial_orbitals=num_spatial_orbitals,
+            include_singles=include_singles,
+        )
+        assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
 
     def test_raise_non_singlet(self):
         """Test an error is raised when the number of alpha and beta electrons differ."""
@@ -166,25 +144,14 @@ class TestSUCCD(QiskitNatureTestCase):
     def test_succd_ansatz_generalized(self, num_spatial_orbitals, num_particles, expect):
         """Tests the generalized SUCCD Ansatz."""
         mapper = JordanWignerMapper()
-        converter = QubitConverter(mapper)
 
-        with self.subTest("Qubit Converter object"):
-            ansatz = SUCCD(
-                qubit_mapper=converter,
-                num_particles=num_particles,
-                num_spatial_orbitals=num_spatial_orbitals,
-                generalized=True,
-            )
-            assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
-
-        with self.subTest("Qubit Mapper object"):
-            ansatz = SUCCD(
-                qubit_mapper=mapper,
-                num_particles=num_particles,
-                num_spatial_orbitals=num_spatial_orbitals,
-                generalized=True,
-            )
-            assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
+        ansatz = SUCCD(
+            qubit_mapper=mapper,
+            num_particles=num_particles,
+            num_spatial_orbitals=num_spatial_orbitals,
+            generalized=True,
+        )
+        assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
 
     @unpack
     @data(
@@ -209,25 +176,14 @@ class TestSUCCD(QiskitNatureTestCase):
     def test_succ_mirror(self, num_spatial_orbitals, num_particles, expect):
         """Tests the `mirror` option of the SUCCD Ansatz."""
         mapper = JordanWignerMapper()
-        converter = QubitConverter(mapper)
 
-        with self.subTest("Qubit Converter object"):
-            ansatz = SUCCD(
-                qubit_mapper=converter,
-                num_particles=num_particles,
-                num_spatial_orbitals=num_spatial_orbitals,
-                mirror=True,
-            )
-            assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
-
-        with self.subTest("Qubit Mapper object"):
-            ansatz = SUCCD(
-                qubit_mapper=mapper,
-                num_particles=num_particles,
-                num_spatial_orbitals=num_spatial_orbitals,
-                mirror=True,
-            )
-            assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
+        ansatz = SUCCD(
+            qubit_mapper=mapper,
+            num_particles=num_particles,
+            num_spatial_orbitals=num_spatial_orbitals,
+            mirror=True,
+        )
+        assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
 
     @unpack
     @data(
@@ -299,27 +255,15 @@ class TestSUCCD(QiskitNatureTestCase):
     ):
         """Tests the succ_mirror Ansatz with included single excitations."""
         mapper = JordanWignerMapper()
-        converter = QubitConverter(mapper)
 
-        with self.subTest("Qubit Converter object"):
-            ansatz = SUCCD(
-                qubit_mapper=converter,
-                num_particles=num_particles,
-                num_spatial_orbitals=num_spatial_orbitals,
-                include_singles=include_singles,
-                mirror=True,
-            )
-            assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
-
-        with self.subTest("Qubit Mapper object"):
-            ansatz = SUCCD(
-                qubit_mapper=mapper,
-                num_particles=num_particles,
-                num_spatial_orbitals=num_spatial_orbitals,
-                include_singles=include_singles,
-                mirror=True,
-            )
-            assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
+        ansatz = SUCCD(
+            qubit_mapper=mapper,
+            num_particles=num_particles,
+            num_spatial_orbitals=num_spatial_orbitals,
+            include_singles=include_singles,
+            mirror=True,
+        )
+        assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
 
     @unpack
     @data(
@@ -363,27 +307,15 @@ class TestSUCCD(QiskitNatureTestCase):
     def test_succ_mirror_ansatz_generalized(self, num_spatial_orbitals, num_particles, expect):
         """Tests the generalized succ_mirror Ansatz."""
         mapper = JordanWignerMapper()
-        converter = QubitConverter(mapper)
 
-        with self.subTest("Qubit Converter object"):
-            ansatz = SUCCD(
-                qubit_mapper=converter,
-                num_particles=num_particles,
-                num_spatial_orbitals=num_spatial_orbitals,
-                generalized=True,
-                mirror=True,
-            )
-            assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
-
-        with self.subTest("Qubit Mapper object"):
-            ansatz = SUCCD(
-                qubit_mapper=mapper,
-                num_particles=num_particles,
-                num_spatial_orbitals=num_spatial_orbitals,
-                generalized=True,
-                mirror=True,
-            )
-            assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
+        ansatz = SUCCD(
+            qubit_mapper=mapper,
+            num_particles=num_particles,
+            num_spatial_orbitals=num_spatial_orbitals,
+            generalized=True,
+            mirror=True,
+        )
+        assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
 
 
 if __name__ == "__main__":

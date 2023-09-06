@@ -21,10 +21,8 @@ from functools import reduce
 
 import numpy as np
 
-from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info import Pauli, SparsePauliOp
 
-from qiskit_nature import settings
 from qiskit_nature.second_q.operators import SpinOp
 from .spin_mapper import SpinMapper
 
@@ -34,11 +32,11 @@ class LinearMapper(SpinMapper):
 
     def _map_single(
         self, second_q_op: SpinOp, *, register_length: int | None = None
-    ) -> SparsePauliOp | PauliSumOp:
+    ) -> SparsePauliOp:
         if register_length is None:
             register_length = second_q_op.register_length
 
-        qubit_ops_list: list[PauliSumOp] = []
+        qubit_ops_list: list[SparsePauliOp] = []
 
         # get linear encoding of the general spin matrices
         spinx, spiny, spinz, identity = self._linear_encoding(second_q_op.spin)
@@ -58,9 +56,9 @@ class LinearMapper(SpinMapper):
             qubit_ops_list.append(coeff * reduce(operator.xor, reversed(operatorlist)))
 
         qubit_op = reduce(operator.add, qubit_ops_list)
-        return qubit_op if settings.use_pauli_sum_op else qubit_op.primitive.simplify()
+        return qubit_op.simplify()
 
-    def _linear_encoding(self, spin: Fraction | float) -> list[PauliSumOp]:
+    def _linear_encoding(self, spin: Fraction | float) -> list[SparsePauliOp]:
         """
         Generates a 'linear_encoding' of the spin S operators 'X', 'Y', 'Z' and 'identity'
         to qubit operators (linear combinations of pauli strings).
@@ -93,20 +91,16 @@ class LinearMapper(SpinMapper):
         x_summands = []
         for i, coeff in enumerate(np.diag(SpinOp.x(spin).to_matrix(), 1)):
             x_summands.append(
-                PauliSumOp(
-                    coeff / 2.0 * SparsePauliOp(pauli_x(i).dot(pauli_x(i + 1)))
-                    + coeff / 2.0 * SparsePauliOp(pauli_y(i).dot(pauli_y(i + 1)))
-                )
+                coeff / 2.0 * SparsePauliOp(pauli_x(i).dot(pauli_x(i + 1)))
+                + coeff / 2.0 * SparsePauliOp(pauli_y(i).dot(pauli_y(i + 1)))
             )
 
         # 2. build the non-diagonal Y operator
         y_summands = []
         for i, coeff in enumerate(np.diag(SpinOp.y(spin).to_matrix(), 1)):
             y_summands.append(
-                PauliSumOp(
-                    -1j * coeff / 2.0 * SparsePauliOp(pauli_x(i).dot(pauli_y(i + 1)))
-                    + 1j * coeff / 2.0 * SparsePauliOp(pauli_y(i).dot(pauli_x(i + 1)))
-                )
+                -1j * coeff / 2.0 * SparsePauliOp(pauli_x(i).dot(pauli_y(i + 1)))
+                + 1j * coeff / 2.0 * SparsePauliOp(pauli_y(i).dot(pauli_x(i + 1)))
             )
 
         # 3. build the diagonal Z
@@ -114,9 +108,7 @@ class LinearMapper(SpinMapper):
         for i, coeff in enumerate(np.diag(SpinOp.z(spin).to_matrix())):
             # get the first upper diagonal of coeff.
             z_summands.append(
-                PauliSumOp(
-                    coeff / 2.0 * SparsePauliOp(pauli_z(i)) + coeff / 2.0 * SparsePauliOp(pauli_id)
-                )
+                coeff / 2.0 * SparsePauliOp(pauli_z(i)) + coeff / 2.0 * SparsePauliOp(pauli_id)
             )
 
         # return the lookup table for the transformed XYZI operators
@@ -124,6 +116,6 @@ class LinearMapper(SpinMapper):
             reduce(operator.add, x_summands),
             reduce(operator.add, y_summands),
             reduce(operator.add, z_summands),
-            PauliSumOp(1.0 * SparsePauliOp(pauli_id)),
+            SparsePauliOp(pauli_id),
         ]
         return spin_op_encoding

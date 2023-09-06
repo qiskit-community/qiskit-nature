@@ -18,8 +18,7 @@ from typing import Sequence
 
 import numpy as np
 from qiskit import QuantumCircuit, QuantumRegister
-from qiskit_nature.deprecation import deprecate_arguments
-from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper, JordanWignerMapper
+from qiskit_nature.second_q.mappers import QubitMapper, JordanWignerMapper
 
 from .utils.givens_rotations import _prepare_fermionic_gaussian_state_jw
 
@@ -114,21 +113,12 @@ class FermionicGaussianState(QuantumCircuit):
     .. _arXiv:1711.05395: https://arxiv.org/abs/1711.05395
     """
 
-    @deprecate_arguments(
-        "0.6.0",
-        {"qubit_converter": "qubit_mapper"},
-        additional_msg=(
-            ". Additionally, the QubitConverter type in the qubit_mapper argument is deprecated "
-            "and support for it will be removed together with the qubit_converter argument."
-        ),
-    )
     def __init__(
         self,
         transformation_matrix: np.ndarray,
         occupied_orbitals: Sequence[int] | None = None,
-        qubit_mapper: QubitConverter | QubitMapper | None = None,
+        qubit_mapper: QubitMapper | None = None,
         *,
-        qubit_converter: QubitConverter | QubitMapper | None = None,
         validate: bool = True,
         rtol: float = 1e-5,
         atol: float = 1e-8,
@@ -144,11 +134,8 @@ class FermionicGaussianState(QuantumCircuit):
                 of the operators :math:`\{b^\dagger_j\}` from the main body of the docstring
                 of this function. The default behavior is to use the empty set of orbitals,
                 which corresponds to a state with zero pseudo-particles.
-            qubit_mapper: The ``QubitMapper`` or ``QubitConverter`` (use of the latter is
-                deprecated). The default behavior is to create one using the call
+            qubit_mapper: The ``QubitMapper``. The default behavior is to create one using the call
                 ``JordanWignerMapper()``.
-            qubit_converter: DEPRECATED The ``QubitConverter`` or ``QubitMapper``. The default
-                behavior is to create one using the call ``JordanWignerMapper()``.
             validate: Whether to validate the inputs.
             rtol: Relative numerical tolerance for input validation.
             atol: Absolute numerical tolerance for input validation.
@@ -172,16 +159,13 @@ class FermionicGaussianState(QuantumCircuit):
             occupied_orbitals = []
 
         if qubit_mapper is None:
-            qubit_mapper = QubitConverter(JordanWignerMapper())
+            qubit_mapper = JordanWignerMapper()
 
         n, _ = transformation_matrix.shape
         register = QuantumRegister(n)
         super().__init__(register, **circuit_kwargs)
 
-        if (
-            isinstance(qubit_mapper, QubitConverter)
-            and isinstance(qubit_mapper.mapper, JordanWignerMapper)
-        ) or (isinstance(qubit_mapper, JordanWignerMapper)):
+        if isinstance(qubit_mapper, JordanWignerMapper):
             operations = _prepare_fermionic_gaussian_state_jw(
                 register, transformation_matrix, occupied_orbitals
             )

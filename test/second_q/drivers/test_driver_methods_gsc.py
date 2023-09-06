@@ -20,8 +20,7 @@ from test import QiskitNatureTestCase
 from qiskit.algorithms.minimum_eigensolvers import NumPyMinimumEigensolver
 from qiskit_nature.second_q.algorithms import GroundStateEigensolver
 from qiskit_nature.second_q.drivers import ElectronicStructureDriver
-from qiskit_nature.second_q.mappers import JordanWignerMapper
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import JordanWignerMapper, QubitMapper
 from qiskit_nature.second_q.problems import BaseProblem
 from qiskit_nature.second_q.transformers import BaseTransformer
 
@@ -39,7 +38,7 @@ class TestDriverMethods(QiskitNatureTestCase):
     @staticmethod
     def _run_driver(
         driver: ElectronicStructureDriver,
-        converter: QubitConverter = QubitConverter(JordanWignerMapper()),
+        mapper: QubitMapper = JordanWignerMapper(),
         transformers: Optional[List[BaseTransformer]] = None,
     ):
 
@@ -51,7 +50,7 @@ class TestDriverMethods(QiskitNatureTestCase):
 
         solver = NumPyMinimumEigensolver()
 
-        gsc = GroundStateEigensolver(converter, solver)
+        gsc = GroundStateEigensolver(mapper, solver)
 
         result = gsc.solve(problem)
         return result

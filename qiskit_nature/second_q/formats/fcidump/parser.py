@@ -20,8 +20,7 @@ from pathlib import Path
 import numpy as np
 
 from qiskit_nature import QiskitNatureError
-from qiskit_nature.second_q.operators.symmetric_two_body import unfold, S4Integrals, S8Integrals
-from qiskit_nature.settings import settings
+from qiskit_nature.second_q.operators.symmetric_two_body import S4Integrals, S8Integrals
 from .fcidump import FCIDump
 
 
@@ -173,13 +172,6 @@ def _parse(fcidump: Path) -> FCIDump:
 
     if _uhf:
         hij_b[tril_indices] = hij_b.T[tril_indices]
-
-    if not settings.use_symmetry_reduced_integrals:
-        s8_hijkl = unfold(s8_hijkl).to_dense().array  # type: ignore[assignment]
-        if s8_hijkl_bb is not None:
-            s8_hijkl_bb = unfold(s8_hijkl_bb).to_dense().array  # type: ignore[assignment]
-        if s4_hijkl_ba is not None:
-            s4_hijkl_ba = unfold(s4_hijkl_ba).to_dense().array  # type: ignore[assignment]
 
     return FCIDump(
         num_electrons=output.get("NELEC"),

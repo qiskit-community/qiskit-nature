@@ -20,18 +20,8 @@ Ground State Solving Algorithms (:mod:`qiskit_nature.second_q.algorithms.ground_
 
 from .ground_state_solver import GroundStateSolver
 from .ground_state_eigensolver import GroundStateEigensolver
-from .minimum_eigensolver_factories import (
-    MinimumEigensolverFactory,
-    NumPyMinimumEigensolverFactory,
-    VQEUCCFactory,
-    VQEUVCCFactory,
-)
 
 __all__ = [
     "GroundStateSolver",
     "GroundStateEigensolver",
-    "MinimumEigensolverFactory",
-    "NumPyMinimumEigensolverFactory",
-    "VQEUCCFactory",
-    "VQEUVCCFactory",
 ]

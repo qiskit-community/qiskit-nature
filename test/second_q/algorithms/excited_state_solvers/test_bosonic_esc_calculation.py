@@ -15,28 +15,22 @@
 import contextlib
 import io
 import unittest
-import warnings
 
 from test import QiskitNatureTestCase
 
 import numpy as np
 
+from qiskit.algorithms.eigensolvers import NumPyEigensolver
+from qiskit.algorithms.minimum_eigensolvers import NumPyMinimumEigensolver, VQE
 from qiskit.algorithms.optimizers import COBYLA
 from qiskit.primitives import Estimator
 from qiskit.utils import algorithm_globals
 
-from qiskit_nature.second_q.algorithms import (
-    GroundStateEigensolver,
-    NumPyMinimumEigensolverFactory,
-    VQEUVCCFactory,
-    QEOM,
-    ExcitedStatesEigensolver,
-    NumPyEigensolverFactory,
-)
-from qiskit_nature.second_q.circuit.library import UVCCSD
+from qiskit_nature.second_q.algorithms import GroundStateEigensolver, QEOM, ExcitedStatesEigensolver
+from qiskit_nature.second_q.circuit.library import VSCF, UVCCSD
 from qiskit_nature.second_q.formats.watson import WatsonHamiltonian
 from qiskit_nature.second_q.formats.watson_translator import watson_to_problem
-from qiskit_nature.second_q.mappers import DirectMapper, QubitConverter
+from qiskit_nature.second_q.mappers import DirectMapper
 from qiskit_nature.second_q.problems import HarmonicBasis
 import qiskit_nature.optionals as _optionals
 
@@ -55,7 +49,7 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
             5819.76975784,
         ]
 
-        self.qubit_converter = QubitConverter(DirectMapper())
+        self.qubit_mapper = DirectMapper()
 
         import sparse as sp  # pylint: disable=import-error
 
@@ -108,46 +102,49 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
     def test_numpy_mes(self):
         """Test with NumPyMinimumEigensolver"""
         estimator = Estimator()
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", category=DeprecationWarning)
-            solver = NumPyMinimumEigensolverFactory(use_default_filter_criterion=True)
-        gsc = GroundStateEigensolver(self.qubit_converter, solver)
+        solver = NumPyMinimumEigensolver()
+        solver.filter_criterion = self.vibrational_problem.get_default_filter_criterion()
+        gsc = GroundStateEigensolver(self.qubit_mapper, solver)
         esc = QEOM(gsc, estimator, "sd")
         results = esc.solve(self.vibrational_problem)
         self._assert_energies(results.computed_vibrational_energies, self.reference_energies)
 
-    def test_numpy_factory(self):
+    def test_numpy(self):
         """Test with NumPyEigensolver"""
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", category=DeprecationWarning)
-            solver = NumPyEigensolverFactory(use_default_filter_criterion=True)
-        esc = ExcitedStatesEigensolver(self.qubit_converter, solver)
+        solver = NumPyEigensolver(k=4)
+        solver.filter_criterion = self.vibrational_problem.get_default_filter_criterion()
+        esc = ExcitedStatesEigensolver(self.qubit_mapper, solver)
         results = esc.solve(self.vibrational_problem)
         self._assert_energies(results.computed_vibrational_energies, self.reference_energies)
 
-    def test_vqe_uvccsd_factory(self):
+    def test_vqe_uvccsd(self):
         """Test with VQE plus UVCCSD"""
         optimizer = COBYLA(maxiter=5000)
         estimator = Estimator()
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", category=DeprecationWarning)
-            solver = VQEUVCCFactory(estimator, UVCCSD(), optimizer)
-        gsc = GroundStateEigensolver(self.qubit_converter, solver)
+        initial_state = VSCF(self.vibrational_problem.num_modals, self.qubit_mapper)
+        ansatz = UVCCSD(
+            self.vibrational_problem.num_modals, self.qubit_mapper, initial_state=initial_state
+        )
+        solver = VQE(estimator, ansatz, optimizer)
+        solver.initial_point = [0] * ansatz.num_parameters
+        gsc = GroundStateEigensolver(self.qubit_mapper, solver)
         esc = QEOM(gsc, estimator, "sd")
         results = esc.solve(self.vibrational_problem)
         self._assert_energies(
             results.computed_vibrational_energies, self.reference_energies, places=0
         )
 
-    def test_vqe_uvcc_factory_with_user_initial_point(self):
-        """Test VQEUVCCFactory when using it with a user defined initial point."""
+    def test_vqe_uvcc_with_user_initial_point(self):
+        """Test when using a user defined initial point."""
         initial_point = np.asarray([-7.35250290e-05, -9.73079292e-02, -5.43346282e-05])
         estimator = Estimator()
         optimizer = COBYLA(maxiter=1)
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", category=DeprecationWarning)
-            solver = VQEUVCCFactory(estimator, UVCCSD(), optimizer, initial_point=initial_point)
-        gsc = GroundStateEigensolver(self.qubit_converter, solver)
+        initial_state = VSCF(self.vibrational_problem.num_modals, self.qubit_mapper)
+        ansatz = UVCCSD(
+            self.vibrational_problem.num_modals, self.qubit_mapper, initial_state=initial_state
+        )
+        solver = VQE(estimator, ansatz, optimizer, initial_point=initial_point)
+        gsc = GroundStateEigensolver(self.qubit_mapper, solver)
         esc = QEOM(gsc, estimator, "sd")
         results = esc.solve(self.vibrational_problem)
         np.testing.assert_array_almost_equal(
@@ -162,11 +159,13 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
 
         estimator = Estimator()
         optimizer = COBYLA(maxiter=5000)
-
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", category=DeprecationWarning)
-            solver = VQEUVCCFactory(estimator, UVCCSD(), optimizer, callback=cb_callback)
-        gsc = GroundStateEigensolver(self.qubit_converter, solver)
+        initial_state = VSCF(self.vibrational_problem.num_modals, self.qubit_mapper)
+        ansatz = UVCCSD(
+            self.vibrational_problem.num_modals, self.qubit_mapper, initial_state=initial_state
+        )
+        solver = VQE(estimator, ansatz, optimizer, callback=cb_callback)
+        solver.initial_point = [0] * ansatz.num_parameters
+        gsc = GroundStateEigensolver(self.qubit_mapper, solver)
         esc = QEOM(gsc, estimator, "sd")
         with contextlib.redirect_stdout(io.StringIO()) as out:
             results = esc.solve(self.vibrational_problem)

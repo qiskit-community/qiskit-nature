@@ -10,9 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""The reference PauliSumOp and SparsePauliOp for the DirectMapper."""
+"""The reference SparsePauliOp for the DirectMapper."""
 
-from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info import SparsePauliOp
 
 _list_2_q_op = [
@@ -311,7 +310,5 @@ _list_3_q_op = [
     ("IIIIIIIYYYIY", -31.184025000000013),
 ]
 
-_num_modals_2_q_op = PauliSumOp.from_list(_list_2_q_op)
-_num_modals_3_q_op = PauliSumOp.from_list(_list_3_q_op)
 _sparse_num_modals_2_q_op = SparsePauliOp.from_list(_list_2_q_op)
 _sparse_num_modals_3_q_op = SparsePauliOp.from_list(_list_3_q_op)

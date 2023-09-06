@@ -19,12 +19,9 @@ from typing import Callable
 import numpy as np
 from qiskit.algorithms.eigensolvers import EigensolverResult
 from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
-from qiskit.opflow import PauliSumOp
-from qiskit.opflow.primitive_ops import Z2Symmetries as OpflowZ2Symmetries
 from qiskit.quantum_info.analysis.z2_symmetries import Z2Symmetries
 
-from qiskit_nature.deprecation import deprecate_function
-from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper, TaperedQubitMapper
+from qiskit_nature.second_q.mappers import QubitMapper, TaperedQubitMapper
 from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.hamiltonians import Hamiltonian
 
@@ -77,39 +74,10 @@ class BaseProblem:
 
         return main_op, aux_ops
 
-    # pylint: disable=bad-docstring-quotes
-    @deprecate_function(
-        "0.6.0",
-        additional_msg=(
-            ". This function is deprecated because it will be removed from the public API. It is "
-            "no longer necessary to be used when working directly with QubitMapper objects outside "
-            "a QubitConverter because a TaperedQubitMapper can now be obtained using the new "
-            "get_tapered_mapper function provided by the problem classes"
-        ),
-    )
-    def symmetry_sector_locator(
-        self,
-        z2_symmetries: OpflowZ2Symmetries | Z2Symmetries,
-        converter: QubitConverter | QubitMapper,
-    ) -> list[int] | None:
-        # pylint: disable=unused-argument
-        """Given the detected Z2Symmetries, it can determine the correct sector of the tapered
-        operators so the correct one can be returned
-
-        Args:
-            z2_symmetries: the z2 symmetries object.
-            converter: the ``QubitConverter`` or ``QubitMapper`` instance used for the operator
-                conversion that symmetries are to be determined for.
-
-        Returns:
-            the sector of the tapered operators with the problem solution
-        """
-        return None
-
     def _symmetry_sector_locator(
         self,
-        z2_symmetries: OpflowZ2Symmetries | Z2Symmetries,
-        mapper: QubitConverter | QubitMapper,
+        z2_symmetries: Z2Symmetries,
+        mapper: QubitMapper,
     ) -> list[int] | None:
         # pylint: disable=unused-argument
         """Given the detected Z2Symmetries, it can determine the correct sector of the tapered
@@ -117,9 +85,8 @@ class BaseProblem:
 
         Args:
             z2_symmetries: the z2 symmetries object.
-            mapper: the ``QubitMapper`` or ``QubitConverter`` instance (use of the latter is
-                deprecated) used for the operator conversion that symmetries are to be determined
-                for.
+            mapper: the ``QubitMapper`` used for the operator conversion that symmetries are to be
+                determined for.
 
         Returns:
             the sector of the tapered operators with the problem solution
@@ -150,8 +117,6 @@ class BaseProblem:
 
         qubit_op, _ = self.second_q_ops()
         mapped_op = mapper.map(qubit_op)
-        if isinstance(mapped_op, PauliSumOp):
-            mapped_op = mapped_op.primitive
         z2_symmetries = Z2Symmetries.find_z2_symmetries(mapped_op)
         # pylint: disable=assignment-from-none
         # Known issue for abstract class methods https://github.com/PyCQA/pylint/issues/2559

@@ -13,14 +13,11 @@
 """Test for FermionicOp"""
 
 import unittest
-import warnings
 from test import QiskitNatureTestCase
 
 import numpy as np
 from ddt import data, ddt, unpack
 from qiskit.circuit import Parameter
-from scipy.sparse import csc_matrix
-from scipy.sparse.linalg import eigs
 
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.operators import FermionicOp, PolynomialTensor
@@ -310,76 +307,6 @@ class TestFermionicOp(QiskitNatureTestCase):
         FermionicOp.atol = prev_atol
         FermionicOp.rtol = prev_rtol
 
-    def test_to_matrix(self):
-        """Test to_matrix"""
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", category=DeprecationWarning)
-
-            with self.subTest("identity operator matrix"):
-                op = FermionicOp.one()
-                op.num_spin_orbitals = 2
-                mat = op.to_matrix(sparse=False)
-                targ = np.eye(4)
-                self.assertTrue(np.allclose(mat, targ))
-
-            with self.subTest("number operator matrix"):
-                mat = FermionicOp({"+_1 -_1": 1}, num_spin_orbitals=2).to_matrix(sparse=False)
-                targ = np.array([[0, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 0], [0, 0, 0, 1]])
-                self.assertTrue(np.allclose(mat, targ))
-
-            with self.subTest("emptiness operator matrix"):
-                mat = FermionicOp({"-_1 +_1": 1}, num_spin_orbitals=2).to_matrix(sparse=False)
-                targ = np.array([[1, 0, 0, 0], [0, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, 0]])
-                self.assertTrue(np.allclose(mat, targ))
-
-            with self.subTest("raising operator matrix"):
-                mat = FermionicOp({"+_1": 1}, num_spin_orbitals=2).to_matrix(sparse=False)
-                targ = np.array([[0, 0, 0, 0], [1, 0, 0, 0], [0, 0, 0, 0], [0, 0, -1, 0]])
-                self.assertTrue(np.allclose(mat, targ))
-
-            with self.subTest("lowering operator matrix"):
-                mat = FermionicOp({"-_1": 1}, num_spin_orbitals=2).to_matrix(sparse=False)
-                targ = np.array([[0, 1, 0, 0], [0, 0, 0, 0], [0, 0, 0, -1], [0, 0, 0, 0]])
-                self.assertTrue(np.allclose(mat, targ))
-
-            with self.subTest("nontrivial sparse matrix"):
-                mat = FermionicOp(
-                    {"-_0 +_0 +_1 -_1 +_3": 3j, "-_0 +_1 -_1 +_2 -_3": -2}, num_spin_orbitals=4
-                ).to_matrix()
-                targ = csc_matrix(([-3j, 3j, -2], ([5, 7, 6], [4, 6, 13])), shape=(16, 16))
-                self.assertTrue((mat != targ).nnz == 0)
-
-            with self.subTest("Test Hydrogen spectrum"):
-                h2_labels = {
-                    "+_0 -_1 +_2 -_3": 0.18093120148374142,
-                    "+_0 -_1 -_2 +_3": -0.18093120148374134,
-                    "-_0 +_1 +_2 -_3": -0.18093120148374134,
-                    "-_0 +_1 -_2 +_3": 0.18093120148374128,
-                    "+_3 -_3": -0.4718960038869427,
-                    "+_2 -_2": -1.2563391028292563,
-                    "+_2 -_2 +_3 -_3": 0.48365053378098793,
-                    "+_1 -_1": -0.4718960038869427,
-                    "+_1 -_1 +_3 -_3": 0.6985737398458793,
-                    "+_1 -_1 +_2 -_2": 0.6645817352647293,
-                    "+_0 -_0": -1.2563391028292563,
-                    "+_0 -_0 +_3 -_3": 0.6645817352647293,
-                    "+_0 -_0 +_2 -_2": 0.6757101625347564,
-                    "+_0 -_0 +_1 -_1": 0.48365053378098793,
-                }
-                h2_matrix = FermionicOp(h2_labels, num_spin_orbitals=4).to_matrix()
-                evals, evecs = eigs(h2_matrix)
-                self.assertTrue(np.isclose(np.min(evals), -1.8572750))
-                # make sure the ground state has support only in the 2-particle subspace
-                groundstate = evecs[:, np.argmin(evals)]
-                for idx in np.where(~np.isclose(groundstate, 0))[0]:
-                    binary = f"{idx:0{4}b}"
-                    self.assertEqual(binary.count("1"), 2)
-
-            with self.subTest("parameters"):
-                fer_op = FermionicOp({"+_0": self.a})
-                with self.assertRaisesRegex(ValueError, "parameter"):
-                    _ = fer_op.to_matrix()
-
     def test_normal_order(self):
         """test normal_order method"""
         with self.subTest("Test for creation operator"):
@@ -620,18 +547,6 @@ class TestFermionicOp(QiskitNatureTestCase):
             op3 = FermionicOp({"+_0 -_0": 1}, num_spin_orbitals=3)
             self.assertEqual(op1, op3)
             self.assertTrue(op1.equiv(1.000001 * op3))
-
-        with self.subTest("to_matrix"):
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore", category=DeprecationWarning)
-
-                ref = np.array([[0, 0], [0, 1]])
-                np.testing.assert_array_almost_equal(op1.to_matrix(False), ref)
-                op1.num_spin_orbitals = 2
-                np.testing.assert_array_almost_equal(op1.to_matrix(False), np.kron(ref, np.eye(2)))
-
-                ref = np.array([[1]])
-                np.testing.assert_array_almost_equal(op0.to_matrix(False), ref)
 
     def test_terms(self):
         """Test terms generator."""

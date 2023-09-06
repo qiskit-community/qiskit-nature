@@ -18,7 +18,7 @@ import numpy as np
 from qiskit.quantum_info import Statevector
 
 from qiskit_nature.second_q.circuit.library import FermionicGaussianState
-from qiskit_nature.second_q.mappers import BravyiKitaevMapper, JordanWignerMapper, QubitConverter
+from qiskit_nature.second_q.mappers import BravyiKitaevMapper, JordanWignerMapper
 from qiskit_nature.testing import random_quadratic_hamiltonian
 
 
@@ -29,7 +29,6 @@ class TestFermionicGaussianState(QiskitNatureTestCase):
         """Test preparing fermionic Gaussian states."""
         n_orbitals = 5
         mapper = JordanWignerMapper()
-        converter = QubitConverter(mapper)
 
         quad_ham = random_quadratic_hamiltonian(n_orbitals, seed=5957)
         (
@@ -48,27 +47,15 @@ class TestFermionicGaussianState(QiskitNatureTestCase):
             range(n_orbitals),
         ]
 
-        with self.subTest("Qubit Converter object"):
-            qubit_op = converter.convert(fermionic_op)
-            matrix = qubit_op.to_matrix()
-            for occupied_orbitals in occupied_orbitals_lists:
-                circuit = FermionicGaussianState(
-                    transformation_matrix, occupied_orbitals, qubit_mapper=converter
-                )
-                final_state = np.array(Statevector(circuit))
-                eig = np.sum(orbital_energies[occupied_orbitals]) + transformed_constant
-                np.testing.assert_allclose(matrix @ final_state, eig * final_state, atol=1e-7)
-
-        with self.subTest("Qubit Mapper object"):
-            qubit_op = mapper.map(fermionic_op)
-            matrix = qubit_op.to_matrix()
-            for occupied_orbitals in occupied_orbitals_lists:
-                circuit = FermionicGaussianState(
-                    transformation_matrix, occupied_orbitals, qubit_mapper=mapper
-                )
-                final_state = np.array(Statevector(circuit))
-                eig = np.sum(orbital_energies[occupied_orbitals]) + transformed_constant
-                np.testing.assert_allclose(matrix @ final_state, eig * final_state, atol=1e-7)
+        qubit_op = mapper.map(fermionic_op)
+        matrix = qubit_op.to_matrix()
+        for occupied_orbitals in occupied_orbitals_lists:
+            circuit = FermionicGaussianState(
+                transformation_matrix, occupied_orbitals, qubit_mapper=mapper
+            )
+            final_state = np.array(Statevector(circuit))
+            eig = np.sum(orbital_energies[occupied_orbitals]) + transformed_constant
+            np.testing.assert_allclose(matrix @ final_state, eig * final_state, atol=1e-7)
 
     def test_no_side_effects(self):
         """Test that the routines don't mutate the input array."""
@@ -97,14 +84,6 @@ class TestFermionicGaussianState(QiskitNatureTestCase):
 
     def test_unsupported_mapper(self):
         """Test passing unsupported mapper fails gracefully."""
-        with self.assertRaisesRegex(NotImplementedError, "supported"):
-            _ = FermionicGaussianState(
-                np.block([np.eye(2), np.zeros((2, 2))]),
-                qubit_mapper=QubitConverter(BravyiKitaevMapper()),
-            )
-
-    def test_unsupported_mapper_no_converter(self):
-        """Test passing unsupported mapper fails gracefully when bypassing the qubit converter."""
         with self.assertRaisesRegex(NotImplementedError, "supported"):
             _ = FermionicGaussianState(
                 np.block([np.eye(2), np.zeros((2, 2))]),

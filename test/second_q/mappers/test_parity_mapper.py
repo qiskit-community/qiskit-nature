@@ -15,20 +15,18 @@
 import unittest
 from test import QiskitNatureTestCase
 
-from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info import SparsePauliOp
 
 import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import ParityMapper
 from qiskit_nature.second_q.operators import FermionicOp
-from qiskit_nature import settings
 
 
 class TestParityMapper(QiskitNatureTestCase):
     """Test Parity Mapper"""
 
-    REF_H2 = PauliSumOp.from_list(
+    REF_H2 = SparsePauliOp.from_list(
         [
             ("IIII", -0.81054798160031430),
             ("ZZII", -0.22575349071287365),
@@ -50,7 +48,7 @@ class TestParityMapper(QiskitNatureTestCase):
 
     tapering_values_expected = [-1, 1]
 
-    REF_H2_reduced = PauliSumOp.from_list(
+    REF_H2_reduced = SparsePauliOp.from_list(
         [
             ("II", -1.05237325),
             ("IZ", 0.39793742),
@@ -68,15 +66,7 @@ class TestParityMapper(QiskitNatureTestCase):
         fermionic_op, _ = driver_result.second_q_ops()
         mapper = ParityMapper()
         qubit_op = mapper.map(fermionic_op)
-        if not isinstance(qubit_op, PauliSumOp):
-            qubit_op = PauliSumOp(qubit_op)
-
-        # Note: The PauliSumOp equals, as used in the test below, use the equals of the
-        #       SparsePauliOp which in turn uses np.allclose() to determine equality of
-        #       coeffs. So the reference operator above will be matched on that basis so
-        #       we don't need to worry about tiny precision changes for any reason.
-
-        self.assertEqual(qubit_op, TestParityMapper.REF_H2)
+        self.assertTrue(qubit_op.equiv(TestParityMapper.REF_H2))
 
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_mapping_with_two_qubit_reduction(self):
@@ -86,81 +76,40 @@ class TestParityMapper(QiskitNatureTestCase):
         fermionic_op, _ = driver_result.second_q_ops()
         mapper = ParityMapper(num_particles=(1, 1))
         qubit_op = mapper.map(fermionic_op)
-        if not isinstance(qubit_op, PauliSumOp):
-            qubit_op = PauliSumOp(qubit_op)
-        self.assertEqual(qubit_op, TestParityMapper.REF_H2_reduced)
+        self.assertTrue(qubit_op.equiv(TestParityMapper.REF_H2_reduced))
         self.assertEqual(mapper._tapering_values, TestParityMapper.tapering_values_expected)
 
         # Test change num particles on the fly
         mapper.num_particles = None
         qubit_op_reduction = mapper.map(fermionic_op)
-        if not isinstance(qubit_op_reduction, PauliSumOp):
-            qubit_op_reduction = PauliSumOp(qubit_op_reduction)
-        self.assertEqual(qubit_op_reduction, TestParityMapper.REF_H2)
+        self.assertTrue(qubit_op_reduction.equiv(TestParityMapper.REF_H2))
 
     def test_mapping_for_single_op(self):
         """Test for single register operator."""
         with self.subTest("test +"):
             op = FermionicOp({"+_0": 1}, num_spin_orbitals=1)
-            aux = settings.use_pauli_sum_op
-            try:
-                settings.use_pauli_sum_op = True
-                expected = PauliSumOp.from_list([("X", 0.5), ("Y", -0.5j)])
-                self.assertEqual(ParityMapper().map(op), expected)
-                settings.use_pauli_sum_op = False
-                expected = SparsePauliOp.from_list([("X", 0.5), ("Y", -0.5j)])
-                self.assertEqualSparsePauliOp(ParityMapper().map(op), expected)
-            finally:
-                settings.use_pauli_sum_op = aux
+            expected = SparsePauliOp.from_list([("X", 0.5), ("Y", -0.5j)])
+            self.assertEqualSparsePauliOp(ParityMapper().map(op), expected)
 
         with self.subTest("test -"):
             op = FermionicOp({"-_0": 1}, num_spin_orbitals=1)
-            aux = settings.use_pauli_sum_op
-            try:
-                settings.use_pauli_sum_op = True
-                expected = PauliSumOp.from_list([("X", 0.5), ("Y", 0.5j)])
-                self.assertEqual(ParityMapper().map(op), expected)
-                settings.use_pauli_sum_op = False
-                expected = SparsePauliOp.from_list([("X", 0.5), ("Y", 0.5j)])
-                self.assertEqualSparsePauliOp(ParityMapper().map(op), expected)
-            finally:
-                settings.use_pauli_sum_op = aux
+            expected = SparsePauliOp.from_list([("X", 0.5), ("Y", 0.5j)])
+            self.assertEqualSparsePauliOp(ParityMapper().map(op), expected)
 
         with self.subTest("test N"):
             op = FermionicOp({"+_0 -_0": 1}, num_spin_orbitals=1)
-            try:
-                settings.use_pauli_sum_op = True
-                expected = PauliSumOp.from_list([("I", 0.5), ("Z", -0.5)])
-                self.assertEqual(ParityMapper().map(op), expected)
-                settings.use_pauli_sum_op = False
-                expected = SparsePauliOp.from_list([("I", 0.5), ("Z", -0.5)])
-                self.assertEqualSparsePauliOp(ParityMapper().map(op), expected)
-            finally:
-                settings.use_pauli_sum_op = aux
+            expected = SparsePauliOp.from_list([("I", 0.5), ("Z", -0.5)])
+            self.assertEqualSparsePauliOp(ParityMapper().map(op), expected)
 
         with self.subTest("test E"):
             op = FermionicOp({"-_0 +_0": 1}, num_spin_orbitals=1)
-            try:
-                settings.use_pauli_sum_op = True
-                expected = PauliSumOp.from_list([("I", 0.5), ("Z", 0.5)])
-                self.assertEqual(ParityMapper().map(op), expected)
-                settings.use_pauli_sum_op = False
-                expected = SparsePauliOp.from_list([("I", 0.5), ("Z", 0.5)])
-                self.assertEqualSparsePauliOp(ParityMapper().map(op), expected)
-            finally:
-                settings.use_pauli_sum_op = aux
+            expected = SparsePauliOp.from_list([("I", 0.5), ("Z", 0.5)])
+            self.assertEqualSparsePauliOp(ParityMapper().map(op), expected)
 
         with self.subTest("test I"):
             op = FermionicOp({"": 1}, num_spin_orbitals=1)
-            try:
-                settings.use_pauli_sum_op = True
-                expected = PauliSumOp.from_list([("I", 1)])
-                self.assertEqual(ParityMapper().map(op), expected)
-                settings.use_pauli_sum_op = False
-                expected = SparsePauliOp.from_list([("I", 1)])
-                self.assertEqualSparsePauliOp(ParityMapper().map(op), expected)
-            finally:
-                settings.use_pauli_sum_op = aux
+            expected = SparsePauliOp.from_list([("I", 1)])
+            self.assertEqualSparsePauliOp(ParityMapper().map(op), expected)
 
     def test_mapping_overwrite_reg_len(self):
         """Test overwriting the register length."""

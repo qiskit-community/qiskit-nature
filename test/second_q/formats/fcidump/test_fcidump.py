@@ -14,7 +14,6 @@
 
 import builtins
 import unittest
-import warnings
 from abc import ABC, abstractmethod
 from test import QiskitNatureTestCase
 from test.second_q.utils import get_expected_two_body_ints
@@ -157,12 +156,10 @@ class TestFCIDumpH2(QiskitNatureTestCase, BaseTestFCIDump):
         )
         self.mo_eri_ba = None
         self.mo_eri_bb = None
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", category=DeprecationWarning)
-            fcidump = FCIDump.from_file(
-                self.get_resource_path("test_fcidump_h2.fcidump", "second_q/formats/fcidump")
-            )
-            self.problem = fcidump_to_problem(fcidump)
+        fcidump = FCIDump.from_file(
+            self.get_resource_path("test_fcidump_h2.fcidump", "second_q/formats/fcidump")
+        )
+        self.problem = fcidump_to_problem(fcidump)
 
 
 class TestFCIDumpLiH(QiskitNatureTestCase, BaseTestFCIDump):
@@ -180,12 +177,10 @@ class TestFCIDumpLiH(QiskitNatureTestCase, BaseTestFCIDump):
         self.mo_eri = loaded["mo_eri"]
         self.mo_eri_ba = None
         self.mo_eri_bb = None
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", category=DeprecationWarning)
-            fcidump = FCIDump.from_file(
-                self.get_resource_path("test_fcidump_lih.fcidump", "second_q/formats/fcidump")
-            )
-            self.problem = fcidump_to_problem(fcidump)
+        fcidump = FCIDump.from_file(
+            self.get_resource_path("test_fcidump_lih.fcidump", "second_q/formats/fcidump")
+        )
+        self.problem = fcidump_to_problem(fcidump)
 
 
 class TestFCIDumpOH(QiskitNatureTestCase, BaseTestFCIDump):
@@ -203,12 +198,10 @@ class TestFCIDumpOH(QiskitNatureTestCase, BaseTestFCIDump):
         self.mo_eri = loaded["mo_eri"]
         self.mo_eri_ba = loaded["mo_eri_ba"]
         self.mo_eri_bb = loaded["mo_eri_bb"]
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", category=DeprecationWarning)
-            fcidump = FCIDump.from_file(
-                self.get_resource_path("test_fcidump_oh.fcidump", "second_q/formats/fcidump")
-            )
-            self.problem = fcidump_to_problem(fcidump)
+        fcidump = FCIDump.from_file(
+            self.get_resource_path("test_fcidump_oh.fcidump", "second_q/formats/fcidump")
+        )
+        self.problem = fcidump_to_problem(fcidump)
 
 
 if __name__ == "__main__":

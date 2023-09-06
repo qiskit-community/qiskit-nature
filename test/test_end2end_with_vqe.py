@@ -14,7 +14,7 @@
 
 import unittest
 
-from test import QiskitNatureDeprecatedTestCase
+from test import QiskitNatureTestCase
 
 from qiskit.algorithms.minimum_eigensolvers import VQE
 from qiskit.algorithms.optimizers import COBYLA
@@ -23,11 +23,11 @@ from qiskit.primitives import Estimator
 from qiskit.utils import algorithm_globals
 import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.drivers import PySCFDriver
-from qiskit_nature.second_q.mappers import ParityMapper, QubitConverter
+from qiskit_nature.second_q.mappers import ParityMapper
 
 
 @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
-class TestEnd2End(QiskitNatureDeprecatedTestCase):
+class TestEnd2End(QiskitNatureTestCase):
     """End2End VQE tests."""
 
     def setUp(self):
@@ -37,10 +37,9 @@ class TestEnd2End(QiskitNatureDeprecatedTestCase):
         driver = PySCFDriver()
         problem = driver.run()
         main_op, aux_ops = problem.second_q_ops()
-        converter = QubitConverter(mapper=ParityMapper(), two_qubit_reduction=True)
-        num_particles = problem.num_particles
-        self.qubit_op = converter.convert(main_op, num_particles)
-        self.aux_ops = converter.convert_match(aux_ops)
+        mapper = ParityMapper(num_particles=problem.num_particles)
+        self.qubit_op = mapper.map(main_op)
+        self.aux_ops = mapper.map(aux_ops)
         self.reference_energy = -1.857275027031588
 
     def test_end2end_h2(self):

@@ -12,6 +12,6 @@
 
 """ Qiskit Nature test packages """
 
-from .nature_test_case import QiskitNatureTestCase, QiskitNatureDeprecatedTestCase
+from .nature_test_case import QiskitNatureTestCase
 
-__all__ = ["QiskitNatureTestCase", "QiskitNatureDeprecatedTestCase"]
+__all__ = ["QiskitNatureTestCase"]

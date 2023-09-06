@@ -15,14 +15,12 @@
 from test import QiskitNatureTestCase
 
 import unittest
-import warnings
 
 from ddt import data, ddt, unpack
 
 from qiskit import transpile
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import UCC
-from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.mappers import JordanWignerMapper, ParityMapper
 from qiskit_nature.second_q.operators import FermionicOp
 
@@ -122,25 +120,14 @@ class TestUCC(QiskitNatureTestCase):
     def test_ucc_ansatz(self, excitations, num_spatial_orbitals, num_particles, expect):
         """Tests the UCC Ansatz."""
         mapper = JordanWignerMapper()
-        converter = QubitConverter(mapper)
 
-        with self.subTest("Qubit Converter object"):
-            ansatz = UCC(
-                qubit_mapper=converter,
-                num_particles=num_particles,
-                num_spatial_orbitals=num_spatial_orbitals,
-                excitations=excitations,
-            )
-            assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
-
-        with self.subTest("Qubit Mapper object"):
-            ansatz = UCC(
-                qubit_mapper=mapper,
-                num_particles=num_particles,
-                num_spatial_orbitals=num_spatial_orbitals,
-                excitations=excitations,
-            )
-            assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
+        ansatz = UCC(
+            qubit_mapper=mapper,
+            num_particles=num_particles,
+            num_spatial_orbitals=num_spatial_orbitals,
+            excitations=excitations,
+        )
+        assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
 
     @unpack
     @data(
@@ -170,7 +157,7 @@ class TestUCC(QiskitNatureTestCase):
     )
     def test_custom_excitations(self, num_spatial_orbitals, num_particles, excitations):
         """Tests if an error is raised when the excitations have a wrong format"""
-        mapper = QubitConverter(JordanWignerMapper())
+        mapper = JordanWignerMapper()
 
         # pylint: disable=unused-argument
         def custom_excitations(num_spatial_orbitals, num_particles):
@@ -192,29 +179,16 @@ class TestUCC(QiskitNatureTestCase):
         num_particles = (2, 2)
 
         mapper = JordanWignerMapper()
-        converter = QubitConverter(mapper)
 
-        with self.subTest("Qubit Converter object"):
-            ansatz = UCC(
-                num_spatial_orbitals=num_spatial_orbitals,
-                num_particles=num_particles,
-                qubit_mapper=converter,
-                excitations="s",
-            )
+        ansatz = UCC(
+            num_spatial_orbitals=num_spatial_orbitals,
+            num_particles=num_particles,
+            qubit_mapper=mapper,
+            excitations="s",
+        )
 
-            ansatz = transpile(ansatz, optimization_level=3)
-            self.assertEqual(ansatz.num_qubits, 8)
-
-        with self.subTest("Qubit Mapper object"):
-            ansatz = UCC(
-                num_spatial_orbitals=num_spatial_orbitals,
-                num_particles=num_particles,
-                qubit_mapper=mapper,
-                excitations="s",
-            )
-
-            ansatz = transpile(ansatz, optimization_level=3)
-            self.assertEqual(ansatz.num_qubits, 8)
+        ansatz = transpile(ansatz, optimization_level=3)
+        self.assertEqual(ansatz.num_qubits, 8)
 
     def test_build_ucc(self):
         """Test building UCC"""
@@ -225,10 +199,6 @@ class TestUCC(QiskitNatureTestCase):
             self.assertIsNone(ucc.num_spatial_orbitals)
             self.assertIsNone(ucc.excitations)
             self.assertIsNone(ucc.qubit_mapper)
-
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore", category=DeprecationWarning)
-                self.assertIsNone(ucc.qubit_converter)
 
             self.assertIsNone(ucc.operators)
             self.assertIsNone(ucc.excitation_list)
@@ -256,17 +226,6 @@ class TestUCC(QiskitNatureTestCase):
             self.assertIsNone(ucc.operators)
             with self.assertRaises(ValueError):
                 _ = ucc.data
-
-        with self.subTest("Set qubit converter to complete build"):
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore", category=DeprecationWarning)
-                converter = QubitConverter(JordanWignerMapper())
-                ucc.qubit_converter = converter
-                self.assertEqual(ucc.qubit_converter, converter)
-            self.assertIsNotNone(ucc.operators)
-            self.assertEqual(len(ucc.operators), 3)
-            self.assertEqual(ucc.num_qubits, 4)
-            self.assertIsNotNone(ucc.data)
 
         with self.subTest("Set qubit mapper to complete build"):
             mapper = JordanWignerMapper()
@@ -310,14 +269,7 @@ class TestUCC(QiskitNatureTestCase):
             self.assertIsNotNone(ucc.operators)
             self.assertEqual(len(ucc.operators), 4)
 
-        with self.subTest("Change qubit converter"):
-            ucc.qubit_mapper = QubitConverter(ParityMapper(), two_qubit_reduction=True)
-            # Has not been used to convert so we need to force it to do two qubit reduction
-            ucc.qubit_mapper.force_match(num_particles=ucc.num_particles)
-            self.assertIsNotNone(ucc.operators)
-            self.assertEqual(ucc.num_qubits, 4)
-
-        with self.subTest("Change qubit converter to qubit mapper"):
+        with self.subTest("Change qubit mapper"):
             mapper = ParityMapper()
             ucc.qubit_mapper = mapper
             self.assertIsNotNone(ucc.operators)

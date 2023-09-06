@@ -13,24 +13,18 @@
 """Tests for the TaperedQubitMapper."""
 
 import unittest
-import warnings
 from test import QiskitNatureTestCase
-
-from ddt import data, ddt
 
 from qiskit.quantum_info import Pauli, SparsePauliOp
 from qiskit.quantum_info.analysis.z2_symmetries import Z2Symmetries
-from qiskit.opflow import PauliSumOp
 
 import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.drivers import PySCFDriver
-from qiskit_nature.second_q.mappers import JordanWignerMapper, ParityMapper, QubitConverter
+from qiskit_nature.second_q.mappers import JordanWignerMapper, ParityMapper
 from qiskit_nature.second_q.mappers.tapered_qubit_mapper import TaperedQubitMapper
-from qiskit_nature.settings import settings
 
 
 @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
-@ddt
 class TestTaperedQubitMapper(QiskitNatureTestCase):
     """Test Tapered Qubit Mapper"""
 
@@ -141,31 +135,13 @@ class TestTaperedQubitMapper(QiskitNatureTestCase):
         self.jw_mapper = JordanWignerMapper()
         self.pt_mapper = ParityMapper()
 
-    def tearDown(self) -> None:
-        super().tearDown()
-        settings.use_pauli_sum_op = True
-
-    @data(True, False)
-    def test_z2_symmetry(self, use_pauli_sum_op: bool):
+    def test_z2_symmetry(self):
         """Test mapping to qubit operator with z2 symmetry tapering"""
-        settings.use_pauli_sum_op = use_pauli_sum_op
         mapper = JordanWignerMapper()
-
-        with self.subTest("QubitConverter"):
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore", category=DeprecationWarning)
-                sector_locator = self.driver_result.symmetry_sector_locator
-                qubit_conv = QubitConverter(mapper, z2symmetry_reduction="auto")
-                qubit_op = qubit_conv.convert(self.h2_op, sector_locator=sector_locator)
-            if isinstance(qubit_op, PauliSumOp):
-                qubit_op = qubit_op.primitive
-            self.assertEqual(qubit_op, TestTaperedQubitMapper.REF_H2_JW_TAPERED)
 
         with self.subTest("TaperedQubitMapper"):
             tapered_qubit_mapper = self.driver_result.get_tapered_mapper(mapper)
             qubit_op = tapered_qubit_mapper.map(self.h2_op)
-            if isinstance(qubit_op, PauliSumOp):
-                qubit_op = qubit_op.primitive
             self.assertEqual(qubit_op, TestTaperedQubitMapper.REF_H2_JW_TAPERED)
 
         with self.subTest("From Z2Symmetry object"):
@@ -177,16 +153,12 @@ class TestTaperedQubitMapper(QiskitNatureTestCase):
             )
             tapered_qubit_mapper = TaperedQubitMapper(mapper, z2symmetries=z2_sym)
             qubit_op = tapered_qubit_mapper.map(self.h2_op)
-            if isinstance(qubit_op, PauliSumOp):
-                qubit_op = qubit_op.primitive
             self.assertEqual(qubit_op, TestTaperedQubitMapper.REF_H2_JW_TAPERED)
 
         with self.subTest("From empty Z2Symmetry object"):
             z2_sym = Z2Symmetries([], [], [], None)
             tapered_qubit_mapper = TaperedQubitMapper(mapper, z2symmetries=z2_sym)
             qubit_op = tapered_qubit_mapper.map(self.h2_op)
-            if isinstance(qubit_op, PauliSumOp):
-                qubit_op = qubit_op.primitive
             self.assertTrue(qubit_op.equiv(TestTaperedQubitMapper.REF_H2_JW))
 
         with self.subTest("From Z2Symmetry object no tapering values"):
@@ -197,59 +169,33 @@ class TestTaperedQubitMapper(QiskitNatureTestCase):
             )
             tapered_qubit_mapper = TaperedQubitMapper(mapper, z2symmetries=z2_sym)
             qubit_op = tapered_qubit_mapper.map(self.h2_op)
-            if isinstance(qubit_op, PauliSumOp):
-                qubit_op = qubit_op.primitive
             self.assertTrue(qubit_op.equiv(TestTaperedQubitMapper.REF_H2_JW_CLIF))
             tapered_qubit_mapper.z2symmetries.tapering_values = [-1, 1, -1]
             qubit_op = tapered_qubit_mapper.taper_clifford(qubit_op)
-            if isinstance(qubit_op, PauliSumOp):
-                qubit_op = qubit_op.primitive
             self.assertTrue(qubit_op.equiv(TestTaperedQubitMapper.REF_H2_JW_TAPERED))
 
         with self.subTest("From Z2Symmetry object automatic but no sector locator"):
             qubit_op = mapper.map(self.h2_op)
-            if isinstance(qubit_op, PauliSumOp):
-                qubit_op = qubit_op.primitive
             z2_sym = Z2Symmetries.find_z2_symmetries(qubit_op)
             tapered_qubit_mapper = TaperedQubitMapper(mapper, z2_sym)
             qubit_op = tapered_qubit_mapper.map(self.h2_op)
-            if isinstance(qubit_op, PauliSumOp):
-                qubit_op = qubit_op.primitive
             self.assertTrue(qubit_op.equiv(TestTaperedQubitMapper.REF_H2_JW_CLIF))
 
-    @data(True, False)
-    def test_z2_symmetry_two_qubit_reduction(self, use_pauli_sum_op: bool):
+    def test_z2_symmetry_two_qubit_reduction(self):
         """Test mapping to qubit operator with z2 symmetry tapering and two qubit reduction"""
-        settings.use_pauli_sum_op = use_pauli_sum_op
-
         with self.subTest("No 2-qubit reduction in the ParityMapper"):
             mapper = ParityMapper(num_particles=None)
             tapered_qubit_mapper = self.driver_result.get_tapered_mapper(mapper)
             qubit_op = tapered_qubit_mapper.map(self.h2_op)
-            if isinstance(qubit_op, PauliSumOp):
-                qubit_op = qubit_op.primitive
             self.assertEqual(qubit_op, TestTaperedQubitMapper.REF_H2_PT_TAPERED)
 
-        with self.subTest("With 2-qubit reduction in the ParityMapper"):
-            mapper = ParityMapper(num_particles=(1, 1))
-            tapered_qubit_mapper = self.driver_result.get_tapered_mapper(mapper)
-            qubit_op = tapered_qubit_mapper.map(self.h2_op)
-            if isinstance(qubit_op, PauliSumOp):
-                qubit_op = qubit_op.primitive
-            self.assertEqual(qubit_op, TestTaperedQubitMapper.REF_H2_PT_TAPERED)
-
-    @data(True, False)
-    def test_empty_z2_symmetry_two_qubit_reduction(self, use_pauli_sum_op: bool):
+    def test_empty_z2_symmetry_two_qubit_reduction(self):
         """Test mapping to qubit operator with empty z2 symmetry tapering and two qubit reduction"""
-        settings.use_pauli_sum_op = use_pauli_sum_op
-
         with self.subTest("No 2-qubit reduction in the ParityMapper"):
             mapper = ParityMapper(num_particles=None)
             z2_sym = Z2Symmetries([], [], [], None)
             tapered_qubit_mapper = TaperedQubitMapper(mapper, z2symmetries=z2_sym)
             qubit_op = tapered_qubit_mapper.map(self.h2_op)
-            if isinstance(qubit_op, PauliSumOp):
-                qubit_op = qubit_op.primitive
             self.assertTrue(qubit_op.equiv(TestTaperedQubitMapper.REF_H2_PT))
 
         with self.subTest("With 2-qubit reduction in the ParityMapper"):
@@ -257,52 +203,35 @@ class TestTaperedQubitMapper(QiskitNatureTestCase):
             z2_sym = Z2Symmetries([], [], [], None)
             tapered_qubit_mapper = TaperedQubitMapper(mapper, z2symmetries=z2_sym)
             qubit_op = tapered_qubit_mapper.map(self.h2_op)
-            if isinstance(qubit_op, PauliSumOp):
-                qubit_op = qubit_op.primitive
             self.assertTrue(qubit_op.equiv(TestTaperedQubitMapper.REF_H2_PT_2Q_REDUCED))
 
-    @data(True, False)
-    def test_map_clifford(self, use_pauli_sum_op: bool):
+    def test_map_clifford(self):
         """Test the first exposed step of the mapping. Mapping to Pauli operators and composing with
         symmetry cliffords"""
-        settings.use_pauli_sum_op = use_pauli_sum_op
-
         with self.subTest("Single operator JW"):
             jw_tqm = TaperedQubitMapper(self.jw_mapper)
             jw_op_h2 = jw_tqm.map_clifford(self.h2_op)
-            if isinstance(jw_op_h2, PauliSumOp):
-                jw_op_h2 = jw_op_h2.primitive
             self.assertTrue(jw_op_h2.equiv(TestTaperedQubitMapper.REF_H2_JW))
 
             jw_tqm = self.driver_result.get_tapered_mapper(self.jw_mapper)
             jw_op_h2 = jw_tqm.map_clifford(self.h2_op)
-            if isinstance(jw_op_h2, PauliSumOp):
-                jw_op_h2 = jw_op_h2.primitive
             self.assertTrue(jw_op_h2.equiv(TestTaperedQubitMapper.REF_H2_JW_CLIF))
             # Compose with symmetry cliffords if z2 not empty even if Num_particles is empty
             jw_tqm.z2symmetries.tapering_values = None
             jw_op_h2 = jw_tqm.map_clifford(self.h2_op)
-            if isinstance(jw_op_h2, PauliSumOp):
-                jw_op_h2 = jw_op_h2.primitive
             self.assertTrue(jw_op_h2.equiv(TestTaperedQubitMapper.REF_H2_JW_CLIF))
 
         with self.subTest("Single operator PT"):
             pt_tqm = TaperedQubitMapper(self.pt_mapper)
             pt_op_h2 = pt_tqm.map_clifford(self.h2_op)
-            if isinstance(pt_op_h2, PauliSumOp):
-                pt_op_h2 = pt_op_h2.primitive
             self.assertTrue(pt_op_h2.equiv(TestTaperedQubitMapper.REF_H2_PT))
 
             pt_tqm = self.driver_result.get_tapered_mapper(self.pt_mapper)
             pt_op_h2 = pt_tqm.map_clifford(self.h2_op)
-            if isinstance(pt_op_h2, PauliSumOp):
-                pt_op_h2 = pt_op_h2.primitive
             self.assertTrue(pt_op_h2.equiv(TestTaperedQubitMapper.REF_H2_PT_CLIF))
             # Compose with symmetry cliffords if z2 not empty even with empty tapering values
             pt_tqm.z2symmetries.tapering_values = None
             pt_op_h2 = pt_tqm.map_clifford(self.h2_op)
-            if isinstance(pt_op_h2, PauliSumOp):
-                pt_op_h2 = pt_op_h2.primitive
             self.assertTrue(pt_op_h2.equiv(TestTaperedQubitMapper.REF_H2_PT_CLIF))
 
         with self.subTest("Dictionary / List of operators and JW Mapper"):
@@ -314,11 +243,7 @@ class TestTaperedQubitMapper(QiskitNatureTestCase):
             self.assertEqual(len(jw_op_h2_list), 1)
             self.assertEqual(len(jw_op_h2_dict), 1)
             sparse_jw_op_h2_list = jw_op_h2_list[0]
-            if isinstance(sparse_jw_op_h2_list, PauliSumOp):
-                sparse_jw_op_h2_list = sparse_jw_op_h2_list.primitive
             sparse_jw_op_h2_dict = jw_op_h2_dict["h2"]
-            if isinstance(sparse_jw_op_h2_dict, PauliSumOp):
-                sparse_jw_op_h2_dict = sparse_jw_op_h2_dict.primitive
             self.assertTrue(sparse_jw_op_h2_list.equiv(TestTaperedQubitMapper.REF_H2_JW))
             self.assertTrue(sparse_jw_op_h2_dict.equiv(TestTaperedQubitMapper.REF_H2_JW))
 
@@ -330,11 +255,7 @@ class TestTaperedQubitMapper(QiskitNatureTestCase):
             self.assertEqual(len(jw_op_h2_list), 1)
             self.assertEqual(len(jw_op_h2_dict), 1)
             sparse_jw_op_h2_list = jw_op_h2_list[0]
-            if isinstance(sparse_jw_op_h2_list, PauliSumOp):
-                sparse_jw_op_h2_list = sparse_jw_op_h2_list.primitive
             sparse_jw_op_h2_dict = jw_op_h2_dict["h2"]
-            if isinstance(sparse_jw_op_h2_dict, PauliSumOp):
-                sparse_jw_op_h2_dict = sparse_jw_op_h2_dict.primitive
             self.assertTrue(sparse_jw_op_h2_list.equiv(TestTaperedQubitMapper.REF_H2_JW_CLIF))
             self.assertTrue(sparse_jw_op_h2_dict.equiv(TestTaperedQubitMapper.REF_H2_JW_CLIF))
 
@@ -347,11 +268,7 @@ class TestTaperedQubitMapper(QiskitNatureTestCase):
             self.assertEqual(len(pt_op_h2_list), 1)
             self.assertEqual(len(pt_op_h2_dict), 1)
             sparse_pt_op_h2_list = pt_op_h2_list[0]
-            if isinstance(sparse_pt_op_h2_list, PauliSumOp):
-                sparse_pt_op_h2_list = sparse_pt_op_h2_list.primitive
             sparse_pt_op_h2_dict = pt_op_h2_dict["h2"]
-            if isinstance(sparse_pt_op_h2_dict, PauliSumOp):
-                sparse_pt_op_h2_dict = sparse_pt_op_h2_dict.primitive
             self.assertTrue(sparse_pt_op_h2_list.equiv(TestTaperedQubitMapper.REF_H2_PT))
             self.assertTrue(sparse_pt_op_h2_dict.equiv(TestTaperedQubitMapper.REF_H2_PT))
 
@@ -363,58 +280,35 @@ class TestTaperedQubitMapper(QiskitNatureTestCase):
             self.assertEqual(len(pt_op_h2_list), 1)
             self.assertEqual(len(pt_op_h2_dict), 1)
             sparse_pt_op_h2_list = pt_op_h2_list[0]
-            if isinstance(sparse_pt_op_h2_list, PauliSumOp):
-                sparse_pt_op_h2_list = sparse_pt_op_h2_list.primitive
             sparse_pt_op_h2_dict = pt_op_h2_dict["h2"]
-            if isinstance(sparse_pt_op_h2_dict, PauliSumOp):
-                sparse_pt_op_h2_dict = sparse_pt_op_h2_dict.primitive
             self.assertTrue(sparse_pt_op_h2_list.equiv(TestTaperedQubitMapper.REF_H2_PT_CLIF))
             self.assertTrue(sparse_pt_op_h2_dict.equiv(TestTaperedQubitMapper.REF_H2_PT_CLIF))
 
-    @data(True, False)
-    def test_taper_clifford(self, use_pauli_sum_op: bool):
+    def test_taper_clifford(self):
         """Test the second exposed step of the mapping. Applying the symmetry reduction"""
-        settings.use_pauli_sum_op = use_pauli_sum_op
-
         with self.subTest("Single operator JW"):
             jw_tqm = TaperedQubitMapper(self.jw_mapper)
             jw_op_h2 = jw_tqm.map_clifford(self.h2_op)
-            if isinstance(jw_op_h2, PauliSumOp):
-                jw_op_h2 = jw_op_h2.primitive
             jw_op_h2_tap = jw_tqm.taper_clifford(jw_op_h2)
-            if isinstance(jw_op_h2_tap, PauliSumOp):
-                jw_op_h2_tap = jw_op_h2_tap.primitive
             self.assertTrue(jw_op_h2.equiv(TestTaperedQubitMapper.REF_H2_JW))
             self.assertTrue(jw_op_h2_tap.equiv(TestTaperedQubitMapper.REF_H2_JW))
 
             jw_tqm = self.driver_result.get_tapered_mapper(self.jw_mapper)
             jw_op_h2 = jw_tqm.map_clifford(self.h2_op)
-            if isinstance(jw_op_h2, PauliSumOp):
-                jw_op_h2 = jw_op_h2.primitive
             jw_op_h2_tap = jw_tqm.taper_clifford(jw_op_h2)
-            if isinstance(jw_op_h2_tap, PauliSumOp):
-                jw_op_h2_tap = jw_op_h2_tap.primitive
             self.assertTrue(jw_op_h2.equiv(TestTaperedQubitMapper.REF_H2_JW_CLIF))
             self.assertTrue(jw_op_h2_tap.equiv(TestTaperedQubitMapper.REF_H2_JW_TAPERED))
 
         with self.subTest("Single operator PT"):
             pt_tqm = TaperedQubitMapper(self.pt_mapper)
             pt_op_h2 = pt_tqm.map_clifford(self.h2_op)
-            if isinstance(pt_op_h2, PauliSumOp):
-                pt_op_h2 = pt_op_h2.primitive
             pt_op_h2_tap = pt_tqm.taper_clifford(pt_op_h2)
-            if isinstance(pt_op_h2_tap, PauliSumOp):
-                pt_op_h2_tap = pt_op_h2_tap.primitive
             self.assertTrue(pt_op_h2.equiv(TestTaperedQubitMapper.REF_H2_PT))
             self.assertTrue(pt_op_h2_tap.equiv(TestTaperedQubitMapper.REF_H2_PT))
 
             pt_tqm = self.driver_result.get_tapered_mapper(self.pt_mapper)
             pt_op_h2 = pt_tqm.map_clifford(self.h2_op)
-            if isinstance(pt_op_h2, PauliSumOp):
-                pt_op_h2 = pt_op_h2.primitive
             pt_op_h2_tap = pt_tqm.taper_clifford(pt_op_h2)
-            if isinstance(pt_op_h2_tap, PauliSumOp):
-                pt_op_h2_tap = pt_op_h2_tap.primitive
             self.assertTrue(pt_op_h2.equiv(TestTaperedQubitMapper.REF_H2_PT_CLIF))
             self.assertTrue(pt_op_h2_tap.equiv(TestTaperedQubitMapper.REF_H2_PT_TAPERED))
 
@@ -432,17 +326,9 @@ class TestTaperedQubitMapper(QiskitNatureTestCase):
             self.assertEqual(len(jw_op_h2_tap_list), 1)
             self.assertEqual(len(jw_op_h2_tap_dict), 1)
             sparse_jw_op_h2_list = jw_op_h2_list[0]
-            if isinstance(sparse_jw_op_h2_list, PauliSumOp):
-                sparse_jw_op_h2_list = sparse_jw_op_h2_list.primitive
             sparse_jw_op_h2_tap_list = jw_op_h2_tap_list[0]
-            if isinstance(sparse_jw_op_h2_tap_list, PauliSumOp):
-                sparse_jw_op_h2_tap_list = sparse_jw_op_h2_tap_list.primitive
             sparse_jw_op_h2_dict = jw_op_h2_dict["h2"]
-            if isinstance(sparse_jw_op_h2_dict, PauliSumOp):
-                sparse_jw_op_h2_dict = sparse_jw_op_h2_dict.primitive
             sparse_jw_op_h2_tap_dict = jw_op_h2_tap_dict["h2"]
-            if isinstance(sparse_jw_op_h2_tap_dict, PauliSumOp):
-                sparse_jw_op_h2_tap_dict = sparse_jw_op_h2_tap_dict.primitive
             self.assertTrue(sparse_jw_op_h2_list.equiv(TestTaperedQubitMapper.REF_H2_JW))
             self.assertTrue(sparse_jw_op_h2_tap_list.equiv(TestTaperedQubitMapper.REF_H2_JW))
             self.assertTrue(sparse_jw_op_h2_dict.equiv(TestTaperedQubitMapper.REF_H2_JW))
@@ -461,17 +347,9 @@ class TestTaperedQubitMapper(QiskitNatureTestCase):
             self.assertEqual(len(jw_op_h2_tap_list), 1)
             self.assertEqual(len(jw_op_h2_tap_dict), 1)
             sparse_jw_op_h2_list = jw_op_h2_list[0]
-            if isinstance(sparse_jw_op_h2_list, PauliSumOp):
-                sparse_jw_op_h2_list = sparse_jw_op_h2_list.primitive
             sparse_jw_op_h2_tap_list = jw_op_h2_tap_list[0]
-            if isinstance(sparse_jw_op_h2_tap_list, PauliSumOp):
-                sparse_jw_op_h2_tap_list = sparse_jw_op_h2_tap_list.primitive
             sparse_jw_op_h2_dict = jw_op_h2_dict["h2"]
-            if isinstance(sparse_jw_op_h2_dict, PauliSumOp):
-                sparse_jw_op_h2_dict = sparse_jw_op_h2_dict.primitive
             sparse_jw_op_h2_tap_dict = jw_op_h2_tap_dict["h2"]
-            if isinstance(sparse_jw_op_h2_tap_dict, PauliSumOp):
-                sparse_jw_op_h2_tap_dict = sparse_jw_op_h2_tap_dict.primitive
             self.assertTrue(sparse_jw_op_h2_list.equiv(TestTaperedQubitMapper.REF_H2_JW_CLIF))
             self.assertTrue(
                 sparse_jw_op_h2_tap_list.equiv(TestTaperedQubitMapper.REF_H2_JW_TAPERED)
@@ -495,17 +373,9 @@ class TestTaperedQubitMapper(QiskitNatureTestCase):
             self.assertEqual(len(pt_op_h2_tap_list), 1)
             self.assertEqual(len(pt_op_h2_tap_dict), 1)
             sparse_pt_op_h2_list = pt_op_h2_list[0]
-            if isinstance(sparse_pt_op_h2_list, PauliSumOp):
-                sparse_pt_op_h2_list = sparse_pt_op_h2_list.primitive
             sparse_pt_op_h2_tap_list = pt_op_h2_tap_list[0]
-            if isinstance(sparse_pt_op_h2_tap_list, PauliSumOp):
-                sparse_pt_op_h2_tap_list = sparse_pt_op_h2_tap_list.primitive
             sparse_pt_op_h2_dict = pt_op_h2_dict["h2"]
-            if isinstance(sparse_pt_op_h2_dict, PauliSumOp):
-                sparse_pt_op_h2_dict = sparse_pt_op_h2_dict.primitive
             sparse_pt_op_h2_tap_dict = pt_op_h2_tap_dict["h2"]
-            if isinstance(sparse_pt_op_h2_tap_dict, PauliSumOp):
-                sparse_pt_op_h2_tap_dict = sparse_pt_op_h2_tap_dict.primitive
             self.assertTrue(sparse_pt_op_h2_list.equiv(TestTaperedQubitMapper.REF_H2_PT))
             self.assertTrue(sparse_pt_op_h2_tap_list.equiv(TestTaperedQubitMapper.REF_H2_PT))
             self.assertTrue(sparse_pt_op_h2_dict.equiv(TestTaperedQubitMapper.REF_H2_PT))
@@ -524,17 +394,9 @@ class TestTaperedQubitMapper(QiskitNatureTestCase):
             self.assertEqual(len(pt_op_h2_tap_list), 1)
             self.assertEqual(len(pt_op_h2_tap_dict), 1)
             sparse_pt_op_h2_list = pt_op_h2_list[0]
-            if isinstance(sparse_pt_op_h2_list, PauliSumOp):
-                sparse_pt_op_h2_list = sparse_pt_op_h2_list.primitive
             sparse_pt_op_h2_tap_list = pt_op_h2_tap_list[0]
-            if isinstance(sparse_pt_op_h2_tap_list, PauliSumOp):
-                sparse_pt_op_h2_tap_list = sparse_pt_op_h2_tap_list.primitive
             sparse_pt_op_h2_dict = pt_op_h2_dict["h2"]
-            if isinstance(sparse_pt_op_h2_dict, PauliSumOp):
-                sparse_pt_op_h2_dict = sparse_pt_op_h2_dict.primitive
             sparse_pt_op_h2_tap_dict = pt_op_h2_tap_dict["h2"]
-            if isinstance(sparse_pt_op_h2_tap_dict, PauliSumOp):
-                sparse_pt_op_h2_tap_dict = sparse_pt_op_h2_tap_dict.primitive
             self.assertTrue(sparse_pt_op_h2_list.equiv(TestTaperedQubitMapper.REF_H2_PT_CLIF))
             self.assertTrue(
                 sparse_pt_op_h2_tap_list.equiv(TestTaperedQubitMapper.REF_H2_PT_TAPERED)
@@ -548,15 +410,13 @@ class TestTaperedQubitMapper(QiskitNatureTestCase):
             jw_tqm = self.driver_result.get_tapered_mapper(self.jw_mapper)
 
             ops = [
-                PauliSumOp(TestTaperedQubitMapper.REF_H2_JW_CLIF),
-                PauliSumOp.from_list([("IXYZ", 1.0)]),
+                TestTaperedQubitMapper.REF_H2_JW_CLIF,
+                SparsePauliOp.from_list([("IXYZ", 1.0)]),
             ]
             jw_op_h2_tap_list = jw_tqm.taper_clifford(ops, suppress_none=False)
             self.assertTrue(isinstance(jw_op_h2_tap_list, list))
             self.assertEqual(len(jw_op_h2_tap_list), 2)
             sparse_jw_op_h2_tap_list = jw_op_h2_tap_list[0]
-            if isinstance(sparse_jw_op_h2_tap_list, PauliSumOp):
-                sparse_jw_op_h2_tap_list = sparse_jw_op_h2_tap_list.primitive
             self.assertTrue(
                 sparse_jw_op_h2_tap_list.equiv(TestTaperedQubitMapper.REF_H2_JW_TAPERED)
             )
@@ -568,8 +428,6 @@ class TestTaperedQubitMapper(QiskitNatureTestCase):
             self.assertTrue(isinstance(jw_op_h2_tap_list, list))
             self.assertEqual(len(jw_op_h2_tap_list), 1)
             sparse_jw_op_h2_tap_list = jw_op_h2_tap_list[0]
-            if isinstance(sparse_jw_op_h2_tap_list, PauliSumOp):
-                sparse_jw_op_h2_tap_list = sparse_jw_op_h2_tap_list.primitive
             self.assertTrue(
                 sparse_jw_op_h2_tap_list.equiv(TestTaperedQubitMapper.REF_H2_JW_TAPERED)
             )
@@ -578,15 +436,10 @@ class TestTaperedQubitMapper(QiskitNatureTestCase):
             self.assertTrue(isinstance(jw_op_h2_tap_list, list))
             self.assertEqual(len(jw_op_h2_tap_list), 2)
             sparse_jw_op_h2_tap_list = jw_op_h2_tap_list[0]
-            if isinstance(sparse_jw_op_h2_tap_list, PauliSumOp):
-                sparse_jw_op_h2_tap_list = sparse_jw_op_h2_tap_list.primitive
             self.assertTrue(
                 sparse_jw_op_h2_tap_list.equiv(TestTaperedQubitMapper.REF_H2_JW_TAPERED)
             )
-            if isinstance(jw_op_h2_tap_list[1], PauliSumOp):
-                self.assertTrue(jw_op_h2_tap_list[1] == PauliSumOp.from_list([("I", 1.0)]))
-            else:
-                self.assertTrue(jw_op_h2_tap_list[1] == SparsePauliOp.from_list([("I", 1.0)]))
+            self.assertTrue(jw_op_h2_tap_list[1] == SparsePauliOp.from_list([("I", 1.0)]))
 
 
 if __name__ == "__main__":

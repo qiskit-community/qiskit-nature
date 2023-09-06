@@ -20,12 +20,7 @@ from typing import MutableMapping
 import numpy as np
 
 import qiskit_nature  # pylint: disable=unused-import
-from qiskit_nature.second_q.operators import (
-    ElectronicIntegrals,
-    FermionicOp,
-    PolynomialTensor,
-    Tensor,
-)
+from qiskit_nature.second_q.operators import ElectronicIntegrals, FermionicOp, PolynomialTensor
 
 from .hamiltonian import Hamiltonian
 
@@ -229,9 +224,6 @@ class ElectronicEnergy(Hamiltonian):
                 :attr:`.ElectronicEnergy.electronic_integrals`.
         """
         two_body_aa = self.electronic_integrals.alpha.get("++--", None)
-        # TODO: remove extra-wrapping of Tensor once settings.tensor_unwrapping is removed
-        if not isinstance(two_body_aa, Tensor):
-            two_body_aa = Tensor(two_body_aa)
 
         einsum = f"{''.join(two_body_aa._reverse_label_template('pqrs'))},ps->qr"
         coulomb = ElectronicIntegrals.einsum(
@@ -272,9 +264,6 @@ class ElectronicEnergy(Hamiltonian):
                 :attr:`.ElectronicEnergy.electronic_integrals`.
         """
         two_body_aa = self.electronic_integrals.alpha.get("++--", None)
-        # TODO: remove extra-wrapping of Tensor once settings.tensor_unwrapping is removed
-        if not isinstance(two_body_aa, Tensor):
-            two_body_aa = Tensor(two_body_aa)
 
         einsum = f"{''.join(two_body_aa._reverse_label_template('pqrs'))},qs->pr"
         exchange = ElectronicIntegrals.einsum(

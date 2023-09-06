@@ -26,7 +26,6 @@ from qiskit_nature.second_q.algorithms import GroundStateEigensolver
 from qiskit_nature.second_q.circuit.library import HartreeFock
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import ParityMapper
-from qiskit_nature.second_q.mappers import QubitConverter
 
 
 class TestExcitationPreserving(QiskitNatureTestCase):
@@ -50,7 +49,7 @@ class TestExcitationPreserving(QiskitNatureTestCase):
 
         driver = PySCFDriver()
 
-        mapper = QubitConverter(ParityMapper())
+        mapper = ParityMapper()
 
         problem = driver.run()
 
