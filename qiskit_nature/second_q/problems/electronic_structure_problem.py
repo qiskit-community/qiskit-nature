@@ -313,9 +313,7 @@ class ElectronicStructureProblem(BaseProblem):
         return sector
 
     @staticmethod
-    def _pick_sector(
-        z2_symmetries: Z2Symmetries, hf_str: List[bool]
-    ) -> List[int]:
+    def _pick_sector(z2_symmetries: Z2Symmetries, hf_str: List[bool]) -> List[int]:
         # Finding all the symmetries using the find_Z2_symmetries:
         taper_coeff: List[int] = []
         for sym in z2_symmetries.symmetries:
