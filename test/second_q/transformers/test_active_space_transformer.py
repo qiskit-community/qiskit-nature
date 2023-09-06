@@ -248,7 +248,7 @@ class TestActiveSpaceTransformer(QiskitNatureTestCase):
         driver = PySCFDriver(basis="631g", method=MethodType.UHF)
         driver_result = driver.run()
 
-        trafo = ActiveSpaceTransformer(2, 2, [0, 2, 0, 1])
+        trafo = ActiveSpaceTransformer(2, 2, ([0, 2], [0, 1]))
         driver_result_reduced = trafo.transform(driver_result)
 
         electronic_energy = ElectronicEnergy.from_raw_integrals(

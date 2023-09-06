@@ -75,6 +75,9 @@ class ActiveSpaceTransformer(BaseTransformer):
         #. the length of `active_orbitals` must be equal to ``num_spatial_orbitals``. Note, that
            we do **not** infer the number of active orbitals from this list of indices!
 
+        #. when using a tuple of lists to indicate the alpha- and beta-spin orbital indices
+           separately, both lists must fulfill the previous criterion.
+
         #. the largest orbital index may **not** exceed the available ``num_spatial_orbitals``.
 
     If you want to apply this transformer to a Hamiltonian outside of a Problem instance, you need
@@ -110,7 +113,7 @@ class ActiveSpaceTransformer(BaseTransformer):
         self,
         num_electrons: int | tuple[int, int],
         num_spatial_orbitals: int,
-        active_orbitals: list[int] | None = None,
+        active_orbitals: list[int] | tuple[list[int], list[int]] | None = None,
     ):
         """
         Args:
@@ -119,9 +122,10 @@ class ActiveSpaceTransformer(BaseTransformer):
                interpreted as the total number of active electrons, should be even, and implies that
                the number of alpha and beta electrons equals half of this value, respectively.
             num_spatial_orbitals: The number of active orbitals.
-            active_orbitals: A list of indices specifying the spatial orbitals of the active
-                space. This argument must match with the remaining arguments and should only be used
-                to enforce an active space that is not chosen purely around the Fermi level.
+            active_orbitals: A single or pair of lists of indices specifying the spatial orbitals of
+                the active space. This argument must match with the remaining arguments and should
+                only be used to enforce an active space that is not chosen purely around the Fermi
+                level.
 
         Raises:
             QiskitNatureError: if an invalid configuration is provided.
@@ -135,9 +139,8 @@ class ActiveSpaceTransformer(BaseTransformer):
         except QiskitNatureError as exc:
             raise QiskitNatureError("Incorrect Active-Space configuration.") from exc
 
-        self._active_orbs_indices: list[int] = None
-        self._active_alpha: list[int] = None
-        self._active_beta: list[int] = None
+        self._active_alpha_indices: list[int] = None
+        self._active_beta_indices: list[int] = None
         # NOTE: the following attribute is exposed as read-only
         self._active_basis: BasisTransformer = None
         # NOTE: the following attribute is exposed as a read-write property to the user
@@ -242,23 +245,23 @@ class ActiveSpaceTransformer(BaseTransformer):
         new_problem.basis = ElectronicBasis.MO
         new_problem.molecule = problem.molecule
         new_problem.reference_energy = problem.reference_energy
-        new_problem.num_spatial_orbitals = len(self._active_alpha)
+        new_problem.num_spatial_orbitals = len(self._active_alpha_indices)
 
         new_problem.orbital_occupations = np.diag(
             cast(np.ndarray, self._active_density.alpha["+-"])
-        )[self._active_alpha]
+        )[self._active_alpha_indices]
         new_problem.orbital_occupations_b = np.diag(
             cast(np.ndarray, self._active_density.beta["+-"])
-        )[self._active_beta]
+        )[self._active_beta_indices]
         new_problem.num_particles = (
             round(sum(new_problem.orbital_occupations)),
             round(sum(new_problem.orbital_occupations_b)),
         )
 
         if problem.orbital_energies is not None:
-            new_problem.orbital_energies = problem.orbital_energies[self._active_alpha]
+            new_problem.orbital_energies = problem.orbital_energies[self._active_alpha_indices]
         if problem.orbital_energies_b is not None:
-            new_problem.orbital_energies_b = problem.orbital_energies_b[self._active_beta]
+            new_problem.orbital_energies_b = problem.orbital_energies_b[self._active_beta_indices]
 
         for prop in problem.properties:
             if isinstance(prop, ElectronicDipoleMoment):
@@ -291,7 +294,7 @@ class ActiveSpaceTransformer(BaseTransformer):
                 " basis first, for example by using a BasisTransformer."
             )
 
-        if self._active_orbs_indices is None:
+        if self._active_alpha_indices is None:
             if problem.num_spatial_orbitals is None:
                 raise QiskitNatureError(
                     "Using the ActiveSpaceTransformer requires the number of orbitals to be set on the "
@@ -362,23 +365,16 @@ class ActiveSpaceTransformer(BaseTransformer):
                 [1.0] * num_beta + [0.0] * (total_num_spatial_orbitals - num_beta)
             )
 
-        self._active_orbs_indices = self._determine_active_space(
+        self._active_alpha_indices, self._active_beta_indices = self._determine_active_space(
             sum_electrons, total_num_spatial_orbitals
         )
-
-        self._active_alpha = self._active_orbs_indices
-        self._active_beta = self._active_orbs_indices
-
-        if len(self._active_orbs_indices) == 2 * self._num_spatial_orbitals:
-            self._active_alpha = self._active_orbs_indices[: self._num_spatial_orbitals]
-            self._active_beta = self._active_orbs_indices[self._num_spatial_orbitals :]
 
         # initialize size-reducing basis transformation
         if self._active_basis is None:
             coeff_alpha = np.zeros((total_num_spatial_orbitals, self._num_spatial_orbitals))
-            coeff_alpha[self._active_alpha, range(self._num_spatial_orbitals)] = 1.0
+            coeff_alpha[self._active_alpha_indices, range(self._num_spatial_orbitals)] = 1.0
             coeff_beta = np.zeros((total_num_spatial_orbitals, self._num_spatial_orbitals))
-            coeff_beta[self._active_beta, range(self._num_spatial_orbitals)] = 1.0
+            coeff_beta[self._active_beta_indices, range(self._num_spatial_orbitals)] = 1.0
 
             self._active_basis = BasisTransformer(
                 ElectronicBasis.MO,
@@ -397,7 +393,7 @@ class ActiveSpaceTransformer(BaseTransformer):
 
     def _determine_active_space(
         self, total_num_electrons: int, total_num_spatial_orbitals: int
-    ) -> list[int]:
+    ) -> tuple[list[int], list[int]]:
         """Determines the active and inactive orbital indices.
 
         Args:
@@ -409,10 +405,12 @@ class ActiveSpaceTransformer(BaseTransformer):
                 represented by the hamiltonian which is to be transformed.
 
         Returns:
-            The list of active orbital indices.
+            The pair of active alpha- and beta-spin orbital indices.
         """
         if self._active_orbitals is not None:
-            return self._active_orbitals
+            if isinstance(self._active_orbitals, tuple):
+                return self._active_orbitals
+            return (self._active_orbitals, self._active_orbitals)
 
         if isinstance(self._num_electrons, tuple):
             num_alpha, num_beta = self._num_electrons
@@ -427,7 +425,7 @@ class ActiveSpaceTransformer(BaseTransformer):
 
         norbs_inactive = nelec_inactive // 2
         active_orbs_idxs = list(range(norbs_inactive, norbs_inactive + self._num_spatial_orbitals))
-        return active_orbs_idxs
+        return (active_orbs_idxs, active_orbs_idxs)
 
     def _validate_num_electrons(self, nelec_inactive: int) -> None:
         """Validates the number of electrons.
@@ -460,15 +458,29 @@ class ActiveSpaceTransformer(BaseTransformer):
             if norbs_inactive + self._num_spatial_orbitals > num_spatial_orbitals:
                 raise QiskitNatureError("More orbitals requested than available.")
         else:
-            if self._num_spatial_orbitals != len(
-                self._active_orbitals
-            ) and self._num_spatial_orbitals * 2 != len(self._active_orbitals):
-                raise QiskitNatureError(
-                    "The number of selected active orbital indices does not "
-                    "match the specified number of active orbitals."
-                )
-            if max(self._active_orbitals) >= num_spatial_orbitals:
-                raise QiskitNatureError("More orbitals requested than available.")
+            if isinstance(self._active_orbitals, tuple):
+                if self._num_spatial_orbitals != self._active_orbitals[0]:
+                    raise QiskitNatureError(
+                        "The number of selected active alpha-spin orbital indices does not "
+                        "match the specified number of active orbitals."
+                    )
+                if self._num_spatial_orbitals != self._active_orbitals[1]:
+                    raise QiskitNatureError(
+                        "The number of selected active beta-spin orbital indices does not "
+                        "match the specified number of active orbitals."
+                    )
+                if max(self._active_orbitals[0]) >= num_spatial_orbitals:
+                    raise QiskitNatureError("More alpha-spin orbitals requested than available.")
+                if max(self._active_orbitals[1]) >= num_spatial_orbitals:
+                    raise QiskitNatureError("More beta-spin orbitals requested than available.")
+            else:
+                if self._num_spatial_orbitals != self._active_orbitals:
+                    raise QiskitNatureError(
+                        "The number of selected active orbital indices does not "
+                        "match the specified number of active orbitals."
+                    )
+                if max(self._active_orbitals) >= num_spatial_orbitals:
+                    raise QiskitNatureError("More orbitals requested than available.")
 
     def transform_hamiltonian(self, hamiltonian: Hamiltonian) -> Hamiltonian:
         """Transforms one :class:`~qiskit_nature.second_q.hamiltonians.Hamiltonian` into another.
