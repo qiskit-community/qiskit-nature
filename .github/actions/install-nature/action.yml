@@ -26,4 +26,6 @@ runs:
         fi
         pip install -e .[pyscf,mpl,sparse,opt_einsum]
         pip install -U -c constraints.txt -r requirements-dev.txt
+        # disable a PySCF UserWarning w.r.t. a change in the B3LYP DFT functional
+        echo "B3LYP_WITH_VWN5 = True" >> ~/.pyscf_conf.py
       shell: bash
