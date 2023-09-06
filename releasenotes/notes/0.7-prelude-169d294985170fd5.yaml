@@ -13,7 +13,7 @@ prelude: >
 
   This can mean one of two things for you as the end-user:
 
-  #. Nothing, if you already migrated your code and no longer rely on any deprecated features.
+    #. Nothing, if you already migrated your code and no longer rely on any deprecated features.
 
-  #. Otherwise, you need to migrate your code immediately. If you cannot do that, or want to continue using some
-     of the features that were removed, you should pin your version of Qiskit Nature to 0.6
+    #. Otherwise, you need to migrate your code immediately. If you cannot do that, or want to continue using some
+       of the features that were removed, you should pin your version of Qiskit Nature to 0.6
