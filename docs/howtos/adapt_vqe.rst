@@ -6,17 +6,6 @@ algorithm has been migrated to Qiskit Terra (released in v0.22).
 
 This tutorial outlines how the algorithm can be used.
 
-0. We ensure the use of :class:`~qiskit.opflow.primitive_ops.PauliSumOp` (this is the default value
-   of this setting for now but we enforce it here to ensure stability of this guide as long as the
-   :class:`~qiskit.algorithms.minimum_eigensolvers.AdaptVQE` class is not yet guaranteed to handle
-   the :class:`~qiskit.quantum_info.SparsePauliOp` successor properly):
-
-.. testcode::
-
-   from qiskit_nature import settings
-
-   settings.use_pauli_sum_op = True
-
 1. We obtain an :class:`~qiskit_nature.second_q.problems.ElectronicStructureProblem`
    which we want to solve:
 

@@ -20,8 +20,6 @@ from test import QiskitNatureTestCase
 from pathlib import Path
 import numpy as np
 
-from ddt import ddt, data
-
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.formats.fcidump import FCIDump
 from qiskit_nature.second_q.operators.symmetric_two_body import S1Integrals
@@ -29,7 +27,6 @@ from qiskit_nature.second_q.operators.tensor_ordering import to_chemist_ordering
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.drivers import PySCFDriver
-from qiskit_nature.settings import settings
 import qiskit_nature.optionals as _optionals
 
 
@@ -176,30 +173,23 @@ class TestFCIDumpDumpH2(QiskitNatureTestCase, BaseTestFCIDumpDumper):
         fcidump.to_file(outpath)
 
 
-@ddt
 class TestFCIDumpDumpOH(QiskitNatureTestCase):
     """RHF FCIDump tests."""
 
-    @data(True, False)
-    def test_dump_unrestricted_spin(self, use_symmetry_reduced_integrals: bool):
+    def test_dump_unrestricted_spin(self):
         """Tests dumping unrestricted spin data.
         PySCF cannot handle this themselves, so we need to rely on a custom FCIDUMP file, load it,
         dump it again, and make sure it did not change."""
-        prev_setting = settings.use_symmetry_reduced_integrals
-        settings.use_symmetry_reduced_integrals = use_symmetry_reduced_integrals
-        try:
-            path = self.get_resource_path("test_fcidump_oh.fcidump", "second_q/formats/fcidump")
-            fcidump = FCIDump.from_file(path)
-            with tempfile.TemporaryDirectory() as dump_dir:
-                dump_file = Path(dump_dir) / "fcidump"
-                fcidump.to_file(dump_file)
+        path = self.get_resource_path("test_fcidump_oh.fcidump", "second_q/formats/fcidump")
+        fcidump = FCIDump.from_file(path)
+        with tempfile.TemporaryDirectory() as dump_dir:
+            dump_file = Path(dump_dir) / "fcidump"
+            fcidump.to_file(dump_file)
 
-                with open(path, "r", encoding="utf-8") as reference:
-                    with open(dump_file, "r", encoding="utf-8") as result:
-                        for ref, res in zip(reference.readlines(), result.readlines()):
-                            self.assertEqual(ref.strip(), res.strip())
-        finally:
-            settings.use_symmetry_reduced_integrals = prev_setting
+            with open(path, "r", encoding="utf-8") as reference:
+                with open(dump_file, "r", encoding="utf-8") as result:
+                    for ref, res in zip(reference.readlines(), result.readlines()):
+                        self.assertEqual(ref.strip(), res.strip())
 
 
 if __name__ == "__main__":
