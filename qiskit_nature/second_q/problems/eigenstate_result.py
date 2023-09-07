@@ -18,10 +18,10 @@ from typing import Any, Sequence
 
 import numpy as np
 
-from qiskit.algorithms import AlgorithmResult
-from qiskit.algorithms.eigensolvers import EigensolverResult
-from qiskit.algorithms.list_or_dict import ListOrDict
-from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
+from qiskit_algorithms import AlgorithmResult
+from qiskit_algorithms.eigensolvers import EigensolverResult
+from qiskit_algorithms.list_or_dict import ListOrDict
+from qiskit_algorithms.minimum_eigensolvers import MinimumEigensolverResult
 from qiskit.circuit import QuantumCircuit
 from qiskit.quantum_info import Statevector
 
@@ -100,7 +100,7 @@ class EigenstateResult(AlgorithmResult):
     @classmethod
     def from_eigensolver_result(cls, raw_result: EigensolverResult) -> EigenstateResult:
         """Constructs an `EigenstateResult` from an
-        :class:`qiskit.algorithms.eigensolvers.EigensolverResult`.
+        :class:`qiskit_algorithms.eigensolvers.EigensolverResult`.
 
         Args:
             raw_result: the raw result from which to build the `EigenstateResult`.
@@ -133,7 +133,7 @@ class EigenstateResult(AlgorithmResult):
         cls, raw_result: MinimumEigensolverResult
     ) -> EigenstateResult:
         """Constructs an `EigenstateResult` from an
-        :class:`qiskit.algorithms.minimum_eigensolvers.MinimumEigensolverResult`.
+        :class:`qiskit_algorithms.minimum_eigensolvers.MinimumEigensolverResult`.
 
         Args:
             raw_result: the raw result from which to build the `EigenstateResult`.

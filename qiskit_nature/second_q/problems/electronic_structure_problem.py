@@ -19,8 +19,8 @@ from typing import cast, Callable, List, Optional, Union, TYPE_CHECKING
 
 import numpy as np
 
-from qiskit.algorithms.eigensolvers import EigensolverResult
-from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
+from qiskit_algorithms.eigensolvers import EigensolverResult
+from qiskit_algorithms.minimum_eigensolvers import MinimumEigensolverResult
 from qiskit.quantum_info.analysis.z2_symmetries import Z2Symmetries
 
 from qiskit_nature.exceptions import QiskitNatureError
@@ -76,7 +76,7 @@ class ElectronicStructureProblem(BaseProblem):
     .. code-block:: python
 
         import numpy as np
-        from qiskit.algorithms.minimum_eigensolvers import NumPyMinimumEigensolver
+        from qiskit_algorithms.minimum_eigensolvers import NumPyMinimumEigensolver
 
         expected_spin = 2
         expected_num_electrons = 6
@@ -250,7 +250,7 @@ class ElectronicStructureProblem(BaseProblem):
     ) -> Optional[Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]]:
         """Returns a default filter criterion method to filter the eigenvalues computed by the
         eigensolver. For more information see also
-        :class:`qiskit.algorithms.eigensolvers.NumPyEigensolver.filter_criterion`.
+        :class:`qiskit_algorithms.eigensolvers.NumPyEigensolver.filter_criterion`.
 
         This particular default ensures that the total number of particles is conserved and that the
         angular momentum (if computed) evaluates to 0.

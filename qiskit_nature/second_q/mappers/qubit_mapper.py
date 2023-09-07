@@ -20,7 +20,7 @@ from typing import TypeVar, Dict, Iterable, Generic, Generator
 
 import numpy as np
 from qiskit.quantum_info.operators import Pauli, SparsePauliOp
-from qiskit.algorithms.list_or_dict import ListOrDict as ListOrDictType
+from qiskit_algorithms.list_or_dict import ListOrDict as ListOrDictType
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.operators import SparseLabelOp

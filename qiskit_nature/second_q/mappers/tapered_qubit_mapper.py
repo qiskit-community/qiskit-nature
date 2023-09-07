@@ -17,7 +17,7 @@ from __future__ import annotations
 import logging
 from typing import cast
 
-from qiskit.algorithms.list_or_dict import ListOrDict as ListOrDictType
+from qiskit_algorithms.list_or_dict import ListOrDict as ListOrDictType
 from qiskit.quantum_info.analysis.z2_symmetries import Z2Symmetries
 from qiskit.quantum_info.operators import SparsePauliOp
 

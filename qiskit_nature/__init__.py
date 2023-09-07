@@ -50,9 +50,7 @@ Submodules
 
 """
 
-from qiskit.algorithms.minimum_eigen_solvers.minimum_eigen_solver import (
-    ListOrDict as ListOrDictType,
-)
+from qiskit_algorithms.list_or_dict import ListOrDict as ListOrDictType
 
 from .exceptions import QiskitNatureError, UnsupportMethodError
 from .logging import logging

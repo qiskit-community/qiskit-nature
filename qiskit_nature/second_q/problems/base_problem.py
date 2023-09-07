@@ -17,8 +17,8 @@ from __future__ import annotations
 from typing import Callable
 
 import numpy as np
-from qiskit.algorithms.eigensolvers import EigensolverResult
-from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
+from qiskit_algorithms.eigensolvers import EigensolverResult
+from qiskit_algorithms.minimum_eigensolvers import MinimumEigensolverResult
 from qiskit.quantum_info.analysis.z2_symmetries import Z2Symmetries
 
 from qiskit_nature.second_q.mappers import QubitMapper, TaperedQubitMapper
@@ -144,7 +144,7 @@ class BaseProblem:
     ) -> Callable[[list | np.ndarray, float, list[float] | None], bool] | None:
         """Returns a default filter criterion method to filter the eigenvalues computed by the
         eigen solver. For more information see also
-        qiskit.algorithms.eigen_solvers.NumPyEigensolver.filter_criterion.
+        qiskit_algorithms.eigen_solvers.NumPyEigensolver.filter_criterion.
 
         In the fermionic case the default filter ensures that the number of particles is being
         preserved.
