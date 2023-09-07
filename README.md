@@ -81,9 +81,6 @@ from qiskit.circuit.library import EfficientSU2
 from scipy.optimize import minimize
 import numpy as np
 
-# set seed for reproducibility
-np.random.seed(42)
-
 driver = PySCFDriver(
     atom="H 0 0 0; H 0 0 0.735",
     basis="sto3g",
@@ -113,7 +110,17 @@ estimator = Estimator(options={"shots": int(1e4), "seed": 42})
 # define ansatz and initial point
 ansatz = EfficientSU2(qubit_op.num_qubits)
 num_params = ansatz.num_parameters
-initial_point = 2 * np.pi * np.random.random(num_params)
+initial_point = [2.95891852, 1.46946667, 3.34553262, 
+                 1.96029912, 1.47424821, 5.75416389,
+                 3.0753125,  4.2122225,  0.16412572, 
+                 4.63598071, 1.99559646, 1.73394948,
+                 3.84729185, 2.78384025, 0.09453011, 
+                 1.90557866, 0.76305686, 2.47976173,
+                 4.97062031, 6.06606025, 0.79799909, 
+                 4.44565861, 4.95080257, 3.90566765,
+                 3.09674244, 6.00968501, 4.11673221, 
+                 0.28155916, 0.48263326, 5.40291302,
+                 5.23496897, 0.17801315]
 
 # define VQE cost function
 def cost_func(params, ansatz, operator, estimator):

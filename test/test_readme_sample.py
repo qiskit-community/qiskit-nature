@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -67,7 +67,7 @@ class TestReadmeSample(QiskitNatureTestCase):
                 return
 
         texts = out.getvalue().split("\n")
-        self.assertAlmostEqual(float(texts[0]), -1.836363848598629, places=6)
+        self.assertAlmostEqual(float(texts[0]), -1.8552189310004534, places=6)
 
 
 if __name__ == "__main__":
