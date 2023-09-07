@@ -87,7 +87,12 @@ class EigenstateResult(AlgorithmResult):
         Returns:
             The constructed `EigenstateResult`.
         """
+        # NOTE: the following inspection of class names is a work-around to handle backwards
+        # compatibility for the deprecated qiskit.algorithms module without delving into complex
+        # type unions. This logic can be removed once the qiskit.algorithms module no longer wants
+        # to be supported.
         cls_names = {cls.__name__ for cls in raw_result.__class__.mro()}
+
         if isinstance(raw_result, EigenstateResult) or "EigenstateResult" in cls_names:
             return raw_result  # type: ignore[return-value]
         if isinstance(raw_result, EigensolverResult) or "EigensolverResult" in cls_names:
