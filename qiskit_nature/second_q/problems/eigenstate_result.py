@@ -87,11 +87,15 @@ class EigenstateResult(AlgorithmResult):
         Returns:
             The constructed `EigenstateResult`.
         """
-        if isinstance(raw_result, EigenstateResult):
-            return raw_result
-        if isinstance(raw_result, EigensolverResult):
-            return EigenstateResult.from_eigensolver_result(raw_result)
-        if isinstance(raw_result, MinimumEigensolverResult):
+        cls_names = {cls.__name__ for cls in raw_result.__class__.mro()}
+        if isinstance(raw_result, EigenstateResult) or "EigenstateResult" in cls_names:
+            return raw_result  # type: ignore[return-value]
+        if isinstance(raw_result, EigensolverResult) or "EigensolverResult" in cls_names:
+            return EigenstateResult.from_eigensolver_result(raw_result)  # type: ignore[arg-type]
+        if (
+            isinstance(raw_result, MinimumEigensolverResult)
+            or "MinimumEigensolverResult" in cls_names
+        ):
             return EigenstateResult.from_minimum_eigensolver_result(raw_result)
         raise TypeError(
             f"Cannot construct an EigenstateResult from a result of type, {type(raw_result)}."
