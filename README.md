@@ -63,6 +63,67 @@ Learning path notebooks may be found in the
 [Nature Tutorials](https://qiskit.org/ecosystem/nature/tutorials/index.html) section
 of the documentation and are a great place to start.
 
+### Exploring the Modularity of Qiskit Nature
+
+The examples above illustrate how Qiskit Nature handles end-to-end chemistry workflows. However, 
+its modular design allows you to customize every step of your workflow and to leverage the full 
+capabilities of Qiskit and the wide range of Primitives available.
+
+```python
+from qiskit_nature.second_q.drivers import PySCFDriver
+from qiskit_nature.units import DistanceUnit
+from qiskit_nature.second_q.mappers import JordanWignerMapper
+
+# replace with primitive of choice
+from qiskit.primitives import Estimator
+from qiskit.circuit.library import EfficientSU2
+
+from scipy.optimize import minimize
+import numpy as np
+
+driver = PySCFDriver(
+    atom="H 0 0 0; H 0 0 0.735",
+    basis="sto3g",
+    charge=0,
+    spin=0,
+    unit=DistanceUnit.ANGSTROM,
+)
+
+# get molecular hamiltonian from PySCF driver
+electr_energy_hamiltonian = driver.run().hamiltonian
+
+# convert molecular hamiltonian to fermionic operator
+fermionic_op = electr_energy_hamiltonian.second_q_op()
+
+# map fermionic operator into qubit operator
+# of type qiskit.quantum_info.SparsePauliOp
+mapper = JordanWignerMapper()
+qubit_op = mapper.map(fermionic_op)
+
+# this operator can now be plugged into any 
+# qiskit workflow, for example....
+
+# find ground state energy with VQE
+# using the Estimator primitive
+estimator = Estimator(options={"shots": int(1e4)})
+
+# define ansatz and initial point
+ansatz = EfficientSU2(qubit_op.num_qubits)
+num_params = ansatz.num_parameters
+initial_point = 2 * np.pi * np.random.random(num_params)
+
+# define VQE cost function
+def cost_func(params, ansatz, operator, estimator):
+    energy = estimator.run(ansatz, operator, parameter_values=params).result().values[0]
+    return energy
+
+# run SciPy minimizer to find ground state
+result = minimize(cost_func, initial_point, args=(ansatz, qubit_op, estimator), method="cobyla")
+print("Ground State Energy:", result.fun)
+```
+
+If you want to further explore the modular capabilities of Qiskit Nature, check out the related
+[tutorial](https://qiskit.org/ecosystem/nature/tutorials/index.html).
 
 ----------------------------------------------------------------------------------------------------
 
