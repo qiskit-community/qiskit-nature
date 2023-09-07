@@ -110,7 +110,7 @@ estimator = Estimator(options={"shots": int(1e4), "seed": 42})
 # define ansatz and initial point
 ansatz = EfficientSU2(qubit_op.num_qubits)
 num_params = ansatz.num_parameters
-initial_point = [2.95891852, 1.46946667, 3.34553262, 
+initial_point = 2 * np.pi * np.random.random(num_params)
                  1.96029912, 1.47424821, 5.75416389,
                  3.0753125,  4.2122225,  0.16412572, 
                  4.63598071, 1.99559646, 1.73394948,
