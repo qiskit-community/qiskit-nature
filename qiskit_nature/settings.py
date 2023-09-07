@@ -20,7 +20,6 @@ class QiskitNatureSettings:
 
     def __init__(self) -> None:
         self._optimize_einsum = True
-        self._use_symmetry_reduced_integrals: bool = True
 
         # The set below can be used to handle deprecation warnings for various settings.
         # It exists to keep track of which deprecation warnings were already shown in order to avoid
@@ -47,20 +46,6 @@ class QiskitNatureSettings:
         https://numpy.org/doc/stable/reference/generated/numpy.einsum.html
         """
         self._optimize_einsum = optimize_einsum
-
-    @property
-    def use_symmetry_reduced_integrals(self) -> bool:
-        """Whether or not to use symmetry-reduced integrals whenever possible.
-
-        This setting affects whether the drivers and formats should attempt to use the utilities
-        provided by the :mod:`~qiskit_nature.second_q.operators.symmetric_two_body` module.
-        Setting this to ``True`` will very likely result in lower memory consumptions at runtime.
-        """
-        return self._use_symmetry_reduced_integrals
-
-    @use_symmetry_reduced_integrals.setter
-    def use_symmetry_reduced_integrals(self, use_symmetry_reduced_integrals: bool) -> None:
-        self._use_symmetry_reduced_integrals = use_symmetry_reduced_integrals
 
 
 settings = QiskitNatureSettings()
