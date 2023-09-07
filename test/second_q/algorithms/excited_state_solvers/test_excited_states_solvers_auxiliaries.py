@@ -15,31 +15,26 @@
 from __future__ import annotations
 
 import unittest
-import warnings
 
 from test import QiskitNatureTestCase
 from ddt import ddt, named_data
 import numpy as np
 
+from qiskit.algorithms.minimum_eigensolvers import VQE
 from qiskit.algorithms.optimizers import SLSQP
 from qiskit.primitives import Estimator
 from qiskit.utils import algorithm_globals
 
 from qiskit_nature.units import DistanceUnit
-from qiskit_nature.second_q.circuit.library import UCCSD
+from qiskit_nature.second_q.circuit.library import HartreeFock, UCCSD
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import (
-    BravyiKitaevMapper,
     JordanWignerMapper,
     ParityMapper,
 )
-from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper, TaperedQubitMapper
+from qiskit_nature.second_q.mappers import QubitMapper, TaperedQubitMapper
 from qiskit_nature.second_q.operators.fermionic_op import FermionicOp
-from qiskit_nature.second_q.algorithms import (
-    GroundStateEigensolver,
-    VQEUCCFactory,
-    QEOM,
-)
+from qiskit_nature.second_q.algorithms import GroundStateEigensolver, QEOM
 from qiskit_nature.second_q.algorithms.excited_states_solvers.qeom import EvaluationRule
 import qiskit_nature.optionals as _optionals
 from .resources.expected_transition_amplitudes import reference_trans_amps
@@ -130,13 +125,22 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
                     trans_amp_expected = np.abs(references[key][opkey][0])
                     self.assertAlmostEqual(trans_amp, trans_amp_expected, places=places)
 
-    def _compute_and_assert_qeom_aux_eigenvalues(self, mapper: QubitConverter | QubitMapper):
+    def _compute_and_assert_qeom_aux_eigenvalues(self, mapper: QubitMapper):
         hamiltonian_op, _ = self.electronic_structure_problem.second_q_ops()
         aux_ops = {"hamiltonian": hamiltonian_op}
         estimator = Estimator()
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", category=DeprecationWarning)
-            solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
+        ansatz = UCCSD(
+            self.electronic_structure_problem.num_spatial_orbitals,
+            self.electronic_structure_problem.num_particles,
+            mapper,
+            initial_state=HartreeFock(
+                self.electronic_structure_problem.num_spatial_orbitals,
+                self.electronic_structure_problem.num_particles,
+                mapper,
+            ),
+        )
+        solver = VQE(estimator, ansatz, SLSQP())
+        solver.initial_point = [0] * ansatz.num_parameters
         gsc = GroundStateEigensolver(mapper, solver)
         esc = QEOM(gsc, estimator, "sd", aux_eval_rules=EvaluationRule.DIAG)
         results = esc.solve(self.electronic_structure_problem, aux_operators=aux_ops)
@@ -148,16 +152,25 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
         self._assert_energies(results.computed_energies, self.reference_energies)
         self._assert_energies(energies_recalculated, self.reference_energies)
 
-    def _compute_and_assert_qeom_trans_amp(self, mapper: QubitConverter | QubitMapper):
+    def _compute_and_assert_qeom_trans_amp(self, mapper: QubitMapper):
         aux_eval_rules = {
             "hamiltonian_derivative": [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)]
         }
         aux_ops = {"hamiltonian_derivative": self._hamiltonian_derivative()}
 
         estimator = Estimator()
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", category=DeprecationWarning)
-            solver = VQEUCCFactory(estimator, UCCSD(), SLSQP())
+        ansatz = UCCSD(
+            self.electronic_structure_problem.num_spatial_orbitals,
+            self.electronic_structure_problem.num_particles,
+            mapper,
+            initial_state=HartreeFock(
+                self.electronic_structure_problem.num_spatial_orbitals,
+                self.electronic_structure_problem.num_particles,
+                mapper,
+            ),
+        )
+        solver = VQE(estimator, ansatz, SLSQP())
+        solver.initial_point = [0] * ansatz.num_parameters
         gsc = GroundStateEigensolver(mapper, solver)
         esc = QEOM(gsc, estimator, excitations="sd", aux_eval_rules=aux_eval_rules)
         results = esc.solve(self.electronic_structure_problem, aux_operators=aux_ops)
@@ -173,7 +186,7 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
         ["PM", ParityMapper()],
         ["PM_TQR", ParityMapper(num_particles=(1, 1))],
     )
-    def test_aux_ops_qeom_mapper(self, mapper: QubitMapper):
+    def test_aux_ops_qeom(self, mapper: QubitMapper):
         """Test QEOM evaluation of excited state properties"""
         self._compute_and_assert_qeom_aux_eigenvalues(mapper)
 
@@ -193,28 +206,11 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
         self._compute_and_assert_qeom_aux_eigenvalues(tapered_mapper)
 
     @named_data(
-        ["JWM", QubitConverter(JordanWignerMapper())],
-        ["JWM_Z2", QubitConverter(JordanWignerMapper(), z2symmetry_reduction="auto")],
-        ["PM", QubitConverter(ParityMapper())],
-        ["PM_TQR", QubitConverter(ParityMapper(), two_qubit_reduction=True)],
-        ["PM_Z2", QubitConverter(ParityMapper(), z2symmetry_reduction="auto")],
-        [
-            "PM_TQR_Z2",
-            QubitConverter(ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto"),
-        ],
-        ["BKM", QubitConverter(BravyiKitaevMapper())],
-        ["BKM_Z2", QubitConverter(BravyiKitaevMapper(), z2symmetry_reduction="auto")],
-    )
-    def test_aux_ops_qeom(self, converter: QubitConverter):
-        """Test QEOM evaluation of excited state properties"""
-        self._compute_and_assert_qeom_aux_eigenvalues(converter)
-
-    @named_data(
         ["JWM", JordanWignerMapper()],
         ["PM", ParityMapper()],
         ["PM_TQR", ParityMapper(num_particles=(1, 1))],
     )
-    def test_trans_amps_qeom_mapper(self, mapper: QubitMapper):
+    def test_trans_amps_qeom(self, mapper: QubitMapper):
         """Test QEOM evaluation of transition amplitudes"""
         self._compute_and_assert_qeom_trans_amp(mapper)
 
@@ -232,23 +228,6 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
             self.num_particles, self.electronic_structure_problem
         )
         self._compute_and_assert_qeom_trans_amp(tapered_mapper)
-
-    @named_data(
-        ["JWM", QubitConverter(JordanWignerMapper())],
-        ["JWM_Z2", QubitConverter(JordanWignerMapper(), z2symmetry_reduction="auto")],
-        ["PM", QubitConverter(ParityMapper())],
-        ["PM_TQR", QubitConverter(ParityMapper(), two_qubit_reduction=True)],
-        ["PM_Z2", QubitConverter(ParityMapper(), z2symmetry_reduction="auto")],
-        [
-            "PM_TQR_Z2",
-            QubitConverter(ParityMapper(), two_qubit_reduction=True, z2symmetry_reduction="auto"),
-        ],
-        ["BKM", QubitConverter(BravyiKitaevMapper())],
-        ["BKM_Z2", QubitConverter(BravyiKitaevMapper(), z2symmetry_reduction="auto")],
-    )
-    def test_trans_amps_qeom(self, converter: QubitConverter):
-        """Test QEOM evaluation of transition amplitudes"""
-        self._compute_and_assert_qeom_trans_amp(converter)
 
 
 if __name__ == "__main__":

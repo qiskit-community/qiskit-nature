@@ -90,15 +90,6 @@ after the mapping to qubit operators, you can use the following wrapper for symm
 
    TaperedQubitMapper
 
-Qubit Converter
-+++++++++++++++
-
-.. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
-
-   QubitConverter
-
 """
 
 from .bksf import BravyiKitaevSuperFastMapper
@@ -110,7 +101,6 @@ from .bosonic_linear_mapper import BosonicLinearMapper
 from .logarithmic_mapper import LogarithmicMapper
 from .direct_mapper import DirectMapper
 from .qubit_mapper import QubitMapper
-from .qubit_converter import QubitConverter
 from .interleaved_qubit_mapper import InterleavedQubitMapper
 from .tapered_qubit_mapper import TaperedQubitMapper
 
@@ -123,7 +113,6 @@ __all__ = [
     "LinearMapper",
     "BosonicLinearMapper",
     "LogarithmicMapper",
-    "QubitConverter",
     "QubitMapper",
     "InterleavedQubitMapper",
     "TaperedQubitMapper",

@@ -21,7 +21,7 @@ from qiskit.quantum_info import random_unitary
 
 import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.drivers import PySCFDriver
-from qiskit_nature.second_q.operators.tensor_ordering import to_chemist_ordering
+from qiskit_nature.second_q.operators.symmetric_two_body import unfold
 from qiskit_nature.testing import random_two_body_tensor_real
 from qiskit_nature.utils import double_factorized, givens_matrix, modified_cholesky
 
@@ -81,7 +81,7 @@ class TestLowRankTwoBodyDecomposition(QiskitNatureTestCase):
         driver = PySCFDriver(atom="Li 0 0 0; H 0 0 1.6")
         driver_result = driver.run()
         electronic_energy = driver_result.hamiltonian
-        two_body_tensor = to_chemist_ordering(electronic_energy.electronic_integrals.alpha["++--"])
+        two_body_tensor = unfold(electronic_energy.electronic_integrals.alpha["++--"])
 
         with self.subTest("max rank"):
             max_vecs = 20

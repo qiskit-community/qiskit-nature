@@ -36,7 +36,7 @@ For the following examples, we need a simple
 :class:`~qiskit_nature.second_q.problems.ElectronicStructureProblem` which we can obtain from a
 :class:`~qiskit_nature.second_q.drivers.PySCFDriver` like so:
 
-.. testcode::
+.. code:: ipython3
 
    from qiskit_nature.second_q.drivers import PySCFDriver
    from qiskit_nature.second_q.mappers import ParityMapper
@@ -58,7 +58,7 @@ VQEUCCFactory
 
 The old way:
 
-.. testcode::
+.. code:: ipython3
 
    from qiskit.algorithms.optimizers import SLSQP
    from qiskit.primitives import Estimator
@@ -72,13 +72,13 @@ The old way:
    result = solver.compute_minimum_eigenvalue(qubit_op, aux_ops)
    print(f"Eigenvalue = {result.eigenvalue: .6f}")
 
-.. testoutput::
+.. parsed-literal::
 
     Eigenvalue = -1.857275
 
 And the corresponding new way:
 
-.. testcode::
+.. code:: ipython3
 
    from qiskit.algorithms.minimum_eigensolvers import VQE
    from qiskit.algorithms.optimizers import SLSQP
@@ -107,7 +107,7 @@ And the corresponding new way:
    result = solver.compute_minimum_eigenvalue(qubit_op, aux_ops)
    print(f"Eigenvalue = {result.eigenvalue: .6f}")
 
-.. testoutput::
+.. parsed-literal::
 
     Eigenvalue = -1.857275
 
@@ -116,7 +116,7 @@ NumPyEigensolverFactory
 
 The old way:
 
-.. testcode::
+.. code:: ipython3
 
    from qiskit_nature.second_q.algorithms import NumPyEigensolverFactory
 
@@ -132,7 +132,7 @@ The old way:
    for idx, eigenvalue in enumerate(result.eigenvalues):
        print(f"{idx}: {eigenvalue: .6f}")
 
-.. testoutput::
+.. parsed-literal::
 
     0: -1.857275
     1: -0.882722
@@ -140,7 +140,7 @@ The old way:
 
 And the corresponding new way:
 
-.. testcode::
+.. code:: ipython3
 
    from qiskit.algorithms.eigensolvers import NumPyEigensolver
 
@@ -152,7 +152,7 @@ And the corresponding new way:
    for idx, eigenvalue in enumerate(result.eigenvalues):
        print(f"{idx}: {eigenvalue: .6f}")
 
-.. testoutput::
+.. parsed-literal::
 
     0: -1.857275
     1: -0.882722

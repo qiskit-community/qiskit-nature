@@ -28,7 +28,7 @@ from qiskit_nature.second_q.circuit.library import HartreeFock, UCC
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
-from qiskit_nature.second_q.mappers import QubitConverter, JordanWignerMapper
+from qiskit_nature.second_q.mappers import JordanWignerMapper
 from qiskit_nature.second_q.algorithms.initial_points import MP2InitialPoint
 
 
@@ -72,7 +72,7 @@ class TestMP2InitialPoint(QiskitNatureTestCase):
         num_particles = (problem.num_alpha, problem.num_beta)
         num_spatial_orbitals = problem.num_spatial_orbitals
 
-        mapper = QubitConverter(mapper=JordanWignerMapper())
+        mapper = JordanWignerMapper()
 
         initial_state = HartreeFock(
             num_spatial_orbitals=num_spatial_orbitals,

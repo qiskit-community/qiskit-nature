@@ -56,16 +56,6 @@ You may also need the following to specify which auxiliary operators to evaluate
 
    EvaluationRule
 
-The following factories are still available but have been **deprecated** in version 0.6.0 of Qiskit
-Nature:
-
-.. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
-
-   EigensolverFactory
-   NumPyEigensolverFactory
-
 Ground State Solvers
 ++++++++++++++++++++
 Algorithms that can find the minimum eigenvalue of an operator, e.g. ground state for chemistry.
@@ -85,18 +75,6 @@ the solvers themselves.
    :nosignatures:
 
    GroundStateEigensolver
-
-The following factories are still available but have been **deprecated** in version 0.6.0 of Qiskit
-Nature:
-
-.. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
-
-   MinimumEigensolverFactory
-   NumPyMinimumEigensolverFactory
-   VQEUCCFactory
-   VQEUVCCFactory
 
 Initial Points
 ++++++++++++++
@@ -121,16 +99,10 @@ from .excited_states_solvers import (
     QEOM,
     QEOMResult,
     EvaluationRule,
-    EigensolverFactory,
-    NumPyEigensolverFactory,
 )
 from .ground_state_solvers import (
     GroundStateEigensolver,
     GroundStateSolver,
-    MinimumEigensolverFactory,
-    NumPyMinimumEigensolverFactory,
-    VQEUCCFactory,
-    VQEUVCCFactory,
 )
 
 __all__ = [
@@ -139,12 +111,6 @@ __all__ = [
     "QEOM",
     "QEOMResult",
     "EvaluationRule",
-    "EigensolverFactory",
-    "NumPyEigensolverFactory",
     "GroundStateEigensolver",
     "GroundStateSolver",
-    "MinimumEigensolverFactory",
-    "NumPyMinimumEigensolverFactory",
-    "VQEUCCFactory",
-    "VQEUVCCFactory",
 ]

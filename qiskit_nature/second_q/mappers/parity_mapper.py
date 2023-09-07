@@ -20,12 +20,9 @@ from functools import lru_cache
 
 import numpy as np
 
-from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.analysis.z2_symmetries import Z2Symmetries
 from qiskit.quantum_info.operators import Pauli, PauliList, SparsePauliOp
 
-from qiskit_nature import settings
-from qiskit_nature.deprecation import deprecate_arguments, deprecate_property
 from qiskit_nature.second_q.operators import FermionicOp
 from .fermionic_mapper import FermionicMapper
 
@@ -59,11 +56,6 @@ class ParityMapper(FermionicMapper):
         self.num_particles = num_particles
 
     @property
-    @deprecate_property("0.6.0")
-    def allows_two_qubit_reduction(self) -> bool:
-        return True
-
-    @property
     def num_particles(self) -> tuple[int, int] | None:
         """Get number of particles."""
         return self._num_particles
@@ -81,11 +73,8 @@ class ParityMapper(FermionicMapper):
             self._tapering_values = [par_2, par_1]
 
     @classmethod
-    @deprecate_arguments("0.6.0", {"nmodes": "register_length"})
     @lru_cache(maxsize=32)
-    def pauli_table(
-        cls, register_length: int, *, nmodes: int | None = None
-    ) -> list[tuple[Pauli, Pauli]]:
+    def pauli_table(cls, register_length: int) -> list[tuple[Pauli, Pauli]]:
         # pylint: disable=unused-argument
         pauli_table = []
 
@@ -139,11 +128,8 @@ class ParityMapper(FermionicMapper):
 
     def _map_single(
         self, second_q_op: FermionicOp, *, register_length: int | None = None
-    ) -> SparsePauliOp | PauliSumOp:
+    ) -> SparsePauliOp:
         mapped_op = ParityMapper.mode_based_mapping(second_q_op, register_length=register_length)
-
-        if isinstance(mapped_op, PauliSumOp):
-            mapped_op = mapped_op.primitive
 
         reduced_op = mapped_op
         if self.num_particles is not None:
@@ -156,4 +142,4 @@ class ParityMapper(FermionicMapper):
                     mapped_op.num_qubits,
                 )
 
-        return PauliSumOp(reduced_op) if settings.use_pauli_sum_op else reduced_op
+        return reduced_op

@@ -20,9 +20,8 @@ import numpy as np
 from qiskit import QuantumCircuit, QuantumRegister
 from qiskit.circuit import Gate, Qubit
 from qiskit.circuit.library import RZGate, XXPlusYYGate
-from qiskit_nature.second_q.mappers import QubitConverter, QubitMapper
+from qiskit_nature.second_q.mappers import QubitMapper
 from qiskit_nature.second_q.mappers import JordanWignerMapper
-from qiskit_nature.deprecation import deprecate_arguments
 from qiskit_nature.utils import apply_matrix_to_slices, givens_matrix
 from qiskit_nature.utils.linalg import fermionic_gaussian_decomposition_jw
 
@@ -130,20 +129,11 @@ class BogoliubovTransform(QuantumCircuit):
     .. _arXiv:1603.08788: https://arxiv.org/abs/1603.08788
     """
 
-    @deprecate_arguments(
-        "0.6.0",
-        {"qubit_converter": "qubit_mapper"},
-        additional_msg=(
-            ". Additionally, the QubitConverter type in the qubit_mapper argument is deprecated "
-            "and support for it will be removed together with the qubit_converter argument."
-        ),
-    )
     def __init__(
         self,
         transformation_matrix: np.ndarray,
-        qubit_mapper: QubitConverter | QubitMapper | None = None,
+        qubit_mapper: QubitMapper | None = None,
         *,
-        qubit_converter: QubitConverter | QubitMapper | None = None,
         validate: bool = True,
         rtol: float = 1e-5,
         atol: float = 1e-8,
@@ -155,11 +145,8 @@ class BogoliubovTransform(QuantumCircuit):
             transformation_matrix: The matrix :math:`W` that specifies the coefficients of the
                 new creation operators in terms of the original creation operators.
                 Should be either :math:`N \times N` or :math:`N \times 2N`.
-            qubit_mapper: The ``QubitMapper`` or ``QubitConverter`` (use of the latter is
-                deprecated). The default behavior is to create one using the call
+            qubit_mapper: The ``QubitMapper``. The default behavior is to create one using the call
                 ``JordanWignerMapper()``.
-            qubit_converter: DEPRECATED The ``QubitConverter`` or ``QubitMapper``. The default
-                behavior is to create one using the call ``JordanWignerMapper()``.
             validate: Whether to validate the inputs.
             rtol: Relative numerical tolerance for input validation.
             atol: Absolute numerical tolerance for input validation.
@@ -187,10 +174,7 @@ class BogoliubovTransform(QuantumCircuit):
         register = QuantumRegister(n)
         super().__init__(register, **circuit_kwargs)
 
-        if (
-            isinstance(qubit_mapper, QubitConverter)
-            and isinstance(qubit_mapper.mapper, JordanWignerMapper)
-        ) or (isinstance(qubit_mapper, JordanWignerMapper)):
+        if isinstance(qubit_mapper, JordanWignerMapper):
             operations = _bogoliubov_transform_jw(register, transformation_matrix)
             for gate, qubits in operations:
                 self.append(gate, qubits)

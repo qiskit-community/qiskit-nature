@@ -20,7 +20,6 @@ import numpy as np
 
 from qiskit.quantum_info.operators import Pauli
 
-from qiskit_nature.deprecation import deprecate_arguments
 from .fermionic_mapper import FermionicMapper
 
 
@@ -28,11 +27,8 @@ class BravyiKitaevMapper(FermionicMapper):
     """The Bravyi-Kitaev fermion-to-qubit mapping."""
 
     @classmethod
-    @deprecate_arguments("0.6.0", {"nmodes": "register_length"})
     @lru_cache(maxsize=32)
-    def pauli_table(
-        cls, register_length: int, *, nmodes: int | None = None
-    ) -> list[tuple[Pauli, Pauli]]:
+    def pauli_table(cls, register_length: int) -> list[tuple[Pauli, Pauli]]:
         # pylint: disable=unused-argument
         def parity_set(j, n):
             """

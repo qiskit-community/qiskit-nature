@@ -27,7 +27,6 @@ from qiskit.primitives import Estimator
 from qiskit_nature.second_q.circuit.library import UVCC, VSCF
 from qiskit_nature.second_q.mappers import DirectMapper
 from qiskit_nature.second_q.operators import VibrationalOp
-from qiskit_nature.second_q.mappers import QubitConverter
 
 
 def assert_ucc_like_ansatz(test_case, ansatz, num_modals, expected_ops):
@@ -61,31 +60,15 @@ class TestUVCC(QiskitNatureTestCase):
     def test_ucc_ansatz(self, excitations, num_modals, expect):
         """Tests the UVCC Ansatz."""
         mapper = DirectMapper()
-        converter = QubitConverter(mapper)
-
-        with self.subTest("Qubit Converter object"):
-            ansatz = UVCC(qubit_mapper=converter, num_modals=num_modals, excitations=excitations)
-            assert_ucc_like_ansatz(self, ansatz, num_modals, expect)
-
-        with self.subTest("Qubit Mapper object"):
-            ansatz = UVCC(qubit_mapper=mapper, num_modals=num_modals, excitations=excitations)
-            assert_ucc_like_ansatz(self, ansatz, num_modals, expect)
+        ansatz = UVCC(qubit_mapper=mapper, num_modals=num_modals, excitations=excitations)
+        assert_ucc_like_ansatz(self, ansatz, num_modals, expect)
 
     def test_transpile_no_parameters(self):
         """Test transpilation without parameters"""
-
         mapper = DirectMapper()
-        converter = QubitConverter(mapper)
-
-        with self.subTest("Qubit Converter object"):
-            ansatz = UVCC(qubit_mapper=converter, num_modals=[2], excitations="s")
-            ansatz = transpile(ansatz, optimization_level=3)
-            self.assertEqual(ansatz.num_qubits, 2)
-
-        with self.subTest("Qubit Mapper object"):
-            ansatz = UVCC(qubit_mapper=mapper, num_modals=[2], excitations="s")
-            ansatz = transpile(ansatz, optimization_level=3)
-            self.assertEqual(ansatz.num_qubits, 2)
+        ansatz = UVCC(qubit_mapper=mapper, num_modals=[2], excitations="s")
+        ansatz = transpile(ansatz, optimization_level=3)
+        self.assertEqual(ansatz.num_qubits, 2)
 
 
 class TestUVCCVSCF(QiskitNatureTestCase):
@@ -131,25 +114,14 @@ class TestUVCCVSCF(QiskitNatureTestCase):
         vibr_op = VibrationalOp(vibrational_op_labels, num_modals)
         init_state = VSCF(num_modals)
         mapper = DirectMapper()
-        converter = QubitConverter(mapper)
 
-        with self.subTest("Qubit Converter object"):
-            qubit_op = converter.convert_match(vibr_op)
-            uvcc_ansatz = UVCC(num_modals, "sd", converter, initial_state=init_state)
-            optimizer = COBYLA(maxiter=1000)
-            algo = VQE(Estimator(), uvcc_ansatz, optimizer)
-            vqe_result = algo.compute_minimum_eigenvalue(qubit_op)
-            energy = vqe_result.optimal_value
-            self.assertAlmostEqual(energy, self.reference_energy, places=4)
-
-        with self.subTest("Qubit Mapper object"):
-            qubit_op = mapper.map(vibr_op)
-            uvcc_ansatz = UVCC(num_modals, "sd", mapper, initial_state=init_state)
-            optimizer = COBYLA(maxiter=1000)
-            algo = VQE(Estimator(), uvcc_ansatz, optimizer)
-            vqe_result = algo.compute_minimum_eigenvalue(qubit_op)
-            energy = vqe_result.optimal_value
-            self.assertAlmostEqual(energy, self.reference_energy, places=4)
+        qubit_op = mapper.map(vibr_op)
+        uvcc_ansatz = UVCC(num_modals, "sd", mapper, initial_state=init_state)
+        optimizer = COBYLA(maxiter=1000)
+        algo = VQE(Estimator(), uvcc_ansatz, optimizer)
+        vqe_result = algo.compute_minimum_eigenvalue(qubit_op)
+        energy = vqe_result.optimal_value
+        self.assertAlmostEqual(energy, self.reference_energy, places=4)
 
     def test_build_uvcc(self):
         """Test building UVCC"""
@@ -179,10 +151,10 @@ class TestUVCCVSCF(QiskitNatureTestCase):
             with self.assertRaises(ValueError):
                 _ = uvcc.data
 
-        with self.subTest("Set qubit converter to complete build"):
-            converter = QubitConverter(DirectMapper())
-            uvcc.qubit_mapper = converter
-            self.assertEqual(uvcc.qubit_mapper, converter)
+        with self.subTest("Set qubit mapper to complete build"):
+            mapper = DirectMapper()
+            uvcc.qubit_mapper = mapper
+            self.assertEqual(uvcc.qubit_mapper, mapper)
             self.assertIsNotNone(uvcc.operators)
             self.assertEqual(len(uvcc.operators), 3)
             self.assertEqual(uvcc.num_qubits, 4)

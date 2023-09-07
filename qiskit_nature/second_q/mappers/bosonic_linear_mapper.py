@@ -20,7 +20,6 @@ from functools import reduce, lru_cache
 import numpy as np
 
 from qiskit.quantum_info import Pauli, SparsePauliOp
-from qiskit_nature import settings
 
 from qiskit_nature.second_q.operators import BosonicOp
 from .bosonic_mapper import BosonicMapper
@@ -96,17 +95,7 @@ class BosonicLinearMapper(BosonicMapper):
 
         Returns:
             The qubit operator corresponding to the problem-Hamiltonian in the qubit space.
-
-        Raises:
-            NotImplementedError: when `qiskit_nature.settings.use_pauli_sum_op` is set to `True`.
-                This value is deprecated and, thus, not supported by this new implementation.
-                Set it to `False` in order to use this mapper.
         """
-        if settings.use_pauli_sum_op:
-            raise NotImplementedError(
-                "This class does not support the deprecated `settings.use_pauli_sum_op` value."
-                "Please set `settings.use_pauli_sum_op = False` in order to use this mapper."
-            )
         if register_length is None:
             register_length = second_q_op.num_modes
 

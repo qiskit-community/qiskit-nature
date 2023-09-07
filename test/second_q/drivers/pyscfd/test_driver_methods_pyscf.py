@@ -15,12 +15,11 @@
 import unittest
 
 from test.second_q.drivers.test_driver_methods_gsc import TestDriverMethods
+from qiskit.test import slow_test
 from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.drivers import PySCFDriver, MethodType
 from qiskit_nature.second_q.mappers import BravyiKitaevMapper, ParityMapper
-from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.transformers import FreezeCoreTransformer
-from qiskit_nature.settings import settings
 import qiskit_nature.optionals as _optionals
 
 
@@ -83,7 +82,7 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         )
         result = self._run_driver(
             driver,
-            converter=QubitConverter(ParityMapper()),
+            mapper=ParityMapper(),
             transformers=[FreezeCoreTransformer()],
         )
         self._assert_energy_and_dipole(result, "lih")
@@ -100,7 +99,9 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         )
         result = self._run_driver(
             driver,
-            converter=QubitConverter(ParityMapper(), two_qubit_reduction=True),
+            # NOTE: the particle number provided below already needs to take the core orbital
+            # freezing into account
+            mapper=ParityMapper(num_particles=(1, 1)),
             transformers=[FreezeCoreTransformer()],
         )
         self._assert_energy_and_dipole(result, "lih")
@@ -117,11 +118,12 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         )
         result = self._run_driver(
             driver,
-            converter=QubitConverter(BravyiKitaevMapper()),
+            mapper=BravyiKitaevMapper(),
             transformers=[FreezeCoreTransformer()],
         )
         self._assert_energy_and_dipole(result, "lih")
 
+    @slow_test
     def test_oh_rohf(self):
         """oh rohf test"""
         driver = PySCFDriver(
@@ -135,6 +137,7 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         result = self._run_driver(driver)
         self._assert_energy_and_dipole(result, "oh")
 
+    @slow_test
     def test_oh_uhf(self):
         """oh uhf test"""
         driver = PySCFDriver(
@@ -148,6 +151,7 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         result = self._run_driver(driver)
         self._assert_energy_and_dipole(result, "oh")
 
+    @slow_test
     def test_oh_rohf_parity(self):
         """oh rohf parity test"""
         driver = PySCFDriver(
@@ -158,9 +162,10 @@ class TestDriverMethodsPySCF(TestDriverMethods):
             basis="sto-3g",
             method=MethodType.ROHF,
         )
-        result = self._run_driver(driver, converter=QubitConverter(ParityMapper()))
+        result = self._run_driver(driver, mapper=ParityMapper())
         self._assert_energy_and_dipole(result, "oh")
 
+    @slow_test
     def test_oh_rohf_parity_2q(self):
         """oh rohf parity 2q test"""
         driver = PySCFDriver(
@@ -171,11 +176,10 @@ class TestDriverMethodsPySCF(TestDriverMethods):
             basis="sto-3g",
             method=MethodType.ROHF,
         )
-        result = self._run_driver(
-            driver, converter=QubitConverter(ParityMapper(), two_qubit_reduction=True)
-        )
+        result = self._run_driver(driver, mapper=ParityMapper(num_particles=(5, 4)))
         self._assert_energy_and_dipole(result, "oh")
 
+    @slow_test
     def test_oh_uhf_parity(self):
         """oh uhf parity test"""
         driver = PySCFDriver(
@@ -186,9 +190,10 @@ class TestDriverMethodsPySCF(TestDriverMethods):
             basis="sto-3g",
             method=MethodType.UHF,
         )
-        result = self._run_driver(driver, converter=QubitConverter(ParityMapper()))
+        result = self._run_driver(driver, mapper=ParityMapper())
         self._assert_energy_and_dipole(result, "oh")
 
+    @slow_test
     def test_oh_uhf_parity_2q(self):
         """oh uhf parity 2q test"""
         driver = PySCFDriver(
@@ -199,11 +204,10 @@ class TestDriverMethodsPySCF(TestDriverMethods):
             basis="sto-3g",
             method=MethodType.UHF,
         )
-        result = self._run_driver(
-            driver, converter=QubitConverter(ParityMapper(), two_qubit_reduction=True)
-        )
+        result = self._run_driver(driver, mapper=ParityMapper(num_particles=(5, 4)))
         self._assert_energy_and_dipole(result, "oh")
 
+    @slow_test
     def test_oh_rohf_bk(self):
         """oh rohf bk test"""
         driver = PySCFDriver(
@@ -214,9 +218,10 @@ class TestDriverMethodsPySCF(TestDriverMethods):
             basis="sto-3g",
             method=MethodType.ROHF,
         )
-        result = self._run_driver(driver, converter=QubitConverter(BravyiKitaevMapper()))
+        result = self._run_driver(driver, mapper=BravyiKitaevMapper())
         self._assert_energy_and_dipole(result, "oh")
 
+    @slow_test
     def test_oh_uhf_bk(self):
         """oh uhf bk test"""
         driver = PySCFDriver(
@@ -227,22 +232,8 @@ class TestDriverMethodsPySCF(TestDriverMethods):
             basis="sto-3g",
             method=MethodType.UHF,
         )
-        result = self._run_driver(driver, converter=QubitConverter(BravyiKitaevMapper()))
+        result = self._run_driver(driver, mapper=BravyiKitaevMapper())
         self._assert_energy_and_dipole(result, "oh")
-
-
-class TestDriverMethodsPySCFSymmetric(TestDriverMethodsPySCF):
-    """Driver Methods PySCF tests with symmetry-reduced integrals enabled"""
-
-    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
-    def setUp(self):
-        super().setUp()
-        self._prev_setting = settings.use_symmetry_reduced_integrals
-        settings.use_symmetry_reduced_integrals = True
-
-    def tearDown(self):
-        super().tearDown()
-        settings.use_symmetry_reduced_integrals = self._prev_setting
 
 
 if __name__ == "__main__":

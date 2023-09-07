@@ -25,8 +25,6 @@ from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
 from qiskit.circuit import QuantumCircuit
 from qiskit.quantum_info import Statevector
 
-from qiskit_nature.runtime.vqe_client import VQERuntimeResult
-
 
 def _statevector_to_circuit(state: Statevector) -> QuantumCircuit:
     circ = QuantumCircuit(state.num_qubits)
@@ -95,8 +93,6 @@ class EigenstateResult(AlgorithmResult):
             return EigenstateResult.from_eigensolver_result(raw_result)
         if isinstance(raw_result, MinimumEigensolverResult):
             return EigenstateResult.from_minimum_eigensolver_result(raw_result)
-        if isinstance(raw_result, VQERuntimeResult):
-            return EigenstateResult._from_vqe_runtime_result(raw_result)
         raise TypeError(
             f"Cannot construct an EigenstateResult from a result of type, {type(raw_result)}."
         )
@@ -159,22 +155,6 @@ class EigenstateResult(AlgorithmResult):
         if raw_result.aux_operators_evaluated is not None:
             result.aux_operators_evaluated = [
                 cls._unwrap_aux_op_values(raw_result.aux_operators_evaluated)
-            ]
-
-        return result
-
-    @classmethod
-    def _from_vqe_runtime_result(cls, raw_result: VQERuntimeResult) -> EigenstateResult:
-        result = EigenstateResult()
-        result.raw_result = raw_result
-        result.eigenvalues = np.asarray([raw_result.eigenvalue])
-
-        if hasattr(raw_result, "optimal_circuit") and hasattr(raw_result, "optimal_point"):
-            result.eigenstates = [(raw_result.optimal_circuit, raw_result.optimal_point)]
-
-        if raw_result.aux_operator_eigenvalues is not None:
-            result.aux_operators_evaluated = [
-                cls._unwrap_aux_op_values(raw_result.aux_operator_eigenvalues)
             ]
 
         return result

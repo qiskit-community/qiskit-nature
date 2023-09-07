@@ -19,12 +19,10 @@ from functools import lru_cache
 from typing import TypeVar, Dict, Iterable, Generic, Generator
 
 import numpy as np
-from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info.operators import Pauli, SparsePauliOp
 from qiskit.algorithms.list_or_dict import ListOrDict as ListOrDictType
 
-from qiskit_nature import QiskitNatureError, settings
-from qiskit_nature.deprecation import deprecate_arguments, deprecate_property
+from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.operators import SparseLabelOp
 
 # pylint: disable=invalid-name
@@ -100,16 +98,9 @@ class _ListOrDict(Dict, Iterable, Generic[T]):
             Content of the current class instance as a list, a dictionary or a single element.
         """
 
-        def _qubit_op_type_wrapper(qubit_op: SparsePauliOp | PauliSumOp | None):
+        def _qubit_op_type_wrapper(qubit_op: SparsePauliOp | None):
             if qubit_op is None:
                 return None
-            current_type = type(qubit_op)
-            if settings.use_pauli_sum_op:
-                if issubclass(current_type, PauliSumOp):
-                    return qubit_op
-                return PauliSumOp(qubit_op)
-            if issubclass(current_type, PauliSumOp):
-                return qubit_op.primitive
             return qubit_op
 
         if wrapped_type == list:
@@ -128,27 +119,14 @@ class _ListOrDict(Dict, Iterable, Generic[T]):
 
 class QubitMapper(ABC):
     """The interface for implementing methods which map from a ``SparseLabelOp`` to a
-    qubit operator in the form of a ``PauliSumOp`` or ``SparsePauliOp`` (depending on
-    :attr:`~qiskit_nature.settings.use_pauli_sum_op`).
+    qubit operator in the form of a ``SparsePauliOp``.
     """
-
-    @property
-    @deprecate_property("0.6.0")
-    def allows_two_qubit_reduction(self) -> bool:
-        """
-        DEPRECATED: Getter for symmetry information for two qubit reduction
-
-        Returns: If mapping generates the known symmetry that allows two qubit reduction.
-
-        """
-        return False
 
     def _map_single(
         self, second_q_op: SparseLabelOp, *, register_length: int | None = None
-    ) -> SparsePauliOp | PauliSumOp:
+    ) -> SparsePauliOp:
         """Maps a :class:`~qiskit_nature.second_q.operators.SparseLabelOp`
-        to a ``PauliSumOp`` or ``SparsePauliOp`` (depending on
-        :attr:`~qiskit_nature.settings.use_pauli_sum_op`).
+        to a ``SparsePauliOp``.
 
         Args:
             second_q_op: the ``SparseLabelOp`` to be mapped.
@@ -166,7 +144,7 @@ class QubitMapper(ABC):
         second_q_ops: SparseLabelOp | ListOrDictType[SparseLabelOp],
         *,
         register_length: int | None = None,
-    ) -> SparsePauliOp | PauliSumOp | ListOrDictType[SparsePauliOp | PauliSumOp]:
+    ) -> SparsePauliOp | ListOrDictType[SparsePauliOp]:
         """Maps a second quantized operator or a list, dict of second quantized operators based on
         the current mapper.
 
@@ -177,8 +155,7 @@ class QubitMapper(ABC):
                 ``register_length`` is considered a lower bound in a ``SparseLabelOp``.
 
         Returns:
-            A qubit operator in the form of a ``PauliSumOp`` or ``SparsePauliOp`` (depending on
-            :attr:`~qiskit_nature.settings.use_pauli_sum_op`), or list (resp. dict) thereof if a
+            A qubit operator in the form of a ``SparsePauliOp``, or list (resp. dict) thereof if a
             list (resp. dict) of second quantized operators was supplied.
         """
         wrapped_second_q_ops, wrapped_type = _ListOrDict.wrap(second_q_ops)
@@ -193,18 +170,14 @@ class QubitMapper(ABC):
         return returned_ops
 
     @classmethod
-    @deprecate_arguments("0.6.0", {"nmodes": "register_length"})
     @lru_cache(maxsize=32)
-    def pauli_table(
-        cls, register_length: int, *, nmodes: int | None = None
-    ) -> list[tuple[Pauli, Pauli]]:
+    def pauli_table(cls, register_length: int) -> list[tuple[Pauli, Pauli]]:
         """Generates a Pauli-lookup table mapping from modes to pauli pairs.
 
         The generated table is processed by :meth:`.QubitMapper.sparse_pauli_operators`.
 
         Args:
             register_length: the register length for which to generate the table.
-            nmodes: (DEPRECATED) The old name for ``register_length``.
 
         Returns:
             A list of tuples in which the first and second Pauli operator the real and imaginary
@@ -212,10 +185,9 @@ class QubitMapper(ABC):
         """
 
     @classmethod
-    @deprecate_arguments("0.6.0", {"nmodes": "register_length"})
     @lru_cache(maxsize=32)
     def sparse_pauli_operators(
-        cls, register_length: int, *, nmodes: int | None = None
+        cls, register_length: int
     ) -> tuple[list[SparsePauliOp], list[SparsePauliOp]]:
         # pylint: disable=unused-argument
         """Generates the cached :class:`.SparsePauliOp` terms.
@@ -225,7 +197,6 @@ class QubitMapper(ABC):
 
         Args:
             register_length: the register length for which to generate the operators.
-            nmodes: (DEPRECATED) The old name for ``register_length``.
 
         Returns:
             Two lists stored in a tuple, consisting of the creation and annihilation  operators,
@@ -249,21 +220,16 @@ class QubitMapper(ABC):
         return (times_creation_op, times_annihilation_op)
 
     @classmethod
-    @deprecate_arguments("0.6.0", {"nmodes": "register_length"})
     def mode_based_mapping(
         cls,
         second_q_op: SparseLabelOp,
-        nmodes: int | None = None,
-        *,
         register_length: int | None = None,
-    ) -> SparsePauliOp | PauliSumOp:
+    ) -> SparsePauliOp:
         # pylint: disable=unused-argument
         """Utility method to map a ``SparseLabelOp`` to a qubit operator using a pauli table.
 
         Args:
             second_q_op: the `SparseLabelOp` to be mapped.
-            nmodes: (DEPRECATED) the number of modes for which to generate the operators. This
-                argument is ignored in favor of :attr:`.SparseLabelOp.register_length`.
             register_length: when provided, this will be used to overwrite the ``register_length``
                 attribute of the operator being mapped. This is possible because the
                 ``register_length`` is considered a lower bound.
@@ -306,4 +272,4 @@ class QubitMapper(ABC):
             ret_op_list.append(ret_op)
 
         sparse_op = SparsePauliOp.sum(ret_op_list).simplify()
-        return PauliSumOp(sparse_op) if settings.use_pauli_sum_op else sparse_op
+        return sparse_op

@@ -22,7 +22,6 @@ from ddt import ddt, data, unpack
 from qiskit_nature.second_q.circuit.library import UCCSD
 from qiskit_nature.second_q.mappers import JordanWignerMapper
 from qiskit_nature.second_q.operators import FermionicOp
-from qiskit_nature.second_q.mappers import QubitConverter
 
 
 @ddt
@@ -102,23 +101,13 @@ class TestUCCSD(QiskitNatureTestCase):
     def test_uccsd_ansatz(self, num_spatial_orbitals, num_particles, expect):
         """Tests the UCCSD Ansatz."""
         mapper = JordanWignerMapper()
-        converter = QubitConverter(mapper)
 
-        with self.subTest("Qubit Converter object"):
-            ansatz = UCCSD(
-                qubit_mapper=converter,
-                num_particles=num_particles,
-                num_spatial_orbitals=num_spatial_orbitals,
-            )
-            assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
-
-        with self.subTest("Qubit Mapper object"):
-            ansatz = UCCSD(
-                qubit_mapper=mapper,
-                num_particles=num_particles,
-                num_spatial_orbitals=num_spatial_orbitals,
-            )
-            assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
+        ansatz = UCCSD(
+            qubit_mapper=mapper,
+            num_particles=num_particles,
+            num_spatial_orbitals=num_spatial_orbitals,
+        )
+        assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
 
     @unpack
     @data(
@@ -147,25 +136,14 @@ class TestUCCSD(QiskitNatureTestCase):
     def test_uccsd_ansatz_generalized(self, num_spatial_orbitals, num_particles, expect):
         """Tests the generalized UCCSD Ansatz."""
         mapper = JordanWignerMapper()
-        converter = QubitConverter(mapper)
 
-        with self.subTest("Qubit Converter object"):
-            ansatz = UCCSD(
-                qubit_mapper=converter,
-                num_particles=num_particles,
-                num_spatial_orbitals=num_spatial_orbitals,
-                generalized=True,
-            )
-            assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
-
-        with self.subTest("Qubit Mapper object"):
-            ansatz = UCCSD(
-                qubit_mapper=mapper,
-                num_particles=num_particles,
-                num_spatial_orbitals=num_spatial_orbitals,
-                generalized=True,
-            )
-            assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
+        ansatz = UCCSD(
+            qubit_mapper=mapper,
+            num_particles=num_particles,
+            num_spatial_orbitals=num_spatial_orbitals,
+            generalized=True,
+        )
+        assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
 
     @unpack
     @data(
@@ -204,25 +182,14 @@ class TestUCCSD(QiskitNatureTestCase):
     def test_uccsd_ansatz_preserve_spin(self, num_spatial_orbitals, num_particles, expect):
         """Tests UCCSD Ansatz with spin flips."""
         mapper = JordanWignerMapper()
-        converter = QubitConverter(mapper)
 
-        with self.subTest("Qubit Converter object"):
-            ansatz = UCCSD(
-                qubit_mapper=converter,
-                num_particles=num_particles,
-                num_spatial_orbitals=num_spatial_orbitals,
-                preserve_spin=False,
-            )
-            assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
-
-        with self.subTest("Qubit Mapper object"):
-            ansatz = UCCSD(
-                qubit_mapper=mapper,
-                num_particles=num_particles,
-                num_spatial_orbitals=num_spatial_orbitals,
-                preserve_spin=False,
-            )
-            assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
+        ansatz = UCCSD(
+            qubit_mapper=mapper,
+            num_particles=num_particles,
+            num_spatial_orbitals=num_spatial_orbitals,
+            preserve_spin=False,
+        )
+        assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
 
     @unpack
     @data(
@@ -242,25 +209,14 @@ class TestUCCSD(QiskitNatureTestCase):
     def test_uccsd_ansatz_include_imaginary(self, num_spatial_orbitals, num_particles, expect):
         """Tests UCCSD Ansatz with imaginary terms included."""
         mapper = JordanWignerMapper()
-        converter = QubitConverter(mapper)
 
-        with self.subTest("Qubit Converter object"):
-            ansatz = UCCSD(
-                qubit_mapper=converter,
-                num_particles=num_particles,
-                num_spatial_orbitals=num_spatial_orbitals,
-                include_imaginary=True,
-            )
-            assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
-
-        with self.subTest("Qubit Mapper object"):
-            ansatz = UCCSD(
-                qubit_mapper=mapper,
-                num_particles=num_particles,
-                num_spatial_orbitals=num_spatial_orbitals,
-                include_imaginary=True,
-            )
-            assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
+        ansatz = UCCSD(
+            qubit_mapper=mapper,
+            num_particles=num_particles,
+            num_spatial_orbitals=num_spatial_orbitals,
+            include_imaginary=True,
+        )
+        assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
 
 
 if __name__ == "__main__":

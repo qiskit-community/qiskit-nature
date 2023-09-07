@@ -15,21 +15,18 @@
 import tempfile
 import builtins
 import unittest
-import warnings
 from abc import ABC, abstractmethod
 from test import QiskitNatureTestCase
 from pathlib import Path
 import numpy as np
 
-from ddt import ddt, data
-
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.formats.fcidump import FCIDump
+from qiskit_nature.second_q.operators.symmetric_two_body import S1Integrals
 from qiskit_nature.second_q.operators.tensor_ordering import to_chemist_ordering, find_index_order
 from qiskit_nature.second_q.problems import ElectronicStructureProblem
 from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.drivers import PySCFDriver
-from qiskit_nature.settings import settings
 import qiskit_nature.optionals as _optionals
 
 
@@ -161,49 +158,38 @@ class TestFCIDumpDumpH2(QiskitNatureTestCase, BaseTestFCIDumpDumper):
         hijkl = electronic_integrals.alpha.get("++--", None)
         hijkl_ba = electronic_integrals.beta_alpha.get("++--", None)
         hijkl_bb = electronic_integrals.beta.get("++--", None)
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", category=DeprecationWarning)
-            fcidump = FCIDump(
-                num_electrons=problem.num_alpha + problem.num_beta,
-                hij=electronic_integrals.alpha.get("+-", None),
-                hij_b=electronic_integrals.beta.get("+-", None),
-                hijkl=to_chemist_ordering(hijkl) if hijkl is not None else None,
-                hijkl_ba=to_chemist_ordering(hijkl_ba, index_order=find_index_order(hijkl))
-                if hijkl_ba is not None
-                else None,
-                hijkl_bb=to_chemist_ordering(hijkl_bb) if hijkl_bb is not None else None,
-                multiplicity=problem.molecule.multiplicity,
-                constant_energy=electronic_energy.nuclear_repulsion_energy,
-            )
-            fcidump.to_file(outpath)
+        fcidump = FCIDump(
+            num_electrons=problem.num_alpha + problem.num_beta,
+            hij=electronic_integrals.alpha.get("+-", None),
+            hij_b=electronic_integrals.beta.get("+-", None),
+            hijkl=S1Integrals(to_chemist_ordering(hijkl)) if hijkl is not None else None,
+            hijkl_ba=S1Integrals(to_chemist_ordering(hijkl_ba, index_order=find_index_order(hijkl)))
+            if hijkl_ba is not None
+            else None,
+            hijkl_bb=S1Integrals(to_chemist_ordering(hijkl_bb)) if hijkl_bb is not None else None,
+            multiplicity=problem.molecule.multiplicity,
+            constant_energy=electronic_energy.nuclear_repulsion_energy,
+        )
+        fcidump.to_file(outpath)
 
 
-@ddt
 class TestFCIDumpDumpOH(QiskitNatureTestCase):
     """RHF FCIDump tests."""
 
-    @data(True, False)
-    def test_dump_unrestricted_spin(self, use_symmetry_reduced_integrals: bool):
+    def test_dump_unrestricted_spin(self):
         """Tests dumping unrestricted spin data.
         PySCF cannot handle this themselves, so we need to rely on a custom FCIDUMP file, load it,
         dump it again, and make sure it did not change."""
-        prev_setting = settings.use_symmetry_reduced_integrals
-        settings.use_symmetry_reduced_integrals = use_symmetry_reduced_integrals
-        try:
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore", category=DeprecationWarning)
-                path = self.get_resource_path("test_fcidump_oh.fcidump", "second_q/formats/fcidump")
-                fcidump = FCIDump.from_file(path)
-                with tempfile.TemporaryDirectory() as dump_dir:
-                    dump_file = Path(dump_dir) / "fcidump"
-                    fcidump.to_file(dump_file)
+        path = self.get_resource_path("test_fcidump_oh.fcidump", "second_q/formats/fcidump")
+        fcidump = FCIDump.from_file(path)
+        with tempfile.TemporaryDirectory() as dump_dir:
+            dump_file = Path(dump_dir) / "fcidump"
+            fcidump.to_file(dump_file)
 
-                    with open(path, "r", encoding="utf-8") as reference:
-                        with open(dump_file, "r", encoding="utf-8") as result:
-                            for ref, res in zip(reference.readlines(), result.readlines()):
-                                self.assertEqual(ref.strip(), res.strip())
-        finally:
-            settings.use_symmetry_reduced_integrals = prev_setting
+            with open(path, "r", encoding="utf-8") as reference:
+                with open(dump_file, "r", encoding="utf-8") as result:
+                    for ref, res in zip(reference.readlines(), result.readlines()):
+                        self.assertEqual(ref.strip(), res.strip())
 
 
 if __name__ == "__main__":

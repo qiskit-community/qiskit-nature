@@ -13,12 +13,9 @@
 """ Test Methods FCIDump """
 
 import unittest
-import warnings
 from typing import List, Optional
 
 from test.second_q.drivers.test_driver_methods_gsc import TestDriverMethods
-
-from ddt import ddt, data
 
 from qiskit.algorithms.minimum_eigensolvers import NumPyMinimumEigensolver
 from qiskit_nature.second_q.algorithms import GroundStateEigensolver
@@ -26,19 +23,17 @@ from qiskit_nature.second_q.formats.fcidump_translator import fcidump_to_problem
 from qiskit_nature.second_q.formats.fcidump import FCIDump
 from qiskit_nature.second_q.transformers import BaseTransformer, ActiveSpaceTransformer
 from qiskit_nature.second_q.problems import BaseProblem
-from qiskit_nature.second_q.mappers import QubitConverter, JordanWignerMapper
+from qiskit_nature.second_q.mappers import JordanWignerMapper, QubitMapper
 from qiskit_nature.second_q.problems import EigenstateResult
-from qiskit_nature.settings import settings
 
 
-@ddt
 class TestMethodsFCIDump(TestDriverMethods):
     """Methods FCIDump tests"""
 
     @staticmethod
     def _run_fcidump(
         fcidump: FCIDump,
-        converter: QubitConverter = QubitConverter(JordanWignerMapper()),
+        mapper: QubitMapper = JordanWignerMapper(),
         transformers: Optional[List[BaseTransformer]] = None,
     ) -> EigenstateResult:
         problem: BaseProblem = fcidump_to_problem(fcidump)
@@ -49,76 +44,42 @@ class TestMethodsFCIDump(TestDriverMethods):
 
         solver = NumPyMinimumEigensolver()
 
-        gsc = GroundStateEigensolver(converter, solver)
+        gsc = GroundStateEigensolver(mapper, solver)
 
         result = gsc.solve(problem)
         return result
 
-    @data(True, False)
-    def test_lih(self, use_symmetry_reduced_integrals: bool):
+    def test_lih(self):
         """LiH test"""
-        prev_setting = settings.use_symmetry_reduced_integrals
-        settings.use_symmetry_reduced_integrals = use_symmetry_reduced_integrals
-        try:
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore", category=DeprecationWarning)
-                fcidump = FCIDump.from_file(
-                    self.get_resource_path("test_fcidump_lih.fcidump", "second_q/formats/fcidump")
-                )
-                result = self._run_fcidump(fcidump)
-                self._assert_energy(result, "lih")
-        finally:
-            settings.use_symmetry_reduced_integrals = prev_setting
+        fcidump = FCIDump.from_file(
+            self.get_resource_path("test_fcidump_lih.fcidump", "second_q/formats/fcidump")
+        )
+        result = self._run_fcidump(fcidump)
+        self._assert_energy(result, "lih")
 
-    @data(True, False)
-    def test_oh(self, use_symmetry_reduced_integrals: bool):
+    def test_oh(self):
         """OH test"""
-        prev_setting = settings.use_symmetry_reduced_integrals
-        settings.use_symmetry_reduced_integrals = use_symmetry_reduced_integrals
-        try:
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore", category=DeprecationWarning)
-                fcidump = FCIDump.from_file(
-                    self.get_resource_path("test_fcidump_oh.fcidump", "second_q/formats/fcidump")
-                )
-                result = self._run_fcidump(fcidump)
-                self._assert_energy(result, "oh")
-        finally:
-            settings.use_symmetry_reduced_integrals = prev_setting
+        fcidump = FCIDump.from_file(
+            self.get_resource_path("test_fcidump_oh.fcidump", "second_q/formats/fcidump")
+        )
+        result = self._run_fcidump(fcidump)
+        self._assert_energy(result, "oh")
 
-    @data(True, False)
-    def test_lih_with_active_space(self, use_symmetry_reduced_integrals: bool):
+    def test_lih_with_active_space(self):
         """LiH with active space test"""
-        prev_setting = settings.use_symmetry_reduced_integrals
-        settings.use_symmetry_reduced_integrals = use_symmetry_reduced_integrals
-        try:
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore", category=DeprecationWarning)
-                fcidump = FCIDump.from_file(
-                    self.get_resource_path("test_fcidump_lih.fcidump", "second_q/formats/fcidump"),
-                )
-                result = self._run_fcidump(fcidump, transformers=[ActiveSpaceTransformer(4, 6)])
-                self._assert_energy(result, "lih")
-        finally:
-            settings.use_symmetry_reduced_integrals = prev_setting
+        fcidump = FCIDump.from_file(
+            self.get_resource_path("test_fcidump_lih.fcidump", "second_q/formats/fcidump"),
+        )
+        result = self._run_fcidump(fcidump, transformers=[ActiveSpaceTransformer(4, 6)])
+        self._assert_energy(result, "lih")
 
-    @data(True, False)
-    def test_oh_with_active_space(self, use_symmetry_reduced_integrals: bool):
+    def test_oh_with_active_space(self):
         """OH with active space test"""
-        prev_setting = settings.use_symmetry_reduced_integrals
-        settings.use_symmetry_reduced_integrals = use_symmetry_reduced_integrals
-        try:
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore", category=DeprecationWarning)
-                fcidump = FCIDump.from_file(
-                    self.get_resource_path("test_fcidump_oh.fcidump", "second_q/formats/fcidump"),
-                )
-                result = self._run_fcidump(
-                    fcidump, transformers=[ActiveSpaceTransformer((5, 4), 6)]
-                )
-                self._assert_energy(result, "oh")
-        finally:
-            settings.use_symmetry_reduced_integrals = prev_setting
+        fcidump = FCIDump.from_file(
+            self.get_resource_path("test_fcidump_oh.fcidump", "second_q/formats/fcidump"),
+        )
+        result = self._run_fcidump(fcidump, transformers=[ActiveSpaceTransformer((5, 4), 6)])
+        self._assert_energy(result, "oh")
 
 
 if __name__ == "__main__":

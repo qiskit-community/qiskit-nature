@@ -21,11 +21,9 @@ from functools import reduce
 
 import numpy as np
 
-from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info import SparsePauliOp
 from qiskit.quantum_info.operators import Operator
 
-from qiskit_nature import settings
 from qiskit_nature.second_q.operators import SpinOp
 from .spin_mapper import SpinMapper
 
@@ -75,7 +73,7 @@ class LogarithmicMapper(SpinMapper):
 
     def _map_single(
         self, second_q_op: SpinOp, *, register_length: int | None = None
-    ) -> SparsePauliOp | PauliSumOp:
+    ) -> SparsePauliOp:
         """Map spins to qubits using the Logarithmic encoding.
 
         Args:
@@ -87,7 +85,7 @@ class LogarithmicMapper(SpinMapper):
         if register_length is None:
             register_length = second_q_op.register_length
 
-        qubit_ops_list: list[PauliSumOp] = []
+        qubit_ops_list: list[SparsePauliOp] = []
 
         # get logarithmic encoding of the general spin matrices.
         spinx, spiny, spinz, identity = self._logarithmic_encoding(second_q_op.spin)
@@ -108,20 +106,20 @@ class LogarithmicMapper(SpinMapper):
 
         qubit_op = reduce(operator.add, qubit_ops_list)
 
-        return qubit_op if settings.use_pauli_sum_op else qubit_op.primitive
+        return qubit_op
 
     def _logarithmic_encoding(
         self, spin: Fraction | int
-    ) -> tuple[PauliSumOp, PauliSumOp, PauliSumOp, PauliSumOp]:
+    ) -> tuple[SparsePauliOp, SparsePauliOp, SparsePauliOp, SparsePauliOp]:
         """The logarithmic encoding.
 
         Args:
             spin: Positive half-integer (integer or half-odd-integer) that represents spin.
 
         Returns:
-            A tuple containing four PauliSumOp.
+            A tuple containing four SparsePauliOp.
         """
-        spin_op_encoding: list[PauliSumOp] = []
+        spin_op_encoding: list[SparsePauliOp] = []
         dspin = int(2 * spin + 1)
         num_qubits = int(np.ceil(np.log2(dspin)))
 
@@ -143,7 +141,7 @@ class LogarithmicMapper(SpinMapper):
         for op in embedded_operators:
             op = SparsePauliOp.from_operator(op)
             op.chop()
-            spin_op_encoding.append(PauliSumOp(1.0 * op))
+            spin_op_encoding.append(op)
 
         return tuple(spin_op_encoding)  # type: ignore
 

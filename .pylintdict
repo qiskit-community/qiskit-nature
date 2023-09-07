@@ -86,6 +86,7 @@ cls
 cmap
 cnot
 codec
+codeowners
 coeff
 coeffs
 colormap
@@ -395,6 +396,7 @@ observables
 occupancies
 ok
 ollitrault
+onboarding
 onee
 oneeints
 onsite

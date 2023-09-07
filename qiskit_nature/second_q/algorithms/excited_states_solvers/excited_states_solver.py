@@ -16,7 +16,6 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from qiskit.opflow import PauliSumOp
 from qiskit.quantum_info import SparsePauliOp
 
 from qiskit_nature.second_q.operators import SparseLabelOp
@@ -31,7 +30,7 @@ class ExcitedStatesSolver(ABC):
     def solve(
         self,
         problem: BaseProblem,
-        aux_operators: dict[str, SparseLabelOp | PauliSumOp | SparsePauliOp] | None = None,
+        aux_operators: dict[str, SparseLabelOp | SparsePauliOp] | None = None,
     ) -> EigenstateResult:
         r"""Compute the excited states energies of the molecule that was supplied via the driver.
 
@@ -54,10 +53,10 @@ class ExcitedStatesSolver(ABC):
     def get_qubit_operators(
         self,
         problem: BaseProblem,
-        aux_operators: dict[str, SparseLabelOp | SparsePauliOp | PauliSumOp] | None = None,
-    ) -> tuple[PauliSumOp | SparseLabelOp, dict[str, PauliSumOp | SparseLabelOp] | None]:
+        aux_operators: dict[str, SparseLabelOp | SparsePauliOp] | None = None,
+    ) -> tuple[SparseLabelOp, dict[str, SparseLabelOp] | None]:
         """Gets the operator and auxiliary operators, and transforms the provided auxiliary operators
-        using a ``QubitConverter`` or ``QubitMapper``.
+        using a ``QubitMapper``.
         If the user-provided ``aux_operators`` contain a name which clashes with an internally
         constructed auxiliary operator, then the corresponding internal operator will be overridden by
         the user-provided operator.

@@ -13,16 +13,13 @@
 """Test Hartree Fock initial state circuit."""
 
 import unittest
-import warnings
 from test import QiskitNatureTestCase
-import numpy as np
 
 from qiskit import QuantumCircuit
-from qiskit.opflow.primitive_ops.tapered_pauli_sum_op import Z2Symmetries
+from qiskit.quantum_info.analysis.z2_symmetries import Z2Symmetries
 from qiskit.quantum_info.operators.symplectic import Pauli
 from qiskit_nature.second_q.circuit.library import HartreeFock
 from qiskit_nature.second_q.circuit.library.initial_states.hartree_fock import (
-    hartree_fock_bitstring,
     hartree_fock_bitstring_mapped,
 )
 from qiskit_nature.second_q.mappers import (
@@ -31,32 +28,16 @@ from qiskit_nature.second_q.mappers import (
     ParityMapper,
     BravyiKitaevSuperFastMapper,
 )
-from qiskit_nature.second_q.mappers import QubitConverter
+from qiskit_nature.second_q.mappers import TaperedQubitMapper
 
 
 class TestHartreeFock(QiskitNatureTestCase):
     """Initial State HartreeFock tests"""
 
-    def test_bitstring(self):
-        """Simple test for the bitstring function."""
-        bitstr = hartree_fock_bitstring(2, (1, 1))
-        self.assertTrue(all(bitstr == np.array([True, False, True, False])))
-
-    def test_bitstring_invalid_input(self):
-        """Test passing invalid input raises."""
-
-        with self.subTest("too many particles"):
-            with self.assertRaises(ValueError):
-                _ = hartree_fock_bitstring(2, (3, 3))
-
-        with self.subTest("too few orbitals"):
-            with self.assertRaises(ValueError):
-                _ = hartree_fock_bitstring(-1, (2, 2))
-
-    def test_raises_on_unsupported_mapper(self):
+    def test_raises_on_unsupported_tapered_mapper(self):
         """Test if an error is raised for an unsupported mapper."""
         with self.assertRaises(NotImplementedError):
-            mapper = QubitConverter(BravyiKitaevSuperFastMapper())
+            mapper = TaperedQubitMapper(BravyiKitaevSuperFastMapper())
             state = HartreeFock(num_spatial_orbitals=2, num_particles=(1, 1), qubit_mapper=mapper)
             state.draw()
 
@@ -69,7 +50,7 @@ class TestHartreeFock(QiskitNatureTestCase):
 
     def test_qubits_4_jw_h2(self):
         """qubits 4 jw h2 test"""
-        state = HartreeFock(2, (1, 1), QubitConverter(JordanWignerMapper()))
+        state = HartreeFock(2, (1, 1), TaperedQubitMapper(JordanWignerMapper()))
         ref = QuantumCircuit(4)
         ref.x([0, 2])
         self.assertEqual(state, ref)
@@ -79,21 +60,21 @@ class TestHartreeFock(QiskitNatureTestCase):
         state = HartreeFock()
         state.num_spatial_orbitals = 2
         state.num_particles = (1, 1)
-        state.qubit_mapper = QubitConverter(JordanWignerMapper())
+        state.qubit_mapper = TaperedQubitMapper(JordanWignerMapper())
         ref = QuantumCircuit(4)
         ref.x([0, 2])
         self.assertEqual(state, ref)
 
     def test_qubits_4_py_h2(self):
         """qubits 4 py h2 test"""
-        state = HartreeFock(2, (1, 1), QubitConverter(ParityMapper()))
+        state = HartreeFock(2, (1, 1), TaperedQubitMapper(ParityMapper()))
         ref = QuantumCircuit(4)
         ref.x([0, 1])
         self.assertEqual(state, ref)
 
     def test_qubits_4_bk_h2(self):
         """qubits 4 bk h2 test"""
-        state = HartreeFock(2, (1, 1), QubitConverter(BravyiKitaevMapper()))
+        state = HartreeFock(2, (1, 1), TaperedQubitMapper(BravyiKitaevMapper()))
         ref = QuantumCircuit(4)
         ref.x([0, 1, 2])
         self.assertEqual(state, ref)
@@ -101,8 +82,7 @@ class TestHartreeFock(QiskitNatureTestCase):
     def test_qubits_2_py_h2(self):
         """qubits 2 py h2 test"""
         num_particles = (1, 1)
-        mapper = QubitConverter(ParityMapper(), two_qubit_reduction=True)
-        mapper.force_match(num_particles=num_particles)
+        mapper = TaperedQubitMapper(ParityMapper(num_particles))
         state = HartreeFock(2, num_particles, mapper)
         ref = QuantumCircuit(2)
         ref.x(0)
@@ -111,14 +91,15 @@ class TestHartreeFock(QiskitNatureTestCase):
     def test_qubits_6_py_lih(self):
         """qubits 6 py lih test"""
         num_particles = (1, 1)
-        mapper = QubitConverter(ParityMapper(), two_qubit_reduction=True)
         z2symmetries = Z2Symmetries(
             symmetries=[Pauli("ZIZIZIZI"), Pauli("ZZIIZZII")],
             sq_paulis=[Pauli("IIIIIIXI"), Pauli("IIIIIXII")],
             sq_list=[2, 3],
             tapering_values=[1, 1],
         )
-        mapper.force_match(num_particles=num_particles, z2symmetries=z2symmetries)
+        mapper = TaperedQubitMapper(
+            ParityMapper(num_particles=num_particles), z2symmetries=z2symmetries
+        )
         state = HartreeFock(5, num_particles, mapper)
         ref = QuantumCircuit(6)
         ref.x([0, 1])
@@ -126,107 +107,27 @@ class TestHartreeFock(QiskitNatureTestCase):
 
     def test_hf_bitstring_mapped(self):
         """Mapped bitstring test for water"""
-        # Original driver config when creating operator that resulted in symmetries coded
-        # below. The sector [1, -1] is the correct ground sector.
-        # PySCFDriver(
-        #    atom="O 0.0000 0.0000 0.1173; H 0.0000 0.07572 -0.4692;H 0.0000 -0.07572 -0.4692",
-        #    unit=DistanceUnit.ANGSTROM,
-        #    charge=0,
-        #    spin=0,
-        #    basis='sto-3g',
-        #    hf_method=HFMethodType.RHF)
+
         num_spatial_orbitals = 7
         num_particles = (5, 5)
-        mapper = QubitConverter(ParityMapper(), two_qubit_reduction=True)
         z2symmetries = Z2Symmetries(
             symmetries=[Pauli("IZZIIIIZZIII"), Pauli("ZZIZIIZZIZII")],
             sq_paulis=[Pauli("IIIIIIIIXIII"), Pauli("IIIIIIIIIXII")],
             sq_list=[3, 2],
             tapering_values=[1, -1],
         )
-        with self.subTest("Matched bitsring creation"):
-            mapper.force_match(num_particles=num_particles, z2symmetries=z2symmetries)
-            bitstr = hartree_fock_bitstring_mapped(
-                num_spatial_orbitals=num_spatial_orbitals,
-                num_particles=num_particles,
-                qubit_mapper=mapper,
-            )
-            ref_matched = [True, False, True, True, False, True, False, True, False, False]
-            self.assertListEqual(bitstr, ref_matched)
-        with self.subTest("Bitsring creation with no tapering"):
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore", category=DeprecationWarning)
-                bitstr = hartree_fock_bitstring_mapped(
-                    num_spatial_orbitals=num_spatial_orbitals,
-                    num_particles=num_particles,
-                    qubit_mapper=mapper,
-                    match_convert=False,
-                )
-            ref_notaper = [
-                True,
-                False,
-                True,
-                False,
-                True,
-                True,
-                False,
-                True,
-                False,
-                True,
-                False,
-                False,
-            ]
-            self.assertListEqual(bitstr, ref_notaper)
+        mapper = TaperedQubitMapper(
+            ParityMapper(num_particles=num_particles), z2symmetries=z2symmetries
+        )
 
-    def test_hf_bitstring_mapped_with_qubitmapper(self):
-        """Mapped bitstring test for water with qubit mapper"""
+        bitstr = hartree_fock_bitstring_mapped(
+            num_spatial_orbitals=num_spatial_orbitals,
+            num_particles=num_particles,
+            qubit_mapper=mapper,
+        )
 
-        num_spatial_orbitals = 7
-        num_particles = (5, 5)
-
-        ref_notaper_no_red = [
-            True,
-            False,
-            True,
-            False,
-            True,
-            True,
-            True,
-            False,
-            True,
-            False,
-            True,
-            False,
-            False,
-            False,
-        ]
-
-        with self.subTest("Qubit Converter object"):
-            mapper = QubitConverter(ParityMapper())
-            bitstr = hartree_fock_bitstring_mapped(
-                num_spatial_orbitals=num_spatial_orbitals,
-                num_particles=num_particles,
-                qubit_mapper=mapper,
-            )
-            self.assertListEqual(bitstr, ref_notaper_no_red)
-
-        with self.subTest("Qubit Mapper object"):
-            mapper = ParityMapper()
-            bitstr = hartree_fock_bitstring_mapped(
-                num_spatial_orbitals=num_spatial_orbitals,
-                num_particles=num_particles,
-                qubit_mapper=mapper,
-            )
-            self.assertListEqual(bitstr, ref_notaper_no_red)
-
-        with self.subTest("ParityMapper with builtin two-qubit reduction"):
-            mapper = ParityMapper(num_particles=num_particles)
-            bitstr = hartree_fock_bitstring_mapped(
-                num_spatial_orbitals=num_spatial_orbitals,
-                num_particles=num_particles,
-                qubit_mapper=mapper,
-            )
-            self.assertListEqual(bitstr, ref_notaper_no_red[:5] + ref_notaper_no_red[6:-1])
+        ref_matched = [True, False, True, True, False, True, False, True, False, False]
+        self.assertListEqual(bitstr, ref_matched)
 
 
 if __name__ == "__main__":

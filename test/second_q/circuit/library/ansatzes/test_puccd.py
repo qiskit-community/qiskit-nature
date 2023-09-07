@@ -23,7 +23,6 @@ from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import PUCCD
 from qiskit_nature.second_q.mappers import JordanWignerMapper
 from qiskit_nature.second_q.operators import FermionicOp
-from qiskit_nature.second_q.mappers import QubitConverter
 
 
 @ddt
@@ -50,7 +49,7 @@ class TestPUCC(QiskitNatureTestCase):
     )
     def test_puccd_ansatz(self, num_spatial_orbitals, num_particles, expect):
         """Tests the PUCCD Ansatz."""
-        mapper = QubitConverter(JordanWignerMapper())
+        mapper = JordanWignerMapper()
 
         ansatz = PUCCD(
             qubit_mapper=mapper,
@@ -95,7 +94,7 @@ class TestPUCC(QiskitNatureTestCase):
         self, num_spatial_orbitals, num_particles, include_singles, expect
     ):
         """Tests the PUCCD Ansatz with included single excitations."""
-        mapper = QubitConverter(JordanWignerMapper())
+        mapper = JordanWignerMapper()
 
         ansatz = PUCCD(
             qubit_mapper=mapper,
@@ -135,25 +134,14 @@ class TestPUCC(QiskitNatureTestCase):
     def test_puccd_ansatz_generalized(self, num_spatial_orbitals, num_particles, expect):
         """Tests the generalized PUCCD Ansatz."""
         mapper = JordanWignerMapper()
-        converter = QubitConverter(mapper)
 
-        with self.subTest("Qubit Converter object"):
-            ansatz = PUCCD(
-                qubit_mapper=converter,
-                num_particles=num_particles,
-                num_spatial_orbitals=num_spatial_orbitals,
-                generalized=True,
-            )
-            assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
-
-        with self.subTest("Qubit Mapper object"):
-            ansatz = PUCCD(
-                qubit_mapper=mapper,
-                num_particles=num_particles,
-                num_spatial_orbitals=num_spatial_orbitals,
-                generalized=True,
-            )
-            assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
+        ansatz = PUCCD(
+            qubit_mapper=mapper,
+            num_particles=num_particles,
+            num_spatial_orbitals=num_spatial_orbitals,
+            generalized=True,
+        )
+        assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
 
     @unpack
     @data(
@@ -181,25 +169,14 @@ class TestPUCC(QiskitNatureTestCase):
     def test_puccd_ansatz_include_imaginary(self, num_spatial_orbitals, num_particles, expect):
         """Tests the PUCCD Ansatz with imaginary terms included."""
         mapper = JordanWignerMapper()
-        converter = QubitConverter(mapper)
 
-        with self.subTest("Qubit Converter object"):
-            ansatz = PUCCD(
-                qubit_mapper=converter,
-                num_particles=num_particles,
-                num_spatial_orbitals=num_spatial_orbitals,
-                include_imaginary=True,
-            )
-            assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
-
-        with self.subTest("Qubit Mapper object"):
-            ansatz = PUCCD(
-                qubit_mapper=mapper,
-                num_particles=num_particles,
-                num_spatial_orbitals=num_spatial_orbitals,
-                include_imaginary=True,
-            )
-            assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
+        ansatz = PUCCD(
+            qubit_mapper=mapper,
+            num_particles=num_particles,
+            num_spatial_orbitals=num_spatial_orbitals,
+            include_imaginary=True,
+        )
+        assert_ucc_like_ansatz(self, ansatz, num_spatial_orbitals, expect)
 
 
 if __name__ == "__main__":

@@ -22,7 +22,7 @@ import numpy as np
 from ddt import ddt, idata
 
 import qiskit_nature.optionals as _optionals
-from qiskit_nature.second_q.operators import PolynomialTensor, Tensor
+from qiskit_nature.second_q.operators import PolynomialTensor
 
 
 @ddt
@@ -295,10 +295,9 @@ class TestPolynomialTensor(QiskitNatureTestCase):
             expected["++--"][0, 0, 0, 1] += 1
             expected["++--"][1, 0, 2, 1] += 2
             self.assertEqual(result, PolynomialTensor(expected))
-            # TODO: remove extra-wrapping of Tensor once settings.tensor_unwrapping is removed
-            self.assertIsInstance(Tensor(result["+"]).array, np.ndarray)
-            self.assertIsInstance(Tensor(result["+-"]).array, np.ndarray)
-            self.assertIsInstance(Tensor(result["++--"]).array, np.ndarray)
+            self.assertIsInstance(result["+"].array, np.ndarray)
+            self.assertIsInstance(result["+-"].array, np.ndarray)
+            self.assertIsInstance(result["++--"].array, np.ndarray)
 
         with self.subTest("sparse + sparse"):
             result = PolynomialTensor(self.sparse_1) + PolynomialTensor(self.sparse_2)
@@ -309,10 +308,9 @@ class TestPolynomialTensor(QiskitNatureTestCase):
                 "++--": sp.as_coo({(0, 0, 0, 1): 1, (0, 1, 0, 1): 1}, shape=(4, 4, 4, 4)),
             }
             self.assertEqual(result, PolynomialTensor(expected))
-            # TODO: remove extra-wrapping of Tensor once settings.tensor_unwrapping is removed
-            self.assertIsInstance(Tensor(result["+"]).array, sp.COO)
-            self.assertIsInstance(Tensor(result["+-"]).array, sp.COO)
-            self.assertIsInstance(Tensor(result["++--"]).array, sp.COO)
+            self.assertIsInstance(result["+"].array, sp.COO)
+            self.assertIsInstance(result["+-"].array, sp.COO)
+            self.assertIsInstance(result["++--"].array, sp.COO)
 
         with self.assertRaisesRegex(
             TypeError, "Incorrect argument type: other should be PolynomialTensor"

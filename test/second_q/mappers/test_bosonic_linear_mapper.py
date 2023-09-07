@@ -22,7 +22,6 @@ import numpy as np
 from qiskit.quantum_info import SparsePauliOp
 from qiskit_nature.second_q.operators import BosonicOp
 from qiskit_nature.second_q.mappers import BosonicLinearMapper
-from qiskit_nature import settings
 
 
 @ddt
@@ -147,13 +146,8 @@ class TestBosonicLinearMapper(QiskitNatureTestCase):
     def test_mapping_max_occupation_1(self, bos_op, ref_qubit_op):
         """Test mapping to qubit operator"""
         mapper = BosonicLinearMapper(max_occupation=1)
-        aux = settings.use_pauli_sum_op
-        try:
-            settings.use_pauli_sum_op = False
-            qubit_op = mapper.map(bos_op)
-            self.assertEqualSparsePauliOp(qubit_op, ref_qubit_op)
-        finally:
-            settings.use_pauli_sum_op = aux
+        qubit_op = mapper.map(bos_op)
+        self.assertEqualSparsePauliOp(qubit_op, ref_qubit_op)
 
     @data(
         (bos_op1, ref_qubit_op1_tr2),
@@ -170,20 +164,8 @@ class TestBosonicLinearMapper(QiskitNatureTestCase):
     def test_mapping_max_occupation_2(self, bos_op, ref_qubit_op):
         """Test mapping to qubit operator"""
         mapper = BosonicLinearMapper(max_occupation=2)
-        aux = settings.use_pauli_sum_op
-        try:
-            settings.use_pauli_sum_op = False
-            qubit_op = mapper.map(bos_op)
-            self.assertEqualSparsePauliOp(qubit_op, ref_qubit_op)
-        finally:
-            settings.use_pauli_sum_op = aux
-
-    def test_error_pauli_sum_op(self):
-        """Test that if the user sets use_pauli_sum_op to true, then we return an error"""
-        mapper = BosonicLinearMapper(max_occupation=1)
-        settings.use_pauli_sum_op = True
-        with self.assertRaises(NotImplementedError):
-            mapper.map(BosonicOp({"+_0": 1}))
+        qubit_op = mapper.map(bos_op)
+        self.assertEqualSparsePauliOp(qubit_op, ref_qubit_op)
 
 
 if __name__ == "__main__":
