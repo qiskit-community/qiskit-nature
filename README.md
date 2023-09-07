@@ -81,6 +81,9 @@ from qiskit.circuit.library import EfficientSU2
 from scipy.optimize import minimize
 import numpy as np
 
+# set seed for reproducibility
+np.random.seed(42)
+
 driver = PySCFDriver(
     atom="H 0 0 0; H 0 0 0.735",
     basis="sto3g",
@@ -105,7 +108,7 @@ qubit_op = mapper.map(fermionic_op)
 
 # find ground state energy with VQE
 # using the Estimator primitive
-estimator = Estimator(options={"shots": int(1e4)})
+estimator = Estimator(options={"shots": int(1e4), "seed": 42})
 
 # define ansatz and initial point
 ansatz = EfficientSU2(qubit_op.num_qubits)
@@ -117,9 +120,9 @@ def cost_func(params, ansatz, operator, estimator):
     energy = estimator.run(ansatz, operator, parameter_values=params).result().values[0]
     return energy
 
-# run SciPy minimizer to find ground state
+# run SciPy minimizer to find ground state energy
 result = minimize(cost_func, initial_point, args=(ansatz, qubit_op, estimator), method="cobyla")
-print("Ground State Energy:", result.fun)
+print(result.fun)
 ```
 
 If you want to further explore the modular capabilities of Qiskit Nature, check out the related
