@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import unittest
 from abc import ABC, abstractmethod
-from copy import deepcopy
+from copy import copy, deepcopy
 
 import numpy as np
 
@@ -39,6 +39,11 @@ class ScalarTensorTestCase(ABC):
     @abstractmethod
     def assertEqual(self, first, second, msg=None):
         """assert equal"""
+        raise Exception("Abstract method")  # pylint: disable=broad-exception-raised
+
+    @abstractmethod
+    def assertNotEqual(self, first, second, msg=None):
+        """assert not equal"""
         raise Exception("Abstract method")  # pylint: disable=broad-exception-raised
 
     @abstractmethod
@@ -136,6 +141,20 @@ class ScalarTensorTestCase(ABC):
         """Test iterating."""
         self.assertEqual(list(self.tensor.coord_iter()), [(self.expected.item(), tuple())])
 
+    def test_copy(self):
+        """Test copying."""
+        c = copy(self.tensor)
+        self.assertEqual(self.tensor, c)
+        self.assertNotEqual(id(self.tensor), id(c))
+        self.assertEqual(id(self.tensor.array), id(c.array))
+
+    def test_deepcopy(self):
+        """Test deep-copying."""
+        c = deepcopy(self.tensor)
+        self.assertEqual(self.tensor, c)
+        self.assertNotEqual(id(self.tensor), id(c))
+        self.assertNotEqual(id(self.tensor.array), id(c.array))
+
 
 class MatrixTensorTestCase(ABC):
     """Tests for Tensor class wrapping a dense or sparse array."""
@@ -152,6 +171,11 @@ class MatrixTensorTestCase(ABC):
     @abstractmethod
     def assertEqual(self, first, second, msg=None):
         """assert equal"""
+        raise Exception("Abstract method")  # pylint: disable=broad-exception-raised
+
+    @abstractmethod
+    def assertNotEqual(self, first, second, msg=None):
+        """assert not equal"""
         raise Exception("Abstract method")  # pylint: disable=broad-exception-raised
 
     @abstractmethod
@@ -298,3 +322,17 @@ class MatrixTensorTestCase(ABC):
         """Test iterating."""
         for value, index in self.tensor.coord_iter():
             self.assertEqual(value, self.expected[index])
+
+    def test_copy(self):
+        """Test copying."""
+        c = copy(self.tensor)
+        self.assertEqual(self.tensor, c)
+        self.assertNotEqual(id(self.tensor), id(c))
+        self.assertEqual(id(self.tensor.array), id(c.array))
+
+    def test_deepcopy(self):
+        """Test deep-copying."""
+        c = deepcopy(self.tensor)
+        self.assertEqual(self.tensor, c)
+        self.assertNotEqual(id(self.tensor), id(c))
+        self.assertNotEqual(id(self.tensor.array), id(c.array))
