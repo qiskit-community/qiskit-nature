@@ -1,0 +1,4 @@
+---
+fixes:
+  - |
+    Fixes the ``copy.copy`` and ``copy.deepcopy`` operations for the :class:`.Tensor` class.
