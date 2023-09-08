@@ -16,8 +16,7 @@ from __future__ import annotations
 
 from typing import cast, Union
 
-from qiskit_algorithms.eigensolvers import EigensolverResult
-from qiskit_algorithms.minimum_eigensolvers import MinimumEigensolverResult
+from qiskit_algorithms import EigensolverResult, MinimumEigensolverResult
 from qiskit_nature.second_q.hamiltonians import LatticeModel
 from qiskit_nature.second_q.properties import Interpretable
 

@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import logging
 
-from qiskit_algorithms.eigensolvers import Eigensolver
+from qiskit_algorithms import Eigensolver
 from qiskit.quantum_info import SparsePauliOp
 
 from qiskit_nature.second_q.mappers import QubitMapper

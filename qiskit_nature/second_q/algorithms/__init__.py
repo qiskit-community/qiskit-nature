@@ -78,7 +78,7 @@ the solvers themselves.
 
 Initial Points
 ++++++++++++++
-When using variational algorithms such as the :class:`~qiskit_algorithms.minimum_eigensolvers.VQE`
+When using variational algorithms such as the :class:`~qiskit_algorithms.VQE`
 it may be necessary to set the initial parameters for the optimizer to a specific value (by default,
 the optimizer will start from a random point). This depends on the problem one is trying to solve as
 well as the ansatz used to solve the problem. To this extent, the following submodule provides
