@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import re
 import string
+from copy import copy
 from numbers import Number
 from typing import Any, Generator, Sequence, Type, Union, cast
 
@@ -135,6 +136,12 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
 
     def __repr__(self) -> str:
         return repr(self._array)
+
+    def __copy__(self) -> Tensor:
+        return Tensor(self._array, label_template=self._label_template)
+
+    def __deepcopy__(self, memo) -> Tensor:
+        return Tensor(copy(self._array), label_template=self._label_template)
 
     def __array__(self, dtype=None) -> ARRAY_TYPE:
         """Makes this class behave like a numpy ndarray.
