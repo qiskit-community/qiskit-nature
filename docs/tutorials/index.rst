@@ -2,6 +2,28 @@
 Qiskit Nature Tutorials
 #######################
 
+.. note::
+
+   On this page you find a number of tutorials covering various topics of Qiskit
+   Nature. These are good references if you are just getting started with Qiskit
+   Nature.
+
+   However, since the code base has changed significantly over time, these
+   tutorials below do **not** cover `all` of the features that are available in
+   Qiskit Nature.
+   In fact, Qiskit Nature is a very modular and flexible code, so if you really
+   want to learn more, we suggest that you explore the API reference and code
+   directly.
+
+   That said, if you learn about a feature which you think deserves its own
+   tutorial, feel free to add it to this list by
+   `opening a pull request <https://github.com/qiskit-community/qiskit-nature/pulls>`_.
+
+
+.. note::
+
+   If you are looking for more concise advice, check out the `How-Tos <howtos/index>`_.
+
 
 .. nbgallery::
     :glob:
