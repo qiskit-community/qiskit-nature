@@ -16,7 +16,7 @@ from qiskit.exceptions import QiskitError
 
 
 class QiskitNatureError(QiskitError):
-    """Class for errors returned by Qiskit's Nature module."""
+    """Class for errors returned by Qiskit Nature module."""
 
     pass
 
