@@ -8,8 +8,8 @@ Qiskit Nature Tutorials
    Nature. These are good references if you are just getting started with Qiskit
    Nature.
 
-   However, since the code base has changed significantly over time, these
-   tutorials below do **not** cover `all` of the features that are available in
+   However, the code base provides a significant amount of functionality and advanced capability, and these
+   tutorials below do **not** cover usage of `all` of the features, at the different levels, that are available in
    Qiskit Nature.
    In fact, Qiskit Nature is a very modular and flexible code, so if you really
    want to learn more, we suggest that you explore the API reference and code
