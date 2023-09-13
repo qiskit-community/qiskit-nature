@@ -15,8 +15,8 @@
 import unittest
 from test import QiskitNatureTestCase
 
-from qiskit.algorithms.minimum_eigensolvers import VQE
-from qiskit.algorithms.optimizers import SLSQP
+from qiskit_algorithms import VQE
+from qiskit_algorithms.optimizers import SLSQP
 from qiskit.primitives import Estimator
 from qiskit.circuit.library import ExcitationPreserving
 from qiskit.test import slow_test

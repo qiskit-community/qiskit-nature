@@ -17,7 +17,7 @@ from test import QiskitNatureTestCase
 import json
 import numpy as np
 
-from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
+from qiskit_algorithms import MinimumEigensolverResult
 
 import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.drivers import PySCFDriver

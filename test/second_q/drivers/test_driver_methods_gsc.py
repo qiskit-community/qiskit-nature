@@ -17,7 +17,7 @@ from typing import List, Optional
 import unittest
 
 from test import QiskitNatureTestCase
-from qiskit.algorithms.minimum_eigensolvers import NumPyMinimumEigensolver
+from qiskit_algorithms import NumPyMinimumEigensolver
 from qiskit_nature.second_q.algorithms import GroundStateEigensolver
 from qiskit_nature.second_q.drivers import ElectronicStructureDriver
 from qiskit_nature.second_q.mappers import JordanWignerMapper, QubitMapper

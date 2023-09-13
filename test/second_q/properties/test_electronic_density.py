@@ -21,7 +21,7 @@ from test import QiskitNatureTestCase
 import numpy as np
 from ddt import ddt, data, unpack
 
-from qiskit.algorithms.minimum_eigensolvers import NumPyMinimumEigensolver
+from qiskit_algorithms import NumPyMinimumEigensolver
 
 import qiskit_nature.optionals as _optionals
 

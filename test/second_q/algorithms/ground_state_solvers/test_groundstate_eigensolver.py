@@ -21,8 +21,8 @@ from test import QiskitNatureTestCase
 
 import numpy as np
 
-from qiskit.algorithms.minimum_eigensolvers import NumPyMinimumEigensolver, VQE
-from qiskit.algorithms.optimizers import SLSQP, SPSA
+from qiskit_algorithms import NumPyMinimumEigensolver, VQE
+from qiskit_algorithms.optimizers import SLSQP, SPSA
 from qiskit.primitives import Estimator
 from qiskit.test import slow_test
 from qiskit.utils import algorithm_globals

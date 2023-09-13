@@ -20,8 +20,8 @@ from test import QiskitNatureTestCase
 from ddt import ddt, named_data
 import numpy as np
 
-from qiskit.algorithms.minimum_eigensolvers import VQE
-from qiskit.algorithms.optimizers import SLSQP
+from qiskit_algorithms import VQE
+from qiskit_algorithms.optimizers import SLSQP
 from qiskit.primitives import Estimator
 from qiskit.utils import algorithm_globals
 

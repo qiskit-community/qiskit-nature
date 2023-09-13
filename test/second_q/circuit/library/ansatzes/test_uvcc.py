@@ -21,8 +21,8 @@ from ddt import ddt, data, unpack
 
 from qiskit import transpile
 from qiskit.utils import algorithm_globals
-from qiskit.algorithms.minimum_eigensolvers import VQE
-from qiskit.algorithms.optimizers import COBYLA
+from qiskit_algorithms import VQE
+from qiskit_algorithms.optimizers import COBYLA
 from qiskit.primitives import Estimator
 from qiskit_nature.second_q.circuit.library import UVCC, VSCF
 from qiskit_nature.second_q.mappers import DirectMapper
