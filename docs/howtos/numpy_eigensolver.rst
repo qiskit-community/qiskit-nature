@@ -4,8 +4,8 @@ Find excited state energies using the NumPyEigensolver
 ======================================================
 
 In order to ensure a physically meaningful excited states of a hamiltonian are found when using the
-:class:`~qiskit.algorithms.eigensolvers.NumPyEigensolver` one needs to set the
-:attr:`~qiskit.algorithms.eigensolvers.NumPyEigensolver.filter_criterion` attribute
+:class:`~qiskit_algorithms.NumPyEigensolver` one needs to set the
+:attr:`~qiskit_algorithms.NumPyEigensolver.filter_criterion` attribute
 of the solver.
 
 Subclasses of :class:`~qiskit_nature.second_q.problems.BaseProblem` in Qiskit Nature provide the
@@ -30,11 +30,11 @@ Below we show how you can use this setting.
     from qiskit_nature.second_q.mappers import JordanWignerMapper
     mapper = JordanWignerMapper()
 
-3. We setup our :class:`~qiskit.algorithms.eigensolvers.NumPyEigensolver`:
+3. We setup our :class:`~qiskit_algorithms.NumPyEigensolver`:
 
 .. testcode::
 
-    from qiskit.algorithms.eigensolvers import NumPyEigensolver
+    from qiskit_algorithms import NumPyEigensolver
     algo = NumPyEigensolver(k=100)
     algo.filter_criterion = problem.get_default_filter_criterion()
 

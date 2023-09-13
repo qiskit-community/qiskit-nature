@@ -4,8 +4,8 @@ Find ground state energy using the NumPyMinimumEigensolver
 ==========================================================
 
 In order to ensure a physically meaningful ground state of a hamiltonian is found when using the
-:class:`~qiskit.algorithms.minimum_eigensolvers.NumPyMinimumEigensolver` one needs to set the
-:attr:`~qiskit.algorithms.minimum_eigensolvers.NumPyMinimumEigensolver.filter_criterion` attribute
+:class:`~qiskit_algorithms.NumPyMinimumEigensolver` one needs to set the
+:attr:`~qiskit_algorithms.NumPyMinimumEigensolver.filter_criterion` attribute
 of the solver.
 
 Subclasses of :class:`~qiskit_nature.second_q.problems.BaseProblem` in Qiskit Nature provide the
@@ -30,11 +30,11 @@ Below we show how you can use this setting.
     from qiskit_nature.second_q.mappers import JordanWignerMapper
     mapper = JordanWignerMapper()
 
-3. We setup our :class:`~qiskit.algorithms.minimum_eigensolvers.NumPyMinimumEigensolver`:
+3. We setup our :class:`~qiskit_algorithms.minimum_eigensolvers.NumPyMinimumEigensolver`:
 
 .. testcode::
 
-    from qiskit.algorithms.minimum_eigensolvers import NumPyMinimumEigensolver
+    from qiskit_algorithms import NumPyMinimumEigensolver
     algo = NumPyMinimumEigensolver()
     algo.filter_criterion = problem.get_default_filter_criterion()
 
