@@ -92,9 +92,9 @@ class EigenstateResult(AlgorithmResult):
         cls_names = {cls.__name__ for cls in raw_result.__class__.mro()}
 
         if isinstance(raw_result, EigenstateResult) or "EigenstateResult" in cls_names:
-            return raw_result  # type: ignore[return-value]
+            return raw_result
         if isinstance(raw_result, EigensolverResult) or "EigensolverResult" in cls_names:
-            return EigenstateResult.from_eigensolver_result(raw_result)  # type: ignore[arg-type]
+            return EigenstateResult.from_eigensolver_result(raw_result)
         if (
             isinstance(raw_result, MinimumEigensolverResult)
             or "MinimumEigensolverResult" in cls_names
