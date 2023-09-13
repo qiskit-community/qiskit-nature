@@ -96,7 +96,7 @@ Qiskit Nature continues to grow with the help and work of
 to the project at different levels.
 If you use Qiskit Nature, please cite the following references:
 
-- Qiskit, as per the provided [BibTeX file](https://github.com/Qiskit/qiskit/blob/master/Qiskit.bib).
+- Qiskit, as per the provided [BibTeX file](https://github.com/Qiskit/qiskit/blob/main/CITATION.bib).
 - Qiskit Nature, as per https://doi.org/10.5281/zenodo.7828767
 
 ## License
