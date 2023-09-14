@@ -1,10 +1,9 @@
 Find ground state energy using AdaptVQE
 =======================================
 
-As of Qiskit Nature v0.5, the :class:`~qiskit_algorithms.AdaptVQE`
-algorithm has been migrated to Qiskit Terra (released in v0.22).
+This guide outlines how the :class:`~qiskit_algorithms.AdaptVQE` algorithm can
+be used to find the ground state solutions of natural science problems.
 
-This tutorial outlines how the algorithm can be used.
 
 1. We obtain an :class:`~qiskit_nature.second_q.problems.ElectronicStructureProblem`
    which we want to solve:
