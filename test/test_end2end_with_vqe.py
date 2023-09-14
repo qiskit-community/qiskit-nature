@@ -18,9 +18,9 @@ from test import QiskitNatureTestCase
 
 from qiskit_algorithms import VQE
 from qiskit_algorithms.optimizers import COBYLA
+from qiskit_algorithms.utils import algorithm_globals
 from qiskit.circuit.library import TwoLocal
 from qiskit.primitives import Estimator
-from qiskit.utils import algorithm_globals
 import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import ParityMapper

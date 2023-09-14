@@ -30,7 +30,6 @@ from qiskit_algorithms.observables_evaluator import estimate_observables
 from qiskit.circuit import QuantumCircuit
 from qiskit.tools import parallel_map
 from qiskit.tools.events import TextProgressBar
-from qiskit.utils import algorithm_globals
 from qiskit.quantum_info import SparsePauliOp
 from qiskit.primitives import BaseEstimator
 
@@ -503,7 +502,6 @@ class QEOM(ExcitedStatesSolver):
             self._build_commutator_routine,
             to_be_computed_list,
             task_args=(untap_operator,),
-            num_processes=algorithm_globals.num_processes,
         )
         all_matrix_operators = {}
         for result in results:

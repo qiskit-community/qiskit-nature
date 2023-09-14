@@ -16,7 +16,7 @@ from test import QiskitNatureTestCase
 
 import unittest
 
-from qiskit.utils import algorithm_globals
+from qiskit_algorithms.utils import algorithm_globals
 
 from qiskit_nature.second_q.algorithms.excited_states_solvers.qeom_vibrational_ops_builder import (
     build_vibrational_ops,

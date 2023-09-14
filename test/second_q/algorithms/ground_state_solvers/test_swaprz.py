@@ -17,10 +17,10 @@ from test import QiskitNatureTestCase
 
 from qiskit_algorithms import VQE
 from qiskit_algorithms.optimizers import SLSQP
+from qiskit_algorithms.utils import algorithm_globals
 from qiskit.primitives import Estimator
 from qiskit.circuit.library import ExcitationPreserving
 from qiskit.test import slow_test
-from qiskit.utils import algorithm_globals
 import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.algorithms import GroundStateEigensolver
 from qiskit_nature.second_q.circuit.library import HartreeFock
