@@ -17,7 +17,7 @@ import numpy as np
 from qiskit import QuantumRegister
 from qiskit.circuit.library import BlueprintCircuit
 from qiskit.quantum_info import SparsePauliOp
-from qiskit.utils.validation import validate_min
+from qiskit_algorithms.utils.validation import validate_min
 
 from qiskit_nature.second_q.mappers import (
     BravyiKitaevSuperFastMapper,
