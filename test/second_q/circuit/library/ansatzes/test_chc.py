@@ -17,10 +17,10 @@ import unittest
 from test import QiskitNatureTestCase
 from test.second_q.circuit.library.ansatzes.utils.vibrational_op_label_creator import _create_labels
 
-from qiskit.utils import algorithm_globals
-from qiskit.algorithms.minimum_eigensolvers import VQE
-from qiskit.algorithms.optimizers import COBYLA
 from qiskit.primitives import Estimator
+from qiskit_algorithms import VQE
+from qiskit_algorithms.optimizers import COBYLA
+from qiskit_algorithms.utils import algorithm_globals
 from qiskit_nature.second_q.circuit.library import CHC, VSCF
 from qiskit_nature.second_q.circuit.library.ansatzes.utils.vibration_excitation_generator import (
     generate_vibration_excitations,

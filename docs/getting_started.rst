@@ -121,7 +121,7 @@ Ready to get going?...
 ======================
 
 Now that Qiskit Nature is installed, let's try a chemistry application experiment
-using the :class:`~qiskit.algorithms.minimum_eigensolvers.VQE` (Variational
+using the :class:`~qiskit_algorithms.VQE` (Variational
 Quantum Eigensolver) algorithm to compute the ground-state (minimum) energy of a
 molecule.
 
@@ -146,7 +146,7 @@ molecule.
    mapper = ParityMapper(num_particles=problem.num_particles)
 
    # setup the classical optimizer for the VQE
-   from qiskit.algorithms.optimizers import L_BFGS_B
+   from qiskit_algorithms.optimizers import L_BFGS_B
 
    optimizer = L_BFGS_B()
 
@@ -170,7 +170,7 @@ molecule.
    )
 
    # set up our actual VQE instance
-   from qiskit.algorithms.minimum_eigensolvers import VQE
+   from qiskit_algorithms import VQE
 
    vqe = VQE(estimator, ansatz, optimizer)
    # ensure that the optimizer starts in the all-zero state which corresponds to
@@ -224,11 +224,11 @@ are provided to it; a reduction in complexity that is particularly advantageous
 for NISQ computers.
 
 For actually finding the ground state solution, the Variational Quantum
-Eigensolver (:class:`~qiskit.algorithms.minimum_eigensolvers.VQE`) algorithm is
+Eigensolver (:class:`~qiskit_algorithms.VQE`) algorithm is
 used. Its main three components are the estimator primitive
 (:class:`~qiskit.primitives.Estimator`), wavefunction ansatz
 (:class:`~qiskit_nature.second_q.circuit.library.UCCSD`), and optimizer
-(:class:`~qiskit.algorithms.optimizers.L_BFGS_B`).
+(:class:`~qiskit_algorithms.optimizers.L_BFGS_B`).
 The :class:`~qiskit_nature.second_q.circuit.library.UCCSD` component is the only
 one provided directly by Qiskit Nature and it is usually paired with the
 :class:`~qiskit_nature.second_q.circuit.library.HartreeFock` initial state and
@@ -237,7 +237,7 @@ an all-zero initial point for the optimizer.
 The entire problem is then solved using a
 :class:`~qiskit_nature.second_q.algorithms.GroundStateEigensolver` which wraps
 both, the :class:`~qiskit_nature.second_q.mappers.ParityMapper` and
-:class:`~qiskit.algorithms.minimum_eigensolvers.VQE`. Since an
+:class:`~qiskit_algorithms.VQE`. Since an
 :class:`~qiskit_nature.second_q.problems.ElectronicStructureProblem` is provided
 to it (which was the output of the
 :class:`~qiskit_nature.second_q.drivers.PySCFDriver`) it also returns an

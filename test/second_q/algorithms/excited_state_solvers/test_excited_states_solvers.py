@@ -20,11 +20,10 @@ from test import QiskitNatureTestCase
 from ddt import ddt, named_data
 import numpy as np
 
-from qiskit.algorithms.eigensolvers import NumPyEigensolver
-from qiskit.algorithms.minimum_eigensolvers import NumPyMinimumEigensolver, VQE
-from qiskit.algorithms.optimizers import SLSQP
+from qiskit_algorithms import NumPyEigensolver, NumPyMinimumEigensolver, VQE
+from qiskit_algorithms.optimizers import SLSQP
+from qiskit_algorithms.utils import algorithm_globals
 from qiskit.primitives import Estimator
-from qiskit.utils import algorithm_globals
 
 from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.circuit.library import HartreeFock, UCCSD

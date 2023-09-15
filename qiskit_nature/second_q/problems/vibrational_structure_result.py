@@ -16,7 +16,7 @@ from typing import List, Optional
 
 import numpy as np
 
-from qiskit.algorithms import AlgorithmResult
+from qiskit_algorithms import AlgorithmResult
 from .eigenstate_result import EigenstateResult
 
 

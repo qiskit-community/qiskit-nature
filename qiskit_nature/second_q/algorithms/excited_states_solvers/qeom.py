@@ -24,14 +24,12 @@ import sys
 import numpy as np
 from scipy import linalg
 
-from qiskit.algorithms.eigensolvers import EigensolverResult
-from qiskit.algorithms.list_or_dict import ListOrDict as ListOrDictType
-from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolver
-from qiskit.algorithms.observables_evaluator import estimate_observables
+from qiskit_algorithms import EigensolverResult, MinimumEigensolver
+from qiskit_algorithms.list_or_dict import ListOrDict as ListOrDictType
+from qiskit_algorithms.observables_evaluator import estimate_observables
 from qiskit.circuit import QuantumCircuit
 from qiskit.tools import parallel_map
 from qiskit.tools.events import TextProgressBar
-from qiskit.utils import algorithm_globals
 from qiskit.quantum_info import SparsePauliOp
 from qiskit.primitives import BaseEstimator
 
@@ -504,7 +502,6 @@ class QEOM(ExcitedStatesSolver):
             self._build_commutator_routine,
             to_be_computed_list,
             task_args=(untap_operator,),
-            num_processes=algorithm_globals.num_processes,
         )
         all_matrix_operators = {}
         for result in results:

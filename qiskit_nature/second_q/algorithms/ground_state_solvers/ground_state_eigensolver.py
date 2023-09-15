@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import logging
 
-from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolver
+from qiskit_algorithms import MinimumEigensolver
 from qiskit.quantum_info import SparsePauliOp
 
 from qiskit_nature.second_q.operators import SparseLabelOp

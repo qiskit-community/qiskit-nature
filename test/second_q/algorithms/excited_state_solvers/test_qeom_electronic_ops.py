@@ -14,7 +14,7 @@
 import unittest
 from test import QiskitNatureTestCase
 
-from qiskit.utils import algorithm_globals
+from qiskit_algorithms.utils import algorithm_globals
 
 from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.mappers import JordanWignerMapper, TaperedQubitMapper

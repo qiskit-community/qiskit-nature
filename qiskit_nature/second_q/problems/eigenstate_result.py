@@ -18,10 +18,8 @@ from typing import Any, Sequence
 
 import numpy as np
 
-from qiskit.algorithms import AlgorithmResult
-from qiskit.algorithms.eigensolvers import EigensolverResult
-from qiskit.algorithms.list_or_dict import ListOrDict
-from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
+from qiskit_algorithms import AlgorithmResult, EigensolverResult, MinimumEigensolverResult
+from qiskit_algorithms.list_or_dict import ListOrDict
 from qiskit.circuit import QuantumCircuit
 from qiskit.quantum_info import Statevector
 
@@ -87,11 +85,20 @@ class EigenstateResult(AlgorithmResult):
         Returns:
             The constructed `EigenstateResult`.
         """
-        if isinstance(raw_result, EigenstateResult):
+        # NOTE: the following inspection of class names is a work-around to handle backwards
+        # compatibility for the deprecated qiskit.algorithms module without delving into complex
+        # type unions. This logic can be removed once the qiskit.algorithms module no longer wants
+        # to be supported.
+        cls_names = {cls.__name__ for cls in raw_result.__class__.mro()}
+
+        if isinstance(raw_result, EigenstateResult) or "EigenstateResult" in cls_names:
             return raw_result
-        if isinstance(raw_result, EigensolverResult):
+        if isinstance(raw_result, EigensolverResult) or "EigensolverResult" in cls_names:
             return EigenstateResult.from_eigensolver_result(raw_result)
-        if isinstance(raw_result, MinimumEigensolverResult):
+        if (
+            isinstance(raw_result, MinimumEigensolverResult)
+            or "MinimumEigensolverResult" in cls_names
+        ):
             return EigenstateResult.from_minimum_eigensolver_result(raw_result)
         raise TypeError(
             f"Cannot construct an EigenstateResult from a result of type, {type(raw_result)}."
@@ -100,7 +107,7 @@ class EigenstateResult(AlgorithmResult):
     @classmethod
     def from_eigensolver_result(cls, raw_result: EigensolverResult) -> EigenstateResult:
         """Constructs an `EigenstateResult` from an
-        :class:`qiskit.algorithms.eigensolvers.EigensolverResult`.
+        :class:`~qiskit_algorithms.EigensolverResult`.
 
         Args:
             raw_result: the raw result from which to build the `EigenstateResult`.
@@ -133,7 +140,7 @@ class EigenstateResult(AlgorithmResult):
         cls, raw_result: MinimumEigensolverResult
     ) -> EigenstateResult:
         """Constructs an `EigenstateResult` from an
-        :class:`qiskit.algorithms.minimum_eigensolvers.MinimumEigensolverResult`.
+        :class:`~qiskit_algorithms.MinimumEigensolverResult`.
 
         Args:
             raw_result: the raw result from which to build the `EigenstateResult`.

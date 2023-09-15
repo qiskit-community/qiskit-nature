@@ -205,6 +205,7 @@ intersphinx_mapping = {
     "numpy": ("https://numpy.org/doc/stable/", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/", None),
     "qiskit": ("https://qiskit.org/documentation/", None),
+    "qiskit-algorithms": ("https://qiskit.org/ecosystem/algorithms/", None),
     "rustworkx": ("https://qiskit.org/ecosystem/rustworkx/", None),
     "sparse": ("https://sparse.pydata.org/en/stable/", None),
 }

@@ -17,8 +17,7 @@ from test import QiskitNatureTestCase
 
 import numpy as np
 
-from qiskit.algorithms.eigensolvers import EigensolverResult
-from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
+from qiskit_algorithms import EigensolverResult, MinimumEigensolverResult
 from qiskit_nature.second_q.hamiltonians import FermiHubbardModel
 from qiskit_nature.second_q.problems import LatticeModelProblem
 from qiskit_nature.second_q.hamiltonians.lattices import (

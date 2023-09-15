@@ -18,7 +18,6 @@ from typing import Callable
 
 from qiskit.quantum_info import SparsePauliOp
 from qiskit.tools import parallel_map
-from qiskit.utils import algorithm_globals
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import UCC
@@ -86,7 +85,6 @@ def build_electronic_ops(
         _build_single_hopping_operator,
         to_be_executed_list,
         task_args=(num_spatial_orbitals, qubit_mapper),
-        num_processes=algorithm_globals.num_processes,
     )
 
     for key, res in zip(hopping_operators.keys(), result):
