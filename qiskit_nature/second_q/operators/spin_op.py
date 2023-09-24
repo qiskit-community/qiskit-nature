@@ -303,7 +303,7 @@ class SpinOp(SparseLabelOp):
 
         for key in tensor:
             if key == "":
-                data[""] = tensor[key]
+                data[""] = tensor[key].sum() # sum 0d numpy array to obtain scalar
                 continue
 
             mat = tensor[key]
