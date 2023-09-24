@@ -85,7 +85,7 @@ class MixedMapper(ABC):
         right_length = register[0]
         left_length = register[1]
         if right_length!=0:
-            right_pad = SparsePauliOp("Z"*right_length)
+            right_pad = SparsePauliOp("I"*right_length)
             op = op.tensor(right_pad)
         if left_length!=0:
             left_pad = SparsePauliOp("I"*left_length) 
