@@ -43,6 +43,7 @@ class MixedMapper(QubitMapper):
     def __init__(
         self,
         mappers: dict[str, QubitMapper],
+        hilbert_space_registers: dict
     ):
         """
         Args:
@@ -50,12 +51,13 @@ class MixedMapper(QubitMapper):
         """
         super().__init__()
         self.mappers = mappers
+        self.hilbert_space_registers = hilbert_space_registers
 
     def _extend_mapping(self, op: SparsePauliOp, register, tot_register_length):
         right_length = register[0]
         left_length = register[1]
         if right_length!=0:
-            right_pad = SparsePauliOp("Z"*right_length)
+            right_pad = SparsePauliOp("I"*right_length)
             op = op.tensor(right_pad)
         if left_length!=0:
             left_pad = SparsePauliOp("I"*left_length) 
@@ -66,7 +68,6 @@ class MixedMapper(QubitMapper):
         self,
         key: tuple[str],
         operator_tuple: tuple[int, ...],
-        hilbert_space_registers: dict[str, list[int, int]],
     ):
         """Mapping of operator products."""
         # # initialize with the identity operator in the "global" Hilbert space.
@@ -82,7 +83,7 @@ class MixedMapper(QubitMapper):
             key_char = key[index]
             mapper = self.mappers[key_char]
             padded_op = self._extend_mapping(
-                mapper.map(op), hilbert_space_registers[key_char], tot_register_len
+                mapper.map(op), self.hilbert_space_registers[key_char], tot_register_len
             )  # TODO: Generalize this
             dict_mapped_op[key_char] = padded_op
 
@@ -95,12 +96,12 @@ class MixedMapper(QubitMapper):
         return product_op  # TODO: simplify()
 
     def _distribute_map(
-        self, operator_dict: dict[str, list], hilbert_space_registers: dict[str, int]
+        self, operator_dict: dict[str, list]
     ):
         """Mapping of operators sums within the various Hilbert spaces."""
         final_op = sum(
             sum(
-                self._map_tuple_product(key, operator_tuple, hilbert_space_registers)
+                self._map_tuple_product(key, operator_tuple)
                 for operator_tuple in operator_list
             )
             for key, operator_list in operator_dict.items()
@@ -109,9 +110,7 @@ class MixedMapper(QubitMapper):
 
     def map(
         self,
-        mixed_op: MixedOp,
-        *,
-        hilbert_space_registers: dict[str, int],
+        mixed_op: MixedOp
     ) -> SparsePauliOp:
         """Map the :class:`~qiskit_nature.second_q.operators.MixedOp` into a qubit operator.
 
@@ -123,6 +122,6 @@ class MixedMapper(QubitMapper):
                 translates directly to the ordering of the corresponding qubit registers.
         """
 
-        mapped_op = self._distribute_map(mixed_op.data, hilbert_space_registers)
+        mapped_op = self._distribute_map(mixed_op.data)
 
         return mapped_op
