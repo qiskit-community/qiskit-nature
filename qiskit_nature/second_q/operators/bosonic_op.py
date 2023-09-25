@@ -243,7 +243,7 @@ class BosonicOp(SparseLabelOp):
 
         for key in tensor:
             if key == "":
-                data[""] = tensor[key].sum()  # sum 0d numpy array to obtain scalar
+                data[""] = tensor[key].item()
                 continue
 
             mat = tensor[key]
