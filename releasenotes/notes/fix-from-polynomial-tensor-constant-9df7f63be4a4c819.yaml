@@ -1,6 +1,6 @@
 ---
 fixes:
   - |
-    When using `from_polynomial_tensor` constructor for one of `BosonicOp`, `FermionicOp`,
-    `SpinOp`, or `VibrationalOp`, the coefficient for the constant term was a 0d Tensor object
+    When using :meth:`.SparseLabelOp.from_polynomial_tensor` constructor for one of :class:`.BosonicOp`, :class:`.FermionicOp`,
+    :class:`.SpinOp`, or :class:`.VibrationalOp`, the coefficient for the constant term was a 0d Tensor object
     rather than a number. This has been fixed.
