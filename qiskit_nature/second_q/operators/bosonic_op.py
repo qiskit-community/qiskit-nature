@@ -490,7 +490,7 @@ class BosonicOp(SparseLabelOp):
 
         The simplifications implemented by this method should be:
         - to eliminate terms whose coefficients are close (w.r.t. ``atol``) to 0.
-        - to combine the coefficients which correspond to equivalent terms
+        - to combine the coefficients which correspond to equivalent terms (see also the note below)
 
         .. note::
 
