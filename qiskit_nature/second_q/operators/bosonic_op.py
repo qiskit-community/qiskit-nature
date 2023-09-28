@@ -486,13 +486,11 @@ class BosonicOp(SparseLabelOp):
         return all(np.isclose(coeff, 0.0, atol=atol) for coeff in diff.values())
 
     def simplify(self, atol: float | None = None) -> BosonicOp:
-        """Simplifies the terms of the BosonicOp
+        """Simplify the operator.
 
-        Args:
-            atol: Absolute numerical tolerance. The default behavior is to use ``self.atol``.
-
-        Returns:
-            A new simplified BosonicOp (the original operator is not modified).
+        The simplifications implemented by this method should be:
+        - to eliminate terms whose coefficients are close (w.r.t. ``atol``) to 0.
+        - to combine the coefficients which correspond to equivalent terms
 
         .. note::
 
@@ -502,12 +500,29 @@ class BosonicOp(SparseLabelOp):
 
         .. note::
 
+           The meaning of "equivalence" between multiple terms depends on the specific operator
+           subclass. As a restriction this method is required to preserve the order of appearance of
+           the different components within a term. This avoids some possibly unexpected edge cases.
+           However, this also means that some equivalencies cannot be detected. Check for other
+           methods of a specific subclass which may affect the order of terms and can allow for
+           further simplifications to be implemented. For example, check out :meth:`index_order`.
+
+        .. note::
+
             :meth:`simplify` is not allowed to simplify the labels ``+_0 -_0`` or ``-_0 +_0``. The
             former corresponds to the boson number operator, and when it is applied to a state yields
             the number of bosons in that state :math:`n`. Similarly, the latter yields
             :math:`1 + n`. As a consequence, the label ``+_0 -_0 -_1 +_0`` will remain untouched by
             this method. This is in contrast to how :meth:`.FermionicOp.simplify` works,
             because it exploits that :math:`n` can be either :math:`0` or :math:`1`.
+
+        This method returns a new operator (the original operator is not modified).
+
+        Args:
+            atol: Absolute numerical tolerance. The default behavior is to use ``self.atol``.
+
+        Returns:
+            The simplified operator.
         """
         atol = self.atol if atol is None else atol
 

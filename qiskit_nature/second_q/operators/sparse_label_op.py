@@ -530,6 +530,12 @@ class SparseLabelOp(LinearMixin, AdjointMixin, GroupMixin, TolerancesMixin, ABC,
 
         .. note::
 
+            :meth:`simplify` should be used to simplify terms whose coefficients are close to zero,
+            up to the specified numerical tolerance. It still differs slightly from :meth:`chop`
+            because that will chop real and imaginary part components individually.
+
+        .. note::
+
            The meaning of "equivalence" between multiple terms depends on the specific operator
            subclass. As a restriction this method is required to preserve the order of appearance of
            the different components within a term. This avoids some possibly unexpected edge cases.
