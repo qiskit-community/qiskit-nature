@@ -110,7 +110,9 @@ class MixedMapper(QubitMapper):
 
     def map(
         self,
-        mixed_op: MixedOp
+        mixed_op: MixedOp,
+        *,
+        register_length: int | None = None,
     ) -> SparsePauliOp:
         """Map the :class:`~qiskit_nature.second_q.operators.MixedOp` into a qubit operator.
 
