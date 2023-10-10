@@ -1,35 +1,36 @@
-{# This is identical to class.rst, except for the filtering in `set wanted_methods`. -#}
-
-{% if referencefile %}
-.. include:: {{ referencefile }}
-{% endif %}
-
 {{ objname }}
 {{ underline }}
 
 .. currentmodule:: {{ module }}
 
 .. autoclass:: {{ objname }}
+   :show-inheritance:
    :no-members:
    :no-inherited-members:
    :no-special-members:
-   :show-inheritance:
 
-{% block attributes_summary %}
-  {% if attributes %}
+   {% block attributes_summary %}
+   {% if attributes %}
    .. rubric:: Attributes
-    {% for item in attributes %}
+   {% for item in all_attributes %}
+      {%- if item not in inherited_members %}
+        {%- if not item.startswith('_') %}
    .. autoattribute:: {{ name }}.{{ item }}
-    {%- endfor %}
-  {% endif %}
-{% endblock -%}
+        {%- endif -%}
+      {%- endif %}
+   {%- endfor %}
+   {% endif %}
+   {% endblock %}
 
-{% block methods_summary %}
-  {% set wanted_methods = (methods | reject('in', inherited_members) | reject('==', '__init__') | list) %}
-  {% if wanted_methods %}
+   {% block methods_summary %}
+   {% if methods %}
    .. rubric:: Methods
-    {% for item in wanted_methods %}
+   {% for item in all_methods %}
+      {%- if item not in inherited_members %}
+        {%- if not item.startswith('_') %}
    .. automethod:: {{ name }}.{{ item }}
-    {%- endfor %}
-  {% endif %}
-{% endblock %}
+        {%- endif -%}
+      {%- endif %}
+   {%- endfor %}
+   {% endif %}
+   {% endblock %}

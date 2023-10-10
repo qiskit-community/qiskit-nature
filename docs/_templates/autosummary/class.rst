@@ -1,8 +1,3 @@
-{#
-   We show all the class's methods and attributes on the same page. By default, we document
-   all methods, including those defined by parent classes.
--#}
-
 {% if referencefile %}
 .. include:: {{ referencefile }}
 {% endif %}
@@ -13,26 +8,29 @@
 .. currentmodule:: {{ module }}
 
 .. autoclass:: {{ objname }}
+   :show-inheritance:
    :no-members:
    :no-inherited-members:
    :no-special-members:
-   :show-inheritance:
 
-{% block attributes_summary %}
-  {% if attributes %}
+   {% block attributes_summary %}
+   {% if attributes %}
    .. rubric:: Attributes
-    {% for item in attributes %}
+   {% for item in all_attributes %}
+      {%- if not item.startswith('_') %}
    .. autoattribute:: {{ name }}.{{ item }}
-    {%- endfor %}
-  {% endif %}
-{% endblock -%}
+      {%- endif -%}
+   {%- endfor %}
+   {% endif %}
+   {% endblock %}
 
-{% block methods_summary %}
-  {% set wanted_methods = (methods | reject('==', '__init__') | list) %}
-  {% if wanted_methods %}
+   {% block methods_summary %}
+   {% if methods %}
    .. rubric:: Methods
-    {% for item in wanted_methods %}
+   {% for item in all_methods %}
+      {%- if not item.startswith('_') %}
    .. automethod:: {{ name }}.{{ item }}
-    {%- endfor %}
-  {% endif %}
-{% endblock %}
+      {%- endif -%}
+   {%- endfor %}
+   {% endif %}
+   {% endblock %}
