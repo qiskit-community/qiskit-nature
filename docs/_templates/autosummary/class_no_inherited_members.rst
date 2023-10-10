@@ -1,11 +1,17 @@
 {# This is identical to class.rst, except for the filtering in `set wanted_methods`. -#}
 
+{% if referencefile %}
+.. include:: {{ referencefile }}
+{% endif %}
+
 {{ objname | escape | underline }}
 
 .. currentmodule:: {{ module }}
 
 .. autoclass:: {{ objname }}
    :no-members:
+   :no-inherited-members:
+   :no-special-members:
    :show-inheritance:
 
 {% block attributes_summary %}

@@ -3,12 +3,17 @@
    all methods, including those defined by parent classes.
 -#}
 
+{% if referencefile %}
+.. include:: {{ referencefile }}
+{% endif %}
+
 {{ objname | escape | underline }}
 
 .. currentmodule:: {{ module }}
 
 .. autoclass:: {{ objname }}
    :no-members:
+   :no-inherited-members:
    :no-special-members:
    :show-inheritance:
 
