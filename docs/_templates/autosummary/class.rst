@@ -17,7 +17,6 @@
    .. rubric:: Attributes
     {% for item in attributes %}
    .. autoattribute:: {{ item }}
-      :noindex:
     {%- endfor %}
   {% endif %}
 {% endblock -%}
@@ -28,7 +27,6 @@
    .. rubric:: Methods
     {% for item in wanted_methods %}
    .. automethod:: {{ item }}
-      :noindex:
     {%- endfor %}
   {% endif %}
 {% endblock %}
