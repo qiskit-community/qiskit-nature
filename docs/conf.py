@@ -93,7 +93,7 @@ extensions = [
     "nbsphinx",
     "sphinx.ext.intersphinx",
     "qiskit_sphinx_theme",
-    'matplotlib.sphinxext.plot_directive',
+    "matplotlib.sphinxext.plot_directive",
 ]
 html_static_path = ["_static"]
 templates_path = ["_templates"]

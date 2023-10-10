@@ -7,7 +7,8 @@
 .. include:: {{ referencefile }}
 {% endif %}
 
-{{ objname | escape | underline }}
+{{ objname }}
+{{ underline }}
 
 .. currentmodule:: {{ module }}
 
@@ -21,7 +22,7 @@
   {% if attributes %}
    .. rubric:: Attributes
     {% for item in attributes %}
-   .. autoattribute:: {{ item }}
+   .. autoattribute:: {{ name }}.{{ item }}
     {%- endfor %}
   {% endif %}
 {% endblock -%}
@@ -31,7 +32,7 @@
   {% if wanted_methods %}
    .. rubric:: Methods
     {% for item in wanted_methods %}
-   .. automethod:: {{ item }}
+   .. automethod:: {{ name }}.{{ item }}
     {%- endfor %}
   {% endif %}
 {% endblock %}
