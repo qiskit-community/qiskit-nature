@@ -26,7 +26,7 @@ Hamiltonians (:mod:`qiskit_nature.second_q.hamiltonians`)
    LatticeModel
 
 Submodules
-==========
+----------
 
 .. autosummary::
    :toctree:
