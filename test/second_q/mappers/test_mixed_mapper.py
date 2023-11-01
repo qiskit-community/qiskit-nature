@@ -54,22 +54,22 @@ class TestMixedMapper(QiskitNatureTestCase):
 
     bos_mapper = BosonicLinearMapper(max_occupation=1)
     fer_mapper = JordanWignerMapper()
-    hilbert_space_registers = {"b1": 2, "f1": 1}
     mappers = {"b1": bos_mapper, "f1": fer_mapper}
-    mix_mapper = MixedMapper(mappers=mappers)
+    hilbert_space_registers = {"b1": 2, "f1": 1}
+    mix_mapper = MixedMapper(mappers=mappers, hilbert_space_registers=hilbert_space_registers)
 
     def test_absolute_mapping(self):
         """Test the ``MixedOp`` mapping and compare to the calculated values."""
 
-        target = self.mapped_bos_op1.tensor(3.0 * self.mapped_fer_op1)
+        target = self.mapped_fer_op1.tensor(3.0 * self.mapped_bos_op1)
 
         aux = settings.use_pauli_sum_op
         settings.use_pauli_sum_op = False
         comp_op1 = MixedOp({("b1", "f1"): [(3.0, self.bos_op1, self.fer_op1)]})
-        test = self.mix_mapper.map(comp_op1, hilbert_space_registers=self.hilbert_space_registers)
+        test = self.mix_mapper.map(comp_op1)
         settings.use_pauli_sum_op = aux
 
-        self.assertEqual(target, test)
+        self.assertTrue(target.equiv(test))
 
     @data(
         (bos_op1, fer_op1, 2.0 + 1.0j),
@@ -85,14 +85,10 @@ class TestMixedMapper(QiskitNatureTestCase):
 
         aux = settings.use_pauli_sum_op
         settings.use_pauli_sum_op = False
-        target = coef * self.bos_mapper.map(bos_op).tensor(self.fer_mapper.map(fer_op))
-        test = self.mix_mapper.map(
-            composed_op, hilbert_space_registers=self.hilbert_space_registers
-        )
+        target = coef * self.fer_mapper.map(fer_op).tensor(self.bos_mapper.map(bos_op))
+        test = self.mix_mapper.map(composed_op)
         settings.use_pauli_sum_op = aux
-        print(target)
-        print(test)
-        self.assertEqual(target, test)
+        self.assertTrue(target.equiv(test))
 
 
 if __name__ == "__main__":

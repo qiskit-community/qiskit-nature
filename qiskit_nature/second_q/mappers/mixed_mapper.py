@@ -13,6 +13,7 @@
 """The Mixed Mapper class."""
 
 from __future__ import annotations
+from functools import reduce
 
 from qiskit.quantum_info import SparsePauliOp
 
@@ -38,72 +39,46 @@ class MixedMapper(QubitMapper):
 
     Attributes:
         mappers: Dictionary of mappers corresponding to each "local" Hilbert spaces of the global problem.
+        hilbert_space_registers: Ordered dictionary of the local registers and their respective sizes.
     """
 
-    def __init__(
-        self,
-        mappers: dict[str, QubitMapper],
-        hilbert_space_registers: dict
-    ):
+    def __init__(self, mappers: dict[str, QubitMapper], hilbert_space_registers: dict):
         """
         Args:
             mappers: Dictionary of mappers corresponding to each of the "local" Hilbert spaces.
+            hilbert_space_registers: Ordered dictionary of the local registers and their respective sizes.
         """
         super().__init__()
         self.mappers = mappers
         self.hilbert_space_registers = hilbert_space_registers
 
-    def _extend_mapping(self, op: SparsePauliOp, register, tot_register_length):
-        right_length = register[0]
-        left_length = register[1]
-        if right_length!=0:
-            right_pad = SparsePauliOp("I"*right_length)
-            op = op.tensor(right_pad)
-        if left_length!=0:
-            left_pad = SparsePauliOp("I"*left_length) 
-            op = left_pad.tensor(op)
-        return op
-
     def _map_tuple_product(
         self,
-        key: tuple[str],
+        index: tuple[str],
         operator_tuple: tuple[int, ...],
     ):
-        """Mapping of operator products."""
-        # # initialize with the identity operator in the "global" Hilbert space.
-        coefficient = operator_tuple[0]
-        dict_mapped_op = {}
-        tot_register_len = 4# list(hilbert_space_registers.values())[-1][-]
-        # for key_temp, length in hilbert_space_registers.items():
-        #     dict_mapped_op[key_temp] = SparsePauliOp("I" * length)
+        """Mapping of operator products.
+        When the operator is not present in the tuple, construct a padding SparsePauliOp("II..I")"""
 
-        # for each Hilbert space appearing in the product of operators, replace the identity with the
-        # corresponding term.
-        for index, op in enumerate(operator_tuple[1:]):
-            key_char = key[index]
-            mapper = self.mappers[key_char]
-            padded_op = self._extend_mapping(
-                mapper.map(op), self.hilbert_space_registers[key_char], tot_register_len
-            )  # TODO: Generalize this
-            dict_mapped_op[key_char] = padded_op
+        coef, op_tuple = operator_tuple[0], operator_tuple[1:]
 
-        # tensor all the elements of the dictionary.
-        list_op = list(dict_mapped_op.values())
-        product_op = coefficient * list_op[0]
-        for op in list_op[1:]:
-            product_op = product_op.compose(op)
+        tup_dict = {index[k]: self.mappers[index[k]].map(op_tuple[k]) for k in range(len(index))}
+        padding_ops = {
+            index: SparsePauliOp("I" * value)
+            for index, value in self.hilbert_space_registers.items()
+        }
+        new_dict = {
+            index: tup_dict[index] if index in tup_dict else padding_ops[index]
+            for index in self.hilbert_space_registers.keys()
+        }
+        product_op = coef * reduce(SparsePauliOp.tensor, list(new_dict.values())[::-1])
 
-        return product_op  # TODO: simplify()
+        return product_op.simplify()
 
-    def _distribute_map(
-        self, operator_dict: dict[str, list]
-    ):
+    def _distribute_map(self, operator_dict: dict[str, list]):
         """Mapping of operators sums within the various Hilbert spaces."""
         final_op = sum(
-            sum(
-                self._map_tuple_product(key, operator_tuple)
-                for operator_tuple in operator_list
-            )
+            sum(self._map_tuple_product(key, operator_tuple) for operator_tuple in operator_list)
             for key, operator_list in operator_dict.items()
         )
         return final_op
