@@ -145,9 +145,7 @@ class MixedOp(LinearMixin):
         if op_right == None:
             # Distribute method over all tuples.
             for key, op_tuple_list in op_left.data.items():
-                new_op_data[key] = [
-                    method(op_tuple, *args, **kwargs) for op_tuple in op_tuple_list
-                ]
+                new_op_data[key] = [method(op_tuple, *args, **kwargs) for op_tuple in op_tuple_list]
         else:
             # Distribute method over all combinations of tuples from the first and second operators.
             for (key1, op_tuple_list1), (key2, op_tuple_list2) in itertools.product(
@@ -155,9 +153,7 @@ class MixedOp(LinearMixin):
             ):
                 new_op_data[key1 + key2] = [
                     method(op_tuple1, op_tuple2, *args, **kwargs)
-                    for (op_tuple1, op_tuple2) in itertools.product(
-                        op_tuple_list1, op_tuple_list2
-                    )
+                    for (op_tuple1, op_tuple2) in itertools.product(op_tuple_list1, op_tuple_list2)
                 ]
 
         return MixedOp(new_op_data)
@@ -172,7 +168,7 @@ class MixedOp(LinearMixin):
         Returns:
             The new multiplied ``MixedOp``.
         """
-        return MixedOp._distribute_on_tuples(MixedOp._tuple_multiply, op_left = self, coef = other)
+        return MixedOp._distribute_on_tuples(MixedOp._tuple_multiply, op_left=self, coef=other)
 
     def _add(self, other: MixedOp, qargs: None = None) -> MixedOp:
         """Return Operator addition of self and other.
@@ -197,7 +193,7 @@ class MixedOp(LinearMixin):
         return sum_op
 
     @classmethod
-    def compose(cls, op_left:MixedOp, op_right: MixedOp) -> MixedOp:
+    def compose(cls, op_left: MixedOp, op_right: MixedOp) -> MixedOp:
         """Returns Operator composition of self and other.
 
         Args:
@@ -209,20 +205,12 @@ class MixedOp(LinearMixin):
         """
 
         # Lazy composition without applying the products.
-        return MixedOp._distribute_on_tuples(MixedOp._tuple_prod, op_left = op_left, op_right = op_right)
-        # new_data = {}
-        # for key1, key2 in itertools.product(self.data.keys(), other.data.keys()):
-        #     op_tuple_list1, op_tuple_list2 = self.data[key1], other.data[key2]
-        #     new_data[key1 + key2] = [
-        #         MixedOp._tuple_prod(op_tuple1, op_tuple2)
-        #         for op_tuple1, op_tuple2 in itertools.product(
-        #             op_tuple_list1, op_tuple_list2
-        #         )
-        #     ]
-        # return MixedOp(new_data)
+        return MixedOp._distribute_on_tuples(
+            MixedOp._tuple_prod, op_left=op_left, op_right=op_right
+        )
 
     def __eq__(self, other):
-        
+
         if not isinstance(other, self.__class__):
             return False
 
