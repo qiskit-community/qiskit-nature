@@ -27,7 +27,7 @@ runs:
         conda activate psi4env
         if [[ "${{ inputs.os }}" == "windows-latest" ]]; then
           echo "installs psi4 stable release"
-          conda install -y psi4 python=${{ inputs.python-version }} -c psi4
+          conda install -y psi4 python=${{ inputs.python-version }} -c psi4 -c conda-forge
         elif [[ "${{ inputs.os }}" == "macos-latest" ]]; then
           echo 'installs psi4 stable release'
           conda install -y psi4 python=${{ inputs.python-version }} -c psi4
