@@ -27,7 +27,6 @@ from qiskit_nature.second_q.mappers import (
     JordanWignerMapper,
     MixedMapper,
 )
-from qiskit_nature import settings
 
 
 @ddt
@@ -63,11 +62,8 @@ class TestMixedMapper(QiskitNatureTestCase):
 
         target = self.mapped_fer_op1.tensor(3.0 * self.mapped_bos_op1)
 
-        aux = settings.use_pauli_sum_op
-        settings.use_pauli_sum_op = False
         comp_op1 = MixedOp({("b1", "f1"): [(3.0, self.bos_op1, self.fer_op1)]})
         test = self.mix_mapper.map(comp_op1)
-        settings.use_pauli_sum_op = aux
 
         self.assertTrue(target.equiv(test))
 
@@ -83,11 +79,8 @@ class TestMixedMapper(QiskitNatureTestCase):
 
         composed_op = MixedOp({("b1", "f1"): [(coef, bos_op, fer_op)]})
 
-        aux = settings.use_pauli_sum_op
-        settings.use_pauli_sum_op = False
         target = coef * self.fer_mapper.map(fer_op).tensor(self.bos_mapper.map(bos_op))
         test = self.mix_mapper.map(composed_op)
-        settings.use_pauli_sum_op = aux
         self.assertTrue(target.equiv(test))
 
 
