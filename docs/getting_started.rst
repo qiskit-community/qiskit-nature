@@ -7,9 +7,9 @@ Getting started
 Installation
 ============
 
-Qiskit Nature depends on the main Qiskit package which has its own
+Qiskit Nature depends on Qiskit, which has its own
 `Qiskit Getting Started <https://qiskit.org/documentation/getting_started.html>`__ detailing the
-installation options for Qiskit and its supported environments/platforms. You should refer to
+installation options and its supported environments/platforms. You should refer to
 that first. Then the information here can be followed which focuses on the additional installation
 specific to Qiskit Nature.
 
@@ -22,24 +22,20 @@ See :ref:`optional_installs` for more information.
 
     .. tab-item:: Start locally
 
-        The simplest way to get started is to follow the `getting started 'Start locally' guide for
+        The simplest way to get started is to first follow the `getting started 'Start locally' guide for
         Qiskit <https://qiskit.org/documentation/getting_started.html>`__
 
-        In your virtual environment where you installed Qiskit simply add ``nature`` to the
-        extra list in a similar manner to how the extra ``visualization`` support is installed for
-        Qiskit, i.e:
+        In your virtual environment, where you installed Qiskit, install Qiskit Nature as follows:
 
         .. code:: sh
 
-            pip install qiskit[nature]
+            pip install qiskit-nature
 
-        It is worth pointing out that if you're a zsh user (which is the default shell on newer
-        versions of macOS), you'll need to put ``qiskit[nature]`` in quotes:
+        .. note::
 
-        .. code:: sh
-
-            pip install 'qiskit[nature]'
-
+            As Qiskit Nature depends on Qiskit, you can though simply install it into your
+            environment, as above, and pip will automatically install a compatible version of Qiskit
+            if one is not already installed.
 
     .. tab-item:: Install from source
 
@@ -63,7 +59,7 @@ See :ref:`optional_installs` for more information.
 
           .. code:: sh
 
-             git clone https://github.com/Qiskit/qiskit-nature.git
+             git clone https://github.com/qiskit-community/qiskit-nature.git
 
        2. Cloning the repository creates a local folder called ``qiskit-nature``.
 
@@ -105,6 +101,15 @@ many, or as few as you wish, that are supported by your platform etc.
 See `Driver installation <./apidocs/qiskit_nature.second_q.drivers.html>`__ which lists each driver
 and how to install the dependent library/program that it requires.
 
+The drivers only provide a very limited set of capabilities of the underlying classical codes.
+While this is useful for getting started and testing purposes, a better experience can be had in the reversed order of responsibility.
+That is, in a setup where the classical code runs the Qiskit Nature components.
+Such an integration currently exists for the following packages:
+
+- PySCF via `qiskit-nature-pyscf <https://qiskit-community.github.io/qiskit-nature-pyscf/>`_
+
+If you are interested in using Psi4, we are actively looking for help to get started on a similar integration in `qiskit-nature-psi4 <https://github.com/qiskit-community/qiskit-nature-psi4>`_
+
 Additionally, you may find the following optional dependencies useful:
 
 - `sparse <https://github.com/pydata/sparse/>`_, a library for sparse multi-dimensional arrays. When installed, Qiskit Nature can leverage this to reduce the memory requirements of your calculations.
@@ -116,7 +121,7 @@ Ready to get going?...
 ======================
 
 Now that Qiskit Nature is installed, let's try a chemistry application experiment
-using the :class:`~qiskit.algorithms.minimum_eigensolvers.VQE` (Variational
+using the :class:`~qiskit_algorithms.VQE` (Variational
 Quantum Eigensolver) algorithm to compute the ground-state (minimum) energy of a
 molecule.
 
@@ -141,7 +146,7 @@ molecule.
    mapper = ParityMapper(num_particles=problem.num_particles)
 
    # setup the classical optimizer for the VQE
-   from qiskit.algorithms.optimizers import L_BFGS_B
+   from qiskit_algorithms.optimizers import L_BFGS_B
 
    optimizer = L_BFGS_B()
 
@@ -165,7 +170,7 @@ molecule.
    )
 
    # set up our actual VQE instance
-   from qiskit.algorithms.minimum_eigensolvers import VQE
+   from qiskit_algorithms import VQE
 
    vqe = VQE(estimator, ansatz, optimizer)
    # ensure that the optimizer starts in the all-zero state which corresponds to
@@ -219,11 +224,11 @@ are provided to it; a reduction in complexity that is particularly advantageous
 for NISQ computers.
 
 For actually finding the ground state solution, the Variational Quantum
-Eigensolver (:class:`~qiskit.algorithms.minimum_eigensolvers.VQE`) algorithm is
+Eigensolver (:class:`~qiskit_algorithms.VQE`) algorithm is
 used. Its main three components are the estimator primitive
 (:class:`~qiskit.primitives.Estimator`), wavefunction ansatz
 (:class:`~qiskit_nature.second_q.circuit.library.UCCSD`), and optimizer
-(:class:`~qiskit.algorithms.optimizers.L_BFGS_B`).
+(:class:`~qiskit_algorithms.optimizers.L_BFGS_B`).
 The :class:`~qiskit_nature.second_q.circuit.library.UCCSD` component is the only
 one provided directly by Qiskit Nature and it is usually paired with the
 :class:`~qiskit_nature.second_q.circuit.library.HartreeFock` initial state and
@@ -232,7 +237,7 @@ an all-zero initial point for the optimizer.
 The entire problem is then solved using a
 :class:`~qiskit_nature.second_q.algorithms.GroundStateEigensolver` which wraps
 both, the :class:`~qiskit_nature.second_q.mappers.ParityMapper` and
-:class:`~qiskit.algorithms.minimum_eigensolvers.VQE`. Since an
+:class:`~qiskit_algorithms.VQE`. Since an
 :class:`~qiskit_nature.second_q.problems.ElectronicStructureProblem` is provided
 to it (which was the output of the
 :class:`~qiskit_nature.second_q.drivers.PySCFDriver`) it also returns an

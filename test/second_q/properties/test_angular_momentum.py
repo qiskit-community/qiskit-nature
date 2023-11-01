@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -38,8 +38,9 @@ class TestAngularMomentum(PropertyTest):
             encoding="utf8",
         ) as file:
             expected = json.load(file)
-            expected_op = FermionicOp(expected, num_spin_orbitals=8).simplify()
-        self.assertEqual(op, expected_op)
+            expected_op = FermionicOp(expected, num_spin_orbitals=8)
+
+        self.assertEqual(op.normal_order(), expected_op.normal_order())
 
 
 if __name__ == "__main__":

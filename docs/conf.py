@@ -1,4 +1,4 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
 # (C) Copyright IBM 2021, 2023.
 #
@@ -72,7 +72,9 @@ nbsphinx_prolog = """
         __"""
 
 vers = version.split(".")
-link_str = f" https://github.com/Qiskit/qiskit-nature/blob/stable/{vers[0]}.{vers[1]}/docs/"
+link_str = (
+    f" https://github.com/qiskit-community/qiskit-nature/blob/stable/{vers[0]}.{vers[1]}/docs/"
+)
 nbsphinx_prolog += link_str + "{{ docname }}"
 
 # -- General configuration ---------------------------------------------------
@@ -91,6 +93,7 @@ extensions = [
     "nbsphinx",
     "sphinx.ext.intersphinx",
     "qiskit_sphinx_theme",
+    "matplotlib.sphinxext.plot_directive",
 ]
 html_static_path = ["_static"]
 templates_path = ["_templates"]
@@ -184,25 +187,15 @@ modindex_common_prefix = ["qiskit_nature."]
 
 # -- Options for HTML output -------------------------------------------------
 
-html_theme = "qiskit_sphinx_theme"
-html_theme_options = {
-    "logo_only": False,
-    "display_version": True,
-    "prev_next_buttons_location": "bottom",
-    "style_external_links": False,
-    # Toc options
-    "collapse_navigation": True,
-    "sticky_navigation": True,
-    "navigation_depth": 4,
-    "includehidden": True,
-    "titles_only": False,
-}
+html_theme = "qiskit-ecosystem"
+html_title = f"{project} {release}"
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/", None),
     "qiskit": ("https://qiskit.org/documentation/", None),
+    "qiskit-algorithms": ("https://qiskit.org/ecosystem/algorithms/", None),
     "rustworkx": ("https://qiskit.org/ecosystem/rustworkx/", None),
     "sparse": ("https://sparse.pydata.org/en/stable/", None),
 }

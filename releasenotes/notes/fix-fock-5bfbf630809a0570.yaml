@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Fixes the computation of :meth:`.ElectronicEnergy.coulomb` (and by extension
+    :meth:`.ElectronicEnergy.fock`) when applied to a purely alpha-spin Hamiltonian
+    but providing a mixed spin density.

@@ -1,4 +1,4 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
 # (C) Copyright IBM 2021, 2023.
 #
@@ -20,7 +20,6 @@ import numpy as np
 
 from qiskit.quantum_info.operators import Pauli
 
-from qiskit_nature.deprecation import deprecate_arguments
 from .vibrational_mapper import VibrationalMapper
 
 
@@ -32,11 +31,8 @@ class DirectMapper(VibrationalMapper):
     """
 
     @classmethod
-    @deprecate_arguments("0.6.0", {"nmodes": "register_length"})
     @lru_cache(maxsize=32)
-    def pauli_table(
-        cls, register_length: int, *, nmodes: int | None = None
-    ) -> list[tuple[Pauli, Pauli]]:
+    def pauli_table(cls, register_length: int) -> list[tuple[Pauli, Pauli]]:
         # pylint: disable=unused-argument
         pauli_table = []
 

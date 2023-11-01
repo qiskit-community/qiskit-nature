@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    The :attr:`.SparseLabelOp.register_length` attribute (and by extension that of its subclasses, too)
+    can no longer take ``None`` as its value. However, the attributes which this one might rely on
+    (e.g. :attr:`.FermionicOp.num_spin_orbitals` or :attr:`.BosonicOp.num_modes`) can remain ``None``.
+    This ensures that the lower-bound behavior works as intended.

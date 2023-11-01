@@ -1,4 +1,4 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
 # (C) Copyright IBM 2022, 2023.
 #
@@ -16,7 +16,7 @@ from typing import List, Optional
 
 import numpy as np
 
-from qiskit.algorithms import AlgorithmResult
+from qiskit_algorithms import AlgorithmResult
 from .eigenstate_result import EigenstateResult
 
 

@@ -1,4 +1,4 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
 # (C) Copyright IBM 2022, 2023.
 #
@@ -121,7 +121,6 @@ from .bosonic_linear_mapper import BosonicLinearMapper
 from .logarithmic_mapper import LogarithmicMapper
 from .direct_mapper import DirectMapper
 from .qubit_mapper import QubitMapper
-from .qubit_converter import QubitConverter
 from .interleaved_qubit_mapper import InterleavedQubitMapper
 from .tapered_qubit_mapper import TaperedQubitMapper
 from .mixed_mapper import MixedMapper

@@ -12,9 +12,7 @@ features:
       bosonic_op = BosonicOp({'+_0 -_0': 1}, num_modes=1)
 
     Due to the nature of bosonic particles, this class uses the commutator relations instead of the
-    anti-commutator ones (used by fermionic particles). Moreover the simplify method
-    :meth:`.BosonicOp.simplify` does not commute with the index order method
-    :meth:`.BosonicOp.index_order`
+    anti-commutator ones (used by fermionic particles).
 
   - |
     In order to use the bosonic operator for quantum applications, this feature also introduces the

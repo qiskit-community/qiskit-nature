@@ -1,4 +1,4 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
 # (C) Copyright IBM 2019, 2023.
 #
@@ -16,17 +16,16 @@ import unittest
 
 from test import QiskitNatureTestCase
 
-from qiskit.algorithms.minimum_eigensolvers import VQE
-from qiskit.algorithms.optimizers import SLSQP
+from qiskit_algorithms import VQE
+from qiskit_algorithms.optimizers import SLSQP
+from qiskit_algorithms.utils import algorithm_globals
 from qiskit.primitives import Estimator
 from qiskit.test import slow_test
-from qiskit.utils import algorithm_globals
 
 from qiskit_nature.second_q.algorithms import GroundStateEigensolver
 from qiskit_nature.second_q.circuit.library import HartreeFock, SUCCD, PUCCD
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import ParityMapper
-from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.transformers import FreezeCoreTransformer
 import qiskit_nature.optionals as _optionals
 
@@ -42,20 +41,14 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         algorithm_globals.random_seed = 42
         self.driver = PySCFDriver(atom="H 0 0 0.735; H 0 0 0", basis="631g")
 
-        self.mapper = QubitConverter(ParityMapper(), two_qubit_reduction=True)
-
         self.electronic_structure_problem = FreezeCoreTransformer().transform(self.driver.run())
+
+        self.mapper = self.electronic_structure_problem.get_tapered_mapper(
+            ParityMapper(num_particles=self.electronic_structure_problem.num_particles)
+        )
 
         self.num_spatial_orbitals = 4
         self.num_particles = (1, 1)
-
-        # because we create the initial state and ansatzes early, we need to ensure the qubit
-        # mapper already ran such that convert_match works as expected
-        main_op, _ = self.electronic_structure_problem.second_q_ops()
-        _ = self.mapper.convert(
-            main_op,
-            self.num_particles,
-        )
 
         self.reference_energy_pUCCD = -1.1434447924298028
         self.reference_energy_UCCD0 = -1.1476045878481704

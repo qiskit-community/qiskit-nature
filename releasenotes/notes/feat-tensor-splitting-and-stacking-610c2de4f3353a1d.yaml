@@ -1,0 +1,9 @@
+---
+features:
+  - |
+    Adds the following new utility methods for splitting and stacking multi-tensors:
+
+    - :meth:`.PolynomialTensor.split`
+    - :meth:`.PolynomialTensor.stack`
+    - :meth:`.ElectronicIntegrals.split`
+    - :meth:`.ElectronicIntegrals.stack`

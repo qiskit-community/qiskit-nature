@@ -1,4 +1,4 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
 # (C) Copyright IBM 2020, 2023.
 #
@@ -52,6 +52,7 @@ Ansatzes
    UCC
    UCCSD
    PUCCD
+   PUCCSD
    SUCCD
    CHC
    UVCC
@@ -73,6 +74,7 @@ from .ansatzes import (
     UCC,
     UCCSD,
     PUCCD,
+    PUCCSD,
     SUCCD,
     CHC,
     UVCC,
@@ -87,6 +89,7 @@ __all__ = [
     "UCC",
     "UCCSD",
     "PUCCD",
+    "PUCCSD",
     "SUCCD",
     "HartreeFock",
     "CHC",

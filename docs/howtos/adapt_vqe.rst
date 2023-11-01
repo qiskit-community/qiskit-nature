@@ -1,21 +1,9 @@
 Find ground state energy using AdaptVQE
 =======================================
 
-As of Qiskit Nature v0.5, the :class:`~qiskit.algorithms.minimum_eigensolvers.AdaptVQE`
-algorithm has been migrated to Qiskit Terra (released in v0.22).
+This guide outlines how the :class:`~qiskit_algorithms.AdaptVQE` algorithm can
+be used to find the ground state solutions of natural science problems.
 
-This tutorial outlines how the algorithm can be used.
-
-0. We ensure the use of :class:`~qiskit.opflow.primitive_ops.PauliSumOp` (this is the default value
-   of this setting for now but we enforce it here to ensure stability of this guide as long as the
-   :class:`~qiskit.algorithms.minimum_eigensolvers.AdaptVQE` class is not yet guaranteed to handle
-   the :class:`~qiskit.quantum_info.SparsePauliOp` successor properly):
-
-.. testcode::
-
-   from qiskit_nature import settings
-
-   settings.use_pauli_sum_op = True
 
 1. We obtain an :class:`~qiskit_nature.second_q.problems.ElectronicStructureProblem`
    which we want to solve:
@@ -49,22 +37,22 @@ This tutorial outlines how the algorithm can be used.
         ),
     )
 
-4. We setup a :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`:
+4. We setup a :class:`~qiskit_algorithms.VQE`:
 
 .. testcode::
 
     import numpy as np
-    from qiskit.algorithms.optimizers import SLSQP
-    from qiskit.algorithms.minimum_eigensolvers import VQE
+    from qiskit_algorithms import VQE
+    from qiskit_algorithms.optimizers import SLSQP
     from qiskit.primitives import Estimator
     vqe = VQE(Estimator(), ansatz, SLSQP())
     vqe.initial_point = np.zeros(ansatz.num_parameters)
 
-5. We setup the :class:`~qiskit.algorithms.minimum_eigensolvers.AdaptVQE`:
+5. We setup the :class:`~qiskit_algorithms.AdaptVQE`:
 
 .. testcode::
 
-    from qiskit.algorithms.minimum_eigensolvers import AdaptVQE
+    from qiskit_algorithms import AdaptVQE
     adapt_vqe = AdaptVQE(vqe)
     adapt_vqe.supports_aux_operators = lambda: True  # temporary fix
 

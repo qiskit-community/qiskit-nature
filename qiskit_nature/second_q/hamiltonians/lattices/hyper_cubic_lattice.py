@@ -1,4 +1,4 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
 # (C) Copyright IBM 2021, 2023.
 #
@@ -111,7 +111,7 @@ class HyperCubicLattice(Lattice):
 
         self._boundary_condition = boundary_condition
 
-        graph = PyGraph(multigraph=False)
+        graph: PyGraph = PyGraph(multigraph=False)
         graph.add_nodes_from(range(np.prod(size)))
 
         # add edges excluding the boundary edges

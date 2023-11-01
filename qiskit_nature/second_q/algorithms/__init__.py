@@ -1,4 +1,4 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
 # (C) Copyright IBM 2019, 2023.
 #
@@ -48,15 +48,13 @@ and the specific raw result for the qEOM solver.
 
    QEOMResult
 
-The following factories are still available but have been **deprecated** in version 0.6.0 of Qiskit
-Nature:
+You may also need the following to specify which auxiliary operators to evaluate with qEOM:
 
 .. autosummary::
    :toctree: ../stubs/
    :nosignatures:
 
-   EigensolverFactory
-   NumPyEigensolverFactory
+   EvaluationRule
 
 Ground State Solvers
 ++++++++++++++++++++
@@ -78,21 +76,9 @@ the solvers themselves.
 
    GroundStateEigensolver
 
-The following factories are still available but have been **deprecated** in version 0.6.0 of Qiskit
-Nature:
-
-.. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
-
-   MinimumEigensolverFactory
-   NumPyMinimumEigensolverFactory
-   VQEUCCFactory
-   VQEUVCCFactory
-
 Initial Points
 ++++++++++++++
-When using variational algorithms such as the :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`
+When using variational algorithms such as the :class:`~qiskit_algorithms.VQE`
 it may be necessary to set the initial parameters for the optimizer to a specific value (by default,
 the optimizer will start from a random point). This depends on the problem one is trying to solve as
 well as the ansatz used to solve the problem. To this extent, the following submodule provides
@@ -112,16 +98,11 @@ from .excited_states_solvers import (
     ExcitedStatesSolver,
     QEOM,
     QEOMResult,
-    EigensolverFactory,
-    NumPyEigensolverFactory,
+    EvaluationRule,
 )
 from .ground_state_solvers import (
     GroundStateEigensolver,
     GroundStateSolver,
-    MinimumEigensolverFactory,
-    NumPyMinimumEigensolverFactory,
-    VQEUCCFactory,
-    VQEUVCCFactory,
 )
 
 __all__ = [
@@ -129,12 +110,7 @@ __all__ = [
     "ExcitedStatesSolver",
     "QEOM",
     "QEOMResult",
-    "EigensolverFactory",
-    "NumPyEigensolverFactory",
+    "EvaluationRule",
     "GroundStateEigensolver",
     "GroundStateSolver",
-    "MinimumEigensolverFactory",
-    "NumPyMinimumEigensolverFactory",
-    "VQEUCCFactory",
-    "VQEUVCCFactory",
 ]

@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2020, 2022.
+# (C) Copyright IBM 2020, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -20,18 +20,8 @@ Ground State Solving Algorithms (:mod:`qiskit_nature.second_q.algorithms.ground_
 
 from .ground_state_solver import GroundStateSolver
 from .ground_state_eigensolver import GroundStateEigensolver
-from .minimum_eigensolver_factories import (
-    MinimumEigensolverFactory,
-    NumPyMinimumEigensolverFactory,
-    VQEUCCFactory,
-    VQEUVCCFactory,
-)
 
 __all__ = [
     "GroundStateSolver",
     "GroundStateEigensolver",
-    "MinimumEigensolverFactory",
-    "NumPyMinimumEigensolverFactory",
-    "VQEUCCFactory",
-    "VQEUVCCFactory",
 ]

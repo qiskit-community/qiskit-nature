@@ -1,4 +1,4 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
 # (C) Copyright IBM 2022, 2023.
 #
@@ -21,13 +21,13 @@ from test import QiskitNatureTestCase
 import numpy as np
 from ddt import ddt, data, unpack
 
-from qiskit.algorithms.minimum_eigensolvers import NumPyMinimumEigensolver
+from qiskit_algorithms import NumPyMinimumEigensolver
 
 import qiskit_nature.optionals as _optionals
 
 from qiskit_nature.second_q.algorithms import GroundStateEigensolver
 from qiskit_nature.second_q.drivers import PySCFDriver, MethodType
-from qiskit_nature.second_q.mappers import JordanWignerMapper, QubitConverter
+from qiskit_nature.second_q.mappers import JordanWignerMapper
 from qiskit_nature.second_q.operators import ElectronicIntegrals
 from qiskit_nature.second_q.operators.tensor_ordering import _chem_to_phys
 from qiskit_nature.second_q.problems import ElectronicStructureResult
@@ -276,7 +276,7 @@ class TestElectronicDensity(QiskitNatureTestCase):
         problem.properties.electronic_density = electronic_density
 
         algo = GroundStateEigensolver(
-            QubitConverter(JordanWignerMapper()),
+            JordanWignerMapper(),
             NumPyMinimumEigensolver(),
         )
 

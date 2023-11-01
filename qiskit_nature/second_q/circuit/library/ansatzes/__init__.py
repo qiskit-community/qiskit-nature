@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -13,6 +13,7 @@
 
 from .chc import CHC
 from .puccd import PUCCD
+from .puccsd import PUCCSD
 from .succd import SUCCD
 from .ucc import UCC
 from .uccsd import UCCSD
@@ -22,6 +23,7 @@ from .uvccsd import UVCCSD
 __all__ = [
     "CHC",
     "PUCCD",
+    "PUCCSD",
     "SUCCD",
     "UCC",
     "UCCSD",

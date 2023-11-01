@@ -19,6 +19,7 @@ anharmonic
 annihilation
 ansatz
 ansatze
+ansätze
 ansatzes
 anticommutation
 antiparallel
@@ -61,6 +62,7 @@ boson
 bosons
 bosonic
 bosonicop
+bravais
 bravyi
 calcinfo
 cargs
@@ -84,6 +86,7 @@ cls
 cmap
 cnot
 codec
+codeowners
 coeff
 coeffs
 colormap
@@ -226,6 +229,8 @@ hijs
 hilbert
 histidine
 hjo
+hsplit
+hstack
 html
 https
 hubbard
@@ -282,6 +287,7 @@ josé
 json
 jupyter
 jw
+kagome
 kanav
 ket
 kitaev
@@ -390,6 +396,7 @@ observables
 occupancies
 ok
 ollitrault
+onboarding
 onee
 oneeints
 onsite
@@ -629,6 +636,8 @@ vmax
 vmin
 vqe
 vscf
+vsplit
+vstack
 vwn
 vx
 vy

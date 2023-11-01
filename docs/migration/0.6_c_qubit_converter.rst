@@ -17,7 +17,7 @@ Setup
 For the examples in this guide, we will always be using the following
 :class:`~qiskit_nature.second_q.operators.FermionicOp`:
 
-.. testcode::
+.. code:: ipython3
 
    from qiskit_nature.second_q.drivers import PySCFDriver
 
@@ -29,7 +29,7 @@ For the examples in this guide, we will always be using the following
    for label, coeff in sorted(hamiltonian.items()):
        print(f"{coeff:+.8f} * '{label}'")
 
-.. testoutput::
+.. parsed-literal::
 
     +0.33785508 * '+_0 +_0 -_0 -_0'
     +0.09046560 * '+_0 +_0 -_1 -_1'
@@ -80,7 +80,7 @@ now set the value of :attr:`~qiskit_nature.settings.QiskitNatureSettings.use_pau
 To ensure that we can consistently rely on using the :class:`~qiskit.quantum_info.SparsePauliOp` in
 the following parts of this guide, we are applying this setting here:
 
-.. testcode::
+.. code:: ipython3
 
    from qiskit_nature import settings
 
@@ -102,7 +102,7 @@ In the simplest cases, all you did was pass a :class:`~qiskit_nature.second_q.ma
 object into the :class:`~qiskit_nature.second_q.mappers.QubitConverter`. For example, somewhat like
 this:
 
-.. testcode::
+.. code:: ipython3
 
    from qiskit_nature.second_q.mappers import JordanWignerMapper, QubitConverter
 
@@ -115,14 +115,14 @@ object from the example above into whichever place you were using it before.
 If you were working directly with some :class:`~qiskit_nature.second_q.operators.SparseLabelOp` like
 so:
 
-.. testcode::
+.. code:: ipython3
 
    qubit_op = converter.convert(hamiltonian)
 
    for pauli, coeff in sorted(qubit_op.label_iter()):
        print(f"{coeff.real:+.8f} * {pauli}")
 
-.. testoutput::
+.. parsed-literal::
 
     -0.81054798 * IIII
     +0.17218393 * IIIZ
@@ -142,14 +142,14 @@ so:
 
 You should now directly use the ``mapper`` again, but its method is called ``.map``:
 
-.. testcode::
+.. code:: ipython3
 
    qubit_op = mapper.map(hamiltonian)
 
    for pauli, coeff in sorted(qubit_op.label_iter()):
        print(f"{coeff.real:+.8f} * {pauli}")
 
-.. testoutput::
+.. parsed-literal::
 
     -0.81054798 * IIII
     +0.17218393 * IIIZ
@@ -185,7 +185,7 @@ able to use the ``two_qubit_reduction=True`` option of the
 to the :class:`~qiskit_nature.second_q.mappers.ParityMapper`, is now directly built into said
 mapper. So if you were doing something along these lines:
 
-.. testcode::
+.. code:: ipython3
 
    from qiskit_nature.second_q.mappers import ParityMapper
 
@@ -196,7 +196,7 @@ mapper. So if you were doing something along these lines:
    for pauli, coeff in sorted(reduced_op.label_iter()):
        print(f"{coeff.real:+.8f} * {pauli}")
 
-.. testoutput::
+.. parsed-literal::
 
     -1.05237325 * II
     +0.39793742 * IZ
@@ -206,7 +206,7 @@ mapper. So if you were doing something along these lines:
 
 The equivalent code now looks like the following:
 
-.. testcode::
+.. code:: ipython3
 
    mapper = ParityMapper(num_particles=problem.num_particles)
 
@@ -215,7 +215,7 @@ The equivalent code now looks like the following:
    for pauli, coeff in sorted(reduced_op.label_iter()):
        print(f"{coeff.real:+.8f} * {pauli}")
 
-.. testoutput::
+.. parsed-literal::
 
     -1.05237325 * II
     +0.39793742 * IZ
@@ -235,7 +235,7 @@ name: :class:`~qiskit.quantum_info.analysis.z2_symmetries.Z2Symmetries`), you sh
 
 In the past, you would have enabled this like so:
 
-.. testcode::
+.. code:: ipython3
 
    mapper = JordanWignerMapper()
    converter = QubitConverter(mapper, z2symmetry_reduction="auto")
@@ -245,7 +245,7 @@ which would then later use
 sector of the Hilbert space in which the solution of your problem lies. This was only supported by
 the :class:`~qiskit_nature.second_q.problems.ElectronicStructureProblem`. Below is a quick example:
 
-.. testcode::
+.. code:: ipython3
 
    tapered_op = converter.convert(
        hamiltonian,
@@ -256,7 +256,7 @@ the :class:`~qiskit_nature.second_q.problems.ElectronicStructureProblem`. Below 
    for pauli, coeff in sorted(tapered_op.label_iter()):
        print(f"{coeff.real:+.8f} * {pauli}")
 
-.. testoutput::
+.. parsed-literal::
 
     -1.04109314 * I
     +0.18093120 * X
@@ -266,7 +266,7 @@ Now, all you need to do is the use the
 :meth:`~qiskit_nature.second_q.problems.BaseProblem.get_tapered_mapper` method and provide the
 original mapper which you would like to wrap:
 
-.. testcode::
+.. code:: ipython3
 
    tapered_mapper = problem.get_tapered_mapper(mapper)
 
@@ -275,7 +275,7 @@ original mapper which you would like to wrap:
    for pauli, coeff in sorted(tapered_op.label_iter()):
        print(f"{coeff.real:+.8f} * {pauli}")
 
-.. testoutput::
+.. parsed-literal::
 
     -1.04109314 * I
     +0.18093120 * X

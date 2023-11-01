@@ -1,4 +1,4 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
 # (C) Copyright IBM 2022, 2023.
 #
@@ -21,7 +21,7 @@ import numpy as np
 
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy, Hamiltonian
-from qiskit_nature.second_q.operators import ElectronicIntegrals, PolynomialTensor, Tensor
+from qiskit_nature.second_q.operators import ElectronicIntegrals, PolynomialTensor
 from qiskit_nature.second_q.problems import BaseProblem, ElectronicBasis, ElectronicStructureProblem
 from qiskit_nature.second_q.properties import (
     AngularMomentum,
@@ -96,7 +96,9 @@ class BasisTransformer(BaseTransformer):
         return BasisTransformer(
             self.final_basis,
             self.initial_basis,
-            self.coefficients.__class__.apply(np.transpose, self.coefficients, validate=False),
+            self.coefficients.__class__.apply(  # type: ignore[arg-type]
+                np.transpose, self.coefficients, validate=False
+            ),
         )
 
     def transform(self, problem: BaseProblem) -> BaseProblem:
@@ -181,10 +183,6 @@ class BasisTransformer(BaseTransformer):
 
         two_body_aa = integrals.alpha.get("++--", None)
         if two_body_aa is not None:
-            # TODO: remove extra-wrapping of Tensor once settings.tensor_unwrapping is removed
-            if not isinstance(two_body_aa, Tensor):
-                two_body_aa = Tensor(two_body_aa)
-
             prsq = "".join(two_body_aa._reverse_label_template(prsq))
             iklj = "".join(two_body_aa._reverse_label_template(iklj))
 

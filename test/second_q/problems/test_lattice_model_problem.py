@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2022.
+# (C) Copyright IBM 2022, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -17,8 +17,7 @@ from test import QiskitNatureTestCase
 
 import numpy as np
 
-from qiskit.algorithms.eigensolvers import EigensolverResult
-from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
+from qiskit_algorithms import EigensolverResult, MinimumEigensolverResult
 from qiskit_nature.second_q.hamiltonians import FermiHubbardModel
 from qiskit_nature.second_q.problems import LatticeModelProblem
 from qiskit_nature.second_q.hamiltonians.lattices import (

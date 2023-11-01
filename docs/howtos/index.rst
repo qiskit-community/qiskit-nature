@@ -17,7 +17,7 @@ How to...
 |
 
 If there are guides on solving specific problems that you'd like to see added, please
-`file an issue on GitHub <https://github.com/Qiskit/qiskit-nature/issues/new?assignees=&labels=type%3A+feature+request&template=FEATURE_REQUEST.yaml>`_.
+`file an issue on GitHub <https://github.com/qiskit-community/qiskit-nature/issues/new?assignees=&labels=type%3A+feature+request&template=FEATURE_REQUEST.yaml>`_.
 
 |
 

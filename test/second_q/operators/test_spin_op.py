@@ -1,4 +1,4 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
 # (C) Copyright IBM 2021, 2023.
 #
@@ -301,6 +301,12 @@ class TestSpinOp(QiskitNatureTestCase):
             permuted_op = op.permute_indices([2, 1, 3, 0])
 
             self.assertEqual(permuted_op, SpinOp({"X_2 Y_1": 1, "Z_1 X_3": 2}, num_spins=4))
+
+    def test_reg_len_with_skipped_key_validation(self):
+        """Test the behavior of `register_length` after key validation was skipped."""
+        new_op = SpinOp({"X_0 Y_1": 1}, validate=False)
+        self.assertIsNone(new_op.num_spins)
+        self.assertEqual(new_op.register_length, 2)
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
 # (C) Copyright IBM 2018, 2023.
 #
@@ -20,7 +20,7 @@ SOURCE_DIR=`pwd`
 SOURCE_LANG='en'
 
 TARGET_REPOSITORY="git@github.com:qiskit-community/qiskit-translations.git"
-TARGET_BRANCH_PO="master"
+TARGET_BRANCH_PO="main"
 
 DOC_DIR_PO="docs/locale/"
 

@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2022.
+# (C) Copyright IBM 2021, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -19,8 +19,7 @@ from typing import cast, Callable, List, Optional, Union
 
 import numpy as np
 
-from qiskit.algorithms.eigensolvers import EigensolverResult
-from qiskit.algorithms.minimum_eigensolvers import MinimumEigensolverResult
+from qiskit_algorithms import EigensolverResult, MinimumEigensolverResult
 
 from qiskit_nature.second_q.hamiltonians import VibrationalEnergy
 from qiskit_nature.second_q.properties import Interpretable
@@ -91,7 +90,7 @@ class VibrationalStructureProblem(BaseProblem):
     ) -> Optional[Callable[[Union[List, np.ndarray], float, Optional[List[float]]], bool]]:
         """Returns a default filter criterion method to filter the eigenvalues computed by the
         eigen solver. For more information see also
-        :class:`qiskit.algorithms.eigensolvers.NumPyEigensolver.filter_criterion`.
+        :meth:`~qiskit_algorithms.NumPyEigensolver.filter_criterion`.
 
         This particular default ensures that the occupation of every mode is (close to) 1.
         """

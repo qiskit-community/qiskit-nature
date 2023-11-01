@@ -1,4 +1,4 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
 # (C) Copyright IBM 2021, 2023.
 #
@@ -29,7 +29,6 @@ from qiskit_nature.exceptions import QiskitNatureError
 from ._bits_container import _BitsContainer
 from .polynomial_tensor import PolynomialTensor
 from .sparse_label_op import _TCoeff, SparseLabelOp, _to_number
-from .tensor import Tensor
 
 logger = logging.getLogger(__name__)
 
@@ -177,7 +176,7 @@ class VibrationalOp(SparseLabelOp):
             data: the operator data, mapping string-based keys to numerical values.
             num_modals: number of modals - described by a sequence of integers where each integer
                 describes the number of modals in the corresponding mode; the total number of modals
-                defines a ``register_length``.
+                defines the ``register_length``.
             copy: when set to False the `data` will not be copied and the dictionary will be
                 stored by reference rather than by value (which is the default; ``copy=True``). Note,
                 that this requires you to not change the contents of the dictionary after
@@ -194,7 +193,7 @@ class VibrationalOp(SparseLabelOp):
         super().__init__(data, copy=copy, validate=validate)
 
     @property
-    def num_modals(self) -> Sequence[int]:
+    def num_modals(self) -> Sequence[int] | None:
         """The number of modals for each mode on which this operator acts.
 
         This is an optional sequence of integers which are considered lower bounds. That means that
@@ -207,11 +206,27 @@ class VibrationalOp(SparseLabelOp):
 
     @num_modals.setter
     def num_modals(self, num_modals: Sequence[int] | None):
-        self._num_modals = list(num_modals) if num_modals is not None else []
+        self._num_modals = list(num_modals) if num_modals is not None else None
 
     @property
-    def register_length(self) -> int | None:
-        return sum(self.num_modals) if self.num_modals is not None else None
+    def register_length(self) -> int:
+        if self._num_modals is None:
+            num_modals: list[int] = []
+            for key in self._data:
+                for term in key.split():
+                    _, mode_index_str, modal_index_str = term.split("_")
+                    mode_index = int(mode_index_str)
+                    modal_index = int(modal_index_str)
+
+                    if mode_index + 1 > len(num_modals):
+                        num_modals += [0] * (mode_index + 1 - len(num_modals))
+
+                    if modal_index > num_modals[mode_index] - 1:
+                        num_modals[mode_index] = modal_index + 1
+
+            return sum(num_modals)
+
+        return sum(self.num_modals)
 
     def _new_instance(
         self, data: Mapping[str, _TCoeff], *, other: VibrationalOp | None = None
@@ -228,13 +243,14 @@ class VibrationalOp(SparseLabelOp):
             def elementwise_max(a, b):
                 return [max(i, j) for i, j in zip(*pad_to_length(a, b))]
 
-            num_modals = elementwise_max(num_modals, other_num_modals)
+            if num_modals is not None and other_num_modals is not None:
+                num_modals = elementwise_max(num_modals, other_num_modals)
 
         return self.__class__(data, copy=False, num_modals=num_modals)
 
     def _validate_keys(self, keys: Collection[str]) -> None:
         super()._validate_keys(keys)
-        num_modals = list(self.num_modals)
+        num_modals = self._num_modals if self._num_modals is not None else []
 
         for key in keys:
             # 0. explicitly allow the empty key
@@ -284,15 +300,10 @@ class VibrationalOp(SparseLabelOp):
 
         for key in tensor:
             if key == "":
-                data[""] = tensor[key]
+                data[""] = tensor[key].item()
                 continue
 
             mat = tensor[key]
-
-            if not isinstance(mat, Tensor):
-                # TODO: this case is to be removed once qiskit_nature.settings.tensor_unwrapping is
-                # deprecated and the PolynomialTensor item is guaranteed to be of type Tensor
-                mat = Tensor(mat)
 
             label_template = mat.label_template.format(*key.replace("_", ""))
 
@@ -534,6 +545,35 @@ class VibrationalOp(SparseLabelOp):
         return new_label, coeff
 
     def simplify(self, atol: float | None = None) -> VibrationalOp:
+        """Simplify the operator.
+
+        The simplifications implemented by this method should be:
+        - to eliminate terms whose coefficients are close (w.r.t. ``atol``) to 0.
+        - to combine the coefficients which correspond to equivalent terms (see also the note below)
+
+        .. note::
+
+            :meth:`simplify` should be used to simplify terms whose coefficients are close to zero,
+            up to the specified numerical tolerance. It still differs slightly from :meth:`chop`
+            because that will chop real and imaginary part components individually.
+
+        .. note::
+
+           The meaning of "equivalence" between multiple terms depends on the specific operator
+           subclass. As a restriction this method is required to preserve the order of appearance of
+           the different components within a term. This avoids some possibly unexpected edge cases.
+           However, this also means that some equivalencies cannot be detected. Check for other
+           methods of a specific subclass which may affect the order of terms and can allow for
+           further simplifications to be implemented. For example, check out :meth:`index_order`.
+
+        This method returns a new operator (the original operator is not modified).
+
+        Args:
+            atol: Absolute numerical tolerance. The default behavior is to use ``self.atol``.
+
+        Returns:
+            The simplified operator.
+        """
         atol = self.atol if atol is None else atol
 
         data = defaultdict(complex)  # type: dict[str, _TCoeff]

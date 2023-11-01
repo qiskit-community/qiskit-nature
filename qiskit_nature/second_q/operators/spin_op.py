@@ -1,4 +1,4 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
 # (C) Copyright IBM 2021, 2023.
 #
@@ -33,7 +33,6 @@ from qiskit_nature import QiskitNatureError
 
 from .polynomial_tensor import PolynomialTensor
 from .sparse_label_op import _TCoeff, SparseLabelOp, _to_number
-from .tensor import Tensor
 
 
 class SpinOp(SparseLabelOp):
@@ -229,7 +228,11 @@ class SpinOp(SparseLabelOp):
         super().__init__(data, copy=copy, validate=validate)
 
     @property
-    def register_length(self) -> int | None:
+    def register_length(self) -> int:
+        if self.num_spins is None:
+            max_index = max(int(term[2:]) for key in self._data for term in key.split())
+            return max_index + 1
+
         return self.num_spins
 
     def _new_instance(self, data: Mapping[str, _TCoeff], *, other: SpinOp | None = None) -> SpinOp:
@@ -300,15 +303,10 @@ class SpinOp(SparseLabelOp):
 
         for key in tensor:
             if key == "":
-                data[""] = tensor[key]
+                data[""] = tensor[key].item()
                 continue
 
             mat = tensor[key]
-
-            if not isinstance(mat, Tensor):
-                # TODO: this case is to be removed once qiskit_nature.settings.tensor_unwrapping is
-                # deprecated and the PolynomialTensor item is guaranteed to be of type Tensor
-                mat = Tensor(mat)
 
             label_template = mat.label_template.format(*key)
 

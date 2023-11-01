@@ -1,4 +1,4 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
 # (C) Copyright IBM 2023.
 #
@@ -25,7 +25,6 @@ from qiskit_nature.exceptions import QiskitNatureError
 
 from .polynomial_tensor import PolynomialTensor
 from .sparse_label_op import _TCoeff, SparseLabelOp, _to_number
-from .tensor import Tensor
 
 
 class BosonicOp(SparseLabelOp):
@@ -132,10 +131,10 @@ class BosonicOp(SparseLabelOp):
     pairs describing the terms contained in the operator.
 
     Attributes:
-        num_modes: the number of modes on which this operator acts. This is
-            considered a lower bound, which means that mathematical operations acting on two or more
-            operators will result in a new operator with the maximum number of modes of any
-            of the involved operators.
+        num_modes (int | None): the number of modes on which this operator acts. This is considered
+            a lower bound, which means that mathematical operations acting on two or more operators
+            will result in a new operator with the maximum number of modes of any of the involved
+            operators.
 
     .. note::
 
@@ -175,7 +174,11 @@ class BosonicOp(SparseLabelOp):
         super().__init__(data, copy=copy, validate=validate)
 
     @property
-    def register_length(self) -> int | None:
+    def register_length(self) -> int:
+        if self.num_modes is None:
+            max_index = max(int(term[2:]) for key in self._data for term in key.split())
+            return max_index + 1
+
         return self.num_modes
 
     def _new_instance(
@@ -240,15 +243,10 @@ class BosonicOp(SparseLabelOp):
 
         for key in tensor:
             if key == "":
-                data[""] = tensor[key]
+                data[""] = tensor[key].item()
                 continue
 
             mat = tensor[key]
-
-            if not isinstance(mat, Tensor):
-                # TODO: this case is to be removed once qiskit_nature.settings.tensor_unwrapping is
-                # deprecated and the PolynomialTensor item is guaranteed to be of type Tensor
-                mat = Tensor(mat)
 
             label_template = mat.label_template.format(*key)
 
@@ -433,14 +431,9 @@ class BosonicOp(SparseLabelOp):
 
             You can use this method to achieve the most aggressive simplification of an operator
             without changing the operation order per index. :meth:`simplify` does *not* reorder the
-            terms and, thus, cannot deduce ``-_0 +_1`` and ``+_1 -_0 +_0 -_0`` to be
-            identical labels. Calling this method will reorder the latter label to
-            ``-_0 +_0 -_0 +_1``, after which :meth:`simplify` will be able to correctly collapse
+            terms and, thus, cannot deduce ``-_0 +_1`` and ``+_1 -_0`` to be identical labels.
+            Calling this method will reorder the latter label to ``-_0 +_1``, correctly collapsing
             these two labels into one.
-
-        .. warning::
-            The index ordering for BosonicOp does not commuted with the simplify method, thus the order
-            in which these two operations are executed matters
         """
         data = defaultdict(complex)  # type: dict[str, _TCoeff]
         for terms, coeff in self.terms():
@@ -489,88 +482,53 @@ class BosonicOp(SparseLabelOp):
         if self.is_parameterized():
             raise ValueError("is_hermitian is not supported for operators containing parameters.")
         atol = self.atol if atol is None else atol
-        diff = (self - self.adjoint()).simplify(atol=atol)
+        diff = (self - self.adjoint()).normal_order().simplify(atol=atol)
         return all(np.isclose(coeff, 0.0, atol=atol) for coeff in diff.values())
 
     def simplify(self, atol: float | None = None) -> BosonicOp:
-        """Simplifies the terms of the BosonicOp
+        """Simplify the operator.
+
+        The simplifications implemented by this method should be:
+        - to eliminate terms whose coefficients are close (w.r.t. ``atol``) to 0.
+        - to combine the coefficients which correspond to equivalent terms (see also the note below)
+
+        .. note::
+
+            :meth:`simplify` should be used to simplify terms whose coefficients are close to zero,
+            up to the specified numerical tolerance. It still differs slightly from :meth:`chop`
+            because that will chop real and imaginary part components individually.
+
+        .. note::
+
+           The meaning of "equivalence" between multiple terms depends on the specific operator
+           subclass. As a restriction this method is required to preserve the order of appearance of
+           the different components within a term. This avoids some possibly unexpected edge cases.
+           However, this also means that some equivalencies cannot be detected. Check for other
+           methods of a specific subclass which may affect the order of terms and can allow for
+           further simplifications to be implemented. For example, check out :meth:`index_order`.
+
+        .. note::
+
+            :meth:`simplify` is not allowed to simplify the labels ``+_0 -_0`` or ``-_0 +_0``. The
+            former corresponds to the boson number operator, and when it is applied to a state yields
+            the number of bosons in that state :math:`n`. Similarly, the latter yields
+            :math:`1 + n`. As a consequence, the label ``+_0 -_0 -_1 +_0`` will remain untouched by
+            this method. This is in contrast to how :meth:`.FermionicOp.simplify` works,
+            because it exploits that :math:`n` can be either :math:`0` or :math:`1`.
+
+        This method returns a new operator (the original operator is not modified).
 
         Args:
             atol: Absolute numerical tolerance. The default behavior is to use ``self.atol``.
 
         Returns:
-            A new simplified BosonicOp (the original operator is not modified).
-
-        .. warning::
-            The simplify method for BosonicOp does not commuted with the index ordering, thus the order
-            in which these two operations are executed matters
+            The simplified operator.
         """
         atol = self.atol if atol is None else atol
 
-        # First, we normal-order the operator
-        ordered_op = self.normal_order()
-
-        data = defaultdict(complex)  # type: dict[str, _TCoeff]
-        # TODO: use parallel_map to make this more efficient (?)
-        for label, coeff in ordered_op.items():
-            label, coeff = ordered_op._simplify_label(label, coeff)
-            data[label] += coeff
-
         simplified_data = {
             label: coeff
-            for label, coeff in data.items()
+            for label, coeff in self.items()
             if not np.isclose(_to_number(coeff), 0.0, atol=atol)
         }
         return self._new_instance(simplified_data)
-
-    def _simplify_label(self, label: str, coeff: _TCoeff) -> tuple[str, _TCoeff]:
-        new_label: str = ""
-
-        # Since Python 3.7, dictionaries are guaranteed to be insert-order preserving. We use this
-        # to our advantage, to implement an ordered set, which allows us to preserve the label order
-        # and only remove canceling terms.
-        operator_mapper = defaultdict(int)  # type: dict[int, int]
-
-        # first, we compute how many creation/annihilation op are applied to each state
-        for lbl in label.split():
-            # After splitting, each label has the following format: [\+\-]_<index>
-            operator, index = lbl.split("_")
-            idx = int(index)
-            # First, add the operator to the new label.
-            # CASES:
-            #  1. index does not exist in dict: we add the operator to the new label
-            #  2. index exists, the value stored in dict is < 0 and operator is "-":
-            #           we add the operator to the new label
-            #  3. index exists, the value stored in dict is > 0 and operator is "+":
-            #           we add the operator to the new label
-            #  4. index exists, the value stored in dict is <(>) 0 and operator is "+"("-"):
-            #        we remove the last "-"("+") from the new string
-            # pylint: disable=too-many-boolean-expressions
-            if (
-                idx not in operator_mapper
-                or abs(operator_mapper[idx]) == 1
-                or (operator_mapper[idx] < -1 and operator == "-")
-                or (operator_mapper[idx] > 1 and operator == "+")
-            ):
-                # Case 1., 2., 3.
-                new_label += f"{lbl}" if len(new_label) == 0 else f" {lbl}"
-            else:
-                # Case 4. -> we have to remove the last "-"("+") from the new string
-                # pylint: disable=wrong-spelling-in-comment
-                # First, find all the operators of the opposite type of "lbl" in the label
-                lbl_to_find = ("-" if operator == "+" else "+") + lbl[1:]
-                # occs contains all the start indexes of the sub-string lbl_to_find in label
-                occs = [
-                    i for i in range(0, len(new_label), 4) if new_label.startswith(lbl_to_find, i)
-                ]
-                # Finally, remove the last occurrence
-                if occs[-1] + 4 < len(new_label):
-                    new_label = (new_label[0 : occs[-1]] + new_label[(occs[-1] + 4) :]).strip()
-                else:
-                    new_label = (new_label[0 : occs[-1]]).strip()
-            # Then, update the operator_mapper dictionary
-            # Creation operator (+) creates a new particle at that index, so we increase the value in
-            # the dict by one. Annihilation operator (-) does the opposite
-            operator_mapper[idx] += 1 if operator == "+" else -1
-
-        return new_label, coeff

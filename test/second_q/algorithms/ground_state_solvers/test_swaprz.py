@@ -1,4 +1,4 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
 # (C) Copyright IBM 2019, 2023.
 #
@@ -15,18 +15,17 @@
 import unittest
 from test import QiskitNatureTestCase
 
-from qiskit.algorithms.minimum_eigensolvers import VQE
-from qiskit.algorithms.optimizers import SLSQP
+from qiskit_algorithms import VQE
+from qiskit_algorithms.optimizers import SLSQP
+from qiskit_algorithms.utils import algorithm_globals
 from qiskit.primitives import Estimator
 from qiskit.circuit.library import ExcitationPreserving
 from qiskit.test import slow_test
-from qiskit.utils import algorithm_globals
 import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.algorithms import GroundStateEigensolver
 from qiskit_nature.second_q.circuit.library import HartreeFock
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import ParityMapper
-from qiskit_nature.second_q.mappers import QubitConverter
 
 
 class TestExcitationPreserving(QiskitNatureTestCase):
@@ -50,7 +49,7 @@ class TestExcitationPreserving(QiskitNatureTestCase):
 
         driver = PySCFDriver()
 
-        mapper = QubitConverter(ParityMapper())
+        mapper = ParityMapper()
 
         problem = driver.run()
 

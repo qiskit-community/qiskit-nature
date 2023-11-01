@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Adds a new ``multi`` argument to the :meth:`.PolynomialTensor.apply` method which
+    allows handling of numpy routines which return more than one array.
+    The same argument also gets exposed by :meth:`.ElectronicIntegrals.apply`.

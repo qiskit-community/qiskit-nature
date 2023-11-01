@@ -1,4 +1,4 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
 # (C) Copyright IBM 2021, 2023.
 #
@@ -20,15 +20,12 @@ from collections.abc import Collection, Mapping
 from typing import Iterator, Sequence
 
 import numpy as np
-from scipy.sparse import csc_matrix
 
-from qiskit_nature.deprecation import deprecate_method
 from qiskit_nature.exceptions import QiskitNatureError
 
 from ._bits_container import _BitsContainer
 from .polynomial_tensor import PolynomialTensor
 from .sparse_label_op import _TCoeff, SparseLabelOp, _to_number
-from .tensor import Tensor
 
 
 class FermionicOp(SparseLabelOp):
@@ -135,10 +132,10 @@ class FermionicOp(SparseLabelOp):
     pairs describing the terms contained in the operator.
 
     Attributes:
-        num_spin_orbitals: the number of spin orbitals on which this operator acts. This is
-            considered a lower bound, which means that mathematical operations acting on two or more
-            operators will result in a new operator with the maximum number of spin orbitals of any
-            of the involved operators.
+        num_spin_orbitals (int | None): the number of spin orbitals on which this operator acts.
+            This is considered a lower bound, which means that mathematical operations acting on two
+            or more operators will result in a new operator with the maximum number of spin orbitals
+            of any of the involved operators.
 
     .. note::
 
@@ -179,7 +176,11 @@ class FermionicOp(SparseLabelOp):
         super().__init__(data, copy=copy, validate=validate)
 
     @property
-    def register_length(self) -> int | None:
+    def register_length(self) -> int:
+        if self.num_spin_orbitals is None:
+            max_index = max(int(term[2:]) for key in self._data for term in key.split())
+            return max_index + 1
+
         return self.num_spin_orbitals
 
     def _new_instance(
@@ -244,15 +245,10 @@ class FermionicOp(SparseLabelOp):
 
         for key in tensor:
             if key == "":
-                data[""] = tensor[key]
+                data[""] = tensor[key].item()
                 continue
 
             mat = tensor[key]
-
-            if not isinstance(mat, Tensor):
-                # TODO: this case is to be removed once qiskit_nature.settings.tensor_unwrapping is
-                # deprecated and the PolynomialTensor item is guaranteed to be of type Tensor
-                mat = Tensor(mat)
 
             label_template = mat.label_template.format(*key)
 
@@ -343,85 +339,6 @@ class FermionicOp(SparseLabelOp):
         if offset:
             new_op.num_spin_orbitals = a.num_spin_orbitals + b.num_spin_orbitals
         return new_op
-
-    # pylint: disable=bad-docstring-quotes
-    @deprecate_method(
-        "0.6.0",
-        additional_msg=(
-            ". This method has no direct replacement. Instead, use the "
-            "`qiskit_nature.second_q.mappers.JordanWignerMapper` to create a qubit operator and "
-            "subsequently use its `to_matrix()` method. Be advised, that the basis state ordering "
-            "of that output will differ due to the bitstring endianness. For more information "
-            "refer to https://github.com/Qiskit/qiskit-nature/issues/875."
-        ),
-    )
-    def to_matrix(self, sparse: bool | None = True) -> csc_matrix | np.ndarray:
-        """DEPRECATED Convert to a matrix representation over the full fermionic Fock space in the
-        occupation number basis.
-
-        The basis states are ordered in increasing bitstring order as 0000, 0001, ..., 1111.
-
-        Args:
-            sparse: If true, the matrix is returned as a sparse matrix, otherwise it is returned as
-                a dense numpy array.
-
-        Returns:
-            The matrix of the operator in the Fock basis
-
-        Raises:
-            ValueError: Operator contains parameters.
-        """
-        if self.is_parameterized():
-            raise ValueError("to_matrix is not supported for operators containing parameters.")
-
-        csc_data, csc_col, csc_row = [], [], []
-
-        dimension = 1 << self.num_spin_orbitals
-
-        # loop over all columns of the matrix
-        for col_idx in range(dimension):
-            initial_occupations = [occ == "1" for occ in f"{col_idx:0{self.num_spin_orbitals}b}"]
-            # loop over the terms in the operator data
-            for terms, prefactor in self.simplify().terms():
-                # check if op string is the identity
-                if not terms:
-                    csc_data.append(prefactor)
-                    csc_row.append(col_idx)
-                    csc_col.append(col_idx)
-                else:
-                    occupations = initial_occupations.copy()
-                    sign = 1
-                    mapped_to_zero = False
-
-                    # apply terms sequentially to the current basis state
-                    for char, index in reversed(terms):
-                        index = int(index)
-                        occ = occupations[index]
-                        if (char == "+") == occ:
-                            # Applying the creation operator on an occupied state maps to zero. So
-                            # does applying the annihilation operator on an unoccupied state.
-                            mapped_to_zero = True
-                            break
-                        sign *= (-1) ** sum(occupations[:index])
-                        occupations[index] = not occ
-
-                    # add data point to matrix in the correct row
-                    if not mapped_to_zero:
-                        row_idx = sum(int(occ) << idx for idx, occ in enumerate(occupations[::-1]))
-                        csc_data.append(sign * prefactor)
-                        csc_row.append(row_idx)
-                        csc_col.append(col_idx)
-
-        sparse_mat = csc_matrix(
-            (csc_data, (csc_row, csc_col)),
-            shape=(dimension, dimension),
-            dtype=complex,
-        )
-
-        if sparse:
-            return sparse_mat
-        else:
-            return sparse_mat.toarray()
 
     def transpose(self) -> FermionicOp:
         data = {}
@@ -580,6 +497,44 @@ class FermionicOp(SparseLabelOp):
         return all(np.isclose(coeff, 0.0, atol=atol) for coeff in diff.values())
 
     def simplify(self, atol: float | None = None) -> FermionicOp:
+        """Simplify the operator.
+
+        The simplifications implemented by this method should be:
+        - to eliminate terms whose coefficients are close (w.r.t. ``atol``) to 0.
+        - to combine the coefficients which correspond to equivalent terms (see also the note below)
+
+        .. note::
+
+            :meth:`simplify` should be used to simplify terms whose coefficients are close to zero,
+            up to the specified numerical tolerance. It still differs slightly from :meth:`chop`
+            because that will chop real and imaginary part components individually.
+
+        .. note::
+
+           The meaning of "equivalence" between multiple terms depends on the specific operator
+           subclass. As a restriction this method is required to preserve the order of appearance of
+           the different components within a term. This avoids some possibly unexpected edge cases.
+           However, this also means that some equivalencies cannot be detected. Check for other
+           methods of a specific subclass which may affect the order of terms and can allow for
+           further simplifications to be implemented. For example, check out :meth:`index_order`.
+
+        .. note::
+
+           Here is a more specific example: the fermionic term ``+_0 -_0 +_0`` can actually be
+           simplified down to ``+_0``. In other words, these two terms are equivalent. This method
+           will therefore reduce the first term to the second one and combine the associated
+           coefficients. This only works when these sub-terms are not interjected by other ones,
+           because the :meth:`simplify` method may not re-order terms (see also the previous note
+           and the :meth:`index_order` method).
+
+        This method returns a new operator (the original operator is not modified).
+
+        Args:
+            atol: Absolute numerical tolerance. The default behavior is to use ``self.atol``.
+
+        Returns:
+            The simplified operator.
+        """
         atol = self.atol if atol is None else atol
 
         data = defaultdict(complex)  # type: dict[str, _TCoeff]

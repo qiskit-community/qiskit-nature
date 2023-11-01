@@ -1,6 +1,6 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2018, 2021.
+# (C) Copyright IBM 2018, 2023.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -16,7 +16,7 @@ from qiskit.exceptions import QiskitError
 
 
 class QiskitNatureError(QiskitError):
-    """Class for errors returned by Qiskit's Nature module."""
+    """Class for errors returned by Qiskit Nature module."""
 
     pass
 

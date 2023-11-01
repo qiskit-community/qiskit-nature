@@ -1,4 +1,4 @@
-# This code is part of Qiskit.
+# This code is part of a Qiskit project.
 #
 # (C) Copyright IBM 2019, 2023.
 #
@@ -17,16 +17,15 @@ import unittest
 from test import QiskitNatureTestCase
 from test.second_q.circuit.library.ansatzes.utils.vibrational_op_label_creator import _create_labels
 
-from qiskit.utils import algorithm_globals
-from qiskit.algorithms.minimum_eigensolvers import VQE
-from qiskit.algorithms.optimizers import COBYLA
 from qiskit.primitives import Estimator
+from qiskit_algorithms import VQE
+from qiskit_algorithms.optimizers import COBYLA
+from qiskit_algorithms.utils import algorithm_globals
 from qiskit_nature.second_q.circuit.library import CHC, VSCF
 from qiskit_nature.second_q.circuit.library.ansatzes.utils.vibration_excitation_generator import (
     generate_vibration_excitations,
 )
 from qiskit_nature.second_q.mappers import DirectMapper
-from qiskit_nature.second_q.mappers import QubitConverter
 from qiskit_nature.second_q.operators import VibrationalOp
 
 
@@ -87,19 +86,11 @@ class TestCHCVSCF(QiskitNatureTestCase):
         algo = VQE(Estimator(), chc_ansatz, optimizer)
 
         mapper = DirectMapper()
-        converter = QubitConverter(mapper)
 
-        with self.subTest("Qubit Converter object"):
-            qubit_op = converter.convert_match(vibr_op)
-            vqe_result = algo.compute_minimum_eigenvalue(qubit_op)
-            energy = vqe_result.optimal_value
-            self.assertAlmostEqual(energy, self.reference_energy, places=4)
-
-        with self.subTest("Qubit Mapper object"):
-            qubit_op = mapper.map(vibr_op)
-            vqe_result = algo.compute_minimum_eigenvalue(qubit_op)
-            energy = vqe_result.optimal_value
-            self.assertAlmostEqual(energy, self.reference_energy, places=4)
+        qubit_op = mapper.map(vibr_op)
+        vqe_result = algo.compute_minimum_eigenvalue(qubit_op)
+        energy = vqe_result.optimal_value
+        self.assertAlmostEqual(energy, self.reference_energy, places=4)
 
 
 if __name__ == "__main__":

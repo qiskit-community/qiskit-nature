@@ -1,0 +1,23 @@
+---
+features:
+  - |
+    Adds a new lattice class, :class:`~qiskit_nature.second_q.hamiltonians.lattices.KagomeLattice`
+    for the generation of kagome lattices.
+
+    For example, you can construct a kagome lattice with 4 and 3 unit cells in the x and y direction,
+    respectively, which has weights 1.0 on all edges, weights 1.5 on self-loops and open boundary conditions
+
+    .. code-block:: python
+
+        from qiskit_nature.second_q.hamiltonians.lattices import (
+            KagomeLattice,
+            BoundaryCondition,
+        )
+
+        kagome = KagomeLattice(
+            4,
+            3,
+            edge_parameter = 1.0,
+            onsite_parameter = 1.5,
+            boundary_condition = BoundaryCondition.OPEN
+        )

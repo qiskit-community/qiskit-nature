@@ -4,8 +4,8 @@ Use a UVCC-like ansatz with a VQE
 =================================
 
 When using a :class:`~qiskit_nature.second_q.circuit.library.UVCC`-style ansatz with a
-:class:`~qiskit.algorithms.minimum_eigensolvers.VQE` one needs to pay particular attention to the
-:attr:`~qiskit.algorithms.minimum_eigensolvers.VQE.initial_point` attribute which indicates from
+:class:`~qiskit_algorithms.VQE` one needs to pay particular attention to the
+:attr:`~qiskit_algorithms.VQE.initial_point` attribute which indicates from
 which set of initial parameters the optimization routine should start.
 By default, VQE will start from a *random* initial point. In this how to we show how one
 can set a custom initial point instead (for example to guarantee that one starts from the
@@ -40,13 +40,13 @@ we will simply show how to use the
         ),
     )
 
-3. We setup a :class:`~qiskit.algorithms.minimum_eigensolvers.VQE`:
+3. We setup a :class:`~qiskit_algorithms.VQE`:
 
 .. testcode::
 
     import numpy as np
-    from qiskit.algorithms.optimizers import SLSQP
-    from qiskit.algorithms.minimum_eigensolvers import VQE
+    from qiskit_algorithms import VQE
+    from qiskit_algorithms.optimizers import SLSQP
     from qiskit.primitives import Estimator
     vqe = VQE(Estimator(), ansatz, SLSQP())
 
