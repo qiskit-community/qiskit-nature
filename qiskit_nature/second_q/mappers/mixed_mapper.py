@@ -38,15 +38,15 @@ class MixedMapper(QubitMapper):
     constructed.
 
     Attributes:
-        mappers: Dictionary of mappers corresponding to each "local" Hilbert spaces of the global problem.
-        hilbert_space_registers: Ordered dictionary of the local registers and their respective sizes.
+        mappers: Dictionary of mappers corresponding to "local" Hilbert spaces of the global problem.
+        hilbert_space_registers: Ordered dictionary of local registers and their respective sizes.
     """
 
     def __init__(self, mappers: dict[str, QubitMapper], hilbert_space_registers: dict):
         """
         Args:
-            mappers: Dictionary of mappers corresponding to each of the "local" Hilbert spaces.
-            hilbert_space_registers: Ordered dictionary of the local registers and their respective sizes.
+            mappers: Dictionary of mappers corresponding to the "local" Hilbert spaces.
+            hilbert_space_registers: Ordered dictionary of local registers with their sizes.
         """
         super().__init__()
         self.mappers = mappers
@@ -58,7 +58,8 @@ class MixedMapper(QubitMapper):
         operator_tuple: tuple[int, ...],
     ):
         """Mapping of operator products.
-        When the operator is not present in the tuple, construct a padding SparsePauliOp("II..I")"""
+        When the operator is not present in the tuple, construct a padding SparsePauliOp("II..I")
+        """
 
         coef, op_tuple = operator_tuple[0], operator_tuple[1:]
 
@@ -91,12 +92,14 @@ class MixedMapper(QubitMapper):
     ) -> SparsePauliOp:
         """Map the :class:`~qiskit_nature.second_q.operators.MixedOp` into a qubit operator.
 
-        The ``MixedOp`` is a representation of sums of products of operators corresponding to different Hilbert spaces. The mapping procedure first runs through all of the terms to be summed, and then maps the operator product corresponding to each summand by tensoring the individually mapped operators.
+        The ``MixedOp`` is a representation of sums of products of operators corresponding to different
+        Hilbert spaces. The mapping procedure first runs through all of the terms to be summed,
+        and then maps the operator product corresponding to each summand by tensoring the
+        individually mapped operators.
 
         Args:
-            hilbert_space_registers: Ordered dictionary attributing a register length to each of the
-                Hilbert space. Note that the ordering of the "local" Hilbert spaces in the dictionary
-                translates directly to the ordering of the corresponding qubit registers.
+            mixed_op: Operator to map.
+            register_length: UNUSED.
         """
 
         mapped_op = self._distribute_map(mixed_op.data)

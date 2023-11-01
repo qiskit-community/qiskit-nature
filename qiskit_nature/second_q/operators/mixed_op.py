@@ -14,11 +14,9 @@
 
 from __future__ import annotations
 
-
+import itertools
 from copy import deepcopy
 from typing import Callable
-import numpy as np
-import itertools
 
 from qiskit.quantum_info.operators.mixins import LinearMixin
 
@@ -138,21 +136,21 @@ class MixedOp(LinearMixin):
 
     @classmethod
     def _distribute_on_tuples(
-        cls, method: Callable, op_left: MixedOp, op_right: MixedOp = None, *args, **kwargs
+        cls, method: Callable, op_left: MixedOp, op_right: MixedOp = None, **kwargs
     ) -> MixedOp:
         new_op_data: dict = {}
 
-        if op_right == None:
+        if op_right is None:
             # Distribute method over all tuples.
             for key, op_tuple_list in op_left.data.items():
-                new_op_data[key] = [method(op_tuple, *args, **kwargs) for op_tuple in op_tuple_list]
+                new_op_data[key] = [method(op_tuple, **kwargs) for op_tuple in op_tuple_list]
         else:
             # Distribute method over all combinations of tuples from the first and second operators.
             for (key1, op_tuple_list1), (key2, op_tuple_list2) in itertools.product(
                 op_left.data.items(), op_right.data.items()
             ):
                 new_op_data[key1 + key2] = [
-                    method(op_tuple1, op_tuple2, *args, **kwargs)
+                    method(op_tuple1, op_tuple2, **kwargs)
                     for (op_tuple1, op_tuple2) in itertools.product(op_tuple_list1, op_tuple_list2)
                 ]
 
@@ -197,11 +195,11 @@ class MixedOp(LinearMixin):
         """Returns Operator composition of self and other.
 
         Args:
-            other: the other operator.
-            qargs: UNUSED.
+            op_left: left MixedOp to tensor.
+            op_right: right MixedOp to tensor.
 
         Returns:
-            The operator resulting from the composition.
+            The tensor product of left with right.
         """
 
         # Lazy composition without applying the products.
