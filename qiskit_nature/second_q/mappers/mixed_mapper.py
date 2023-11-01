@@ -13,6 +13,7 @@
 """The Mixed Mapper class."""
 
 from __future__ import annotations
+from functools import reduce
 
 import logging
 from abc import ABC
@@ -80,17 +81,6 @@ class MixedMapper(ABC):
         self.mappers: dict[str, QubitMapper] = mappers
         self.hilbert_space_register_lengths: dict[str, int] = hilbert_space_register_lengths
         self.hilbert_space_register_types: dict[str, SparseLabelOp] = hilbert_space_register_types
-
-    def _extend_mapping(self, op: SparsePauliOp, register, tot_register_length):
-        right_length = register[0]
-        left_length = register[1]
-        if right_length!=0:
-            right_pad = SparsePauliOp("I"*right_length)
-            op = op.tensor(right_pad)
-        if left_length!=0:
-            left_pad = SparsePauliOp("I"*left_length) 
-            op = left_pad.tensor(op)
-        return op
 
     def _map_tuple_product(
         self, active_indices: tuple[str], active_operators: tuple[SparseLabelOp]
