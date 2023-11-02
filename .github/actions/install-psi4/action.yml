@@ -31,10 +31,10 @@ runs:
         elif [[ "${{ inputs.os }}" == "macos-latest" ]]; then
           echo 'installs psi4 stable release'
           conda install -y psi4 python=${{ inputs.python-version }} -c conda-forge/label/libint_dev -c conda-forge
-          echo 'update intel-openmp'
-          conda update -y -c anaconda intel-openmp
-          echo 'update llvm-openmp'
-          conda update -y -c conda-forge llvm-openmp
+#          echo 'update intel-openmp'
+#          conda update -y -c anaconda intel-openmp
+#          echo 'update llvm-openmp'
+#          conda update -y -c conda-forge llvm-openmp
         else
           echo 'installs psi4 stable release'
           conda install -y psi4 python=${{ inputs.python-version }} -c conda-forge/label/libint_dev -c conda-forge
