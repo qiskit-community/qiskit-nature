@@ -4,11 +4,11 @@ features:
     Adds new operator generator functions to allow more fine-grained spin observables.
     The new functions are:
 
-    - the $S^+$ operator: :func:`.s_plus_operator`
-    - the $S^-$ operator: :func:`.s_minus_operator`
-    - the $S^x$ operator: :func:`.s_x_operator`
-    - the $S^y$ operator: :func:`.s_y_operator`
-    - the $S^z$ operator: :func:`.s_z_operator`
+    - the :math:`S^+` operator: :func:`.s_plus_operator`
+    - the :math:`S^-` operator: :func:`.s_minus_operator`
+    - the :math:`S^x` operator: :func:`.s_x_operator`
+    - the :math:`S^y` operator: :func:`.s_y_operator`
+    - the :math:`S^z` operator: :func:`.s_z_operator`
 
     All of these functions take the number of spatial orbitals as their only argument
     and return the constructed :class:`.FermionicOp`.
