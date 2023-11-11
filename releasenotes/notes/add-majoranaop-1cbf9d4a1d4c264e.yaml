@@ -1,0 +1,25 @@
+---
+features:
+  - |
+    Adds a new operator class, :class:`~qiskit_nature.second_q.operators.MajoranaOp`
+    to handle operators that are sums of tensor products of Majorana fermion operators.
+    This is needed for the implementation of the Ternary Tree Mapper, but might be useful
+    later on for other purposes as well.
+
+    Majorana operators use a string representation with underscore only, e.g. ``'_0 _1'``
+    corresponds to :math:`\gamma_0 \gamma_1` where there are twice the number of spin orbitals
+    operators satisfying :math:`\{\gamma_i,\gamma_j\} = 2 \delta_{ij}`.
+
+    Methods of :class:`~qiskit_nature.second_q.operators.MajoranaOp` are the same as for
+    :class:`~qiskit_nature.second_q.operators.FermionicOp` except for normal ordering, which is
+    unnecessary. A Majorana operator can be created from a Fermionic operator using the
+    :meth:`~qiskit_nature.second_q.operators.MajoranaOp.from_fermionic_op`  class method.
+other:
+  - |
+    The hidden method :meth:`~qiskit_nature.second_q.operators.FermionicOp._index_order`
+    has been converted to a class method to be able to be called within
+    :meth:`~qiskit_nature.second_q.operators.MajoranaOp.index_order`.
+  - |
+    Reference to `to_matrix` method in the documentation of
+    :class:`~qiskit_nature.second_q.operators.FermionicOp` has been removed as there is no such
+    method.

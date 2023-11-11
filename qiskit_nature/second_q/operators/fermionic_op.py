@@ -143,7 +143,6 @@ class FermionicOp(SparseLabelOp):
         However, a FermionicOp containing parameters does not support the following methods:
 
         - ``is_hermitian``
-        - ``to_matrix``
     """
 
     _OPERATION_REGEX = re.compile(r"([\+\-]_\d+\s)*[\+\-]_\d+")
@@ -460,7 +459,8 @@ class FermionicOp(SparseLabelOp):
             }
         )
 
-    def _index_order(self, terms: list[tuple[str, int]], coeff: _TCoeff) -> tuple[str, _TCoeff]:
+    @classmethod
+    def _index_order(cls, terms: list[tuple[str, int]], coeff: _TCoeff) -> tuple[str, _TCoeff]:
         if not terms:
             return "", coeff
 
@@ -501,6 +501,7 @@ class FermionicOp(SparseLabelOp):
 
         data = defaultdict(complex)  # type: dict[str, _TCoeff]
         # TODO: use parallel_map to make this more efficient (?)
+        #       (if this is done, apply equally to MajoranaOp.simplify())
         for label, coeff in self.items():
             label, coeff = self._simplify_label(label, coeff)
             data[label] += coeff
