@@ -300,7 +300,7 @@ class VibrationalOp(SparseLabelOp):
 
         for key in tensor:
             if key == "":
-                data[""] = tensor[key]
+                data[""] = tensor[key].item()
                 continue
 
             mat = tensor[key]
@@ -545,6 +545,35 @@ class VibrationalOp(SparseLabelOp):
         return new_label, coeff
 
     def simplify(self, atol: float | None = None) -> VibrationalOp:
+        """Simplify the operator.
+
+        The simplifications implemented by this method should be:
+        - to eliminate terms whose coefficients are close (w.r.t. ``atol``) to 0.
+        - to combine the coefficients which correspond to equivalent terms (see also the note below)
+
+        .. note::
+
+            :meth:`simplify` should be used to simplify terms whose coefficients are close to zero,
+            up to the specified numerical tolerance. It still differs slightly from :meth:`chop`
+            because that will chop real and imaginary part components individually.
+
+        .. note::
+
+           The meaning of "equivalence" between multiple terms depends on the specific operator
+           subclass. As a restriction this method is required to preserve the order of appearance of
+           the different components within a term. This avoids some possibly unexpected edge cases.
+           However, this also means that some equivalencies cannot be detected. Check for other
+           methods of a specific subclass which may affect the order of terms and can allow for
+           further simplifications to be implemented. For example, check out :meth:`index_order`.
+
+        This method returns a new operator (the original operator is not modified).
+
+        Args:
+            atol: Absolute numerical tolerance. The default behavior is to use ``self.atol``.
+
+        Returns:
+            The simplified operator.
+        """
         atol = self.atol if atol is None else atol
 
         data = defaultdict(complex)  # type: dict[str, _TCoeff]

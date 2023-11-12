@@ -155,9 +155,9 @@ jobs:
             python-version: 3.8
           - os: macos-latest
             python-version: 3.11
-          - os: windows-2019
+          - os: windows-latest
             python-version: 3.8
-          - os: windows-2019
+          - os: windows-latest
             python-version: 3.11
     steps:
       - uses: actions/checkout@v3
@@ -186,7 +186,6 @@ jobs:
         with:
           os: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
-        if: ${{ matrix.python-version != '3.11' && (matrix.os != 'windows-2019' || (matrix.os == 'windows-2019' && matrix.python-version != '3.11')) }}
       - uses: ./.github/actions/install-main-dependencies
         with:
           os: ${{ matrix.os }}
@@ -259,10 +258,8 @@ jobs:
           source "$CONDA/etc/profile.d/conda.sh"
           conda activate psi4env
           pip uninstall -y matplotlib pyscf sparse opt_einsum
-          if [[ "${{ matrix.python-version }}" != "3.11" && ("${{ matrix.os }}" != "windows-2019" || ("${{ matrix.os }}" == "windows-2019" && "${{ matrix.python-version }}" != "3.11")) ]]; then
-              echo 'Uninstall psi4'
-              conda remove -y --force psi4
-          fi
+          echo 'Uninstall psi4'
+          conda remove -y --force psi4
           if [ "${{ github.event_name }}" == "schedule" ] || [ "${{ contains(github.event.pull_request.labels.*.name, 'run_slow') }}" == "true" ]; then
               export QISKIT_TESTS="run_slow"
           fi
@@ -390,11 +387,11 @@ jobs:
           path: /tmp/m311
       - uses: actions/download-artifact@v3
         with:
-          name: windows-2019-3.8
+          name: windows-latest-3.8
           path: /tmp/w38
       - uses: actions/download-artifact@v3
         with:
-          name: windows-2019-3.11
+          name: windows-latest-3.11
           path: /tmp/w311
       - name: Install Dependencies
         run: pip install -U coverage coveralls diff-cover

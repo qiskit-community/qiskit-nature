@@ -93,6 +93,7 @@ extensions = [
     "nbsphinx",
     "sphinx.ext.intersphinx",
     "qiskit_sphinx_theme",
+    "matplotlib.sphinxext.plot_directive",
 ]
 html_static_path = ["_static"]
 templates_path = ["_templates"]
@@ -186,19 +187,8 @@ modindex_common_prefix = ["qiskit_nature."]
 
 # -- Options for HTML output -------------------------------------------------
 
-html_theme = "qiskit_sphinx_theme"
-html_theme_options = {
-    "logo_only": False,
-    "display_version": True,
-    "prev_next_buttons_location": "bottom",
-    "style_external_links": False,
-    # Toc options
-    "collapse_navigation": True,
-    "sticky_navigation": True,
-    "navigation_depth": 4,
-    "includehidden": True,
-    "titles_only": False,
-}
+html_theme = "qiskit-ecosystem"
+html_title = f"{project} {release}"
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
