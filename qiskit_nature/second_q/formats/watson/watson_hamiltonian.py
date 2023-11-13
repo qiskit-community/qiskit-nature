@@ -75,8 +75,8 @@ class WatsonHamiltonian:
                     yield value, tuple((-1) ** kinetic * (i + 1) for i in index)
         elif isinstance(array, SparseArray):
             coo = as_coo(array)
-            for value, *index in zip(coo.data, *coo.coords):
-                yield value, tuple((-1) ** kinetic * (i + 1) for i in index)
+            for value, *idx in zip(coo.data, *coo.coords):
+                yield value, tuple((-1) ** kinetic * (i + 1) for i in idx)
 
     def __iter__(self) -> Generator[tuple[complex, tuple[int, ...]], None, None]:
         for value, index in self._iter_array(self.quadratic_force_constants):
