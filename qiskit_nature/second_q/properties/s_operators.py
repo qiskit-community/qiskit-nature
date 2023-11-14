@@ -16,12 +16,12 @@ When dealing with non-orthonormal orbitals, you need to make sure that you inclu
 matrices when using the methods below. This ensures that the operators can resolve any spin
 contamination that may be present in your orbitals.
 
-The overlap matrices that you provide have to be computed in the basis matching the basis in which
-you are operating. If that is the atomic orbital (AO) basis, the overlap can be obtained from any
-standard quantum chemistry program (for example from the `get_ovlp()` method in PySCF).
-
-If you are working in the molecular orbital (MO) basis, you need to transform the overlap with the
-AO-to-MO transformation coefficients, $C$, according to:
+The overlap matrices that you provide have to be computed in the same basis in which the spin
+operator is encoded. If you are working in the molecular orbital (MO) basis, the overlap can be
+easily constructed starting from the atomic orbital (AO) overlap matrix, which can be obtained from
+any standard quantum chemistry program (for example from the `get_oplp()` method in PySCF). This AO
+overlap matrix can be transformed to the MO basis using the AO-to-MO transformation matrix, $C$,
+according to the following equation:
 
 .. math::
 
