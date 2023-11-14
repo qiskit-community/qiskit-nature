@@ -1,4 +1,8 @@
 ---
+features:
+  - |
+    Added the :meth:`.get_overlap_ab_from_qcschema` method which extracts the
+    alpha-beta spin orbital overlap matrix from a :class:`.QCSchema` instance.
 fixes:
   - |
     Fixes the following operators when dealing with non-orthonormal orbitals
