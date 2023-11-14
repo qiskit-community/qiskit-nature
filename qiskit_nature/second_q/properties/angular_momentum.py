@@ -16,6 +16,8 @@ from __future__ import annotations
 
 from typing import Mapping
 
+import numpy as np
+
 import qiskit_nature  # pylint: disable=unused-import
 from qiskit_nature.second_q.operators import FermionicOp
 
