@@ -21,14 +21,15 @@ import numpy as np
 
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy, Hamiltonian
-from qiskit_nature.second_q.operators import (ElectronicIntegrals,
-                                              PolynomialTensor, Tensor)
-from qiskit_nature.second_q.problems import (BaseProblem, ElectronicBasis,
-                                             ElectronicStructureProblem)
-from qiskit_nature.second_q.properties import (AngularMomentum,
-                                               ElectronicDensity,
-                                               ElectronicDipoleMoment,
-                                               Magnetization, ParticleNumber)
+from qiskit_nature.second_q.operators import ElectronicIntegrals, PolynomialTensor, Tensor
+from qiskit_nature.second_q.problems import BaseProblem, ElectronicBasis, ElectronicStructureProblem
+from qiskit_nature.second_q.properties import (
+    AngularMomentum,
+    ElectronicDensity,
+    ElectronicDipoleMoment,
+    Magnetization,
+    ParticleNumber,
+)
 
 from .base_transformer import BaseTransformer
 
