@@ -1,0 +1,18 @@
+---
+fixes:
+  - |
+    Fixes the following operators when dealing with non-orthonormal orbitals
+    (for example when using unrestricted spin orbitals):
+    - :class:`.AnglarMomentum`
+    - :func:`.s_plus_operator`
+    - :func:`.s_minus_operator`
+    - :func:`.s_x_operator`
+    - :func:`.s_y_operator`
+
+    To make the fix take effect, the new additional `overlap` argument needs to
+    be provided to all of these operators.
+
+    Prior to this fix, none of the operators above were able to resolve any spin
+    contamination and would yield misleadingly "clean" expectation values. See
+    `this issue <https://github.com/qiskit-community/qiskit-nature/issues/1273>`_
+    for a more complete discussion.
