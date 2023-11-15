@@ -36,6 +36,7 @@ if _has_B:
 
 data.e_nuc = _q_mol.nuclear_repulsion_energy()
 data.e_ref = _q_hf_energy
+data.overlap = np.asarray(_q_mints.ao_overlap())
 data.mo_coeff = np.asarray(_q_hf_wavefn.Ca())
 data.mo_coeff_b = np.asarray(_q_hf_wavefn.Cb()) if _has_B else None
 data.mo_energy = np.asarray(_q_hf_wavefn.epsilon_a())
