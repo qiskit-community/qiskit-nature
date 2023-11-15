@@ -297,6 +297,7 @@ class GaussianDriver(ElectronicStructureDriver):
         einsum_func, _ = get_einsum()
         data = _QCSchemaData()
 
+        data.overlap = GaussianDriver._get_matrix(mel, "OVERLAP")
         data.mo_coeff = GaussianDriver._get_matrix(mel, "ALPHA MO COEFFICIENTS")
         data.mo_coeff_b = GaussianDriver._get_matrix(mel, "BETA MO COEFFICIENTS")
         if np.array_equal(data.mo_coeff, data.mo_coeff_b):
