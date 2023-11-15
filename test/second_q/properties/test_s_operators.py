@@ -15,6 +15,12 @@
 import unittest
 from test import QiskitNatureTestCase
 
+import numpy as np
+
+from qiskit.primitives import Estimator
+from qiskit_algorithms.observables_evaluator import estimate_observables
+from qiskit_nature.second_q.circuit.library import HartreeFock
+from qiskit_nature.second_q.mappers import ParityMapper
 from qiskit_nature.second_q.operators import FermionicOp
 from qiskit_nature.second_q.operators.commutators import commutator
 from qiskit_nature.second_q.properties import AngularMomentum
@@ -101,6 +107,67 @@ class TestSOperators(QiskitNatureTestCase):
         s_z = s_z_operator(4)
         s_2 = AngularMomentum(4).second_q_ops()["AngularMomentum"]
         self.assertEqual(commutator(s_2, s_z), FermionicOp.zero())
+
+
+class TestSOperatorsWithOverlap(QiskitNatureTestCase):
+    """Tests for the spin operator generator functions with non-identity overlap.
+
+    See also ``TestAngularMomentum.test_with_overlap``.
+    """
+
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.norb = 2
+        self.nelec = (1, 1)
+
+        mo_coeff = np.asarray([[0.54830202, 1.21832731], [0.54830202, -1.21832731]])
+        ovlp = np.asarray([[1.0, 0.66314574], [0.66314574, 1.0]])
+
+        # first, we ensure that our restricted-spin MO coefficients and overlap match
+        self.assertTrue(np.allclose(mo_coeff.T @ ovlp @ mo_coeff, np.eye(self.norb)))
+
+        theta = 33
+        rot = np.asarray(
+            [
+                [np.cos(np.deg2rad(theta)), -np.sin(np.deg2rad(theta))],
+                [np.sin(np.deg2rad(theta)), np.cos(np.deg2rad(theta))],
+            ],
+        )
+        mo_coeff_rot = mo_coeff @ rot
+
+        self.ovlpab = mo_coeff.T @ ovlp @ mo_coeff_rot
+
+        self.mapper = ParityMapper(self.nelec)
+        self.hf_state = HartreeFock(self.norb, self.nelec, self.mapper)
+
+    def test_s_plus_operator(self) -> None:
+        """Tests the $S^+$ operator with non-identity overlap."""
+        s_p = s_plus_operator(self.norb, self.ovlpab)
+        qubit_op = self.mapper.map(s_p)
+        result = estimate_observables(Estimator(), self.hf_state, {"S+": qubit_op})
+        self.assertAlmostEqual(result["S+"][0], -0.2723195166091395 + 0.2723195166091395j)
+
+    def test_s_minus_operator(self) -> None:
+        """Tests the $S^-$ operator with non-identity overlap."""
+        s_m = s_minus_operator(self.norb, self.ovlpab.T)
+        qubit_op = self.mapper.map(s_m)
+        result = estimate_observables(Estimator(), self.hf_state, {"S-": qubit_op})
+        self.assertAlmostEqual(result["S-"][0], -0.2723195166091395 - 0.2723195166091395j)
+
+    def test_s_x_operator(self) -> None:
+        """Tests the $S^x$ operator with non-identity overlap."""
+        s_x = s_x_operator(self.norb, self.ovlpab)
+        qubit_op = self.mapper.map(s_x)
+        result = estimate_observables(Estimator(), self.hf_state, {"Sx": qubit_op})
+        self.assertAlmostEqual(result["Sx"][0], -0.27231951660913956)
+
+    def test_s_y_operator(self) -> None:
+        """Tests the $S^y$ operator with non-identity overlap."""
+        s_y = s_y_operator(self.norb, self.ovlpab)
+        qubit_op = self.mapper.map(s_y)
+        result = estimate_observables(Estimator(), self.hf_state, {"Sy": qubit_op})
+        self.assertAlmostEqual(result["Sy"][0], 0.27231951660913956)
 
 
 if __name__ == "__main__":
