@@ -17,7 +17,7 @@ from functools import reduce
 
 from qiskit.quantum_info import SparsePauliOp
 
-from qiskit_nature.second_q.operators import MixedOp
+from qiskit_nature.second_q.operators import MixedOp, SparseLabelOp
 
 from .qubit_mapper import QubitMapper
 
@@ -29,60 +29,85 @@ class MixedMapper(QubitMapper):
     systems, defined as :class:`~qiskit_nature.second_q.operators.MixedOp`, into qubit operators.
 
     Please note that the creation and usage of this class requires the precise definition of the
-    composite Hilbert size corresponding to the problem. It is expected that this "global" Hilbert space
-    will result in the tensor product of one or multiple "local" Hilbert spaces, where the ordering of
-    the "local" Hilbert spaces must be provided by the user and will correspond to the ordering of the
-    corresponding qubit registers before their concatenation.
+    composite Hilbert size corresponding to the problem.
+    The ordering of the qubit registers associated to the bosonic and fermionic degrees of freedom (for example)
+    must be provided by the user through the definition of the hilbert space registers dictionary. This
+    ordering corresponds to a specific way to take the tensor product of the fermionic and bosonic operators.
 
-    The following attributes can be read and updated once the ``TaperedQubitMapper`` object has been
-    constructed.
+    .. note::
+
+      This class is limited to one instance of a Fermionic Hilbert space, to ensure the anticommutation
+      relations of the fermions.
+
+    .. note::
+
+      This class enforces the register lengths to the mappers. Note that for the bosonic mappers, the
+      register lengths is not directly equal to the qubit register length but to the number of modes.
+      See the documentation of the class :class:``~BosonicLinearMapper``.
+
+    The following attributes can be read and updated once the ``MixedMapper`` object has been constructed.
 
     Attributes:
         mappers: Dictionary of mappers corresponding to "local" Hilbert spaces of the global problem.
-        hilbert_space_registers: Ordered dictionary of local registers and their respective sizes.
+        hilbert_space_register_lengths: Ordered dictionary of local registers and their respective sizes.
     """
 
-    def __init__(self, mappers: dict[str, QubitMapper], hilbert_space_registers: dict):
+    def __init__(self, mappers: dict[str, QubitMapper], hilbert_space_register_lengths: dict):
         """
         Args:
             mappers: Dictionary of mappers corresponding to the "local" Hilbert spaces.
-            hilbert_space_registers: Ordered dictionary of local registers with their sizes.
+            hilbert_space_register_lengths: Ordered dictionary of local registers with their sizes.
         """
         super().__init__()
         self.mappers = mappers
-        self.hilbert_space_registers = hilbert_space_registers
+        self.hilbert_space_register_lengths = hilbert_space_register_lengths
 
     def _map_tuple_product(
-        self,
-        index: tuple[str],
-        operator_tuple: tuple[int, ...],
-    ):
-        """Mapping of operator products.
-        When the operator is not present in the tuple, construct a padding SparsePauliOp("II..I")
+        self, active_indices: tuple[str], active_operators: tuple[SparseLabelOp]
+    ) -> SparsePauliOp:
+        """Maps a product of operators defined on the local Hilbert spaces defined by the active
+        indices. Note that the order of the active indices is not relevant. The only relevant ordering
+        is that given by :attr:`~MixedMapper.hilbert_space_register_lengths` at initialization.
+
+        When the operator is not present in the tuple, we use a padding operator with identities.
+
+        Args:
+            active_indices: Specificiation of the Hilbert spaces on which the operator acts.
+            active_operators: List of operators to compose..
         """
 
-        coef, op_tuple = operator_tuple[0], operator_tuple[1:]
-
-        tup_dict = {index[k]: self.mappers[index[k]].map(op_tuple[k]) for k in range(len(index))}
-        padding_ops = {
+        product_op_dict = {
             index: SparsePauliOp("I" * value)
-            for index, value in self.hilbert_space_registers.items()
+            for index, value in self.hilbert_space_register_lengths.items()
         }
-        new_dict = {
-            index: tup_dict[index] if index in tup_dict else padding_ops[index]
-            for index in self.hilbert_space_registers.keys()
-        }
-        product_op = coef * reduce(SparsePauliOp.tensor, list(new_dict.values())[::-1])
 
-        return product_op.simplify()
+        for active_index, active_op in zip(active_indices, active_operators):
+            register_length = self.hilbert_space_register_lengths[active_index]
+            product_op_dict[active_index] = self.mappers[active_index].map(
+                active_op, register_length=register_length
+            )
 
-    def _distribute_map(self, operator_dict: dict[str, list]):
-        """Mapping of operators sums within the various Hilbert spaces."""
-        final_op = sum(
-            sum(self._map_tuple_product(key, operator_tuple) for operator_tuple in operator_list)
-            for key, operator_list in operator_dict.items()
-        )
-        return final_op
+        product_op = reduce(SparsePauliOp.tensor, list(product_op_dict.values()))
+
+        return product_op
+
+    def _distribute_map(self, operator_dict: dict[str, list]) -> SparsePauliOp:
+        """Distributes the mapping of operators to each of the terms defined across specific
+        Hilbert spaces.
+
+        Args:
+            operator_dict: Dictionary of (key, operator list) pairs where the key specify which
+                local "Hilbert space" the operators act on. Note that the first element of the
+                operator list is the coefficient of this operator product across these Hilbert spaces.
+        """
+
+        mapped_op: SparsePauliOp = 0
+        for active_indices, operator_list in operator_dict.items():
+            for coef_and_operators in operator_list:
+                coef, active_operators = coef_and_operators[0], coef_and_operators[1:]
+                mapped_op += coef * self._map_tuple_product(active_indices, active_operators)
+
+        return mapped_op.simplify()
 
     def map(
         self,
