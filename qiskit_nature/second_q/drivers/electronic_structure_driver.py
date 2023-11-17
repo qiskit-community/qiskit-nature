@@ -53,6 +53,7 @@ class _QCSchemaData:
     eri_mo_bb: np.ndarray | None = None
     e_nuc: float | None = None
     e_ref: float | None = None
+    overlap: np.ndarray | None = None
     mo_coeff: np.ndarray | None = None
     mo_coeff_b: np.ndarray | None = None
     mo_energy: np.ndarray | None = None
@@ -242,6 +243,9 @@ class ElectronicStructureDriver(BaseDriver):
             return arr.ravel().tolist()
 
         wavefunction = QCWavefunction(basis=data.basis)
+        if data.overlap is not None:
+            wavefunction.overlap = "scf_overlap"
+            wavefunction.scf_overlap = format_np_array(data.overlap)
         if data.mo_coeff is not None:
             wavefunction.orbitals_a = "scf_orbitals_a"
             wavefunction.scf_orbitals_a = format_np_array(data.mo_coeff)

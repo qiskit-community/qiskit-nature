@@ -25,20 +25,6 @@ runs:
     - run : |
         source "$CONDA/etc/profile.d/conda.sh"
         conda activate psi4env
-        if [[ "${{ inputs.os }}" == "windows-2019" ]]; then
-          release=1.6
-          echo "installs psi4 release $release"
-          conda install -y psi4=$release python=${{ inputs.python-version }} -c psi4 -c conda-forge
-        elif [[ "${{ inputs.os }}" == "macos-latest" ]]; then
-          release=1.6
-          echo 'installs psi4 release $release'
-          conda install -y psi4=$release python=${{ inputs.python-version }} -c psi4
-          echo 'update intel-openmp'
-          conda update -y -c anaconda intel-openmp
-          echo 'update llvm-openmp'
-          conda update -y -c conda-forge llvm-openmp
-        else
-          echo 'installs psi4 stable release'
-          conda install -y psi4 python=${{ inputs.python-version }} -c psi4
-        fi
+        echo "installs psi4 stable release"
+        conda install -y psi4 python=${{ inputs.python-version }} -c conda-forge/label/libint_dev -c conda-forge
       shell: bash

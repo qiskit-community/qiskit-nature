@@ -21,7 +21,7 @@ import numpy as np
 
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy, Hamiltonian
-from qiskit_nature.second_q.operators import ElectronicIntegrals, PolynomialTensor
+from qiskit_nature.second_q.operators import ElectronicIntegrals, PolynomialTensor, Tensor
 from qiskit_nature.second_q.problems import BaseProblem, ElectronicBasis, ElectronicStructureProblem
 from qiskit_nature.second_q.properties import (
     AngularMomentum,
@@ -152,7 +152,26 @@ class BasisTransformer(BaseTransformer):
                 new_problem.properties.electronic_density = self.transform_electronic_integrals(
                     prop
                 )
-            elif isinstance(prop, (AngularMomentum, Magnetization, ParticleNumber)):
+            elif isinstance(prop, AngularMomentum):
+                if prop.overlap is None:
+                    # nothing needs to be changed
+                    new_problem.properties.add(prop)
+                    continue
+
+                if isinstance(self.coefficients, ElectronicIntegrals):
+                    coeff_alpha = self.coefficients.alpha["+-"]
+                    coeff_beta: Tensor
+                    if self.coefficients.beta.is_empty():
+                        coeff_beta = coeff_alpha
+                    else:
+                        coeff_beta = self.coefficients.beta["+-"]
+
+                    new_problem.properties.angular_momentum = AngularMomentum(
+                        prop.num_spatial_orbitals,
+                        coeff_alpha.transpose() @ prop.overlap @ coeff_beta,
+                    )
+
+            elif isinstance(prop, (Magnetization, ParticleNumber)):
                 new_problem.properties.add(prop)
             else:
                 LOGGER.warning("Encountered an unsupported property of type '%s'.", type(prop))

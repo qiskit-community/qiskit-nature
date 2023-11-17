@@ -44,6 +44,8 @@ class QCWavefunction(_QCBase):
     Qiskit Nature.
     """
 
+    overlap: str | None = None
+    """The name of the overlap matrix in the AO basis."""
     orbitals_a: str | None = None
     """The name of the alpha-spin orbitals in the AO basis."""
     orbitals_b: str | None = None
@@ -101,6 +103,8 @@ class QCWavefunction(_QCBase):
     dipole_mo_z_b: str | None = None
     """The name of beta-spin z-axis dipole moment integrals in the MO basis."""
 
+    scf_overlap: Sequence[float] | None = None
+    """The SCF overlap matrix in the AO basis."""
     scf_orbitals_a: Sequence[float] | None = None
     """The SCF alpha-spin orbitals in the AO basis."""
     scf_orbitals_b: Sequence[float] | None = None

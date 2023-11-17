@@ -17,7 +17,7 @@ features:
   - |
     In order to use the bosonic operator for quantum applications, this feature also introduces the
     bosonic linear mapper, which allows to map the BosonicOp to the qubit space. This mapper is based
-    on `this paper <https://link.aps.org/doi/10.1103/PhysRevResearch.3.043212>`.
+    on `this paper <https://link.aps.org/doi/10.1103/PhysRevResearch.3.043212>`_.
     To use this mapper one can for example:
 
     .. code-block:: python

@@ -36,12 +36,17 @@ Submodules
    watson_to_problem
    qcschema_to_problem
    get_ao_to_mo_from_qcschema
+   get_overlap_ab_from_qcschema
 
 """
 
 from .molecule_info import MoleculeInfo
 from .fcidump_translator import fcidump_to_problem
-from .qcschema_translator import qcschema_to_problem, get_ao_to_mo_from_qcschema
+from .qcschema_translator import (
+    qcschema_to_problem,
+    get_ao_to_mo_from_qcschema,
+    get_overlap_ab_from_qcschema,
+)
 from .watson_translator import watson_to_problem
 
 __all__ = [
@@ -50,4 +55,5 @@ __all__ = [
     "watson_to_problem",
     "qcschema_to_problem",
     "get_ao_to_mo_from_qcschema",
+    "get_overlap_ab_from_qcschema",
 ]

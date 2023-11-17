@@ -656,5 +656,5 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
 
             if isinstance(self._array, sp.SparseArray):
                 coo = sp.as_coo(self._array)
-                for value, *index in zip(coo.data, *coo.coords):
-                    yield value, tuple(index)
+                for value, *idx in zip(coo.data, *coo.coords):
+                    yield value, tuple(idx)

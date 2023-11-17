@@ -329,8 +329,8 @@ class S4Integrals(SymmetricTwoBodyIntegrals):
 
             if isinstance(self._array, sp.SparseArray):
                 coo = sp.as_coo(self._array)
-                for value, *index in zip(coo.data, *coo.coords):
-                    index = cast(Tuple[int, int], index)
+                for value, *idx in zip(coo.data, *coo.coords):
+                    index = cast(Tuple[int, int], tuple(idx))
                     for full_idx in self._full_index(index):
                         yield value, tuple(full_idx)
 
@@ -448,8 +448,8 @@ class S8Integrals(SymmetricTwoBodyIntegrals):
 
             if isinstance(self._array, sp.SparseArray):
                 coo = sp.as_coo(self._array)
-                for value, *index in zip(coo.data, *coo.coords):
-                    for full_idx in self._full_index(index[0]):
+                for value, *idx in zip(coo.data, *coo.coords):
+                    for full_idx in self._full_index(idx[0]):
                         yield value, tuple(full_idx)
 
 

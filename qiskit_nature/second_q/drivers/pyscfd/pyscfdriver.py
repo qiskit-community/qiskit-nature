@@ -512,6 +512,7 @@ class PySCFDriver(ElectronicStructureDriver):
         einsum_func, _ = get_einsum()
         data = _QCSchemaData()
 
+        data.overlap = self._calc.get_ovlp()
         data.mo_coeff, data.mo_coeff_b = self._expand_mo_object(
             self._calc.mo_coeff, array_dimension=3
         )

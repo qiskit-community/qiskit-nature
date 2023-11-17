@@ -140,7 +140,7 @@ class HartreeFock(BlueprintCircuit):
         if any(n > self.num_spatial_orbitals for n in self.num_particles):
             if raise_on_failure:
                 raise ValueError(
-                    f"The number of spatial orbitals {self.num_spatial_orbitals}"
+                    f"The number of spatial orbitals {self.num_spatial_orbitals} "
                     f"must be greater than or equal to the number of particles of "
                     f"any spin kind {self.num_particles}."
                 )

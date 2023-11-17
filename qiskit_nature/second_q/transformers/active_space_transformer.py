@@ -22,7 +22,7 @@ import numpy as np
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.hamiltonians import ElectronicEnergy, Hamiltonian
-from qiskit_nature.second_q.operators import ElectronicIntegrals
+from qiskit_nature.second_q.operators import ElectronicIntegrals, Tensor
 from qiskit_nature.second_q.problems import BaseProblem, ElectronicBasis, ElectronicStructureProblem
 from qiskit_nature.second_q.properties import (
     AngularMomentum,
@@ -279,7 +279,26 @@ class ActiveSpaceTransformer(BaseTransformer):
                 new_problem.properties.electronic_density = ElectronicDensity(
                     transformed.alpha, transformed.beta, transformed.beta_alpha
                 )
-            elif isinstance(prop, (AngularMomentum, Magnetization, ParticleNumber)):
+            elif isinstance(prop, AngularMomentum):
+                if prop.overlap is None:
+                    # only the size needs to be changed
+                    new_problem.properties.add(prop.__class__(new_problem.num_spatial_orbitals))
+                    continue
+
+                if isinstance(self._active_basis.coefficients, ElectronicIntegrals):
+                    coeff_alpha = self._active_basis.coefficients.alpha["+-"]
+                    coeff_beta: Tensor
+                    if self._active_basis.coefficients.beta.is_empty():
+                        coeff_beta = coeff_alpha
+                    else:
+                        coeff_beta = self._active_basis.coefficients.beta["+-"]
+
+                    new_problem.properties.angular_momentum = AngularMomentum(
+                        new_problem.num_spatial_orbitals,
+                        coeff_alpha.transpose() @ prop.overlap @ coeff_beta,
+                    )
+
+            elif isinstance(prop, (Magnetization, ParticleNumber)):
                 new_problem.properties.add(prop.__class__(new_problem.num_spatial_orbitals))
             else:
                 LOGGER.warning("Encountered an unsupported property of type '%s'.", type(prop))
