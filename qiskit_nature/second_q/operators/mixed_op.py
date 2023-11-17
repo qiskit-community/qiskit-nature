@@ -41,7 +41,7 @@ class MixedOp(LinearMixin):
 
     .. code-block:: python
 
-    from qiskit_nature.second_q.operators import FermionicOp, MixedOp
+    from qiskit_nature.second_q.operators import FermionicOp, SpinOp, MixedOp
 
     fop1 = FermionicOp({"+_0 -_0": 1}) # Acting on Hilbert space "h1"
     sop1 = SpinOp({"X_0 Y_0": 1}, num_spins=1) # Acting on Hilbert space "s1"
@@ -54,14 +54,6 @@ class MixedOp(LinearMixin):
         }
     ) # 3*(fop1 @ sop1) + 2*(sop1)
 
-
-    .. note::
-    Note that the ``MixedOp`` object can be initialized without even knowing the structure of the
-    "global" Hilbert space of the problem. However, the user is expected to use an unambiguous naming
-    convention for the "local" Hilbert spaces to ensure a coherent construction.
-    A more precise specification of the "global' Hilbert space will be required for the mapping of the
-    ``MixedOp`` to qubit operators, setting the desired ordering and size of the registers corresponding
-    to each "local" Hilbert spaces.
 
     **Algebra**
 
@@ -100,18 +92,18 @@ class MixedOp(LinearMixin):
     def __init__(self, data: dict[tuple, list[tuple[SparseLabelOp, float]]]):
         self.data = deepcopy(data)
 
-    def __repr__(self) -> str:
-        out_str = ""
-        for key, oplist in self.data.items():
-            for hspace in key:
-                out_str += hspace
-            out_str += " : "
+    def __repr__(self, indentation_level=0) -> str:
+        out_str = "Mixed Op\n"
+        out_str += f"Nb terms = {len(self.data)}\n"
+        for active_indices, oplist in self.data.items():
             for op_tuple in oplist:
-                out_str += "["
-                for op in op_tuple:
-                    out_str += f"{repr(op)} "
-                out_str += "]"
-            out_str += "\n"
+                coef, active_operators = op_tuple[0], op_tuple[1:]
+                out_str += f"- Coefficient: {coef:.02f}\n"
+
+                for index, op in zip(active_indices, active_operators):
+                    out_str += "" * indentation_level + f"{index}: {repr(op)}\n"
+
+                out_str += "\n"
 
         return out_str
 
@@ -122,7 +114,6 @@ class MixedOp(LinearMixin):
     @staticmethod
     def _tuple_prod(tup1: tuple[int, ...], tup2: tuple) -> tuple[int, ...]:
         """Implements the composition of operator tuples representing tensor products of operators."""
-        print(tup1, tup2)
         new_coeff = tup1[0] * tup2[0]
         new_op_tuple = tup1[1:] + tup2[1:]
         return (new_coeff,) + new_op_tuple
@@ -138,8 +129,9 @@ class MixedOp(LinearMixin):
     def _distribute_on_tuples(
         cls, method: Callable, op_left: MixedOp, op_right: MixedOp = None, **kwargs
     ) -> MixedOp:
+        """Implements the distributions of a method to the tuples of operators representing the product of
+        operators."""
         new_op_data: dict = {}
-
         if op_right is None:
             # Distribute method over all tuples.
             for key, op_tuple_list in op_left.data.items():
@@ -208,7 +200,6 @@ class MixedOp(LinearMixin):
         )
 
     def __eq__(self, other):
-
         if not isinstance(other, self.__class__):
             return False
 
