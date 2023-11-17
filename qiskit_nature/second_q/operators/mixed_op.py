@@ -109,7 +109,6 @@ class MixedOp(LinearMixin):
     @staticmethod
     def _tuple_prod(tup1: tuple[int, ...], tup2: tuple) -> tuple[float, ...]:
         """Implements the composition of operator tuples representing tensor products of operators."""
-        print(tup1, tup2)
         new_coeff = tup1[0] * tup2[0]
         new_op_tuple = tup1[1:] + tup2[1:]
         return (new_coeff,) + new_op_tuple
