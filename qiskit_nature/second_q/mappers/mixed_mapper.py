@@ -139,8 +139,9 @@ class MixedMapper(ABC):
         """
 
         if register_length is not None:
-            LOGGER.debug(f"Argument register length = {register_length} is not used. Set the length of
-                         the qubit register directly at the creation of the Mixed Mapper object.")
+            LOGGER.debug(f"Argument register length = {register_length} is not used.
+                         Set the length of the qubit register directly at the creation of
+                         the Mixed Mapper object.")
         mapped_op: SparsePauliOp = self._distribute_map(mixed_op.data)
 
         return mapped_op
