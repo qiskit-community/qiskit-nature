@@ -100,16 +100,6 @@ MixedOp Mappers
 
    MixedMapper
 
-
-Qubit Converter
-+++++++++++++++
-
-.. autosummary::
-   :toctree: ../stubs/
-   :nosignatures:
-
-   QubitConverter
-
 """
 
 from .bksf import BravyiKitaevSuperFastMapper
@@ -135,7 +125,6 @@ __all__ = [
     "BosonicLinearMapper",
     "LogarithmicMapper",
     "MixedMapper",
-    "QubitConverter",
     "QubitMapper",
     "InterleavedQubitMapper",
     "TaperedQubitMapper",

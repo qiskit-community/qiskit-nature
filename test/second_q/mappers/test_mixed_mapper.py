@@ -69,11 +69,37 @@ class TestMixedMapper(QiskitNatureTestCase):
     def test_relative_mapping(self, bos_op, fer_op, coef):
         """Test the ``MixedOp`` mapping and compare to the composition of the mapped operators."""
 
-        composed_op = MixedOp({("b1", "f1"): [(coef, bos_op, fer_op)]})
+        mop = MixedOp({("b1", "f1"): [(coef, bos_op, fer_op)]})
 
         target = coef * self.bos_mapper.map(bos_op).tensor(self.fer_mapper.map(fer_op))
-        test = self.mix_mapper.map(composed_op)
+        test = self.mix_mapper.map(mop)
         self.assertTrue(target.equiv(test))
+
+    @data(
+        (bos_op1, fer_op1, 2.0 + 1.0j),
+        (bos_op2, fer_op2, 3.0 + 2.0j),
+        (bos_op5, fer_op1, -4.0 - 3.0j),
+        (bos_op6, fer_op2, -5.0 + 4j),
+    )
+    @unpack
+    def test_map_list_or_dict(self, bos_op, fer_op, coef):
+        mopA = MixedOp({("b1", "f1"): [(coef, bos_op, fer_op)]})
+        mopB = MixedOp({("b1", "f1"): [(coef, bos_op, fer_op)]})
+
+        calc_op_dict = self.mix_mapper.map({"A": mopA, "B": mopB})
+        calc_op_list = self.mix_mapper.map([mopA, mopB])
+
+        with self.subTest("Type dict"):
+            self.assertTrue(isinstance(calc_op_dict, dict))
+
+        with self.subTest("Type list"):
+            self.assertTrue(isinstance(calc_op_list, list))
+
+        with self.subTest("Value"):
+            self.assertTrue(
+                calc_op_list[0].equiv(calc_op_dict["A"])
+                and calc_op_list[1].equiv(calc_op_dict["B"])
+            )
 
 
 if __name__ == "__main__":
