@@ -41,18 +41,18 @@ class MixedOp(LinearMixin):
 
     .. code-block:: python
 
-    from qiskit_nature.second_q.operators import FermionicOp, SpinOp, MixedOp
+        from qiskit_nature.second_q.operators import FermionicOp, SpinOp, MixedOp
 
-    fop1 = FermionicOp({"+_0 -_0": 1}) # Acting on Hilbert space "h1"
-    sop1 = SpinOp({"X_0 Y_0": 1}, num_spins=1) # Acting on Hilbert space "s1"
+        fop1 = FermionicOp({"+_0 -_0": 1}) # Acting on Hilbert space "h1"
+        sop1 = SpinOp({"X_0 Y_0": 1}, num_spins=1) # Acting on Hilbert space "s1"
 
-    mop1 = MixedOp({("h1",): [(5.0, fop1)]}) # 5.0 * fop1
-    mop2 = MixedOp(
-        {
-            ("h1", "s1"): [(3, fop1, sop1)],
-            ("s1",): [(2, sop1)],
-        }
-    ) # 3*(fop1 @ sop1) + 2*(sop1)
+        mop1 = MixedOp({("h1",): [(5.0, fop1)]}) # 5.0 * fop1
+        mop2 = MixedOp(
+            {
+                ("h1", "s1"): [(3, fop1, sop1)],
+                ("s1",): [(2, sop1)],
+            }
+        ) # 3*(fop1 @ sop1) + 2*(sop1)
 
 
     **Algebra**
@@ -68,8 +68,7 @@ class MixedOp(LinearMixin):
         fop1 = FermionicOp({"+_0 -_0": 1}) # Acting on Hilbert space "h1"
         sop1 = SpinOp({"X_0 Y_0": 1}, num_spins=1) # Acting on Hilbert space "s1"
         MixedOp({("h1",): [(5.0, fop1)]}) + MixedOp({("s1",): [(6.0, sop1)]})
-
-      MixedOp({("h1",): [(5.0, fop1)], ("s1",): [(6.0, sop1)]})
+        # MixedOp({("h1",): [(5.0, fop1)], ("s1",): [(6.0, sop1)]})
 
     Scalar multiplication
 
@@ -85,11 +84,11 @@ class MixedOp(LinearMixin):
         fop1 = FermionicOp({"+_0 -_0": 1}) # Acting on Hilbert space "h1"
         sop1 = SpinOp({"X_0 Y_0": 1}, num_spins=1) # Acting on Hilbert space "s1"
         MixedOp({("h1",): [(5.0, fop1)]}) @ MixedOp({("s1",): [(6.0, sop1)]})
+        # MixedOp({("h1", "s1"): [(30.0, fop1, sop1)]})
 
-      MixedOp({("h1", "s1"): [(30.0, fop1, sop1)]})
     """
 
-    def __init__(self, data: dict[tuple, list[tuple[SparseLabelOp, float]]]):
+    def __init__(self, data: dict[tuple[str], list[tuple[float, SparseLabelOp]]]):
         self.data = deepcopy(data)
 
     def __repr__(self, indentation_level=0) -> str:
@@ -107,19 +106,15 @@ class MixedOp(LinearMixin):
 
         return out_str
 
-    def keys_no_duplicate(self) -> set[str]:
-        """Returns the global Hilbert space on which the ``MixedOp`` is acting."""
-        return set(itertools.chain(self.data.keys()))
-
     @staticmethod
-    def _tuple_prod(tup1: tuple[int, ...], tup2: tuple) -> tuple[int, ...]:
+    def _tuple_prod(tup1: tuple[int, ...], tup2: tuple) -> tuple[float, ...]:
         """Implements the composition of operator tuples representing tensor products of operators."""
         new_coeff = tup1[0] * tup2[0]
         new_op_tuple = tup1[1:] + tup2[1:]
         return (new_coeff,) + new_op_tuple
 
     @staticmethod
-    def _tuple_multiply(tup: tuple[int, ...], coef: float) -> tuple[int, ...]:
+    def _tuple_multiply(tup: tuple[int, ...], coef: float) -> tuple[float, ...]:
         """Implements the dilation by a coefficient of an operator tuple representing a tensor product
         of operators."""
         new_coeff = tup[0] * coef
@@ -129,8 +124,8 @@ class MixedOp(LinearMixin):
     def _distribute_on_tuples(
         cls, method: Callable, op_left: MixedOp, op_right: MixedOp = None, **kwargs
     ) -> MixedOp:
-        """Implements the distributions of a method to the tuples of operators representing the product of
-        operators."""
+        """Implements the distributions of a method to the tuples of operators representing the product
+        of operators."""
         new_op_data: dict = {}
         if op_right is None:
             # Distribute method over all tuples.

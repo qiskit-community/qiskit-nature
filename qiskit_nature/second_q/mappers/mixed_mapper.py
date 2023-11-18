@@ -13,16 +13,20 @@
 """The Mixed Mapper class."""
 
 from __future__ import annotations
+
+from abc import ABC
 from functools import reduce
 
 from qiskit.quantum_info import SparsePauliOp
 
+from qiskit_algorithms.list_or_dict import ListOrDict as ListOrDictType
+
 from qiskit_nature.second_q.operators import MixedOp, SparseLabelOp
 
-from .qubit_mapper import QubitMapper
+from .qubit_mapper import QubitMapper, _ListOrDict
 
 
-class MixedMapper(QubitMapper):
+class MixedMapper(ABC):
     """Mapper of a Mixed Operator to a Qubit Operator.
 
     This class is intended to be used for handling the mapping of composed fermionic and (or) bosonic
@@ -30,9 +34,10 @@ class MixedMapper(QubitMapper):
 
     Please note that the creation and usage of this class requires the precise definition of the
     composite Hilbert size corresponding to the problem.
-    The ordering of the qubit registers associated to the bosonic and fermionic degrees of freedom (for example)
-    must be provided by the user through the definition of the hilbert space registers dictionary. This
-    ordering corresponds to a specific way to take the tensor product of the fermionic and bosonic operators.
+    The ordering of the qubit registers associated to the bosonic and fermionic degrees of freedom
+    (for example) must be provided by the user through the definition of the hilbert space
+    registers dictionary. This ordering corresponds to a specific way to take the tensor product
+    of the fermionic and bosonic operators.
 
     .. note::
 
@@ -43,9 +48,10 @@ class MixedMapper(QubitMapper):
 
       This class enforces the register lengths to the mappers. Note that for the bosonic mappers, the
       register lengths is not directly equal to the qubit register length but to the number of modes.
-      See the documentation of the class :class:``~BosonicLinearMapper``.
+      See the documentation of the class :class:``~.BosonicLinearMapper``.
 
-    The following attributes can be read and updated once the ``MixedMapper`` object has been constructed.
+    The following attributes can be read and updated once the ``MixedMapper`` object has been
+    constructed.
 
     Attributes:
         mappers: Dictionary of mappers corresponding to "local" Hilbert spaces of the global problem.
@@ -72,7 +78,7 @@ class MixedMapper(QubitMapper):
         When the operator is not present in the tuple, we use a padding operator with identities.
 
         Args:
-            active_indices: Specificiation of the Hilbert spaces on which the operator acts.
+            active_indices: Reference names of the Hilbert spaces on which the operator acts.
             active_operators: List of operators to compose..
         """
 
@@ -91,7 +97,9 @@ class MixedMapper(QubitMapper):
 
         return product_op
 
-    def _distribute_map(self, operator_dict: dict[str, list]) -> SparsePauliOp:
+    def _distribute_map(
+        self, operator_dict: dict[tuple[str], list[tuple[float, SparseLabelOp]]]
+    ) -> SparsePauliOp:
         """Distributes the mapping of operators to each of the terms defined across specific
         Hilbert spaces.
 
@@ -104,12 +112,13 @@ class MixedMapper(QubitMapper):
         mapped_op: SparsePauliOp = 0
         for active_indices, operator_list in operator_dict.items():
             for coef_and_operators in operator_list:
-                coef, active_operators = coef_and_operators[0], coef_and_operators[1:]
+                coef: float = coef_and_operators[0]
+                active_operators: tuple[SparseLabelOp] = coef_and_operators[1:]
                 mapped_op += coef * self._map_tuple_product(active_indices, active_operators)
 
         return mapped_op.simplify()
 
-    def map(
+    def _map_single(
         self,
         mixed_op: MixedOp,
         *,
@@ -119,14 +128,43 @@ class MixedMapper(QubitMapper):
 
         The ``MixedOp`` is a representation of sums of products of operators corresponding to different
         Hilbert spaces. The mapping procedure first runs through all of the terms to be summed,
-        and then maps the operator product corresponding to each summand by tensoring the
-        individually mapped operators.
+        and then maps the operator product by tensoring the individually mapped operators.
 
         Args:
             mixed_op: Operator to map.
             register_length: UNUSED.
         """
 
-        mapped_op = self._distribute_map(mixed_op.data)
+        mapped_op: SparsePauliOp = self._distribute_map(mixed_op.data)
 
         return mapped_op
+
+    def map(
+        self,
+        mixed_ops: MixedOp | ListOrDictType[MixedOp],
+        *,
+        register_length: int | None = None,
+    ) -> SparsePauliOp | ListOrDictType[SparsePauliOp]:
+        """Maps a second quantized operator or a list, dict of second quantized operators based on
+        the current mapper.
+
+        Args:
+            second_q_ops: A second quantized operator, or list thereof.
+            register_length: when provided, this will be used to overwrite the ``register_length``
+                attribute of the ``SparseLabelOp`` being mapped. This is possible because the
+                ``register_length`` is considered a lower bound in a ``SparseLabelOp``.
+
+        Returns:
+            A qubit operator in the form of a ``SparsePauliOp``, or list (resp. dict) thereof if a
+            list (resp. dict) of second quantized operators was supplied.
+        """
+        wrapped_second_q_ops, wrapped_type = _ListOrDict.wrap(mixed_ops)
+
+        qubit_ops: _ListOrDict = _ListOrDict()
+        for name, second_q_op in iter(wrapped_second_q_ops):
+            qubit_ops[name] = self._map_single(second_q_op, register_length=register_length)
+
+        returned_ops = qubit_ops.unwrap(wrapped_type)
+        # Note the output of the mapping will never be None for standard mappers other than the
+        # TaperedQubitMapper.
+        return returned_ops

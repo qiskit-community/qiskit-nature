@@ -102,7 +102,6 @@ MixedOp Mappers
 
    MixedMapper
 
-
 """
 
 from .bksf import BravyiKitaevSuperFastMapper
