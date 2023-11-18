@@ -85,11 +85,11 @@ class TestMixedMapper(QiskitNatureTestCase):
     def test_map_list_or_dict(self, bos_op, fer_op, coef):
         """Test the ``MixedOp`` mapping on list and dictionaries."""
 
-        mop_A = MixedOp({("b1", "f1"): [(coef, bos_op, fer_op)]})
-        mop_B = MixedOp({("b1", "f1"): [(coef, bos_op, fer_op)]})
+        mop_1 = MixedOp({("b1", "f1"): [(coef, bos_op, fer_op)]})
+        mop_2 = MixedOp({("b1", "f1"): [(coef, bos_op, fer_op)]})
 
-        calc_op_dict = self.mix_mapper.map({"A": mop_A, "B": mop_B})
-        calc_op_list = self.mix_mapper.map([mop_A, mop_B])
+        calc_op_dict = self.mix_mapper.map({"A": mop_1, "B": mop_2})
+        calc_op_list = self.mix_mapper.map([mop_1, mop_2])
 
         with self.subTest("Type dict"):
             self.assertTrue(isinstance(calc_op_dict, dict))
