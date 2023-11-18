@@ -40,6 +40,13 @@ class MajoranaOp(SparseLabelOp):
     number of spin orbitals (``num_spin_orbitals``) of the operator (Note: since Python indices are
     0-based, the maximum value an index can take is given by :code:`2 * num_spin_orbitals - 1`).
 
+    .. note::
+
+        For compatibility reasons (e.g. with mappers) :meth:`MajoranaOp.terms()` returns a list of
+        tuples of the form `("+", index)`, i.e. is compatible with the format for
+        :class:`FermionicOp` with all operators being treated as creation operators.
+        When using the :meth:`MajoranaOp.from_terms()` constructor, any label string is accepted.
+
     **Initialization**
 
     A ``MajoranaOp`` is initialized with a dictionary, mapping terms to their respective
@@ -267,6 +274,11 @@ class MajoranaOp(SparseLabelOp):
         if num_so is None:
             self.num_spin_orbitals = (max_index + 1 if max_index % 2 else max_index + 2) // 2
 
+    @staticmethod
+    def _majorana_label(label: str) -> str:
+        """Converts a Fermionic label into a Majorana label."""
+        return label.replace("+", "").replace("-", "")
+
     @classmethod
     def _validate_polynomial_tensor_key(cls, keys: Collection[str]) -> None:
         # PolynomialTensor keys cannot be built from empty string,
@@ -323,7 +335,7 @@ class MajoranaOp(SparseLabelOp):
 
         Yields:
             A tuple with two items; the first one being a list of pairs of the form (char, int)
-            where char is always an empty string (for compatibility with other SparseLabelOps) and
+            where char is always '+' (for compatibility with other SparseLabelOps) and
             the integer corresponds to the mode index on which the operator gets applied; the second
             item of the returned tuple is the coefficient of this term.
         """
@@ -333,7 +345,7 @@ class MajoranaOp(SparseLabelOp):
                 continue
             #   label.split() will return lbl = '_<index>' for each term
             #   lbl[1:] corresponds to the index
-            terms = [("", int(lbl[1:])) for lbl in label.split()]
+            terms = [("+", int(lbl[1:])) for lbl in label.split()]
             yield (terms, self[label])
 
     @classmethod
@@ -375,7 +387,8 @@ class MajoranaOp(SparseLabelOp):
                 new_coeff = 1j**coeff_power * coeff / 2 ** len(terms)
                 if order:
                     trms = next(trm for trm, _ in MajoranaOp({majorana_label: new_coeff}).terms())
-                    majorana_label, new_coeff = FermionicOp._index_order(trms, new_coeff)
+                    fermion_label, new_coeff = FermionicOp._index_order(trms, new_coeff)
+                    majorana_label = cls._majorana_label(fermion_label)
                 if simplify:
                     majorana_label, new_coeff = cls._simplify_label(majorana_label, new_coeff)
                 data[majorana_label] += new_coeff
@@ -450,7 +463,7 @@ class MajoranaOp(SparseLabelOp):
         for terms, coeff in self.terms():
             # index ordering is identical to FermionicOp, hence we call classmethod there:
             label, coeff = FermionicOp._index_order(terms, coeff)
-            data[label] += coeff
+            data[self._majorana_label(label)] += coeff
 
         # after successful index ordering, we remove all zero coefficients
         return self._new_instance(

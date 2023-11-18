@@ -327,7 +327,7 @@ class TestMajoranaOp(QiskitNatureTestCase):
         ("_0a", 1, False),  # incorrect term pattern
         ("_a0", 1, False),  # incorrect term pattern
         ("0_", 1, False),  # incorrect term pattern
-        ("+_0", 1, False),  # incorrect term pattern: fermionic op
+        ("+_0", 1, False),  # incorrect fermionic pattern
         ("something", 1, False),  # incorrect term pattern
         ("_1", 1, True),  # 1 spin orbital takes two registers
         ("_2", 1, False),  # register length is too short
@@ -340,6 +340,32 @@ class TestMajoranaOp(QiskitNatureTestCase):
         else:
             with self.assertRaises(QiskitNatureError):
                 _ = MajoranaOp({key: 1.0}, num_spin_orbitals=num_so)
+
+    def test_no_copy(self):
+        """Test constructor with copy=False"""
+        test_dict = {"_0 _1": 1}
+        op = MajoranaOp(test_dict, copy=False)
+        test_dict["_0 _1"] = 2
+        self.assertEqual(op, MajoranaOp({"_0 _1": 2}))
+
+    def test_no_validate(self):
+        """Test skipping validation"""
+        with self.subTest("no validation"):
+            op = MajoranaOp({"_0 _1": 1}, num_spin_orbitals=1, validate=False)
+            self.assertEqual(op, MajoranaOp({"_0 _1": 1}))
+
+        with self.subTest("no validation no num_spin_orbitals"):
+            op = MajoranaOp({"_0 _1": 1}, validate=False)
+            self.assertEqual(op.num_spin_orbitals, None)
+
+        with self.subTest("no validation with wrong label"):
+            op = MajoranaOp({"test": 1}, validate=False)
+            with self.assertRaises(ValueError):
+                list(op.terms())
+
+        with self.subTest("no validation with wrong num_spin_orbitals"):
+            op = MajoranaOp({"_1 _2": 1}, num_spin_orbitals=1, validate=False)
+            self.assertEqual(MajoranaOp.from_terms(op.terms()).num_spin_orbitals, 2)
 
     def test_from_polynomial_tensor(self):
         """Test from PolynomialTensor construction"""
@@ -453,7 +479,7 @@ class TestMajoranaOp(QiskitNatureTestCase):
             }
         )
 
-        terms = [([("", 0)], 1), ([("", 0), ("", 1)], 2), ([("", 1), ("", 2), ("", 3)], 2)]
+        terms = [([("+", 0)], 1), ([("+", 0), ("+", 1)], 2), ([("+", 1), ("+", 2), ("+", 3)], 2)]
 
         with self.subTest("terms"):
             self.assertEqual(list(op.terms()), terms)
