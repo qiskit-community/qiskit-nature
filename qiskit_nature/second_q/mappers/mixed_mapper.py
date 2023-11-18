@@ -14,6 +14,7 @@
 
 from __future__ import annotations
 
+import logging
 from abc import ABC
 from functools import reduce
 
@@ -24,6 +25,8 @@ from qiskit_algorithms.list_or_dict import ListOrDict as ListOrDictType
 from qiskit_nature.second_q.operators import MixedOp, SparseLabelOp
 
 from .qubit_mapper import QubitMapper, _ListOrDict
+
+LOGGER = logging.getLogger(__name__)
 
 
 class MixedMapper(ABC):
@@ -135,6 +138,9 @@ class MixedMapper(ABC):
             register_length: UNUSED.
         """
 
+        if register_length is not None:
+            LOGGER.debug(f"Argument register length = {register_length} is not used. Set the length of
+                         the qubit register directly at the creation of the Mixed Mapper object.")
         mapped_op: SparsePauliOp = self._distribute_map(mixed_op.data)
 
         return mapped_op
@@ -149,7 +155,7 @@ class MixedMapper(ABC):
         the current mapper.
 
         Args:
-            second_q_ops: A second quantized operator, or list thereof.
+            mixed_ops: A second quantized operator, or list thereof.
             register_length: when provided, this will be used to overwrite the ``register_length``
                 attribute of the ``SparseLabelOp`` being mapped. This is possible because the
                 ``register_length`` is considered a lower bound in a ``SparseLabelOp``.
