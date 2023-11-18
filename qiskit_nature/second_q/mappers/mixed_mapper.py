@@ -13,6 +13,8 @@
 """The Mixed Mapper class."""
 
 from __future__ import annotations
+
+from abc import ABC
 from functools import reduce
 
 import logging
