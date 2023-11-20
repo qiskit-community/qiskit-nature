@@ -139,7 +139,7 @@ class MixedMapper(ABC):
         """
 
         if register_length is not None:
-            LOGGER.info(f"Argument register length = {register_length} was ignored.")
+            LOGGER.info("Argument register length = %s was ignored.", register_length)
         mapped_op: SparsePauliOp = self._distribute_map(mixed_op.data)
 
         return mapped_op
