@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   docs_publish:
-    if: ${{ startsWith(github.ref, 'refs/heads/stable') && contains('["mtreinish","stefan-woerner","woodsp-ibm","mrossinek"]', github.actor) }}
+    if: ${{ startsWith(github.ref, 'refs/heads/stable') && contains('["mtreinish","woodsp-ibm","mrossinek","robertodr","matteoacrossi"]', github.actor) }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -56,7 +56,7 @@ jobs:
           tools/deploy_documentation.sh
         shell: bash
   deploy-translatable-strings:
-    if: ${{ startsWith(github.ref, 'refs/heads/stable') && contains('["mtreinish","stefan-woerner","woodsp-ibm","mrossinek"]', github.actor) }}
+    if: ${{ startsWith(github.ref, 'refs/heads/stable') && contains('["mtreinish","woodsp-ibm","mrossinek","robertodr","matteoacrossi"]', github.actor) }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
