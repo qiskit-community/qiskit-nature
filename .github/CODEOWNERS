@@ -15,11 +15,11 @@
 # review/merging of PRs in different subsections of the repository.
 
 # Global rule, unless specialized by a later one
-* @stefan-woerner @woodsp-ibm @mrossinek
+* @woodsp-ibm @mrossinek @robertodr @matteoacrossi
 
 # Qiskit Nature modules
-mappers/  @stefan-woerner @woodsp-ibm @mrossinek @ftroisi
-operators/  @stefan-woerner @woodsp-ibm @mrossinek @ftroisi
+mappers/  @woodsp-ibm @mrossinek @robertodr @matteoacrossi @ftroisi
+operators/  @woodsp-ibm @mrossinek @robertodr @matteoacrossi @ftroisi
 
 # Override the release notes directories to have _no_ code owners, so any review
 # from somebody with write access is acceptable.
