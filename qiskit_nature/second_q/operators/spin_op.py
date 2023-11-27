@@ -243,7 +243,7 @@ class SpinOp(SparseLabelOp):
             other_spin = other.spin
             if spin != other_spin:
                 raise TypeError(
-                    f"Invalid operation between operators with different spin"
+                    f"Invalid operation between operators with different spin "
                     f"values. Found spin_1={spin} and spin_2={other_spin}."
                 )
             if num_s is None:
