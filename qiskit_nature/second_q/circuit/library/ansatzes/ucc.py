@@ -390,7 +390,7 @@ class UCC(EvolvedOperatorAnsatz):
                         f"(alpha, beta) particles."
                     )
                 return False
-                
+
             if any(n > self.num_spatial_orbitals for n in self.num_particles):
                 if raise_on_failure:
                     raise ValueError(
