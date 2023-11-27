@@ -384,7 +384,7 @@ class MajoranaOp(SparseLabelOp):
                         else:
                             coeff_power += 3
                     majorana_label += f"_{index}"
-                new_coeff = 1j**coeff_power * coeff / 2**len(terms)
+                new_coeff = 1j**coeff_power * coeff / (2 ** len(terms))
                 if order:
                     trms = next(trm for trm, _ in MajoranaOp({majorana_label: new_coeff}).terms())
                     fermion_label, new_coeff = FermionicOp._index_order(trms, new_coeff)
