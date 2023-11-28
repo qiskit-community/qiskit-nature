@@ -15,7 +15,3 @@ features:
     unnecessary. A Majorana operator can be created from a Fermionic operator using the
     :meth:`~qiskit_nature.second_q.operators.MajoranaOp.from_fermionic_op`  class method.
 other:
-  - |
-    Reference to `to_matrix` method in the documentation of
-    :class:`~qiskit_nature.second_q.operators.FermionicOp` has been removed as there is no such
-    method.
