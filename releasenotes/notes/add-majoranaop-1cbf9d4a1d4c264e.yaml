@@ -16,10 +16,6 @@ features:
     :meth:`~qiskit_nature.second_q.operators.MajoranaOp.from_fermionic_op`  class method.
 other:
   - |
-    The hidden method :meth:`~qiskit_nature.second_q.operators.FermionicOp._index_order`
-    has been converted to a class method to be able to be called within
-    :meth:`~qiskit_nature.second_q.operators.MajoranaOp.index_order`.
-  - |
     Reference to `to_matrix` method in the documentation of
     :class:`~qiskit_nature.second_q.operators.FermionicOp` has been removed as there is no such
     method.
