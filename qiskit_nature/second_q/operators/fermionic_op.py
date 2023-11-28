@@ -539,7 +539,6 @@ class FermionicOp(SparseLabelOp):
 
         data = defaultdict(complex)  # type: dict[str, _TCoeff]
         # TODO: use parallel_map to make this more efficient (?)
-        #       (if this is done, apply equally to MajoranaOp.simplify())
         for label, coeff in self.items():
             label, coeff = self._simplify_label(label, coeff)
             data[label] += coeff

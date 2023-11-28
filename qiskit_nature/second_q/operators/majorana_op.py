@@ -35,10 +35,10 @@ class MajoranaOp(SparseLabelOp):
     A ``MajoranaOp`` represents a weighted sum of Majorana fermion operator terms.
     These terms are encoded as sparse labels, which are strings consisting of a space-separated list
     of expressions. Each expression must look like :code:`_<index>`, where the :code:`<index>` is a
-    non-negative integer representing the index of the mode on which the Majorana
-    creation/annihilation operator is applied. The value of :code:`index` is bound by twice the
-    number of spin orbitals (``num_spin_orbitals``) of the operator (Note: since Python indices are
-    0-based, the maximum value an index can take is given by :code:`2 * num_spin_orbitals - 1`).
+    non-negative integer representing the index of the mode on which the Majorana operator is
+    applied. The value of :code:`index` is bound by twice the number of spin orbitals
+    (``num_spin_orbitals``) of the operator (Note: since Python indices are 0-based, the maximum
+    value an index can take is given by :code:`2 * num_spin_orbitals - 1`).
 
     .. note::
 
@@ -101,9 +101,9 @@ class MajoranaOp(SparseLabelOp):
         f_op = FermionicOp({"+_0 -_1": 1}, num_spin_orbitals=2)
         m_op = MajoranaOp.from_fermionic_op(f_op)
 
-    Note that every term of the ``FermionicOp`` will result in :math:`2^n` terms in the
-    ``MajoranaOp``, where :math:`n` is the number of fermionic modes in the term. The conversion
-    uses the convention that
+    Note that each ``FerminonicOp``-term consisting of :math:`n` expressions will result in a
+    ``MajoranaOp``-term consisting of :math:`2^n` expressions. The conversion uses the convention
+    that
 
     .. math::
 
@@ -166,9 +166,9 @@ class MajoranaOp(SparseLabelOp):
 
     .. note::
 
-        Since Majorana generators are self-adjoined, the adjoint of a ``MajoranaOp`` is the original
+        Since Majorana operators are self-adjoined, the adjoint of a ``MajoranaOp`` is the original
         operator with all strings reversed, e.g. :code:`"_0 _1"` becomes :code:`"_1 _0"` in the
-        example above, and coefficients complex conjugated.
+        example above, and coefficients become complex conjugated.
 
     **Iteration**
 
@@ -450,8 +450,9 @@ class MajoranaOp(SparseLabelOp):
         .. note::
 
             You can use this method to achieve the most aggressive simplification.
-            :meth:`simplify` does *not* reorder the terms and, thus, cannot deduce
-            ``_0 _1 _2`` and ``_2 _0 _1 _0 _0`` to be identical labels.
+            :meth:`simplify` does *not* reorder the terms. For instance, using only :meth:`simplify`
+            will reduce ``_2 _0 _1 _0 _0`` to ``_2 _0 _1`` but cannot deduce these labels to be
+            identical to ``_0 _1 _2``.
             Calling this method will reorder the latter label to
             ``_0 _0 _0 _1 _2``, after which :meth:`simplify` will be able to correctly
             collapse these two labels into one.
@@ -496,6 +497,7 @@ class MajoranaOp(SparseLabelOp):
         atol = self.atol if atol is None else atol
 
         data = defaultdict(complex)  # type: dict[str, _TCoeff]
+        # TODO: use parallel_map to make this more efficient (?) (see FermionicOp)
         for label, coeff in self.items():
             label, coeff = self._simplify_label(label, coeff)
             data[label] += coeff
