@@ -116,15 +116,15 @@ class TestUCC(QiskitNatureTestCase):
             ],
         ),
         (
-             # HeH molecule
-             "s",
-             2,
-             (2, 1),
-             [
-                  FermionicOp({"+_2 -_3": 1j, "+_3 -_2": (-0-1j) },
-                      num_spin_orbitals=4,
-                  )
-             ],
+            "s",
+            2,
+            (2, 1),
+            [
+                FermionicOp(
+                    {"+_2 -_3": 1j, "+_3 -_2": (-0-1j) },
+                    num_spin_orbitals=4,
+                )
+            ],
         ),
         # TODO: add more edge cases?
     )
