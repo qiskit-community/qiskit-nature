@@ -1,12 +1,6 @@
 ---
-prelude: >
-    The UCC ansatz doesn't allow to calculate systems with either, or both of
-    the spin registers is fully occupied.
 features:
   - |
-    Allow for building UCC ansatze for systems where at least one of the spin
-    registers is not fully occupied.
-fixes:
-  - |
-    Fixes the :class:`qiskit_nature.second_q.circuit.library.ucc` to accept
-    systems with one spin register full.
+    Allow for building UCC
+    (:class:`qiskit_nature.second_q.circuit.library.ucc`) ansatze for systems
+    where at least one of the spin registers is not fully occupied.
