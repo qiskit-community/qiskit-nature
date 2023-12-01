@@ -19,9 +19,13 @@ from typing import Mapping
 import qiskit_nature  # pylint: disable=unused-import
 from qiskit_nature.second_q.operators import FermionicOp
 
+from .s_operators import s_z_operator
+
 
 class Magnetization:
     """The Magnetization property.
+
+    This property simply provides the $S^z$ operator. See also :meth:`.s_z_operator`.
 
     The following attributes can be set via the initializer but can also be read and updated once
     the ``Magnetization`` object has been constructed.
@@ -44,16 +48,7 @@ class Magnetization:
         Returns:
             A mapping of strings to `FermionicOp` objects.
         """
-        num_spin_orbitals = 2 * self.num_spatial_orbitals
-        op = FermionicOp(
-            {
-                f"+_{o} -_{o}": 0.5 if o < self.num_spatial_orbitals else -0.5
-                for o in range(num_spin_orbitals)
-            },
-            num_spin_orbitals=num_spin_orbitals,
-        )
-
-        return {self.__class__.__name__: op}
+        return {self.__class__.__name__: s_z_operator(self.num_spatial_orbitals)}
 
     def interpret(
         self, result: "qiskit_nature.second_q.problems.EigenstateResult"  # type: ignore[name-defined]
