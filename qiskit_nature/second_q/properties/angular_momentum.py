@@ -80,8 +80,8 @@ class AngularMomentum:
         if overlap is not None:
             norb = self.num_spatial_orbitals
             delta = np.eye(2 * norb)
-            delta[:norb,:norb] -= overlap.T @ overlap
-            delta[norb:,norb:] -= overlap @ overlap.T
+            delta[:norb, :norb] -= overlap.T @ overlap
+            delta[norb:, norb:] -= overlap @ overlap.T
             summed = np.einsum("ij->", np.abs(delta))
             if not np.isclose(summed, 0.0, atol=1e-6):
                 LOGGER.warning(
@@ -95,9 +95,9 @@ class AngularMomentum:
                     "spin contamination in both subspaces. You should verify whether this is "
                     "intentional/acceptable or whether your choice of active space can be improved."
                     " As a reference, here is the summed-absolute deviation of `S^T @ S` from the "
-                    f"identity: {summed}"
+                    "identity: %s",
+                    str(summed),
                 )
-
 
     def second_q_ops(self) -> Mapping[str, FermionicOp]:
         """Returns the second quantized angular momentum operator.
