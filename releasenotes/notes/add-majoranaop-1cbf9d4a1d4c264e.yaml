@@ -14,4 +14,3 @@ features:
     :class:`~qiskit_nature.second_q.operators.FermionicOp` except for normal ordering, which is
     unnecessary. A Majorana operator can be created from a Fermionic operator using the
     :meth:`~qiskit_nature.second_q.operators.MajoranaOp.from_fermionic_op`  class method.
-other:

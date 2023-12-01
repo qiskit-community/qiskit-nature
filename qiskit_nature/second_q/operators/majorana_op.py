@@ -36,16 +36,9 @@ class MajoranaOp(SparseLabelOp):
     These terms are encoded as sparse labels, which are strings consisting of a space-separated list
     of expressions. Each expression must look like :code:`_<index>`, where the :code:`<index>` is a
     non-negative integer representing the index of the mode on which the Majorana operator is
-    applied. The value of :code:`index` is bound by twice the number of spin orbitals
-    (``num_spin_orbitals``) of the operator (Note: since Python indices are 0-based, the maximum
-    value an index can take is given by :code:`2 * num_spin_orbitals - 1`).
-
-    .. note::
-
-        For compatibility reasons (e.g. with mappers) :meth:`MajoranaOp.terms()` returns a list of
-        tuples of the form `("+", index)`, i.e. is compatible with the format for
-        :class:`FermionicOp` with all operators being treated as creation operators.
-        When using the :meth:`MajoranaOp.from_terms()` constructor, any label string is accepted.
+    applied. The value of :code:`index` is bound by ``num_modes``. Note that, when converting from a
+    ``FermionicOp`` there are two modes per spin orbital, i.e. ``num_modes`` is
+    :code:`2 * FermionicOp.num_spin_orbitals - 1`
 
     **Initialization**
 
@@ -63,7 +56,7 @@ class MajoranaOp(SparseLabelOp):
                 "_2 _3": -.25j,
                 "_3 _2": .25j,
             },
-            num_spin_orbitals=2,
+            num_modes=4,
         )
 
     By default, this way of initializing will create a full copy of the dictionary of coefficients.
@@ -80,7 +73,7 @@ class MajoranaOp(SparseLabelOp):
 
         op = MajoranaOp(
             some_big_data,
-            num_spin_orbitals=2,
+            num_modes=4,
             copy=False,
         )
 
@@ -113,11 +106,25 @@ class MajoranaOp(SparseLabelOp):
     where :math:`a_i` and :math:`a_i^\dagger` are the Fermionic annihilation and creation operators
     and :math:`\gamma_i` the Majorana operators.
 
-    .. note::
+    **Construction from Polynomial Tensor**
 
-        When creating a ``MajoranaOp`` from a ``PolynomialTensor`` using
-        :meth:`from_polynomial_tensor`, the underscore character :code:`_` is the only allowed
-        character in the keys of the ``PolynomialTensor``.
+    Using the :meth:`from_polynomial_tensor` constructor method, a ``MajoranaOp`` can be constructed
+    from a :class:`~.PolynomialTensor`. In this case, the underscore character :code:`_` is the only
+    allowed character in the keys of the ``PolynomialTensor``.
+    For example,
+
+    .. code-block:: python
+
+        p_t = PolynomialTensor(
+            {
+                "_": np.arange(1, 3),
+                "__": np.arange(1, 5).reshape((2, 2)),
+            }
+        )
+        op = MajoranaOp.from_polynomial_tensor(p_t)
+
+        # op is then
+        MajoranaOp({'_0': 1, '_1': 2, '_0 _0': 1, '_0 _1': 2, '_1 _0': 3, '_1 _1': 4}, num_modes=2)
 
     **Algebra**
 
@@ -129,40 +136,40 @@ class MajoranaOp(SparseLabelOp):
 
     .. code-block:: python
 
-      MajoranaOp({"_1": 1}, num_spin_orbitals=2) + MajoranaOp({"_0": 1}, num_spin_orbitals=2)
+      MajoranaOp({"_1": 1}, num_modes=2) + MajoranaOp({"_0": 1}, num_modes=2)
 
     Sum
 
     .. code-block:: python
 
-      sum(MajoranaOp({label: 1}, num_spin_orbitals=3) for label in ["_0", "_1", "_2 _3"])
+      sum(MajoranaOp({label: 1}, num_modes=4) for label in ["_0", "_1", "_2 _3"])
 
     Scalar multiplication
 
     .. code-block:: python
 
-      0.5 * MajoranaOp({"_1": 1}, num_spin_orbitals=2)
+      0.5 * MajoranaOp({"_1": 1}, num_modes=2)
 
     Operator multiplication
 
     .. code-block:: python
 
-      op1 = MajoranaOp({"_0 _1": 1}, num_spin_orbitals=2)
-      op2 = MajoranaOp({"_0 _1 _2": 1}, num_spin_orbitals=2)
+      op1 = MajoranaOp({"_0 _1": 1}, num_modes=3)
+      op2 = MajoranaOp({"_0 _1 _2": 1}, num_modes=3)
       print(op1 @ op2)
 
     Tensor multiplication
 
     .. code-block:: python
 
-      op = MajoranaOp({"_0 _1": 1}, num_spin_orbitals=2)
+      op = MajoranaOp({"_0 _1": 1}, num_modes=2)
       print(op ^ op)
 
     Adjoint
 
     .. code-block:: python
 
-      MajoranaOp({"_0 _1": 1j}, num_spin_orbitals=2).adjoint()
+      MajoranaOp({"_0 _1": 1j}, num_modes=2).adjoint()
 
     .. note::
 
@@ -176,10 +183,11 @@ class MajoranaOp(SparseLabelOp):
     pairs describing the terms contained in the operator.
 
     Attributes:
-        num_spin_orbitals (int | None): the number of spin orbitals on which this operator acts.
+        num_modes (int | None): the number of modes on which this operator acts.
             This is considered a lower bound, which means that mathematical operations acting on two
-            or more operators will result in a new operator with the maximum number of spin orbitals
-            of any of the involved operators.
+            or more operators will result in a new operator with the maximum number of modes of any
+            of the involved operators.
+            When converting from a ``FermionicOp``, this is twice the number of spin orbitals.
 
     .. note::
 
@@ -195,6 +203,7 @@ class MajoranaOp(SparseLabelOp):
     def __init__(
         self,
         data: Mapping[str, _TCoeff],
+        num_modes: int | None = None,
         num_spin_orbitals: int | None = None,
         *,
         copy: bool = True,
@@ -203,7 +212,10 @@ class MajoranaOp(SparseLabelOp):
         """
         Args:
             data: the operator data, mapping string-based keys to numerical values.
-            num_spin_orbitals: the number of spin orbitals on which this operator acts.
+            num_modes: the number of modes on which this operator acts.
+            num_spin_orbitals: the number of spin orbitals. Providing :code:`num_spin_orbitals=n`
+                is equivalent to providing :code:`num_modes=2*n`. Ignored if ``num_modes`` is
+                provided.
             copy: when set to False the ``data`` will not be copied and the dictionary will be
                 stored by reference rather than by value (which is the default; ``copy=True``).
                 Note, that this requires you to not change the contents of the dictionary after
@@ -216,37 +228,36 @@ class MajoranaOp(SparseLabelOp):
         Raises:
             QiskitNatureError: when an invalid key is encountered during validation.
         """
-        self.num_spin_orbitals = num_spin_orbitals
-        # if num_spin_orbitals is None, it is set during _validate_keys
+        if num_modes is None and num_spin_orbitals is not None:
+            num_modes = num_spin_orbitals * 2
+        self.num_modes = num_modes
+        # if num_modes is None, it is set during _validate_keys
         super().__init__(data, copy=copy, validate=validate)
 
     @property
     def register_length(self) -> int:
-        if self.num_spin_orbitals is None:
+        if self.num_modes is None:
             max_index = max(int(term[1:]) for key in self._data for term in key.split())
-            if max_index % 2 == 0:
-                max_index += 1
             return max_index + 1
-
-        return 2 * self.num_spin_orbitals
+        return self.num_modes
 
     def _new_instance(
         self, data: Mapping[str, _TCoeff], *, other: MajoranaOp | None = None
     ) -> MajoranaOp:
-        num_so = self.num_spin_orbitals
+        num_modes = self.num_modes
         if other is not None:
-            other_num_so = other.num_spin_orbitals
-            if num_so is None:
-                num_so = other_num_so
-            elif other_num_so is not None:
-                num_so = max(num_so, other_num_so)
+            other_num_modes = other.num_modes
+            if num_modes is None:
+                num_modes = other_num_modes
+            elif other_num_modes is not None:
+                num_modes = max(num_modes, other_num_modes)
 
-        return self.__class__(data, copy=False, num_spin_orbitals=num_so)
+        return self.__class__(data, copy=False, num_modes=num_modes)
 
     def _validate_keys(self, keys: Collection[str]) -> None:
         super()._validate_keys(keys)
 
-        num_so = self.num_spin_orbitals
+        num_modes = self.num_modes
 
         max_index = -1
 
@@ -262,22 +273,17 @@ class MajoranaOp(SparseLabelOp):
             # 2. validate all indices against register length
             for term in key.split():
                 index = int(term[1:])
-                if num_so is None:
+                if num_modes is None:
                     if index > max_index:
                         max_index = index
-                elif index >= 2 * num_so:
+                elif index >= num_modes:
                     raise QiskitNatureError(
-                        f"The index, {index}, from the label, {key}, exceeds twice the number of "
-                        f"spin orbitals, {num_so}."
+                        f"The index, {index}, from the label, {key}, exceeds the number of "
+                        f"modes, {num_modes}."
                     )
 
-        if num_so is None:
-            self.num_spin_orbitals = (max_index + 1 if max_index % 2 else max_index + 2) // 2
-
-    @staticmethod
-    def _majorana_label(label: str) -> str:
-        """Converts a Fermionic label into a Majorana label."""
-        return label.replace("+", "").replace("-", "")
+        if num_modes is None:
+            self.num_modes = max_index + 1
 
     @classmethod
     def _validate_polynomial_tensor_key(cls, keys: Collection[str]) -> None:
@@ -311,19 +317,16 @@ class MajoranaOp(SparseLabelOp):
             for value, index in mat.coord_iter():
                 data[label_template.format(*index)] = value
 
-        num_so = (tensor.register_length + 1) // 2
-        return cls(data, copy=False, num_spin_orbitals=num_so).chop()
+        num_modes = tensor.register_length
+        return cls(data, copy=False, num_modes=num_modes).chop()
 
     def __repr__(self) -> str:
         data_str = f"{dict(self.items())}"
 
-        return "MajoranaOp(" f"{data_str}, " f"num_spin_orbitals={self.num_spin_orbitals}, " ")"
+        return "MajoranaOp(" f"{data_str}, " f"num_modes={self.num_modes}, " ")"
 
     def __str__(self) -> str:
-        pre = (
-            "Majorana Operator\n"
-            f"number spin orbitals={self.num_spin_orbitals}, number terms={len(self)}\n"
-        )
+        pre = "Majorana Operator\n" f"number modes={self.num_modes}, number terms={len(self)}\n"
         ret = "  " + "\n+ ".join(
             [f"{coeff} * ( {label} )" if label else f"{coeff}" for label, coeff in self.items()]
         )
@@ -334,8 +337,8 @@ class MajoranaOp(SparseLabelOp):
         pairs of operation characters and indices.
 
         Yields:
-            A tuple with two items; the first one being a list of pairs of the form (char, int)
-            where char is always '+' (for compatibility with other SparseLabelOps) and
+            A tuple with two items; the first one being a list of pairs of the form ('', int)
+            where the empty string is for compatibility with other :class:`SparseLabelOp` and
             the integer corresponds to the mode index on which the operator gets applied; the second
             item of the returned tuple is the coefficient of this term.
         """
@@ -345,7 +348,7 @@ class MajoranaOp(SparseLabelOp):
                 continue
             #   label.split() will return lbl = '_<index>' for each term
             #   lbl[1:] corresponds to the index
-            terms = [("+", int(lbl[1:])) for lbl in label.split()]
+            terms = [("", int(lbl[1:])) for lbl in label.split()]
             yield (terms, self[label])
 
     @classmethod
@@ -354,15 +357,12 @@ class MajoranaOp(SparseLabelOp):
         return cls(data)
 
     @classmethod
-    def from_fermionic_op(
-        cls, op: FermionicOp, simplify: bool = True, order: bool = True
-    ) -> MajoranaOp:
+    def from_fermionic_op(cls, op: FermionicOp, simplify: bool = True) -> MajoranaOp:
         """Constructs the operator from a :class:`~.FermionicOp`.
 
         Args:
             op: the :class:`~.FermionicOp` to convert.
-            simplify: whether to simplify the resulting operator.
-            order: whether to perform index ordering on the resulting operator.
+            simplify: whether to index order and simplify the resulting operator.
 
         Returns:
             The converted :class:`~.MajoranaOp`.
@@ -385,14 +385,12 @@ class MajoranaOp(SparseLabelOp):
                             coeff_power += 3
                     majorana_label += f"_{index}"
                 new_coeff = 1j**coeff_power * coeff / (2 ** len(terms))
-                if order:
-                    trms = next(trm for trm, _ in MajoranaOp({majorana_label: new_coeff}).terms())
-                    fermion_label, new_coeff = FermionicOp._index_order(trms, new_coeff)
-                    majorana_label = cls._majorana_label(fermion_label)
                 if simplify:
+                    trms = next(trm for trm, _ in MajoranaOp({majorana_label: new_coeff}).terms())
+                    majorana_label, new_coeff = FermionicOp._index_order(trms, new_coeff)
                     majorana_label, new_coeff = cls._simplify_label(majorana_label, new_coeff)
                 data[majorana_label] += new_coeff
-        return cls(data, num_spin_orbitals=op.num_spin_orbitals)
+        return cls(data, num_modes=2 * op.num_spin_orbitals)
 
     def _permute_term(
         self, term: list[tuple[str, int]], permutation: Sequence[int]
@@ -418,7 +416,7 @@ class MajoranaOp(SparseLabelOp):
 
     @classmethod
     def _tensor(cls, a: MajoranaOp, b: MajoranaOp, *, offset: bool = True) -> MajoranaOp:
-        shift = 2 * a.num_spin_orbitals if offset else 0
+        shift = a.num_modes if offset else 0
 
         new_data: dict[str, _TCoeff] = {}
         for label1, cf1 in a.items():
@@ -431,7 +429,7 @@ class MajoranaOp(SparseLabelOp):
 
         new_op = a._new_instance(new_data, other=b)
         if offset:
-            new_op.num_spin_orbitals = a.num_spin_orbitals + b.num_spin_orbitals
+            new_op.num_modes = a.num_modes + b.num_modes
         return new_op
 
     def transpose(self) -> MajoranaOp:
@@ -464,7 +462,7 @@ class MajoranaOp(SparseLabelOp):
         for terms, coeff in self.terms():
             # index ordering is identical to FermionicOp, hence we call classmethod there:
             label, coeff = FermionicOp._index_order(terms, coeff)
-            data[self._majorana_label(label)] += coeff
+            data[label] += coeff
 
         # after successful index ordering, we remove all zero coefficients
         return self._new_instance(
