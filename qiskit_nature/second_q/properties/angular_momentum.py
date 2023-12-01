@@ -31,7 +31,7 @@ class AngularMomentum:
 
     .. math::
 
-       S^2 = S^- S^+ + S^z (S^z + 1)
+       S^2 = (S^+ S^- + S^- S^+) / 2 + S^z S^z
 
     .. warning::
 
@@ -75,7 +75,8 @@ class AngularMomentum:
         overlap_ba = overlap_ab.T if overlap_ab is not None else None
         s_m = s_minus_operator(self.num_spatial_orbitals, overlap=overlap_ba)
 
-        op = s_m @ s_p + s_z @ (s_z + FermionicOp.one())
+        spm_smp = (s_p @ s_m + s_m @ s_p).normal_order()
+        op = 0.5 * spm_smp + s_z @ s_z
 
         return {self.__class__.__name__: op}
 
