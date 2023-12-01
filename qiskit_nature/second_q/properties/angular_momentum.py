@@ -14,6 +14,7 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Mapping
 
 import numpy as np
@@ -22,6 +23,8 @@ import qiskit_nature  # pylint: disable=unused-import
 from qiskit_nature.second_q.operators import FermionicOp
 
 from .s_operators import s_minus_operator, s_plus_operator, s_z_operator
+
+LOGGER = logging.getLogger(__name__)
 
 
 class AngularMomentum:
@@ -49,8 +52,6 @@ class AngularMomentum:
 
     Attributes:
         num_spatial_orbitals (int): the number of spatial orbitals.
-        overlap (np.ndarray | None): the overlap-matrix between the $\alpha$- and $\beta$-spin
-            orbitals. When this is `None`, the overlap-matrix is assumed to be identity.
     """
 
     def __init__(self, num_spatial_orbitals: int, overlap: np.ndarray | None = None) -> None:
@@ -61,7 +62,42 @@ class AngularMomentum:
                 is `None`, the overlap-matrix is assumed to be identity.
         """
         self.num_spatial_orbitals = num_spatial_orbitals
+        self._overlap: np.ndarray | None = None
         self.overlap = overlap
+
+    @property
+    def overlap(self) -> np.ndarray | None:
+        r"""The overlap-matrix between the $\alpha$- and $\beta$-spin orbitals.
+
+        When this is ``None``, the overlap-matrix is assumed to be identity.
+        """
+        return self._overlap
+
+    @overlap.setter
+    def overlap(self, overlap: np.ndarray | None) -> None:
+        self._overlap = overlap
+
+        if overlap is not None:
+            norb = self.num_spatial_orbitals
+            delta = np.eye(2 * norb)
+            delta[:norb,:norb] -= overlap.T @ overlap
+            delta[norb:,norb:] -= overlap @ overlap.T
+            summed = np.einsum("ij->", np.abs(delta))
+            if not np.isclose(summed, 0.0):
+                LOGGER.warning(
+                    "The provided alpha-beta overlap matrix is NOT unitary! This can happen when "
+                    "the alpha- and beta-spin orbitals do not span the same space. To provide an "
+                    "example of what this means, consider an active space chosen from unrestricted-"
+                    "spin orbitals. Computing <S^2> within this active space may not result in the "
+                    "same <S^2> value as obtained on the single-reference starting point. More "
+                    "importantly, this implies that the inactive subspace will account for the "
+                    "difference between these two <S^2> values, possibly resulting in significant "
+                    "spin contamination in both subspaces. You should verify whether this is "
+                    "intentional/acceptable or whether your choice of active space can be improved."
+                    " As a reference, here is the summed-absolute deviation of `S^T @ S` from the "
+                    f"identity: {summed}"
+                )
+
 
     def second_q_ops(self) -> Mapping[str, FermionicOp]:
         """Returns the second quantized angular momentum operator.
