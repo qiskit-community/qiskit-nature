@@ -1,6 +1,5 @@
 ---
 features:
   - |
-    Allow for building UCC
-    (:class:`qiskit_nature.second_q.circuit.library.ucc`) ansatze for systems
+    Allow for building :class:`.UCC` ansatze for systems
     where at least one of the spin registers is not fully occupied.
