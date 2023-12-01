@@ -381,7 +381,17 @@ class UCC(EvolvedOperatorAnsatz):
             return False
 
         if not self._generalized:
-            if any(n >= self.num_spatial_orbitals for n in self.num_particles):
+            if all(n == self.num_spatial_orbitals for n in self.num_particles):
+                if raise_on_failure:
+                    raise ValueError(
+                        f"UCC calculations for fully occupied alpha and beta orbitals "
+                        f"is still not implemented. The current system contains "
+                        f"{self.num_spatial_orbitals} orbitals for {self.num_particles} "
+                        f"(alpha, beta) particles."
+                    )
+                return False
+
+            if any(n > self.num_spatial_orbitals for n in self.num_particles):
                 if raise_on_failure:
                     raise ValueError(
                         f"The number of spatial orbitals {self.num_spatial_orbitals} "
