@@ -83,7 +83,7 @@ class AngularMomentum:
             delta[:norb,:norb] -= overlap.T @ overlap
             delta[norb:,norb:] -= overlap @ overlap.T
             summed = np.einsum("ij->", np.abs(delta))
-            if not np.isclose(summed, 0.0):
+            if not np.isclose(summed, 0.0, atol=1e-6):
                 LOGGER.warning(
                     "The provided alpha-beta overlap matrix is NOT unitary! This can happen when "
                     "the alpha- and beta-spin orbitals do not span the same space. To provide an "
