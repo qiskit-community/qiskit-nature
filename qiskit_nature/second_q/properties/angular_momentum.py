@@ -59,7 +59,7 @@ class AngularMomentum:
         Args:
             num_spatial_orbitals: the number of spatial orbitals in the system.
             overlap: the overlap-matrix between the $\alpha$- and $\beta$-spin orbitals. When this
-                is `None`, the overlap-matrix is assumed to be identity.
+                is ``None``, the overlap-matrix is assumed to be identity.
         """
         self.num_spatial_orbitals = num_spatial_orbitals
         self._overlap: np.ndarray | None = None
