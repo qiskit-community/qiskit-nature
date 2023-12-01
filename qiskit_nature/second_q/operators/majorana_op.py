@@ -451,9 +451,9 @@ class MajoranaOp(SparseLabelOp):
 
             You can use this method to achieve the most aggressive simplification.
             :meth:`simplify` does *not* reorder the terms. For instance, using only :meth:`simplify`
-            will reduce ``_2 _0 _1 _0 _0`` to ``_2 _0 _1`` but cannot deduce these labels to be
+            will reduce ``_2 _0 _1 _0 _0`` to ``_2 _0 _1`` but cannot deduce this label to be
             identical to ``_0 _1 _2``.
-            Calling this method will reorder the latter label to
+            Calling this method will reorder the former label to
             ``_0 _0 _0 _1 _2``, after which :meth:`simplify` will be able to correctly
             collapse these two labels into one.
 
