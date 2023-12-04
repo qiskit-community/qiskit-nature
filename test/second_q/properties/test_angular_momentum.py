@@ -104,6 +104,33 @@ class TestAngularMomentum(PropertyTest):
         result = estimate_observables(Estimator(), hf_state, qubit_op)
         self.assertAlmostEqual(result["AngularMomentum"][0], 0.29663167846210015)
 
+    def test_with_non_unitary_overlap(self):
+        """Tests the result with a non-unitary overlap.
+
+        This is a regression test against
+        https://github.com/qiskit-community/qiskit-nature/issues/1291.
+        """
+        norb = 4
+        nelec = (4, 2)
+        ovlpab = np.asarray(
+            [
+                [0.987256, -0.001123, 0.00006, -0.0],
+                [-0.001123, -0.987256, -0.0, -0.00006],
+                [0.000019, 0.000055, -0.3195, -0.931662],
+                [0.000056, -0.000019, -0.931662, 0.3195],
+            ],
+        )
+
+        ang_mom = AngularMomentum(norb, ovlpab).second_q_ops()
+
+        mapper = ParityMapper(nelec)
+        qubit_op = mapper.map(ang_mom)
+
+        hf_state = HartreeFock(norb, nelec, mapper)
+
+        result = estimate_observables(Estimator(), hf_state, qubit_op)
+        self.assertAlmostEqual(result["AngularMomentum"][0], 1.9700743392855005)
+
 
 if __name__ == "__main__":
     unittest.main()
