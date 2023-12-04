@@ -1,0 +1,10 @@
+---
+features:
+  - |
+    The :meth:`.AngularMomentum.overlap` property will now warn the user, when
+    this matrix is non-unitary.
+fixes:
+  - |
+    Fixes the :class:`.AngularMomentum` operator further to also support cases
+    where the number of beta-spin particles exceeds the number of alpha-spin
+    particles.
