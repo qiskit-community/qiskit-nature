@@ -246,15 +246,15 @@ class TestBosonicOp(QiskitNatureTestCase):
         with self.subTest("commutator same index"):
             bos_op = commutator(BosonicOp({"-_0": 1}), BosonicOp({"+_0": 1}))
             targ = BosonicOp({"": 1})
-            self.assertEqual(bos_op, targ)
+            self.assertEqual(bos_op.normal_order(), targ)
         with self.subTest("commutator same index reversed"):
             bos_op = commutator(BosonicOp({"+_0": 1}), BosonicOp({"-_0": 1}))
             targ = BosonicOp({"": -1})
-            self.assertEqual(bos_op, targ)
+            self.assertEqual(bos_op.normal_order(), targ)
         with self.subTest("commutator same different indices"):
             bos_op = commutator(BosonicOp({"+_0": 1}), BosonicOp({"-_1": 1}))
             targ = BosonicOp({})  # 0
-            self.assertEqual(bos_op, targ)
+            self.assertEqual(bos_op.normal_order(), targ)
 
     def test_compose(self):
         """Test operator composition
