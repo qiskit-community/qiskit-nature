@@ -43,7 +43,8 @@ def commutator(op_a: SparseLabelOp, op_b: SparseLabelOp) -> SparseLabelOp:
         op_b: Operator B.
 
     Returns:
-        The computed commutator.
+        The computed commutator. If available for your kind of operator, you may want to
+        ``normal_order()`` it.
     """
     return (op_a @ op_b - op_b @ op_a).simplify(atol=0)
 
@@ -59,7 +60,8 @@ def anti_commutator(op_a: SparseLabelOp, op_b: SparseLabelOp) -> SparseLabelOp:
         op_b: Operator B.
 
     Returns:
-        The computed anti-commutator.
+        The computed anti--commutator. If available for your kind of operator, you may want to
+        ``normal_order()`` it.
     """
     return (op_a @ op_b + op_b @ op_a).simplify(atol=0)
 
