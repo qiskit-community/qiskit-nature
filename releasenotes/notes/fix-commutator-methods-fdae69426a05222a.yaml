@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    The commutator methods were faultily trying to call ``normal_order()`` on
+    their operands, which are not guaranteed to have this method. Now, they no
+    longer call this method and instead it is up to the user to normal-order the
+    result as needed.
