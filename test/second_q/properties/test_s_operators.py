@@ -74,39 +74,39 @@ class TestSOperators(QiskitNatureTestCase):
         s_x = s_x_operator(4)
         s_y = s_y_operator(4)
         s_z = s_z_operator(4)
-        self.assertEqual(commutator(s_x, s_y), 1j * s_z)
+        self.assertEqual(commutator(s_x, s_y).normal_order(), 1j * s_z)
 
     def test_commutator_yzx(self) -> None:
         """Tests that :math:`[S^y, S^z] = 1j * S^x`."""
         s_x = s_x_operator(4)
         s_y = s_y_operator(4)
         s_z = s_z_operator(4)
-        self.assertEqual(commutator(s_y, s_z), 1j * s_x)
+        self.assertEqual(commutator(s_y, s_z).normal_order(), 1j * s_x)
 
     def test_commutator_zxy(self) -> None:
         """Tests that :math:`[S^z, S^x] = 1j * S^y`."""
         s_x = s_x_operator(4)
         s_y = s_y_operator(4)
         s_z = s_z_operator(4)
-        self.assertEqual(commutator(s_z, s_x), 1j * s_y)
+        self.assertEqual(commutator(s_z, s_x).normal_order(), 1j * s_y)
 
     def test_commutator_s2x(self) -> None:
         """Tests that :math:`[S^2, S^x] = 0`."""
         s_x = s_x_operator(4)
         s_2 = AngularMomentum(4).second_q_ops()["AngularMomentum"]
-        self.assertEqual(commutator(s_2, s_x), FermionicOp.zero())
+        self.assertEqual(commutator(s_2, s_x).normal_order(), FermionicOp.zero())
 
     def test_commutator_s2y(self) -> None:
         """Tests that :math:`[S^2, S^y] = 0`."""
         s_y = s_y_operator(4)
         s_2 = AngularMomentum(4).second_q_ops()["AngularMomentum"]
-        self.assertEqual(commutator(s_2, s_y), FermionicOp.zero())
+        self.assertEqual(commutator(s_2, s_y).normal_order(), FermionicOp.zero())
 
     def test_commutator_s2z(self) -> None:
         """Tests that :math:`[S^2, S^z] = 0`."""
         s_z = s_z_operator(4)
         s_2 = AngularMomentum(4).second_q_ops()["AngularMomentum"]
-        self.assertEqual(commutator(s_2, s_z), FermionicOp.zero())
+        self.assertEqual(commutator(s_2, s_z).normal_order(), FermionicOp.zero())
 
 
 class TestSOperatorsWithOverlap(QiskitNatureTestCase):
