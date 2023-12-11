@@ -14,25 +14,22 @@
 
 from __future__ import annotations
 
-from functools import lru_cache
-
 import numpy as np
 
 from qiskit.quantum_info.operators import Pauli
 
 from .vibrational_mapper import VibrationalMapper
+from .mode_based_mapper import ModeBasedMapper, PauliType
 
 
-class DirectMapper(VibrationalMapper):
+class DirectMapper(VibrationalMapper, ModeBasedMapper):
     """The Direct mapper.
 
     This mapper maps a :class:`~.VibrationalOp` to a qubit operator. In doing so, each modal of the
     ``VibrationalOp`` gets mapped to a single qubit.
     """
 
-    @classmethod
-    @lru_cache(maxsize=32)
-    def pauli_table(cls, register_length: int) -> list[tuple[Pauli, Pauli]]:
+    def pauli_table(self, register_length: int) -> list[tuple[PauliType, PauliType]]:
         # pylint: disable=unused-argument
         pauli_table = []
 

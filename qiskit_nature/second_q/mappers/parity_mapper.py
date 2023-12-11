@@ -16,8 +16,6 @@ from __future__ import annotations
 
 import logging
 
-from functools import lru_cache
-
 import numpy as np
 
 from qiskit.quantum_info.analysis.z2_symmetries import Z2Symmetries
@@ -25,11 +23,12 @@ from qiskit.quantum_info.operators import Pauli, PauliList, SparsePauliOp
 
 from qiskit_nature.second_q.operators import FermionicOp
 from .fermionic_mapper import FermionicMapper
+from .mode_based_mapper import ModeBasedMapper, PauliType
 
 logger = logging.getLogger(__name__)
 
 
-class ParityMapper(FermionicMapper):
+class ParityMapper(FermionicMapper, ModeBasedMapper):
     """The Parity fermion-to-qubit mapping.
 
     When using this mapper, :attr:`num_particles` can optionally be used to apply an additional step
@@ -72,9 +71,7 @@ class ParityMapper(FermionicMapper):
             par_2 = 1 if num_alpha % 2 == 0 else -1
             self._tapering_values = [par_2, par_1]
 
-    @classmethod
-    @lru_cache(maxsize=32)
-    def pauli_table(cls, register_length: int) -> list[tuple[Pauli, Pauli]]:
+    def pauli_table(self, register_length: int) -> list[tuple[PauliType, PauliType]]:
         # pylint: disable=unused-argument
         pauli_table = []
 
@@ -129,7 +126,7 @@ class ParityMapper(FermionicMapper):
     def _map_single(
         self, second_q_op: FermionicOp, *, register_length: int | None = None
     ) -> SparsePauliOp:
-        mapped_op = ParityMapper.mode_based_mapping(second_q_op, register_length=register_length)
+        mapped_op = self.mode_based_mapping(second_q_op, register_length=register_length)
 
         reduced_op = mapped_op
         if self.num_particles is not None:
