@@ -15,6 +15,7 @@
 from __future__ import annotations
 
 import logging
+from functools import lru_cache
 
 import numpy as np
 
@@ -72,7 +73,11 @@ class ParityMapper(FermionicMapper, ModeBasedMapper):
             self._tapering_values = [par_2, par_1]
 
     def pauli_table(self, register_length: int) -> list[tuple[PauliType, PauliType]]:
-        # pylint: disable=unused-argument
+        return self._pauli_table(register_length)
+
+    @staticmethod
+    @lru_cache(maxsize=32)
+    def _pauli_table(register_length: int) -> list[tuple[PauliType, PauliType]]:
         pauli_table = []
 
         for i in range(register_length):

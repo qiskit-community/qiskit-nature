@@ -14,6 +14,8 @@
 
 from __future__ import annotations
 
+from functools import lru_cache
+
 import numpy as np
 
 from qiskit.quantum_info.operators import Pauli
@@ -26,7 +28,11 @@ class BravyiKitaevMapper(FermionicMapper, ModeBasedMapper):
     """The Bravyi-Kitaev fermion-to-qubit mapping."""
 
     def pauli_table(self, register_length: int) -> list[tuple[PauliType, PauliType]]:
-        # pylint: disable=unused-argument
+        return self._pauli_table(register_length)
+
+    @staticmethod
+    @lru_cache(maxsize=32)
+    def _pauli_table(register_length: int) -> list[tuple[PauliType, PauliType]]:
         def parity_set(j, n):
             """
             Computes the parity set of the j-th orbital in n modes.
