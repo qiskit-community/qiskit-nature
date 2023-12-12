@@ -40,7 +40,7 @@ class TestCommutators(QiskitNatureTestCase):
     @unpack
     @data(
         (op1, op2, {}),
-        (op4, op5, {"+_0 -_0": (2 + 0j), "": (-1 + 0j)}),
+        (op4, op5, {"+_0 -_0": (1 + 0j), "-_0 +_0": (-1 + 0j)}),
     )
     def test_commutator(self, op_a: FermionicOp, op_b: FermionicOp, expected: dict):
         """Test commutator method"""
