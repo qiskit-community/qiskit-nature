@@ -143,7 +143,7 @@ class LogarithmicMapper(SpinMapper):
             op.chop()
             spin_op_encoding.append(op)
 
-        return tuple(spin_op_encoding)  # type: ignore
+        return (spin_op_encoding[0], spin_op_encoding[1], spin_op_encoding[2], spin_op_encoding[3])
 
     def _embed_matrix(
         self,

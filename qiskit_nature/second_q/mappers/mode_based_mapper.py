@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import TypeAlias
+from typing import Union
 from abc import abstractmethod
 
 import numpy as np
@@ -25,7 +25,7 @@ from qiskit_nature.second_q.operators import SparseLabelOp
 from qiskit_nature.second_q.mappers.qubit_mapper import QubitMapper
 
 # Types that can be data for a SparsePauliOp
-PauliType: TypeAlias = PauliList | SparsePauliOp | Pauli | list | str
+PauliType = Union[PauliList, SparsePauliOp, Pauli, list, str]
 
 
 class ModeBasedMapper(QubitMapper):
