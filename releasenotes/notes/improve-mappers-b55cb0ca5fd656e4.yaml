@@ -1,0 +1,17 @@
+---
+features:
+  - |
+    The class :class:`.second_q.mappers.ModeBasedMapper` has been added to implement mode based
+    mapping via a Pauli table (previously part of :class:`.second_q.mappers.QubitMapper`).
+upgrade:
+  - |
+    The mode based mappers :class:`.JordanWignerMapper`, :class:`.BravyiKitaevMapper`,
+    :class:`.ParityMapper`, and :class:`.DirectMapper` are now inheriting also from the new
+    class :class:`.ModeBasedMapper` to implement the :meth:`.mode_based_mapping` method.
+  - |
+    :meth:`.pauli_table` is now an instance method of all :class:`.ModeBasedMapper` subclasses
+    (previously a class method of :class:`.QubitMapper`)
+  - |
+    Caching has been removed from the parent classes :class:`.QubitMapper` and
+    :class:`.ModeBasedMapper` and is now implemented exclusively for the :meth:`.pauli_table`
+    methods in the child classes.
