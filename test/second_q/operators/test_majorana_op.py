@@ -22,6 +22,7 @@ from qiskit.circuit import Parameter
 
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.operators import MajoranaOp, FermionicOp, PolynomialTensor
+from qiskit_nature.second_q.operators.commutators import anti_commutator
 import qiskit_nature.optionals as _optionals
 
 
@@ -36,6 +37,13 @@ class TestMajoranaOp(QiskitNatureTestCase):
     op2 = MajoranaOp({"_1 _0": 2})
     op3 = MajoranaOp({"_0 _1": 1, "_1 _0": 2})
     op4 = MajoranaOp({"_0 _1": a})
+
+    def test_anticommutation_relation(self):
+        """Test anticommutation relation"""
+        mop1 = MajoranaOp({"_0": 1})
+        mop2 = MajoranaOp({"_0": 1})
+
+        self.assertTrue(anti_commutator(mop1, mop2).equiv(MajoranaOp({"": 2})))
 
     def test_neg(self):
         """Test __neg__"""
@@ -468,12 +476,6 @@ class TestMajoranaOp(QiskitNatureTestCase):
             self.assertEqual(op1, op3)
             self.assertTrue(op1.equiv(1.000001 * op3))
 
-    def test_creation_with_spin_orbitals(self):
-        """Test creation with spin orbitals."""
-        op1 = MajoranaOp({"_0 _1": 1}, num_spin_orbitals=1)
-        op2 = MajoranaOp({"_0 _1": 1}, num_modes=2)
-        self.assertEqual(op1, op2)
-
     def test_terms(self):
         """Test terms generator."""
         op = MajoranaOp(
@@ -720,6 +722,15 @@ class TestMajoranaOp(QiskitNatureTestCase):
             for f_op, e_op in zip(original_ops, expected_ops_no_simp_no_order):
                 t_op = MajoranaOp.from_fermionic_op(f_op, simplify=False)
                 self.assertEqual(t_op, e_op)
+
+    def test_index_ordering_commutes(self):
+        """Test that index ordering before vs after conversion from FermionicOp to MajoranaOp
+        yields same result."""
+        fop = FermionicOp({"+_2 -_0 +_1": 1.0})
+        self.assertFalse(fop.equiv(fop.index_order()))
+        mop1 = MajoranaOp.from_fermionic_op(fop).index_order()
+        mop2 = MajoranaOp.from_fermionic_op(fop.index_order())
+        self.assertTrue(mop1.equiv(mop2))
 
 
 if __name__ == "__main__":

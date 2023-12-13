@@ -36,8 +36,8 @@ class MajoranaOp(SparseLabelOp):
     These terms are encoded as sparse labels, which are strings consisting of a space-separated list
     of expressions. Each expression must look like :code:`_<index>`, where the :code:`<index>` is a
     non-negative integer representing the index of the mode on which the Majorana operator is
-    applied. The value of :code:`index` is bound by ``num_modes``. Note that, when converting from a
-    ``FermionicOp`` there are two modes per spin orbital, i.e. ``num_modes`` is
+    applied. The maximum value of :code:`index` is bound by ``num_modes``. Note that, when
+    converting from a ``FermionicOp`` there are two modes per spin orbital, i.e. ``num_modes`` is
     :code:`2 * FermionicOp.num_spin_orbitals - 1`
 
     **Initialization**
@@ -86,7 +86,8 @@ class MajoranaOp(SparseLabelOp):
 
     **Construction from Fermionic operator**
 
-    The default way to construct a ``MajoranaOp`` is from an existing ``FermionicOp``:
+    As an alternative to the manual construction above, a more convenient way of initializing a
+    `MajoranaOp` is, to construct it from an existing `FermionicOp`:
 
     .. code-block:: python
 
@@ -106,7 +107,7 @@ class MajoranaOp(SparseLabelOp):
     where :math:`a_i` and :math:`a_i^\dagger` are the Fermionic annihilation and creation operators
     and :math:`\gamma_i` the Majorana operators.
 
-    **Construction from Polynomial Tensor**
+    **Construction from a ``PolynomialTensor``**
 
     Using the :meth:`from_polynomial_tensor` constructor method, a ``MajoranaOp`` can be constructed
     from a :class:`~.PolynomialTensor`. In this case, the underscore character :code:`_` is the only
@@ -179,8 +180,8 @@ class MajoranaOp(SparseLabelOp):
 
     **Iteration**
 
-    Instances of ``MajoranaOp`` are iterable. Iterating a ``MajoranaOp`` yields (term, coefficient)
-    pairs describing the terms contained in the operator.
+    Instances of ``MajoranaOp`` are iterable. Iterating a ``MajoranaOp`` yields
+    ``(term, coefficient)`` pairs describing the terms contained in the operator.
 
     Attributes:
         num_modes (int | None): the number of modes on which this operator acts.
@@ -204,7 +205,6 @@ class MajoranaOp(SparseLabelOp):
         self,
         data: Mapping[str, _TCoeff],
         num_modes: int | None = None,
-        num_spin_orbitals: int | None = None,
         *,
         copy: bool = True,
         validate: bool = True,
@@ -213,9 +213,6 @@ class MajoranaOp(SparseLabelOp):
         Args:
             data: the operator data, mapping string-based keys to numerical values.
             num_modes: the number of modes on which this operator acts.
-            num_spin_orbitals: the number of spin orbitals. Providing :code:`num_spin_orbitals=n`
-                is equivalent to providing :code:`num_modes=2*n`. Ignored if ``num_modes`` is
-                provided.
             copy: when set to False the ``data`` will not be copied and the dictionary will be
                 stored by reference rather than by value (which is the default; ``copy=True``).
                 Note, that this requires you to not change the contents of the dictionary after
@@ -228,8 +225,6 @@ class MajoranaOp(SparseLabelOp):
         Raises:
             QiskitNatureError: when an invalid key is encountered during validation.
         """
-        if num_modes is None and num_spin_orbitals is not None:
-            num_modes = num_spin_orbitals * 2
         self.num_modes = num_modes
         # if num_modes is None, it is set during _validate_keys
         super().__init__(data, copy=copy, validate=validate)
@@ -287,8 +282,6 @@ class MajoranaOp(SparseLabelOp):
 
     @classmethod
     def _validate_polynomial_tensor_key(cls, keys: Collection[str]) -> None:
-        # PolynomialTensor keys cannot be built from empty string,
-        # hence we choose _ to be the only allowed character
         allowed_chars = {"_"}
 
         for key in keys:
@@ -311,7 +304,7 @@ class MajoranaOp(SparseLabelOp):
 
             mat = tensor[key]
 
-            empty_string_key = ["" for _ in key]  # label format for Majorana is just '_<index>'
+            empty_string_key = [""] * len(key)  # label format for Majorana is just '_<index>'
             label_template = mat.label_template.format(*empty_string_key)
 
             for value, index in mat.coord_iter():
@@ -357,7 +350,7 @@ class MajoranaOp(SparseLabelOp):
         return cls(data)
 
     @classmethod
-    def from_fermionic_op(cls, op: FermionicOp, simplify: bool = True) -> MajoranaOp:
+    def from_fermionic_op(cls, op: FermionicOp, *, simplify: bool = True) -> MajoranaOp:
         """Constructs the operator from a :class:`~.FermionicOp`.
 
         Args:
