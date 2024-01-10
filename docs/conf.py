@@ -42,7 +42,7 @@ project = "Qiskit Nature"
 copyright = f"2018, {date.today().year}, Qiskit Nature Development Team"  # pylint: disable=redefined-builtin
 author = "Qiskit Nature Development Team"
 
-docs_url_prefix = "ecosystem/nature"
+docs_url_prefix = "qiskit-nature"
 
 # The short X.Y version
 version = qiskit_nature.__version__
