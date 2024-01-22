@@ -159,8 +159,6 @@ translations_list = [
     ("es_UN", "Spanish"),
 ]
 language = "en"
-locale_dirs = ["locale/"]
-gettext_compact = False  # optional.
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
