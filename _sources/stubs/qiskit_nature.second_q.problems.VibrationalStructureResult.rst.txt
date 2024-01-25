@@ -1,0 +1,36 @@
+﻿
+
+VibrationalStructureResult
+==========================================================
+
+.. currentmodule:: qiskit_nature.second_q.problems
+
+.. autoclass:: VibrationalStructureResult
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: VibrationalStructureResult.algorithm_result
+   .. autoattribute:: VibrationalStructureResult.computed_vibrational_energies
+   .. autoattribute:: VibrationalStructureResult.groundenergy
+   .. autoattribute:: VibrationalStructureResult.groundstate
+   .. autoattribute:: VibrationalStructureResult.num_occupied_modals_per_mode
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: VibrationalStructureResult.combine
+   .. automethod:: VibrationalStructureResult.formatted
+   .. automethod:: VibrationalStructureResult.from_eigensolver_result
+   .. automethod:: VibrationalStructureResult.from_minimum_eigensolver_result
+   .. automethod:: VibrationalStructureResult.from_result
+   
+   

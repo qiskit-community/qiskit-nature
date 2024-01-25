@@ -1,0 +1,38 @@
+﻿
+
+ElectronicStructureProblem
+==========================================================
+
+.. currentmodule:: qiskit_nature.second_q.problems
+
+.. autoclass:: ElectronicStructureProblem
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: ElectronicStructureProblem.hamiltonian
+   .. autoattribute:: ElectronicStructureProblem.nuclear_repulsion_energy
+   .. autoattribute:: ElectronicStructureProblem.num_alpha
+   .. autoattribute:: ElectronicStructureProblem.num_beta
+   .. autoattribute:: ElectronicStructureProblem.num_particles
+   .. autoattribute:: ElectronicStructureProblem.num_spin_orbitals
+   .. autoattribute:: ElectronicStructureProblem.orbital_occupations
+   .. autoattribute:: ElectronicStructureProblem.orbital_occupations_b
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: ElectronicStructureProblem.get_default_filter_criterion
+   .. automethod:: ElectronicStructureProblem.get_tapered_mapper
+   .. automethod:: ElectronicStructureProblem.interpret
+   .. automethod:: ElectronicStructureProblem.second_q_ops
+   
+   

@@ -1,0 +1,61 @@
+﻿
+
+BosonicOp
+==========================================
+
+.. currentmodule:: qiskit_nature.second_q.operators
+
+.. autoclass:: BosonicOp
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: BosonicOp.atol
+   .. autoattribute:: BosonicOp.register_length
+   .. autoattribute:: BosonicOp.rtol
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: BosonicOp.adjoint
+   .. automethod:: BosonicOp.argsort
+   .. automethod:: BosonicOp.assign_parameters
+   .. automethod:: BosonicOp.chop
+   .. automethod:: BosonicOp.compose
+   .. automethod:: BosonicOp.conjugate
+   .. automethod:: BosonicOp.dot
+   .. automethod:: BosonicOp.equiv
+   .. automethod:: BosonicOp.expand
+   .. automethod:: BosonicOp.from_polynomial_tensor
+   .. automethod:: BosonicOp.from_terms
+   .. automethod:: BosonicOp.get
+   .. automethod:: BosonicOp.index_order
+   .. automethod:: BosonicOp.induced_norm
+   .. automethod:: BosonicOp.is_hermitian
+   .. automethod:: BosonicOp.is_parameterized
+   .. automethod:: BosonicOp.is_zero
+   .. automethod:: BosonicOp.items
+   .. automethod:: BosonicOp.keys
+   .. automethod:: BosonicOp.normal_order
+   .. automethod:: BosonicOp.one
+   .. automethod:: BosonicOp.parameters
+   .. automethod:: BosonicOp.permute_indices
+   .. automethod:: BosonicOp.power
+   .. automethod:: BosonicOp.round
+   .. automethod:: BosonicOp.simplify
+   .. automethod:: BosonicOp.sort
+   .. automethod:: BosonicOp.tensor
+   .. automethod:: BosonicOp.terms
+   .. automethod:: BosonicOp.transpose
+   .. automethod:: BosonicOp.values
+   .. automethod:: BosonicOp.zero
+   
+   

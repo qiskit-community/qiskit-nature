@@ -1,0 +1,43 @@
+﻿
+
+S4Integrals
+===============================================================
+
+.. currentmodule:: qiskit_nature.second_q.operators.symmetric_two_body
+
+.. autoclass:: S4Integrals
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: S4Integrals.array
+   .. autoattribute:: S4Integrals.atol
+   .. autoattribute:: S4Integrals.label_template
+   .. autoattribute:: S4Integrals.ndim
+   .. autoattribute:: S4Integrals.rtol
+   .. autoattribute:: S4Integrals.shape
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: S4Integrals.compose
+   .. automethod:: S4Integrals.conjugate
+   .. automethod:: S4Integrals.coord_iter
+   .. automethod:: S4Integrals.equiv
+   .. automethod:: S4Integrals.expand
+   .. automethod:: S4Integrals.is_dense
+   .. automethod:: S4Integrals.is_sparse
+   .. automethod:: S4Integrals.tensor
+   .. automethod:: S4Integrals.to_dense
+   .. automethod:: S4Integrals.to_sparse
+   .. automethod:: S4Integrals.zero
+   
+   

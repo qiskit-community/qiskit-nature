@@ -1,0 +1,27 @@
+﻿
+
+PUCCSD
+=============================================
+
+.. currentmodule:: qiskit_nature.second_q.circuit.library
+
+.. autoclass:: PUCCSD
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: PUCCSD.generate_excitations
+   
+   

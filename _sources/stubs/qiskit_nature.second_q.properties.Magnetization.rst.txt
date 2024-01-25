@@ -1,0 +1,25 @@
+﻿
+
+Magnetization
+===============================================
+
+.. currentmodule:: qiskit_nature.second_q.properties
+
+.. autoclass:: Magnetization
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: Magnetization.interpret
+   .. automethod:: Magnetization.second_q_ops
+   
+   

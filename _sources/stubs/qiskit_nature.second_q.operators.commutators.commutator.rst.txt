@@ -1,0 +1,8 @@
+﻿
+
+commutator
+=======================================================
+
+.. currentmodule:: qiskit_nature.second_q.operators.commutators
+
+.. autofunction:: commutator

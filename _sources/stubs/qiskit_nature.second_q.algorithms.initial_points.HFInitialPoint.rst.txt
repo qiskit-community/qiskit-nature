@@ -1,0 +1,31 @@
+﻿
+
+HFInitialPoint
+===============================================================
+
+.. currentmodule:: qiskit_nature.second_q.algorithms.initial_points
+
+.. autoclass:: HFInitialPoint
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: HFInitialPoint.ansatz
+   .. autoattribute:: HFInitialPoint.problem
+   .. autoattribute:: HFInitialPoint.total_energy
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: HFInitialPoint.compute
+   .. automethod:: HFInitialPoint.to_numpy_array
+   
+   

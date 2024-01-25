@@ -1,0 +1,31 @@
+﻿
+
+LatticeModel
+================================================
+
+.. currentmodule:: qiskit_nature.second_q.hamiltonians
+
+.. autoclass:: LatticeModel
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: LatticeModel.lattice
+   .. autoattribute:: LatticeModel.register_length
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: LatticeModel.interaction_matrix
+   .. automethod:: LatticeModel.interpret
+   .. automethod:: LatticeModel.second_q_op
+   
+   

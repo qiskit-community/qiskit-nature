@@ -1,0 +1,29 @@
+﻿
+
+ExcitedStatesEigensolver
+==========================================================
+
+.. currentmodule:: qiskit_nature.second_q.algorithms
+
+.. autoclass:: ExcitedStatesEigensolver
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: ExcitedStatesEigensolver.solver
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: ExcitedStatesEigensolver.get_qubit_operators
+   .. automethod:: ExcitedStatesEigensolver.solve
+   
+   

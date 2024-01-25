@@ -1,0 +1,4 @@
+.. release-notes:: Release Notes
+   :ignore-notes:
+     releasenotes/notes/fix-angular-momentum-2-cebabde075b61a4e.yaml,
+     releasenotes/notes/fix-commutator-methods-fdae69426a05222a.yaml,

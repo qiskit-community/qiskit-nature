@@ -1,0 +1,8 @@
+﻿
+
+random_two_body_tensor_real
+=================================================
+
+.. currentmodule:: qiskit_nature.testing
+
+.. autofunction:: random_two_body_tensor_real

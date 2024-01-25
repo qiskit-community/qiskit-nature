@@ -1,0 +1,25 @@
+﻿
+
+HarmonicBasis
+=============================================
+
+.. currentmodule:: qiskit_nature.second_q.problems
+
+.. autoclass:: HarmonicBasis
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: HarmonicBasis.eval_integral
+   .. automethod:: HarmonicBasis.map
+   
+   

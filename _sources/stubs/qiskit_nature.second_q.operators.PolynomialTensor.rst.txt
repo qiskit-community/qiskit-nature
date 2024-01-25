@@ -1,0 +1,49 @@
+﻿
+
+PolynomialTensor
+=================================================
+
+.. currentmodule:: qiskit_nature.second_q.operators
+
+.. autoclass:: PolynomialTensor
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: PolynomialTensor.atol
+   .. autoattribute:: PolynomialTensor.register_length
+   .. autoattribute:: PolynomialTensor.rtol
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: PolynomialTensor.apply
+   .. automethod:: PolynomialTensor.compose
+   .. automethod:: PolynomialTensor.dot
+   .. automethod:: PolynomialTensor.einsum
+   .. automethod:: PolynomialTensor.empty
+   .. automethod:: PolynomialTensor.equiv
+   .. automethod:: PolynomialTensor.expand
+   .. automethod:: PolynomialTensor.get
+   .. automethod:: PolynomialTensor.is_dense
+   .. automethod:: PolynomialTensor.is_empty
+   .. automethod:: PolynomialTensor.is_sparse
+   .. automethod:: PolynomialTensor.items
+   .. automethod:: PolynomialTensor.keys
+   .. automethod:: PolynomialTensor.power
+   .. automethod:: PolynomialTensor.split
+   .. automethod:: PolynomialTensor.stack
+   .. automethod:: PolynomialTensor.tensor
+   .. automethod:: PolynomialTensor.to_dense
+   .. automethod:: PolynomialTensor.to_sparse
+   .. automethod:: PolynomialTensor.values
+   
+   

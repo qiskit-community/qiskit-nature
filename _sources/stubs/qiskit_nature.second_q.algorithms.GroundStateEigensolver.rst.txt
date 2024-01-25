@@ -1,0 +1,31 @@
+﻿
+
+GroundStateEigensolver
+========================================================
+
+.. currentmodule:: qiskit_nature.second_q.algorithms
+
+.. autoclass:: GroundStateEigensolver
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: GroundStateEigensolver.qubit_mapper
+   .. autoattribute:: GroundStateEigensolver.solver
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: GroundStateEigensolver.get_qubit_operators
+   .. automethod:: GroundStateEigensolver.solve
+   .. automethod:: GroundStateEigensolver.supports_aux_operators
+   
+   

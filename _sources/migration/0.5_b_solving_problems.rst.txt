@@ -1,0 +1,294 @@
+Solving Problems with v0.5
+==========================
+
+Overview
+~~~~~~~~
+
+The major focus of the Qiskit Nature v0.5 refactoring was the
+description and representation of second-quantized operators and
+problems. Nonetheless, the ``algorithms`` module and supporting modules
+did also receive significant updates. Most importantly all algorithms In
+Nature are now dependent on the new Qiskit Terra algorithms, and these
+are now based on `Qiskit
+Primitives <https://qiskit.org/documentation/apidoc/primitives.html>`__
+and were added in Qiskit Terra 0.22. It is not the intention to provide
+detailed explanations of the primitives in this migration guide. We
+suggest that you read the `corresponding
+resources <https://qiskit.org/documentation/apidoc/primitives.html>`__
+of the Qiskit Terra documentation instead.
+
+Further Resources
+~~~~~~~~~~~~~~~~~
+
+For more details, please refer to the corresponding tutorials:
+
+-  `Ground State Solvers <../tutorials/03_ground_state_solvers.ipynb>`__
+-  `Excited States
+   Solvers <../tutorials/04_excited_states_solvers.ipynb>`__
+-  `Qubit Mappers <../tutorials/06_qubit_mappers.ipynb>`__
+
+``qiskit_nature.mappers``
+=========================
+
+The mappers of Qiskit Nature did **not** receive any API changes (other
+than potentially requiring certain arguments to be keywords; see also
+the `“Too many positional arguments” section <./0.5_a_intro.ipynb>`__).
+However, the entire module ``qiskit_nature.mappers.second_quantization``
+has been moved to ``qiskit_nature.second_q.mappers``. So updating your
+import is all you need to do here.
+
+``qiskit_nature.converters``
+============================
+
+This module contained a single component: ``QubitConverter``. This has
+been moved to ``qiskit_nature.second_q.mappers.QubitConverter`` so you
+can simply update your import path.
+
+API changes were again minimal but the operators being translated by
+this class are no longer the legacy ``SecondQuantizedOp`` but rather the
+new ``SparseLabelOp`` objects.
+
+``qiskit_nature.circuit``
+=========================
+
+The entire ``qiskit_nature.circuit`` module was relocated to
+``qiskit_nature.second_q.circuit``. The reason for this, is that the
+existing circuit were actually only applicable to second-quantized
+applications, but the API did not reflect this. Updating your imports
+should fix *most* issues.
+
+However, there are two more details to take note of, detailed below.
+
+Number of Orbitals
+~~~~~~~~~~~~~~~~~~
+
+We have been consistently describing the number of orbitals via
+``num_spin_orbitals`` throughout the package. However, what this
+oftentimes implied (without rigorous checks) was that an **even** number
+was supplied, since the number of spin orbitals was assumed to equal
+twice the number of **spatial** orbitals.
+
+To be more rigorous and avoid the ill-defined behavior when providing
+*odd* numbers for ``num_spin_orbitals``, we have switched the entire
+stack to use ``num_spatial_orbitals`` instead. This is well defined for
+any positive integer value (and negative values are guarded against).
+
+What this means for you in practice, is that whenever you supply the
+``num_spin_orbitals`` manually in the past, you now need to supply
+**half the value** to represent the ``num_spatial_orbitals``.
+
+Previously
+^^^^^^^^^^
+
+.. code:: ipython3
+
+    from qiskit_nature.circuit.library import UCCSD
+
+    ansatz = UCCSD()
+    ansatz.num_spin_orbitals = 10
+
+New
+^^^
+
+.. code:: ipython3
+
+    from qiskit_nature.second_q.circuit.library import UCCSD
+
+    ansatz = UCCSD()
+    ansatz.num_spatial_orbitals = 5
+
+UCC/UVCC ``__init__`` arguments
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``UCC`` and ``UVCC`` subclasses used to take the following arguments
+for their ``__init__``:
+
+Previously
+^^^^^^^^^^
+
+.. code:: ipython3
+
+    from qiskit_nature.circuit.library import UCC, UVCC
+
+    ucc = UCC(qubit_converter=None, num_particles=None, num_spin_orbitals=None, excitations=None)
+    uvcc = UVCC(qubit_converter=None, num_modals=None, excitations=None)
+
+New
+^^^
+
+This was mismatching the API of the ``HartreeFock`` and ``VSCF`` initial
+states. We have aligned these APIs to look like in the following:
+
+.. code:: ipython3
+
+    from qiskit_nature.second_q.circuit.library import UCC, UVCC
+
+    ucc = UCC(num_spatial_orbitals=None, num_particles=None, excitations=None, qubit_converter=None)
+    uvcc = UVCC(num_modals=None, excitations=None, qubit_converter=None)
+
+HartreeFock/VSCF initial states
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``HartreeFock`` and ``VSCF`` initial state circuits are now
+implemented as ``BlueprintCircuit``. That means, that you can initialize
+them without any arguments and supply the information later as shown
+below:
+
+Previously
+^^^^^^^^^^
+
+.. code:: ipython3
+
+    from qiskit_nature.circuit.library import HartreeFock, VSCF
+    from qiskit_nature.converters.second_quantization import QubitConverter
+    from qiskit_nature.mappers.second_quantization import DirectMapper, JordanWignerMapper
+
+    hf = HartreeFock(
+        num_spin_orbitals=4, num_particles=(1, 1), qubit_converter=QubitConverter(JordanWignerMapper())
+    )
+    vscf = VSCF(num_modals=[2, 2])
+
+New
+^^^
+
+.. code:: ipython3
+
+    from qiskit_nature.second_q.circuit.library import HartreeFock, VSCF
+    from qiskit_nature.second_q.mappers import DirectMapper, JordanWignerMapper, QubitConverter
+
+    hf = HartreeFock()
+    hf.num_spatial_orbitals = 2
+    hf.num_particles = (1, 1)
+    hf.qubit_converter = QubitConverter(JordanWignerMapper())
+
+    vscf = VSCF()
+    vscf.num_modals = [2, 2]
+
+``qiskit_nature.algorithms``
+============================
+
+The algorithms in Qiskit Nature have been updated to use the new
+``qiskit.algorithms`` components which are based on the
+``qiskit.primitives`` as of Qiskit Terra 0.22.
+
+For most changes to take effect, you can once again simply update your
+import paths from ``qiskit_nature.algorithms`` to
+``qiskit_nature.second_q.algorithms``. However, there are some details
+which you need to pay attention to, due to the change to the
+primitive-based algorithms of Qiskit Terra being used under the hood.
+These details are explained below.
+
+``qiskit_nature.algorithms.initial_points``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This module was moved to
+``qiskit_nature.second_q.algorithms.initial_points``. All you need to do
+is update your imports.
+
+``qiskit_nature.algorithms.pes_samplers``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This module was **removed** without a replacement. The reason for that,
+is that we are working towards a driver-less design of Qiskit Nature, in
+which case the sampling of the potential energy surface becomes the
+responsibility of the classical code rather than Qiskit Nature.
+
+``qiskit_nature.algorithms.ground_state_solvers``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This module was moved to
+``qiskit_nature.second_q.algorithms.ground_state_solvers``. Besides
+updating your imports, you need to pay attention to the following:
+
+-  ``AdaptVQE`` was migrated to Qiskit Terra:
+   ``qiskit.algorithms.minimum_eigensolver.AdaptVQE``. In doing so, this
+   is no longer a ``GroundStateSolver`` but rather became a
+   ``MinimumEigensolver`` which means that you would use it like any
+   other ``VQE`` and inject it **into** a ``GroundStateSolver`` of
+   Qiskit Nature. To see the new ``AdaptVQE`` in action, check out the
+   `How to use the AdaptVQE <../howtos/adapt_vqe.rst>`__.
+-  the API of the ``VQEUCCFactory`` and ``VQEUVCCFactory`` has been
+   matched with the new primitive-based ``VQE`` API
+
+Previously
+^^^^^^^^^^
+
+.. code:: ipython3
+
+    from qiskit.providers.basicaer import BasicAer
+    from qiskit.utils import QuantumInstance
+    from qiskit_nature.algorithms.ground_state_solvers import VQEUCCFactory
+
+    quantum_instance = QuantumInstance(BasicAer.get_backend("statevector_simulator"))
+    vqe_factory = VQEUCCFactory(quantum_instance=quantum_instance)
+
+
+New
+^^^
+
+.. code:: ipython3
+
+    from qiskit.algorithms.optimizers import SLSQP
+    from qiskit.primitives import Estimator
+    from qiskit_nature.second_q.circuit.library import UCCSD
+    from qiskit_nature.second_q.algorithms.ground_state_solvers import VQEUCCFactory
+
+    estimator = Estimator()
+    ansatz = UCCSD()
+    optimizer = SLSQP()
+
+    vqe_factory = VQEUCCFactory(estimator, ansatz, optimizer)
+
+``qiskit_nature.algorithms.excited_states_solvers``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This module was moved to
+``qiskit_nature.second_q.algorithms.excited_states_solvers``. Besides
+updating your imports, you need to pay attention to the following:
+
+-  the ``QEOM`` API now also requires an `Estimator
+   primitiver <https://qiskit.org/documentation/stubs/qiskit.primitives.BaseEstimator.html>`__
+   to be provided
+
+Previously
+^^^^^^^^^^
+
+.. code:: ipython3
+
+    from qiskit_nature.algorithms.ground_state_solvers import GroundStateEigensolver, VQEUCCFactory
+    from qiskit_nature.algorithms.excited_states_solvers import QEOM
+    from qiskit_nature.converters.second_quantization import QubitConverter
+    from qiskit_nature.mappers.second_quantization import JordanWignerMapper
+
+    vqe_factory = VQEUCCFactory()
+    converter = QubitConverter(JordanWignerMapper())
+    ground_state_solver = GroundStateEigensolver(converter, vqe_factory)
+
+    qeom = QEOM(ground_state_solver)
+
+
+New
+^^^
+
+.. code:: ipython3
+
+    from qiskit.algorithms.optimizers import SLSQP
+    from qiskit.primitives import Estimator
+    from qiskit_nature.second_q.circuit.library import UCCSD
+    from qiskit_nature.second_q.algorithms.ground_state_solvers import (
+        GroundStateEigensolver,
+        VQEUCCFactory,
+    )
+    from qiskit_nature.second_q.algorithms.excited_states_solvers import QEOM
+    from qiskit_nature.second_q.mappers import JordanWignerMapper, QubitConverter
+
+    estimator = Estimator()
+    ansatz = UCCSD()
+    optimizer = SLSQP()
+
+    vqe_factory = VQEUCCFactory(estimator, ansatz, optimizer)
+    converter = QubitConverter(JordanWignerMapper())
+    ground_state_solver = GroundStateEigensolver(converter, vqe_factory)
+
+    qeom = QEOM(ground_state_solver, estimator)
+

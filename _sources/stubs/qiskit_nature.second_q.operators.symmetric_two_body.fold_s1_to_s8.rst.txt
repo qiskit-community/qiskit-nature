@@ -1,0 +1,8 @@
+﻿
+
+fold_s1_to_s8
+=================================================================
+
+.. currentmodule:: qiskit_nature.second_q.operators.symmetric_two_body
+
+.. autofunction:: fold_s1_to_s8

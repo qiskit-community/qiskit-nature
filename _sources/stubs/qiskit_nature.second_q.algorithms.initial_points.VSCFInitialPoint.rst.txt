@@ -1,0 +1,30 @@
+﻿
+
+VSCFInitialPoint
+=================================================================
+
+.. currentmodule:: qiskit_nature.second_q.algorithms.initial_points
+
+.. autoclass:: VSCFInitialPoint
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: VSCFInitialPoint.ansatz
+   .. autoattribute:: VSCFInitialPoint.problem
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: VSCFInitialPoint.compute
+   .. automethod:: VSCFInitialPoint.to_numpy_array
+   
+   

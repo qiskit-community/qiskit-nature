@@ -1,0 +1,31 @@
+﻿
+
+BaseProblem
+===========================================
+
+.. currentmodule:: qiskit_nature.second_q.problems
+
+.. autoclass:: BaseProblem
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: BaseProblem.hamiltonian
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: BaseProblem.get_default_filter_criterion
+   .. automethod:: BaseProblem.get_tapered_mapper
+   .. automethod:: BaseProblem.interpret
+   .. automethod:: BaseProblem.second_q_ops
+   
+   
