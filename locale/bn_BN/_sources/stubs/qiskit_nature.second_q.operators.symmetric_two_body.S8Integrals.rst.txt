@@ -1,0 +1,43 @@
+﻿
+
+S8Integrals
+===============================================================
+
+.. currentmodule:: qiskit_nature.second_q.operators.symmetric_two_body
+
+.. autoclass:: S8Integrals
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: S8Integrals.array
+   .. autoattribute:: S8Integrals.atol
+   .. autoattribute:: S8Integrals.label_template
+   .. autoattribute:: S8Integrals.ndim
+   .. autoattribute:: S8Integrals.rtol
+   .. autoattribute:: S8Integrals.shape
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: S8Integrals.compose
+   .. automethod:: S8Integrals.conjugate
+   .. automethod:: S8Integrals.coord_iter
+   .. automethod:: S8Integrals.equiv
+   .. automethod:: S8Integrals.expand
+   .. automethod:: S8Integrals.is_dense
+   .. automethod:: S8Integrals.is_sparse
+   .. automethod:: S8Integrals.tensor
+   .. automethod:: S8Integrals.to_dense
+   .. automethod:: S8Integrals.to_sparse
+   .. automethod:: S8Integrals.zero
+   
+   

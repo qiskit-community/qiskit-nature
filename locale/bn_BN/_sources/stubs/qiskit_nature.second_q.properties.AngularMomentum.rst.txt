@@ -1,0 +1,29 @@
+﻿
+
+AngularMomentum
+=================================================
+
+.. currentmodule:: qiskit_nature.second_q.properties
+
+.. autoclass:: AngularMomentum
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: AngularMomentum.overlap
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: AngularMomentum.interpret
+   .. automethod:: AngularMomentum.second_q_ops
+   
+   

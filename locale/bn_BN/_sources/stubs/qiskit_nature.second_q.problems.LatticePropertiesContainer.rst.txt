@@ -1,0 +1,29 @@
+﻿
+
+LatticePropertiesContainer
+==========================================================
+
+.. currentmodule:: qiskit_nature.second_q.problems
+
+.. autoclass:: LatticePropertiesContainer
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: LatticePropertiesContainer.add
+   .. automethod:: LatticePropertiesContainer.clear
+   .. automethod:: LatticePropertiesContainer.discard
+   .. automethod:: LatticePropertiesContainer.isdisjoint
+   .. automethod:: LatticePropertiesContainer.pop
+   .. automethod:: LatticePropertiesContainer.remove
+   
+   

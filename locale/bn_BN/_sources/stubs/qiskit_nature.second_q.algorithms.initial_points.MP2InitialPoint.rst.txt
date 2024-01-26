@@ -1,0 +1,34 @@
+﻿
+
+MP2InitialPoint
+================================================================
+
+.. currentmodule:: qiskit_nature.second_q.algorithms.initial_points
+
+.. autoclass:: MP2InitialPoint
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: MP2InitialPoint.ansatz
+   .. autoattribute:: MP2InitialPoint.energy_correction
+   .. autoattribute:: MP2InitialPoint.problem
+   .. autoattribute:: MP2InitialPoint.t2_amplitudes
+   .. autoattribute:: MP2InitialPoint.threshold
+   .. autoattribute:: MP2InitialPoint.total_energy
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: MP2InitialPoint.compute
+   .. automethod:: MP2InitialPoint.to_numpy_array
+   
+   

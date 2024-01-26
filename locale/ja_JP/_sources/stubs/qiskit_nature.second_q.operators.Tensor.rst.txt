@@ -1,0 +1,41 @@
+﻿
+
+Tensor
+=======================================
+
+.. currentmodule:: qiskit_nature.second_q.operators
+
+.. autoclass:: Tensor
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: Tensor.array
+   .. autoattribute:: Tensor.atol
+   .. autoattribute:: Tensor.label_template
+   .. autoattribute:: Tensor.ndim
+   .. autoattribute:: Tensor.rtol
+   .. autoattribute:: Tensor.shape
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: Tensor.compose
+   .. automethod:: Tensor.coord_iter
+   .. automethod:: Tensor.equiv
+   .. automethod:: Tensor.expand
+   .. automethod:: Tensor.is_dense
+   .. automethod:: Tensor.is_sparse
+   .. automethod:: Tensor.tensor
+   .. automethod:: Tensor.to_dense
+   .. automethod:: Tensor.to_sparse
+   
+   

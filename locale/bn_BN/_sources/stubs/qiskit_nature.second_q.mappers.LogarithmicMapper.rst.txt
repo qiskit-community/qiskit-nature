@@ -1,0 +1,27 @@
+﻿
+
+LogarithmicMapper
+================================================
+
+.. currentmodule:: qiskit_nature.second_q.mappers
+
+.. autoclass:: LogarithmicMapper
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: LogarithmicMapper.map
+   .. automethod:: LogarithmicMapper.mode_based_mapping
+   .. automethod:: LogarithmicMapper.pauli_table
+   .. automethod:: LogarithmicMapper.sparse_pauli_operators
+   
+   

@@ -1,0 +1,39 @@
+﻿
+
+FCIDump
+==============================================
+
+.. currentmodule:: qiskit_nature.second_q.formats.fcidump
+
+.. autoclass:: FCIDump
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: FCIDump.constant_energy
+   .. autoattribute:: FCIDump.hij_b
+   .. autoattribute:: FCIDump.hijkl_ba
+   .. autoattribute:: FCIDump.hijkl_bb
+   .. autoattribute:: FCIDump.isym
+   .. autoattribute:: FCIDump.multiplicity
+   .. autoattribute:: FCIDump.num_orbitals
+   .. autoattribute:: FCIDump.orbsym
+   .. autoattribute:: FCIDump.num_electrons
+   .. autoattribute:: FCIDump.hij
+   .. autoattribute:: FCIDump.hijkl
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: FCIDump.from_file
+   .. automethod:: FCIDump.to_file
+   
+   

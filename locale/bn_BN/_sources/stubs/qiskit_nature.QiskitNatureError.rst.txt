@@ -1,0 +1,8 @@
+﻿
+
+QiskitNatureError
+===============================
+
+.. currentmodule:: qiskit_nature
+
+.. autoexception:: QiskitNatureError

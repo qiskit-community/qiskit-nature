@@ -1,0 +1,38 @@
+﻿
+
+HexagonalLattice
+=============================================================
+
+.. currentmodule:: qiskit_nature.second_q.hamiltonians.lattices
+
+.. autoclass:: HexagonalLattice
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: HexagonalLattice.edge_parameter
+   .. autoattribute:: HexagonalLattice.graph
+   .. autoattribute:: HexagonalLattice.node_indexes
+   .. autoattribute:: HexagonalLattice.num_nodes
+   .. autoattribute:: HexagonalLattice.onsite_parameter
+   .. autoattribute:: HexagonalLattice.weighted_edge_list
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: HexagonalLattice.copy
+   .. automethod:: HexagonalLattice.draw
+   .. automethod:: HexagonalLattice.from_adjacency_matrix
+   .. automethod:: HexagonalLattice.from_nodes_and_edges
+   .. automethod:: HexagonalLattice.to_adjacency_matrix
+   .. automethod:: HexagonalLattice.uniform_parameters
+   
+   

@@ -1,0 +1,28 @@
+﻿
+
+VSCF
+===========================================
+
+.. currentmodule:: qiskit_nature.second_q.circuit.library
+
+.. autoclass:: VSCF
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: VSCF.num_modals
+   .. autoattribute:: VSCF.qubit_mapper
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   
+   

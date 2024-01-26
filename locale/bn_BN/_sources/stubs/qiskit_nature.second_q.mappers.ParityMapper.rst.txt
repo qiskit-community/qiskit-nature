@@ -1,0 +1,31 @@
+﻿
+
+ParityMapper
+===========================================
+
+.. currentmodule:: qiskit_nature.second_q.mappers
+
+.. autoclass:: ParityMapper
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: ParityMapper.num_particles
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: ParityMapper.map
+   .. automethod:: ParityMapper.mode_based_mapping
+   .. automethod:: ParityMapper.pauli_table
+   .. automethod:: ParityMapper.sparse_pauli_operators
+   
+   

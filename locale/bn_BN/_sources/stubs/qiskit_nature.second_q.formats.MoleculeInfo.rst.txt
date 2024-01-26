@@ -1,0 +1,32 @@
+﻿
+
+MoleculeInfo
+===========================================
+
+.. currentmodule:: qiskit_nature.second_q.formats
+
+.. autoclass:: MoleculeInfo
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: MoleculeInfo.charge
+   .. autoattribute:: MoleculeInfo.masses
+   .. autoattribute:: MoleculeInfo.multiplicity
+   .. autoattribute:: MoleculeInfo.units
+   .. autoattribute:: MoleculeInfo.symbols
+   .. autoattribute:: MoleculeInfo.coords
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   
+   

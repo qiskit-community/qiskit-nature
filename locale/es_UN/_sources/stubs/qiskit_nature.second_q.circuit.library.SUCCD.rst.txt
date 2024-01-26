@@ -1,0 +1,29 @@
+﻿
+
+SUCCD
+============================================
+
+.. currentmodule:: qiskit_nature.second_q.circuit.library
+
+.. autoclass:: SUCCD
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: SUCCD.include_singles
+   .. autoattribute:: SUCCD.mirror
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: SUCCD.generate_excitations
+   
+   

@@ -1,0 +1,25 @@
+﻿
+
+OccupiedModals
+================================================
+
+.. currentmodule:: qiskit_nature.second_q.properties
+
+.. autoclass:: OccupiedModals
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: OccupiedModals.interpret
+   .. automethod:: OccupiedModals.second_q_ops
+   
+   

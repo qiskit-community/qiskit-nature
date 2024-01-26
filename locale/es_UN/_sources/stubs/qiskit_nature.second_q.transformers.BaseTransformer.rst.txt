@@ -1,0 +1,25 @@
+﻿
+
+BaseTransformer
+===================================================
+
+.. currentmodule:: qiskit_nature.second_q.transformers
+
+.. autoclass:: BaseTransformer
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: BaseTransformer.transform
+   .. automethod:: BaseTransformer.transform_hamiltonian
+   
+   

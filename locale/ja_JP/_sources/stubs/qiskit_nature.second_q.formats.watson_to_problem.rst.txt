@@ -1,0 +1,8 @@
+﻿
+
+watson_to_problem
+================================================
+
+.. currentmodule:: qiskit_nature.second_q.formats
+
+.. autofunction:: watson_to_problem

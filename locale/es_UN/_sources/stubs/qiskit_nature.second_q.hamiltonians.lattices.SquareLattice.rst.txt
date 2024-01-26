@@ -1,0 +1,44 @@
+﻿
+
+SquareLattice
+==========================================================
+
+.. currentmodule:: qiskit_nature.second_q.hamiltonians.lattices
+
+.. autoclass:: SquareLattice
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: SquareLattice.boundary_condition
+   .. autoattribute:: SquareLattice.cols
+   .. autoattribute:: SquareLattice.dim
+   .. autoattribute:: SquareLattice.edge_parameter
+   .. autoattribute:: SquareLattice.graph
+   .. autoattribute:: SquareLattice.node_indexes
+   .. autoattribute:: SquareLattice.num_nodes
+   .. autoattribute:: SquareLattice.onsite_parameter
+   .. autoattribute:: SquareLattice.rows
+   .. autoattribute:: SquareLattice.size
+   .. autoattribute:: SquareLattice.weighted_edge_list
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: SquareLattice.copy
+   .. automethod:: SquareLattice.draw
+   .. automethod:: SquareLattice.draw_without_boundary
+   .. automethod:: SquareLattice.from_adjacency_matrix
+   .. automethod:: SquareLattice.from_nodes_and_edges
+   .. automethod:: SquareLattice.to_adjacency_matrix
+   .. automethod:: SquareLattice.uniform_parameters
+   
+   

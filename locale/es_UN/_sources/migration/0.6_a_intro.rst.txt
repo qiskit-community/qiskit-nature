@@ -1,0 +1,42 @@
+Qiskit Nature v0.6 Migration Guide
+==================================
+
+This document will guide you through the process of migrating your code from Qiskit Nature v0.5 to
+v0.6
+
+Overview
+--------
+
+Version 0.6 of Qiskit Nature comes with two major deprecations:
+
+1. the ``(Minimum)EigensolverFactory`` utilities
+2. the ``QubitConverter`` class
+
+
+Both of these deprecations and explanations on how to update your code are provided in more detail
+on the following pages:
+
+- `(Minimum)EigensolverFactory migration guide`_
+- `QubitConverter migration guide`_
+
+Other notable deprecations
+--------------------------
+
+Here are a few other noteworthy minor changes which you should be aware of:
+
+- The :meth:`~qiskit_nature.second_q.problems.BaseProblem.symmetry_sector_locator` method is no
+  longer needed in the new workflow around the :class:`~qiskit_nature.second_q.mappers.QubitMapper`
+  classes. Instead, you should now use the new
+  :meth:`~qiskit_nature.second_q.problems.BaseProblem.get_tapered_mapper` method. For more details,
+  please refer to the `QubitConverter migration guide`_.
+
+- The new :class:`.Tensor` class has been introduced which will become the default return type of
+  objects stored in a :class:`.PolynomialTensor` instance. You can already switch to this by setting
+  :attr:`~qiskit_nature.settings.tensor_unwrapping` to ``False``.
+
+.. _(Minimum)EigensolverFactory migration guide: ./0.6_b_mes_factory.rst
+
+.. _QubitConverter migration guide: ./0.6_c_qubit_converter.rst
+
+
+.. vim: set tw=100:

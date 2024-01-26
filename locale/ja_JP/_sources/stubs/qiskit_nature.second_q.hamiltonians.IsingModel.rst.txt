@@ -1,0 +1,32 @@
+﻿
+
+IsingModel
+==============================================
+
+.. currentmodule:: qiskit_nature.second_q.hamiltonians
+
+.. autoclass:: IsingModel
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: IsingModel.lattice
+   .. autoattribute:: IsingModel.register_length
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: IsingModel.coupling_matrix
+   .. automethod:: IsingModel.interaction_matrix
+   .. automethod:: IsingModel.interpret
+   .. automethod:: IsingModel.second_q_op
+   
+   

@@ -1,0 +1,8 @@
+﻿
+
+apply_matrix_to_slices
+==========================================
+
+.. currentmodule:: qiskit_nature.utils
+
+.. autofunction:: apply_matrix_to_slices

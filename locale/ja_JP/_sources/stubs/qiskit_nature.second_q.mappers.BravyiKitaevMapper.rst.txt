@@ -1,0 +1,27 @@
+﻿
+
+BravyiKitaevMapper
+=================================================
+
+.. currentmodule:: qiskit_nature.second_q.mappers
+
+.. autoclass:: BravyiKitaevMapper
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: BravyiKitaevMapper.map
+   .. automethod:: BravyiKitaevMapper.mode_based_mapping
+   .. automethod:: BravyiKitaevMapper.pauli_table
+   .. automethod:: BravyiKitaevMapper.sparse_pauli_operators
+   
+   

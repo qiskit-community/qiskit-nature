@@ -1,0 +1,33 @@
+﻿
+
+VibrationalPropertiesContainer
+==============================================================
+
+.. currentmodule:: qiskit_nature.second_q.problems
+
+.. autoclass:: VibrationalPropertiesContainer
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: VibrationalPropertiesContainer.occupied_modals
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: VibrationalPropertiesContainer.add
+   .. automethod:: VibrationalPropertiesContainer.clear
+   .. automethod:: VibrationalPropertiesContainer.discard
+   .. automethod:: VibrationalPropertiesContainer.isdisjoint
+   .. automethod:: VibrationalPropertiesContainer.pop
+   .. automethod:: VibrationalPropertiesContainer.remove
+   
+   

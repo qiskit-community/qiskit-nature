@@ -1,0 +1,992 @@
+<!doctype html>
+<html class="no-js" lang="bn-BN">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="ইনডেক্স" href="../genindex.html" /><link rel="search" title="অনুসন্ধান" href="../search.html" /><link rel="next" title="Qiskit রানটাইম লিভারেজিং" href="07_leveraging_qiskit_runtime.html" /><link rel="prev" title="Transforming Problems" href="05_problem_transformers.html" />
+
+    <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
+        <title>Mapping to the Qubit Space - Qiskit Nature 0.7.1</title>
+      <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fd506691" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-ecosystem.css?v=745c5aa7" />
+    <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #ffffff;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style><link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+<script src="../_static/js/web-components/top-nav-bar.js"></script>
+<script>
+  (function () {
+    window._analytics = {
+      segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+      coremetrics: false,
+      optimizely: false,
+      googleAddServices: false,
+      fullStory: false,
+      autoPageEventSpa: false,
+      autoFormEvents: false,
+      autoPageView: false
+    }
+
+    window.digitalData = {
+      page: {
+        pageInfo: {
+          productTitle: 'IBM Q Experience',
+          analytics: {
+            category: 'Qiskit.org'
+          }
+        }
+      }
+    }
+  }());
+</script>
+<script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+<script>
+  (function () {
+    'use strict'
+
+    if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+    const category = window.digitalData.page.pageInfo.analytics.category
+    const productTitle = window.digitalData.page.pageInfo.productTitle
+    const routeName = 'documentation'
+
+    window.bluemixAnalytics.pageEvent(category, routeName, {
+      navigationType: 'pushState',
+      productTitle: productTitle,
+      title: document.title
+    })
+
+    window.trackCta = (action) => {
+      if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+      const category = window.digitalData.page.pageInfo.analytics.category
+      const productTitle = window.digitalData.page.pageInfo.productTitle
+
+      window.bluemixAnalytics.trackEvent('CTA Clicked', {
+        productTitle,
+        category,
+        CTA: action
+      })
+    }
+
+  }());
+</script></head>
+  <body>
+    
+    <script>document.body.dataset.theme = "light";</script>
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg id="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+      <defs><style>.cls-1{fill:none;}</style></defs>
+      <path d="M28,4H4A2,2,0,0,0,2,6V26a2,2,0,0,0,2,2H28a2,2,0,0,0,2-2V6A2,2,0,0,0,28,4ZM4,6H20V26H4ZM28,26H22V6h6Z"/>
+      <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" class="cls-1" width="32" height="32"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg id="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+      <defs><style>.cls-1{fill:none;}</style></defs>
+      <rect x="4" y="6" width="24" height="2"/>
+      <rect x="4" y="24" width="24" height="2"/>
+      <rect x="4" y="12" width="24" height="2"/>
+      <rect x="4" y="18" width="24" height="2"/>
+      <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" class="cls-1" width="32" height="32"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg version="1.1" id="icon" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+         viewBox="0 0 32 32" style="enable-background:new 0 0 32 32;" xml:space="preserve"><polygon points="22,16 12,26 10.6,24.6 19.2,16 10.6,7.4 12,6 " stroke="currentColor"/>
+      <rect id="_x3C_Transparent_Rectangle_x3E_" fill="none" width="32" height="32"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-new-tab" viewBox="0 0 32 32">
+    <svg id="icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+      <defs>
+        <style>
+          .cls-1 {
+            fill: none;
+          }
+        </style>
+      </defs>
+      <path fill="#6929C4" d="M26,28H6a2.0027,2.0027,0,0,1-2-2V6A2.0027,2.0027,0,0,1,6,4H16V6H6V26H26V16h2V26A2.0027,2.0027,0,0,1,26,28Z"/>
+      <polygon fill="#6929C4" points="20 2 20 4 26.586 4 18 12.586 19.414 14 28 5.414 28 12 30 12 30 2 20 2"/>
+      <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" class="cls-1" width="32" height="32"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<div class="announcement">
+  <aside class="announcement-content">
+     This project's translations are no longer maintained. See the <a href=https://github.com/qiskit-community/qiskit-translations/tree/main#readme>announcement</a> 
+  </aside>
+</div>
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">Qiskit Nature 0.7.1</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><div class="sidebar-brand">
+  <a href="https://www.qiskit.org/ecosystem">
+    <div class="sidebar-logo-container">
+      <img class="sidebar-logo" src="../_static/images/ecosystem-logo.svg" alt="Qiskit Ecosystem logo"/>
+    </div>
+  </a>
+  
+  <span class="sidebar-brand-text">Qiskit Nature 0.7.1</span>
+</div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="অনুসন্ধান">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">শুরুর নির্দেশনা</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../migration/index.html">Migration Guides</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Migration Guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../migration/0.6_a_intro.html">Qiskit Nature v0.6 Migration Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../migration/0.6_b_mes_factory.html">The (Minimum)EigensolverFactory Migration Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../migration/0.6_c_qubit_converter.html">The QubitConverter Migration Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../migration/0.5_a_intro.html">Qiskit Nature v0.5 Migration Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../migration/0.5_b_solving_problems.html">Solving Problems with v0.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../migration/0.5_b_solving_problems.html#qiskit-nature-mappers"><code class="docutils literal notranslate"><span class="pre">qiskit_nature.mappers</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../migration/0.5_b_solving_problems.html#qiskit-nature-converters"><code class="docutils literal notranslate"><span class="pre">qiskit_nature.converters</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../migration/0.5_b_solving_problems.html#qiskit-nature-circuit"><code class="docutils literal notranslate"><span class="pre">qiskit_nature.circuit</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../migration/0.5_b_solving_problems.html#qiskit-nature-algorithms"><code class="docutils literal notranslate"><span class="pre">qiskit_nature.algorithms</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../migration/0.5_c_electronic_structure.html">Electronic Structure Problems with v0.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../migration/0.5_d_vibrational_structure.html">Vibrational Structure Problems with v0.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../migration/0.5_e_lattice_models.html">Lattice Model Problems with v0.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../migration/0.5_f_protein_folding.html">Protein Folding with Qiskit Nature v0.5</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">পাঠসমূহ</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of পাঠসমূহ</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="01_electronic_structure.html">ইলেকট্রনিক গঠন</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_vibrational_structure.html">কম্পন গঠন</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03_ground_state_solvers.html">গ্রাউন্ড স্টেট সমাধানকারী</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04_excited_states_solvers.html">উত্তেজিত স্তর বা অবস্থা সমাধানকারী (সলভার)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_problem_transformers.html">Transforming Problems</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Mapping to the Qubit Space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07_leveraging_qiskit_runtime.html">Qiskit রানটাইম লিভারেজিং</a></li>
+<li class="toctree-l2"><a class="reference internal" href="08_qcschema.html">QCSchema</a></li>
+<li class="toctree-l2"><a class="reference internal" href="09_properties.html">Properties - or - Operator Factories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="10_lattice_models.html">Lattice models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="11_quadratic_hamiltonian_and_slater_determinants.html">Quadratic Hamiltonians and Slater determinants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12_deuteron_binding_energy.html">Binding Energy between proton and neutron in the Deuteron nucleus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12_deuteron_binding_energy.html#Acknowledgment">Acknowledgment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="12_deuteron_binding_energy.html#References">References</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../howtos/index.html">How-Tos</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of How-Tos</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../howtos/adapt_vqe.html">Find ground state energy using AdaptVQE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtos/numpy_eigensolver.html">Find excited state energies using the NumPyEigensolver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtos/numpy_minimum_eigensolver.html">Find ground state energy using the NumPyMinimumEigensolver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtos/vqe_ucc.html">Use a UCC-like ansatz with a VQE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../howtos/vqe_uvcc.html">Use a UVCC-like ansatz with a VQE</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.html">এপিআই (এপ্লিকেশন প্রোগ্রামিং ইন্টারফেস) এর তথ্যসূত্র</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of এপিআই (এপ্লিকেশন প্রোগ্রামিং ইন্টারফেস) এর তথ্যসূত্র</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../stubs/qiskit_nature.QiskitNatureError.html">QiskitNatureError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../stubs/qiskit_nature.UnsupportMethodError.html">UnsupportMethodError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidocs/qiskit_nature.logging.html"><code class="docutils literal notranslate"><span class="pre">QiskitNatureLogging</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../apidocs/qiskit_nature.settings.html"><code class="docutils literal notranslate"><span class="pre">QiskitNatureSettings</span></code></a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.html">Second Quantization (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Second Quantization (qiskit_nature.second_q)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.algorithms.html">Algorithms (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.algorithms</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Algorithms (qiskit_nature.second_q.algorithms)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.algorithms.ExcitedStatesSolver.html">ExcitedStatesSolver</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.algorithms.ExcitedStatesEigensolver.html">ExcitedStatesEigensolver</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.algorithms.QEOM.html">QEOM</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.algorithms.QEOMResult.html">QEOMResult</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.algorithms.EvaluationRule.html">EvaluationRule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.algorithms.GroundStateSolver.html">GroundStateSolver</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.algorithms.GroundStateEigensolver.html">GroundStateEigensolver</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.algorithms.initial_points.html">Initial Points (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.algorithms.initial_points</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of Initial Points (qiskit_nature.second_q.algorithms.initial_points)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.algorithms.initial_points.InitialPoint.html">InitialPoint</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.algorithms.initial_points.HFInitialPoint.html">HFInitialPoint</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.algorithms.initial_points.MP2InitialPoint.html">MP2InitialPoint</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.algorithms.initial_points.VSCFInitialPoint.html">VSCFInitialPoint</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.circuit.html">Circuit (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.circuit</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of Circuit (qiskit_nature.second_q.circuit)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.circuit.library.html">Library (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.circuit.library</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of Library (qiskit_nature.second_q.circuit.library)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.circuit.library.BogoliubovTransform.html">BogoliubovTransform</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.circuit.library.FermionicGaussianState.html">FermionicGaussianState</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.circuit.library.HartreeFock.html">HartreeFock</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.circuit.library.SlaterDeterminant.html">SlaterDeterminant</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.circuit.library.VSCF.html">VSCF</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.circuit.library.UCC.html">UCC</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.circuit.library.UCCSD.html">UCCSD</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.circuit.library.PUCCD.html">PUCCD</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.circuit.library.PUCCSD.html">PUCCSD</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.circuit.library.SUCCD.html">SUCCD</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.circuit.library.CHC.html">CHC</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.circuit.library.UVCC.html">UVCC</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.circuit.library.UVCCSD.html">UVCCSD</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.circuit.library.ansatzes.utils.html">Excitation generator utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.circuit.library.ansatzes.utils</span></code>)</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.circuit.library.ansatzes.utils.html#qiskit_nature.second_q.circuit.library.ansatzes.utils.generate_fermionic_excitations"><code class="docutils literal notranslate"><span class="pre">generate_fermionic_excitations()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.circuit.library.ansatzes.utils.html#qiskit_nature.second_q.circuit.library.ansatzes.utils.generate_vibration_excitations"><code class="docutils literal notranslate"><span class="pre">generate_vibration_excitations()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.drivers.html">Drivers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.drivers</span></code>)</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.drivers.html#driver-base-class">Driver Base Class</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of Driver Base Class</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.drivers.BaseDriver.html">BaseDriver</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.drivers.VibrationalStructureDriver.html">VibrationalStructureDriver</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.drivers.ElectronicStructureDriver.html">ElectronicStructureDriver</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.drivers.html#driver-common">Driver Common</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle navigation of Driver Common</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.drivers.MethodType.html">MethodType</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.drivers.InitialGuess.html">InitialGuess</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.drivers.html#drivers">Drivers</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle navigation of Drivers</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.drivers.gaussiand.html">Gaussian™ 16 Installation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.drivers.psi4d.html">Psi4 Installation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.drivers.pyscfd.html">PYSCF Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.drivers.html#electronic-structure-drivers">Electronic Structure Drivers</a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle navigation of Electronic Structure Drivers</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.drivers.GaussianDriver.html">GaussianDriver</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.drivers.Psi4Driver.html">Psi4Driver</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.drivers.PySCFDriver.html">PySCFDriver</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.drivers.html#vibrational-structure-drivers">Vibrational Structure Drivers</a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><div class="visually-hidden">Toggle navigation of Vibrational Structure Drivers</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.drivers.GaussianForcesDriver.html">GaussianForcesDriver</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.drivers.html#general-driver">General Driver</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" role="switch" type="checkbox"/><label for="toctree-checkbox-15"><div class="visually-hidden">Toggle navigation of General Driver</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.drivers.GaussianLogDriver.html">GaussianLogDriver</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.drivers.GaussianLogResult.html">GaussianLogResult</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.formats.html">Formats (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.formats</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" role="switch" type="checkbox"/><label for="toctree-checkbox-16"><div class="visually-hidden">Toggle navigation of Formats (qiskit_nature.second_q.formats)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.formats.fcidump.html">FCIDump (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.formats.fcidump</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" role="switch" type="checkbox"/><label for="toctree-checkbox-17"><div class="visually-hidden">Toggle navigation of FCIDump (qiskit_nature.second_q.formats.fcidump)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.formats.fcidump.FCIDump.html">FCIDump</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.formats.qcschema.html">QCSchema (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.formats.qcschema</span></code>)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCBasisSet"><code class="docutils literal notranslate"><span class="pre">QCBasisSet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCCenterData"><code class="docutils literal notranslate"><span class="pre">QCCenterData</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCECPPotential"><code class="docutils literal notranslate"><span class="pre">QCECPPotential</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCElectronShell"><code class="docutils literal notranslate"><span class="pre">QCElectronShell</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCError"><code class="docutils literal notranslate"><span class="pre">QCError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCModel"><code class="docutils literal notranslate"><span class="pre">QCModel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCProperties"><code class="docutils literal notranslate"><span class="pre">QCProperties</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCProvenance"><code class="docutils literal notranslate"><span class="pre">QCProvenance</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCSchema"><code class="docutils literal notranslate"><span class="pre">QCSchema</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCSchemaInput"><code class="docutils literal notranslate"><span class="pre">QCSchemaInput</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCTopology"><code class="docutils literal notranslate"><span class="pre">QCTopology</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCWavefunction"><code class="docutils literal notranslate"><span class="pre">QCWavefunction</span></code></a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.formats.watson.html">Watson</a><input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" role="switch" type="checkbox"/><label for="toctree-checkbox-18"><div class="visually-hidden">Toggle navigation of Watson</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.formats.watson.WatsonHamiltonian.html">WatsonHamiltonian</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.formats.MoleculeInfo.html">MoleculeInfo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.formats.fcidump_to_problem.html">fcidump_to_problem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.formats.watson_to_problem.html">watson_to_problem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.formats.qcschema_to_problem.html">qcschema_to_problem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.formats.get_ao_to_mo_from_qcschema.html">get_ao_to_mo_from_qcschema</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.formats.get_overlap_ab_from_qcschema.html">get_overlap_ab_from_qcschema</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.hamiltonians.html">Hamiltonians (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.hamiltonians</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" role="switch" type="checkbox"/><label for="toctree-checkbox-19"><div class="visually-hidden">Toggle navigation of Hamiltonians (qiskit_nature.second_q.hamiltonians)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.hamiltonians.QuadraticHamiltonian.html">QuadraticHamiltonian</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.hamiltonians.ElectronicEnergy.html">ElectronicEnergy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.hamiltonians.VibrationalEnergy.html">VibrationalEnergy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.hamiltonians.FermiHubbardModel.html">FermiHubbardModel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.hamiltonians.HeisenbergModel.html">HeisenbergModel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.hamiltonians.IsingModel.html">IsingModel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.hamiltonians.LatticeModel.html">LatticeModel</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.hamiltonians.lattices.html">Lattices (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.hamiltonians.lattices</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" role="switch" type="checkbox"/><label for="toctree-checkbox-20"><div class="visually-hidden">Toggle navigation of Lattices (qiskit_nature.second_q.hamiltonians.lattices)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.hamiltonians.lattices.BoundaryCondition.html">BoundaryCondition</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.hamiltonians.lattices.Lattice.html">Lattice</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.hamiltonians.lattices.LatticeDrawStyle.html">LatticeDrawStyle</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.hamiltonians.lattices.LineLattice.html">LineLattice</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.hamiltonians.lattices.SquareLattice.html">SquareLattice</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.hamiltonians.lattices.TriangularLattice.html">TriangularLattice</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.hamiltonians.lattices.HyperCubicLattice.html">HyperCubicLattice</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.hamiltonians.lattices.HexagonalLattice.html">HexagonalLattice</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.hamiltonians.lattices.KagomeLattice.html">KagomeLattice</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.mappers.html">Mappers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.mappers</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" role="switch" type="checkbox"/><label for="toctree-checkbox-21"><div class="visually-hidden">Toggle navigation of Mappers (qiskit_nature.second_q.mappers)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.QubitMapper.html">QubitMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.BravyiKitaevMapper.html">BravyiKitaevMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.BravyiKitaevSuperFastMapper.html">BravyiKitaevSuperFastMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.JordanWignerMapper.html">JordanWignerMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.ParityMapper.html">ParityMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.InterleavedQubitMapper.html">InterleavedQubitMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.BosonicLinearMapper.html">BosonicLinearMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.DirectMapper.html">DirectMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.LinearMapper.html">LinearMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.LogarithmicMapper.html">LogarithmicMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.TaperedQubitMapper.html">TaperedQubitMapper</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.operators.html">Operators (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.operators</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" role="switch" type="checkbox"/><label for="toctree-checkbox-22"><div class="visually-hidden">Toggle navigation of Operators (qiskit_nature.second_q.operators)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.ElectronicIntegrals.html">ElectronicIntegrals</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.FermionicOp.html">FermionicOp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.BosonicOp.html">BosonicOp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.SparseLabelOp.html">SparseLabelOp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.SpinOp.html">SpinOp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.VibrationalOp.html">VibrationalOp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.VibrationalIntegrals.html">VibrationalIntegrals</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.PolynomialTensor.html">PolynomialTensor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.Tensor.html">Tensor</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.operators.tensor_ordering.html">Tensor Ordering Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.operators.tensor_ordering</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" role="switch" type="checkbox"/><label for="toctree-checkbox-23"><div class="visually-hidden">Toggle navigation of Tensor Ordering Utilities (qiskit_nature.second_q.operators.tensor_ordering)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.tensor_ordering.to_chemist_ordering.html">to_chemist_ordering</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.tensor_ordering.to_physicist_ordering.html">to_physicist_ordering</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.tensor_ordering.find_index_order.html">find_index_order</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.tensor_ordering.IndexType.html">IndexType</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.operators.symmetric_two_body.html">Symmetric 2-body electronic integrals (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.operators.symmetric_two_body</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" role="switch" type="checkbox"/><label for="toctree-checkbox-24"><div class="visually-hidden">Toggle navigation of Symmetric 2-body electronic integrals (qiskit_nature.second_q.operators.symmetric_two_body)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.symmetric_two_body.SymmetricTwoBodyIntegrals.html">SymmetricTwoBodyIntegrals</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.symmetric_two_body.S1Integrals.html">S1Integrals</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.symmetric_two_body.S4Integrals.html">S4Integrals</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.symmetric_two_body.S8Integrals.html">S8Integrals</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.symmetric_two_body.unfold.html">unfold</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.symmetric_two_body.unfold_s4_to_s1.html">unfold_s4_to_s1</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.symmetric_two_body.unfold_s8_to_s1.html">unfold_s8_to_s1</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.symmetric_two_body.unfold_s8_to_s4.html">unfold_s8_to_s4</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.symmetric_two_body.fold.html">fold</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.symmetric_two_body.fold_s1_to_s4.html">fold_s1_to_s4</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.symmetric_two_body.fold_s1_to_s8.html">fold_s1_to_s8</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.symmetric_two_body.fold_s4_to_s8.html">fold_s4_to_s8</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.operators.commutators.html">Commutator Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.operators.commutators</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-25" name="toctree-checkbox-25" role="switch" type="checkbox"/><label for="toctree-checkbox-25"><div class="visually-hidden">Toggle navigation of Commutator Utilities (qiskit_nature.second_q.operators.commutators)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.commutators.commutator.html">commutator</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.commutators.anti_commutator.html">anti_commutator</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.commutators.double_commutator.html">double_commutator</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.problems.html">Problems (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.problems</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-26" name="toctree-checkbox-26" role="switch" type="checkbox"/><label for="toctree-checkbox-26"><div class="visually-hidden">Toggle navigation of Problems (qiskit_nature.second_q.problems)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.problems.BaseProblem.html">BaseProblem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.problems.ElectronicBasis.html">ElectronicBasis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.problems.VibrationalBasis.html">VibrationalBasis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.problems.HarmonicBasis.html">HarmonicBasis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.problems.ElectronicStructureProblem.html">ElectronicStructureProblem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.problems.VibrationalStructureProblem.html">VibrationalStructureProblem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.problems.LatticeModelProblem.html">LatticeModelProblem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.problems.PropertiesContainer.html">PropertiesContainer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.problems.ElectronicPropertiesContainer.html">ElectronicPropertiesContainer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.problems.VibrationalPropertiesContainer.html">VibrationalPropertiesContainer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.problems.LatticePropertiesContainer.html">LatticePropertiesContainer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.problems.EigenstateResult.html">EigenstateResult</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.problems.ElectronicStructureResult.html">ElectronicStructureResult</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.problems.VibrationalStructureResult.html">VibrationalStructureResult</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.problems.LatticeModelResult.html">LatticeModelResult</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.properties.html">Properties (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.properties</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-27" name="toctree-checkbox-27" role="switch" type="checkbox"/><label for="toctree-checkbox-27"><div class="visually-hidden">Toggle navigation of Properties (qiskit_nature.second_q.properties)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.properties.SparseLabelOpsFactory.html">SparseLabelOpsFactory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.properties.Interpretable.html">Interpretable</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.properties.AngularMomentum.html">AngularMomentum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.properties.ElectronicDensity.html">ElectronicDensity</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.properties.ElectronicDipoleMoment.html">ElectronicDipoleMoment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.properties.Magnetization.html">Magnetization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.properties.ParticleNumber.html">ParticleNumber</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.properties.s_operators.html">s_operators</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.properties.OccupiedModals.html">OccupiedModals</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.transformers.html">Transformers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.transformers</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-28" name="toctree-checkbox-28" role="switch" type="checkbox"/><label for="toctree-checkbox-28"><div class="visually-hidden">Toggle navigation of Transformers (qiskit_nature.second_q.transformers)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.transformers.BaseTransformer.html">BaseTransformer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.transformers.BasisTransformer.html">BasisTransformer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.transformers.ActiveSpaceTransformer.html">ActiveSpaceTransformer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.transformers.FreezeCoreTransformer.html">FreezeCoreTransformer</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.testing.html">Testing utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.testing</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-29" name="toctree-checkbox-29" role="switch" type="checkbox"/><label for="toctree-checkbox-29"><div class="visually-hidden">Toggle navigation of Testing utilities (qiskit_nature.testing)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_nature.testing.random_antisymmetric_matrix.html">random_antisymmetric_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_nature.testing.random_quadratic_hamiltonian.html">random_quadratic_hamiltonian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_nature.testing.random_two_body_tensor_real.html">random_two_body_tensor_real</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.utils.html">Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.utils</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-30" name="toctree-checkbox-30" role="switch" type="checkbox"/><label for="toctree-checkbox-30"><div class="visually-hidden">Toggle navigation of Utilities (qiskit_nature.utils)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_nature.utils.apply_matrix_to_slices.html">apply_matrix_to_slices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_nature.utils.givens_matrix.html">givens_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_nature.utils.double_factorized.html">double_factorized</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../stubs/qiskit_nature.utils.modified_cholesky.html">modified_cholesky</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes.html">অব্যাহতি পত্র</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/qiskit-community/qiskit-nature">GitHub</a></li>
+</ul>
+
+</div></div><div class="qiskit-translations-container" aria-label="languages">
+  <input id="translations-checkbox" name="translations-checkbox" role="switch" type="checkbox">
+  <div class="qiskit-translations-header-container"><label for="translations-checkbox">
+      <p role="note">Bengali</p>
+      <div class="qiskit-translations-toggle-container">
+        <div class="visually-hidden">Toggle translations list</div>
+        <i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i>
+      </div>
+    </label>
+  </div>
+  <div class="qiskit-translations-list-container">
+    <ul>
+      
+        <li><a href="/qiskit-nature/tutorials/06_qubit_mappers.html">English</a></li>
+      
+        <li><a href="/qiskit-nature/locale/bn_BN/tutorials/06_qubit_mappers.html">Bengali</a></li>
+      
+        <li><a href="/qiskit-nature/locale/ja_JP/tutorials/06_qubit_mappers.html">Japanese</a></li>
+      
+        <li><a href="/qiskit-nature/locale/es_UN/tutorials/06_qubit_mappers.html">Spanish</a></li>
+      
+    </ul>
+  </div>
+  <script>
+    document.querySelectorAll('.version').forEach((element) => {
+      element.addEventListener('click', (evt) => {
+        const hash = window.location.hash;
+        const complete_url = evt.target.href + hash;
+        window.location = complete_url;
+        evt.preventDefault();
+      });
+    });
+  </script>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <div class="admonition note">
+<p class="admonition-title">নোট</p>
+<p>This page was generated from <a class="reference external" href="https://github.com/qiskit-community/qiskit-nature/blob/stable/0.7/docs/tutorials/06_qubit_mappers.ipynb">docs/tutorials/06_qubit_mappers.ipynb</a>.</p>
+</div>
+<section id="Mapping-to-the-Qubit-Space">
+<h1>Mapping to the Qubit Space<a class="headerlink" href="#Mapping-to-the-Qubit-Space" title="Permalink to this heading">#</a></h1>
+<p>The problems and operators with which you interact in Qiskit Nature (usually) need to be mapped into the qubit space before they can be solved with our quantum algorithms. This task is handled by the various <code class="docutils literal notranslate"><span class="pre">QubitMapper</span></code> classes.</p>
+<p>In this tutorial, you will learn about the various options available to you.</p>
+<section id="Fermionic-Mappers">
+<h2>Fermionic Mappers<a class="headerlink" href="#Fermionic-Mappers" title="Permalink to this heading">#</a></h2>
+<p>This section deals with fermionic mappers, which transform fermionic operators into the qubit space. This is mostly used by the <a class="reference internal" href="01_electronic_structure.html"><span class="doc">electronic structure stack</span></a> but also finds application for the <code class="docutils literal notranslate"><span class="pre">`FermiHubbardModel</span></code> &lt;TODO&gt;`__.</p>
+<p>There exist different mapping types with different properties. Qiskit Nature already supports the following fermionic mappings:</p>
+<ul class="simple">
+<li><p>Jordan-Wigner (Zeitschrift für Physik, 47, 631-651 (1928))</p></li>
+<li><p>Parity (The Journal of chemical physics, 137(22), 224109 (2012))</p></li>
+<li><p>Bravyi-Kitaev (Annals of Physics, 298(1), 210-226 (2002))</p></li>
+</ul>
+<p>We will discuss some of these in the following sections. You should learn all the information necessary, to comfortable work with any of the available mappers.</p>
+<p>In order to discuss the various mappings, we will be using the electronic structure Hamiltonian of the H2 molecule. For more information on how to obtain this, please refer to the <a class="reference internal" href="01_electronic_structure.html"><span class="doc">electronic structure tutorial</span></a>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_nature.second_q.drivers</span> <span class="kn">import</span> <span class="n">PySCFDriver</span>
+
+<span class="n">driver</span> <span class="o">=</span> <span class="n">PySCFDriver</span><span class="p">()</span>
+<span class="n">problem</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="n">fermionic_op</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">hamiltonian</span><span class="o">.</span><span class="n">second_q_op</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<section id="The-Jordan-Wigner-Mapping">
+<h3>The Jordan-Wigner Mapping<a class="headerlink" href="#The-Jordan-Wigner-Mapping" title="Permalink to this heading">#</a></h3>
+<p>The Jordan-Wigner mapping is the most straight-forward mapping with the simplest physical interpretation, because it maps the occupation of one spin-orbital to the occupation of one qubit.</p>
+<p><img alt="981f81b449e4465baba055b9d653e937" class="no-scaled-link" src="../_images/jw_mapping.png" style="width: 500px;" /></p>
+<p>You can construct use it like so:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_nature.second_q.mappers</span> <span class="kn">import</span> <span class="n">JordanWignerMapper</span>
+
+<span class="n">mapper</span> <span class="o">=</span> <span class="n">JordanWignerMapper</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">qubit_jw_op</span> <span class="o">=</span> <span class="n">mapper</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">fermionic_op</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">qubit_jw_op</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+-0.8105479805373283 * IIII
++ 0.17218393261915543 * IIIZ
+- 0.2257534922240237 * IIZI
++ 0.12091263261776633 * IIZZ
++ 0.17218393261915543 * IZII
++ 0.16892753870087907 * IZIZ
++ 0.045232799946057826 * YYYY
++ 0.045232799946057826 * XXYY
++ 0.045232799946057826 * YYXX
++ 0.045232799946057826 * XXXX
+- 0.22575349222402363 * ZIII
++ 0.1661454325638241 * ZIIZ
++ 0.16614543256382408 * IZZI
++ 0.1746434306830045 * ZIZI
++ 0.12091263261776633 * ZZII
+True
+</pre></div></div>
+</div>
+</section>
+<section id="The-Parity-Mapping">
+<h3>The Parity Mapping<a class="headerlink" href="#The-Parity-Mapping" title="Permalink to this heading">#</a></h3>
+<p>The Parity mapping is the dual mapping to the Jordan-Wigner one, in the sense that it encodes the parity information locally on one qubit, whereas the occupation information is delocalized over all qubits.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_nature.second_q.mappers</span> <span class="kn">import</span> <span class="n">ParityMapper</span>
+
+<span class="n">mapper</span> <span class="o">=</span> <span class="n">ParityMapper</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">qubit_p_op</span> <span class="o">=</span> <span class="n">mapper</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">fermionic_op</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">qubit_p_op</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+-0.8105479805373283 * IIII
++ 0.17218393261915543 * IIIZ
+- 0.2257534922240237 * IIZZ
++ 0.12091263261776633 * IIZI
++ 0.17218393261915543 * IZZI
++ 0.16892753870087907 * IZZZ
++ 0.045232799946057826 * ZXIX
+- 0.045232799946057826 * IXZX
+- 0.045232799946057826 * ZXZX
++ 0.045232799946057826 * IXIX
+- 0.22575349222402363 * ZZII
++ 0.1661454325638241 * ZZIZ
++ 0.16614543256382408 * IZIZ
++ 0.1746434306830045 * ZZZZ
++ 0.12091263261776633 * ZIZI
+</pre></div></div>
+</div>
+<p>This has one major benefit for the case of problems in which we want to preserve the number of particles of each spin species; it allows us to remove 2 qubits, because the information in them becomes redundant. Since Qiskit Nature arranges the qubits in block-order, such that the first half encodes the alpha-spin, and the second half the beta-spin information, this means we can remove the N/2-th and N-th qubit.</p>
+<p>To do this, you need to specify the number of particles in your system, like so:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mapper</span> <span class="o">=</span> <span class="n">ParityMapper</span><span class="p">(</span><span class="n">num_particles</span><span class="o">=</span><span class="n">problem</span><span class="o">.</span><span class="n">num_particles</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">qubit_op</span> <span class="o">=</span> <span class="n">mapper</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">fermionic_op</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">qubit_op</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+-1.0523732457728605 * II
++ 0.39793742484317896 * IZ
+- 0.39793742484317896 * ZI
+- 0.01128010425623538 * ZZ
++ 0.18093119978423122 * XX
+</pre></div></div>
+</div>
+</section>
+<section id="More-advanced-qubit-reductions">
+<h3>More advanced qubit reductions<a class="headerlink" href="#More-advanced-qubit-reductions" title="Permalink to this heading">#</a></h3>
+<p>It is also possible to perform more advanced qubit reductions, which are based on finding Z2 symmetries in the Hilbert space of the qubit. A requirement for this to be useful, is that you know in which symmetry-subspace you need to look for your actual solution of interest. This can be a bit tricky, but luckily the problem classes of Qiskit Nature provide you with a utility to automatically determine that correct subspace.</p>
+<p>Here is how you can use this to your advantage:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tapered_mapper</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">get_tapered_mapper</span><span class="p">(</span><span class="n">mapper</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">tapered_mapper</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;class &#39;qiskit_nature.second_q.mappers.tapered_qubit_mapper.TaperedQubitMapper&#39;&gt;
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">qubit_op</span> <span class="o">=</span> <span class="n">tapered_mapper</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">fermionic_op</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">qubit_op</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+-1.041093141516625 * I
+- 0.7958748496863577 * Z
+- 0.1809311997842312 * X
+</pre></div></div>
+</div>
+<p>As you can see here, the H2 molecule is such a simple system that we can simulate it entirely on a single qubit!</p>
+</section>
+<section id="Interleaved-ordering">
+<h3>Interleaved ordering<a class="headerlink" href="#Interleaved-ordering" title="Permalink to this heading">#</a></h3>
+<p>As mentioned previously, Qiskit Nature arranges the fermionic spin-up and spin-down parts of the qubit register in block-order. However, sometimes one may want to interleave the registers instead. This can be achieved by means of the <code class="docutils literal notranslate"><span class="pre">InterleavedQubitMapper</span></code>. This can be shown best upon inspection of the <code class="docutils literal notranslate"><span class="pre">HarteeFock</span></code> initial state circuit:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_nature.second_q.circuit.library</span> <span class="kn">import</span> <span class="n">HartreeFock</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">hf_state</span> <span class="o">=</span> <span class="n">HartreeFock</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">JordanWignerMapper</span><span class="p">())</span>
+<span class="n">hf_state</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="word-wrap: normal;white-space: pre;background: #fff0;line-height: 1.1;font-family: &quot;Courier New&quot;,Courier,monospace">     ┌───┐
+q_0: ┤ X ├
+     └───┘
+q_1: ─────
+     ┌───┐
+q_2: ┤ X ├
+     └───┘
+q_3: ─────
+          </pre></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_nature.second_q.mappers</span> <span class="kn">import</span> <span class="n">InterleavedQubitMapper</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">interleaved_mapper</span> <span class="o">=</span> <span class="n">InterleavedQubitMapper</span><span class="p">(</span><span class="n">JordanWignerMapper</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">hf_state</span> <span class="o">=</span> <span class="n">HartreeFock</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">interleaved_mapper</span><span class="p">)</span>
+<span class="n">hf_state</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<pre style="word-wrap: normal;white-space: pre;background: #fff0;line-height: 1.1;font-family: &quot;Courier New&quot;,Courier,monospace">     ┌───┐
+q_0: ┤ X ├
+     ├───┤
+q_1: ┤ X ├
+     └───┘
+q_2: ─────
+
+q_3: ─────
+          </pre></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">qiskit.tools.jupyter</span>
+
+<span class="o">%</span><span class="k">qiskit_version_table</span>
+<span class="o">%</span><span class="k">qiskit_copyright</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<h3>Version Information</h3><table><tr><th>Qiskit Software</th><th>Version</th></tr><tr><td><code>qiskit-terra</code></td><td>0.24.0.dev0+2b3686f</td></tr><tr><td><code>qiskit-aer</code></td><td>0.11.2</td></tr><tr><td><code>qiskit-ibmq-provider</code></td><td>0.19.2</td></tr><tr><td><code>qiskit-nature</code></td><td>0.6.0</td></tr><tr><th>System information</th></tr><tr><td>Python version</td><td>3.9.16</td></tr><tr><td>Python compiler</td><td>GCC 12.2.1 20221121 (Red Hat 12.2.1-4)</td></tr><tr><td>Python build</td><td>main, Dec  7 2022 00:00:00</td></tr><tr><td>OS</td><td>Linux</td></tr><tr><td>CPUs</td><td>8</td></tr><tr><td>Memory (Gb)</td><td>62.50002670288086</td></tr><tr><td colspan='2'>Thu Apr 06 09:11:44 2023 CEST</td></tr></table></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div style='width: 100%; background-color:#d5d9e0;padding-left: 10px; padding-bottom: 10px; padding-right: 10px; padding-top: 5px'><h3>This code is a part of Qiskit</h3><p>&copy; Copyright IBM 2017, 2023.</p><p>This code is licensed under the Apache License, Version 2.0. You may<br>obtain a copy of this license in the LICENSE.txt file in the root directory<br> of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.<p>Any modifications or derivative works of this code must retain this<br>copyright notice, and modified files need to carry a notice indicating<br>that they have been altered from the originals.</p></div></div>
+</div>
+</section>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+  <script>
+    function userFeedbackClicked(ctaType) {
+      document.getElementById('qiskit-analytics-thank-you').style.visibility = 'visible';
+      window.trackCta(`Helpful - ${ctaType}`);
+    }
+  </script>
+    <div class="qiskit-analytics-container">
+      <div>Was this page helpful?</div>
+      <a onclick="userFeedbackClicked('yes')">Yes</a>
+      <a onclick="userFeedbackClicked('no')">No</a>
+      <div id="qiskit-analytics-thank-you">Thank you!</div>
+    </div>
+<div class="related-pages">
+          <a class="next-page" href="07_leveraging_qiskit_runtime.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Qiskit রানটাইম লিভারেজিং</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="05_problem_transformers.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Transforming Problems</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2018, 2024, Qiskit Nature Development Team
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Mapping to the Qubit Space</a><ul>
+<li><a class="reference internal" href="#Fermionic-Mappers">Fermionic Mappers</a><ul>
+<li><a class="reference internal" href="#The-Jordan-Wigner-Mapping">The Jordan-Wigner Mapping</a></li>
+<li><a class="reference internal" href="#The-Parity-Mapping">The Parity Mapping</a></li>
+<li><a class="reference internal" href="#More-advanced-qubit-reductions">More advanced qubit reductions</a></li>
+<li><a class="reference internal" href="#Interleaved-ordering">Interleaved ordering</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=eb63cb1d"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/scripts/qiskit-sphinx-theme.js?v=4d77b8ca"></script>
+    <script src="../_static/design-tabs.js?v=36754332"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    </body>
+</html>

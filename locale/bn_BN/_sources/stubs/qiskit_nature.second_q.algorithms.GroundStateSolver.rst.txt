@@ -1,0 +1,31 @@
+﻿
+
+GroundStateSolver
+===================================================
+
+.. currentmodule:: qiskit_nature.second_q.algorithms
+
+.. autoclass:: GroundStateSolver
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: GroundStateSolver.qubit_mapper
+   .. autoattribute:: GroundStateSolver.solver
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: GroundStateSolver.get_qubit_operators
+   .. automethod:: GroundStateSolver.solve
+   .. automethod:: GroundStateSolver.supports_aux_operators
+   
+   

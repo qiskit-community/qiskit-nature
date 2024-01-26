@@ -1,0 +1,27 @@
+﻿
+
+JordanWignerMapper
+=================================================
+
+.. currentmodule:: qiskit_nature.second_q.mappers
+
+.. autoclass:: JordanWignerMapper
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: JordanWignerMapper.map
+   .. automethod:: JordanWignerMapper.mode_based_mapping
+   .. automethod:: JordanWignerMapper.pauli_table
+   .. automethod:: JordanWignerMapper.sparse_pauli_operators
+   
+   

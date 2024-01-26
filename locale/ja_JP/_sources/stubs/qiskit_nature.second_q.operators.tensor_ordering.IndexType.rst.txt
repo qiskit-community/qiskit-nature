@@ -1,0 +1,27 @@
+﻿
+
+IndexType
+==========================================================
+
+.. currentmodule:: qiskit_nature.second_q.operators.tensor_ordering
+
+.. autoclass:: IndexType
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: IndexType.CHEMIST
+   .. autoattribute:: IndexType.PHYSICIST
+   .. autoattribute:: IndexType.INTERMEDIATE
+   .. autoattribute:: IndexType.UNKNOWN
+   
+   
+
+   
+   
+   

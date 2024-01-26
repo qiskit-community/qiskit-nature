@@ -1,0 +1,24 @@
+﻿
+
+SparseLabelOpsFactory
+=======================================================
+
+.. currentmodule:: qiskit_nature.second_q.properties
+
+.. autoclass:: SparseLabelOpsFactory
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: SparseLabelOpsFactory.second_q_ops
+   
+   

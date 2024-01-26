@@ -1,0 +1,8 @@
+﻿
+
+random_quadratic_hamiltonian
+==================================================
+
+.. currentmodule:: qiskit_nature.testing
+
+.. autofunction:: random_quadratic_hamiltonian

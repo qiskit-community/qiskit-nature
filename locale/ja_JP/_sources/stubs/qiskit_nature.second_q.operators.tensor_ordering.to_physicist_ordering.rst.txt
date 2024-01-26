@@ -1,0 +1,8 @@
+﻿
+
+to_physicist_ordering
+======================================================================
+
+.. currentmodule:: qiskit_nature.second_q.operators.tensor_ordering
+
+.. autofunction:: to_physicist_ordering

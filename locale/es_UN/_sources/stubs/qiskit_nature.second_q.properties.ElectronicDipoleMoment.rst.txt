@@ -1,0 +1,29 @@
+﻿
+
+ElectronicDipoleMoment
+========================================================
+
+.. currentmodule:: qiskit_nature.second_q.properties
+
+.. autoclass:: ElectronicDipoleMoment
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: ElectronicDipoleMoment.nuclear_dipole_moment
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: ElectronicDipoleMoment.interpret
+   .. automethod:: ElectronicDipoleMoment.second_q_ops
+   
+   

@@ -1,0 +1,31 @@
+﻿
+
+LatticeModelProblem
+===================================================
+
+.. currentmodule:: qiskit_nature.second_q.problems
+
+.. autoclass:: LatticeModelProblem
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: LatticeModelProblem.hamiltonian
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: LatticeModelProblem.get_default_filter_criterion
+   .. automethod:: LatticeModelProblem.get_tapered_mapper
+   .. automethod:: LatticeModelProblem.interpret
+   .. automethod:: LatticeModelProblem.second_q_ops
+   
+   

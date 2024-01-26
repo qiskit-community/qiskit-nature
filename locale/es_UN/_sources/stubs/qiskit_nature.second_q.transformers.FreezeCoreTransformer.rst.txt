@@ -1,0 +1,28 @@
+﻿
+
+FreezeCoreTransformer
+=========================================================
+
+.. currentmodule:: qiskit_nature.second_q.transformers
+
+.. autoclass:: FreezeCoreTransformer
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: FreezeCoreTransformer.Z
+   .. automethod:: FreezeCoreTransformer.count_core_orbitals
+   .. automethod:: FreezeCoreTransformer.prepare_active_space
+   .. automethod:: FreezeCoreTransformer.transform
+   .. automethod:: FreezeCoreTransformer.transform_hamiltonian
+   
+   

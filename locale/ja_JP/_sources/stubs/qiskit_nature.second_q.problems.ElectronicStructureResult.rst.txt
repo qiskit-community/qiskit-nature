@@ -1,0 +1,57 @@
+﻿
+
+ElectronicStructureResult
+=========================================================
+
+.. currentmodule:: qiskit_nature.second_q.problems
+
+.. autoclass:: ElectronicStructureResult
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: ElectronicStructureResult.computed_dipole_moment
+   .. autoattribute:: ElectronicStructureResult.computed_energies
+   .. autoattribute:: ElectronicStructureResult.dipole_moment
+   .. autoattribute:: ElectronicStructureResult.dipole_moment_in_debye
+   .. autoattribute:: ElectronicStructureResult.electronic_density
+   .. autoattribute:: ElectronicStructureResult.electronic_dipole_moment
+   .. autoattribute:: ElectronicStructureResult.electronic_energies
+   .. autoattribute:: ElectronicStructureResult.extracted_transformer_dipole
+   .. autoattribute:: ElectronicStructureResult.extracted_transformer_dipoles
+   .. autoattribute:: ElectronicStructureResult.extracted_transformer_energies
+   .. autoattribute:: ElectronicStructureResult.extracted_transformer_energy
+   .. autoattribute:: ElectronicStructureResult.groundenergy
+   .. autoattribute:: ElectronicStructureResult.groundstate
+   .. autoattribute:: ElectronicStructureResult.hartree_fock_energy
+   .. autoattribute:: ElectronicStructureResult.magnetization
+   .. autoattribute:: ElectronicStructureResult.nuclear_dipole_moment
+   .. autoattribute:: ElectronicStructureResult.nuclear_repulsion_energy
+   .. autoattribute:: ElectronicStructureResult.num_particles
+   .. autoattribute:: ElectronicStructureResult.reverse_dipole_sign
+   .. autoattribute:: ElectronicStructureResult.spin
+   .. autoattribute:: ElectronicStructureResult.total_angular_momentum
+   .. autoattribute:: ElectronicStructureResult.total_dipole_moment
+   .. autoattribute:: ElectronicStructureResult.total_dipole_moment_in_debye
+   .. autoattribute:: ElectronicStructureResult.total_energies
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: ElectronicStructureResult.combine
+   .. automethod:: ElectronicStructureResult.formatted
+   .. automethod:: ElectronicStructureResult.from_eigensolver_result
+   .. automethod:: ElectronicStructureResult.from_minimum_eigensolver_result
+   .. automethod:: ElectronicStructureResult.from_result
+   .. automethod:: ElectronicStructureResult.has_dipole
+   .. automethod:: ElectronicStructureResult.has_observables
+   
+   

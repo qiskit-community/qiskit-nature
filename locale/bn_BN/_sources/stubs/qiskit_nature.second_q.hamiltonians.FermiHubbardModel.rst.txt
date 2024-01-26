@@ -1,0 +1,32 @@
+﻿
+
+FermiHubbardModel
+=====================================================
+
+.. currentmodule:: qiskit_nature.second_q.hamiltonians
+
+.. autoclass:: FermiHubbardModel
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: FermiHubbardModel.lattice
+   .. autoattribute:: FermiHubbardModel.register_length
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: FermiHubbardModel.hopping_matrix
+   .. automethod:: FermiHubbardModel.interaction_matrix
+   .. automethod:: FermiHubbardModel.interpret
+   .. automethod:: FermiHubbardModel.second_q_op
+   
+   

@@ -1,0 +1,8 @@
+﻿
+
+unfold_s8_to_s1
+===================================================================
+
+.. currentmodule:: qiskit_nature.second_q.operators.symmetric_two_body
+
+.. autofunction:: unfold_s8_to_s1

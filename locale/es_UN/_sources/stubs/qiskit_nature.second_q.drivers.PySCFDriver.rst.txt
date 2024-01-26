@@ -1,0 +1,46 @@
+﻿
+
+PySCFDriver
+==========================================
+
+.. currentmodule:: qiskit_nature.second_q.drivers
+
+.. autoclass:: PySCFDriver
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: PySCFDriver.atom
+   .. autoattribute:: PySCFDriver.basis
+   .. autoattribute:: PySCFDriver.charge
+   .. autoattribute:: PySCFDriver.chkfile
+   .. autoattribute:: PySCFDriver.conv_tol
+   .. autoattribute:: PySCFDriver.init_guess
+   .. autoattribute:: PySCFDriver.max_cycle
+   .. autoattribute:: PySCFDriver.max_memory
+   .. autoattribute:: PySCFDriver.method
+   .. autoattribute:: PySCFDriver.spin
+   .. autoattribute:: PySCFDriver.unit
+   .. autoattribute:: PySCFDriver.xc_functional
+   .. autoattribute:: PySCFDriver.xcf_library
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: PySCFDriver.check_method_supported
+   .. automethod:: PySCFDriver.from_molecule
+   .. automethod:: PySCFDriver.run
+   .. automethod:: PySCFDriver.run_pyscf
+   .. automethod:: PySCFDriver.to_driver_basis
+   .. automethod:: PySCFDriver.to_problem
+   .. automethod:: PySCFDriver.to_qcschema
+   
+   

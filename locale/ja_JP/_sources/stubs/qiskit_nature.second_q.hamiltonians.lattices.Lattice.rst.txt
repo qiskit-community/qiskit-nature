@@ -1,0 +1,36 @@
+﻿
+
+Lattice
+====================================================
+
+.. currentmodule:: qiskit_nature.second_q.hamiltonians.lattices
+
+.. autoclass:: Lattice
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: Lattice.graph
+   .. autoattribute:: Lattice.node_indexes
+   .. autoattribute:: Lattice.num_nodes
+   .. autoattribute:: Lattice.weighted_edge_list
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: Lattice.copy
+   .. automethod:: Lattice.draw
+   .. automethod:: Lattice.from_adjacency_matrix
+   .. automethod:: Lattice.from_nodes_and_edges
+   .. automethod:: Lattice.to_adjacency_matrix
+   .. automethod:: Lattice.uniform_parameters
+   
+   

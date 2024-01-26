@@ -1,0 +1,29 @@
+﻿
+
+MethodType
+=========================================
+
+.. currentmodule:: qiskit_nature.second_q.drivers
+
+.. autoclass:: MethodType
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: MethodType.RHF
+   .. autoattribute:: MethodType.ROHF
+   .. autoattribute:: MethodType.UHF
+   .. autoattribute:: MethodType.RKS
+   .. autoattribute:: MethodType.ROKS
+   .. autoattribute:: MethodType.UKS
+   
+   
+
+   
+   
+   

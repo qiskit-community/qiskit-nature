@@ -1,0 +1,37 @@
+﻿
+
+TriangularLattice
+==============================================================
+
+.. currentmodule:: qiskit_nature.second_q.hamiltonians.lattices
+
+.. autoclass:: TriangularLattice
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: TriangularLattice.graph
+   .. autoattribute:: TriangularLattice.node_indexes
+   .. autoattribute:: TriangularLattice.num_nodes
+   .. autoattribute:: TriangularLattice.weighted_edge_list
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: TriangularLattice.copy
+   .. automethod:: TriangularLattice.draw
+   .. automethod:: TriangularLattice.draw_without_boundary
+   .. automethod:: TriangularLattice.from_adjacency_matrix
+   .. automethod:: TriangularLattice.from_nodes_and_edges
+   .. automethod:: TriangularLattice.to_adjacency_matrix
+   .. automethod:: TriangularLattice.uniform_parameters
+   
+   

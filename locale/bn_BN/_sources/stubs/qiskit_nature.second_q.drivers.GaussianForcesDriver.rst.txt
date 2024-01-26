@@ -1,0 +1,26 @@
+﻿
+
+GaussianForcesDriver
+===================================================
+
+.. currentmodule:: qiskit_nature.second_q.drivers
+
+.. autoclass:: GaussianForcesDriver
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: GaussianForcesDriver.from_molecule
+   .. automethod:: GaussianForcesDriver.run
+   .. automethod:: GaussianForcesDriver.to_driver_basis
+   
+   

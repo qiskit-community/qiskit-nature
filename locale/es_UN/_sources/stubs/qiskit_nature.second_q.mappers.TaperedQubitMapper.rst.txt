@@ -1,0 +1,29 @@
+﻿
+
+TaperedQubitMapper
+=================================================
+
+.. currentmodule:: qiskit_nature.second_q.mappers
+
+.. autoclass:: TaperedQubitMapper
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: TaperedQubitMapper.map
+   .. automethod:: TaperedQubitMapper.map_clifford
+   .. automethod:: TaperedQubitMapper.mode_based_mapping
+   .. automethod:: TaperedQubitMapper.pauli_table
+   .. automethod:: TaperedQubitMapper.sparse_pauli_operators
+   .. automethod:: TaperedQubitMapper.taper_clifford
+   
+   

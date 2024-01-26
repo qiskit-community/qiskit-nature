@@ -1,0 +1,27 @@
+﻿
+
+LinearMapper
+===========================================
+
+.. currentmodule:: qiskit_nature.second_q.mappers
+
+.. autoclass:: LinearMapper
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: LinearMapper.map
+   .. automethod:: LinearMapper.mode_based_mapping
+   .. automethod:: LinearMapper.pauli_table
+   .. automethod:: LinearMapper.sparse_pauli_operators
+   
+   
