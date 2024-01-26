@@ -1,0 +1,32 @@
+﻿
+
+ActiveSpaceTransformer
+==========================================================
+
+.. currentmodule:: qiskit_nature.second_q.transformers
+
+.. autoclass:: ActiveSpaceTransformer
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: ActiveSpaceTransformer.active_basis
+   .. autoattribute:: ActiveSpaceTransformer.active_density
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: ActiveSpaceTransformer.get_active_density_component
+   .. automethod:: ActiveSpaceTransformer.prepare_active_space
+   .. automethod:: ActiveSpaceTransformer.transform
+   .. automethod:: ActiveSpaceTransformer.transform_hamiltonian
+   
+   

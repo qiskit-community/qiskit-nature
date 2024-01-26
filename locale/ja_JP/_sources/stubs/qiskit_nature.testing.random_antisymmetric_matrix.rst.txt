@@ -1,0 +1,8 @@
+﻿
+
+random_antisymmetric_matrix
+=================================================
+
+.. currentmodule:: qiskit_nature.testing
+
+.. autofunction:: random_antisymmetric_matrix

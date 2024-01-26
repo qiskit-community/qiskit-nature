@@ -1,0 +1,26 @@
+﻿
+
+BogoliubovTransform
+==========================================================
+
+.. currentmodule:: qiskit_nature.second_q.circuit.library
+
+.. autoclass:: BogoliubovTransform
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   
+   

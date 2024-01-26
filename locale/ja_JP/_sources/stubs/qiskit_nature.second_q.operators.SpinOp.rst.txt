@@ -1,0 +1,63 @@
+﻿
+
+SpinOp
+=======================================
+
+.. currentmodule:: qiskit_nature.second_q.operators
+
+.. autoclass:: SpinOp
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: SpinOp.atol
+   .. autoattribute:: SpinOp.register_length
+   .. autoattribute:: SpinOp.rtol
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: SpinOp.adjoint
+   .. automethod:: SpinOp.argsort
+   .. automethod:: SpinOp.assign_parameters
+   .. automethod:: SpinOp.chop
+   .. automethod:: SpinOp.compose
+   .. automethod:: SpinOp.conjugate
+   .. automethod:: SpinOp.dot
+   .. automethod:: SpinOp.equiv
+   .. automethod:: SpinOp.expand
+   .. automethod:: SpinOp.from_polynomial_tensor
+   .. automethod:: SpinOp.from_terms
+   .. automethod:: SpinOp.get
+   .. automethod:: SpinOp.index_order
+   .. automethod:: SpinOp.induced_norm
+   .. automethod:: SpinOp.is_parameterized
+   .. automethod:: SpinOp.is_zero
+   .. automethod:: SpinOp.items
+   .. automethod:: SpinOp.keys
+   .. automethod:: SpinOp.one
+   .. automethod:: SpinOp.parameters
+   .. automethod:: SpinOp.permute_indices
+   .. automethod:: SpinOp.power
+   .. automethod:: SpinOp.round
+   .. automethod:: SpinOp.simplify
+   .. automethod:: SpinOp.sort
+   .. automethod:: SpinOp.tensor
+   .. automethod:: SpinOp.terms
+   .. automethod:: SpinOp.to_matrix
+   .. automethod:: SpinOp.transpose
+   .. automethod:: SpinOp.values
+   .. automethod:: SpinOp.x
+   .. automethod:: SpinOp.y
+   .. automethod:: SpinOp.z
+   .. automethod:: SpinOp.zero
+   
+   

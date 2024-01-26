@@ -1,0 +1,42 @@
+﻿
+
+LineLattice
+========================================================
+
+.. currentmodule:: qiskit_nature.second_q.hamiltonians.lattices
+
+.. autoclass:: LineLattice
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: LineLattice.boundary_condition
+   .. autoattribute:: LineLattice.dim
+   .. autoattribute:: LineLattice.edge_parameter
+   .. autoattribute:: LineLattice.graph
+   .. autoattribute:: LineLattice.node_indexes
+   .. autoattribute:: LineLattice.num_nodes
+   .. autoattribute:: LineLattice.onsite_parameter
+   .. autoattribute:: LineLattice.size
+   .. autoattribute:: LineLattice.weighted_edge_list
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: LineLattice.copy
+   .. automethod:: LineLattice.draw
+   .. automethod:: LineLattice.draw_without_boundary
+   .. automethod:: LineLattice.from_adjacency_matrix
+   .. automethod:: LineLattice.from_nodes_and_edges
+   .. automethod:: LineLattice.to_adjacency_matrix
+   .. automethod:: LineLattice.uniform_parameters
+   
+   

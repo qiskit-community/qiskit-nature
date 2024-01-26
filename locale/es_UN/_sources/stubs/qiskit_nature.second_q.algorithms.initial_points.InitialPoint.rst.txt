@@ -1,0 +1,30 @@
+﻿
+
+InitialPoint
+=============================================================
+
+.. currentmodule:: qiskit_nature.second_q.algorithms.initial_points
+
+.. autoclass:: InitialPoint
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: InitialPoint.ansatz
+   .. autoattribute:: InitialPoint.problem
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: InitialPoint.compute
+   .. automethod:: InitialPoint.to_numpy_array
+   
+   

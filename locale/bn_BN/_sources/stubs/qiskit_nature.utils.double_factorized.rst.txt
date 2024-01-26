@@ -1,0 +1,8 @@
+﻿
+
+double_factorized
+=====================================
+
+.. currentmodule:: qiskit_nature.utils
+
+.. autofunction:: double_factorized

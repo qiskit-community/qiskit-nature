@@ -1,0 +1,43 @@
+﻿
+
+SymmetricTwoBodyIntegrals
+=============================================================================
+
+.. currentmodule:: qiskit_nature.second_q.operators.symmetric_two_body
+
+.. autoclass:: SymmetricTwoBodyIntegrals
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: SymmetricTwoBodyIntegrals.array
+   .. autoattribute:: SymmetricTwoBodyIntegrals.atol
+   .. autoattribute:: SymmetricTwoBodyIntegrals.label_template
+   .. autoattribute:: SymmetricTwoBodyIntegrals.ndim
+   .. autoattribute:: SymmetricTwoBodyIntegrals.rtol
+   .. autoattribute:: SymmetricTwoBodyIntegrals.shape
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: SymmetricTwoBodyIntegrals.compose
+   .. automethod:: SymmetricTwoBodyIntegrals.conjugate
+   .. automethod:: SymmetricTwoBodyIntegrals.coord_iter
+   .. automethod:: SymmetricTwoBodyIntegrals.equiv
+   .. automethod:: SymmetricTwoBodyIntegrals.expand
+   .. automethod:: SymmetricTwoBodyIntegrals.is_dense
+   .. automethod:: SymmetricTwoBodyIntegrals.is_sparse
+   .. automethod:: SymmetricTwoBodyIntegrals.tensor
+   .. automethod:: SymmetricTwoBodyIntegrals.to_dense
+   .. automethod:: SymmetricTwoBodyIntegrals.to_sparse
+   .. automethod:: SymmetricTwoBodyIntegrals.zero
+   
+   

@@ -1,0 +1,42 @@
+﻿
+
+HyperCubicLattice
+==============================================================
+
+.. currentmodule:: qiskit_nature.second_q.hamiltonians.lattices
+
+.. autoclass:: HyperCubicLattice
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: HyperCubicLattice.boundary_condition
+   .. autoattribute:: HyperCubicLattice.dim
+   .. autoattribute:: HyperCubicLattice.edge_parameter
+   .. autoattribute:: HyperCubicLattice.graph
+   .. autoattribute:: HyperCubicLattice.node_indexes
+   .. autoattribute:: HyperCubicLattice.num_nodes
+   .. autoattribute:: HyperCubicLattice.onsite_parameter
+   .. autoattribute:: HyperCubicLattice.size
+   .. autoattribute:: HyperCubicLattice.weighted_edge_list
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: HyperCubicLattice.copy
+   .. automethod:: HyperCubicLattice.draw
+   .. automethod:: HyperCubicLattice.draw_without_boundary
+   .. automethod:: HyperCubicLattice.from_adjacency_matrix
+   .. automethod:: HyperCubicLattice.from_nodes_and_edges
+   .. automethod:: HyperCubicLattice.to_adjacency_matrix
+   .. automethod:: HyperCubicLattice.uniform_parameters
+   
+   

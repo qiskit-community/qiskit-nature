@@ -1,0 +1,637 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Electronic structure"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Introduction \n",
+    "\n",
+    "The molecular Hamiltonian is \n",
+    "\n",
+    "$$\n",
+    "\\mathcal{H} = - \\sum_I \\frac{\\nabla_{R_I}^2}{M_I} - \\sum_i \\frac{\\nabla_{r_i}^2}{m_e} - \\sum_I\\sum_i  \\frac{Z_I e^2}{|R_I-r_i|} + \\sum_i \\sum_{j>i} \\frac{e^2}{|r_i-r_j|} + \\sum_I\\sum_{J>I} \\frac{Z_I Z_J e^2}{|R_I-R_J|}\n",
+    "$$\n",
+    "\n",
+    "Because the nuclei are much heavier than the electrons they do not move on the same time scale and therefore, the behavior of nuclei and electrons can be decoupled. This is the Born-Oppenheimer approximation.\n",
+    "\n",
+    "Therefore, one can first tackle the electronic problem with the nuclear coordinates entering only as parameters. The energy levels of the electrons in the molecule can then be found by solving the non-relativistic time independent Schrödinger equation,\n",
+    "\n",
+    "$$\n",
+    "\\mathcal{H}_{\\text{el}} |\\Psi_{n}\\rangle = E_{n} |\\Psi_{n}\\rangle\n",
+    "$$\n",
+    "\n",
+    "where \n",
+    "\n",
+    "$$\n",
+    "\\mathcal{H}_{\\text{el}} = - \\sum_i \\frac{\\nabla_{r_i}^2}{m_e} - \\sum_I\\sum_i  \\frac{Z_I e^2}{|R_I-r_i|} + \\sum_i \\sum_{j>i} \\frac{e^2}{|r_i-r_j|}.\n",
+    "$$\n",
+    "\n",
+    "In particular the ground state energy is given by:\n",
+    "$$\n",
+    "E_0 = \\frac{\\langle \\Psi_0 | H_{\\text{el}} | \\Psi_0 \\rangle}{\\langle \\Psi_0 | \\Psi_0 \\rangle}\n",
+    "$$\n",
+    "where $\\Psi_0$ is the ground state of the system. \n",
+    "\n",
+    "However, the dimensionality of this problem grows exponentially with the number of degrees of freedom. To tackle this issue we would like to prepare $\\Psi_0$ on a quantum computer and measure the Hamiltonian expectation value (or $E_0$) directly. \n",
+    "\n",
+    "So how do we do that concretely? \n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Starting from the Hartree-Fock solution \n",
+    "\n",
+    "A good starting point for solving this problem is the Hartree-Fock (HF) method. This method approximates the N-body problem by N one-body problems where each electron evolves in the mean-field of the others. Classically solving the HF equations is efficient and leads to the exact exchange energy but does not include any electron correlation. Therefore, it is usually a good starting point to which to add correlation. \n",
+    "\n",
+    "The Hamiltonian can then be re-expressed in the basis of the solutions of the HF method, also called Molecular Orbitals (MOs):\n",
+    "\n",
+    "$$\n",
+    "\\hat{H}_{elec}=\\sum_{pq} h_{pq} \\hat{a}^{\\dagger}_p \\hat{a}_q + \n",
+    "\\frac{1}{2} \\sum_{pqrs} h_{pqrs}  \\hat{a}^{\\dagger}_p \\hat{a}^{\\dagger}_q \\hat{a}_r  \\hat{a}_s\n",
+    "$$\n",
+    "with the 1-body integrals\n",
+    "$$\n",
+    "h_{pq} = \\int \\phi^*_p(r) \\left( -\\frac{1}{2} \\nabla^2 - \\sum_{I} \\frac{Z_I}{R_I- r} \\right)   \\phi_q(r)dr\n",
+    "$$\n",
+    "and 2-body integrals\n",
+    "$$\n",
+    "h_{pqrs} = \\int \\frac{\\phi^*_p(r_1)  \\phi^*_q(r_2) \\phi_r(r_2)  \\phi_s(r_1)}{|r_1-r_2|}dr_1dr_2.\n",
+    "$$\n",
+    "\n",
+    "The MOs ($\\phi_u$) can be occupied or virtual (unoccupied). One MO can contain 2 electrons. However, in what follows we actually work with Spin Orbitals which are associated with a spin up ($\\alpha$) of spin down ($\\beta$) electron. Thus Spin Orbitals can contain one electron or be unoccupied.\n",
+    "\n",
+    "Note: when referring to the number of orbitals, we will be using the number of _spatial_ orbitals. This refers to any orbital in Cartesian space (whether its a molecular orbital or in another basis does not matter here). Each spatial orbital is then generally split into two _spin_ orbitals.\n",
+    "\n",
+    "We now show how to concretely realise these steps with Qiskit."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Obtaining an initial Hartree-Fock solution\n",
+    "\n",
+    "Qiskit is interfaced with different classical codes which are able to find the HF solutions. Interfacing between Qiskit and the following codes is already available:\n",
+    "\n",
+    "* Gaussian\n",
+    "* Psi4\n",
+    "* PySCF\n",
+    "\n",
+    "In the following we set up a PySCF driver, for the hydrogen molecule at equilibrium bond length (0.735 angstrom) in the singlet state and with no charge. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from qiskit_nature.units import DistanceUnit\n",
+    "from qiskit_nature.second_q.drivers import PySCFDriver\n",
+    "\n",
+    "driver = PySCFDriver(\n",
+    "    atom=\"H 0 0 0; H 0 0 0.735\",\n",
+    "    basis=\"sto3g\",\n",
+    "    charge=0,\n",
+    "    spin=0,\n",
+    "    unit=DistanceUnit.ANGSTROM,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Running this driver, will yield an `ElectronicStructureProblem`, Qiskit Nature's representation of the electronic structure problem which we are interested in solving. For further information about the drivers see https://qiskit.org/documentation/nature/apidocs/qiskit_nature.second_q.drivers.html"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "<qiskit_nature.second_q.problems.electronic_structure_problem.ElectronicStructureProblem object at 0x7f3bc13406a0>\n"
+     ]
+    }
+   ],
+   "source": [
+    "problem = driver.run()\n",
+    "print(problem)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### The `ElectronicStructureProblem` and its components\n",
+    "\n",
+    "Let us spend some time to understand this problem instance and its components."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### The `ElectronicEnergy` Hamiltonian\n",
+    "\n",
+    "The most important aspect is the internal Hamiltonian; in this case an `ElectronicEnergy` hamiltonian. This class is able to generate the second-quantized operator from the 1- and 2-body integrals which the classical code has computed for us.\n",
+    "\n",
+    "> **IMPORTANT:** The container class for the integral coefficients (`PolynomialTensor`) requires the 2-body terms to be provided in **physicist order**!"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Polynomial Tensor\n",
+      " \"+-\":\n",
+      "[[-1.25633907e+00 -6.21867875e-17]\n",
+      " [-7.78036432e-17 -4.71896007e-01]]\n",
+      " \"++--\":\n",
+      "[[[[6.75710155e-01 1.12401641e-16]\n",
+      "   [1.56722377e-16 1.80931200e-01]]\n",
+      "\n",
+      "  [[1.92605510e-16 1.80931200e-01]\n",
+      "   [6.64581730e-01 2.59298923e-16]]]\n",
+      "\n",
+      "\n",
+      " [[[8.68926823e-17 6.64581730e-01]\n",
+      "   [1.80931200e-01 1.82411770e-16]]\n",
+      "\n",
+      "  [[1.80931200e-01 2.57172666e-16]\n",
+      "   [7.20426423e-17 6.98573723e-01]]]]\n"
+     ]
+    }
+   ],
+   "source": [
+    "hamiltonian = problem.hamiltonian\n",
+    "\n",
+    "coefficients = hamiltonian.electronic_integrals\n",
+    "print(coefficients.alpha)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Fermionic Operator\n",
+      "number spin orbitals=4, number terms=36\n",
+      "  -1.2563390730032498 * ( +_0 -_0 )\n",
+      "+ -0.47189600728114245 * ( +_1 -_1 )\n",
+      "+ -1.2563390730032498 * ( +_2 -_2 )\n",
+      "+ -0.47189600728114245 * ( +_3 -_3 )\n",
+      "+ 0.33785507740175813 * ( +_0 +_0 -_0 -_0 )\n",
+      "+ 0.09046559989211565 * ( +_0 +_0 -_1 -_1 )\n",
+      "+ 0.09046559989211556 * ( +_0 +_1 -_0 -_1 )\n",
+      "+ 0.33229086512764827 * ( +_0 +_1 -_1 -_0 )\n",
+      "+ 0.33785507740175813 * ( +_0 +_2 -_2 -_0 )\n",
+      "+ 0.09046559989211565 * ( +_0 +_2 -_3 -_1 )\n",
+      "+ 0.09046559989211556 * ( +_0 +_3 -_2 -_1 )\n",
+      "+ 0.33229086512764827 * ( +_0 +_3 -_3 -_0 )\n",
+      "+ 0.33229086512764816 * ( +_1 +_0 -_0 -_1 )\n",
+      "+ 0.09046559989211574 * ( +_1 +_0 -_1 -_0 )\n",
+      "+ 0.09046559989211564 * ( +_1 +_1 -_0 -_0 )\n",
+      "+ 0.34928686136600906 * ( +_1 +_1 -_1 -_1 )\n",
+      "+ 0.33229086512764816 * ( +_1 +_2 -_2 -_1 )\n",
+      "+ 0.09046559989211574 * ( +_1 +_2 -_3 -_0 )\n",
+      "+ 0.09046559989211564 * ( +_1 +_3 -_2 -_0 )\n",
+      "+ 0.34928686136600906 * ( +_1 +_3 -_3 -_1 )\n",
+      "+ 0.33785507740175813 * ( +_2 +_0 -_0 -_2 )\n",
+      "+ 0.09046559989211565 * ( +_2 +_0 -_1 -_3 )\n",
+      "+ 0.09046559989211556 * ( +_2 +_1 -_0 -_3 )\n",
+      "+ 0.33229086512764827 * ( +_2 +_1 -_1 -_2 )\n",
+      "+ 0.33785507740175813 * ( +_2 +_2 -_2 -_2 )\n",
+      "+ 0.09046559989211565 * ( +_2 +_2 -_3 -_3 )\n",
+      "+ 0.09046559989211556 * ( +_2 +_3 -_2 -_3 )\n",
+      "+ 0.33229086512764827 * ( +_2 +_3 -_3 -_2 )\n",
+      "+ 0.33229086512764816 * ( +_3 +_0 -_0 -_3 )\n",
+      "+ 0.09046559989211574 * ( +_3 +_0 -_1 -_2 )\n",
+      "+ 0.09046559989211564 * ( +_3 +_1 -_0 -_2 )\n",
+      "+ 0.34928686136600906 * ( +_3 +_1 -_1 -_3 )\n",
+      "+ 0.33229086512764816 * ( +_3 +_2 -_2 -_3 )\n",
+      "+ 0.09046559989211574 * ( +_3 +_2 -_3 -_2 )\n",
+      "+ 0.09046559989211564 * ( +_3 +_3 -_2 -_2 )\n",
+      "+ 0.34928686136600906 * ( +_3 +_3 -_3 -_3 )\n"
+     ]
+    }
+   ],
+   "source": [
+    "second_q_op = hamiltonian.second_q_op()\n",
+    "print(second_q_op)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Note, that this is purely the **electronic** Hamiltonian of the system. That means, that the _nuclear repulsion energy_ is not included. Instead, Qiskit Nature will add this constant energy offset in a post-processing step, in order to compute the total energy of your system. To learn how to include the nuclear repulsion energy in this operator, please refer to the documentation of the `ElectronicEnergy` class [here](https://qiskit.org/documentation/nature/stubs/qiskit_nature.second_q.hamiltonians.ElectronicEnergy.html)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0.7199689944489797"
+      ]
+     },
+     "execution_count": 5,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "hamiltonian.nuclear_repulsion_energy  # NOT included in the second_q_op above"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### More attributes of the `ElectronicStructureProblem`\n",
+    "\n",
+    "Below we list some additional attributes of our `problem` instance:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "MoleculeInfo(symbols=['H', 'H'], coords=[(0.0, 0.0, 0.0), (0.0, 0.0, 1.3889487015553204)], multiplicity=1, charge=0, units=<DistanceUnit.BOHR: 'Bohr'>, masses=[1, 1])"
+      ]
+     },
+     "execution_count": 6,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "problem.molecule"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "-1.1169989967540035"
+      ]
+     },
+     "execution_count": 7,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "problem.reference_energy"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(1, 1)"
+      ]
+     },
+     "execution_count": 8,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "problem.num_particles"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "2"
+      ]
+     },
+     "execution_count": 9,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "problem.num_spatial_orbitals"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "<ElectronicBasis.MO: 'molecular'>"
+      ]
+     },
+     "execution_count": 10,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "problem.basis"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "To learn more about the basis of your problem, please refer to the tutorial on the [`BasisTransformer`](05_problem_transformers.ipynb)."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Additional observables\n",
+    "\n",
+    "The `ElectronicStructureProblem` also contains additional operator factories, which will generate observables to be evaluated at the ground- and excited-states at the end of your computation."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "<qiskit_nature.second_q.problems.electronic_properties_container.ElectronicPropertiesContainer at 0x7f3bc1340790>"
+      ]
+     },
+     "execution_count": 11,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "problem.properties"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "<qiskit_nature.second_q.properties.particle_number.ParticleNumber at 0x7f3bc1340820>"
+      ]
+     },
+     "execution_count": 12,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "problem.properties.particle_number"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "<qiskit_nature.second_q.properties.angular_momentum.AngularMomentum at 0x7f3bc1340700>"
+      ]
+     },
+     "execution_count": 13,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "problem.properties.angular_momentum"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "<qiskit_nature.second_q.properties.magnetization.Magnetization at 0x7f3bc1340760>"
+      ]
+     },
+     "execution_count": 14,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "problem.properties.magnetization"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "<qiskit_nature.second_q.properties.dipole_moment.ElectronicDipoleMoment at 0x7f3bc1340880>"
+      ]
+     },
+     "execution_count": 15,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "problem.properties.electronic_dipole_moment"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "For more information about these properties, please refer to [their tutorial](09_properties.ipynb)."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Solving the `ElectronicStructureProblem`\n",
+    "\n",
+    "In the following, we will compute the ground-state of our problem instance. To learn more about the individual components that go into the `GroundStateSolver`, please refer to the [ground state tutorial](./03_ground_state_solvers.ipynb)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from qiskit_algorithms import NumPyMinimumEigensolver\n",
+    "from qiskit_nature.second_q.algorithms import GroundStateEigensolver\n",
+    "from qiskit_nature.second_q.mappers import JordanWignerMapper\n",
+    "\n",
+    "solver = GroundStateEigensolver(\n",
+    "    JordanWignerMapper(),\n",
+    "    NumPyMinimumEigensolver(),\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "=== GROUND STATE ENERGY ===\n",
+      " \n",
+      "* Electronic ground state energy (Hartree): -1.857275030202\n",
+      "  - computed part:      -1.857275030202\n",
+      "~ Nuclear repulsion energy (Hartree): 0.719968994449\n",
+      "> Total ground state energy (Hartree): -1.137306035753\n",
+      " \n",
+      "=== MEASURED OBSERVABLES ===\n",
+      " \n",
+      "  0:  # Particles: 2.000 S: 0.000 S^2: 0.000 M: 0.000\n",
+      " \n",
+      "=== DIPOLE MOMENTS ===\n",
+      " \n",
+      "~ Nuclear dipole moment (a.u.): [0.0  0.0  1.3889487]\n",
+      " \n",
+      "  0: \n",
+      "  * Electronic dipole moment (a.u.): [0.0  0.0  1.3889487]\n",
+      "    - computed part:      [0.0  0.0  1.3889487]\n",
+      "  > Dipole moment (a.u.): [0.0  0.0  0.0]  Total: 0.0\n",
+      "                 (debye): [0.0  0.0  0.0]  Total: 0.0\n",
+      " \n"
+     ]
+    }
+   ],
+   "source": [
+    "result = solver.solve(problem)\n",
+    "print(result)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "metadata": {
+    "scrolled": false
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<h3>Version Information</h3><table><tr><th>Qiskit Software</th><th>Version</th></tr><tr><td><code>qiskit-terra</code></td><td>0.24.0.dev0+2b3686f</td></tr><tr><td><code>qiskit-aer</code></td><td>0.11.2</td></tr><tr><td><code>qiskit-ibmq-provider</code></td><td>0.19.2</td></tr><tr><td><code>qiskit-nature</code></td><td>0.6.0</td></tr><tr><th>System information</th></tr><tr><td>Python version</td><td>3.9.16</td></tr><tr><td>Python compiler</td><td>GCC 12.2.1 20221121 (Red Hat 12.2.1-4)</td></tr><tr><td>Python build</td><td>main, Dec  7 2022 00:00:00</td></tr><tr><td>OS</td><td>Linux</td></tr><tr><td>CPUs</td><td>8</td></tr><tr><td>Memory (Gb)</td><td>62.50002670288086</td></tr><tr><td colspan='2'>Thu Apr 06 08:53:41 2023 CEST</td></tr></table>"
+      ],
+      "text/plain": [
+       "<IPython.core.display.HTML object>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<div style='width: 100%; background-color:#d5d9e0;padding-left: 10px; padding-bottom: 10px; padding-right: 10px; padding-top: 5px'><h3>This code is a part of Qiskit</h3><p>&copy; Copyright IBM 2017, 2023.</p><p>This code is licensed under the Apache License, Version 2.0. You may<br>obtain a copy of this license in the LICENSE.txt file in the root directory<br> of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.<p>Any modifications or derivative works of this code must retain this<br>copyright notice, and modified files need to carry a notice indicating<br>that they have been altered from the originals.</p></div>"
+      ],
+      "text/plain": [
+       "<IPython.core.display.HTML object>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "import qiskit.tools.jupyter\n",
+    "\n",
+    "%qiskit_version_table\n",
+    "%qiskit_copyright"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.9.16"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}

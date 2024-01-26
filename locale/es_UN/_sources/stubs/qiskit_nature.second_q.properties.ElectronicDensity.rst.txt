@@ -1,0 +1,47 @@
+﻿
+
+ElectronicDensity
+===================================================
+
+.. currentmodule:: qiskit_nature.second_q.properties
+
+.. autoclass:: ElectronicDensity
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: ElectronicDensity.alpha
+   .. autoattribute:: ElectronicDensity.alpha_beta
+   .. autoattribute:: ElectronicDensity.beta
+   .. autoattribute:: ElectronicDensity.beta_alpha
+   .. autoattribute:: ElectronicDensity.one_body
+   .. autoattribute:: ElectronicDensity.register_length
+   .. autoattribute:: ElectronicDensity.two_body
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: ElectronicDensity.apply
+   .. automethod:: ElectronicDensity.einsum
+   .. automethod:: ElectronicDensity.empty
+   .. automethod:: ElectronicDensity.equiv
+   .. automethod:: ElectronicDensity.from_orbital_occupation
+   .. automethod:: ElectronicDensity.from_particle_number
+   .. automethod:: ElectronicDensity.from_raw_integrals
+   .. automethod:: ElectronicDensity.identity
+   .. automethod:: ElectronicDensity.interpret
+   .. automethod:: ElectronicDensity.second_q_coeffs
+   .. automethod:: ElectronicDensity.second_q_ops
+   .. automethod:: ElectronicDensity.split
+   .. automethod:: ElectronicDensity.stack
+   .. automethod:: ElectronicDensity.trace_spin
+   
+   

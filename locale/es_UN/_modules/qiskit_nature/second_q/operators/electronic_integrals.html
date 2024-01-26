@@ -1,0 +1,1459 @@
+<!doctype html>
+<html class="no-js" lang="es-UN">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Índice" href="../../../../genindex.html" /><link rel="search" title="Búsqueda" href="../../../../search.html" />
+
+    <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
+        <title>qiskit_nature.second_q.operators.electronic_integrals - Qiskit Nature 0.7.1</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fd506691" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-ecosystem.css?v=745c5aa7" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/thebelab.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #ffffff;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style><link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+<script src="../../../../_static/js/web-components/top-nav-bar.js"></script>
+<script>
+  (function () {
+    window._analytics = {
+      segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+      coremetrics: false,
+      optimizely: false,
+      googleAddServices: false,
+      fullStory: false,
+      autoPageEventSpa: false,
+      autoFormEvents: false,
+      autoPageView: false
+    }
+
+    window.digitalData = {
+      page: {
+        pageInfo: {
+          productTitle: 'IBM Q Experience',
+          analytics: {
+            category: 'Qiskit.org'
+          }
+        }
+      }
+    }
+  }());
+</script>
+<script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+<script>
+  (function () {
+    'use strict'
+
+    if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+    const category = window.digitalData.page.pageInfo.analytics.category
+    const productTitle = window.digitalData.page.pageInfo.productTitle
+    const routeName = 'documentation'
+
+    window.bluemixAnalytics.pageEvent(category, routeName, {
+      navigationType: 'pushState',
+      productTitle: productTitle,
+      title: document.title
+    })
+
+    window.trackCta = (action) => {
+      if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+      const category = window.digitalData.page.pageInfo.analytics.category
+      const productTitle = window.digitalData.page.pageInfo.productTitle
+
+      window.bluemixAnalytics.trackEvent('CTA Clicked', {
+        productTitle,
+        category,
+        CTA: action
+      })
+    }
+
+  }());
+</script></head>
+  <body>
+    
+    <script>document.body.dataset.theme = "light";</script>
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg id="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+      <defs><style>.cls-1{fill:none;}</style></defs>
+      <path d="M28,4H4A2,2,0,0,0,2,6V26a2,2,0,0,0,2,2H28a2,2,0,0,0,2-2V6A2,2,0,0,0,28,4ZM4,6H20V26H4ZM28,26H22V6h6Z"/>
+      <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" class="cls-1" width="32" height="32"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg id="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+      <defs><style>.cls-1{fill:none;}</style></defs>
+      <rect x="4" y="6" width="24" height="2"/>
+      <rect x="4" y="24" width="24" height="2"/>
+      <rect x="4" y="12" width="24" height="2"/>
+      <rect x="4" y="18" width="24" height="2"/>
+      <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" class="cls-1" width="32" height="32"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg version="1.1" id="icon" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+         viewBox="0 0 32 32" style="enable-background:new 0 0 32 32;" xml:space="preserve"><polygon points="22,16 12,26 10.6,24.6 19.2,16 10.6,7.4 12,6 " stroke="currentColor"/>
+      <rect id="_x3C_Transparent_Rectangle_x3E_" fill="none" width="32" height="32"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-new-tab" viewBox="0 0 32 32">
+    <svg id="icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+      <defs>
+        <style>
+          .cls-1 {
+            fill: none;
+          }
+        </style>
+      </defs>
+      <path fill="#6929C4" d="M26,28H6a2.0027,2.0027,0,0,1-2-2V6A2.0027,2.0027,0,0,1,6,4H16V6H6V26H26V16h2V26A2.0027,2.0027,0,0,1,26,28Z"/>
+      <polygon fill="#6929C4" points="20 2 20 4 26.586 4 18 12.586 19.414 14 28 5.414 28 12 30 12 30 2 20 2"/>
+      <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" class="cls-1" width="32" height="32"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<div class="announcement">
+  <aside class="announcement-content">
+     This project's translations are no longer maintained. See the <a href=https://github.com/qiskit-community/qiskit-translations/tree/main#readme>announcement</a> 
+  </aside>
+</div>
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../../../index.html"><div class="brand">Qiskit Nature 0.7.1</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><div class="sidebar-brand">
+  <a href="https://www.qiskit.org/ecosystem">
+    <div class="sidebar-logo-container">
+      <img class="sidebar-logo" src="../../../../_static/images/ecosystem-logo.svg" alt="Qiskit Ecosystem logo"/>
+    </div>
+  </a>
+  
+  <span class="sidebar-brand-text">Qiskit Nature 0.7.1</span>
+</div><form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Búsqueda">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../index.html">Descripción general</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started.html">Primeros Pasos</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../migration/index.html">Guías de Migración</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Guías de Migración</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../migration/0.6_a_intro.html">Guía de Migración de Qiskit Nature v0.6</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../migration/0.6_b_mes_factory.html">La Guía de Migración de (Minimum)EigensolverFactory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../migration/0.6_c_qubit_converter.html">Guía de Migración del QubitConverter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../migration/0.5_a_intro.html">Guía de Migración de Qiskit Nature v0.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../migration/0.5_b_solving_problems.html">Resolución de Problemas con v0.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../migration/0.5_b_solving_problems.html#qiskit-nature-mappers"><code class="docutils literal notranslate"><span class="pre">qiskit_nature.mappers</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../migration/0.5_b_solving_problems.html#qiskit-nature-converters"><code class="docutils literal notranslate"><span class="pre">qiskit_nature.converters</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../migration/0.5_b_solving_problems.html#qiskit-nature-circuit"><code class="docutils literal notranslate"><span class="pre">qiskit_nature.circuit</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../migration/0.5_b_solving_problems.html#qiskit-nature-algorithms"><code class="docutils literal notranslate"><span class="pre">qiskit_nature.algorithms</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../migration/0.5_c_electronic_structure.html">Problemas de Estructura Electrónica con v0.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../migration/0.5_d_vibrational_structure.html">Problemas de Estructura Vibracional con v0.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../migration/0.5_e_lattice_models.html">Problemas del Modelo de Retícula con v0.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../migration/0.5_f_protein_folding.html">Plegamiento de Proteínas con Qiskit Nature v0.5</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../tutorials/index.html">Tutoriales</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Tutoriales</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/01_electronic_structure.html">Estructura electrónica</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/02_vibrational_structure.html">Estructura vibracional</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/03_ground_state_solvers.html">Solucionadores de estado fundamental</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/04_excited_states_solvers.html">Solucionadores de estados excitados</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/05_problem_transformers.html">Transformación de Problemas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/06_qubit_mappers.html">Mapear al Espacio de Qubit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/07_leveraging_qiskit_runtime.html">Aprovechando Qiskit Runtime</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/08_qcschema.html">QCSchema</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/09_properties.html">Propiedades - o - Fábricas de Operador</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/10_lattice_models.html">Modelos de retícula</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/11_quadratic_hamiltonian_and_slater_determinants.html">Hamiltonianos cuadráticos y determinantes de Slater</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/12_deuteron_binding_energy.html">Energía de Enlace entre el protón y el neutrón en el núcleo del Deuterón</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/12_deuteron_binding_energy.html#Reconocimiento">Reconocimiento</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/12_deuteron_binding_energy.html#Referencias">Referencias</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../howtos/index.html">Guías Prácticas</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Guías Prácticas</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../howtos/adapt_vqe.html">Encontrar la energía del estado fundamental usando AdaptVQE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../howtos/numpy_eigensolver.html">Encontrar energías de estado excitado usando el NumPyEigensolver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../howtos/numpy_minimum_eigensolver.html">Encontrar la energía del estado fundamental usando el NumPyMinimumEigensolver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../howtos/vqe_ucc.html">Usar un ansatz similar a UCC con un VQE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../howtos/vqe_uvcc.html">Usar un ansatz similar a UVCC con un VQE</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.html">Referencia de la API</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Referencia de la API</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../stubs/qiskit_nature.QiskitNatureError.html">QiskitNatureError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../stubs/qiskit_nature.UnsupportMethodError.html">UnsupportMethodError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidocs/qiskit_nature.logging.html"><code class="docutils literal notranslate"><span class="pre">QiskitNatureLogging</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidocs/qiskit_nature.settings.html"><code class="docutils literal notranslate"><span class="pre">QiskitNatureSettings</span></code></a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.html">Second Quantization (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Second Quantization (qiskit_nature.second_q)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.algorithms.html">Algorithms (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.algorithms</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Algorithms (qiskit_nature.second_q.algorithms)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.algorithms.ExcitedStatesSolver.html">ExcitedStatesSolver</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.algorithms.ExcitedStatesEigensolver.html">ExcitedStatesEigensolver</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.algorithms.QEOM.html">QEOM</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.algorithms.QEOMResult.html">QEOMResult</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.algorithms.EvaluationRule.html">EvaluationRule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.algorithms.GroundStateSolver.html">GroundStateSolver</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.algorithms.GroundStateEigensolver.html">GroundStateEigensolver</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.algorithms.initial_points.html">Initial Points (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.algorithms.initial_points</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of Initial Points (qiskit_nature.second_q.algorithms.initial_points)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.algorithms.initial_points.InitialPoint.html">InitialPoint</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.algorithms.initial_points.HFInitialPoint.html">HFInitialPoint</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.algorithms.initial_points.MP2InitialPoint.html">MP2InitialPoint</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.algorithms.initial_points.VSCFInitialPoint.html">VSCFInitialPoint</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.circuit.html">Circuit (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.circuit</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of Circuit (qiskit_nature.second_q.circuit)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.circuit.library.html">Library (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.circuit.library</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of Library (qiskit_nature.second_q.circuit.library)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.circuit.library.BogoliubovTransform.html">BogoliubovTransform</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.circuit.library.FermionicGaussianState.html">FermionicGaussianState</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.circuit.library.HartreeFock.html">HartreeFock</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.circuit.library.SlaterDeterminant.html">SlaterDeterminant</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.circuit.library.VSCF.html">VSCF</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.circuit.library.UCC.html">UCC</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.circuit.library.UCCSD.html">UCCSD</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.circuit.library.PUCCD.html">PUCCD</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.circuit.library.PUCCSD.html">PUCCSD</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.circuit.library.SUCCD.html">SUCCD</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.circuit.library.CHC.html">CHC</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.circuit.library.UVCC.html">UVCC</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.circuit.library.UVCCSD.html">UVCCSD</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.circuit.library.ansatzes.utils.html">Excitation generator utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.circuit.library.ansatzes.utils</span></code>)</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.circuit.library.ansatzes.utils.html#qiskit_nature.second_q.circuit.library.ansatzes.utils.generate_fermionic_excitations"><code class="docutils literal notranslate"><span class="pre">generate_fermionic_excitations()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.circuit.library.ansatzes.utils.html#qiskit_nature.second_q.circuit.library.ansatzes.utils.generate_vibration_excitations"><code class="docutils literal notranslate"><span class="pre">generate_vibration_excitations()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.drivers.html">Drivers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.drivers</span></code>)</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.drivers.html#driver-base-class">Driver Base Class</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of Driver Base Class</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.drivers.BaseDriver.html">BaseDriver</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.drivers.VibrationalStructureDriver.html">VibrationalStructureDriver</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.drivers.ElectronicStructureDriver.html">ElectronicStructureDriver</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.drivers.html#driver-common">Driver Common</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle navigation of Driver Common</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.drivers.MethodType.html">MethodType</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.drivers.InitialGuess.html">InitialGuess</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.drivers.html#drivers">Drivers</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle navigation of Drivers</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.drivers.gaussiand.html">Gaussian™ 16 Installation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.drivers.psi4d.html">Psi4 Installation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.drivers.pyscfd.html">PYSCF Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.drivers.html#electronic-structure-drivers">Electronic Structure Drivers</a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle navigation of Electronic Structure Drivers</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.drivers.GaussianDriver.html">GaussianDriver</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.drivers.Psi4Driver.html">Psi4Driver</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.drivers.PySCFDriver.html">PySCFDriver</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.drivers.html#vibrational-structure-drivers">Vibrational Structure Drivers</a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><div class="visually-hidden">Toggle navigation of Vibrational Structure Drivers</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.drivers.GaussianForcesDriver.html">GaussianForcesDriver</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.drivers.html#general-driver">General Driver</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" role="switch" type="checkbox"/><label for="toctree-checkbox-15"><div class="visually-hidden">Toggle navigation of General Driver</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.drivers.GaussianLogDriver.html">GaussianLogDriver</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.drivers.GaussianLogResult.html">GaussianLogResult</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.formats.html">Formats (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.formats</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" role="switch" type="checkbox"/><label for="toctree-checkbox-16"><div class="visually-hidden">Toggle navigation of Formats (qiskit_nature.second_q.formats)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.formats.fcidump.html">FCIDump (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.formats.fcidump</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" role="switch" type="checkbox"/><label for="toctree-checkbox-17"><div class="visually-hidden">Toggle navigation of FCIDump (qiskit_nature.second_q.formats.fcidump)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.formats.fcidump.FCIDump.html">FCIDump</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.formats.qcschema.html">QCSchema (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.formats.qcschema</span></code>)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCBasisSet"><code class="docutils literal notranslate"><span class="pre">QCBasisSet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCCenterData"><code class="docutils literal notranslate"><span class="pre">QCCenterData</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCECPPotential"><code class="docutils literal notranslate"><span class="pre">QCECPPotential</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCElectronShell"><code class="docutils literal notranslate"><span class="pre">QCElectronShell</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCError"><code class="docutils literal notranslate"><span class="pre">QCError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCModel"><code class="docutils literal notranslate"><span class="pre">QCModel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCProperties"><code class="docutils literal notranslate"><span class="pre">QCProperties</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCProvenance"><code class="docutils literal notranslate"><span class="pre">QCProvenance</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCSchema"><code class="docutils literal notranslate"><span class="pre">QCSchema</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCSchemaInput"><code class="docutils literal notranslate"><span class="pre">QCSchemaInput</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCTopology"><code class="docutils literal notranslate"><span class="pre">QCTopology</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCWavefunction"><code class="docutils literal notranslate"><span class="pre">QCWavefunction</span></code></a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.formats.watson.html">Watson</a><input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" role="switch" type="checkbox"/><label for="toctree-checkbox-18"><div class="visually-hidden">Toggle navigation of Watson</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.formats.watson.WatsonHamiltonian.html">WatsonHamiltonian</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.formats.MoleculeInfo.html">MoleculeInfo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.formats.fcidump_to_problem.html">fcidump_to_problem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.formats.watson_to_problem.html">watson_to_problem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.formats.qcschema_to_problem.html">qcschema_to_problem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.formats.get_ao_to_mo_from_qcschema.html">get_ao_to_mo_from_qcschema</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.formats.get_overlap_ab_from_qcschema.html">get_overlap_ab_from_qcschema</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.hamiltonians.html">Hamiltonians (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.hamiltonians</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" role="switch" type="checkbox"/><label for="toctree-checkbox-19"><div class="visually-hidden">Toggle navigation of Hamiltonians (qiskit_nature.second_q.hamiltonians)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.hamiltonians.QuadraticHamiltonian.html">QuadraticHamiltonian</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.hamiltonians.ElectronicEnergy.html">ElectronicEnergy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.hamiltonians.VibrationalEnergy.html">VibrationalEnergy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.hamiltonians.FermiHubbardModel.html">FermiHubbardModel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.hamiltonians.HeisenbergModel.html">HeisenbergModel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.hamiltonians.IsingModel.html">IsingModel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.hamiltonians.LatticeModel.html">LatticeModel</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.hamiltonians.lattices.html">Lattices (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.hamiltonians.lattices</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" role="switch" type="checkbox"/><label for="toctree-checkbox-20"><div class="visually-hidden">Toggle navigation of Lattices (qiskit_nature.second_q.hamiltonians.lattices)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.hamiltonians.lattices.BoundaryCondition.html">BoundaryCondition</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.hamiltonians.lattices.Lattice.html">Lattice</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.hamiltonians.lattices.LatticeDrawStyle.html">LatticeDrawStyle</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.hamiltonians.lattices.LineLattice.html">LineLattice</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.hamiltonians.lattices.SquareLattice.html">SquareLattice</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.hamiltonians.lattices.TriangularLattice.html">TriangularLattice</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.hamiltonians.lattices.HyperCubicLattice.html">HyperCubicLattice</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.hamiltonians.lattices.HexagonalLattice.html">HexagonalLattice</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.hamiltonians.lattices.KagomeLattice.html">KagomeLattice</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.mappers.html">Mappers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.mappers</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" role="switch" type="checkbox"/><label for="toctree-checkbox-21"><div class="visually-hidden">Toggle navigation of Mappers (qiskit_nature.second_q.mappers)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.mappers.QubitMapper.html">QubitMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.mappers.BravyiKitaevMapper.html">BravyiKitaevMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.mappers.BravyiKitaevSuperFastMapper.html">BravyiKitaevSuperFastMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.mappers.JordanWignerMapper.html">JordanWignerMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.mappers.ParityMapper.html">ParityMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.mappers.InterleavedQubitMapper.html">InterleavedQubitMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.mappers.BosonicLinearMapper.html">BosonicLinearMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.mappers.DirectMapper.html">DirectMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.mappers.LinearMapper.html">LinearMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.mappers.LogarithmicMapper.html">LogarithmicMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.mappers.TaperedQubitMapper.html">TaperedQubitMapper</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.operators.html">Operators (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.operators</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" role="switch" type="checkbox"/><label for="toctree-checkbox-22"><div class="visually-hidden">Toggle navigation of Operators (qiskit_nature.second_q.operators)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.ElectronicIntegrals.html">ElectronicIntegrals</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.FermionicOp.html">FermionicOp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.BosonicOp.html">BosonicOp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.SparseLabelOp.html">SparseLabelOp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.SpinOp.html">SpinOp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.VibrationalOp.html">VibrationalOp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.VibrationalIntegrals.html">VibrationalIntegrals</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.PolynomialTensor.html">PolynomialTensor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.Tensor.html">Tensor</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.operators.tensor_ordering.html">Tensor Ordering Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.operators.tensor_ordering</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" role="switch" type="checkbox"/><label for="toctree-checkbox-23"><div class="visually-hidden">Toggle navigation of Tensor Ordering Utilities (qiskit_nature.second_q.operators.tensor_ordering)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.tensor_ordering.to_chemist_ordering.html">to_chemist_ordering</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.tensor_ordering.to_physicist_ordering.html">to_physicist_ordering</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.tensor_ordering.find_index_order.html">find_index_order</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.tensor_ordering.IndexType.html">IndexType</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.operators.symmetric_two_body.html">Symmetric 2-body electronic integrals (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.operators.symmetric_two_body</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" role="switch" type="checkbox"/><label for="toctree-checkbox-24"><div class="visually-hidden">Toggle navigation of Symmetric 2-body electronic integrals (qiskit_nature.second_q.operators.symmetric_two_body)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.symmetric_two_body.SymmetricTwoBodyIntegrals.html">SymmetricTwoBodyIntegrals</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.symmetric_two_body.S1Integrals.html">S1Integrals</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.symmetric_two_body.S4Integrals.html">S4Integrals</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.symmetric_two_body.S8Integrals.html">S8Integrals</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.symmetric_two_body.unfold.html">unfold</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.symmetric_two_body.unfold_s4_to_s1.html">unfold_s4_to_s1</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.symmetric_two_body.unfold_s8_to_s1.html">unfold_s8_to_s1</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.symmetric_two_body.unfold_s8_to_s4.html">unfold_s8_to_s4</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.symmetric_two_body.fold.html">fold</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.symmetric_two_body.fold_s1_to_s4.html">fold_s1_to_s4</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.symmetric_two_body.fold_s1_to_s8.html">fold_s1_to_s8</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.symmetric_two_body.fold_s4_to_s8.html">fold_s4_to_s8</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.operators.commutators.html">Commutator Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.operators.commutators</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-25" name="toctree-checkbox-25" role="switch" type="checkbox"/><label for="toctree-checkbox-25"><div class="visually-hidden">Toggle navigation of Commutator Utilities (qiskit_nature.second_q.operators.commutators)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.commutators.commutator.html">commutator</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.commutators.anti_commutator.html">anti_commutator</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.commutators.double_commutator.html">double_commutator</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.problems.html">Problems (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.problems</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-26" name="toctree-checkbox-26" role="switch" type="checkbox"/><label for="toctree-checkbox-26"><div class="visually-hidden">Toggle navigation of Problems (qiskit_nature.second_q.problems)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.problems.BaseProblem.html">BaseProblem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.problems.ElectronicBasis.html">ElectronicBasis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.problems.VibrationalBasis.html">VibrationalBasis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.problems.HarmonicBasis.html">HarmonicBasis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.problems.ElectronicStructureProblem.html">ElectronicStructureProblem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.problems.VibrationalStructureProblem.html">VibrationalStructureProblem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.problems.LatticeModelProblem.html">LatticeModelProblem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.problems.PropertiesContainer.html">PropertiesContainer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.problems.ElectronicPropertiesContainer.html">ElectronicPropertiesContainer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.problems.VibrationalPropertiesContainer.html">VibrationalPropertiesContainer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.problems.LatticePropertiesContainer.html">LatticePropertiesContainer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.problems.EigenstateResult.html">EigenstateResult</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.problems.ElectronicStructureResult.html">ElectronicStructureResult</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.problems.VibrationalStructureResult.html">VibrationalStructureResult</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.problems.LatticeModelResult.html">LatticeModelResult</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.properties.html">Properties (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.properties</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-27" name="toctree-checkbox-27" role="switch" type="checkbox"/><label for="toctree-checkbox-27"><div class="visually-hidden">Toggle navigation of Properties (qiskit_nature.second_q.properties)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.properties.SparseLabelOpsFactory.html">SparseLabelOpsFactory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.properties.Interpretable.html">Interpretable</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.properties.AngularMomentum.html">AngularMomentum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.properties.ElectronicDensity.html">ElectronicDensity</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.properties.ElectronicDipoleMoment.html">ElectronicDipoleMoment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.properties.Magnetization.html">Magnetization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.properties.ParticleNumber.html">ParticleNumber</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.properties.s_operators.html">s_operators</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.properties.OccupiedModals.html">OccupiedModals</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.transformers.html">Transformers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.transformers</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-28" name="toctree-checkbox-28" role="switch" type="checkbox"/><label for="toctree-checkbox-28"><div class="visually-hidden">Toggle navigation of Transformers (qiskit_nature.second_q.transformers)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.transformers.BaseTransformer.html">BaseTransformer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.transformers.BasisTransformer.html">BasisTransformer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.transformers.ActiveSpaceTransformer.html">ActiveSpaceTransformer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.transformers.FreezeCoreTransformer.html">FreezeCoreTransformer</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.testing.html">Testing utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.testing</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-29" name="toctree-checkbox-29" role="switch" type="checkbox"/><label for="toctree-checkbox-29"><div class="visually-hidden">Toggle navigation of Testing utilities (qiskit_nature.testing)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_nature.testing.random_antisymmetric_matrix.html">random_antisymmetric_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_nature.testing.random_quadratic_hamiltonian.html">random_quadratic_hamiltonian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_nature.testing.random_two_body_tensor_real.html">random_two_body_tensor_real</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.utils.html">Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.utils</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-30" name="toctree-checkbox-30" role="switch" type="checkbox"/><label for="toctree-checkbox-30"><div class="visually-hidden">Toggle navigation of Utilities (qiskit_nature.utils)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_nature.utils.apply_matrix_to_slices.html">apply_matrix_to_slices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_nature.utils.givens_matrix.html">givens_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_nature.utils.double_factorized.html">double_factorized</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_nature.utils.modified_cholesky.html">modified_cholesky</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../release_notes.html">Notas de la Versión</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/qiskit-community/qiskit-nature">GitHub</a></li>
+</ul>
+
+</div></div><div class="qiskit-translations-container" aria-label="languages">
+  <input id="translations-checkbox" name="translations-checkbox" role="switch" type="checkbox">
+  <div class="qiskit-translations-header-container"><label for="translations-checkbox">
+      <p role="note">Spanish</p>
+      <div class="qiskit-translations-toggle-container">
+        <div class="visually-hidden">Toggle translations list</div>
+        <i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i>
+      </div>
+    </label>
+  </div>
+  <div class="qiskit-translations-list-container">
+    <ul>
+      
+        <li><a href="/qiskit-nature/_modules/qiskit_nature/second_q/operators/electronic_integrals.html">English</a></li>
+      
+        <li><a href="/qiskit-nature/locale/bn_BN/_modules/qiskit_nature/second_q/operators/electronic_integrals.html">Bengali</a></li>
+      
+        <li><a href="/qiskit-nature/locale/ja_JP/_modules/qiskit_nature/second_q/operators/electronic_integrals.html">Japanese</a></li>
+      
+        <li><a href="/qiskit-nature/locale/es_UN/_modules/qiskit_nature/second_q/operators/electronic_integrals.html">Spanish</a></li>
+      
+    </ul>
+  </div>
+  <script>
+    document.querySelectorAll('.version').forEach((element) => {
+      element.addEventListener('click', (evt) => {
+        const hash = window.location.hash;
+        const complete_url = evt.target.href + hash;
+        window.location = complete_url;
+        evt.preventDefault();
+      });
+    });
+  </script>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <h1>Código fuente para qiskit_nature.second_q.operators.electronic_integrals</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This code is part of a Qiskit project.</span>
+<span class="c1">#</span>
+<span class="c1"># (C) Copyright IBM 2022, 2023.</span>
+<span class="c1">#</span>
+<span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
+<span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
+<span class="c1"># of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.</span>
+<span class="c1">#</span>
+<span class="c1"># Any modifications or derivative works of this code must retain this</span>
+<span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
+<span class="c1"># that they have been altered from the originals.</span>
+
+<span class="sd">&quot;&quot;&quot;A container class for electronic operator coefficients (a.k.a. electronic integrals).&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">from</span> <span class="nn">numbers</span> <span class="kn">import</span> <span class="n">Number</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">cast</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">qiskit.quantum_info.operators.mixins</span> <span class="kn">import</span> <span class="n">LinearMixin</span>
+
+<span class="kn">from</span> <span class="nn">qiskit_nature.exceptions</span> <span class="kn">import</span> <span class="n">QiskitNatureError</span>
+<span class="kn">import</span> <span class="nn">qiskit_nature.optionals</span> <span class="k">as</span> <span class="nn">_optionals</span>
+
+<span class="kn">from</span> <span class="nn">.polynomial_tensor</span> <span class="kn">import</span> <span class="n">PolynomialTensor</span>
+<span class="kn">from</span> <span class="nn">.symmetric_two_body</span> <span class="kn">import</span> <span class="n">SymmetricTwoBodyIntegrals</span>
+<span class="kn">from</span> <span class="nn">.tensor</span> <span class="kn">import</span> <span class="n">Tensor</span>
+<span class="kn">from</span> <span class="nn">.tensor_ordering</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">IndexType</span><span class="p">,</span>
+    <span class="n">find_index_order</span><span class="p">,</span>
+    <span class="n">to_physicist_ordering</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="k">if</span> <span class="n">_optionals</span><span class="o">.</span><span class="n">HAS_SPARSE</span><span class="p">:</span>
+    <span class="c1"># pylint: disable=import-error</span>
+    <span class="kn">from</span> <span class="nn">sparse</span> <span class="kn">import</span> <span class="n">SparseArray</span>
+<span class="k">else</span><span class="p">:</span>
+
+    <span class="k">class</span> <span class="nc">SparseArray</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Empty SparseArray class</span>
+<span class="sd">        Replacement if sparse.SparseArray is not present.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">pass</span>
+
+
+<div class="viewcode-block" id="ElectronicIntegrals"><a class="viewcode-back" href="../../../../stubs/qiskit_nature.second_q.operators.ElectronicIntegrals.html#qiskit_nature.second_q.operators.ElectronicIntegrals">[documentos]</a><span class="k">class</span> <span class="nc">ElectronicIntegrals</span><span class="p">(</span><span class="n">LinearMixin</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;A container class for electronic operator coefficients (a.k.a. electronic integrals).</span>
+
+<span class="sd">    This class contains multiple :class:`qiskit_nature.second_q.operators.PolynomialTensor`</span>
+<span class="sd">    instances, dealing with the specific case of storing electronic integrals, where the up- and</span>
+<span class="sd">    down-spin electronic interactions need to be handled separately. These two spins are also</span>
+<span class="sd">    commonly referred to by :math:`\alpha` and :math:`\beta`, respectively.</span>
+
+<span class="sd">    Specifically, this class stores three :class:`~.PolynomialTensor` instances:</span>
+
+<span class="sd">    - :attr:`alpha`: which stores the up-spin integrals</span>
+<span class="sd">    - :attr:`beta`: which stores the down-spin integrals</span>
+<span class="sd">    - :attr:`beta_alpha`: which stores beta-alpha-spin two-body integrals</span>
+
+<span class="sd">    These tensors are subject to some expectations, namely:</span>
+
+<span class="sd">    - for ``alpha`` and ``beta`` only the following keys are allowed: ``&quot;&quot;``, ``&quot;+-&quot;``, ``&quot;++--&quot;``</span>
+<span class="sd">    - for ``beta_alpha`` the only allowed key is ``&quot;++--&quot;``</span>
+<span class="sd">    - the reported ``register_length`` attributes of all non-empty tensors must match</span>
+
+<span class="sd">    There are two ways of constructing the ``ElectronicIntegrals``:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        # assuming you already have your one- and two-body integrals from somewhere</span>
+<span class="sd">        h1_a, h2_aa, h1_b, h2_bb, h2_ba = ...</span>
+
+<span class="sd">        from qiskit_nature.second_q.operators import ElectronicIntegrals, PolynomialTensor</span>
+
+<span class="sd">        alpha = PolynomialTensor({&quot;+-&quot;: h1_a, &quot;++--&quot;: h2_aa})</span>
+<span class="sd">        beta = PolynomialTensor({&quot;+-&quot;: h1_b, &quot;++--&quot;: h2_bb})</span>
+<span class="sd">        beta_alpha = PolynomialTensor({&quot;++--&quot;: h2_ba})</span>
+
+<span class="sd">        integrals = ElectronicIntegrals(alpha, beta, beta_alpha)</span>
+
+<span class="sd">        # alternatively, the following achieves the same effect:</span>
+<span class="sd">        integrals = ElectronicIntegrals.from_raw_integrals(h1_a, h2_aa, h1_b, h2_bb, h2_ba)</span>
+
+<span class="sd">    This class then exposes common mathematical operations performed on these tensors allowing</span>
+<span class="sd">    simple manipulation of the underlying data structures.</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        # addition</span>
+<span class="sd">        integrals + integrals</span>
+
+<span class="sd">        # scalar multiplication</span>
+<span class="sd">        2.0 * integrals</span>
+
+<span class="sd">    This class will substitute empty ``beta`` and ``beta_alpha`` tensors with the ``alpha`` tensor</span>
+<span class="sd">    when necessary. For example, this means the following will happen:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        integrals_pure = ElectronicIntegrals(alpha)</span>
+<span class="sd">        integrals_mixed = ElectronicIntegrals(alpha, beta, beta_alpha)</span>
+
+<span class="sd">        sum = integrals_pure + integrals_mixed</span>
+<span class="sd">        print(sum.beta.is_empty())  # False</span>
+<span class="sd">        print(sum.beta_alpha.is_empty())  # False</span>
+<span class="sd">        print(sum.beta.equiv(alpha + beta))  # True</span>
+<span class="sd">        print(sum.beta_alpha.equiv(alpha + beta_alpha))  # True</span>
+
+<span class="sd">    The same logic holds for other mathematical operations involving multiple ``ElectronicIntegrals``.</span>
+
+<span class="sd">    You can add a custom offset to be included in the operator generated from these coefficients</span>
+<span class="sd">    like so:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        from qiskit_nature.second_q.operators import PolynomialTensor</span>
+
+<span class="sd">        integrals: ElectronicIntegrals</span>
+
+<span class="sd">        offset = 2.5</span>
+<span class="sd">        integrals.alpha += PolynomialTensor({&quot;&quot;: offset})</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_VALID_KEYS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;+-&quot;</span><span class="p">,</span> <span class="s2">&quot;++--&quot;</span><span class="p">}</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">alpha</span><span class="p">:</span> <span class="n">PolynomialTensor</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">beta</span><span class="p">:</span> <span class="n">PolynomialTensor</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">beta_alpha</span><span class="p">:</span> <span class="n">PolynomialTensor</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Any ``None``-valued argument will internally be replaced by an empty :class:`~.PolynomialTensor`</span>
+<span class="sd">        (see also :meth:`qiskit_nature.second_q.operators.PolynomialTensor.empty`).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            alpha: the up-spin electronic integrals</span>
+<span class="sd">            beta: the down-spin electronic integrals</span>
+<span class="sd">            beta_alpha: the beta-alpha-spin two-body electronic integrals. This may *only* contain</span>
+<span class="sd">                the ``++--`` key.</span>
+<span class="sd">            validate: when set to False, no validation will be performed. Disable this setting with</span>
+<span class="sd">                care!</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            KeyError: if the ``alpha`` tensor contains keys other than ``&quot;&quot;``, ``&quot;+-&quot;``, and ``&quot;++--&quot;``.</span>
+<span class="sd">            KeyError: if the ``beta`` tensor contains keys other than ``&quot;&quot;``, ``&quot;+-&quot;``, and ``&quot;++--&quot;``.</span>
+<span class="sd">            KeyError: if the ``beta_alpha`` tensor contains keys other than ``&quot;++--&quot;``.</span>
+<span class="sd">            ValueError: if the reported :attr:`~.PolynomialTensor.register_length` attributes of the</span>
+<span class="sd">                alpha-, beta-, and beta-alpha-spin tensors do not all match.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="n">beta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beta_alpha</span> <span class="o">=</span> <span class="n">beta_alpha</span>
+        <span class="k">if</span> <span class="n">validate</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Performs internal validation.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_tensor_keys</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_register_lengths</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_validate_tensor_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validates the keys of all internal tensors.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">ElectronicIntegrals</span><span class="o">.</span><span class="n">_VALID_KEYS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+                <span class="s2">&quot;The only allowed keys for the alpha-spin tensor are &#39;&#39;, &#39;+-&#39;, and &#39;++--&#39;, but your&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; tensor has keys: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">ElectronicIntegrals</span><span class="o">.</span><span class="n">_VALID_KEYS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+                <span class="s2">&quot;The only allowed keys for the beta-spin tensor are &#39;&#39;, &#39;+-&#39;, and &#39;++--&#39;, but your&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; tensor has keys: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta_alpha</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="p">{</span><span class="s2">&quot;++--&quot;</span><span class="p">}:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+                <span class="s2">&quot;The only allowed key for the beta-alpha-spin tensor is &#39;++--&#39;, but your &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; tensor has keys: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">beta_alpha</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_validate_register_lengths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validates the reported `register_length` attributes of all internal tensors.&quot;&quot;&quot;</span>
+        <span class="n">alpha_len</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="o">.</span><span class="n">register_length</span>
+        <span class="n">beta_len</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="o">.</span><span class="n">register_length</span>
+        <span class="n">beta_alpha_len</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta_alpha</span><span class="o">.</span><span class="n">register_length</span>
+
+        <span class="k">if</span> <span class="n">alpha_len</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">beta_len</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;The reported register_length of your beta-spin tensor, </span><span class="si">{</span><span class="n">beta_len</span><span class="si">}</span><span class="s2">, does not &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;match the alpha-spin tensor one, </span><span class="si">{</span><span class="n">alpha_len</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">beta_alpha_len</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;The reported register_length of your beta-alpha-spin tensor, </span><span class="si">{</span><span class="n">beta_alpha_len</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;, does not match the alpha-spin tensor one, </span><span class="si">{</span><span class="n">alpha_len</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">beta_len</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">alpha_len</span> <span class="o">!=</span> <span class="n">beta_len</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;The reported register_length of your beta-spin tensor, </span><span class="si">{</span><span class="n">beta_len</span><span class="si">}</span><span class="s2">, does not &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;match the alpha-spin tensor one, </span><span class="si">{</span><span class="n">alpha_len</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">beta_alpha_len</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">alpha_len</span> <span class="o">!=</span> <span class="n">beta_alpha_len</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;The reported register_length of your beta-alpha-spin tensor, </span><span class="si">{</span><span class="n">beta_alpha_len</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;, does not match the alpha-spin tensor one, </span><span class="si">{</span><span class="n">alpha_len</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PolynomialTensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The up-spin electronic integrals.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_alpha</span>
+
+    <span class="nd">@alpha</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="n">PolynomialTensor</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_alpha</span> <span class="o">=</span> <span class="n">alpha</span> <span class="k">if</span> <span class="n">alpha</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">PolynomialTensor</span><span class="o">.</span><span class="n">empty</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">beta</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PolynomialTensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The down-spin electronic integrals.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_beta</span>
+
+    <span class="nd">@beta</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">beta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">beta</span><span class="p">:</span> <span class="n">PolynomialTensor</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_beta</span> <span class="o">=</span> <span class="n">beta</span> <span class="k">if</span> <span class="n">beta</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">PolynomialTensor</span><span class="o">.</span><span class="n">empty</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">beta_alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PolynomialTensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The beta-alpha-spin two-body electronic integrals.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_beta_alpha</span>
+
+    <span class="nd">@beta_alpha</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">beta_alpha</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">beta_alpha</span><span class="p">:</span> <span class="n">PolynomialTensor</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">beta_alpha</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_beta_alpha</span> <span class="o">=</span> <span class="n">PolynomialTensor</span><span class="o">.</span><span class="n">empty</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">beta_alpha</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">keys</span> <span class="ow">and</span> <span class="n">keys</span> <span class="o">!=</span> <span class="p">{</span><span class="s2">&quot;++--&quot;</span><span class="p">}:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;The beta_alpha tensor may only contain a `++--` key, not </span><span class="si">{</span><span class="n">keys</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_beta_alpha</span> <span class="o">=</span> <span class="n">beta_alpha</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">alpha_beta</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PolynomialTensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The alpha-beta-spin two-body electronic integrals.</span>
+
+<span class="sd">        These get reconstructed from :attr:`beta_alpha` by transposing in the physicist&#39; ordering</span>
+<span class="sd">        convention.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta_alpha</span><span class="o">.</span><span class="n">is_empty</span><span class="p">():</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta_alpha</span>
+
+        <span class="n">two_body_ba</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta_alpha</span><span class="p">[</span><span class="s2">&quot;++--&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">two_body_ba</span><span class="p">,</span> <span class="n">SymmetricTwoBodyIntegrals</span><span class="p">):</span>
+            <span class="c1"># NOTE: to ensure proper inter-operability with the symmetry-aware integral containers,</span>
+            <span class="c1"># we delegate the conjugation to the objects themselves</span>
+            <span class="k">return</span> <span class="n">PolynomialTensor</span><span class="p">({</span><span class="s2">&quot;++--&quot;</span><span class="p">:</span> <span class="n">two_body_ba</span><span class="o">.</span><span class="n">conjugate</span><span class="p">()},</span> <span class="n">validate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">alpha_beta</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">moveaxis</span><span class="p">(</span><span class="n">two_body_ba</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">PolynomialTensor</span><span class="p">({</span><span class="s2">&quot;++--&quot;</span><span class="p">:</span> <span class="n">alpha_beta</span><span class="p">},</span> <span class="n">validate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">one_body</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ElectronicIntegrals</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns only the one-body integrals.&quot;&quot;&quot;</span>
+        <span class="n">alpha</span><span class="p">:</span> <span class="n">PolynomialTensor</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="s2">&quot;+-&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">:</span>
+            <span class="n">alpha</span> <span class="o">=</span> <span class="n">PolynomialTensor</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;+-&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">[</span><span class="s2">&quot;+-&quot;</span><span class="p">]},</span>
+                <span class="n">validate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">beta</span><span class="p">:</span> <span class="n">PolynomialTensor</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="s2">&quot;+-&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="p">:</span>
+            <span class="n">beta</span> <span class="o">=</span> <span class="n">PolynomialTensor</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;+-&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="p">[</span><span class="s2">&quot;+-&quot;</span><span class="p">]},</span>
+                <span class="n">validate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">two_body</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ElectronicIntegrals</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns only the two-body integrals.&quot;&quot;&quot;</span>
+        <span class="n">alpha</span><span class="p">:</span> <span class="n">PolynomialTensor</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="s2">&quot;++--&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">:</span>
+            <span class="n">alpha</span> <span class="o">=</span> <span class="n">PolynomialTensor</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;++--&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">[</span><span class="s2">&quot;++--&quot;</span><span class="p">]},</span>
+                <span class="n">validate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">beta</span><span class="p">:</span> <span class="n">PolynomialTensor</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="s2">&quot;++--&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="p">:</span>
+            <span class="n">beta</span> <span class="o">=</span> <span class="n">PolynomialTensor</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;++--&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="p">[</span><span class="s2">&quot;++--&quot;</span><span class="p">]},</span>
+                <span class="n">validate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">beta_alpha</span><span class="p">:</span> <span class="n">PolynomialTensor</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="s2">&quot;++--&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta_alpha</span><span class="p">:</span>
+            <span class="n">beta_alpha</span> <span class="o">=</span> <span class="n">PolynomialTensor</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;++--&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta_alpha</span><span class="p">[</span><span class="s2">&quot;++--&quot;</span><span class="p">]},</span>
+                <span class="n">validate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">beta_alpha</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">register_length</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The size of the operator that can be generated from these `ElectronicIntegrals`.&quot;&quot;&quot;</span>
+        <span class="n">alpha_length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="o">.</span><span class="n">register_length</span>
+        <span class="k">return</span> <span class="n">alpha_length</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check equality of first ElectronicIntegrals with other</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other: second ``ElectronicIntegrals`` object to be compared with the first.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            True when ``ElectronicIntegrals`` objects are equal, False when unequal.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">ElectronicIntegrals</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">alpha</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">beta</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta_alpha</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">beta_alpha</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="ElectronicIntegrals.equiv"><a class="viewcode-back" href="../../../../stubs/qiskit_nature.second_q.operators.ElectronicIntegrals.html#qiskit_nature.second_q.operators.ElectronicIntegrals.equiv">[documentos]</a>    <span class="k">def</span> <span class="nf">equiv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check equivalence of first ElectronicIntegrals with other</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other: second ``ElectronicIntegrals`` object to be compared with the first.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            True when ``ElectronicIntegrals`` objects are equivalent, False when not.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">ElectronicIntegrals</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="o">.</span><span class="n">equiv</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">alpha</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="o">.</span><span class="n">equiv</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">beta</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta_alpha</span><span class="o">.</span><span class="n">equiv</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">beta_alpha</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+    <span class="k">def</span> <span class="nf">_multiply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="nb">complex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ElectronicIntegrals</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;other </span><span class="si">{</span><span class="n">other</span><span class="si">}</span><span class="s2"> must be a number&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span>
+            <span class="n">cast</span><span class="p">(</span><span class="n">PolynomialTensor</span><span class="p">,</span> <span class="n">other</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">),</span>
+            <span class="n">cast</span><span class="p">(</span><span class="n">PolynomialTensor</span><span class="p">,</span> <span class="n">other</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="p">),</span>
+            <span class="n">cast</span><span class="p">(</span><span class="n">PolynomialTensor</span><span class="p">,</span> <span class="n">other</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta_alpha</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">ElectronicIntegrals</span><span class="p">,</span> <span class="n">qargs</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ElectronicIntegrals</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">ElectronicIntegrals</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Incorrect argument type: other should be ElectronicIntegrals&quot;</span><span class="p">)</span>
+
+        <span class="c1"># we need to handle beta separately in order to inject alpha where necessary</span>
+        <span class="n">beta</span><span class="p">:</span> <span class="n">PolynomialTensor</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">beta_self_empty</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="o">.</span><span class="n">is_empty</span><span class="p">()</span>
+        <span class="n">beta_other_empty</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">beta</span><span class="o">.</span><span class="n">is_empty</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">beta_self_empty</span> <span class="ow">and</span> <span class="n">beta_other_empty</span><span class="p">):</span>
+            <span class="n">beta_self</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="k">if</span> <span class="n">beta_self_empty</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span>
+            <span class="n">beta_other</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">alpha</span> <span class="k">if</span> <span class="n">beta_other_empty</span> <span class="k">else</span> <span class="n">other</span><span class="o">.</span><span class="n">beta</span>
+            <span class="n">beta</span> <span class="o">=</span> <span class="n">beta_self</span> <span class="o">+</span> <span class="n">beta_other</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span>
+            <span class="n">beta</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">beta_alpha</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">beta_alpha</span><span class="p">,</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="ElectronicIntegrals.apply"><a class="viewcode-back" href="../../../../stubs/qiskit_nature.second_q.operators.ElectronicIntegrals.html#qiskit_nature.second_q.operators.ElectronicIntegrals.apply">[documentos]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">function</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">SparseArray</span> <span class="o">|</span> <span class="nb">complex</span><span class="p">],</span>
+        <span class="o">*</span><span class="n">operands</span><span class="p">:</span> <span class="n">ElectronicIntegrals</span><span class="p">,</span>
+        <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ElectronicIntegrals</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">ElectronicIntegrals</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Exposes the :meth:`qiskit_nature.second_q.operators.PolynomialTensor.apply` method.</span>
+
+<span class="sd">        This behaves identical to the ``apply`` implementation of the ``PolynomialTensor``, applied</span>
+<span class="sd">        to the :attr:`alpha`, :attr:`beta`, and :attr:`beta_alpha` attributes of the provided</span>
+<span class="sd">        ``ElectronicIntegrals`` operands.</span>
+
+<span class="sd">        This method is special, because it handles the scenario in which any operand has a non-empty</span>
+<span class="sd">        :attr:`beta` attribute, in which case the empty-beta attributes of any other operands will</span>
+<span class="sd">        be filled with :attr:`alpha` attributes of those operands.</span>
+<span class="sd">        The :attr:`beta_alpha` attributes will only be handled if they are non-empty in all supplied</span>
+<span class="sd">        operands.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            function: the function to apply to the internal arrays of the provided operands. This</span>
+<span class="sd">                function must take numpy (or sparse) arrays as its positional arguments. The number</span>
+<span class="sd">                of arguments must match the number of provided operands.</span>
+<span class="sd">            operands: a sequence of ``ElectronicIntegrals`` instances on which to operate.</span>
+<span class="sd">            multi: when set to True this indicates that the provided numpy function will return</span>
+<span class="sd">                multiple new numpy arrays which will each be wrapped into an ``ElectronicIntegrals``</span>
+<span class="sd">                instance separately.</span>
+<span class="sd">            validate: when set to False, no validation will be performed. Disable this setting with</span>
+<span class="sd">                care!</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A new ``ElectronicIntegrals``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">alphas</span> <span class="o">=</span> <span class="n">PolynomialTensor</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+            <span class="n">function</span><span class="p">,</span> <span class="o">*</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">alpha</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">operands</span><span class="p">),</span> <span class="n">multi</span><span class="o">=</span><span class="n">multi</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span>
+        <span class="p">)</span>
+
+        <span class="n">betas</span><span class="p">:</span> <span class="n">PolynomialTensor</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">PolynomialTensor</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="ow">not</span> <span class="n">op</span><span class="o">.</span><span class="n">beta</span><span class="o">.</span><span class="n">is_empty</span><span class="p">()</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">operands</span><span class="p">):</span>
+            <span class="c1"># If any beta-entry is non-empty, we have to perform this computation.</span>
+            <span class="c1"># Empty tensors will be populated with their alpha-terms automatically.</span>
+            <span class="n">betas</span> <span class="o">=</span> <span class="n">PolynomialTensor</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                <span class="n">function</span><span class="p">,</span>
+                <span class="o">*</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">alpha</span> <span class="k">if</span> <span class="n">op</span><span class="o">.</span><span class="n">beta</span><span class="o">.</span><span class="n">is_empty</span><span class="p">()</span> <span class="k">else</span> <span class="n">op</span><span class="o">.</span><span class="n">beta</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">operands</span><span class="p">),</span>
+                <span class="n">multi</span><span class="o">=</span><span class="n">multi</span><span class="p">,</span>
+                <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">beta_alphas</span><span class="p">:</span> <span class="n">PolynomialTensor</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">PolynomialTensor</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="ow">not</span> <span class="n">op</span><span class="o">.</span><span class="n">beta_alpha</span><span class="o">.</span><span class="n">is_empty</span><span class="p">()</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">operands</span><span class="p">):</span>
+            <span class="c1"># We can only perform this operation, when all beta_alpha tensors are non-empty.</span>
+            <span class="n">beta_alphas</span> <span class="o">=</span> <span class="n">PolynomialTensor</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                <span class="n">function</span><span class="p">,</span> <span class="o">*</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">beta_alpha</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">operands</span><span class="p">),</span> <span class="n">multi</span><span class="o">=</span><span class="n">multi</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">multi</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">betas</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">betas</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">alphas</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">beta_alphas</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">beta_alphas</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">alphas</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">[</span>
+                <span class="bp">cls</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">ba</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">ba</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">alphas</span><span class="p">,</span> <span class="n">betas</span><span class="p">,</span> <span class="n">beta_alphas</span><span class="p">)</span>
+            <span class="p">]</span>
+
+        <span class="n">alphas</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">PolynomialTensor</span><span class="p">,</span> <span class="n">alphas</span><span class="p">)</span>
+        <span class="n">betas</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Optional</span><span class="p">[</span><span class="n">PolynomialTensor</span><span class="p">],</span> <span class="n">betas</span><span class="p">)</span>
+        <span class="n">beta_alphas</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Optional</span><span class="p">[</span><span class="n">PolynomialTensor</span><span class="p">],</span> <span class="n">beta_alphas</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">alphas</span><span class="p">,</span> <span class="n">betas</span><span class="p">,</span> <span class="n">beta_alphas</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ElectronicIntegrals.stack"><a class="viewcode-back" href="../../../../stubs/qiskit_nature.second_q.operators.ElectronicIntegrals.html#qiskit_nature.second_q.operators.ElectronicIntegrals.stack">[documentos]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">stack</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">function</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">SparseArray</span> <span class="o">|</span> <span class="n">Number</span><span class="p">],</span>
+        <span class="n">operands</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">ElectronicIntegrals</span><span class="p">],</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ElectronicIntegrals</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Exposes the :meth:`qiskit_nature.second_q.operators.PolynomialTensor.stack` method.</span>
+
+<span class="sd">        This behaves identical to the ``stack`` implementation of the ``PolynomialTensor``, applied</span>
+<span class="sd">        to the :attr:`alpha`, :attr:`beta`, and :attr:`beta_alpha` attributes of the provided</span>
+<span class="sd">        ``ElectronicIntegrals`` operands.</span>
+
+<span class="sd">        This method is special, because it handles the scenario in which any operand has a non-empty</span>
+<span class="sd">        :attr:`beta` attribute, in which case the empty-beta attributes of any other operands will</span>
+<span class="sd">        be filled with :attr:`alpha` attributes of those operands.</span>
+<span class="sd">        The :attr:`beta_alpha` attributes will only be handled if they are non-empty in all supplied</span>
+<span class="sd">        operands.</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            When stacking arrays this will likely lead to array shapes which would fail the shape</span>
+<span class="sd">            validation check. This is considered an advanced use case which is why the user is left</span>
+<span class="sd">            to disable this check themselves, to ensure they know what they are doing.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            function: the stacking function to apply to the internal arrays of the provided</span>
+<span class="sd">                operands. This function must take a sequence of numpy (or sparse) arrays as its</span>
+<span class="sd">                first argument. You should use :code:`functools.partial` if you need to provide</span>
+<span class="sd">                keyword arguments (e.g. :code:`partial(np.stack, axis=-1)`). Common methods to use</span>
+<span class="sd">                here are :func:`numpy.hstack` and :func:`numpy.vstack`.</span>
+<span class="sd">            operands: a sequence of ``ElectronicIntegrals`` instances on which to operate.</span>
+<span class="sd">            validate: when set to False, no validation will be performed. Disable this setting with</span>
+<span class="sd">                care!</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A new ``ElectronicIntegrals``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">PolynomialTensor</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="p">[</span><span class="n">op</span><span class="o">.</span><span class="n">alpha</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">operands</span><span class="p">],</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">)</span>
+
+        <span class="n">beta</span><span class="p">:</span> <span class="n">PolynomialTensor</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="ow">not</span> <span class="n">op</span><span class="o">.</span><span class="n">beta</span><span class="o">.</span><span class="n">is_empty</span><span class="p">()</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">operands</span><span class="p">):</span>
+            <span class="c1"># If any beta-entry is non-empty, we have to perform this computation.</span>
+            <span class="c1"># Empty tensors will be populated with their alpha-terms automatically.</span>
+            <span class="n">beta</span> <span class="o">=</span> <span class="n">PolynomialTensor</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+                <span class="n">function</span><span class="p">,</span>
+                <span class="p">[</span><span class="n">op</span><span class="o">.</span><span class="n">alpha</span> <span class="k">if</span> <span class="n">op</span><span class="o">.</span><span class="n">beta</span><span class="o">.</span><span class="n">is_empty</span><span class="p">()</span> <span class="k">else</span> <span class="n">op</span><span class="o">.</span><span class="n">beta</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">operands</span><span class="p">],</span>
+                <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">beta_alpha</span><span class="p">:</span> <span class="n">PolynomialTensor</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="ow">not</span> <span class="n">op</span><span class="o">.</span><span class="n">beta_alpha</span><span class="o">.</span><span class="n">is_empty</span><span class="p">()</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">operands</span><span class="p">):</span>
+            <span class="c1"># We can only perform this operation, when all beta_alpha tensors are non-empty.</span>
+            <span class="n">beta_alpha</span> <span class="o">=</span> <span class="n">PolynomialTensor</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+                <span class="n">function</span><span class="p">,</span> <span class="p">[</span><span class="n">op</span><span class="o">.</span><span class="n">beta_alpha</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">operands</span><span class="p">],</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">beta_alpha</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ElectronicIntegrals.split"><a class="viewcode-back" href="../../../../stubs/qiskit_nature.second_q.operators.ElectronicIntegrals.html#qiskit_nature.second_q.operators.ElectronicIntegrals.split">[documentos]</a>    <span class="k">def</span> <span class="nf">split</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">function</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">SparseArray</span> <span class="o">|</span> <span class="n">Number</span><span class="p">],</span>
+        <span class="n">indices_or_sections</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ElectronicIntegrals</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Exposes the :meth:`qiskit_nature.second_q.operators.PolynomialTensor.split` method.</span>
+
+<span class="sd">        This behaves identical to the ``split`` implementation of the ``PolynomialTensor``, applied</span>
+<span class="sd">        to the :attr:`alpha`, :attr:`beta`, and :attr:`beta_alpha` attributes of the provided</span>
+<span class="sd">        ``ElectronicIntegrals`` operands.</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            When splitting arrays this will likely lead to array shapes which would fail the shape</span>
+<span class="sd">            validation check. This is considered an advanced use case which is why the user is left</span>
+<span class="sd">            to disable this check themselves, to ensure they know what they are doing.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            function: the splitting function to use. This function must take a single numpy (or</span>
+<span class="sd">                sparse) array as its first input followed by a sequence of indices to split on.</span>
+<span class="sd">                You should use :code:`functools.partial` if you need to provide keyword arguments</span>
+<span class="sd">                (e.g. :code:`partial(np.split, axis=-1)`). Common methods to use here are</span>
+<span class="sd">                :func:`numpy.hsplit` and :func:`numpy.vsplit`.</span>
+<span class="sd">            indices_or_sections: a single index or sequence of indices to split on.</span>
+<span class="sd">            validate: when set to False, no validation will be performed. Disable this setting with</span>
+<span class="sd">                care!</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The new ``ElectronicIntegrals`` instances.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">alphas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">indices_or_sections</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">)</span>
+
+        <span class="n">betas</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">PolynomialTensor</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="o">.</span><span class="n">is_empty</span><span class="p">():</span>
+            <span class="n">betas</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">alphas</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">betas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">indices_or_sections</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">)</span>
+
+        <span class="n">beta_alphas</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">PolynomialTensor</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta_alpha</span><span class="o">.</span><span class="n">is_empty</span><span class="p">():</span>
+            <span class="n">beta_alphas</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">alphas</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">beta_alphas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta_alpha</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">indices_or_sections</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">ba</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">ba</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">alphas</span><span class="p">,</span> <span class="n">betas</span><span class="p">,</span> <span class="n">beta_alphas</span><span class="p">)</span>
+        <span class="p">]</span></div>
+
+<div class="viewcode-block" id="ElectronicIntegrals.einsum"><a class="viewcode-back" href="../../../../stubs/qiskit_nature.second_q.operators.ElectronicIntegrals.html#qiskit_nature.second_q.operators.ElectronicIntegrals.einsum">[documentos]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">einsum</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">einsum_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]],</span>
+        <span class="o">*</span><span class="n">operands</span><span class="p">:</span> <span class="n">ElectronicIntegrals</span><span class="p">,</span>
+        <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ElectronicIntegrals</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Exposes the :meth:`qiskit_nature.second_q.operators.PolynomialTensor.einsum` method.</span>
+
+<span class="sd">        This behaves identical to the ``einsum`` implementation of the ``PolynomialTensor``, applied</span>
+<span class="sd">        to the :attr:`alpha`, :attr:`beta`, and :attr:`beta_alpha` attributes of the provided</span>
+<span class="sd">        ``ElectronicIntegrals`` operands.</span>
+
+<span class="sd">        This method is special, because it handles the scenario in which any operand has a non-empty</span>
+<span class="sd">        :attr:`beta` attribute, in which case the empty-beta attributes of any other operands will</span>
+<span class="sd">        be filled with :attr:`alpha` attributes of those operands.</span>
+<span class="sd">        The :attr:`beta_alpha` attributes will only be handled if they are non-empty in all supplied</span>
+<span class="sd">        operands.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            einsum_map: a dictionary, mapping from :meth:`numpy.einsum` subscripts to a tuple of</span>
+<span class="sd">                strings. These strings correspond to the keys of matrices to be extracted from the</span>
+<span class="sd">                provided ``ElectronicIntegrals`` operands. The last string in this tuple indicates</span>
+<span class="sd">                the key under which to store the result in the returned ``ElectronicIntegrals``.</span>
+<span class="sd">            operands: a sequence of ``ElectronicIntegrals`` instances on which to operate.</span>
+<span class="sd">            validate: when set to False, no validation will be performed. Disable this setting with</span>
+<span class="sd">                care!</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A new ``ElectronicIntegrals``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">PolynomialTensor</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span>
+            <span class="n">einsum_map</span><span class="p">,</span> <span class="o">*</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">alpha</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">operands</span><span class="p">),</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span>
+        <span class="p">)</span>
+
+        <span class="n">beta</span><span class="p">:</span> <span class="n">PolynomialTensor</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="ow">not</span> <span class="n">op</span><span class="o">.</span><span class="n">beta</span><span class="o">.</span><span class="n">is_empty</span><span class="p">()</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">operands</span><span class="p">):</span>
+            <span class="c1"># If any beta-entry is non-empty, we have to perform this computation.</span>
+            <span class="c1"># Empty tensors will be populated with their alpha-terms automatically.</span>
+            <span class="n">beta</span> <span class="o">=</span> <span class="n">PolynomialTensor</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span>
+                <span class="n">einsum_map</span><span class="p">,</span>
+                <span class="o">*</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">alpha</span> <span class="k">if</span> <span class="n">op</span><span class="o">.</span><span class="n">beta</span><span class="o">.</span><span class="n">is_empty</span><span class="p">()</span> <span class="k">else</span> <span class="n">op</span><span class="o">.</span><span class="n">beta</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">operands</span><span class="p">),</span>
+                <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">beta_alpha</span><span class="p">:</span> <span class="n">PolynomialTensor</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="ow">not</span> <span class="n">op</span><span class="o">.</span><span class="n">beta_alpha</span><span class="o">.</span><span class="n">is_empty</span><span class="p">()</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">operands</span><span class="p">):</span>
+            <span class="c1"># We can only perform this operation, when all beta_alpha tensors are non-empty.</span>
+            <span class="n">beta_alpha</span> <span class="o">=</span> <span class="n">PolynomialTensor</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span>
+                <span class="n">einsum_map</span><span class="p">,</span> <span class="o">*</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">beta_alpha</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">operands</span><span class="p">),</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">beta_alpha</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">)</span></div>
+
+    <span class="c1"># pylint: disable=invalid-name</span>
+<div class="viewcode-block" id="ElectronicIntegrals.from_raw_integrals"><a class="viewcode-back" href="../../../../stubs/qiskit_nature.second_q.operators.ElectronicIntegrals.html#qiskit_nature.second_q.operators.ElectronicIntegrals.from_raw_integrals">[documentos]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_raw_integrals</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">h1_a</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">SparseArray</span><span class="p">,</span>
+        <span class="n">h2_aa</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">SparseArray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">h1_b</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">SparseArray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">h2_bb</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">SparseArray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">h2_ba</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">SparseArray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">auto_index_order</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ElectronicIntegrals</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Loads the provided integral matrices into an ``ElectronicIntegrals`` instance.</span>
+
+<span class="sd">        When ``auto_index_order`` is enabled,</span>
+<span class="sd">        :meth:`qiskit_nature.second_q.operators.tensor_ordering.find_index_order` will be used to</span>
+<span class="sd">        determine the index ordering of the ``h2_aa`` matrix, based on which the two-body matrices</span>
+<span class="sd">        will automatically be transformed to the physicist&#39; order, which is required by the</span>
+<span class="sd">        :class:`qiskit_nature.second_q.operators.PolynomialTensor`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            h1_a: the alpha-spin one-body integrals.</span>
+<span class="sd">            h2_aa: the alpha-alpha-spin two-body integrals.</span>
+<span class="sd">            h1_b: the beta-spin one-body integrals.</span>
+<span class="sd">            h2_bb: the beta-beta-spin two-body integrals.</span>
+<span class="sd">            h2_ba: the beta-alpha-spin two-body integrals.</span>
+<span class="sd">            validate: whether or not to validate the integral matrices. Disable this setting with</span>
+<span class="sd">                care!</span>
+<span class="sd">            auto_index_order: whether or not to automatically convert the matrices to physicists&#39;</span>
+<span class="sd">                order.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            QiskitNatureError: if `auto_index_order=True`, upon encountering an invalid</span>
+<span class="sd">                :class:`qiskit_nature.second_q.operators.tensor_ordering.IndexType`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The resulting ``ElectronicIntegrals``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">alpha_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;+-&quot;</span><span class="p">:</span> <span class="n">h1_a</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">h2_aa</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">auto_index_order</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">h2_aa</span><span class="p">,</span> <span class="n">SymmetricTwoBodyIntegrals</span><span class="p">):</span>
+                <span class="n">index_order</span> <span class="o">=</span> <span class="n">find_index_order</span><span class="p">(</span><span class="n">h2_aa</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">index_order</span> <span class="o">==</span> <span class="n">IndexType</span><span class="o">.</span><span class="n">UNKNOWN</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">QiskitNatureError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;The index ordering of the `h2_aa` argument, </span><span class="si">{</span><span class="n">index_order</span><span class="si">}</span><span class="s2">, is invalid.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="s2">&quot;Provide the two-body matrices in either chemists&#39; or physicists&#39; order, &quot;</span>
+                        <span class="s2">&quot;or disable the automatic transformation to enforce these matrices to be &quot;</span>
+                        <span class="s2">&quot;used (`auto_index_order=False`).&quot;</span>
+                    <span class="p">)</span>
+                <span class="n">h2_aa</span> <span class="o">=</span> <span class="n">to_physicist_ordering</span><span class="p">(</span><span class="n">h2_aa</span><span class="p">,</span> <span class="n">index_order</span><span class="o">=</span><span class="n">index_order</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">h2_bb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">h2_bb</span> <span class="o">=</span> <span class="n">to_physicist_ordering</span><span class="p">(</span><span class="n">h2_bb</span><span class="p">,</span> <span class="n">index_order</span><span class="o">=</span><span class="n">index_order</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">h2_ba</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">h2_ba</span> <span class="o">=</span> <span class="n">to_physicist_ordering</span><span class="p">(</span><span class="n">h2_ba</span><span class="p">,</span> <span class="n">index_order</span><span class="o">=</span><span class="n">index_order</span><span class="p">)</span>
+
+            <span class="n">alpha_dict</span><span class="p">[</span><span class="s2">&quot;++--&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">h2_aa</span>
+
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">PolynomialTensor</span><span class="p">(</span><span class="n">alpha_dict</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">)</span>
+
+        <span class="n">beta</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">beta_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">h1_b</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">beta_dict</span><span class="p">[</span><span class="s2">&quot;+-&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">h1_b</span>
+        <span class="k">if</span> <span class="n">h2_bb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">beta_dict</span><span class="p">[</span><span class="s2">&quot;++--&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">h2_bb</span>
+        <span class="k">if</span> <span class="n">beta_dict</span><span class="p">:</span>
+            <span class="n">beta</span> <span class="o">=</span> <span class="n">PolynomialTensor</span><span class="p">(</span><span class="n">beta_dict</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">)</span>
+
+        <span class="n">beta_alpha</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">h2_ba</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">beta_alpha</span> <span class="o">=</span> <span class="n">PolynomialTensor</span><span class="p">({</span><span class="s2">&quot;++--&quot;</span><span class="p">:</span> <span class="n">h2_ba</span><span class="p">},</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">beta_alpha</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ElectronicIntegrals.second_q_coeffs"><a class="viewcode-back" href="../../../../stubs/qiskit_nature.second_q.operators.ElectronicIntegrals.html#qiskit_nature.second_q.operators.ElectronicIntegrals.second_q_coeffs">[documentos]</a>    <span class="k">def</span> <span class="nf">second_q_coeffs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PolynomialTensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructs the total ``PolynomialTensor`` contained the second-quantized coefficients.</span>
+
+<span class="sd">        This function constructs the spin-orbital basis tensor as a</span>
+<span class="sd">        :class:`qiskit_nature.second_q.operators.PolynomialTensor`, by arranging the :attr:`alpha`</span>
+<span class="sd">        and :attr:`beta` attributes in a block-ordered fashion (up-spin integrals cover the first</span>
+<span class="sd">        part, down-spin integrals the second part of the resulting register space).</span>
+
+<span class="sd">        If the :attr:`beta` and/or :attr:`beta_alpha` attributes are empty, the :attr:`alpha` data</span>
+<span class="sd">        will be used in their place.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The ``PolynomialTensor`` representing the entire system.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">beta_empty</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="o">.</span><span class="n">is_empty</span><span class="p">()</span>
+        <span class="n">beta_alpha_empty</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta_alpha</span><span class="o">.</span><span class="n">is_empty</span><span class="p">()</span>
+
+        <span class="n">kron_one_body</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="n">kron_two_body</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="n">kron_tensor</span> <span class="o">=</span> <span class="n">PolynomialTensor</span><span class="p">({</span><span class="s2">&quot;&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;+-&quot;</span><span class="p">:</span> <span class="n">kron_one_body</span><span class="p">,</span> <span class="s2">&quot;++--&quot;</span><span class="p">:</span> <span class="n">kron_two_body</span><span class="p">})</span>
+
+        <span class="n">ba_index</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">ab_index</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">beta_empty</span> <span class="ow">and</span> <span class="n">beta_alpha_empty</span><span class="p">:</span>
+            <span class="n">kron_one_body</span><span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">kron_one_body</span><span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">kron_two_body</span><span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span> <span class="o">=</span> <span class="mf">0.5</span>
+            <span class="n">kron_two_body</span><span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="mf">0.5</span>
+
+            <span class="n">aa_tensor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;++--&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">aa_tensor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">aa_tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">):</span>
+                    <span class="n">aa_tensor</span> <span class="o">=</span> <span class="n">Tensor</span><span class="p">(</span><span class="n">aa_tensor</span><span class="p">)</span>
+
+                <span class="n">ba_index</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
+                    <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">aa_tensor</span><span class="o">.</span><span class="n">_reverse_label_template</span><span class="p">(</span><span class="n">ba_index</span><span class="p">))</span>
+                <span class="p">)</span>
+                <span class="n">ab_index</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
+                    <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">aa_tensor</span><span class="o">.</span><span class="n">_reverse_label_template</span><span class="p">(</span><span class="n">ab_index</span><span class="p">))</span>
+                <span class="p">)</span>
+
+            <span class="n">kron_two_body</span><span class="p">[</span><span class="n">ba_index</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span>
+            <span class="n">kron_two_body</span><span class="p">[</span><span class="n">ab_index</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span>
+
+            <span class="n">tensor_blocked_spin_orbitals</span> <span class="o">=</span> <span class="n">PolynomialTensor</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">,</span> <span class="n">kron_tensor</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">PolynomialTensor</span><span class="p">,</span> <span class="n">tensor_blocked_spin_orbitals</span><span class="p">)</span>
+
+        <span class="n">tensor_blocked_spin_orbitals</span> <span class="o">=</span> <span class="n">PolynomialTensor</span><span class="p">({})</span>
+        <span class="c1"># pure alpha spin</span>
+        <span class="n">kron_one_body</span><span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">kron_two_body</span><span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span> <span class="o">=</span> <span class="mf">0.5</span>
+        <span class="n">tensor_blocked_spin_orbitals</span> <span class="o">+=</span> <span class="n">PolynomialTensor</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">,</span> <span class="n">kron_tensor</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">)</span>
+        <span class="n">kron_one_body</span><span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">kron_two_body</span><span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># pure beta spin</span>
+        <span class="n">kron_one_body</span><span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">kron_two_body</span><span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="mf">0.5</span>
+        <span class="n">tensor_blocked_spin_orbitals</span> <span class="o">+=</span> <span class="n">PolynomialTensor</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">,</span> <span class="n">kron_tensor</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="p">)</span>
+        <span class="n">kron_one_body</span><span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">kron_two_body</span><span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># beta_alpha spin</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">beta_alpha_empty</span><span class="p">:</span>
+            <span class="n">kron_tensor</span> <span class="o">=</span> <span class="n">PolynomialTensor</span><span class="p">({</span><span class="s2">&quot;++--&quot;</span><span class="p">:</span> <span class="n">kron_two_body</span><span class="p">})</span>
+
+            <span class="n">ba_tensor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta_alpha</span><span class="p">[</span><span class="s2">&quot;++--&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ba_tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">):</span>
+                <span class="n">ba_tensor</span> <span class="o">=</span> <span class="n">Tensor</span><span class="p">(</span><span class="n">ba_tensor</span><span class="p">)</span>
+
+            <span class="n">ba_index</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
+                <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">ba_tensor</span><span class="o">.</span><span class="n">_reverse_label_template</span><span class="p">(</span><span class="n">ba_index</span><span class="p">))</span>
+            <span class="p">)</span>
+            <span class="n">ab_index</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
+                <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">ba_tensor</span><span class="o">.</span><span class="n">_reverse_label_template</span><span class="p">(</span><span class="n">ab_index</span><span class="p">))</span>
+            <span class="p">)</span>
+
+            <span class="n">kron_two_body</span><span class="p">[</span><span class="n">ba_index</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span>
+            <span class="n">tensor_blocked_spin_orbitals</span> <span class="o">+=</span> <span class="n">PolynomialTensor</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">,</span> <span class="n">kron_tensor</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta_alpha</span>
+            <span class="p">)</span>
+            <span class="n">kron_two_body</span><span class="p">[</span><span class="n">ba_index</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="c1"># extract transposed beta_alpha term</span>
+            <span class="n">kron_two_body</span><span class="p">[</span><span class="n">ab_index</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span>
+            <span class="n">tensor_blocked_spin_orbitals</span> <span class="o">+=</span> <span class="n">PolynomialTensor</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">,</span> <span class="n">kron_tensor</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha_beta</span>
+            <span class="p">)</span>
+            <span class="n">kron_two_body</span><span class="p">[</span><span class="n">ab_index</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">PolynomialTensor</span><span class="p">,</span> <span class="n">tensor_blocked_spin_orbitals</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ElectronicIntegrals.trace_spin"><a class="viewcode-back" href="../../../../stubs/qiskit_nature.second_q.operators.ElectronicIntegrals.html#qiskit_nature.second_q.operators.ElectronicIntegrals.trace_spin">[documentos]</a>    <span class="k">def</span> <span class="nf">trace_spin</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PolynomialTensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a :class:`~.PolynomialTensor` where the spin components have been traced out.</span>
+
+<span class="sd">        This will sum the :attr:`alpha` and :attr:`beta` components, tracing out the spin.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A ``PolynomialTensor`` with the spin traced out.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">beta_empty</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="o">.</span><span class="n">is_empty</span><span class="p">()</span>
+        <span class="n">beta_alpha_empty</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta_alpha</span><span class="o">.</span><span class="n">is_empty</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">beta_empty</span> <span class="ow">and</span> <span class="n">beta_alpha_empty</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">PolynomialTensor</span><span class="p">,</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">)</span>
+
+        <span class="n">two_body</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">two_body</span>
+        <span class="n">tensor_spin_traced</span> <span class="o">=</span> <span class="n">PolynomialTensor</span><span class="p">({})</span>
+        <span class="n">tensor_spin_traced</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span>
+        <span class="n">tensor_spin_traced</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span>
+        <span class="k">if</span> <span class="n">beta_alpha_empty</span><span class="p">:</span>
+            <span class="n">tensor_spin_traced</span> <span class="o">+=</span> <span class="n">two_body</span><span class="o">.</span><span class="n">alpha</span>
+            <span class="n">tensor_spin_traced</span> <span class="o">+=</span> <span class="n">two_body</span><span class="o">.</span><span class="n">beta</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tensor_spin_traced</span> <span class="o">+=</span> <span class="n">two_body</span><span class="o">.</span><span class="n">beta_alpha</span>
+            <span class="n">tensor_spin_traced</span> <span class="o">+=</span> <span class="n">two_body</span><span class="o">.</span><span class="n">alpha_beta</span>
+
+        <span class="k">return</span> <span class="n">tensor_spin_traced</span></div></div>
+</pre></div>
+        </article>
+      </div>
+      <footer>
+        
+  <script>
+    function userFeedbackClicked(ctaType) {
+      document.getElementById('qiskit-analytics-thank-you').style.visibility = 'visible';
+      window.trackCta(`Helpful - ${ctaType}`);
+    }
+  </script>
+    <div class="qiskit-analytics-container">
+      <div>Was this page helpful?</div>
+      <a onclick="userFeedbackClicked('yes')">Yes</a>
+      <a onclick="userFeedbackClicked('no')">No</a>
+      <div id="qiskit-analytics-thank-you">Thank you!</div>
+    </div>
+<div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2018, 2024, Qiskit Nature Development Team
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js?v=99a64b57"></script>
+    <script src="../../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../../../_static/thebelab-helper.js"></script>
+    <script src="../../../../_static/scripts/qiskit-sphinx-theme.js?v=4d77b8ca"></script>
+    <script src="../../../../_static/design-tabs.js?v=36754332"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    </body>
+</html>

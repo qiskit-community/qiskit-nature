@@ -1,0 +1,32 @@
+﻿
+
+GaussianLogResult
+================================================
+
+.. currentmodule:: qiskit_nature.second_q.drivers
+
+.. autoclass:: GaussianLogResult
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: GaussianLogResult.a_to_h_numbering
+   .. autoattribute:: GaussianLogResult.cubic_force_constants
+   .. autoattribute:: GaussianLogResult.log
+   .. autoattribute:: GaussianLogResult.quadratic_force_constants
+   .. autoattribute:: GaussianLogResult.quartic_force_constants
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: GaussianLogResult.get_watson_hamiltonian
+   
+   

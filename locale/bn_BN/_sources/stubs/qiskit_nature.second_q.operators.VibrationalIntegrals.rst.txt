@@ -1,0 +1,50 @@
+﻿
+
+VibrationalIntegrals
+=====================================================
+
+.. currentmodule:: qiskit_nature.second_q.operators
+
+.. autoclass:: VibrationalIntegrals
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: VibrationalIntegrals.atol
+   .. autoattribute:: VibrationalIntegrals.register_length
+   .. autoattribute:: VibrationalIntegrals.rtol
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: VibrationalIntegrals.apply
+   .. automethod:: VibrationalIntegrals.compose
+   .. automethod:: VibrationalIntegrals.dot
+   .. automethod:: VibrationalIntegrals.einsum
+   .. automethod:: VibrationalIntegrals.empty
+   .. automethod:: VibrationalIntegrals.equiv
+   .. automethod:: VibrationalIntegrals.expand
+   .. automethod:: VibrationalIntegrals.from_raw_integrals
+   .. automethod:: VibrationalIntegrals.get
+   .. automethod:: VibrationalIntegrals.is_dense
+   .. automethod:: VibrationalIntegrals.is_empty
+   .. automethod:: VibrationalIntegrals.is_sparse
+   .. automethod:: VibrationalIntegrals.items
+   .. automethod:: VibrationalIntegrals.keys
+   .. automethod:: VibrationalIntegrals.power
+   .. automethod:: VibrationalIntegrals.split
+   .. automethod:: VibrationalIntegrals.stack
+   .. automethod:: VibrationalIntegrals.tensor
+   .. automethod:: VibrationalIntegrals.to_dense
+   .. automethod:: VibrationalIntegrals.to_sparse
+   .. automethod:: VibrationalIntegrals.values
+   
+   

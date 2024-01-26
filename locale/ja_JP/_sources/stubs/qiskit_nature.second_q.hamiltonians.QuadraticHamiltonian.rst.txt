@@ -1,0 +1,58 @@
+﻿
+
+QuadraticHamiltonian
+========================================================
+
+.. currentmodule:: qiskit_nature.second_q.hamiltonians
+
+.. autoclass:: QuadraticHamiltonian
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: QuadraticHamiltonian.antisymmetric_part
+   .. autoattribute:: QuadraticHamiltonian.atol
+   .. autoattribute:: QuadraticHamiltonian.constant
+   .. autoattribute:: QuadraticHamiltonian.hermitian_part
+   .. autoattribute:: QuadraticHamiltonian.num_modes
+   .. autoattribute:: QuadraticHamiltonian.register_length
+   .. autoattribute:: QuadraticHamiltonian.rtol
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: QuadraticHamiltonian.apply
+   .. automethod:: QuadraticHamiltonian.compose
+   .. automethod:: QuadraticHamiltonian.conserves_particle_number
+   .. automethod:: QuadraticHamiltonian.diagonalizing_bogoliubov_transform
+   .. automethod:: QuadraticHamiltonian.dot
+   .. automethod:: QuadraticHamiltonian.einsum
+   .. automethod:: QuadraticHamiltonian.empty
+   .. automethod:: QuadraticHamiltonian.equiv
+   .. automethod:: QuadraticHamiltonian.expand
+   .. automethod:: QuadraticHamiltonian.get
+   .. automethod:: QuadraticHamiltonian.interpret
+   .. automethod:: QuadraticHamiltonian.is_dense
+   .. automethod:: QuadraticHamiltonian.is_empty
+   .. automethod:: QuadraticHamiltonian.is_sparse
+   .. automethod:: QuadraticHamiltonian.items
+   .. automethod:: QuadraticHamiltonian.keys
+   .. automethod:: QuadraticHamiltonian.majorana_form
+   .. automethod:: QuadraticHamiltonian.power
+   .. automethod:: QuadraticHamiltonian.second_q_op
+   .. automethod:: QuadraticHamiltonian.split
+   .. automethod:: QuadraticHamiltonian.stack
+   .. automethod:: QuadraticHamiltonian.tensor
+   .. automethod:: QuadraticHamiltonian.to_dense
+   .. automethod:: QuadraticHamiltonian.to_sparse
+   .. automethod:: QuadraticHamiltonian.values
+   
+   

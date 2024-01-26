@@ -1,0 +1,43 @@
+﻿
+
+KagomeLattice
+==========================================================
+
+.. currentmodule:: qiskit_nature.second_q.hamiltonians.lattices
+
+.. autoclass:: KagomeLattice
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: KagomeLattice.boundary_condition
+   .. autoattribute:: KagomeLattice.cols
+   .. autoattribute:: KagomeLattice.edge_parameter
+   .. autoattribute:: KagomeLattice.graph
+   .. autoattribute:: KagomeLattice.node_indexes
+   .. autoattribute:: KagomeLattice.num_nodes
+   .. autoattribute:: KagomeLattice.onsite_parameter
+   .. autoattribute:: KagomeLattice.rows
+   .. autoattribute:: KagomeLattice.size
+   .. autoattribute:: KagomeLattice.weighted_edge_list
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: KagomeLattice.copy
+   .. automethod:: KagomeLattice.draw
+   .. automethod:: KagomeLattice.draw_without_boundary
+   .. automethod:: KagomeLattice.from_adjacency_matrix
+   .. automethod:: KagomeLattice.from_nodes_and_edges
+   .. automethod:: KagomeLattice.to_adjacency_matrix
+   .. automethod:: KagomeLattice.uniform_parameters
+   
+   

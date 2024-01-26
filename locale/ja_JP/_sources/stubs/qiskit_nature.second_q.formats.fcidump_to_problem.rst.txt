@@ -1,0 +1,8 @@
+﻿
+
+fcidump_to_problem
+=================================================
+
+.. currentmodule:: qiskit_nature.second_q.formats
+
+.. autofunction:: fcidump_to_problem

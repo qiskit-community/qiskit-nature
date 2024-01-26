@@ -1,0 +1,62 @@
+﻿
+
+VibrationalOp
+==============================================
+
+.. currentmodule:: qiskit_nature.second_q.operators
+
+.. autoclass:: VibrationalOp
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: VibrationalOp.atol
+   .. autoattribute:: VibrationalOp.num_modals
+   .. autoattribute:: VibrationalOp.register_length
+   .. autoattribute:: VibrationalOp.rtol
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: VibrationalOp.adjoint
+   .. automethod:: VibrationalOp.argsort
+   .. automethod:: VibrationalOp.assign_parameters
+   .. automethod:: VibrationalOp.build_dual_index
+   .. automethod:: VibrationalOp.chop
+   .. automethod:: VibrationalOp.compose
+   .. automethod:: VibrationalOp.conjugate
+   .. automethod:: VibrationalOp.dot
+   .. automethod:: VibrationalOp.equiv
+   .. automethod:: VibrationalOp.expand
+   .. automethod:: VibrationalOp.from_polynomial_tensor
+   .. automethod:: VibrationalOp.from_terms
+   .. automethod:: VibrationalOp.get
+   .. automethod:: VibrationalOp.index_order
+   .. automethod:: VibrationalOp.induced_norm
+   .. automethod:: VibrationalOp.is_parameterized
+   .. automethod:: VibrationalOp.is_zero
+   .. automethod:: VibrationalOp.items
+   .. automethod:: VibrationalOp.keys
+   .. automethod:: VibrationalOp.normal_order
+   .. automethod:: VibrationalOp.one
+   .. automethod:: VibrationalOp.parameters
+   .. automethod:: VibrationalOp.permute_indices
+   .. automethod:: VibrationalOp.power
+   .. automethod:: VibrationalOp.round
+   .. automethod:: VibrationalOp.simplify
+   .. automethod:: VibrationalOp.sort
+   .. automethod:: VibrationalOp.tensor
+   .. automethod:: VibrationalOp.terms
+   .. automethod:: VibrationalOp.transpose
+   .. automethod:: VibrationalOp.values
+   .. automethod:: VibrationalOp.zero
+   
+   

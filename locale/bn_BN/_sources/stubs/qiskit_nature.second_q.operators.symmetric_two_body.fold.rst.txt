@@ -1,0 +1,8 @@
+﻿
+
+fold
+========================================================
+
+.. currentmodule:: qiskit_nature.second_q.operators.symmetric_two_body
+
+.. autofunction:: fold

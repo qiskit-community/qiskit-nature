@@ -1,0 +1,364 @@
+Vibrational Structure Problems with v0.5
+========================================
+
+Further resources
+-----------------
+
+Be sure to check out the `vibrational structure
+tutorial <../tutorials/02_vibrational_structure.ipynb>`__ for more
+details on how to use the new code.
+
+TL;DR
+-----
+
+This section gives you one cell with a v0.4 code followed by one cell
+with v0.5 code doing the same things. Hopefully this already gives you
+all the information which you were looking for.
+
+Previously
+~~~~~~~~~~
+
+.. code:: ipython3
+
+    from qiskit_nature.drivers.second_quantization import GaussianForcesDriver
+    from qiskit_nature.problems.second_quantization import VibrationalStructureProblem
+    from qiskit_nature.settings import settings
+
+    settings.dict_aux_operators = True
+
+    driver = GaussianForcesDriver(logfile="aux_files/CO2_freq_B3LYP_631g.log")
+
+    problem = VibrationalStructureProblem(driver, num_modals=[2, 2, 3, 4], truncation_order=2)
+
+    # Note: at this point, `driver.run()` has NOT been called yet. We can trigger this indirectly like so:
+    second_q_ops = problem.second_q_ops()
+
+    hamiltonian = second_q_ops["VibrationalEnergy"]
+    print("\n".join(str(hamiltonian).splitlines()[:10] + ["..."]))
+
+
+.. parsed-literal::
+
+      NIIIIIIIIII * (1268.0676746875001+0j)
+    + INIIIIIIIII * (3813.8767834375008+0j)
+    + IINIIIIIIII * (705.8633818750001+0j)
+    + II+-IIIIIII * (-46.025705898886045+0j)
+    + II-+IIIIIII * (-46.025705898886045+0j)
+    + IIINIIIIIII * (2120.1145593750007+0j)
+    + IIIINIIIIII * (238.31540750000005+0j)
+    + IIII+I-IIII * (19.820422279761104+0j)
+    + IIIIINIIIII * (728.9613775000003+0j)
+    + IIII-I+IIII * (19.820422279761104+0j)
+    ...
+
+
+New
+~~~
+
+.. code:: ipython3
+
+    from qiskit_nature.second_q.drivers import GaussianForcesDriver
+    from qiskit_nature.second_q.problems import HarmonicBasis
+
+    driver = GaussianForcesDriver(logfile="aux_files/CO2_freq_B3LYP_631g.log")
+    basis = HarmonicBasis(num_modals=[2, 2, 3, 4])
+
+    # this is now done explicitly and already requires the basis
+    problem = driver.run(basis=basis)
+    problem.hamiltonian.truncation_order = 2
+
+    hamiltonian = problem.hamiltonian.second_q_op()
+    print("\n".join(str(hamiltonian).splitlines()[:10] + ["..."]))
+
+
+.. parsed-literal::
+
+    Vibrational Operator
+    number modes=4, number modals=[2, 2, 3, 4], number terms=177
+      (1268.0676746875001+0j) * ( +_0_0 -_0_0 )
+    + (3813.8767834375008+0j) * ( +_0_1 -_0_1 )
+    + (705.8633818750002+0j) * ( +_1_0 -_1_0 )
+    + (-46.025705898886045+0j) * ( +_1_0 -_1_1 )
+    + (-46.025705898886045+0j) * ( +_1_1 -_1_0 )
+    + (2120.1145593750007+0j) * ( +_1_1 -_1_1 )
+    + (238.31540750000005+0j) * ( +_2_0 -_2_0 )
+    + (19.82042227976109+0j) * ( +_2_0 -_2_2 )
+    ...
+
+
+``qiskit_nature.drivers``
+-------------------------
+
+This section deals exclusively with the migration of the vibrational
+structure-related drivers.
+
+The table below summarizes where each of the vibrational structure
+components of ``qiskit_nature.drivers.second_quantization`` has ended
+up.
+
++---------------------------------------+---------------------------------------------------------------+
+| Legacy component                      | New location                                                  |
++=======================================+===============================================================+
+| BaseDriver                            | ``qiskit_nature.second_q.drivers.BaseDriver``                 |
++---------------------------------------+---------------------------------------------------------------+
+| VibrationalStructureDriver            | ``qiskit_nature.second_q.drivers.VibrationalStructureDriver`` |
++---------------------------------------+---------------------------------------------------------------+
+| VibrationalStructureDriverType        | **removed**                                                   |
++---------------------------------------+---------------------------------------------------------------+
+| VibrationalStructureMoleculeDriver    | **removed**                                                   |
++---------------------------------------+---------------------------------------------------------------+
+| GaussianForcesDriver                  | ``qiskit_nature.second_q.drivers.GaussianForcesDriver``       |
++---------------------------------------+---------------------------------------------------------------+
+| GaussianLogDriver                     | ``qiskit_nature.second_q.drivers.GaussiaLogDriver``           |
++---------------------------------------+---------------------------------------------------------------+
+| GaussianLogResult                     | ``qiskit_nature.second_q.drivers.GaussianLogResult``          |
++---------------------------------------+---------------------------------------------------------------+
+
+Furthermore, the two components from ``qiskit_nature.drivers`` were
+moved like so:
+
++------------------+---------------------------------------------------------------+
+| Legacy component | New location                                                  |
++==================+===============================================================+
+| Molecule         | ``qiskit_nature.second_q.formats.molecule_info.MoleculeInfo`` |
++------------------+---------------------------------------------------------------+
+| UnitsType        | ``qiskit_nature.units.DistanceUnit``                          |
++------------------+---------------------------------------------------------------+
+
+A few notes are worth adding:
+
+-  The ``VibrationalStructureMoleculeDriver`` was removed because we are
+   steering towards a future with tighter, plugin-like integration with
+   classical codes, making the concept of drivers where Qiskit starts a
+   classical simulation outdated. You can still use the
+   ``.from_molecule(...)`` methods of the remaining drivers in
+   combination with the ``MoleculeInfo`` class.
+-  The ``MoleculeInfo`` has become a pure data container and no longer
+   supports *degrees of freedom*.
+
+Vibrational Structure Drivers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Vibrational structure drivers work slightly differently than their
+electronic structure counterparts, because you must supply a **basis**
+upon running the driver, which maps the real-space Watson hamiltonian
+into second-quantized space. This was treated inconsistently in Qiskit
+Nature v0.4 as explained below.
+
+Previously
+~~~~~~~~~~
+
+In Qiskit Nature v0.4 the stack implementation was actually inconsistent
+because the ``VibrationalIntegrals`` (which were part of the
+``second_quantization`` stack) were actually storing the coefficients of
+the real-space Watson hamiltonian. Only later would these get mapped to
+a specified basis:
+
+.. code:: ipython3
+
+    from qiskit_nature.drivers.second_quantization import GaussianLogResult
+    from qiskit_nature.properties.second_quantization.vibrational.bases import HarmonicBasis
+    from qiskit_nature.settings import settings
+
+    settings.dict_aux_operators = True
+
+    log_result = GaussianLogResult("aux_files/CO2_freq_B3LYP_631g.log")
+
+    hamiltonian = log_result.get_vibrational_energy()
+    print(hamiltonian)
+
+    hamiltonian.basis = HarmonicBasis([2, 2, 3, 4])
+    op = hamiltonian.second_q_ops()["VibrationalEnergy"]
+    print("\n".join(str(op).splitlines()[:10] + ["..."]))
+
+
+.. parsed-literal::
+
+    VibrationalEnergy:
+    	None
+    	1-Body Terms:
+    		<sparse integral list with 13 entries>
+    		(2, 2) = 352.3005875
+    		(-2, -2) = -352.3005875
+    		(1, 1) = 631.6153975
+    		(-1, -1) = -631.6153975
+    		(4, 4) = 115.653915
+    		... skipping 8 entries
+    	2-Body Terms:
+    		<sparse integral list with 11 entries>
+    		(1, 1, 2) = -88.2017421687633
+    		(4, 4, 2) = 42.675273102831454
+    		(3, 3, 2) = 42.675273102831454
+    		(1, 1, 2, 2) = 4.9425425
+    		(4, 4, 2, 2) = -4.194299375
+    		... skipping 6 entries
+    	3-Body Terms:
+    		<sparse integral list with 0 entries>
+      NIIIIIIIIII * (1268.0676746875001+0j)
+    + INIIIIIIIII * (3813.8767834375008+0j)
+    + IINIIIIIIII * (705.8633818750001+0j)
+    + II+-IIIIIII * (-46.025705898886045+0j)
+    + II-+IIIIIII * (-46.025705898886045+0j)
+    + IIINIIIIIII * (2120.1145593750007+0j)
+    + IIIINIIIIII * (238.31540750000005+0j)
+    + IIII+I-IIII * (19.820422279761104+0j)
+    + IIIIINIIIII * (728.9613775000003+0j)
+    + IIII-I+IIII * (19.820422279761104+0j)
+    ...
+
+
+New
+~~~
+
+As of Qiskit Nature v0.5 the design is now consistently separating the
+treatment of the real-space Watson hamiltonian from the second-quantized
+coefficients. This is achieved by introducing a dedicated dataclass
+storing a ``WatsonHamiltonian``:
+
+.. code:: ipython3
+
+    from qiskit_nature.second_q.drivers import GaussianLogResult
+    from qiskit_nature.second_q.formats import watson_to_problem
+    from qiskit_nature.second_q.problems import HarmonicBasis
+
+    log_result = GaussianLogResult("aux_files/CO2_freq_B3LYP_631g.log")
+
+    watson = log_result.get_watson_hamiltonian()
+    print(watson)
+
+    basis = HarmonicBasis(num_modals=[2, 2, 3, 4])
+
+    problem = watson_to_problem(watson, basis)
+
+    hamiltonian = problem.hamiltonian.second_q_op()
+    print("\n".join(str(hamiltonian).splitlines()[:10] + ["..."]))
+
+
+.. parsed-literal::
+
+    WatsonHamiltonian(quadratic_force_constants=<COO: shape=(4, 4), dtype=float64, nnz=4, fill_value=0.0>, cubic_force_constants=<COO: shape=(4, 4, 4), dtype=float64, nnz=4, fill_value=0.0>, quartic_force_constants=<COO: shape=(4, 4, 4, 4), dtype=float64, nnz=12, fill_value=0.0>, kinetic_coefficients=<COO: shape=(4, 4), dtype=float64, nnz=4, fill_value=-0.0>)
+    Vibrational Operator
+    number modes=4, number modals=[2, 2, 3, 4], number terms=177
+      (1268.0676746875001+0j) * ( +_0_0 -_0_0 )
+    + (3813.8767834375008+0j) * ( +_0_1 -_0_1 )
+    + (705.8633818750002+0j) * ( +_1_0 -_1_0 )
+    + (-46.025705898886045+0j) * ( +_1_0 -_1_1 )
+    + (-46.025705898886045+0j) * ( +_1_1 -_1_0 )
+    + (2120.1145593750007+0j) * ( +_1_1 -_1_1 )
+    + (238.31540750000005+0j) * ( +_2_0 -_2_0 )
+    + (19.82042227976109+0j) * ( +_2_0 -_2_2 )
+    ...
+
+
+The ``VibrationalStructureProblem`` (``qiskit_nature.problems``)
+----------------------------------------------------------------
+
+This section details all the changes around the
+``VibrationalStructureProblem``.
+
+The table below summarizes the vibrational components of the **new**
+``qiskit_nature.second_q.problems`` module, and shows from where these
+parts originated in the old code:
+
++------------------------------------+----------------------------------------------------------------------------------------+
+| New component                      | Legacy location                                                                        |
++====================================+========================================================================================+
+| ``BaseProblem``                    | ``qiskit_nature.problems.second_quantization.BaseProblem``                             |
++------------------------------------+----------------------------------------------------------------------------------------+
+| ``EigenstateResult``               | ``qiskit_nature.results.EigenstateResult``                                             |
++------------------------------------+----------------------------------------------------------------------------------------+
+| ``PropertiesContainer``            | similar to                                                                             |
+|                                    | ``qiskit_nature.properties.GroupedProperty``                                           |
++------------------------------------+----------------------------------------------------------------------------------------+
+| ``VibrationalBasis``               | ``qiskit_nature.properties.second_quantization.vibrational.bases.VibrationalBasis``    |
++------------------------------------+----------------------------------------------------------------------------------------+
+| ``HarmonicBasis``                  | ``qiskit_nature.properties.second_quantization.vibrational.bases.HarmonicBasis``       |
++------------------------------------+----------------------------------------------------------------------------------------+
+| ``VibrationalStructureProblem``    | ``qiskit_nature.problems.second_quantization.vibrational.VibrationalStructureProblem`` |
++------------------------------------+----------------------------------------------------------------------------------------+
+| ``VibrationalPropertiesContainer`` | *did not exist yet*                                                                    |
++------------------------------------+----------------------------------------------------------------------------------------+
+| ``VibrationalStructureResult``     | ``qiskit_nature.results.VibrationalStructureResult``                                   |
++------------------------------------+----------------------------------------------------------------------------------------+
+
+Previously
+~~~~~~~~~~
+
+.. code:: ipython3
+
+    from qiskit_nature.drivers.second_quantization import GaussianForcesDriver
+    from qiskit_nature.problems.second_quantization import VibrationalStructureProblem
+
+    driver = GaussianForcesDriver(logfile="aux_files/CO2_freq_B3LYP_631g.log")
+
+    problem = VibrationalStructureProblem(driver, num_modals=[2, 2, 3, 4], truncation_order=2)
+
+    # we trigger driver.run() implicitly like so:
+    second_q_ops = problem.second_q_ops()
+
+    hamiltonian_op = second_q_ops.pop("VibrationalEnergy")
+    aux_ops = second_q_ops
+
+New
+~~~
+
+.. code:: ipython3
+
+    from qiskit_nature.second_q.drivers import GaussianForcesDriver
+    from qiskit_nature.second_q.problems import HarmonicBasis
+
+    driver = GaussianForcesDriver(logfile="aux_files/CO2_freq_B3LYP_631g.log")
+    basis = HarmonicBasis(num_modals=[2, 2, 3, 4])
+
+    problem = driver.run(basis=basis)
+    problem.hamiltonian.truncation_order = 2
+
+    hamiltonian_op, aux_ops = problem.second_q_ops()
+
+For more information on the new and improved
+``VibrationalStructureProblem``, please refer to the `vibrational
+structure tutorial <../tutorials/02_vibrational_structure.ipynb>`__.
+
+``qiskit_nature.properties``
+----------------------------
+
+The properties module has been refactored and split into multiple
+locations. In this section, we will only be focusing on its
+*vibrational* components.
+
+The following table lists where each component of
+``qiskit_nature.properties`` has been moved to.
+
++--------------------------------------------------------------------+-------------------------------------------------------------+
+| Legacy component                                                   | New location                                                |
++====================================================================+=============================================================+
+| ``Property``                                                       | ``qiskit_nature.second_q.properties.SparseLabelOpsFactory`` |
++--------------------------------------------------------------------+-------------------------------------------------------------+
+| ``GroupedProperty``                                                | succeeded by                                                |
+|                                                                    | ``qiskit_nature.second_q.problems.PropertiesContainer``     |
++--------------------------------------------------------------------+-------------------------------------------------------------+
+| ``second_quantization.DriverMetadata``                             | **removed**                                                 |
++--------------------------------------------------------------------+-------------------------------------------------------------+
+| ``second_quantization.vibrational.VibrationalEnergy``              | ``qiskit_nature.second_q.hamiltonians.VibrationalEnergy``   |
++--------------------------------------------------------------------+-------------------------------------------------------------+
+| ``second_quantization.vibrational.OccupiedModals``                 | ``qiskit_nature.second_q.properties.OccupiedModals``        |
++--------------------------------------------------------------------+-------------------------------------------------------------+
+| ``second_quantization.vibrational.bases.VibrationalBasis``         | ``qiskit_nature.second_q.problems.VibrationalBasis``        |
++--------------------------------------------------------------------+-------------------------------------------------------------+
+| ``second_quantization.vibrational.bases.HarmonicBasis``            | ``qiskit_nature.second_q.problems.HarmonicBasis``           |
++--------------------------------------------------------------------+-------------------------------------------------------------+
+| ``second_quantization.vibrational.integrals.VibrationalIntegrals`` | succeeded by                                                |
+|                                                                    | ``qiskit_nature.second_q.operators.VibrationalIntegrals``   |
++--------------------------------------------------------------------+-------------------------------------------------------------+
+
+We suggest that you look at the `vibrational structure
+tutorial <../tutorials/02_vibrational_structure.ipynb>`__ for more
+in-depth explanations, but we will leave a few comments here:
+
+-  the ``VibrationalBasis`` is now only tracked on the
+   ``VibrationalStructureProblem`` and not for each operator
+   individually
+-  the ``VibrationalEnergy`` (which has always been a_special\_
+   ``Property``) is in the new ``second_q.hamiltonians`` module to
+   highlight this special role
+

@@ -1,0 +1,32 @@
+﻿
+
+VibrationalStructureProblem
+===========================================================
+
+.. currentmodule:: qiskit_nature.second_q.problems
+
+.. autoclass:: VibrationalStructureProblem
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: VibrationalStructureProblem.hamiltonian
+   .. autoattribute:: VibrationalStructureProblem.num_modals
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: VibrationalStructureProblem.get_default_filter_criterion
+   .. automethod:: VibrationalStructureProblem.get_tapered_mapper
+   .. automethod:: VibrationalStructureProblem.interpret
+   .. automethod:: VibrationalStructureProblem.second_q_ops
+   
+   

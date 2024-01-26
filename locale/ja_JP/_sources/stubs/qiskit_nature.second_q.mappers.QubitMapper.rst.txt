@@ -1,0 +1,27 @@
+﻿
+
+QubitMapper
+==========================================
+
+.. currentmodule:: qiskit_nature.second_q.mappers
+
+.. autoclass:: QubitMapper
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: QubitMapper.map
+   .. automethod:: QubitMapper.mode_based_mapping
+   .. automethod:: QubitMapper.pauli_table
+   .. automethod:: QubitMapper.sparse_pauli_operators
+   
+   

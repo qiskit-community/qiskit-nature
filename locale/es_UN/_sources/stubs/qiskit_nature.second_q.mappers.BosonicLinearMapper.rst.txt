@@ -1,0 +1,31 @@
+﻿
+
+BosonicLinearMapper
+==================================================
+
+.. currentmodule:: qiskit_nature.second_q.mappers
+
+.. autoclass:: BosonicLinearMapper
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: BosonicLinearMapper.max_occupation
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: BosonicLinearMapper.map
+   .. automethod:: BosonicLinearMapper.mode_based_mapping
+   .. automethod:: BosonicLinearMapper.pauli_table
+   .. automethod:: BosonicLinearMapper.sparse_pauli_operators
+   
+   

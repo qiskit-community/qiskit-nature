@@ -1,0 +1,8 @@
+﻿
+
+get_ao_to_mo_from_qcschema
+=========================================================
+
+.. currentmodule:: qiskit_nature.second_q.formats
+
+.. autofunction:: get_ao_to_mo_from_qcschema

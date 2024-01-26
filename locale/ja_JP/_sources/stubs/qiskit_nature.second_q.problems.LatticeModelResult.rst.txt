@@ -1,0 +1,34 @@
+﻿
+
+LatticeModelResult
+==================================================
+
+.. currentmodule:: qiskit_nature.second_q.problems
+
+.. autoclass:: LatticeModelResult
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: LatticeModelResult.algorithm_result
+   .. autoattribute:: LatticeModelResult.computed_lattice_energies
+   .. autoattribute:: LatticeModelResult.groundenergy
+   .. autoattribute:: LatticeModelResult.groundstate
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: LatticeModelResult.combine
+   .. automethod:: LatticeModelResult.from_eigensolver_result
+   .. automethod:: LatticeModelResult.from_minimum_eigensolver_result
+   .. automethod:: LatticeModelResult.from_result
+   
+   

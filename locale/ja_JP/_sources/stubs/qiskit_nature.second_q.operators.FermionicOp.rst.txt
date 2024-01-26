@@ -1,0 +1,61 @@
+﻿
+
+FermionicOp
+============================================
+
+.. currentmodule:: qiskit_nature.second_q.operators
+
+.. autoclass:: FermionicOp
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: FermionicOp.atol
+   .. autoattribute:: FermionicOp.register_length
+   .. autoattribute:: FermionicOp.rtol
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: FermionicOp.adjoint
+   .. automethod:: FermionicOp.argsort
+   .. automethod:: FermionicOp.assign_parameters
+   .. automethod:: FermionicOp.chop
+   .. automethod:: FermionicOp.compose
+   .. automethod:: FermionicOp.conjugate
+   .. automethod:: FermionicOp.dot
+   .. automethod:: FermionicOp.equiv
+   .. automethod:: FermionicOp.expand
+   .. automethod:: FermionicOp.from_polynomial_tensor
+   .. automethod:: FermionicOp.from_terms
+   .. automethod:: FermionicOp.get
+   .. automethod:: FermionicOp.index_order
+   .. automethod:: FermionicOp.induced_norm
+   .. automethod:: FermionicOp.is_hermitian
+   .. automethod:: FermionicOp.is_parameterized
+   .. automethod:: FermionicOp.is_zero
+   .. automethod:: FermionicOp.items
+   .. automethod:: FermionicOp.keys
+   .. automethod:: FermionicOp.normal_order
+   .. automethod:: FermionicOp.one
+   .. automethod:: FermionicOp.parameters
+   .. automethod:: FermionicOp.permute_indices
+   .. automethod:: FermionicOp.power
+   .. automethod:: FermionicOp.round
+   .. automethod:: FermionicOp.simplify
+   .. automethod:: FermionicOp.sort
+   .. automethod:: FermionicOp.tensor
+   .. automethod:: FermionicOp.terms
+   .. automethod:: FermionicOp.transpose
+   .. automethod:: FermionicOp.values
+   .. automethod:: FermionicOp.zero
+   
+   

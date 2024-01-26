@@ -1,0 +1,30 @@
+﻿
+
+QEOM
+======================================
+
+.. currentmodule:: qiskit_nature.second_q.algorithms
+
+.. autoclass:: QEOM
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: QEOM.qubit_mapper
+   .. autoattribute:: QEOM.solver
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: QEOM.get_qubit_operators
+   .. automethod:: QEOM.solve
+   
+   

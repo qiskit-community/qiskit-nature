@@ -1,0 +1,24 @@
+﻿
+
+VibrationalStructureDriver
+=========================================================
+
+.. currentmodule:: qiskit_nature.second_q.drivers
+
+.. autoclass:: VibrationalStructureDriver
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: VibrationalStructureDriver.run
+   
+   

@@ -1,0 +1,29 @@
+﻿
+
+PropertiesContainer
+===================================================
+
+.. currentmodule:: qiskit_nature.second_q.problems
+
+.. autoclass:: PropertiesContainer
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: PropertiesContainer.add
+   .. automethod:: PropertiesContainer.clear
+   .. automethod:: PropertiesContainer.discard
+   .. automethod:: PropertiesContainer.isdisjoint
+   .. automethod:: PropertiesContainer.pop
+   .. automethod:: PropertiesContainer.remove
+   
+   

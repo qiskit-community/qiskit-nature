@@ -1,0 +1,25 @@
+﻿
+
+ParticleNumber
+================================================
+
+.. currentmodule:: qiskit_nature.second_q.properties
+
+.. autoclass:: ParticleNumber
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: ParticleNumber.interpret
+   .. automethod:: ParticleNumber.second_q_ops
+   
+   

@@ -1,0 +1,1488 @@
+<!doctype html>
+<html class="no-js" lang="bn-BN">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="ইনডেক্স" href="../../../../genindex.html" /><link rel="search" title="অনুসন্ধান" href="../../../../search.html" />
+
+    <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
+        <title>qiskit_nature.second_q.operators.polynomial_tensor - Qiskit Nature 0.7.1</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fd506691" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/qiskit-ecosystem.css?v=745c5aa7" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/thebelab.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #ffffff;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style><link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+<script src="../../../../_static/js/web-components/top-nav-bar.js"></script>
+<script>
+  (function () {
+    window._analytics = {
+      segment_key: 'ffdYLviQze3kzomaINXNk6NwpY9LlXcw',
+      coremetrics: false,
+      optimizely: false,
+      googleAddServices: false,
+      fullStory: false,
+      autoPageEventSpa: false,
+      autoFormEvents: false,
+      autoPageView: false
+    }
+
+    window.digitalData = {
+      page: {
+        pageInfo: {
+          productTitle: 'IBM Q Experience',
+          analytics: {
+            category: 'Qiskit.org'
+          }
+        }
+      }
+    }
+  }());
+</script>
+<script src="https://cloud.ibm.com/analytics/build/bluemix-analytics.min.js"></script>
+<script>
+  (function () {
+    'use strict'
+
+    if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+    const category = window.digitalData.page.pageInfo.analytics.category
+    const productTitle = window.digitalData.page.pageInfo.productTitle
+    const routeName = 'documentation'
+
+    window.bluemixAnalytics.pageEvent(category, routeName, {
+      navigationType: 'pushState',
+      productTitle: productTitle,
+      title: document.title
+    })
+
+    window.trackCta = (action) => {
+      if (!window.bluemixAnalytics || !window.digitalData) { return }
+
+      const category = window.digitalData.page.pageInfo.analytics.category
+      const productTitle = window.digitalData.page.pageInfo.productTitle
+
+      window.bluemixAnalytics.trackEvent('CTA Clicked', {
+        productTitle,
+        category,
+        CTA: action
+      })
+    }
+
+  }());
+</script></head>
+  <body>
+    
+    <script>document.body.dataset.theme = "light";</script>
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg id="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+      <defs><style>.cls-1{fill:none;}</style></defs>
+      <path d="M28,4H4A2,2,0,0,0,2,6V26a2,2,0,0,0,2,2H28a2,2,0,0,0,2-2V6A2,2,0,0,0,28,4ZM4,6H20V26H4ZM28,26H22V6h6Z"/>
+      <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" class="cls-1" width="32" height="32"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg id="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+      <defs><style>.cls-1{fill:none;}</style></defs>
+      <rect x="4" y="6" width="24" height="2"/>
+      <rect x="4" y="24" width="24" height="2"/>
+      <rect x="4" y="12" width="24" height="2"/>
+      <rect x="4" y="18" width="24" height="2"/>
+      <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" class="cls-1" width="32" height="32"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg version="1.1" id="icon" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+         viewBox="0 0 32 32" style="enable-background:new 0 0 32 32;" xml:space="preserve"><polygon points="22,16 12,26 10.6,24.6 19.2,16 10.6,7.4 12,6 " stroke="currentColor"/>
+      <rect id="_x3C_Transparent_Rectangle_x3E_" fill="none" width="32" height="32"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-new-tab" viewBox="0 0 32 32">
+    <svg id="icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+      <defs>
+        <style>
+          .cls-1 {
+            fill: none;
+          }
+        </style>
+      </defs>
+      <path fill="#6929C4" d="M26,28H6a2.0027,2.0027,0,0,1-2-2V6A2.0027,2.0027,0,0,1,6,4H16V6H6V26H26V16h2V26A2.0027,2.0027,0,0,1,26,28Z"/>
+      <polygon fill="#6929C4" points="20 2 20 4 26.586 4 18 12.586 19.414 14 28 5.414 28 12 30 12 30 2 20 2"/>
+      <rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" class="cls-1" width="32" height="32"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<div class="announcement">
+  <aside class="announcement-content">
+     This project's translations are no longer maintained. See the <a href=https://github.com/qiskit-community/qiskit-translations/tree/main#readme>announcement</a> 
+  </aside>
+</div>
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../../../index.html"><div class="brand">Qiskit Nature 0.7.1</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><div class="sidebar-brand">
+  <a href="https://www.qiskit.org/ecosystem">
+    <div class="sidebar-logo-container">
+      <img class="sidebar-logo" src="../../../../_static/images/ecosystem-logo.svg" alt="Qiskit Ecosystem logo"/>
+    </div>
+  </a>
+  
+  <span class="sidebar-brand-text">Qiskit Nature 0.7.1</span>
+</div><form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="অনুসন্ধান">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../index.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started.html">শুরুর নির্দেশনা</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../migration/index.html">Migration Guides</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Migration Guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../migration/0.6_a_intro.html">Qiskit Nature v0.6 Migration Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../migration/0.6_b_mes_factory.html">The (Minimum)EigensolverFactory Migration Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../migration/0.6_c_qubit_converter.html">The QubitConverter Migration Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../migration/0.5_a_intro.html">Qiskit Nature v0.5 Migration Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../migration/0.5_b_solving_problems.html">Solving Problems with v0.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../migration/0.5_b_solving_problems.html#qiskit-nature-mappers"><code class="docutils literal notranslate"><span class="pre">qiskit_nature.mappers</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../migration/0.5_b_solving_problems.html#qiskit-nature-converters"><code class="docutils literal notranslate"><span class="pre">qiskit_nature.converters</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../migration/0.5_b_solving_problems.html#qiskit-nature-circuit"><code class="docutils literal notranslate"><span class="pre">qiskit_nature.circuit</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../migration/0.5_b_solving_problems.html#qiskit-nature-algorithms"><code class="docutils literal notranslate"><span class="pre">qiskit_nature.algorithms</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../migration/0.5_c_electronic_structure.html">Electronic Structure Problems with v0.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../migration/0.5_d_vibrational_structure.html">Vibrational Structure Problems with v0.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../migration/0.5_e_lattice_models.html">Lattice Model Problems with v0.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../migration/0.5_f_protein_folding.html">Protein Folding with Qiskit Nature v0.5</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../tutorials/index.html">পাঠসমূহ</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of পাঠসমূহ</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/01_electronic_structure.html">ইলেকট্রনিক গঠন</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/02_vibrational_structure.html">কম্পন গঠন</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/03_ground_state_solvers.html">গ্রাউন্ড স্টেট সমাধানকারী</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/04_excited_states_solvers.html">উত্তেজিত স্তর বা অবস্থা সমাধানকারী (সলভার)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/05_problem_transformers.html">Transforming Problems</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/06_qubit_mappers.html">Mapping to the Qubit Space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/07_leveraging_qiskit_runtime.html">Qiskit রানটাইম লিভারেজিং</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/08_qcschema.html">QCSchema</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/09_properties.html">Properties - or - Operator Factories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/10_lattice_models.html">Lattice models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/11_quadratic_hamiltonian_and_slater_determinants.html">Quadratic Hamiltonians and Slater determinants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/12_deuteron_binding_energy.html">Binding Energy between proton and neutron in the Deuteron nucleus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/12_deuteron_binding_energy.html#Acknowledgment">Acknowledgment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../tutorials/12_deuteron_binding_energy.html#References">References</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../howtos/index.html">How-Tos</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of How-Tos</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../howtos/adapt_vqe.html">Find ground state energy using AdaptVQE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../howtos/numpy_eigensolver.html">Find excited state energies using the NumPyEigensolver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../howtos/numpy_minimum_eigensolver.html">Find ground state energy using the NumPyMinimumEigensolver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../howtos/vqe_ucc.html">Use a UCC-like ansatz with a VQE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../howtos/vqe_uvcc.html">Use a UVCC-like ansatz with a VQE</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.html">এপিআই (এপ্লিকেশন প্রোগ্রামিং ইন্টারফেস) এর তথ্যসূত্র</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of এপিআই (এপ্লিকেশন প্রোগ্রামিং ইন্টারফেস) এর তথ্যসূত্র</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../stubs/qiskit_nature.QiskitNatureError.html">QiskitNatureError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../stubs/qiskit_nature.UnsupportMethodError.html">UnsupportMethodError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidocs/qiskit_nature.logging.html"><code class="docutils literal notranslate"><span class="pre">QiskitNatureLogging</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../apidocs/qiskit_nature.settings.html"><code class="docutils literal notranslate"><span class="pre">QiskitNatureSettings</span></code></a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.html">Second Quantization (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Second Quantization (qiskit_nature.second_q)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.algorithms.html">Algorithms (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.algorithms</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Algorithms (qiskit_nature.second_q.algorithms)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.algorithms.ExcitedStatesSolver.html">ExcitedStatesSolver</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.algorithms.ExcitedStatesEigensolver.html">ExcitedStatesEigensolver</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.algorithms.QEOM.html">QEOM</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.algorithms.QEOMResult.html">QEOMResult</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.algorithms.EvaluationRule.html">EvaluationRule</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.algorithms.GroundStateSolver.html">GroundStateSolver</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.algorithms.GroundStateEigensolver.html">GroundStateEigensolver</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.algorithms.initial_points.html">Initial Points (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.algorithms.initial_points</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of Initial Points (qiskit_nature.second_q.algorithms.initial_points)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.algorithms.initial_points.InitialPoint.html">InitialPoint</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.algorithms.initial_points.HFInitialPoint.html">HFInitialPoint</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.algorithms.initial_points.MP2InitialPoint.html">MP2InitialPoint</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.algorithms.initial_points.VSCFInitialPoint.html">VSCFInitialPoint</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.circuit.html">Circuit (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.circuit</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of Circuit (qiskit_nature.second_q.circuit)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.circuit.library.html">Library (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.circuit.library</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of Library (qiskit_nature.second_q.circuit.library)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.circuit.library.BogoliubovTransform.html">BogoliubovTransform</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.circuit.library.FermionicGaussianState.html">FermionicGaussianState</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.circuit.library.HartreeFock.html">HartreeFock</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.circuit.library.SlaterDeterminant.html">SlaterDeterminant</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.circuit.library.VSCF.html">VSCF</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.circuit.library.UCC.html">UCC</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.circuit.library.UCCSD.html">UCCSD</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.circuit.library.PUCCD.html">PUCCD</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.circuit.library.PUCCSD.html">PUCCSD</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.circuit.library.SUCCD.html">SUCCD</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.circuit.library.CHC.html">CHC</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.circuit.library.UVCC.html">UVCC</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.circuit.library.UVCCSD.html">UVCCSD</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.circuit.library.ansatzes.utils.html">Excitation generator utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.circuit.library.ansatzes.utils</span></code>)</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.circuit.library.ansatzes.utils.html#qiskit_nature.second_q.circuit.library.ansatzes.utils.generate_fermionic_excitations"><code class="docutils literal notranslate"><span class="pre">generate_fermionic_excitations()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.circuit.library.ansatzes.utils.html#qiskit_nature.second_q.circuit.library.ansatzes.utils.generate_vibration_excitations"><code class="docutils literal notranslate"><span class="pre">generate_vibration_excitations()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.drivers.html">Drivers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.drivers</span></code>)</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.drivers.html#driver-base-class">Driver Base Class</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of Driver Base Class</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.drivers.BaseDriver.html">BaseDriver</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.drivers.VibrationalStructureDriver.html">VibrationalStructureDriver</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.drivers.ElectronicStructureDriver.html">ElectronicStructureDriver</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.drivers.html#driver-common">Driver Common</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle navigation of Driver Common</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.drivers.MethodType.html">MethodType</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.drivers.InitialGuess.html">InitialGuess</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.drivers.html#drivers">Drivers</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle navigation of Drivers</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.drivers.gaussiand.html">Gaussian™ 16 Installation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.drivers.psi4d.html">Psi4 Installation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.drivers.pyscfd.html">PYSCF Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.drivers.html#electronic-structure-drivers">Electronic Structure Drivers</a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle navigation of Electronic Structure Drivers</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.drivers.GaussianDriver.html">GaussianDriver</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.drivers.Psi4Driver.html">Psi4Driver</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.drivers.PySCFDriver.html">PySCFDriver</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.drivers.html#vibrational-structure-drivers">Vibrational Structure Drivers</a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><div class="visually-hidden">Toggle navigation of Vibrational Structure Drivers</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.drivers.GaussianForcesDriver.html">GaussianForcesDriver</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.drivers.html#general-driver">General Driver</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" role="switch" type="checkbox"/><label for="toctree-checkbox-15"><div class="visually-hidden">Toggle navigation of General Driver</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.drivers.GaussianLogDriver.html">GaussianLogDriver</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.drivers.GaussianLogResult.html">GaussianLogResult</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.formats.html">Formats (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.formats</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" role="switch" type="checkbox"/><label for="toctree-checkbox-16"><div class="visually-hidden">Toggle navigation of Formats (qiskit_nature.second_q.formats)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.formats.fcidump.html">FCIDump (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.formats.fcidump</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" role="switch" type="checkbox"/><label for="toctree-checkbox-17"><div class="visually-hidden">Toggle navigation of FCIDump (qiskit_nature.second_q.formats.fcidump)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.formats.fcidump.FCIDump.html">FCIDump</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.formats.qcschema.html">QCSchema (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.formats.qcschema</span></code>)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCBasisSet"><code class="docutils literal notranslate"><span class="pre">QCBasisSet</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCCenterData"><code class="docutils literal notranslate"><span class="pre">QCCenterData</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCECPPotential"><code class="docutils literal notranslate"><span class="pre">QCECPPotential</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCElectronShell"><code class="docutils literal notranslate"><span class="pre">QCElectronShell</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCError"><code class="docutils literal notranslate"><span class="pre">QCError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCModel"><code class="docutils literal notranslate"><span class="pre">QCModel</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCProperties"><code class="docutils literal notranslate"><span class="pre">QCProperties</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCProvenance"><code class="docutils literal notranslate"><span class="pre">QCProvenance</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCSchema"><code class="docutils literal notranslate"><span class="pre">QCSchema</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCSchemaInput"><code class="docutils literal notranslate"><span class="pre">QCSchemaInput</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCTopology"><code class="docutils literal notranslate"><span class="pre">QCTopology</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.formats.qcschema.html#qiskit_nature.second_q.formats.qcschema.QCWavefunction"><code class="docutils literal notranslate"><span class="pre">QCWavefunction</span></code></a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.formats.watson.html">Watson</a><input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" role="switch" type="checkbox"/><label for="toctree-checkbox-18"><div class="visually-hidden">Toggle navigation of Watson</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.formats.watson.WatsonHamiltonian.html">WatsonHamiltonian</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.formats.MoleculeInfo.html">MoleculeInfo</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.formats.fcidump_to_problem.html">fcidump_to_problem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.formats.watson_to_problem.html">watson_to_problem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.formats.qcschema_to_problem.html">qcschema_to_problem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.formats.get_ao_to_mo_from_qcschema.html">get_ao_to_mo_from_qcschema</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.formats.get_overlap_ab_from_qcschema.html">get_overlap_ab_from_qcschema</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.hamiltonians.html">Hamiltonians (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.hamiltonians</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" role="switch" type="checkbox"/><label for="toctree-checkbox-19"><div class="visually-hidden">Toggle navigation of Hamiltonians (qiskit_nature.second_q.hamiltonians)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.hamiltonians.QuadraticHamiltonian.html">QuadraticHamiltonian</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.hamiltonians.ElectronicEnergy.html">ElectronicEnergy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.hamiltonians.VibrationalEnergy.html">VibrationalEnergy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.hamiltonians.FermiHubbardModel.html">FermiHubbardModel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.hamiltonians.HeisenbergModel.html">HeisenbergModel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.hamiltonians.IsingModel.html">IsingModel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.hamiltonians.LatticeModel.html">LatticeModel</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.hamiltonians.lattices.html">Lattices (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.hamiltonians.lattices</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" role="switch" type="checkbox"/><label for="toctree-checkbox-20"><div class="visually-hidden">Toggle navigation of Lattices (qiskit_nature.second_q.hamiltonians.lattices)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.hamiltonians.lattices.BoundaryCondition.html">BoundaryCondition</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.hamiltonians.lattices.Lattice.html">Lattice</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.hamiltonians.lattices.LatticeDrawStyle.html">LatticeDrawStyle</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.hamiltonians.lattices.LineLattice.html">LineLattice</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.hamiltonians.lattices.SquareLattice.html">SquareLattice</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.hamiltonians.lattices.TriangularLattice.html">TriangularLattice</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.hamiltonians.lattices.HyperCubicLattice.html">HyperCubicLattice</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.hamiltonians.lattices.HexagonalLattice.html">HexagonalLattice</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.hamiltonians.lattices.KagomeLattice.html">KagomeLattice</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.mappers.html">Mappers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.mappers</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" role="switch" type="checkbox"/><label for="toctree-checkbox-21"><div class="visually-hidden">Toggle navigation of Mappers (qiskit_nature.second_q.mappers)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.mappers.QubitMapper.html">QubitMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.mappers.BravyiKitaevMapper.html">BravyiKitaevMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.mappers.BravyiKitaevSuperFastMapper.html">BravyiKitaevSuperFastMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.mappers.JordanWignerMapper.html">JordanWignerMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.mappers.ParityMapper.html">ParityMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.mappers.InterleavedQubitMapper.html">InterleavedQubitMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.mappers.BosonicLinearMapper.html">BosonicLinearMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.mappers.DirectMapper.html">DirectMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.mappers.LinearMapper.html">LinearMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.mappers.LogarithmicMapper.html">LogarithmicMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.mappers.TaperedQubitMapper.html">TaperedQubitMapper</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.operators.html">Operators (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.operators</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" role="switch" type="checkbox"/><label for="toctree-checkbox-22"><div class="visually-hidden">Toggle navigation of Operators (qiskit_nature.second_q.operators)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.ElectronicIntegrals.html">ElectronicIntegrals</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.FermionicOp.html">FermionicOp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.BosonicOp.html">BosonicOp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.SparseLabelOp.html">SparseLabelOp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.SpinOp.html">SpinOp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.VibrationalOp.html">VibrationalOp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.VibrationalIntegrals.html">VibrationalIntegrals</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.PolynomialTensor.html">PolynomialTensor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.Tensor.html">Tensor</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.operators.tensor_ordering.html">Tensor Ordering Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.operators.tensor_ordering</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" role="switch" type="checkbox"/><label for="toctree-checkbox-23"><div class="visually-hidden">Toggle navigation of Tensor Ordering Utilities (qiskit_nature.second_q.operators.tensor_ordering)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.tensor_ordering.to_chemist_ordering.html">to_chemist_ordering</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.tensor_ordering.to_physicist_ordering.html">to_physicist_ordering</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.tensor_ordering.find_index_order.html">find_index_order</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.tensor_ordering.IndexType.html">IndexType</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.operators.symmetric_two_body.html">Symmetric 2-body electronic integrals (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.operators.symmetric_two_body</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-24" name="toctree-checkbox-24" role="switch" type="checkbox"/><label for="toctree-checkbox-24"><div class="visually-hidden">Toggle navigation of Symmetric 2-body electronic integrals (qiskit_nature.second_q.operators.symmetric_two_body)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.symmetric_two_body.SymmetricTwoBodyIntegrals.html">SymmetricTwoBodyIntegrals</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.symmetric_two_body.S1Integrals.html">S1Integrals</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.symmetric_two_body.S4Integrals.html">S4Integrals</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.symmetric_two_body.S8Integrals.html">S8Integrals</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.symmetric_two_body.unfold.html">unfold</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.symmetric_two_body.unfold_s4_to_s1.html">unfold_s4_to_s1</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.symmetric_two_body.unfold_s8_to_s1.html">unfold_s8_to_s1</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.symmetric_two_body.unfold_s8_to_s4.html">unfold_s8_to_s4</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.symmetric_two_body.fold.html">fold</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.symmetric_two_body.fold_s1_to_s4.html">fold_s1_to_s4</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.symmetric_two_body.fold_s1_to_s8.html">fold_s1_to_s8</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.symmetric_two_body.fold_s4_to_s8.html">fold_s4_to_s8</a></li>
+</ul>
+</li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.operators.commutators.html">Commutator Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.operators.commutators</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-25" name="toctree-checkbox-25" role="switch" type="checkbox"/><label for="toctree-checkbox-25"><div class="visually-hidden">Toggle navigation of Commutator Utilities (qiskit_nature.second_q.operators.commutators)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.commutators.commutator.html">commutator</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.commutators.anti_commutator.html">anti_commutator</a></li>
+<li class="toctree-l5"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.operators.commutators.double_commutator.html">double_commutator</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.problems.html">Problems (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.problems</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-26" name="toctree-checkbox-26" role="switch" type="checkbox"/><label for="toctree-checkbox-26"><div class="visually-hidden">Toggle navigation of Problems (qiskit_nature.second_q.problems)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.problems.BaseProblem.html">BaseProblem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.problems.ElectronicBasis.html">ElectronicBasis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.problems.VibrationalBasis.html">VibrationalBasis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.problems.HarmonicBasis.html">HarmonicBasis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.problems.ElectronicStructureProblem.html">ElectronicStructureProblem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.problems.VibrationalStructureProblem.html">VibrationalStructureProblem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.problems.LatticeModelProblem.html">LatticeModelProblem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.problems.PropertiesContainer.html">PropertiesContainer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.problems.ElectronicPropertiesContainer.html">ElectronicPropertiesContainer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.problems.VibrationalPropertiesContainer.html">VibrationalPropertiesContainer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.problems.LatticePropertiesContainer.html">LatticePropertiesContainer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.problems.EigenstateResult.html">EigenstateResult</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.problems.ElectronicStructureResult.html">ElectronicStructureResult</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.problems.VibrationalStructureResult.html">VibrationalStructureResult</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.problems.LatticeModelResult.html">LatticeModelResult</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.properties.html">Properties (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.properties</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-27" name="toctree-checkbox-27" role="switch" type="checkbox"/><label for="toctree-checkbox-27"><div class="visually-hidden">Toggle navigation of Properties (qiskit_nature.second_q.properties)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.properties.SparseLabelOpsFactory.html">SparseLabelOpsFactory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.properties.Interpretable.html">Interpretable</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.properties.AngularMomentum.html">AngularMomentum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.properties.ElectronicDensity.html">ElectronicDensity</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.properties.ElectronicDipoleMoment.html">ElectronicDipoleMoment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.properties.Magnetization.html">Magnetization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.properties.ParticleNumber.html">ParticleNumber</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.properties.s_operators.html">s_operators</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.properties.OccupiedModals.html">OccupiedModals</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.second_q.transformers.html">Transformers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.transformers</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-28" name="toctree-checkbox-28" role="switch" type="checkbox"/><label for="toctree-checkbox-28"><div class="visually-hidden">Toggle navigation of Transformers (qiskit_nature.second_q.transformers)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.transformers.BaseTransformer.html">BaseTransformer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.transformers.BasisTransformer.html">BasisTransformer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.transformers.ActiveSpaceTransformer.html">ActiveSpaceTransformer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../stubs/qiskit_nature.second_q.transformers.FreezeCoreTransformer.html">FreezeCoreTransformer</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.testing.html">Testing utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.testing</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-29" name="toctree-checkbox-29" role="switch" type="checkbox"/><label for="toctree-checkbox-29"><div class="visually-hidden">Toggle navigation of Testing utilities (qiskit_nature.testing)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_nature.testing.random_antisymmetric_matrix.html">random_antisymmetric_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_nature.testing.random_quadratic_hamiltonian.html">random_quadratic_hamiltonian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_nature.testing.random_two_body_tensor_real.html">random_two_body_tensor_real</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../apidocs/qiskit_nature.utils.html">Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.utils</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-30" name="toctree-checkbox-30" role="switch" type="checkbox"/><label for="toctree-checkbox-30"><div class="visually-hidden">Toggle navigation of Utilities (qiskit_nature.utils)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_nature.utils.apply_matrix_to_slices.html">apply_matrix_to_slices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_nature.utils.givens_matrix.html">givens_matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_nature.utils.double_factorized.html">double_factorized</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../stubs/qiskit_nature.utils.modified_cholesky.html">modified_cholesky</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../release_notes.html">অব্যাহতি পত্র</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/qiskit-community/qiskit-nature">GitHub</a></li>
+</ul>
+
+</div></div><div class="qiskit-translations-container" aria-label="languages">
+  <input id="translations-checkbox" name="translations-checkbox" role="switch" type="checkbox">
+  <div class="qiskit-translations-header-container"><label for="translations-checkbox">
+      <p role="note">Bengali</p>
+      <div class="qiskit-translations-toggle-container">
+        <div class="visually-hidden">Toggle translations list</div>
+        <i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i>
+      </div>
+    </label>
+  </div>
+  <div class="qiskit-translations-list-container">
+    <ul>
+      
+        <li><a href="/qiskit-nature/_modules/qiskit_nature/second_q/operators/polynomial_tensor.html">English</a></li>
+      
+        <li><a href="/qiskit-nature/locale/bn_BN/_modules/qiskit_nature/second_q/operators/polynomial_tensor.html">Bengali</a></li>
+      
+        <li><a href="/qiskit-nature/locale/ja_JP/_modules/qiskit_nature/second_q/operators/polynomial_tensor.html">Japanese</a></li>
+      
+        <li><a href="/qiskit-nature/locale/es_UN/_modules/qiskit_nature/second_q/operators/polynomial_tensor.html">Spanish</a></li>
+      
+    </ul>
+  </div>
+  <script>
+    document.querySelectorAll('.version').forEach((element) => {
+      element.addEventListener('click', (evt) => {
+        const hash = window.location.hash;
+        const complete_url = evt.target.href + hash;
+        window.location = complete_url;
+        evt.preventDefault();
+      });
+    });
+  </script>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <h1>Source code for qiskit_nature.second_q.operators.polynomial_tensor</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This code is part of a Qiskit project.</span>
+<span class="c1">#</span>
+<span class="c1"># (C) Copyright IBM 2022, 2023.</span>
+<span class="c1">#</span>
+<span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
+<span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
+<span class="c1"># of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.</span>
+<span class="c1">#</span>
+<span class="c1"># Any modifications or derivative works of this code must retain this</span>
+<span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
+<span class="c1"># that they have been altered from the originals.</span>
+
+<span class="sd">&quot;&quot;&quot;PolynomialTensor class&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Mapping</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
+<span class="kn">from</span> <span class="nn">numbers</span> <span class="kn">import</span> <span class="n">Number</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">cast</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">qiskit.quantum_info.operators.mixins</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">LinearMixin</span><span class="p">,</span>
+    <span class="n">GroupMixin</span><span class="p">,</span>
+    <span class="n">TolerancesMixin</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">qiskit_nature.settings</span> <span class="kn">import</span> <span class="n">settings</span>
+<span class="kn">import</span> <span class="nn">qiskit_nature.optionals</span> <span class="k">as</span> <span class="nn">_optionals</span>
+<span class="kn">from</span> <span class="nn">qiskit_nature.utils</span> <span class="kn">import</span> <span class="n">get_einsum</span>
+
+<span class="kn">from</span> <span class="nn">.tensor</span> <span class="kn">import</span> <span class="n">Tensor</span>
+
+<span class="k">if</span> <span class="n">_optionals</span><span class="o">.</span><span class="n">HAS_SPARSE</span><span class="p">:</span>
+    <span class="c1"># pylint: disable=import-error</span>
+    <span class="kn">from</span> <span class="nn">sparse</span> <span class="kn">import</span> <span class="n">SparseArray</span><span class="p">,</span> <span class="n">COO</span><span class="p">,</span> <span class="n">DOK</span><span class="p">,</span> <span class="n">GCXS</span>
+<span class="k">else</span><span class="p">:</span>
+
+    <span class="k">class</span> <span class="nc">COO</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Empty COO class</span>
+<span class="sd">        Replacement if sparse.COO is not present.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">pass</span>
+
+    <span class="k">class</span> <span class="nc">DOK</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Empty DOK class</span>
+<span class="sd">        Replacement if sparse.DOK is not present.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">pass</span>
+
+    <span class="k">class</span> <span class="nc">GCXS</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Empty GCXS class</span>
+<span class="sd">        Replacement if sparse.GCXS is not present.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">pass</span>
+
+    <span class="k">class</span> <span class="nc">SparseArray</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Empty SparseArray class</span>
+<span class="sd">        Replacement if sparse.SparseArray is not present.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">pass</span>
+
+
+<div class="viewcode-block" id="PolynomialTensor"><a class="viewcode-back" href="../../../../stubs/qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor">[docs]</a><span class="k">class</span> <span class="nc">PolynomialTensor</span><span class="p">(</span><span class="n">LinearMixin</span><span class="p">,</span> <span class="n">GroupMixin</span><span class="p">,</span> <span class="n">TolerancesMixin</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A container class to store arbitrary operator coefficients.</span>
+
+<span class="sd">    This class generalizes the storing of operator coefficients in tensor format. Actual operators</span>
+<span class="sd">    can be extracted from it using the</span>
+<span class="sd">    :meth:`qiskit_nature.second_q.operators.SparseLabelOp.from_polynomial_tensor` method on the</span>
+<span class="sd">    respective subclasses of the ``SparseLabelOp``.</span>
+
+<span class="sd">    Internally, this class stores tensors as instances of</span>
+<span class="sd">    :class:`~qiskit_nature.second_q.operators.Tensor`. Refer to its documentation for more details.</span>
+<span class="sd">    The storage format maps from string keys to these ``Tensor`` objects. By design, **no**</span>
+<span class="sd">    assumptions are made about the *contents* of the keys. However, the length of each key</span>
+<span class="sd">    determines the dimension of the tensor which it maps, too. For example (using numpy arrays for</span>
+<span class="sd">    the sake of simplicity):</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        import numpy as np</span>
+
+<span class="sd">        data = {}</span>
+<span class="sd">        # the empty string, maps to a 0-dimensional matrix, a single number</span>
+<span class="sd">        data[&quot;&quot;] = 1.0</span>
+<span class="sd">        # a string of length 1, must map to a 1-dimensional array</span>
+<span class="sd">        data[&quot;+&quot;] = np.array([1, 2])</span>
+<span class="sd">        # a string of length 2, must map to a 2-dimensional array</span>
+<span class="sd">        data[&quot;+-&quot;] = np.array([[1, 2], [3, 4]])</span>
+<span class="sd">        # ... and so on</span>
+
+<span class="sd">    In general, the idea is that each character in a key will be associated with the corresponding</span>
+<span class="sd">    axis of the tensor, when an operator gets built from the ``PolynomialTensor`` instance. This</span>
+<span class="sd">    means, that the previous example would expand for example like so:</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        from qiskit_nature.second_q.operators import FermionicOp, PolynomialTensor</span>
+
+<span class="sd">        tensor = PolynomialTensor(data)</span>
+<span class="sd">        operator = FermionicOp.from_polynomial_tensor(tensor)</span>
+
+<span class="sd">        print(operator)</span>
+<span class="sd">        # Fermionic Operator</span>
+<span class="sd">        # number spin orbitals=2, number terms=7</span>
+<span class="sd">        #   1.0</span>
+<span class="sd">        # + 1 * ( +_0 )</span>
+<span class="sd">        # + 2 * ( +_1 )</span>
+<span class="sd">        # + 1 * ( +_0 -_0 )</span>
+<span class="sd">        # + 2 * ( +_0 -_1 )</span>
+<span class="sd">        # + 3 * ( +_1 -_0 )</span>
+<span class="sd">        # + 4 * ( +_1 -_1 )</span>
+
+<span class="sd">    **Algebra**</span>
+
+<span class="sd">    This class supports the following basic arithmetic operations: addition, subtraction, scalar</span>
+<span class="sd">    multiplication, and operator multiplication.</span>
+<span class="sd">    For example,</span>
+
+<span class="sd">    Addition</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">      matrix = np.array([[0, 1], [2, 3]], dtype=float)</span>
+<span class="sd">      0.5 * PolynomialTensor({&quot;+-&quot;: matrix}) + PolynomialTensor({&quot;+-&quot;: matrix})</span>
+
+<span class="sd">    Operator multiplication</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">      tensor = PolynomialTensor({&quot;+-&quot;: matrix})</span>
+<span class="sd">      print(tensor @ tensor)</span>
+
+<span class="sd">    Tensor multiplication</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">      print(tensor ^ tensor)</span>
+
+<span class="sd">    You can also implement more advanced arithmetic via the :meth:`apply` and :meth:`einsum`</span>
+<span class="sd">    methods.</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">      print(PolynomialTensor.apply(np.transpose, tensor))</span>
+<span class="sd">      print(PolynomialTensor.apply(np.conjugate, 1j * tensor))</span>
+<span class="sd">      print(PolynomialTensor.apply(np.kron, tensor, tensor))</span>
+
+<span class="sd">      print(PolynomialTensor.einsum({&quot;ij,ji&quot;: (&quot;+-&quot;, &quot;+-&quot;, &quot;&quot;)}, tensor, tensor))</span>
+
+<span class="sd">    **Sparse Arrays**</span>
+
+<span class="sd">    Furthermore, since the ``PolynomialTensor`` is building on top of the</span>
+<span class="sd">    :class:`~qiskit_nature.second_q.operators.Tensor` class it supports both, dense numpy arrays and</span>
+<span class="sd">    sparse arrays. Since it needs to support more than 2-dimensional arrays, we rely on the</span>
+<span class="sd">    `sparse &lt;https://sparse.pydata.org/en/stable/index.html&gt;`_ library.</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        import sparse as sp</span>
+
+<span class="sd">        sparse_matrix = sp.as_coo(matrix)</span>
+<span class="sd">        print(PolynomialTensor({&quot;+-&quot;: sparse_matrix}))</span>
+
+<span class="sd">    One can convert between dense and sparse representation of the same tensor via the</span>
+<span class="sd">    :meth:`to_dense` and :meth:`to_sparse` methods, respectively.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">SparseArray</span> <span class="o">|</span> <span class="nb">complex</span> <span class="o">|</span> <span class="n">Tensor</span><span class="p">],</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            data: mapping of string-based operator keys to coefficient tensor values. If the values</span>
+<span class="sd">                are not already of type :class:`~qiskit_nature.second_q.operators.Tensor`, they will</span>
+<span class="sd">                automatically be wrapped into one.</span>
+<span class="sd">            validate: when set to False the ``data`` will not be validated. Disable this setting</span>
+<span class="sd">                with care!</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: when length of operator key does not match dimensions of value matrix.</span>
+<span class="sd">            ValueError: when value matrix does not have consistent dimensions.</span>
+<span class="sd">            ValueError: when some or all value matrices in ``data`` have different dimensions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">copy_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">):</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">Tensor</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">validate</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Data key </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> of length </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="si">}</span><span class="s2"> does not match &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;data value matrix of dimensions </span><span class="si">{</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+
+            <span class="n">dims</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">validate</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;For key </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: dimensions of value matrix are not identical </span><span class="si">{</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">dim</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">dims</span><span class="p">:</span>
+                <span class="c1"># we use the length of the first axis as the dimension of this tensor</span>
+                <span class="n">dim</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">validate</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">dims</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span> <span class="o">!=</span> <span class="n">dim</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Dimensions of value matrices in data dictionary do not all agree with each &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;other. The inferred dimension is </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2">, violating the shape </span><span class="si">{</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> of &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;key &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+                <span class="p">)</span>
+
+            <span class="n">copy_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">copy_dict</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">register_length</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The size of the operator that can be generated from this ``PolynomialTensor``.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">data_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">return</span> <span class="s2">&quot;PolynomialTensor(&quot;</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">data_str</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">pre</span> <span class="o">=</span> <span class="s2">&quot;Polynomial Tensor</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s1">&quot;:</span><span class="se">\n</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">coeff</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">coeff</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+        <span class="k">return</span> <span class="n">pre</span> <span class="o">+</span> <span class="n">ret</span>
+
+<div class="viewcode-block" id="PolynomialTensor.empty"><a class="viewcode-back" href="../../../../stubs/qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor.empty">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">empty</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PolynomialTensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructs an empty tensor.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The empty tensor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">PolynomialTensor</span><span class="p">({})</span></div>
+
+<div class="viewcode-block" id="PolynomialTensor.is_empty"><a class="viewcode-back" href="../../../../stubs/qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor.is_empty">[docs]</a>    <span class="k">def</span> <span class="nf">is_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns whether this tensor is empty or not.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="PolynomialTensor.is_sparse"><a class="viewcode-back" href="../../../../stubs/qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor.is_sparse">[docs]</a>    <span class="nd">@_optionals</span><span class="o">.</span><span class="n">HAS_SPARSE</span><span class="o">.</span><span class="n">require_in_call</span>
+    <span class="k">def</span> <span class="nf">is_sparse</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns whether all matrices in this tensor are sparse.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">is_sparse</span><span class="p">()</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">key</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PolynomialTensor.is_dense"><a class="viewcode-back" href="../../../../stubs/qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor.is_dense">[docs]</a>    <span class="k">def</span> <span class="nf">is_dense</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns whether all matrices in this tensor are dense.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">is_dense</span><span class="p">()</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">key</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">__k</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets the value from the ``PolynomialTensor``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            __k: operator key string in the ``PolynomialTensor``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Value corresponding to the operator key ``__k``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">(</span><span class="n">__k</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">item</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the length of the ``PolynomialTensor``.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="fm">__len__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns an iterator of the ``PolynomialTensor``.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="fm">__iter__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="PolynomialTensor.to_dense"><a class="viewcode-back" href="../../../../stubs/qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor.to_dense">[docs]</a>    <span class="k">def</span> <span class="nf">to_dense</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PolynomialTensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a new instance where all matrices are now dense tensors.</span>
+
+<span class="sd">        If the instance on which this method was called already fulfilled this requirement, it is</span>
+<span class="sd">        returned unchanged.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_dense</span><span class="p">():</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
+        <span class="n">_optionals</span><span class="o">.</span><span class="n">HAS_SPARSE</span><span class="o">.</span><span class="n">require_now</span><span class="p">(</span><span class="s2">&quot;SparseArray&quot;</span><span class="p">)</span>
+        <span class="n">dense_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">dense_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">to_dense</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">PolynomialTensor</span><span class="p">(</span><span class="n">dense_dict</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+    <span class="c1"># TODO: change the following type-hint if/when SparseArray dictates the existence of from_numpy</span>
+<div class="viewcode-block" id="PolynomialTensor.to_sparse"><a class="viewcode-back" href="../../../../stubs/qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor.to_sparse">[docs]</a>    <span class="nd">@_optionals</span><span class="o">.</span><span class="n">HAS_SPARSE</span><span class="o">.</span><span class="n">require_in_call</span>
+    <span class="k">def</span> <span class="nf">to_sparse</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">sparse_type</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">COO</span><span class="p">]</span> <span class="o">|</span> <span class="n">Type</span><span class="p">[</span><span class="n">DOK</span><span class="p">]</span> <span class="o">|</span> <span class="n">Type</span><span class="p">[</span><span class="n">GCXS</span><span class="p">]</span> <span class="o">=</span> <span class="n">COO</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PolynomialTensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a new instance where all matrices are now sparse tensors.</span>
+
+<span class="sd">        If the instance on which this method was called already fulfilled this requirement, it is</span>
+<span class="sd">        returned unchanged.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            sparse_type: the type to use for the conversion to sparse matrices. Note, that this will</span>
+<span class="sd">                only be applied to matrices which were previously dense tensors. Sparse arrays of</span>
+<span class="sd">                another type will not be explicitly converted.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A new ``PolynomialTensor`` with all its matrices converted to the requested sparse array</span>
+<span class="sd">            type.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_sparse</span><span class="p">():</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
+        <span class="n">sparse_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">sparse_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">to_sparse</span><span class="p">(</span><span class="n">sparse_type</span><span class="o">=</span><span class="n">sparse_type</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">PolynomialTensor</span><span class="p">(</span><span class="n">sparse_dict</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_multiply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="nb">complex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PolynomialTensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Scalar multiplication of a PolynomialTensor with a scalar.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other: scalar to be multiplied with the ``PolynomialTensor``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The new ``PolynomialTensor`` product object.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            TypeError: if ``other`` is not a number.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;other </span><span class="si">{</span><span class="n">other</span><span class="si">}</span><span class="s2"> must be a number&quot;</span><span class="p">)</span>
+
+        <span class="n">prod_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">matrix</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">prod_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">other</span> <span class="o">*</span> <span class="n">matrix</span>
+
+        <span class="k">return</span> <span class="n">PolynomialTensor</span><span class="p">(</span><span class="n">prod_dict</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">PolynomialTensor</span><span class="p">,</span> <span class="n">qargs</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PolynomialTensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Addition of ``PolynomialTensor`` instances.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other: second ``PolynomialTensor`` object to be added to the first.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The new summed ``PolynomialTensor``.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            TypeError: when ``other`` is not a ``PolynomialTensor``.</span>
+<span class="sd">            ValueError: when values corresponding to keys in ``other`` and the first</span>
+<span class="sd">                ``PolynomialTensor`` object do not match.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">PolynomialTensor</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Incorrect argument type: other should be PolynomialTensor&quot;</span><span class="p">)</span>
+
+        <span class="n">sum_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="n">other_unique</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">other</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
+        <span class="n">sum_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">other_unique</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">PolynomialTensor</span><span class="p">(</span><span class="n">sum_dict</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check equality of ``PolynomialTensor`` instances.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This check only asserts the internal matrix elements for equality but ignores the type</span>
+<span class="sd">            of the matrices. As such, it will indicate equality of two ``PolynomialTensor``</span>
+<span class="sd">            instances even if one contains sparse and the other dense numpy arrays, as long as their</span>
+<span class="sd">            elements are identical.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other: the second ``PolynomialTensor`` object to be compared with the first.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            True when the ``PolynomialTensor`` objects are equal, False when unequal.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">PolynomialTensor</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">other_value</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">value</span> <span class="o">!=</span> <span class="n">other_value</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="PolynomialTensor.equiv"><a class="viewcode-back" href="../../../../stubs/qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor.equiv">[docs]</a>    <span class="k">def</span> <span class="nf">equiv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check equivalence of ``PolynomialTensor`` instances.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            This check only asserts the internal matrix elements for equivalence but ignores the</span>
+<span class="sd">            type of the matrices. As such, it will indicate equivalence of two ``PolynomialTensor``</span>
+<span class="sd">            instances even if one contains sparse and the other dense numpy arrays, as long as their</span>
+<span class="sd">            elements match.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other: the second ``PolynomialTensor`` object to be compared with the first.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            True when the ``PolynomialTensor`` objects are equivalent, False when not.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">PolynomialTensor</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="o">!=</span> <span class="n">other</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">other_value</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">equiv</span><span class="p">(</span><span class="n">other_value</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="PolynomialTensor.compose"><a class="viewcode-back" href="../../../../stubs/qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor.compose">[docs]</a>    <span class="k">def</span> <span class="nf">compose</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">PolynomialTensor</span><span class="p">,</span> <span class="n">qargs</span><span class="p">:</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">front</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PolynomialTensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Returns the matrix multiplication with another ``PolynomialTensor``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other: the other PolynomialTensor.</span>
+<span class="sd">            qargs: UNUSED.</span>
+<span class="sd">            front: If ``True``, composition uses right matrix multiplication, otherwise left</span>
+<span class="sd">                multiplication is used (the default).</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            NotImplementedError: when the two tensors do not have the same :attr:`register_length`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The tensor resulting from the composition.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            Composition (``&amp;``) by default is defined as `left` matrix multiplication for operators,</span>
+<span class="sd">            while ``@`` (equivalent to :meth:`dot`) is defined as `right` matrix multiplication.</span>
+<span class="sd">            This means that ``A &amp; B == A.compose(B)`` is equivalent to ``B @ A == B.dot(A)`` when</span>
+<span class="sd">            ``A`` and ``B`` are of the same type.</span>
+
+<span class="sd">            Setting the ``front=True`` keyword argument changes this to `right` matrix</span>
+<span class="sd">            multiplication which is equivalent to the :meth:`dot` method</span>
+<span class="sd">            ``A.dot(B) == A.compose(B, front=True)``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">front</span> <span class="k">else</span> <span class="n">other</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">other</span> <span class="k">if</span> <span class="n">front</span> <span class="k">else</span> <span class="bp">self</span>
+
+        <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">register_length</span> <span class="o">!=</span> <span class="n">b</span><span class="o">.</span><span class="n">register_length</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+        <span class="n">new_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">akey</span><span class="p">,</span> <span class="n">bkey</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+            <span class="n">new_key</span> <span class="o">=</span> <span class="n">akey</span> <span class="o">+</span> <span class="n">bkey</span>
+
+            <span class="n">atensor</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="n">akey</span><span class="p">]</span>
+            <span class="n">btensor</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="n">bkey</span><span class="p">]</span>
+
+            <span class="n">outer</span> <span class="o">=</span> <span class="n">atensor</span><span class="o">.</span><span class="n">compose</span><span class="p">(</span><span class="n">btensor</span><span class="p">,</span> <span class="n">qargs</span><span class="o">=</span><span class="n">qargs</span><span class="p">,</span> <span class="n">front</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">new_key</span> <span class="ow">in</span> <span class="n">new_data</span><span class="p">:</span>
+                <span class="n">new_data</span><span class="p">[</span><span class="n">new_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_data</span><span class="p">[</span><span class="n">new_key</span><span class="p">]</span> <span class="o">+</span> <span class="n">outer</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">new_data</span><span class="p">[</span><span class="n">new_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">outer</span>
+
+        <span class="k">return</span> <span class="n">PolynomialTensor</span><span class="p">(</span><span class="n">new_data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PolynomialTensor.tensor"><a class="viewcode-back" href="../../../../stubs/qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor.tensor">[docs]</a>    <span class="k">def</span> <span class="nf">tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">PolynomialTensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PolynomialTensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Returns the tensor product with another ``PolynomialTensor``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other: the other PolynomialTensor.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            NotImplementedError: when the two tensors do not have the same :attr:`register_length`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The tensor resulting from the tensor product, :math:`self \otimes other`.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            The tensor product can be obtained using the ``^`` binary operator.</span>
+<span class="sd">            Hence ``a.tensor(b)`` is equivalent to ``a ^ b``.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            Tensor uses reversed operator ordering to :meth:`expand`.</span>
+<span class="sd">            For two tensors of the same type ``a.tensor(b) = b.expand(a)``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tensor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PolynomialTensor.expand"><a class="viewcode-back" href="../../../../stubs/qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor.expand">[docs]</a>    <span class="k">def</span> <span class="nf">expand</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">PolynomialTensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PolynomialTensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Returns the reverse-order tensor product with another ``PolynomialTensor``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other: the other PolynomialTensor.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            NotImplementedError: when the two tensors do not have the same :attr:`register_length`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The tensor resulting from the tensor product, :math:`other \otimes self`.</span>
+
+<span class="sd">        .. note::</span>
+<span class="sd">            Expand is the opposite operator ordering to :meth:`tensor`.</span>
+<span class="sd">            For two tensors of the same type ``a.expand(b) = b.tensor(a)``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tensor</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span></div>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_tensor</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="n">PolynomialTensor</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">PolynomialTensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PolynomialTensor</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">register_length</span> <span class="o">!=</span> <span class="n">b</span><span class="o">.</span><span class="n">register_length</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+        <span class="n">new_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">akey</span><span class="p">,</span> <span class="n">bkey</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+
+            <span class="n">atensor</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="n">akey</span><span class="p">]</span>
+            <span class="n">btensor</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="n">bkey</span><span class="p">]</span>
+
+            <span class="n">einsum</span> <span class="o">=</span> <span class="n">atensor</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">btensor</span><span class="p">)</span>
+
+            <span class="n">new_key</span> <span class="o">=</span> <span class="n">akey</span> <span class="o">+</span> <span class="n">bkey</span>
+            <span class="k">if</span> <span class="n">new_key</span> <span class="ow">in</span> <span class="n">new_data</span><span class="p">:</span>
+                <span class="n">new_data</span><span class="p">[</span><span class="n">new_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_data</span><span class="p">[</span><span class="n">new_key</span><span class="p">]</span> <span class="o">+</span> <span class="n">einsum</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">new_data</span><span class="p">[</span><span class="n">new_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">einsum</span>
+
+        <span class="k">return</span> <span class="n">PolynomialTensor</span><span class="p">(</span><span class="n">new_data</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PolynomialTensor.apply"><a class="viewcode-back" href="../../../../stubs/qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor.apply">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">function</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">SparseArray</span> <span class="o">|</span> <span class="nb">complex</span><span class="p">],</span>
+        <span class="o">*</span><span class="n">operands</span><span class="p">:</span> <span class="n">PolynomialTensor</span><span class="p">,</span>
+        <span class="n">multi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PolynomialTensor</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">PolynomialTensor</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Applies the provided function to the common set of keys of the provided tensors.</span>
+
+<span class="sd">        The usage of this method is best explained by some examples:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            import numpy as np</span>
+<span class="sd">            from qiskit_nature.second_q.opertors import PolynomialTensor</span>
+<span class="sd">            rand_a = np.random.random((2, 2))</span>
+<span class="sd">            rand_b = np.random.random((2, 2))</span>
+<span class="sd">            a = PolynomialTensor({&quot;+-&quot;: rand_a})</span>
+<span class="sd">            b = PolynomialTensor({&quot;+&quot;: np.random.random(2), &quot;+-&quot;: rand_b})</span>
+
+<span class="sd">            # transpose</span>
+<span class="sd">            a_transpose = PolynomialTensor.apply(np.transpose, a)</span>
+<span class="sd">            print(a_transpose == PolynomialTensor({&quot;+-&quot;: rand_a.transpose()}))  # True</span>
+
+<span class="sd">            # conjugate</span>
+<span class="sd">            a_complex = 1j * a</span>
+<span class="sd">            a_conjugate = PolynomialTensor.apply(np.conjugate, a_complex)</span>
+<span class="sd">            print(a_conjugate == PolynomialTensor({&quot;+-&quot;: -1j * rand_a}))  # True</span>
+
+<span class="sd">            # kronecker product</span>
+<span class="sd">            ab_kron = PolynomialTensor.apply(np.kron, a, b)</span>
+<span class="sd">            print(ab_kron == PolynomialTensor({&quot;+-&quot;: np.kron(rand_a, rand_b)}))  # True</span>
+<span class="sd">            # Note: that ab_kron does NOT contain the &quot;+&quot; and &quot;+-+&quot; keys although b contained the</span>
+<span class="sd">            # &quot;+&quot; key. That is because the function only gets applied to the keys which are common</span>
+<span class="sd">            # to all tensors passed to it.</span>
+
+<span class="sd">            # computing eigenvectors</span>
+<span class="sd">            hermi_a = np.array([[1, -2j], [2j, 5]])</span>
+<span class="sd">            a = PolynomialTensor({&quot;+-&quot;: hermi_a})</span>
+<span class="sd">            _, eigenvectors = PolynomialTensor.apply(np.linalg.eigh, a, multi=True, validate=False)</span>
+<span class="sd">            print(eigenvectors == PolynomialTensor({&quot;+-&quot;: np.eigh(hermi_a)[1]}))  # True</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            The provided function will only be applied to the internal arrays of the common keys of</span>
+<span class="sd">            all provided ``PolynomialTensor`` instances. That means, that no cross-products will be</span>
+<span class="sd">            generated.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            function: the function to apply to the internal arrays of the provided operands. This</span>
+<span class="sd">                function must take numpy (or sparse) arrays as its positional arguments. The number</span>
+<span class="sd">                of arguments must match the number of provided operands.</span>
+<span class="sd">            operands: a sequence of ``PolynomialTensor`` instances on which to operate.</span>
+<span class="sd">            multi: when set to True this indicates that the provided numpy function will return</span>
+<span class="sd">                multiple new numpy arrays which will each be wrapped into a ``PolynomialTensor``</span>
+<span class="sd">                instance separately.</span>
+<span class="sd">            validate: when set to False the ``data`` will not be validated. Disable this setting</span>
+<span class="sd">                with care!</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A new ``PolynomialTensor`` instance with the resulting arrays.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">common_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">op</span><span class="p">)</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">operands</span><span class="p">))</span>
+
+        <span class="n">new_tensors</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[{}]</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">common_keys</span><span class="p">:</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">function</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">op</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">operands</span><span class="p">)))</span>
+
+            <span class="k">if</span> <span class="n">multi</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">res</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">results</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">idx</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_tensors</span><span class="p">):</span>
+                        <span class="n">new_tensors</span><span class="o">.</span><span class="n">append</span><span class="p">({})</span>
+                    <span class="n">new_tensors</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">new_tensors</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">results</span>
+
+        <span class="k">if</span> <span class="n">multi</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="bp">cls</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">)</span> <span class="k">for</span> <span class="n">tensor</span> <span class="ow">in</span> <span class="n">new_tensors</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">new_tensors</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PolynomialTensor.stack"><a class="viewcode-back" href="../../../../stubs/qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor.stack">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">stack</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">function</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">SparseArray</span> <span class="o">|</span> <span class="n">Number</span><span class="p">],</span>
+        <span class="n">operands</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">PolynomialTensor</span><span class="p">],</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PolynomialTensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Stacks the provided sequence of tensors using the given numpy stacking function.</span>
+
+<span class="sd">        The usage of this method is best explained by some examples:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            import numpy as np</span>
+<span class="sd">            from qiskit_nature.second_q.opertors import PolynomialTensor</span>
+<span class="sd">            rand_a = np.random.random((2, 2))</span>
+<span class="sd">            rand_b = np.random.random((2, 2))</span>
+<span class="sd">            a = PolynomialTensor({&quot;+-&quot;: rand_a})</span>
+<span class="sd">            b = PolynomialTensor({&quot;+&quot;: np.random.random(2), &quot;+-&quot;: rand_b})</span>
+
+<span class="sd">            # np.hstack</span>
+<span class="sd">            ab_hstack = PolynomialTensor.stack(np.hstack, [a, b], validate=False)</span>
+<span class="sd">            print(ab_hstack == PolynomialTensor({&quot;+-&quot;: np.hstack([a, b], validate=False)}))  # True</span>
+
+<span class="sd">            # np.vstack</span>
+<span class="sd">            ab_vstack = PolynomialTensor.stack(np.vstack, [a, b], validate=False)</span>
+<span class="sd">            print(ab_vstack == PolynomialTensor({&quot;+-&quot;: np.vstack([a, b], validate=False)}))  # True</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            The provided function will only be applied to the internal arrays of the common keys of</span>
+<span class="sd">            all provided ``PolynomialTensor`` instances. That means, that no cross-products will be</span>
+<span class="sd">            generated.</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            When stacking arrays this will likely lead to array shapes which would fail the shape</span>
+<span class="sd">            validation check (as you can see from the examples above where we explicitly disable</span>
+<span class="sd">            them). This is considered an advanced use case which is why the user is left to disable</span>
+<span class="sd">            this check themselves, to ensure they know what they are doing.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            function: the stacking function to apply to the internal arrays of the provided</span>
+<span class="sd">                operands. This function must take a sequence of numpy (or sparse) arrays as its</span>
+<span class="sd">                first argument. You should use :code:`functools.partial` if you need to provide</span>
+<span class="sd">                keyword arguments (e.g. :code:`partial(np.stack, axis=-1)`). Common methods to use</span>
+<span class="sd">                here are :func:`numpy.hstack` and :func:`numpy.vstack`.</span>
+<span class="sd">            operands: a sequence of ``PolynomialTensor`` instances on which to operate.</span>
+<span class="sd">            validate: when set to False the ``data`` will not be validated. Disable this setting</span>
+<span class="sd">                with care!</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A new ``PolynomialTensor`` instance with the resulting arrays.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">common_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">op</span><span class="p">)</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">operands</span><span class="p">))</span>
+        <span class="n">new_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tensor</span> <span class="o">|</span> <span class="n">Number</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">common_keys</span><span class="p">:</span>
+            <span class="n">new_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">function</span><span class="p">([</span><span class="o">*</span><span class="p">(</span><span class="n">op</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">operands</span><span class="p">)]))</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">new_data</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PolynomialTensor.split"><a class="viewcode-back" href="../../../../stubs/qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor.split">[docs]</a>    <span class="k">def</span> <span class="nf">split</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">function</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">SparseArray</span> <span class="o">|</span> <span class="n">Number</span><span class="p">],</span>
+        <span class="n">indices_or_sections</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">PolynomialTensor</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Splits the acted on tensor instance using the given numpy splitting function.</span>
+
+<span class="sd">        The usage of this method is best explained by some examples:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            import numpy as np</span>
+<span class="sd">            from qiskit_nature.second_q.opertors import PolynomialTensor</span>
+<span class="sd">            rand_ab = np.random.random((4, 4))</span>
+<span class="sd">            ab = PolynomialTensor({&quot;+-&quot;: rand_ab})</span>
+
+<span class="sd">            # np.hsplit</span>
+<span class="sd">            a, b = ab.split(np.hsplit, [2], validate=False)</span>
+<span class="sd">            print(a == PolynomialTensor({&quot;+-&quot;: np.hsplit(ab, [2])[0], validate=False)}))  # True</span>
+<span class="sd">            print(b == PolynomialTensor({&quot;+-&quot;: np.hsplit(ab, [2])[1], validate=False)}))  # True</span>
+
+<span class="sd">            # np.vsplit</span>
+<span class="sd">            a, b = ab.split(np.vsplit, [2], validate=False)</span>
+<span class="sd">            print(a == PolynomialTensor({&quot;+-&quot;: np.vsplit(ab, [2])[0], validate=False)}))  # True</span>
+<span class="sd">            print(b == PolynomialTensor({&quot;+-&quot;: np.vsplit(ab, [2])[1], validate=False)}))  # True</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            When splitting arrays this will likely lead to array shapes which would fail the shape</span>
+<span class="sd">            validation check (as you can see from the examples above where we explicitly disable</span>
+<span class="sd">            them). This is considered an advanced use case which is why the user is left to disable</span>
+<span class="sd">            this check themselves, to ensure they know what they are doing.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            function: the splitting function to use. This function must take a single numpy (or</span>
+<span class="sd">                sparse) array as its first input followed by a sequence of indices to split on.</span>
+<span class="sd">                You should use :code:`functools.partial` if you need to provide keyword arguments</span>
+<span class="sd">                (e.g. :code:`partial(np.split, axis=-1)`). Common methods to use here are</span>
+<span class="sd">                :func:`numpy.hsplit` and :func:`numpy.vsplit`.</span>
+<span class="sd">            indices_or_sections: a single index or sequence of indices to split on.</span>
+<span class="sd">            validate: when set to False the ``data`` will not be validated. Disable this setting</span>
+<span class="sd">                with care!</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            New ``PolynomialTensor`` instances containing the split arrays.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">new_tensors</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tensor</span> <span class="o">|</span> <span class="n">Number</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">arr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">new_arr</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+                <span class="n">function</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">indices_or_sections</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
+            <span class="p">):</span>
+                <span class="k">if</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_tensors</span><span class="p">):</span>
+                    <span class="n">new_tensors</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_arr</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">new_tensors</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">new_arr</span><span class="p">})</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">new_data</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">)</span> <span class="k">for</span> <span class="n">new_data</span> <span class="ow">in</span> <span class="n">new_tensors</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="PolynomialTensor.einsum"><a class="viewcode-back" href="../../../../stubs/qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor.einsum">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">einsum</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">einsum_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]],</span>
+        <span class="o">*</span><span class="n">operands</span><span class="p">:</span> <span class="n">PolynomialTensor</span><span class="p">,</span>
+        <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PolynomialTensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Applies the various Einsum convention operations to the provided tensors.</span>
+
+<span class="sd">        This method wraps the :meth:`numpy.einsum` function, allowing very complex operations to be</span>
+<span class="sd">        applied efficiently to the matrices stored inside the provided ``PolynomialTensor``</span>
+<span class="sd">        operands.</span>
+
+<span class="sd">        As an example, let us compute the exact exchange term of an</span>
+<span class="sd">        :class:`qiskit_nature.second_q.hamiltonians.ElectronicEnergy` hamiltonian:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            # a PolynomialTensor containing the two-body terms of an ElectronicEnergy hamiltonian</span>
+<span class="sd">            two_body = PolynomialTensor({&quot;++--&quot;: ...})</span>
+
+<span class="sd">            # an electronic density:</span>
+<span class="sd">            density = PolynomialTensor({&quot;+-&quot;: ...})</span>
+
+<span class="sd">            # computes the ElectronicEnergy.exchange operator</span>
+<span class="sd">            exchange = PolynomialTensor.einsum(</span>
+<span class="sd">                {&quot;pqrs,qs-&gt;pr&quot;: (&quot;++--&quot;, &quot;+-&quot;, &quot;+-&quot;)},</span>
+<span class="sd">                two_body,</span>
+<span class="sd">                density,</span>
+<span class="sd">            )</span>
+<span class="sd">            # result will be contained in exchange[&quot;+-&quot;]</span>
+
+<span class="sd">        Another example is the mapping from the AO to MO basis, as implemented by the</span>
+<span class="sd">        :class:`qiskit_nature.second_q.transformers.BasisTransformer`.</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            # the one- and two-body integrals of a hamiltonian</span>
+<span class="sd">            hamiltonian = PolynomialTensor({&quot;+-&quot;: ..., &quot;++--&quot;: ...})</span>
+
+<span class="sd">            # the AO-to-MO transformation coefficients</span>
+<span class="sd">            mo_coeff = PolynomialTensor({&quot;+-&quot;: ...})</span>
+
+<span class="sd">            einsum_map = {</span>
+<span class="sd">                &quot;jk,ji,kl-&gt;il&quot;: (&quot;+-&quot;, &quot;+-&quot;, &quot;+-&quot;, &quot;+-&quot;),</span>
+<span class="sd">                &quot;prsq,pi,qj,rk,sl-&gt;iklj&quot;: (&quot;++--&quot;, &quot;+-&quot;, &quot;+-&quot;, &quot;+-&quot;, &quot;+-&quot;, &quot;++--&quot;),</span>
+<span class="sd">            }</span>
+
+<span class="sd">            transformed = PolynomialTensor.einsum(</span>
+<span class="sd">                einsum_map, hamiltonian, mo_coeff, mo_coeff, mo_coeff, mo_coeff</span>
+<span class="sd">            )</span>
+<span class="sd">            # results will be contained in transformed[&quot;+-&quot;] and transformed[&quot;++--&quot;], respectively</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">           :class:`sparse.SparseArray` supports ``opt_einsum.contract` if ``opt_einsum`` is installed.</span>
+<span class="sd">           It does not support ``numpy.einsum``. In this case, the resultant</span>
+<span class="sd">           ``PolynomialTensor`` will contain all dense numpy arrays. If a user would like to work</span>
+<span class="sd">           with a sparse array instead, they should install ``opt_einsum`` or</span>
+<span class="sd">           they should convert it explicitly using the :meth:`to_sparse` method.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            einsum_map: a dictionary, mapping from :meth:`numpy.einsum` subscripts to a tuple of</span>
+<span class="sd">                strings. These strings correspond to the keys of matrices to be extracted from the</span>
+<span class="sd">                provided ``PolynomialTensor`` operands. The last string in this tuple indicates the</span>
+<span class="sd">                key under which to store the result in the returned ``PolynomialTensor``.</span>
+<span class="sd">            operands: a sequence of ``PolynomialTensor`` instances on which to operate.</span>
+<span class="sd">            validate: when set to False the ``data`` will not be validated. Disable this setting</span>
+<span class="sd">                with care!</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A new ``PolynomialTensor``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">einsum_func</span><span class="p">,</span> <span class="n">uses_sparse</span> <span class="o">=</span> <span class="n">get_einsum</span><span class="p">()</span>
+        <span class="n">operand_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">operands</span><span class="p">)</span> <span class="k">if</span> <span class="n">uses_sparse</span> <span class="k">else</span> <span class="p">[</span><span class="n">op</span><span class="o">.</span><span class="n">to_dense</span><span class="p">()</span> <span class="k">for</span> <span class="n">op</span> <span class="ow">in</span> <span class="n">operands</span><span class="p">]</span>
+        <span class="n">new_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">einsum</span><span class="p">,</span> <span class="n">terms</span> <span class="ow">in</span> <span class="n">einsum_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="o">*</span><span class="n">inputs</span><span class="p">,</span> <span class="n">output</span> <span class="o">=</span> <span class="n">terms</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">ops</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">term</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">inputs</span><span class="p">):</span>
+                    <span class="n">op</span> <span class="o">=</span> <span class="n">operand_list</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">term</span><span class="p">]</span>
+                    <span class="n">ops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">einsum_func</span><span class="p">(</span><span class="n">einsum</span><span class="p">,</span> <span class="o">*</span><span class="n">ops</span><span class="p">,</span> <span class="n">optimize</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">optimize_einsum</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">output</span> <span class="ow">in</span> <span class="n">new_data</span><span class="p">:</span>
+                <span class="n">new_data</span> <span class="o">+=</span> <span class="n">result</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">new_data</span><span class="p">[</span><span class="n">output</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">new_data</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">)</span></div></div>
+</pre></div>
+        </article>
+      </div>
+      <footer>
+        
+  <script>
+    function userFeedbackClicked(ctaType) {
+      document.getElementById('qiskit-analytics-thank-you').style.visibility = 'visible';
+      window.trackCta(`Helpful - ${ctaType}`);
+    }
+  </script>
+    <div class="qiskit-analytics-container">
+      <div>Was this page helpful?</div>
+      <a onclick="userFeedbackClicked('yes')">Yes</a>
+      <a onclick="userFeedbackClicked('no')">No</a>
+      <div id="qiskit-analytics-thank-you">Thank you!</div>
+    </div>
+<div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2018, 2024, Qiskit Nature Development Team
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+    <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js?v=eb63cb1d"></script>
+    <script src="../../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../../../_static/thebelab-helper.js"></script>
+    <script src="../../../../_static/scripts/qiskit-sphinx-theme.js?v=4d77b8ca"></script>
+    <script src="../../../../_static/design-tabs.js?v=36754332"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    </body>
+</html>

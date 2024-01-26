@@ -1,0 +1,31 @@
+﻿
+
+HeisenbergModel
+===================================================
+
+.. currentmodule:: qiskit_nature.second_q.hamiltonians
+
+.. autoclass:: HeisenbergModel
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: HeisenbergModel.lattice
+   .. autoattribute:: HeisenbergModel.register_length
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: HeisenbergModel.interaction_matrix
+   .. automethod:: HeisenbergModel.interpret
+   .. automethod:: HeisenbergModel.second_q_op
+   
+   

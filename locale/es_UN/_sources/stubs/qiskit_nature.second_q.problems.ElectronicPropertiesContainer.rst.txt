@@ -1,0 +1,37 @@
+﻿
+
+ElectronicPropertiesContainer
+=============================================================
+
+.. currentmodule:: qiskit_nature.second_q.problems
+
+.. autoclass:: ElectronicPropertiesContainer
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: ElectronicPropertiesContainer.angular_momentum
+   .. autoattribute:: ElectronicPropertiesContainer.electronic_density
+   .. autoattribute:: ElectronicPropertiesContainer.electronic_dipole_moment
+   .. autoattribute:: ElectronicPropertiesContainer.magnetization
+   .. autoattribute:: ElectronicPropertiesContainer.particle_number
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: ElectronicPropertiesContainer.add
+   .. automethod:: ElectronicPropertiesContainer.clear
+   .. automethod:: ElectronicPropertiesContainer.discard
+   .. automethod:: ElectronicPropertiesContainer.isdisjoint
+   .. automethod:: ElectronicPropertiesContainer.pop
+   .. automethod:: ElectronicPropertiesContainer.remove
+   
+   

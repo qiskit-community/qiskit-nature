@@ -1,0 +1,32 @@
+﻿
+
+EigenstateResult
+================================================
+
+.. currentmodule:: qiskit_nature.second_q.problems
+
+.. autoclass:: EigenstateResult
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: EigenstateResult.groundenergy
+   .. autoattribute:: EigenstateResult.groundstate
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: EigenstateResult.combine
+   .. automethod:: EigenstateResult.from_eigensolver_result
+   .. automethod:: EigenstateResult.from_minimum_eigensolver_result
+   .. automethod:: EigenstateResult.from_result
+   
+   

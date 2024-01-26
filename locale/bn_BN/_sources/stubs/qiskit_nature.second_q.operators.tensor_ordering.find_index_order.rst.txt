@@ -1,0 +1,8 @@
+﻿
+
+find_index_order
+=================================================================
+
+.. currentmodule:: qiskit_nature.second_q.operators.tensor_ordering
+
+.. autofunction:: find_index_order

@@ -1,0 +1,37 @@
+﻿
+
+QEOMResult
+============================================
+
+.. currentmodule:: qiskit_nature.second_q.algorithms
+
+.. autoclass:: QEOMResult
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: QEOMResult.aux_operators_evaluated
+   .. autoattribute:: QEOMResult.eigenvalues
+   .. autoattribute:: QEOMResult.m_matrix
+   .. autoattribute:: QEOMResult.m_matrix_std
+   .. autoattribute:: QEOMResult.q_matrix
+   .. autoattribute:: QEOMResult.q_matrix_std
+   .. autoattribute:: QEOMResult.v_matrix
+   .. autoattribute:: QEOMResult.v_matrix_std
+   .. autoattribute:: QEOMResult.w_matrix
+   .. autoattribute:: QEOMResult.w_matrix_std
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: QEOMResult.combine
+   
+   

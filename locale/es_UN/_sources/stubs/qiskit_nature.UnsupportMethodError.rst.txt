@@ -1,0 +1,8 @@
+﻿
+
+UnsupportMethodError
+==================================
+
+.. currentmodule:: qiskit_nature
+
+.. autoexception:: UnsupportMethodError

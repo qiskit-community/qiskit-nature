@@ -1,0 +1,33 @@
+﻿
+
+UCC
+==========================================
+
+.. currentmodule:: qiskit_nature.second_q.circuit.library
+
+.. autoclass:: UCC
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: UCC.excitation_list
+   .. autoattribute:: UCC.excitations
+   .. autoattribute:: UCC.num_particles
+   .. autoattribute:: UCC.num_spatial_orbitals
+   .. autoattribute:: UCC.operators
+   .. autoattribute:: UCC.qubit_mapper
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: UCC.excitation_ops
+   
+   

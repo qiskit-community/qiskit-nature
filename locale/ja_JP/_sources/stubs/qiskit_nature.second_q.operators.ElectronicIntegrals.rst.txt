@@ -1,0 +1,41 @@
+﻿
+
+ElectronicIntegrals
+====================================================
+
+.. currentmodule:: qiskit_nature.second_q.operators
+
+.. autoclass:: ElectronicIntegrals
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: ElectronicIntegrals.alpha
+   .. autoattribute:: ElectronicIntegrals.alpha_beta
+   .. autoattribute:: ElectronicIntegrals.beta
+   .. autoattribute:: ElectronicIntegrals.beta_alpha
+   .. autoattribute:: ElectronicIntegrals.one_body
+   .. autoattribute:: ElectronicIntegrals.register_length
+   .. autoattribute:: ElectronicIntegrals.two_body
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: ElectronicIntegrals.apply
+   .. automethod:: ElectronicIntegrals.einsum
+   .. automethod:: ElectronicIntegrals.equiv
+   .. automethod:: ElectronicIntegrals.from_raw_integrals
+   .. automethod:: ElectronicIntegrals.second_q_coeffs
+   .. automethod:: ElectronicIntegrals.split
+   .. automethod:: ElectronicIntegrals.stack
+   .. automethod:: ElectronicIntegrals.trace_spin
+   
+   

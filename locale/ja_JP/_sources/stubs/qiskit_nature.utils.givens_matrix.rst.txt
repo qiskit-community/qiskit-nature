@@ -1,0 +1,8 @@
+﻿
+
+givens_matrix
+=================================
+
+.. currentmodule:: qiskit_nature.utils
+
+.. autofunction:: givens_matrix

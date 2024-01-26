@@ -1,0 +1,29 @@
+﻿
+
+CHC
+==========================================
+
+.. currentmodule:: qiskit_nature.second_q.circuit.library
+
+.. autoclass:: CHC
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: CHC.excitations
+   .. autoattribute:: CHC.initial_state
+   .. autoattribute:: CHC.num_qubits
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   
+   

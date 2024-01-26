@@ -1,0 +1,30 @@
+﻿
+
+WatsonHamiltonian
+=======================================================
+
+.. currentmodule:: qiskit_nature.second_q.formats.watson
+
+.. autoclass:: WatsonHamiltonian
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: WatsonHamiltonian.quadratic_force_constants
+   .. autoattribute:: WatsonHamiltonian.cubic_force_constants
+   .. autoattribute:: WatsonHamiltonian.quartic_force_constants
+   .. autoattribute:: WatsonHamiltonian.kinetic_coefficients
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   
+   

@@ -1,0 +1,25 @@
+﻿
+
+VibrationalBasis
+================================================
+
+.. currentmodule:: qiskit_nature.second_q.problems
+
+.. autoclass:: VibrationalBasis
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: VibrationalBasis.eval_integral
+   .. automethod:: VibrationalBasis.map
+   
+   

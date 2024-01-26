@@ -1,0 +1,30 @@
+﻿
+
+VibrationalEnergy
+=====================================================
+
+.. currentmodule:: qiskit_nature.second_q.hamiltonians
+
+.. autoclass:: VibrationalEnergy
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: VibrationalEnergy.register_length
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: VibrationalEnergy.from_raw_integrals
+   .. automethod:: VibrationalEnergy.interpret
+   .. automethod:: VibrationalEnergy.second_q_op
+   
+   

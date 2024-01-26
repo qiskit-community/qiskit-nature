@@ -1,0 +1,27 @@
+﻿
+
+InitialGuess
+===========================================
+
+.. currentmodule:: qiskit_nature.second_q.drivers
+
+.. autoclass:: InitialGuess
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: InitialGuess.MINAO
+   .. autoattribute:: InitialGuess.HCORE
+   .. autoattribute:: InitialGuess.ONE_E
+   .. autoattribute:: InitialGuess.ATOM
+   
+   
+
+   
+   
+   
