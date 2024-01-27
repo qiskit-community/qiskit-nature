@@ -10,7 +10,7 @@ features:
     corresponds to :math:`\gamma_0 \gamma_1` where there are twice the number of spin orbitals
     operators satisfying :math:`\{\gamma_i,\gamma_j\} = 2 \delta_{ij}`.
 
-    Methods of :class:`~qiskit_nature.second_q.operators.MajoranaOp` are the same as for
+    Methods of :class:`~qiskit_nature.second_q.operators.MajoranaOp` follow the same API as for
     :class:`~qiskit_nature.second_q.operators.FermionicOp` except for normal ordering, which is
     unnecessary. A Majorana operator can be created from a Fermionic operator using the
     :meth:`~qiskit_nature.second_q.operators.MajoranaOp.from_fermionic_op`  class method.
