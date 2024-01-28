@@ -127,7 +127,7 @@ class ModeBasedMapper(QubitMapper):
             for term in terms:
                 char = term[0]
                 position = int(term[1])
-                if char in ("+", ""): # "" for MajoranaOp, creator = annihiliator
+                if char in ("+", ""):  # "" for MajoranaOp, creator = annihilator
                     ret_op = ret_op.compose(times_creation_op[position], front=True).simplify()
                 elif char == "-":
                     ret_op = ret_op.compose(times_annihilation_op[position], front=True).simplify()

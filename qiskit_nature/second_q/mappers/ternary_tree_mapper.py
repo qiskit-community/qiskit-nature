@@ -29,7 +29,7 @@ class TernaryTreeMapper(MajoranaMapper, ModeBasedMapper):
     preprint at `arXiv:1910.10746 <https://arxiv.org/abs/1910.10746>`_.
 
     This is a mapper for :class:`~qiskit_nature.second_q.operators.MajoranaOp`.
-    For mappping :class:`~qiskit_nature.second_q.operators.FermionicOp` convert
+    For mapping :class:`~qiskit_nature.second_q.operators.FermionicOp` convert
     to a Majorana operator first:
 
     .. code-block::
@@ -49,7 +49,7 @@ class TernaryTreeMapper(MajoranaMapper, ModeBasedMapper):
         """
         Use the Pauli priority argument (one of XYZ, XZY, YXZ, YZX, ZXY, ZYX) to influence which
         Pauli operators appear most frequently in the Pauli strings. The default is 'ZXY', due to
-        the fact that the Z gate is usually the most natively supported gate.
+        the fact that the Z gate is usually the most directly supported gate.
 
         Args:
             pauli_priority (str) : Priority with which Pauli operators are assigned.
@@ -71,8 +71,7 @@ class TernaryTreeMapper(MajoranaMapper, ModeBasedMapper):
     @staticmethod
     @lru_cache(maxsize=32)
     def _pauli_table(
-        pauli_priority: str, 
-        register_length: int
+        pauli_priority: str, register_length: int
     ) -> tuple[int, list[tuple[PauliType]]]:
         tree_height = 0
         while 3 ** (tree_height + 1) <= register_length + 1:
