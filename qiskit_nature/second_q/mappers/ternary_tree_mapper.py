@@ -45,7 +45,7 @@ class TernaryTreeMapper(MajoranaMapper, ModeBasedMapper):
 
     _pauli_priority: str = "ZXY"
 
-    def __init__(self, pauli_priority: str = "ZXY") -> TernaryTreeMapper:
+    def __init__(self, pauli_priority: str = "ZXY"):
         """
         Use the Pauli priority argument (one of XYZ, XZY, YXZ, YZX, ZXY, ZYX) to influence which
         Pauli operators appear most frequently in the Pauli strings. The default is 'ZXY', due to
@@ -63,7 +63,17 @@ class TernaryTreeMapper(MajoranaMapper, ModeBasedMapper):
             raise ValueError("Pauli priority must be one of XYZ, XZY, YXZ, YZX, ZXY, ZYX")
 
     def pauli_table(self, register_length: int) -> list[tuple[PauliType, PauliType]]:
-        return self._pauli_table(self._pauli_priority, register_length)[1]
+        """This method is implemented for ``TernaryTreeMapper`` only for compatibility.
+        ``TernaryTreeMapper.map`` only uses the ``sparse_pauli_operators`` method which
+        overrides the corresponding method in `ModeBasedMapper`.
+        """
+        pauli_table = []
+        for pauli in self._pauli_table(self._pauli_priority, register_length)[1]:
+            # creator/annihilator are constructed as (real +/- imaginary) / 2
+            # for Majorana ops (self adjoint) we have imaginary = 0 and need
+            # to multiply the operators from _pauli_table by 2 to get the correct pre-factor
+            pauli_table.append((2 * pauli[0], SparsePauliOp([""])))
+        return pauli_table
 
     def _pauli_string_length(self, register_length: int) -> int:
         return self._pauli_table(self._pauli_priority, register_length)[0]
@@ -79,7 +89,7 @@ class TernaryTreeMapper(MajoranaMapper, ModeBasedMapper):
         add_nodes = register_length + 1 - 3**tree_height
 
         pauli_x, pauli_y, pauli_z = tuple(pauli_priority)
-        pauli_list = [("", [], 1)]
+        pauli_list: list[tuple[str, list, int]] = [("", [], 1)]
         qubit_index = 0
         for _ in range(tree_height):
             new_pauli_list = []
@@ -109,7 +119,7 @@ class TernaryTreeMapper(MajoranaMapper, ModeBasedMapper):
     ) -> tuple[list[SparsePauliOp], list[SparsePauliOp]]:
         times_creation_annihiliation_op = []
 
-        for paulis in self.pauli_table(register_length):
+        for paulis in self._pauli_table(self._pauli_priority, register_length)[1]:
             # For Majorana ops (self adjoint) pauli_table is a list of 1-element tuples
             creation_op = SparsePauliOp(paulis[0], coeffs=[1])
             times_creation_annihiliation_op.append(creation_op)

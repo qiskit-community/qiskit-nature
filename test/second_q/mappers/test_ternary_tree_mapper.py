@@ -65,7 +65,10 @@ class TestTernaryTreeMapper(QiskitNatureTestCase):
     def test_pauli_table(self):
         """Test that Pauli table satisfies Majorana anticommutation relations."""
         for num_modes in range(1, 10):
-            pauli_tab = [p[0] for p in TernaryTreeMapper("XYZ").pauli_table(num_modes)]
+            pauli_tab = []
+            for pauli in TernaryTreeMapper("XYZ").pauli_table(num_modes):
+                self.assertEqualSparsePauliOp(pauli[1], SparsePauliOp([""]))
+                pauli_tab.append(pauli[0] / 2)
             self.assertEqual(len(pauli_tab), num_modes)
             identity = SparsePauliOp("I" * pauli_tab[0].num_qubits)
             for i, first in enumerate(pauli_tab):
