@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Adds a new mapper class, :class:`~qiskit_nature.second_q.mappers.TernaryTreeMapper`
+    along with a new parent class :class:`~qiskit_nature.second_q.mappers.MajoranaMapper`
+    implementing the Ternary Tree based mapping alogrithm
+    (cf. `arXiv:1910.10746 <https://arxiv.org/abs/1910.10746>`_) that maps a `MajoranaOp`
+    to a `SparsePauliOp`.
