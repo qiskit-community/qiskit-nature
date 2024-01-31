@@ -20,7 +20,7 @@ The code comprises various modules revolving around:
 - translating from the second-quantized to the qubit space
 - a quantum circuit library of natural science targeted ansatze
 - natural science specific algorithms and utilities to make the use of
-  algorithms from `Qiskit Algorithms <https://qiskit.org/ecosystem/algorithms/>`_ easier
+  algorithms from `Qiskit Algorithms <https://qiskit-community.github.io/qiskit-algorithms/>`_ easier
 - and much more
 
 
