@@ -81,7 +81,7 @@ setuptools.setup(
     },
     project_urls={
         "Bug Tracker": "https://github.com/Qiskit/qiskit-nature/issues",
-        "Documentation": "https://qiskit.org/ecosystem/nature/",
+        "Documentation": "https://qiskit-community.github.io/qiskit-nature/",
         "Source Code": "https://github.com/Qiskit/qiskit-nature",
     },
     zip_safe=False,
