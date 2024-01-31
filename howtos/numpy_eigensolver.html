@@ -589,8 +589,8 @@
           <br><br><br><section id="find-excited-state-energies-using-the-numpyeigensolver">
 <span id="how-to-numpy"></span><h1>Find excited state energies using the NumPyEigensolver<a class="headerlink" href="#find-excited-state-energies-using-the-numpyeigensolver" title="Permalink to this heading">#</a></h1>
 <p>In order to ensure a physically meaningful excited states of a hamiltonian are found when using the
-<a class="reference external" href="https://qiskit.org/ecosystem/algorithms/stubs/qiskit_algorithms.NumPyEigensolver.html#qiskit_algorithms.NumPyEigensolver" title="(in Qiskit Algorithms v0.2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NumPyEigensolver</span></code></a> one needs to set the
-<a class="reference external" href="https://qiskit.org/ecosystem/algorithms/stubs/qiskit_algorithms.NumPyEigensolver.html#qiskit_algorithms.NumPyEigensolver.filter_criterion" title="(in Qiskit Algorithms v0.2.1)"><code class="xref py py-attr docutils literal notranslate"><span class="pre">filter_criterion</span></code></a> attribute
+<a class="reference external" href="https://qiskit-community.github.io/qiskit-algorithms/stubs/qiskit_algorithms.NumPyEigensolver.html#qiskit_algorithms.NumPyEigensolver" title="(in Qiskit Algorithms v0.2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NumPyEigensolver</span></code></a> one needs to set the
+<a class="reference external" href="https://qiskit-community.github.io/qiskit-algorithms/stubs/qiskit_algorithms.NumPyEigensolver.html#qiskit_algorithms.NumPyEigensolver.filter_criterion" title="(in Qiskit Algorithms v0.2.2)"><code class="xref py py-attr docutils literal notranslate"><span class="pre">filter_criterion</span></code></a> attribute
 of the solver.</p>
 <p>Subclasses of <a class="reference internal" href="../stubs/qiskit_nature.second_q.problems.BaseProblem.html#qiskit_nature.second_q.problems.BaseProblem" title="qiskit_nature.second_q.problems.BaseProblem"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseProblem</span></code></a> in Qiskit Nature provide the
 <a class="reference internal" href="../stubs/qiskit_nature.second_q.problems.BaseProblem.html#qiskit_nature.second_q.problems.BaseProblem.get_default_filter_criterion" title="qiskit_nature.second_q.problems.BaseProblem.get_default_filter_criterion"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_default_filter_criterion()</span></code></a> method which
@@ -613,7 +613,7 @@ which we want to solve:</p></li>
 </pre></div>
 </div>
 <ol class="arabic simple" start="3">
-<li><p>We setup our <a class="reference external" href="https://qiskit.org/ecosystem/algorithms/stubs/qiskit_algorithms.NumPyEigensolver.html#qiskit_algorithms.NumPyEigensolver" title="(in Qiskit Algorithms v0.2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NumPyEigensolver</span></code></a>:</p></li>
+<li><p>We setup our <a class="reference external" href="https://qiskit-community.github.io/qiskit-algorithms/stubs/qiskit_algorithms.NumPyEigensolver.html#qiskit_algorithms.NumPyEigensolver" title="(in Qiskit Algorithms v0.2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NumPyEigensolver</span></code></a>:</p></li>
 </ol>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_algorithms</span> <span class="kn">import</span> <span class="n">NumPyEigensolver</span>
 <span class="n">algo</span> <span class="o">=</span> <span class="n">NumPyEigensolver</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>

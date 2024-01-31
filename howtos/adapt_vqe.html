@@ -588,7 +588,7 @@
         <article role="main">
           <br><br><br><section id="find-ground-state-energy-using-adaptvqe">
 <h1>Find ground state energy using AdaptVQE<a class="headerlink" href="#find-ground-state-energy-using-adaptvqe" title="Permalink to this heading">#</a></h1>
-<p>This guide outlines how the <a class="reference external" href="https://qiskit.org/ecosystem/algorithms/stubs/qiskit_algorithms.AdaptVQE.html#qiskit_algorithms.AdaptVQE" title="(in Qiskit Algorithms v0.2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdaptVQE</span></code></a> algorithm can
+<p>This guide outlines how the <a class="reference external" href="https://qiskit-community.github.io/qiskit-algorithms/stubs/qiskit_algorithms.AdaptVQE.html#qiskit_algorithms.AdaptVQE" title="(in Qiskit Algorithms v0.2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdaptVQE</span></code></a> algorithm can
 be used to find the ground state solutions of natural science problems.</p>
 <ol class="arabic simple">
 <li><p>We obtain an <a class="reference internal" href="../stubs/qiskit_nature.second_q.problems.ElectronicStructureProblem.html#qiskit_nature.second_q.problems.ElectronicStructureProblem" title="qiskit_nature.second_q.problems.ElectronicStructureProblem"><code class="xref py py-class docutils literal notranslate"><span class="pre">ElectronicStructureProblem</span></code></a>
@@ -623,7 +623,7 @@ which we want to solve:</p></li>
 </pre></div>
 </div>
 <ol class="arabic simple" start="4">
-<li><p>We setup a <a class="reference external" href="https://qiskit.org/ecosystem/algorithms/stubs/qiskit_algorithms.VQE.html#qiskit_algorithms.VQE" title="(in Qiskit Algorithms v0.2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">VQE</span></code></a>:</p></li>
+<li><p>We setup a <a class="reference external" href="https://qiskit-community.github.io/qiskit-algorithms/stubs/qiskit_algorithms.VQE.html#qiskit_algorithms.VQE" title="(in Qiskit Algorithms v0.2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">VQE</span></code></a>:</p></li>
 </ol>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">qiskit_algorithms</span> <span class="kn">import</span> <span class="n">VQE</span>
@@ -634,7 +634,7 @@ which we want to solve:</p></li>
 </pre></div>
 </div>
 <ol class="arabic simple" start="5">
-<li><p>We setup the <a class="reference external" href="https://qiskit.org/ecosystem/algorithms/stubs/qiskit_algorithms.AdaptVQE.html#qiskit_algorithms.AdaptVQE" title="(in Qiskit Algorithms v0.2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdaptVQE</span></code></a>:</p></li>
+<li><p>We setup the <a class="reference external" href="https://qiskit-community.github.io/qiskit-algorithms/stubs/qiskit_algorithms.AdaptVQE.html#qiskit_algorithms.AdaptVQE" title="(in Qiskit Algorithms v0.2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdaptVQE</span></code></a>:</p></li>
 </ol>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_algorithms</span> <span class="kn">import</span> <span class="n">AdaptVQE</span>
 <span class="n">adapt_vqe</span> <span class="o">=</span> <span class="n">AdaptVQE</span><span class="p">(</span><span class="n">vqe</span><span class="p">)</span>

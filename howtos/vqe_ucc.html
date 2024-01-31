@@ -589,8 +589,8 @@
           <br><br><br><section id="use-a-ucc-like-ansatz-with-a-vqe">
 <span id="how-to-vqe-ucc"></span><h1>Use a UCC-like ansatz with a VQE<a class="headerlink" href="#use-a-ucc-like-ansatz-with-a-vqe" title="Permalink to this heading">#</a></h1>
 <p>When using a <a class="reference internal" href="../stubs/qiskit_nature.second_q.circuit.library.UCC.html#qiskit_nature.second_q.circuit.library.UCC" title="qiskit_nature.second_q.circuit.library.UCC"><code class="xref py py-class docutils literal notranslate"><span class="pre">UCC</span></code></a>-style ansatz with a
-<a class="reference external" href="https://qiskit.org/ecosystem/algorithms/stubs/qiskit_algorithms.VQE.html#qiskit_algorithms.VQE" title="(in Qiskit Algorithms v0.2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">VQE</span></code></a> one needs to pay particular attention to the
-<a class="reference external" href="https://qiskit.org/ecosystem/algorithms/stubs/qiskit_algorithms.VQE.html#qiskit_algorithms.VQE.initial_point" title="(in Qiskit Algorithms v0.2.1)"><code class="xref py py-attr docutils literal notranslate"><span class="pre">initial_point</span></code></a> attribute which indicates from
+<a class="reference external" href="https://qiskit-community.github.io/qiskit-algorithms/stubs/qiskit_algorithms.VQE.html#qiskit_algorithms.VQE" title="(in Qiskit Algorithms v0.2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">VQE</span></code></a> one needs to pay particular attention to the
+<a class="reference external" href="https://qiskit-community.github.io/qiskit-algorithms/stubs/qiskit_algorithms.VQE.html#qiskit_algorithms.VQE.initial_point" title="(in Qiskit Algorithms v0.2.2)"><code class="xref py py-attr docutils literal notranslate"><span class="pre">initial_point</span></code></a> attribute which indicates from
 which set of initial parameters the optimization routine should start.
 By default, VQE will start from a <em>random</em> initial point. In this how to we show how one
 can set a custom initial point instead (for example to guarantee that one starts from the
@@ -628,7 +628,7 @@ which we want to solve:</p></li>
 </pre></div>
 </div>
 <ol class="arabic simple" start="4">
-<li><p>We setup a <a class="reference external" href="https://qiskit.org/ecosystem/algorithms/stubs/qiskit_algorithms.VQE.html#qiskit_algorithms.VQE" title="(in Qiskit Algorithms v0.2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">VQE</span></code></a>:</p></li>
+<li><p>We setup a <a class="reference external" href="https://qiskit-community.github.io/qiskit-algorithms/stubs/qiskit_algorithms.VQE.html#qiskit_algorithms.VQE" title="(in Qiskit Algorithms v0.2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">VQE</span></code></a>:</p></li>
 </ol>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">qiskit_algorithms</span> <span class="kn">import</span> <span class="n">VQE</span>

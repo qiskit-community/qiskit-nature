@@ -683,7 +683,7 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;qiskit_nature.second_q.problems.electronic_structure_problem.ElectronicStructureProblem object at 0x7f6ed8892610&gt;
+&lt;qiskit_nature.second_q.problems.electronic_structure_problem.ElectronicStructureProblem object at 0x7faf2ebda580&gt;
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -746,7 +746,11 @@ array([6.75710155e-01, 1.38777878e-16, 1.80931200e-01, 6.64581730e-01,
 <div class="highlight"><pre>
 Fermionic Operator
 number spin orbitals=4, number terms=36
-  0.33785507740175813 * ( +_0 +_0 -_0 -_0 )
+  -1.25633907300325 * ( +_0 -_0 )
++ -0.47189600728114184 * ( +_1 -_1 )
++ -1.25633907300325 * ( +_2 -_2 )
++ -0.47189600728114184 * ( +_3 -_3 )
++ 0.33785507740175813 * ( +_0 +_0 -_0 -_0 )
 + 0.3322908651276482 * ( +_0 +_1 -_1 -_0 )
 + 0.33785507740175813 * ( +_0 +_2 -_2 -_0 )
 + 0.3322908651276482 * ( +_0 +_3 -_3 -_0 )
@@ -778,10 +782,6 @@ number spin orbitals=4, number terms=36
 + 0.34928686136600884 * ( +_3 +_1 -_1 -_3 )
 + 0.3322908651276482 * ( +_3 +_2 -_2 -_3 )
 + 0.34928686136600884 * ( +_3 +_3 -_3 -_3 )
-+ -1.25633907300325 * ( +_0 -_0 )
-+ -0.47189600728114184 * ( +_1 -_1 )
-+ -1.25633907300325 * ( +_2 -_2 )
-+ -0.47189600728114184 * ( +_3 -_3 )
 </pre></div></div>
 </div>
 <p>Note, that this is purely the <strong>electronic</strong> Hamiltonian of the system. That means, that the <em>nuclear repulsion energy</em> is not included. Instead, Qiskit Nature will add this constant energy offset in a post-processing step, in order to compute the total energy of your system. To learn how to include the nuclear repulsion energy in this operator, please refer to the documentation of the <code class="docutils literal notranslate"><span class="pre">ElectronicEnergy</span></code> class
@@ -911,7 +911,7 @@ MoleculeInfo(symbols=[&#39;H&#39;, &#39;H&#39;], coords=[(0.0, 0.0, 0.0), (0.0, 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;qiskit_nature.second_q.problems.electronic_properties_container.ElectronicPropertiesContainer at 0x7f6ed88a8040&gt;
+&lt;qiskit_nature.second_q.problems.electronic_properties_container.ElectronicPropertiesContainer at 0x7faf2ebda250&gt;
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -928,7 +928,7 @@ MoleculeInfo(symbols=[&#39;H&#39;, &#39;H&#39;], coords=[(0.0, 0.0, 0.0), (0.0, 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;qiskit_nature.second_q.properties.particle_number.ParticleNumber at 0x7f6ed88a8190&gt;
+&lt;qiskit_nature.second_q.properties.particle_number.ParticleNumber at 0x7faf2ebda6d0&gt;
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -945,7 +945,7 @@ MoleculeInfo(symbols=[&#39;H&#39;, &#39;H&#39;], coords=[(0.0, 0.0, 0.0), (0.0, 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;qiskit_nature.second_q.properties.angular_momentum.AngularMomentum at 0x7f6ed8892b80&gt;
+&lt;qiskit_nature.second_q.properties.angular_momentum.AngularMomentum at 0x7faf2ebda220&gt;
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -962,7 +962,7 @@ MoleculeInfo(symbols=[&#39;H&#39;, &#39;H&#39;], coords=[(0.0, 0.0, 0.0), (0.0, 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;qiskit_nature.second_q.properties.magnetization.Magnetization at 0x7f6ed88927c0&gt;
+&lt;qiskit_nature.second_q.properties.magnetization.Magnetization at 0x7faf2ebda040&gt;
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -979,7 +979,7 @@ MoleculeInfo(symbols=[&#39;H&#39;, &#39;H&#39;], coords=[(0.0, 0.0, 0.0), (0.0, 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&lt;qiskit_nature.second_q.properties.dipole_moment.ElectronicDipoleMoment at 0x7f6ed88a81f0&gt;
+&lt;qiskit_nature.second_q.properties.dipole_moment.ElectronicDipoleMoment at 0x7faf2ebda9a0&gt;
 </pre></div></div>
 </div>
 <p>For more information about these properties, please refer to <a class="reference internal" href="09_properties.html"><span class="doc">their tutorial</span></a>.</p>
@@ -1056,7 +1056,7 @@ MoleculeInfo(symbols=[&#39;H&#39;, &#39;H&#39;], coords=[(0.0, 0.0, 0.0), (0.0, 
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<h3>Version Information</h3><table><tr><th>Software</th><th>Version</th></tr><tr><td><code>qiskit</code></td><td>0.45.2</td></tr><tr><td><code>qiskit_algorithms</code></td><td>0.2.2</td></tr><tr><td><code>qiskit_nature</code></td><td>0.7.1</td></tr><tr><th colspan='2'>System information</th></tr><tr><td>Python version</td><td>3.8.18</td></tr><tr><td>Python compiler</td><td>GCC 11.4.0</td></tr><tr><td>Python build</td><td>default, Aug 28 2023 08:27:22</td></tr><tr><td>OS</td><td>Linux</td></tr><tr><td>CPUs</td><td>2</td></tr><tr><td>Memory (Gb)</td><td>15.60690689086914</td></tr><tr><td colspan='2'>Thu Jan 25 16:58:52 2024 UTC</td></tr></table></div>
+<h3>Version Information</h3><table><tr><th>Software</th><th>Version</th></tr><tr><td><code>qiskit</code></td><td>0.45.2</td></tr><tr><td><code>qiskit_nature</code></td><td>0.7.1</td></tr><tr><td><code>qiskit_algorithms</code></td><td>0.2.2</td></tr><tr><th colspan='2'>System information</th></tr><tr><td>Python version</td><td>3.8.18</td></tr><tr><td>Python compiler</td><td>GCC 11.4.0</td></tr><tr><td>Python build</td><td>default, Aug 28 2023 08:27:22</td></tr><tr><td>OS</td><td>Linux</td></tr><tr><td>CPUs</td><td>2</td></tr><tr><td>Memory (Gb)</td><td>15.60690689086914</td></tr><tr><td colspan='2'>Wed Jan 31 19:19:54 2024 UTC</td></tr></table></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
@@ -1065,7 +1065,7 @@ MoleculeInfo(symbols=[&#39;H&#39;, &#39;H&#39;], coords=[(0.0, 0.0, 0.0), (0.0, 
 <div style='width: 100%; background-color:#d5d9e0;padding-left: 10px; padding-bottom: 10px; padding-right: 10px; padding-top: 5px'><h3>This code is a part of Qiskit</h3><p>&copy; Copyright IBM 2017, 2024.</p><p>This code is licensed under the Apache License, Version 2.0. You may<br>obtain a copy of this license in the LICENSE.txt file in the root directory<br> of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.<p>Any modifications or derivative works of this code must retain this<br>copyright notice, and modified files need to carry a notice indicating<br>that they have been altered from the originals.</p></div></div>
 </div>
 <script type="application/vnd.jupyter.widget-state+json">
-{"state": {"645eb75410ac4f8c93399ab6359aee47": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": "0px 0px 10px 0px", "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "3e1899a324f748228da500bc7c9df3ce": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "88075591b0604d3c9ac84b865fc8be6f": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_645eb75410ac4f8c93399ab6359aee47", "placeholder": "\u200b", "style": "IPY_MODEL_3e1899a324f748228da500bc7c9df3ce", "tabbable": null, "tooltip": null, "value": "<p style='font-family: IBM Plex Sans, Arial, Helvetica, sans-serif; font-size: 20px; font-weight: medium;'>Circuit Properties</p>"}}}, "version_major": 2, "version_minor": 0}
+{"state": {"b0645b36448f4f5c8a73a2e19380cec0": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": "0px 0px 10px 0px", "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "aeda76856eae474aa4ae6399a51d3062": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "9fcf757d14e1444d84c918199c525484": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_b0645b36448f4f5c8a73a2e19380cec0", "placeholder": "\u200b", "style": "IPY_MODEL_aeda76856eae474aa4ae6399a51d3062", "tabbable": null, "tooltip": null, "value": "<p style='font-family: IBM Plex Sans, Arial, Helvetica, sans-serif; font-size: 20px; font-weight: medium;'>Circuit Properties</p>"}}}, "version_major": 2, "version_minor": 0}
 </script></section>
 </section>
 

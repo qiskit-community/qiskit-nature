@@ -595,7 +595,7 @@
 <h1>Ground state solvers<a class="headerlink" href="#Ground-state-solvers" title="Permalink to this heading">#</a></h1>
 <section id="Introduction">
 <h2>Introduction<a class="headerlink" href="#Introduction" title="Permalink to this heading">#</a></h2>
-<p><img alt="a570f0162f3f4acca07e86fc74128080" class="no-scaled-link" src="../_images/H2_gs.png" style="width: 200px;" /></p>
+<p><img alt="50263c3eb79f4570a43ba32de0037de0" class="no-scaled-link" src="../_images/H2_gs.png" style="width: 200px;" /></p>
 <p>In this tutorial we are going to discuss the ground state calculation interface of Qiskit Nature. The goal is to compute the ground state of a molecular Hamiltonian. This Hamiltonian can for example be electronic or vibrational. To know more about the preparation of the Hamiltonian, check out the <a class="reference internal" href="01_electronic_structure.html"><span class="doc">Electronic structure</span></a> and <a class="reference internal" href="02_vibrational_structure.html"><span class="doc">Vibrational structure tutorials</span></a>.</p>
 <blockquote>
 <div><p>It should be said, that in the electronic case, we are actually computing purely the <strong>electronic</strong> part. When using the Qiskit Nature stack as presented in this tutorial, the <em>nuclear repulsion energy</em> will be added automatically, to obtain the <strong>total</strong> ground state energy.</p>
@@ -656,7 +656,7 @@
 </div>
 </div>
 <p>To find the ground state we could also use the Variational Quantum Eigensolver (VQE) algorithm. The VQE algorithm works by exchanging information between a classical and a quantum computer as depicted in the following figure.</p>
-<p><img alt="28464d848af845b78a52c29b117e9535" class="no-scaled-link" src="../_images/vqe.png" style="width: 600px;" /></p>
+<p><img alt="37dcd5b43fd84b34beff1c61e0a26844" class="no-scaled-link" src="../_images/vqe.png" style="width: 600px;" /></p>
 <p>Let’s initialize a VQE solver.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
@@ -688,7 +688,7 @@
 <li><p>An Estimator primitive: these were released as part of Qiskit Terra 0.22. To learn more about primitives, check out <a class="reference external" href="https://qiskit.org/documentation/apidoc/primitives.html">this resource</a>.</p></li>
 <li><p>A variational form: here we use the Unitary Coupled Cluster (UCC) ansatz (see for instance [Physical Review A 98.2 (2018): 022322]). Since it is a chemistry standard, a factory is already available allowing a fast initialization of a VQE with UCC. The default is to use all single and double excitations. However, the excitation type (S, D, SD) as well as other parameters can be selected. We also prepend the <code class="docutils literal notranslate"><span class="pre">UCCSD</span></code> variational form with a <code class="docutils literal notranslate"><span class="pre">HartreeFock</span></code> initial state, which initializes the
 occupation of our qubits according to the problem which we are trying solve.</p></li>
-<li><p>An optimizer: this is the classical piece of code in charge of optimizing the parameters in our variational form. See <a class="reference external" href="https://qiskit.org/ecosystem/algorithms/apidocs/qiskit_algorithms.optimizers.html">the corresponding documentation</a> for more information.</p></li>
+<li><p>An optimizer: this is the classical piece of code in charge of optimizing the parameters in our variational form. See <a class="reference external" href="https://qiskit-community.github.io/qiskit-algorithms/apidocs/qiskit_algorithms.optimizers.html">the corresponding documentation</a> for more information.</p></li>
 </ol>
 <p>One could also use any available ansatz / initial state or even define one’s own. For instance,</p>
 <div class="nbinput nblast docutils container">
@@ -741,10 +741,10 @@ occupation of our qubits according to the problem which we are trying solve.</p>
 <div class="highlight"><pre>
 === GROUND STATE ENERGY ===
 
-* Electronic ground state energy (Hartree): -1.857275030145
-  - computed part:      -1.857275030145
+* Electronic ground state energy (Hartree): -1.857275030146
+  - computed part:      -1.857275030146
 ~ Nuclear repulsion energy (Hartree): 0.719968994449
-&gt; Total ground state energy (Hartree): -1.137306035696
+&gt; Total ground state energy (Hartree): -1.137306035697
 
 === MEASURED OBSERVABLES ===
 
@@ -755,10 +755,10 @@ occupation of our qubits according to the problem which we are trying solve.</p>
 ~ Nuclear dipole moment (a.u.): [0.0  0.0  1.3889487]
 
   0:
-  * Electronic dipole moment (a.u.): [0.0  0.0  1.388948930893]
-    - computed part:      [0.0  0.0  1.388948930893]
-  &gt; Dipole moment (a.u.): [0.0  0.0  -0.000000230893]  Total: 0.000000230893
-                 (debye): [0.0  0.0  -0.000000586872]  Total: 0.000000586872
+  * Electronic dipole moment (a.u.): [0.0  0.0  1.38894868734]
+    - computed part:      [0.0  0.0  1.38894868734]
+  &gt; Dipole moment (a.u.): [0.0  0.0  0.00000001266]  Total: 0.00000001266
+                 (debye): [0.0  0.0  0.000000032179]  Total: 0.000000032179
 
 </pre></div></div>
 </div>
@@ -880,7 +880,7 @@ The number of occupied modals for each mode is:
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<h3>Version Information</h3><table><tr><th>Software</th><th>Version</th></tr><tr><td><code>qiskit</code></td><td>0.45.2</td></tr><tr><td><code>qiskit_algorithms</code></td><td>0.2.2</td></tr><tr><td><code>qiskit_nature</code></td><td>0.7.1</td></tr><tr><th colspan='2'>System information</th></tr><tr><td>Python version</td><td>3.8.18</td></tr><tr><td>Python compiler</td><td>GCC 11.4.0</td></tr><tr><td>Python build</td><td>default, Aug 28 2023 08:27:22</td></tr><tr><td>OS</td><td>Linux</td></tr><tr><td>CPUs</td><td>2</td></tr><tr><td>Memory (Gb)</td><td>15.60690689086914</td></tr><tr><td colspan='2'>Thu Jan 25 16:59:03 2024 UTC</td></tr></table></div>
+<h3>Version Information</h3><table><tr><th>Software</th><th>Version</th></tr><tr><td><code>qiskit</code></td><td>0.45.2</td></tr><tr><td><code>qiskit_algorithms</code></td><td>0.2.2</td></tr><tr><td><code>qiskit_nature</code></td><td>0.7.1</td></tr><tr><th colspan='2'>System information</th></tr><tr><td>Python version</td><td>3.8.18</td></tr><tr><td>Python compiler</td><td>GCC 11.4.0</td></tr><tr><td>Python build</td><td>default, Aug 28 2023 08:27:22</td></tr><tr><td>OS</td><td>Linux</td></tr><tr><td>CPUs</td><td>2</td></tr><tr><td>Memory (Gb)</td><td>15.60690689086914</td></tr><tr><td colspan='2'>Wed Jan 31 19:20:04 2024 UTC</td></tr></table></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
@@ -889,7 +889,7 @@ The number of occupied modals for each mode is:
 <div style='width: 100%; background-color:#d5d9e0;padding-left: 10px; padding-bottom: 10px; padding-right: 10px; padding-top: 5px'><h3>This code is a part of Qiskit</h3><p>&copy; Copyright IBM 2017, 2024.</p><p>This code is licensed under the Apache License, Version 2.0. You may<br>obtain a copy of this license in the LICENSE.txt file in the root directory<br> of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.<p>Any modifications or derivative works of this code must retain this<br>copyright notice, and modified files need to carry a notice indicating<br>that they have been altered from the originals.</p></div></div>
 </div>
 <script type="application/vnd.jupyter.widget-state+json">
-{"state": {"a3c6690178d445468ef3c6f5d2b29f6e": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": "0px 0px 10px 0px", "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "a84782447772455b8890a726639c784a": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "4521089b2d064ffa9240a66d0bcffafd": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_a3c6690178d445468ef3c6f5d2b29f6e", "placeholder": "\u200b", "style": "IPY_MODEL_a84782447772455b8890a726639c784a", "tabbable": null, "tooltip": null, "value": "<p style='font-family: IBM Plex Sans, Arial, Helvetica, sans-serif; font-size: 20px; font-weight: medium;'>Circuit Properties</p>"}}}, "version_major": 2, "version_minor": 0}
+{"state": {"aeb3d31fb6074c0c8e192b5e2653c05c": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": "0px 0px 10px 0px", "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "0bc6378f0a8e4af8b213faa8786b166f": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "e3d6d4e9b4af4f4da2b3301c01d2532e": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_aeb3d31fb6074c0c8e192b5e2653c05c", "placeholder": "\u200b", "style": "IPY_MODEL_0bc6378f0a8e4af8b213faa8786b166f", "tabbable": null, "tooltip": null, "value": "<p style='font-family: IBM Plex Sans, Arial, Helvetica, sans-serif; font-size: 20px; font-weight: medium;'>Circuit Properties</p>"}}}, "version_major": 2, "version_minor": 0}
 </script></section>
 </section>
 
