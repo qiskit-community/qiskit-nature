@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2020, 2023.
+# (C) Copyright IBM 2020, 2024.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -17,7 +17,7 @@ import copy
 import io
 import unittest
 
-from test import QiskitNatureTestCase
+from test import QiskitNatureTestCase, slow_test
 
 import numpy as np
 
@@ -25,7 +25,6 @@ from qiskit_algorithms import NumPyMinimumEigensolver, VQE
 from qiskit_algorithms.optimizers import SLSQP, SPSA
 from qiskit_algorithms.utils import algorithm_globals
 from qiskit.primitives import Estimator
-from qiskit.test import slow_test
 
 import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.algorithms import GroundStateEigensolver

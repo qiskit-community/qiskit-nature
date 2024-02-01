@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2019, 2023.
+# (C) Copyright IBM 2019, 2024.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -14,9 +14,10 @@
 
 import unittest
 
+from test import slow_test
 from test.second_q.drivers.test_driver_methods_gsc import TestDriverMethods
+
 from qiskit.quantum_info import Statevector
-from qiskit.test import slow_test
 from qiskit_nature.second_q.circuit.library import HartreeFock
 from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.drivers import PySCFDriver, MethodType
