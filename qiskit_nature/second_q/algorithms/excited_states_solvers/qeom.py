@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2020, 2023.
+# (C) Copyright IBM 2020, 2024.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -28,8 +28,6 @@ from qiskit_algorithms import EigensolverResult, MinimumEigensolver
 from qiskit_algorithms.list_or_dict import ListOrDict as ListOrDictType
 from qiskit_algorithms.observables_evaluator import estimate_observables
 from qiskit.circuit import QuantumCircuit
-from qiskit.tools import parallel_map
-from qiskit.tools.events import TextProgressBar
 from qiskit.quantum_info import SparsePauliOp
 from qiskit.primitives import BaseEstimator
 
@@ -46,6 +44,7 @@ from qiskit_nature.second_q.problems import (
     EigenstateResult,
     ElectronicStructureResult,
 )
+from qiskit_nature.utils import _parallel_map
 
 from .qeom_electronic_ops_builder import build_electronic_ops
 from .qeom_vibrational_ops_builder import build_vibrational_ops
@@ -496,9 +495,8 @@ class QEOM(ExcitedStatesSolver):
 
         if logger.isEnabledFor(logging.INFO):
             logger.info("Building all commutators:")
-            TextProgressBar(sys.stderr)
 
-        results = parallel_map(
+        results = _parallel_map(
             self._build_commutator_routine,
             to_be_computed_list,
             task_args=(untap_operator,),

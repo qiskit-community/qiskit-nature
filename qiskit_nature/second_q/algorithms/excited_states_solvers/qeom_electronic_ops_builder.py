@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2023.
+# (C) Copyright IBM 2021, 2024.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -17,12 +17,12 @@ from __future__ import annotations
 from typing import Callable
 
 from qiskit.quantum_info import SparsePauliOp
-from qiskit.tools import parallel_map
 
 from qiskit_nature import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import UCC
 from qiskit_nature.second_q.operators import FermionicOp
 from qiskit_nature.second_q.mappers import QubitMapper, TaperedQubitMapper
+from qiskit_nature.utils import _parallel_map
 
 
 def build_electronic_ops(
@@ -81,7 +81,7 @@ def build_electronic_ops(
         excitation_indices[f"E_{idx}"] = excitations_list[idx]
         excitation_indices[f"Edag_{idx}"] = excitations_list[idx][::-1]
 
-    result = parallel_map(
+    result = _parallel_map(
         _build_single_hopping_operator,
         to_be_executed_list,
         task_args=(num_spatial_orbitals, qubit_mapper),
