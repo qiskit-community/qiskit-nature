@@ -18,7 +18,6 @@ from typing import Any, Callable, Sequence
 from enum import Enum
 import itertools
 import logging
-import sys
 
 
 import numpy as np
