@@ -10,11 +10,11 @@ problems. Nonetheless, the ``algorithms`` module and supporting modules
 did also receive significant updates. Most importantly all algorithms In
 Nature are now dependent on the new Qiskit Terra algorithms, and these
 are now based on `Qiskit
-Primitives <https://qiskit.org/documentation/apidoc/primitives.html>`__
+Primitives <https://docs.quantum.ibm.com/run/primitives>`__
 and were added in Qiskit Terra 0.22. It is not the intention to provide
 detailed explanations of the primitives in this migration guide. We
 suggest that you read the `corresponding
-resources <https://qiskit.org/documentation/apidoc/primitives.html>`__
+resources <https://docs.quantum.ibm.com/api/qiskit/primitives>`__
 of the Qiskit Terra documentation instead.
 
 Further Resources
@@ -247,7 +247,7 @@ This module was moved to
 updating your imports, you need to pay attention to the following:
 
 -  the ``QEOM`` API now also requires an `Estimator
-   primitiver <https://qiskit.org/documentation/stubs/qiskit.primitives.BaseEstimator.html>`__
+   primitiver <https://docs.quantum.ibm.com/api/qiskit/qiskit.primitives.BaseEstimator>`__
    to be provided
 
 Previously
