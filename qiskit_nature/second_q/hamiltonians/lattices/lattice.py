@@ -41,7 +41,7 @@ if _optionals.HAS_MATPLOTLIB:
 class LatticeDrawStyle:
     """A stylesheet for lattice figure.
     Please see
-    https://qiskit.org/documentation/rustworkx/stubs/rustworkx.visualization.mpl_draw.html#rustworkx.visualization.mpl_draw
+    https://www.rustworkx.org/apiref/rustworkx.visualization.mpl_draw.html
     for each element.
     """
 
@@ -314,7 +314,7 @@ class Lattice:
             self_loop : Draw self-loops in the lattice. Defaults to False.
             style : Styles for rustworkx.visualization.mpl_draw.
                 Please see
-                https://qiskit.org/documentation/rustworkx/stubs/rustworkx.visualization.mpl_draw.html#rustworkx.visualization.mpl_draw
+                https://www.rustworkx.org/apiref/rustworkx.visualization.mpl_draw.html
                 for details.
         """
 
