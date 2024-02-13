@@ -7,7 +7,7 @@ deprecations:
     The following table provides a rough overview of the old and new package locations.
     In certain cases, single classes might have been treated differently.
     Be sure to check out the referenced issues or the
-    `migration guide <https://qiskit.org/documentation/nature/migration/index.html>`_
+    `migration guide <https://qiskit-community.github.io/qiskit-nature/migration/index.html>`_
     for more details.
 
     +---------------------------------------+-----------------------------------------------------+
