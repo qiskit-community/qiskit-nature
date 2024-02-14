@@ -960,7 +960,7 @@ create the associate Tapered Qubit Mapper.</p>
 <ul class="simple">
 <li><p>Updates API for the method
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">symmetry_sector_locator()</span></code> to accept the new
-<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.Z2Symmetries" title="(in Qiskit v0.45)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Z2Symmetries</span></code></a> from <code class="docutils literal notranslate"><span class="pre">quantum_info</span></code>
+<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.quantum_info.Z2Symmetries" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Z2Symmetries</span></code></a> from <code class="docutils literal notranslate"><span class="pre">quantum_info</span></code>
 as well as the legacy <code class="xref py py-class docutils literal notranslate"><span class="pre">Z2Symmetries</span></code> from the <code class="docutils literal notranslate"><span class="pre">opflow</span></code> module.</p></li>
 </ul>
 <ul class="simple">
@@ -2315,7 +2315,7 @@ Now the constructor has the following positional argument:</p>
 <ul>
 <li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">VQEUCCFactory</span></code>
 had setter/getter properties that were repeated with respect to
-<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.algorithms.VQE" title="(in Qiskit v0.45)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.algorithms.VQE</span></code></a>.</p>
+<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.algorithms.VQE" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.algorithms.VQE</span></code></a>.</p>
 <p>In order to avoid duplicating all of these attributes, potentially leading to inconsistencies
 between the attributes of the different classes, these are now deprecated and require you to use
 the attributes from
@@ -2329,7 +2329,7 @@ Now the constructor only has the following positional arguments:</p>
 <li><p>initial_state</p></li>
 <li><p>ansatz</p></li>
 </ul>
-<p>Any extra keyword arguments are passed to a constructor of <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.algorithms.VQE" title="(in Qiskit v0.45)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.algorithms.VQE</span></code></a>
+<p>Any extra keyword arguments are passed to a constructor of <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.algorithms.VQE" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.algorithms.VQE</span></code></a>
 which will create a VQE that can be accessed via
 <code class="xref py py-attr docutils literal notranslate"><span class="pre">minimum_eigensolver</span></code>.</p>
 <p>The same changes have been done for <code class="xref py py-class docutils literal notranslate"><span class="pre">VQEUVCCFactory</span></code>
@@ -2649,9 +2649,9 @@ Related Github issues:
 <ul class="simple">
 <li><p>Introduce the <code class="xref py py-class docutils literal notranslate"><span class="pre">VQEProgram</span></code> to allow leveraging Qiskit
 Runtime to speed up the VQE algorithm. The <code class="xref py py-class docutils literal notranslate"><span class="pre">VQEProgram</span></code>
-implements the <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.algorithms.MinimumEigensolver" title="(in Qiskit v0.45)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MinimumEigensolver</span></code></a> interface and can thus
+implements the <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.algorithms.MinimumEigensolver" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">MinimumEigensolver</span></code></a> interface and can thus
 be used as a drop-in replacement for other minimum eigensolvers like
-<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.algorithms.VQE" title="(in Qiskit v0.45)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.algorithms.VQE</span></code></a>. See the tutorials under <cite>docs/tutorials</cite> for an
+<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.algorithms.VQE" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit.algorithms.VQE</span></code></a>. See the tutorials under <cite>docs/tutorials</cite> for an
 explicit example usage.</p></li>
 </ul>
 </section>
@@ -2678,7 +2678,7 @@ changed to use <code class="xref py py-class docutils literal notranslate"><span
 <span id="id29"></span><h3>Deprecation Notes<a class="headerlink" href="#release-notes-0-2-0-deprecation-notes" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">EvolvedOperatorAnsatz</span></code> is deprecated.
-Use <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.EvolvedOperatorAnsatz" title="(in Qiskit v0.45)"><code class="xref py py-class docutils literal notranslate"><span class="pre">EvolvedOperatorAnsatz</span></code></a> as a direct replacement instead.</p></li>
+Use <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.circuit.library.EvolvedOperatorAnsatz" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">EvolvedOperatorAnsatz</span></code></a> as a direct replacement instead.</p></li>
 </ul>
 <ul class="simple">
 <li><p>The property <cite>dagger</cite> in the second quantized operators is deprecated. Use <cite>adjoint()</cite> method
@@ -2717,7 +2717,7 @@ ill-formatted error messages.</p></li>
 </ul>
 <ul class="simple">
 <li><p>Fix <code class="xref py py-class docutils literal notranslate"><span class="pre">AdaptVQE</span></code> after the update of 
-<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.algorithms.VQE" title="(in Qiskit v0.45)"><code class="xref py py-class docutils literal notranslate"><span class="pre">VQE</span></code></a> which deleted the internal <code class="docutils literal notranslate"><span class="pre">_energy_evaluation</span></code>
+<a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.algorithms.VQE" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">VQE</span></code></a> which deleted the internal <code class="docutils literal notranslate"><span class="pre">_energy_evaluation</span></code>
 method that Adapt-VQE was relying on.</p></li>
 </ul>
 <ul class="simple">
@@ -2736,7 +2736,7 @@ operators at the final state, but the
 <cite>False</cite> instead of <cite>True</cite>.</p></li>
 </ul>
 <ul class="simple">
-<li><p>Allow Qiskit’s <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.algorithms.optimizers.Optimizer" title="(in Qiskit v0.45)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Optimizer</span></code></a> classes as input for
+<li><p>Allow Qiskit’s <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.algorithms.optimizers.Optimizer" title="(in Qiskit v0.46)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Optimizer</span></code></a> classes as input for
 the <code class="docutils literal notranslate"><span class="pre">optimizer</span></code> in the <code class="xref py py-class docutils literal notranslate"><span class="pre">VQEProgram</span></code> instead of only
 dictionaries.</p></li>
 </ul>

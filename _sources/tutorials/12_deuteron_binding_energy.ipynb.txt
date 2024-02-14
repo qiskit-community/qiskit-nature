@@ -109,7 +109,7 @@
     "\n",
     "$a_n \\ \\rightarrow \\ \\frac{1}{2}\\left[\\prod_{j=0}^{n-1}-Z_j\\right](X_n+iY_n).$\n",
     "\n",
-    "Fortunately, in Qiskit Nature we have tools to define fermionic operators and to convert this kind of operators into Pauli operators through the Jordan-Wigner transformation. Initially, we use a for loop to construct and store the labels and coefficients in a tuple, and after this, we add the tuple in a list. Each string label and coefficient define a kinetic element $\\langle m|T|n\\rangle$ and a potential element $\\langle m|V|n\\rangle$ of the Hamiltonian. At the end of the for loop, we have to pass the list with the tuples with labels and coefficients to `FermionicOp`, in order to create a Hamiltonian in terms of the creation and annihilation operators. We need to rewrite this Hamiltonian in terms of Pauli operators, to do this we use `JordanWignerMapper()`. In order to obtain more information about the Qiskit Nature tools, we recommend a reading of the Qiskit Nature documentation [[2]](https://qiskit.org/documentation/nature/)."
+    "Fortunately, in Qiskit Nature we have tools to define fermionic operators and to convert this kind of operators into Pauli operators through the Jordan-Wigner transformation. Initially, we use a for loop to construct and store the labels and coefficients in a tuple, and after this, we add the tuple in a list. Each string label and coefficient define a kinetic element $\\langle m|T|n\\rangle$ and a potential element $\\langle m|V|n\\rangle$ of the Hamiltonian. At the end of the for loop, we have to pass the list with the tuples with labels and coefficients to `FermionicOp`, in order to create a Hamiltonian in terms of the creation and annihilation operators. We need to rewrite this Hamiltonian in terms of Pauli operators, to do this we use `JordanWignerMapper()`. In order to obtain more information about the Qiskit Nature tools, we recommend a reading of the Qiskit Nature documentation [[2]](https://qiskit-community.github.io/qiskit-nature/)."
    ]
   },
   {
@@ -923,7 +923,7 @@
     "\n",
     "[1] Dumitrescu, Eugene F., et al. \"Cloud quantum computing of an atomic nucleus.\" Physical review letters 120.21 (2018): 210501. Arxiv version: https://arxiv.org/pdf/1801.03897.pdf\n",
     "\n",
-    "[2] Qiskit Nature Documentation. https://qiskit.org/documentation/nature/\n",
+    "[2] Qiskit Nature Documentation. https://qiskit-community.github.io/qiskit-nature/\n",
     "\n",
     "[3] Feynman, R. P., Robert B. Leighton, and Matthew Sands. \"The Feynman Lectures on Physics, Volume III: Quantum Mechanics, vol. 3.\" (2010). https://www.feynmanlectures.caltech.edu/III_toc.html\n",
     "\n",

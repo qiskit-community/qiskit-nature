@@ -588,7 +588,7 @@
           <h1>Source code for qiskit_nature.second_q.algorithms.excited_states_solvers.qeom</h1><div class="highlight"><pre>
 <span></span><span class="c1"># This code is part of a Qiskit project.</span>
 <span class="c1">#</span>
-<span class="c1"># (C) Copyright IBM 2020, 2023.</span>
+<span class="c1"># (C) Copyright IBM 2020, 2024.</span>
 <span class="c1">#</span>
 <span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
 <span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
@@ -606,7 +606,6 @@
 <span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">sys</span>
 
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -616,8 +615,6 @@
 <span class="kn">from</span> <span class="nn">qiskit_algorithms.list_or_dict</span> <span class="kn">import</span> <span class="n">ListOrDict</span> <span class="k">as</span> <span class="n">ListOrDictType</span>
 <span class="kn">from</span> <span class="nn">qiskit_algorithms.observables_evaluator</span> <span class="kn">import</span> <span class="n">estimate_observables</span>
 <span class="kn">from</span> <span class="nn">qiskit.circuit</span> <span class="kn">import</span> <span class="n">QuantumCircuit</span>
-<span class="kn">from</span> <span class="nn">qiskit.tools</span> <span class="kn">import</span> <span class="n">parallel_map</span>
-<span class="kn">from</span> <span class="nn">qiskit.tools.events</span> <span class="kn">import</span> <span class="n">TextProgressBar</span>
 <span class="kn">from</span> <span class="nn">qiskit.quantum_info</span> <span class="kn">import</span> <span class="n">SparsePauliOp</span>
 <span class="kn">from</span> <span class="nn">qiskit.primitives</span> <span class="kn">import</span> <span class="n">BaseEstimator</span>
 
@@ -634,6 +631,7 @@
     <span class="n">EigenstateResult</span><span class="p">,</span>
     <span class="n">ElectronicStructureResult</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">qiskit_nature.utils</span> <span class="kn">import</span> <span class="n">_parallel_map</span>
 
 <span class="kn">from</span> <span class="nn">.qeom_electronic_ops_builder</span> <span class="kn">import</span> <span class="n">build_electronic_ops</span>
 <span class="kn">from</span> <span class="nn">.qeom_vibrational_ops_builder</span> <span class="kn">import</span> <span class="n">build_vibrational_ops</span>
@@ -1084,9 +1082,8 @@
 
         <span class="k">if</span> <span class="n">logger</span><span class="o">.</span><span class="n">isEnabledFor</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">):</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Building all commutators:&quot;</span><span class="p">)</span>
-            <span class="n">TextProgressBar</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
 
-        <span class="n">results</span> <span class="o">=</span> <span class="n">parallel_map</span><span class="p">(</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">_parallel_map</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_build_commutator_routine</span><span class="p">,</span>
             <span class="n">to_be_computed_list</span><span class="p">,</span>
             <span class="n">task_args</span><span class="o">=</span><span class="p">(</span><span class="n">untap_operator</span><span class="p">,),</span>
