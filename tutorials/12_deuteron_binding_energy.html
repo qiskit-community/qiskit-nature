@@ -263,14 +263,11 @@
 <li class="toctree-l2"><a class="reference internal" href="04_excited_states_solvers.html">Excited states solvers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="05_problem_transformers.html">Transforming Problems</a></li>
 <li class="toctree-l2"><a class="reference internal" href="06_qubit_mappers.html">Mapping to the Qubit Space</a></li>
-<li class="toctree-l2"><a class="reference internal" href="07_leveraging_qiskit_runtime.html">Leveraging Qiskit Runtime</a></li>
 <li class="toctree-l2"><a class="reference internal" href="08_qcschema.html">QCSchema</a></li>
 <li class="toctree-l2"><a class="reference internal" href="09_properties.html">Properties - or - Operator Factories</a></li>
 <li class="toctree-l2"><a class="reference internal" href="10_lattice_models.html">Lattice models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="11_quadratic_hamiltonian_and_slater_determinants.html">Quadratic Hamiltonians and Slater determinants</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Binding Energy between proton and neutron in the Deuteron nucleus</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#Acknowledgment">Acknowledgment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#References">References</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../howtos/index.html">How-Tos</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of How-Tos</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -606,10 +603,10 @@
 <span class="kn">from</span> <span class="nn">qiskit_algorithms</span> <span class="kn">import</span> <span class="n">VQE</span>
 <span class="kn">from</span> <span class="nn">qiskit_algorithms.observables_evaluator</span> <span class="kn">import</span> <span class="n">estimate_observables</span>
 <span class="kn">from</span> <span class="nn">qiskit_algorithms.optimizers</span> <span class="kn">import</span> <span class="n">COBYLA</span><span class="p">,</span> <span class="n">SLSQP</span>
+<span class="kn">from</span> <span class="nn">qiskit_algorithms.utils</span> <span class="kn">import</span> <span class="n">algorithm_globals</span>
 <span class="kn">from</span> <span class="nn">qiskit.circuit</span> <span class="kn">import</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">Parameter</span>
 <span class="kn">from</span> <span class="nn">qiskit.circuit.library</span> <span class="kn">import</span> <span class="n">TwoLocal</span>
 <span class="kn">from</span> <span class="nn">qiskit.quantum_info</span> <span class="kn">import</span> <span class="n">Pauli</span><span class="p">,</span> <span class="n">SparsePauliOp</span>
-<span class="kn">from</span> <span class="nn">qiskit.utils</span> <span class="kn">import</span> <span class="n">algorithm_globals</span>
 <span class="kn">from</span> <span class="nn">qiskit_nature.second_q.operators</span> <span class="kn">import</span> <span class="n">FermionicOp</span>
 <span class="kn">from</span> <span class="nn">qiskit_nature.second_q.mappers</span> <span class="kn">import</span> <span class="n">JordanWignerMapper</span>
 </pre></div>
@@ -778,21 +775,12 @@ error correction implemented.</p>
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/qiskit/visualization/circuit/matplotlib.py:266: FutureWarning: The default matplotlib drawer scheme will be changed to &#34;iqp&#34; in a following release. To silence this warning, specify the current default explicitly as style=&#34;clifford&#34;, or the new default as style=&#34;iqp&#34;.
-  self._style, def_font_ratio = load_style(self._style)
-</pre></div></div>
-</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/tutorials_12_deuteron_binding_energy_21_1.png" src="../_images/tutorials_12_deuteron_binding_energy_21_1.png" />
+<img alt="../_images/tutorials_12_deuteron_binding_energy_21_0.png" src="../_images/tutorials_12_deuteron_binding_energy_21_0.png" />
 </div>
 </div>
 <div class="nbinput docutils container">
@@ -807,21 +795,12 @@ error correction implemented.</p>
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/qiskit/visualization/circuit/matplotlib.py:266: FutureWarning: The default matplotlib drawer scheme will be changed to &#34;iqp&#34; in a following release. To silence this warning, specify the current default explicitly as style=&#34;clifford&#34;, or the new default as style=&#34;iqp&#34;.
-  self._style, def_font_ratio = load_style(self._style)
-</pre></div></div>
-</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/tutorials_12_deuteron_binding_energy_22_1.png" src="../_images/tutorials_12_deuteron_binding_energy_22_1.png" />
+<img alt="../_images/tutorials_12_deuteron_binding_energy_22_0.png" src="../_images/tutorials_12_deuteron_binding_energy_22_0.png" />
 </div>
 </div>
 <div class="nbinput docutils container">
@@ -904,7 +883,7 @@ Exact binding energy for H_4: -2.143981030799862
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
+<div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
@@ -914,15 +893,6 @@ Results using Estimator for H_1, H_2 and H_3 with the ansatz given in the refere
 Binding energy for H_1: -0.4365811096105766 MeV
 Binding energy for H_2: -1.7491595316575452 MeV
 Binding energy for H_3: -2.045670898257444 MeV
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-/tmp/ipykernel_3805/323298525.py:6: DeprecationWarning: The property ``qiskit.utils.algorithm_globals.QiskitAlgorithmGlobals.random_seed`` is deprecated as of qiskit 0.45.0. It will be removed in the Qiskit 1.0 release. This algorithm utility has been migrated to an independent package: https://github.com/qiskit-community/qiskit-algorithms. You can run ``pip install qiskit_algorithms`` and import ``from qiskit_algorithms.utils`` instead.
-  algorithm_globals.random_seed = seed
 </pre></div></div>
 </div>
 <p>We can see that our results are in agreement with the reference values obtained by classical methods. We also tested some different options of optimizers provided in Qiskit, because we wanted to know which one behaves better. To do this, we make use of the <code class="docutils literal notranslate"><span class="pre">callback</span></code> option in <code class="docutils literal notranslate"><span class="pre">VQE</span></code> to allow us to store the list of counts and values. With this information it is possible to make a plot to see if the optimizer converges to the value of reference and, if it converges, how fast it does. However,
@@ -1048,15 +1018,6 @@ Binding energy for H_1: -0.4365806560191138 MeV
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-/tmp/ipykernel_3805/1909857965.py:3: DeprecationWarning: The property ``qiskit.utils.algorithm_globals.QiskitAlgorithmGlobals.random_seed`` is deprecated as of qiskit 0.45.0. It will be removed in the Qiskit 1.0 release. This algorithm utility has been migrated to an independent package: https://github.com/qiskit-community/qiskit-algorithms. You can run ``pip install qiskit_algorithms`` and import ``from qiskit_algorithms.utils`` instead.
-  algorithm_globals.random_seed = seed
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Binding energy for H_2: -1.7491598681936242 MeV
@@ -1166,7 +1127,7 @@ interval <span class="math notranslate nohighlight">\([-\pi,\pi]\)</span>.</p>
 <span class="sd">            to know the expectation values.</span>
 
 <span class="sd">            angles (list): A list with the values that will be used in the</span>
-<span class="sd">            &#39;bind_parameters&#39; method.</span>
+<span class="sd">            &#39;assign_parameters&#39; method.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            list_exp_values (list): A list containing the expectation values</span>
@@ -1176,7 +1137,7 @@ interval <span class="math notranslate nohighlight">\([-\pi,\pi]\)</span>.</p>
     <span class="k">for</span> <span class="n">observable</span> <span class="ow">in</span> <span class="n">observables</span><span class="p">:</span>
         <span class="n">exp_values</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">angle</span> <span class="ow">in</span> <span class="n">angles</span><span class="p">:</span>
-            <span class="n">qc</span> <span class="o">=</span> <span class="n">quantum_circuit</span><span class="o">.</span><span class="n">bind_parameters</span><span class="p">({</span><span class="n">theta</span><span class="p">:</span> <span class="n">angle</span><span class="p">})</span>
+            <span class="n">qc</span> <span class="o">=</span> <span class="n">quantum_circuit</span><span class="o">.</span><span class="n">assign_parameters</span><span class="p">({</span><span class="n">theta</span><span class="p">:</span> <span class="n">angle</span><span class="p">})</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">estimate_observables</span><span class="p">(</span>
                 <span class="n">Estimator</span><span class="p">(),</span>
                 <span class="n">quantum_state</span><span class="o">=</span><span class="n">qc</span><span class="p">,</span>
@@ -1191,7 +1152,7 @@ interval <span class="math notranslate nohighlight">\([-\pi,\pi]\)</span>.</p>
 </div>
 </div>
 <p>Calculating the expectation value of the observables of interest using the function defined above:</p>
-<div class="nbinput docutils container">
+<div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
@@ -1206,15 +1167,6 @@ interval <span class="math notranslate nohighlight">\([-\pi,\pi]\)</span>.</p>
 <span class="n">h2_observables_exp_values</span> <span class="o">=</span> <span class="n">calculate_observables_exp_values</span><span class="p">(</span><span class="n">wavefunction2</span><span class="p">,</span> <span class="n">observables</span><span class="p">,</span> <span class="n">angles</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-/tmp/ipykernel_3805/3240817257.py:25: DeprecationWarning: The method ``qiskit.circuit.quantumcircuit.QuantumCircuit.bind_parameters()`` is deprecated as of qiskit 0.45.0. It will be removed in the Qiskit 1.0.0 release. Use assign_parameters() instead
-  qc = quantum_circuit.bind_parameters({theta: angle})
-</pre></div></div>
 </div>
 <p>Using the function <code class="docutils literal notranslate"><span class="pre">calculate_observables_exp_values</span></code> (we defined it in the Step 2), we got the plots presented below. They showed us that we were able to reproduce the results of <a class="reference external" href="https://arxiv.org/pdf/1801.03897.pdf">[1]</a>.</p>
 <div class="nbinput docutils container">
@@ -1274,13 +1226,12 @@ interval <span class="math notranslate nohighlight">\([-\pi,\pi]\)</span>.</p>
 </div>
 </div>
 </section>
-</section>
 <section id="Acknowledgment">
-<h1>Acknowledgment<a class="headerlink" href="#Acknowledgment" title="Permalink to this heading">#</a></h1>
+<h2>Acknowledgment<a class="headerlink" href="#Acknowledgment" title="Permalink to this heading">#</a></h2>
 <p>I would like to thank Steve Wood, Soham Pal and Siddhartha Morales for the debates in our meetings during the Qiskit Advocate Mentorship Program 2021 - Fall, they were very important for the construction of this tutorial.</p>
 </section>
 <section id="References">
-<h1>References<a class="headerlink" href="#References" title="Permalink to this heading">#</a></h1>
+<h2>References<a class="headerlink" href="#References" title="Permalink to this heading">#</a></h2>
 <p>[1] Dumitrescu, Eugene F., et al. “Cloud quantum computing of an atomic nucleus.” Physical review letters 120.21 (2018): 210501. Arxiv version: <a class="reference external" href="https://arxiv.org/pdf/1801.03897.pdf">https://arxiv.org/pdf/1801.03897.pdf</a></p>
 <p>[2] Qiskit Nature Documentation. <a class="reference external" href="https://qiskit-community.github.io/qiskit-nature/">https://qiskit-community.github.io/qiskit-nature/</a></p>
 <p>[3] Feynman, R. P., Robert B. Leighton, and Matthew Sands. “The Feynman Lectures on Physics, Volume III: Quantum Mechanics, vol. 3.” (2010). <a class="reference external" href="https://www.feynmanlectures.caltech.edu/III_toc.html">https://www.feynmanlectures.caltech.edu/III_toc.html</a></p>
@@ -1289,7 +1240,7 @@ interval <span class="math notranslate nohighlight">\([-\pi,\pi]\)</span>.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">qiskit.tools.jupyter</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tutorial_magics</span>
 
 <span class="o">%</span><span class="k">qiskit_version_table</span>
 <span class="o">%</span><span class="k">qiskit_copyright</span>
@@ -1299,27 +1250,17 @@ interval <span class="math notranslate nohighlight">\([-\pi,\pi]\)</span>.</p>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-/tmp/ipykernel_3805/1492642725.py:1: DeprecationWarning: qiskit.tools.jupyter is deprecated and will be removed in Qiskit 1.0.0
-  import qiskit.tools.jupyter
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
 <div class="output_area rendered_html docutils container">
-<h3>Version Information</h3><table><tr><th>Software</th><th>Version</th></tr><tr><td><code>qiskit</code></td><td>0.46.0</td></tr><tr><td><code>qiskit_algorithms</code></td><td>0.2.2</td></tr><tr><td><code>qiskit_nature</code></td><td>0.7.1</td></tr><tr><th colspan='2'>System information</th></tr><tr><td>Python version</td><td>3.8.18</td></tr><tr><td>Python compiler</td><td>GCC 11.4.0</td></tr><tr><td>Python build</td><td>default, Aug 28 2023 08:27:22</td></tr><tr><td>OS</td><td>Linux</td></tr><tr><td>CPUs</td><td>2</td></tr><tr><td>Memory (Gb)</td><td>15.60690689086914</td></tr><tr><td colspan='2'>Thu Feb 15 18:19:12 2024 UTC</td></tr></table></div>
+<h3>Version Information</h3><table><tr><th>Software</th><th>Version</th></tr><tr><td><code>qiskit</code></td><td>1.0.0</td></tr><tr><td><code>qiskit_algorithms</code></td><td>0.3.0</td></tr><tr><td><code>qiskit_nature</code></td><td>0.7.1</td></tr><tr><th colspan='2'>System information</th></tr><tr><td>Python version</td><td>3.8.18</td></tr><tr><td>OS</td><td>Linux</td></tr><tr><td colspan='2'>Mon Feb 19 17:00:51 2024 UTC</td></tr></table></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<div style='width: 100%; background-color:#d5d9e0;padding-left: 10px; padding-bottom: 10px; padding-right: 10px; padding-top: 5px'><h3>This code is a part of Qiskit</h3><p>&copy; Copyright IBM 2017, 2024.</p><p>This code is licensed under the Apache License, Version 2.0. You may<br>obtain a copy of this license in the LICENSE.txt file in the root directory<br> of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.<p>Any modifications or derivative works of this code must retain this<br>copyright notice, and modified files need to carry a notice indicating<br>that they have been altered from the originals.</p></div></div>
+<div style='width: 100%; background-color:#d5d9e0;padding-left: 10px; padding-bottom: 10px; padding-right: 10px; padding-top: 5px'><h3>This code is a part of a Qiskit project</h3><p>&copy; Copyright IBM 2017, 2024.</p><p>This code is licensed under the Apache License, Version 2.0. You may<br>obtain a copy of this license in the LICENSE.txt file in the root directory<br> of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.<p>Any modifications or derivative works of this code must retain this<br>copyright notice, and modified files need to carry a notice indicating<br>that they have been altered from the originals.</p></div></div>
 </div>
-<script type="application/vnd.jupyter.widget-state+json">
-{"state": {"e4244bdb9c6649529dae3bc66a682cc5": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": "0px 0px 10px 0px", "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "2b4211b9896242069c41770420ca8a09": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "c6d4b63427e74ef79ba520d0f4610f48": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_e4244bdb9c6649529dae3bc66a682cc5", "placeholder": "\u200b", "style": "IPY_MODEL_2b4211b9896242069c41770420ca8a09", "tabbable": null, "tooltip": null, "value": "<p style='font-family: IBM Plex Sans, Arial, Helvetica, sans-serif; font-size: 20px; font-weight: medium;'>Circuit Properties</p>"}}}, "version_major": 2, "version_minor": 0}
-</script></section>
+</section>
+</section>
 
         </article>
       </div>
@@ -1393,10 +1334,10 @@ interval <span class="math notranslate nohighlight">\([-\pi,\pi]\)</span>.</p>
 <li><a class="reference internal" href="#Step-2:-Defining-some-functions-that-we-will-use">Step 2: Defining some functions that we will use</a></li>
 <li><a class="reference internal" href="#Step-3:-Using-Qiskit-tools-to-calculate-the-binding-energy-between-proton-and-neutron-in-Deuteron-nucleus">Step 3: Using Qiskit tools to calculate the binding energy between proton and neutron in Deuteron nucleus</a></li>
 <li><a class="reference internal" href="#Step-4:-Calculating-the-observables-expectation-values">Step 4: Calculating the observables expectation values</a></li>
-</ul>
-</li>
 <li><a class="reference internal" href="#Acknowledgment">Acknowledgment</a></li>
 <li><a class="reference internal" href="#References">References</a></li>
+</ul>
+</li>
 </ul>
 
           </div>

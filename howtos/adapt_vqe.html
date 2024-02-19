@@ -262,14 +262,11 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/04_excited_states_solvers.html">Excited states solvers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/05_problem_transformers.html">Transforming Problems</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/06_qubit_mappers.html">Mapping to the Qubit Space</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/07_leveraging_qiskit_runtime.html">Leveraging Qiskit Runtime</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/08_qcschema.html">QCSchema</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/09_properties.html">Properties - or - Operator Factories</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/10_lattice_models.html">Lattice models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/11_quadratic_hamiltonian_and_slater_determinants.html">Quadratic Hamiltonians and Slater determinants</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/12_deuteron_binding_energy.html">Binding Energy between proton and neutron in the Deuteron nucleus</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/12_deuteron_binding_energy.html#Acknowledgment">Acknowledgment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/12_deuteron_binding_energy.html#References">References</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">How-Tos</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of How-Tos</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -586,7 +583,7 @@
         <article role="main">
           <br><br><br><section id="find-ground-state-energy-using-adaptvqe">
 <h1>Find ground state energy using AdaptVQE<a class="headerlink" href="#find-ground-state-energy-using-adaptvqe" title="Permalink to this heading">#</a></h1>
-<p>This guide outlines how the <a class="reference external" href="https://qiskit-community.github.io/qiskit-algorithms/stubs/qiskit_algorithms.AdaptVQE.html#qiskit_algorithms.AdaptVQE" title="(in Qiskit Algorithms v0.2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdaptVQE</span></code></a> algorithm can
+<p>This guide outlines how the <a class="reference external" href="https://qiskit-community.github.io/qiskit-algorithms/stubs/qiskit_algorithms.AdaptVQE.html#qiskit_algorithms.AdaptVQE" title="(in Qiskit Algorithms v0.3.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdaptVQE</span></code></a> algorithm can
 be used to find the ground state solutions of natural science problems.</p>
 <ol class="arabic simple">
 <li><p>We obtain an <a class="reference internal" href="../stubs/qiskit_nature.second_q.problems.ElectronicStructureProblem.html#qiskit_nature.second_q.problems.ElectronicStructureProblem" title="qiskit_nature.second_q.problems.ElectronicStructureProblem"><code class="xref py py-class docutils literal notranslate"><span class="pre">ElectronicStructureProblem</span></code></a>
@@ -621,7 +618,7 @@ which we want to solve:</p></li>
 </pre></div>
 </div>
 <ol class="arabic simple" start="4">
-<li><p>We setup a <a class="reference external" href="https://qiskit-community.github.io/qiskit-algorithms/stubs/qiskit_algorithms.VQE.html#qiskit_algorithms.VQE" title="(in Qiskit Algorithms v0.2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">VQE</span></code></a>:</p></li>
+<li><p>We setup a <a class="reference external" href="https://qiskit-community.github.io/qiskit-algorithms/stubs/qiskit_algorithms.VQE.html#qiskit_algorithms.VQE" title="(in Qiskit Algorithms v0.3.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">VQE</span></code></a>:</p></li>
 </ol>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">qiskit_algorithms</span> <span class="kn">import</span> <span class="n">VQE</span>
@@ -632,7 +629,7 @@ which we want to solve:</p></li>
 </pre></div>
 </div>
 <ol class="arabic simple" start="5">
-<li><p>We setup the <a class="reference external" href="https://qiskit-community.github.io/qiskit-algorithms/stubs/qiskit_algorithms.AdaptVQE.html#qiskit_algorithms.AdaptVQE" title="(in Qiskit Algorithms v0.2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdaptVQE</span></code></a>:</p></li>
+<li><p>We setup the <a class="reference external" href="https://qiskit-community.github.io/qiskit-algorithms/stubs/qiskit_algorithms.AdaptVQE.html#qiskit_algorithms.AdaptVQE" title="(in Qiskit Algorithms v0.3.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdaptVQE</span></code></a>:</p></li>
 </ol>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_algorithms</span> <span class="kn">import</span> <span class="n">AdaptVQE</span>
 <span class="n">adapt_vqe</span> <span class="o">=</span> <span class="n">AdaptVQE</span><span class="p">(</span><span class="n">vqe</span><span class="p">)</span>

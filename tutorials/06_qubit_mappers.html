@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Leveraging Qiskit Runtime" href="07_leveraging_qiskit_runtime.html" /><link rel="prev" title="Transforming Problems" href="05_problem_transformers.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="QCSchema" href="08_qcschema.html" /><link rel="prev" title="Transforming Problems" href="05_problem_transformers.html" />
 
     <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
         <title>Mapping to the Qubit Space - Qiskit Nature 0.7.1</title>
@@ -263,14 +263,11 @@
 <li class="toctree-l2"><a class="reference internal" href="04_excited_states_solvers.html">Excited states solvers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="05_problem_transformers.html">Transforming Problems</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Mapping to the Qubit Space</a></li>
-<li class="toctree-l2"><a class="reference internal" href="07_leveraging_qiskit_runtime.html">Leveraging Qiskit Runtime</a></li>
 <li class="toctree-l2"><a class="reference internal" href="08_qcschema.html">QCSchema</a></li>
 <li class="toctree-l2"><a class="reference internal" href="09_properties.html">Properties - or - Operator Factories</a></li>
 <li class="toctree-l2"><a class="reference internal" href="10_lattice_models.html">Lattice models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="11_quadratic_hamiltonian_and_slater_determinants.html">Quadratic Hamiltonians and Slater determinants</a></li>
 <li class="toctree-l2"><a class="reference internal" href="12_deuteron_binding_energy.html">Binding Energy between proton and neutron in the Deuteron nucleus</a></li>
-<li class="toctree-l2"><a class="reference internal" href="12_deuteron_binding_energy.html#Acknowledgment">Acknowledgment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="12_deuteron_binding_energy.html#References">References</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../howtos/index.html">How-Tos</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of How-Tos</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -619,7 +616,7 @@
 <section id="The-Jordan-Wigner-Mapping">
 <h3>The Jordan-Wigner Mapping<a class="headerlink" href="#The-Jordan-Wigner-Mapping" title="Permalink to this heading">#</a></h3>
 <p>The Jordan-Wigner mapping is the most straight-forward mapping with the simplest physical interpretation, because it maps the occupation of one spin-orbital to the occupation of one qubit.</p>
-<p><img alt="2b059f03504f4202853857e074fc9dc7" class="no-scaled-link" src="../_images/jw_mapping.png" style="width: 500px;" /></p>
+<p><img alt="6a3d206a245f43be8c6fc6219b653b15" class="no-scaled-link" src="../_images/jw_mapping.png" style="width: 500px;" /></p>
 <p>You can construct use it like so:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
@@ -645,9 +642,9 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-SparsePauliOp([&#39;IIII&#39;, &#39;IIIZ&#39;, &#39;IIZI&#39;, &#39;IZII&#39;, &#39;ZIII&#39;, &#39;IIZZ&#39;, &#39;IZIZ&#39;, &#39;ZIIZ&#39;, &#39;YYYY&#39;, &#39;XXYY&#39;, &#39;YYXX&#39;, &#39;XXXX&#39;, &#39;IZZI&#39;, &#39;ZIZI&#39;, &#39;ZZII&#39;],
-              coeffs=[-0.81054798+0.j,  0.17218393+0.j, -0.22575349+0.j,  0.17218393+0.j,
- -0.22575349+0.j,  0.12091263+0.j,  0.16892754+0.j,  0.16614543+0.j,
+SparsePauliOp([&#39;IIII&#39;, &#39;IIIZ&#39;, &#39;IIZI&#39;, &#39;IIZZ&#39;, &#39;IZII&#39;, &#39;IZIZ&#39;, &#39;ZIII&#39;, &#39;ZIIZ&#39;, &#39;YYYY&#39;, &#39;XXYY&#39;, &#39;YYXX&#39;, &#39;XXXX&#39;, &#39;IZZI&#39;, &#39;ZIZI&#39;, &#39;ZZII&#39;],
+              coeffs=[-0.81054798+0.j,  0.17218393+0.j, -0.22575349+0.j,  0.12091263+0.j,
+  0.17218393+0.j,  0.16892754+0.j, -0.22575349+0.j,  0.16614543+0.j,
   0.0452328 +0.j,  0.0452328 +0.j,  0.0452328 +0.j,  0.0452328 +0.j,
   0.16614543+0.j,  0.17464343+0.j,  0.12091263+0.j])
 </pre></div></div>
@@ -680,9 +677,9 @@ SparsePauliOp([&#39;IIII&#39;, &#39;IIIZ&#39;, &#39;IIZI&#39;, &#39;IZII&#39;, &
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-SparsePauliOp([&#39;IIII&#39;, &#39;IIIZ&#39;, &#39;IIZZ&#39;, &#39;IZZI&#39;, &#39;ZZII&#39;, &#39;IIZI&#39;, &#39;IZZZ&#39;, &#39;ZZIZ&#39;, &#39;ZXIX&#39;, &#39;IXZX&#39;, &#39;ZXZX&#39;, &#39;IXIX&#39;, &#39;IZIZ&#39;, &#39;ZZZZ&#39;, &#39;ZIZI&#39;],
-              coeffs=[-0.81054798+0.j,  0.17218393+0.j, -0.22575349+0.j,  0.17218393+0.j,
- -0.22575349+0.j,  0.12091263+0.j,  0.16892754+0.j,  0.16614543+0.j,
+SparsePauliOp([&#39;IIII&#39;, &#39;IIIZ&#39;, &#39;IIZZ&#39;, &#39;IIZI&#39;, &#39;IZZI&#39;, &#39;IZZZ&#39;, &#39;ZZII&#39;, &#39;ZZIZ&#39;, &#39;ZXIX&#39;, &#39;IXZX&#39;, &#39;ZXZX&#39;, &#39;IXIX&#39;, &#39;IZIZ&#39;, &#39;ZZZZ&#39;, &#39;ZIZI&#39;],
+              coeffs=[-0.81054798+0.j,  0.17218393+0.j, -0.22575349+0.j,  0.12091263+0.j,
+  0.17218393+0.j,  0.16892754+0.j, -0.22575349+0.j,  0.16614543+0.j,
   0.0452328 +0.j, -0.0452328 +0.j, -0.0452328 +0.j,  0.0452328 +0.j,
   0.16614543+0.j,  0.17464343+0.j,  0.12091263+0.j])
 </pre></div></div>
@@ -837,7 +834,7 @@ q_3: ─────
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">qiskit.tools.jupyter</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tutorial_magics</span>
 
 <span class="o">%</span><span class="k">qiskit_version_table</span>
 <span class="o">%</span><span class="k">qiskit_copyright</span>
@@ -847,27 +844,16 @@ q_3: ─────
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-/tmp/ipykernel_2965/1492642725.py:1: DeprecationWarning: qiskit.tools.jupyter is deprecated and will be removed in Qiskit 1.0.0
-  import qiskit.tools.jupyter
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
 <div class="output_area rendered_html docutils container">
-<h3>Version Information</h3><table><tr><th>Software</th><th>Version</th></tr><tr><td><code>qiskit</code></td><td>0.46.0</td></tr><tr><td><code>qiskit_algorithms</code></td><td>0.2.2</td></tr><tr><td><code>qiskit_nature</code></td><td>0.7.1</td></tr><tr><th colspan='2'>System information</th></tr><tr><td>Python version</td><td>3.8.18</td></tr><tr><td>Python compiler</td><td>GCC 11.4.0</td></tr><tr><td>Python build</td><td>default, Aug 28 2023 08:27:22</td></tr><tr><td>OS</td><td>Linux</td></tr><tr><td>CPUs</td><td>2</td></tr><tr><td>Memory (Gb)</td><td>15.60690689086914</td></tr><tr><td colspan='2'>Thu Feb 15 18:17:27 2024 UTC</td></tr></table></div>
+<h3>Version Information</h3><table><tr><th>Software</th><th>Version</th></tr><tr><td><code>qiskit</code></td><td>1.0.0</td></tr><tr><td><code>qiskit_algorithms</code></td><td>0.3.0</td></tr><tr><td><code>qiskit_nature</code></td><td>0.7.1</td></tr><tr><th colspan='2'>System information</th></tr><tr><td>Python version</td><td>3.8.18</td></tr><tr><td>OS</td><td>Linux</td></tr><tr><td colspan='2'>Mon Feb 19 16:59:12 2024 UTC</td></tr></table></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<div style='width: 100%; background-color:#d5d9e0;padding-left: 10px; padding-bottom: 10px; padding-right: 10px; padding-top: 5px'><h3>This code is a part of Qiskit</h3><p>&copy; Copyright IBM 2017, 2024.</p><p>This code is licensed under the Apache License, Version 2.0. You may<br>obtain a copy of this license in the LICENSE.txt file in the root directory<br> of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.<p>Any modifications or derivative works of this code must retain this<br>copyright notice, and modified files need to carry a notice indicating<br>that they have been altered from the originals.</p></div></div>
+<div style='width: 100%; background-color:#d5d9e0;padding-left: 10px; padding-bottom: 10px; padding-right: 10px; padding-top: 5px'><h3>This code is a part of a Qiskit project</h3><p>&copy; Copyright IBM 2017, 2024.</p><p>This code is licensed under the Apache License, Version 2.0. You may<br>obtain a copy of this license in the LICENSE.txt file in the root directory<br> of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.<p>Any modifications or derivative works of this code must retain this<br>copyright notice, and modified files need to carry a notice indicating<br>that they have been altered from the originals.</p></div></div>
 </div>
-<script type="application/vnd.jupyter.widget-state+json">
-{"state": {"a166b96d52134e8da31f55f589826b66": {"model_name": "LayoutModel", "model_module": "@jupyter-widgets/base", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/base", "_model_module_version": "2.0.0", "_model_name": "LayoutModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "LayoutView", "align_content": null, "align_items": null, "align_self": null, "border_bottom": null, "border_left": null, "border_right": null, "border_top": null, "bottom": null, "display": null, "flex": null, "flex_flow": null, "grid_area": null, "grid_auto_columns": null, "grid_auto_flow": null, "grid_auto_rows": null, "grid_column": null, "grid_gap": null, "grid_row": null, "grid_template_areas": null, "grid_template_columns": null, "grid_template_rows": null, "height": null, "justify_content": null, "justify_items": null, "left": null, "margin": "0px 0px 10px 0px", "max_height": null, "max_width": null, "min_height": null, "min_width": null, "object_fit": null, "object_position": null, "order": null, "overflow": null, "padding": null, "right": null, "top": null, "visibility": null, "width": null}}, "653fb13207ce4e8b8a68bdbde61ca975": {"model_name": "HTMLStyleModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLStyleModel", "_view_count": null, "_view_module": "@jupyter-widgets/base", "_view_module_version": "2.0.0", "_view_name": "StyleView", "background": null, "description_width": "", "font_size": null, "text_color": null}}, "5a8d7986cbce4ec3b12a13c1cbaee4b6": {"model_name": "HTMLModel", "model_module": "@jupyter-widgets/controls", "model_module_version": "2.0.0", "state": {"_dom_classes": [], "_model_module": "@jupyter-widgets/controls", "_model_module_version": "2.0.0", "_model_name": "HTMLModel", "_view_count": null, "_view_module": "@jupyter-widgets/controls", "_view_module_version": "2.0.0", "_view_name": "HTMLView", "description": "", "description_allow_html": false, "layout": "IPY_MODEL_a166b96d52134e8da31f55f589826b66", "placeholder": "\u200b", "style": "IPY_MODEL_653fb13207ce4e8b8a68bdbde61ca975", "tabbable": null, "tooltip": null, "value": "<p style='font-family: IBM Plex Sans, Arial, Helvetica, sans-serif; font-size: 20px; font-weight: medium;'>Circuit Properties</p>"}}}, "version_major": 2, "version_minor": 0}
-</script></section>
+</section>
 </section>
 </section>
 
@@ -888,12 +874,12 @@ q_3: ─────
       <div id="qiskit-analytics-thank-you">Thank you!</div>
     </div>
 <div class="related-pages">
-          <a class="next-page" href="07_leveraging_qiskit_runtime.html">
+          <a class="next-page" href="08_qcschema.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Leveraging Qiskit Runtime</div>
+                <div class="title">QCSchema</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>

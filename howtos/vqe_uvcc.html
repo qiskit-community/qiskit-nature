@@ -262,14 +262,11 @@
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/04_excited_states_solvers.html">Excited states solvers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/05_problem_transformers.html">Transforming Problems</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/06_qubit_mappers.html">Mapping to the Qubit Space</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/07_leveraging_qiskit_runtime.html">Leveraging Qiskit Runtime</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/08_qcschema.html">QCSchema</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/09_properties.html">Properties - or - Operator Factories</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/10_lattice_models.html">Lattice models</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/11_quadratic_hamiltonian_and_slater_determinants.html">Quadratic Hamiltonians and Slater determinants</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tutorials/12_deuteron_binding_energy.html">Binding Energy between proton and neutron in the Deuteron nucleus</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/12_deuteron_binding_energy.html#Acknowledgment">Acknowledgment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tutorials/12_deuteron_binding_energy.html#References">References</a></li>
 </ul>
 </li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">How-Tos</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of How-Tos</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -587,8 +584,8 @@
           <br><br><br><section id="use-a-uvcc-like-ansatz-with-a-vqe">
 <span id="how-to-vqe-uvcc"></span><h1>Use a UVCC-like ansatz with a VQE<a class="headerlink" href="#use-a-uvcc-like-ansatz-with-a-vqe" title="Permalink to this heading">#</a></h1>
 <p>When using a <a class="reference internal" href="../stubs/qiskit_nature.second_q.circuit.library.UVCC.html#qiskit_nature.second_q.circuit.library.UVCC" title="qiskit_nature.second_q.circuit.library.UVCC"><code class="xref py py-class docutils literal notranslate"><span class="pre">UVCC</span></code></a>-style ansatz with a
-<a class="reference external" href="https://qiskit-community.github.io/qiskit-algorithms/stubs/qiskit_algorithms.VQE.html#qiskit_algorithms.VQE" title="(in Qiskit Algorithms v0.2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">VQE</span></code></a> one needs to pay particular attention to the
-<a class="reference external" href="https://qiskit-community.github.io/qiskit-algorithms/stubs/qiskit_algorithms.VQE.html#qiskit_algorithms.VQE.initial_point" title="(in Qiskit Algorithms v0.2.2)"><code class="xref py py-attr docutils literal notranslate"><span class="pre">initial_point</span></code></a> attribute which indicates from
+<a class="reference external" href="https://qiskit-community.github.io/qiskit-algorithms/stubs/qiskit_algorithms.VQE.html#qiskit_algorithms.VQE" title="(in Qiskit Algorithms v0.3.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">VQE</span></code></a> one needs to pay particular attention to the
+<a class="reference external" href="https://qiskit-community.github.io/qiskit-algorithms/stubs/qiskit_algorithms.VQE.html#qiskit_algorithms.VQE.initial_point" title="(in Qiskit Algorithms v0.3.0)"><code class="xref py py-attr docutils literal notranslate"><span class="pre">initial_point</span></code></a> attribute which indicates from
 which set of initial parameters the optimization routine should start.
 By default, VQE will start from a <em>random</em> initial point. In this how to we show how one
 can set a custom initial point instead (for example to guarantee that one starts from the
@@ -622,7 +619,7 @@ and <a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.
 </pre></div>
 </div>
 <ol class="arabic simple" start="3">
-<li><p>We setup a <a class="reference external" href="https://qiskit-community.github.io/qiskit-algorithms/stubs/qiskit_algorithms.VQE.html#qiskit_algorithms.VQE" title="(in Qiskit Algorithms v0.2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">VQE</span></code></a>:</p></li>
+<li><p>We setup a <a class="reference external" href="https://qiskit-community.github.io/qiskit-algorithms/stubs/qiskit_algorithms.VQE.html#qiskit_algorithms.VQE" title="(in Qiskit Algorithms v0.3.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">VQE</span></code></a>:</p></li>
 </ol>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">qiskit_algorithms</span> <span class="kn">import</span> <span class="n">VQE</span>
