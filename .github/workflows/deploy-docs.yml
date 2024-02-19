@@ -49,6 +49,8 @@ jobs:
           QISKIT_DOCS_BUILD_TUTORIALS: 'always'
         run: |
           echo "earliest_version: 0.1.0" >> releasenotes/config.yaml
+          # disable a PySCF UserWarning w.r.t. a change in the B3LYP DFT functional
+          echo "B3LYP_WITH_VWN5 = True" >> ~/.pyscf_conf.py
           tools/ignore_untagged_notes.sh
           make html
         shell: bash
