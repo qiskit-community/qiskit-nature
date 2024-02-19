@@ -176,7 +176,10 @@ jobs:
           fi
           source "$CONDA/etc/profile.d/conda.sh"
           if [ "${{ matrix.python-version }}" >= "3.11" ]; then
-            conda create -y -n psi4env python=${{ matrix.python-version }} -c conda-forge
+            if [ "${{ matrix.python-version }}" == "3.11" ]; then
+              conda create -y -n psi4env python=${{ matrix.python-version }} -c conda-forge
+            else
+              conda create -y -n psi4env python=3.12 -c conda-forge
           else
             conda create -y -n psi4env python=${{ matrix.python-version }}
           fi
