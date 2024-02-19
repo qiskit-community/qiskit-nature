@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Added support for using Qiskit Nature with Python 3.12.
