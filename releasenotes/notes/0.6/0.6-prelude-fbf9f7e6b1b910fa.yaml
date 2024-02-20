@@ -27,9 +27,9 @@ prelude: >
       result = solver.solve(problem)
 
     Check out the `migration guide for the QubitConverter
-    <https://qiskit.org/documentation/nature/migration/0.6_c_qubit_converter.rst>`_
+    <https://qiskit-community.github.io/qiskit-nature/migration/0.6_c_qubit_converter.html>`_
     for more details.
 
     Besides this major refactoring, a few other changes have been done, so be sure
     to check out the `migration guide from 0.5 to 0.6
-    <https://qiskit.org/documentation/nature/migration/index.html#migrating-from-0-5-to-0-6>`_.
+    <https://qiskit-community.github.io/qiskit-nature/migration/index.html#migrating-from-0-5-to-0-6>`_.
