@@ -13,7 +13,7 @@ prelude: >
     #. Otherwise, you need to migrate your code immediately. If you cannot do that, or want to continue using some
        of the features that were removed, you should pin your version of Qiskit Nature to 0.6
 
-  You can check out the `migration guides <https://qiskit.org/ecosystem/nature/migration/index.html>`_
+  You can check out the `migration guides <https://qiskit-community.github.io/qiskit-nature/migration/index.html>`_
   for details on how to update your code.
 
   For more context on the changes around Qiskit Nature and the other application projects as well as the algorithms

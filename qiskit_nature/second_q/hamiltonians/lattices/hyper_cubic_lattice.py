@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2023.
+# (C) Copyright IBM 2021, 2024.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -315,7 +315,7 @@ class HyperCubicLattice(Lattice):
             self_loop: Draw self-loops in the lattice. Defaults to False.
             style : Styles for rustworkx.visualization.mpl_draw.
                 Please see
-                https://qiskit.org/documentation/rustworkx/stubs/rustworkx.visualization.mpl_draw.html#rustworkx.visualization.mpl_draw
+                https://www.rustworkx.org/apiref/rustworkx.visualization.mpl_draw.html
                 for details.
         """
         graph = self.graph
