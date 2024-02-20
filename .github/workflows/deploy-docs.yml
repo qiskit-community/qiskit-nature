@@ -27,10 +27,10 @@ jobs:
       matrix:
         python-version: [3.8]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install Dependencies
@@ -49,6 +49,8 @@ jobs:
           QISKIT_DOCS_BUILD_TUTORIALS: 'always'
         run: |
           echo "earliest_version: 0.1.0" >> releasenotes/config.yaml
+          # disable a PySCF UserWarning w.r.t. a change in the B3LYP DFT functional
+          echo "B3LYP_WITH_VWN5 = True" >> ~/.pyscf_conf.py
           tools/ignore_untagged_notes.sh
           make html
         shell: bash

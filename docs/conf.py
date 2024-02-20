@@ -154,7 +154,6 @@ numfig_format = {"table": "Table %s"}
 
 translations_list = [
     ("en", "English"),
-    ("bn_BN", "Bengali"),
     ("ja_JP", "Japanese"),
     ("es_UN", "Spanish"),
 ]
@@ -192,9 +191,9 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/", None),
-    "qiskit": ("https://qiskit.org/documentation/", None),
-    "qiskit-algorithms": ("https://qiskit.org/ecosystem/algorithms/", None),
-    "rustworkx": ("https://qiskit.org/ecosystem/rustworkx/", None),
+    "qiskit": ("https://docs.quantum.ibm.com/api/qiskit/", None),
+    "qiskit-algorithms": ("https://qiskit-community.github.io/qiskit-algorithms/", None),
+    "rustworkx": ("https://www.rustworkx.org/", None),
     "sparse": ("https://sparse.pydata.org/en/stable/", None),
 }
 

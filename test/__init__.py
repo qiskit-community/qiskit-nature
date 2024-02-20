@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2018, 2023.
+# (C) Copyright IBM 2018, 2024.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,6 +12,7 @@
 
 """ Qiskit Nature test packages """
 
+from .decorators import slow_test
 from .nature_test_case import QiskitNatureTestCase
 
-__all__ = ["QiskitNatureTestCase"]
+__all__ = ["QiskitNatureTestCase", "slow_test"]
