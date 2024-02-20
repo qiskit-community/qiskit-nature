@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2019, 2023.
+# (C) Copyright IBM 2019, 2024.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -14,8 +14,11 @@
 
 import unittest
 
+from test import slow_test
 from test.second_q.drivers.test_driver_methods_gsc import TestDriverMethods
-from qiskit.test import slow_test
+
+from qiskit.quantum_info import Statevector
+from qiskit_nature.second_q.circuit.library import HartreeFock
 from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.drivers import PySCFDriver, MethodType
 from qiskit_nature.second_q.mappers import BravyiKitaevMapper, ParityMapper
@@ -234,6 +237,34 @@ class TestDriverMethodsPySCF(TestDriverMethods):
         )
         result = self._run_driver(driver, mapper=BravyiKitaevMapper())
         self._assert_energy_and_dipole(result, "oh")
+
+    @slow_test
+    def test_be2_spin_contaminaton(self):
+        """Test the spin contamination is preserved.
+
+        This is a regression test against
+        https://github.com/qiskit-community/qiskit-nature/issues/1273.
+        """
+        driver = PySCFDriver(
+            atom="Be 0.0 0.0 0.66242; Be 0.0 0.0 -0.66242",
+            unit=DistanceUnit.ANGSTROM,
+            charge=0,
+            spin=2,
+            basis="sto-3g",
+            method=MethodType.UHF,
+        )
+        problem = driver.run()
+        _, ops = problem.second_q_ops()
+
+        mapper = ParityMapper(problem.num_particles)
+        qop = mapper.map(ops["AngularMomentum"])
+
+        hf_state = Statevector(
+            HartreeFock(problem.num_spatial_orbitals, problem.num_particles, mapper)
+        )
+
+        result = hf_state.expectation_value(qop)
+        self.assertAlmostEqual(result, 2.1286097507302286)
 
 
 if __name__ == "__main__":

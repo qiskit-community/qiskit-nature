@@ -194,6 +194,7 @@ formatter
 fortran
 fp
 fredkin
+func
 functionalities
 für
 gauopen
@@ -365,6 +366,7 @@ møller
 namelist
 nan
 nannichini
+nao
 natom
 nbasis
 nd
@@ -410,6 +412,7 @@ orthonormal
 otimes
 outpath
 overline
+ovlp
 pac
 param
 parameterized

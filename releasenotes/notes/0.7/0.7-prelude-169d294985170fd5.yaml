@@ -1,0 +1,20 @@
+---
+prelude: >
+  Qiskit Nature has been migrated to the `qiskit-community Github organization <https://github.com/qiskit-community>`_
+  to further emphasize that it is a community-driven project.
+  To reflect this change and because we are onboarding additional codeowners and maintainers,
+  with this version (0.7) we have decided to *remove all deprecated* code, regardless of the time of its deprecation.
+  This ensures that the new members of the development team do not have a large bulk of legacy code to maintain.
+
+  This can mean one of two things for you as the end-user:
+
+    #. Nothing, if you already migrated your code and no longer rely on any deprecated features.
+
+    #. Otherwise, you need to migrate your code immediately. If you cannot do that, or want to continue using some
+       of the features that were removed, you should pin your version of Qiskit Nature to 0.6
+
+  You can check out the `migration guides <https://qiskit-community.github.io/qiskit-nature/migration/index.html>`_
+  for details on how to update your code.
+
+  For more context on the changes around Qiskit Nature and the other application projects as well as the algorithms
+  library in Qiskit, be sure to read this `blog post <https://medium.com/qiskit/a-new-chapter-for-qiskit-algorithms-and-applications-5baff541e826>`_.

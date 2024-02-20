@@ -2,6 +2,9 @@
 Qiskit Nature Migration Guides
 ##############################
 
+If you are switching over to version 0.7, which has removed all previously
+deprecated code, simply follow the instructions provided in the sections below.
+
 Migrating from 0.5 to 0.6
 -------------------------
 

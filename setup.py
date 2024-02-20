@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2018, 2023.
+# (C) Copyright IBM 2018, 2024.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -51,7 +51,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/Qiskit/qiskit-nature",
     author="Qiskit Nature Development Team",
-    author_email="hello@qiskit.org",
+    author_email="qiskit@us.ibm.com",
     license="Apache-2.0",
     classifiers=[
         "Environment :: Console",
@@ -66,6 +66,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "Topic :: Scientific/Engineering",
     ],
     keywords="qiskit sdk quantum nature chemistry physics",
@@ -81,7 +82,7 @@ setuptools.setup(
     },
     project_urls={
         "Bug Tracker": "https://github.com/Qiskit/qiskit-nature/issues",
-        "Documentation": "https://qiskit.org/ecosystem/nature/",
+        "Documentation": "https://qiskit-community.github.io/qiskit-nature/",
         "Source Code": "https://github.com/Qiskit/qiskit-nature",
     },
     zip_safe=False,

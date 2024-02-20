@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2023.
+# (C) Copyright IBM 2021, 2024.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -45,10 +45,10 @@ jobs:
           echo -e "\033[31;1;4mConcurrency Group\033[0m"
           echo -e "$CONCURRENCY_GROUP\n"
         shell: bash
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
@@ -130,7 +130,7 @@ jobs:
         if: ${{ !cancelled() }}
         shell: bash
       - name: Run upload documentation
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: documentation
           path: docs/_build/html/artifacts/documentation.tar.gz
@@ -149,19 +149,19 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.8, 3.9, '3.10', 3.11]
+        python-version: [3.8, 3.9, '3.10', 3.11, 3.12.0]
         include:
           - os: macos-latest
             python-version: 3.8
           - os: macos-latest
-            python-version: 3.11
-          - os: windows-2019
+            python-version: 3.12.0
+          - os: windows-latest
             python-version: 3.8
-          - os: windows-2019
-            python-version: 3.11
+          - os: windows-latest
+            python-version: 3.12.0
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
@@ -177,6 +177,8 @@ jobs:
           source "$CONDA/etc/profile.d/conda.sh"
           if [ "${{ matrix.python-version }}" == "3.11" ]; then
             conda create -y -n psi4env python=${{ matrix.python-version }} -c conda-forge
+          elif [ "${{ matrix.python-version }}" == "3.12.0" ]; then
+            conda create -y -n psi4env python=3.12 -c conda-forge
           else
             conda create -y -n psi4env python=${{ matrix.python-version }}
           fi
@@ -186,7 +188,6 @@ jobs:
         with:
           os: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
-        if: ${{ matrix.python-version != '3.11' && (matrix.os != 'windows-2019' || (matrix.os == 'windows-2019' && matrix.python-version != '3.11')) }}
       - uses: ./.github/actions/install-main-dependencies
         with:
           os: ${{ matrix.os }}
@@ -215,7 +216,7 @@ jobs:
         if: ${{ !cancelled() }}
         shell: bash
       - name: Stestr Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             .stestr
@@ -248,7 +249,7 @@ jobs:
           mv .coverage ./ci-artifact-data/nat.dat
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == 3.8 }}
         shell: bash
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }}-${{ matrix.python-version }}
           path: ./ci-artifact-data/*
@@ -259,10 +260,8 @@ jobs:
           source "$CONDA/etc/profile.d/conda.sh"
           conda activate psi4env
           pip uninstall -y matplotlib pyscf sparse opt_einsum
-          if [[ "${{ matrix.python-version }}" != "3.11" && ("${{ matrix.os }}" != "windows-2019" || ("${{ matrix.os }}" == "windows-2019" && "${{ matrix.python-version }}" != "3.11")) ]]; then
-              echo 'Uninstall psi4'
-              conda remove -y --force psi4
-          fi
+          echo 'Uninstall psi4'
+          conda remove -y --force psi4
           if [ "${{ github.event_name }}" == "schedule" ] || [ "${{ contains(github.event.pull_request.labels.*.name, 'run_slow') }}" == "true" ]; then
               export QISKIT_TESTS="run_slow"
           fi
@@ -277,12 +276,12 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.8, 3.11]
+        python-version: [3.8, 3.12]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
@@ -318,7 +317,7 @@ jobs:
           tar -zcvf artifacts/tutorials.tar.gz --exclude=./artifacts .
         shell: bash
       - name: Run upload tutorials
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: tutorials${{ matrix.python-version }}
           path: docs/_build/html/artifacts/tutorials.tar.gz
@@ -347,7 +346,7 @@ jobs:
         if: ${{ matrix.python-version == 3.8 && !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
         shell: bash
       - name: Run upload stable tutorials
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: tutorials-stable${{ matrix.python-version }}
           path: docs/_build/html/artifacts/tutorials.tar.gz
@@ -360,48 +359,52 @@ jobs:
       matrix:
         python-version: [3.8]
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: ubuntu-latest-3.8
           path: /tmp/u38
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: ubuntu-latest-3.9
           path: /tmp/u39
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: ubuntu-latest-3.10
           path: /tmp/u310
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: ubuntu-latest-3.11
           path: /tmp/u311
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
+        with:
+          name: ubuntu-latest-3.12.0
+          path: /tmp/u312
+      - uses: actions/download-artifact@v4
         with:
           name: macos-latest-3.8
           path: /tmp/m38
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
-          name: macos-latest-3.11
-          path: /tmp/m311
-      - uses: actions/download-artifact@v3
+          name: macos-latest-3.12.0
+          path: /tmp/m312
+      - uses: actions/download-artifact@v4
         with:
-          name: windows-2019-3.8
+          name: windows-latest-3.8
           path: /tmp/w38
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
-          name: windows-2019-3.11
-          path: /tmp/w311
+          name: windows-latest-3.12.0
+          path: /tmp/w312
       - name: Install Dependencies
         run: pip install -U coverage coveralls diff-cover
         shell: bash
       - name: Combined Deprecation Messages
         run: |
-          sort -f -u /tmp/u38/nat.dep /tmp/u39/nat.dep /tmp/u310/nat.dep /tmp/u311/nat.dep /tmp/m38/nat.dep /tmp/m311/nat.dep /tmp/w38/nat.dep /tmp/w311/nat.dep || true
+          sort -f -u /tmp/u38/nat.dep /tmp/u39/nat.dep /tmp/u310/nat.dep /tmp/u311/nat.dep /tmp/u312/nat.dep /tmp/m38/nat.dep /tmp/m312/nat.dep /tmp/w38/nat.dep /tmp/w312/nat.dep || true
         shell: bash
       - name: Coverage combine
         run: coverage3 combine /tmp/u38/nat.dat

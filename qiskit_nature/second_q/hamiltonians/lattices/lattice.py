@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2023.
+# (C) Copyright IBM 2021, 2024.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -22,7 +22,7 @@ import numbers
 import numpy as np
 
 from rustworkx import NodeIndices, PyGraph, WeightedEdgeList
-from rustworkx import adjacency_matrix, networkx_converter  # type: ignore[attr-defined]
+from rustworkx import adjacency_matrix, networkx_converter
 from rustworkx.visualization import mpl_draw
 
 from qiskit.utils import optionals as _optionals
@@ -41,7 +41,7 @@ if _optionals.HAS_MATPLOTLIB:
 class LatticeDrawStyle:
     """A stylesheet for lattice figure.
     Please see
-    https://qiskit.org/documentation/rustworkx/stubs/rustworkx.visualization.mpl_draw.html#rustworkx.visualization.mpl_draw
+    https://www.rustworkx.org/apiref/rustworkx.visualization.mpl_draw.html
     for each element.
     """
 
@@ -314,7 +314,7 @@ class Lattice:
             self_loop : Draw self-loops in the lattice. Defaults to False.
             style : Styles for rustworkx.visualization.mpl_draw.
                 Please see
-                https://qiskit.org/documentation/rustworkx/stubs/rustworkx.visualization.mpl_draw.html#rustworkx.visualization.mpl_draw
+                https://www.rustworkx.org/apiref/rustworkx.visualization.mpl_draw.html
                 for details.
         """
 

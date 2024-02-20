@@ -14,6 +14,7 @@
 
 from __future__ import annotations
 
+import logging
 from typing import cast
 
 import numpy as np
@@ -37,6 +38,8 @@ from qiskit_nature.second_q.transformers import BasisTransformer
 
 from .molecule_info import MoleculeInfo
 from .qcschema import QCSchema
+
+LOGGER = logging.getLogger(__name__)
 
 
 def qcschema_to_problem(
@@ -69,9 +72,14 @@ def qcschema_to_problem(
     dipole_x: ElectronicIntegrals | None = None
     dipole_y: ElectronicIntegrals | None = None
     dipole_z: ElectronicIntegrals | None = None
+    overlap: np.ndarray | None = None
 
     if basis == ElectronicBasis.AO:
         hamiltonian = _get_ao_hamiltonian(qcschema)
+
+        if qcschema.wavefunction.scf_overlap is not None:
+            nao = hamiltonian.register_length
+            overlap = _reshape_2(qcschema.wavefunction.scf_overlap, nao, nao)
 
         if include_dipole:
             dipole_x = _get_ao_dipole(qcschema, "x")
@@ -80,6 +88,21 @@ def qcschema_to_problem(
 
     elif basis == ElectronicBasis.MO:
         hamiltonian = _get_mo_hamiltonian(qcschema)
+
+        if qcschema.wavefunction.scf_overlap is not None:
+            try:
+                overlap = get_overlap_ab_from_qcschema(qcschema)
+            except AttributeError:
+                if not hamiltonian.electronic_integrals.beta.is_empty() and not np.allclose(
+                    hamiltonian.electronic_integrals.alpha["+-"],
+                    hamiltonian.electronic_integrals.beta["+-"],
+                ):
+                    LOGGER.warning(
+                        "Your MO coefficients appear to differ for the alpha- and beta-spin "
+                        "orbitals but you did not provide any orbital overlap data. This may lead "
+                        "to faulty expectation values of observables which mix alpha- and beta-spin"
+                        " components (for example the AngularMomentum)."
+                    )
 
         if include_dipole:
             dipole_x = _get_mo_dipole(qcschema, "x")
@@ -110,7 +133,7 @@ def qcschema_to_problem(
     problem.num_particles = num_particles
     problem.num_spatial_orbitals = norb
     problem.reference_energy = qcschema.properties.return_energy
-    problem.properties.angular_momentum = AngularMomentum(norb)
+    problem.properties.angular_momentum = AngularMomentum(norb, overlap)
     problem.properties.magnetization = Magnetization(norb)
     problem.properties.particle_number = ParticleNumber(norb)
 
@@ -256,3 +279,36 @@ def get_ao_to_mo_from_qcschema(qcschema: QCSchema) -> BasisTransformer:
     )
 
     return transformer
+
+
+def get_overlap_ab_from_qcschema(qcschema: QCSchema) -> np.ndarray | None:
+    """Builds the alpha-beta spin orbital overlap matrix from a :class:`.QCSchema` instance.
+
+    Args:
+        qcschema: the :class:`.QCSchema` object from which to build the problem.
+
+    Raises:
+        AttributeError: when the overlap or MO coefficients are missing.
+
+    Returns:
+        The overlap matrix as a 2-dimensional numpy array or `None` if the overlap is equal to the
+        identity matrix.
+    """
+    if qcschema.wavefunction.scf_orbitals_a is None or qcschema.wavefunction.scf_overlap is None:
+        raise AttributeError
+
+    nmo = qcschema.properties.calcinfo_nmo
+    nao = len(qcschema.wavefunction.scf_orbitals_a) // nmo
+    coeff_a = _reshape_2(qcschema.wavefunction.scf_orbitals_a, nao, nmo)
+    coeff_b = None
+    if qcschema.wavefunction.scf_orbitals_b is not None:
+        coeff_b = _reshape_2(qcschema.wavefunction.scf_orbitals_b, nao, nmo)
+
+    if coeff_b is None:
+        # when coeff_b is None, that means it is equal to coeff_a, which in turn means that the
+        # overlap is equal to the identity
+        return None
+
+    overlap = _reshape_2(qcschema.wavefunction.scf_overlap, nao, nao)
+
+    return coeff_a.T @ overlap @ coeff_b
