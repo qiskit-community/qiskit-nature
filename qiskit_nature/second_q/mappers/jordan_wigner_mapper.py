@@ -21,7 +21,7 @@ import numpy as np
 from qiskit.quantum_info.operators import Pauli
 from qiskit.quantum_info import SparsePauliOp
 
-from qiskit_nature.second_q.mappers.fermionic_mapper import FermionicMapper
+from .fermionic_mapper import FermionicMapper
 from qiskit_nature.second_q.operators import FermionicOp
 
 
@@ -43,7 +43,6 @@ class JordanWignerMapper(FermionicMapper):
             # c_x = np.asarray([0] * register_length, dtype=bool)
             pauli_table.append((Pauli((a_z, a_x)), Pauli((b_z, b_x))))
             # TODO add Pauli 3-tuple to lookup table
-        print(pauli_table)
         return pauli_table
 
     @classmethod
