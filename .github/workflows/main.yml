@@ -149,16 +149,16 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.8, 3.9, '3.10', 3.11, 3.12.0]
+        python-version: [3.8, 3.9, '3.10', 3.11, 3.12]
         include:
           - os: macos-latest
             python-version: 3.8
           - os: macos-latest
-            python-version: 3.12.0
+            python-version: 3.12
           - os: windows-latest
             python-version: 3.8
           - os: windows-latest
-            python-version: 3.12.0
+            python-version: 3.12
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -175,10 +175,8 @@ jobs:
             sudo chown -R $USER: "$CONDA"
           fi
           source "$CONDA/etc/profile.d/conda.sh"
-          if [ "${{ matrix.python-version }}" == "3.11" ]; then
+          if [ "${{ matrix.python-version }}" >= "3.11" ]; then
             conda create -y -n psi4env python=${{ matrix.python-version }} -c conda-forge
-          elif [ "${{ matrix.python-version }}" == "3.12.0" ]; then
-            conda create -y -n psi4env python=3.12 -c conda-forge
           else
             conda create -y -n psi4env python=${{ matrix.python-version }}
           fi
@@ -381,7 +379,7 @@ jobs:
           path: /tmp/u311
       - uses: actions/download-artifact@v4
         with:
-          name: ubuntu-latest-3.12.0
+          name: ubuntu-latest-3.12
           path: /tmp/u312
       - uses: actions/download-artifact@v4
         with:
@@ -389,7 +387,7 @@ jobs:
           path: /tmp/m38
       - uses: actions/download-artifact@v4
         with:
-          name: macos-latest-3.12.0
+          name: macos-latest-3.12
           path: /tmp/m312
       - uses: actions/download-artifact@v4
         with:
@@ -397,7 +395,7 @@ jobs:
           path: /tmp/w38
       - uses: actions/download-artifact@v4
         with:
-          name: windows-latest-3.12.0
+          name: windows-latest-3.12
           path: /tmp/w312
       - name: Install Dependencies
         run: pip install -U coverage coveralls diff-cover
