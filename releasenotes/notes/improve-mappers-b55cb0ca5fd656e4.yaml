@@ -16,3 +16,6 @@ upgrade:
     Caching has been removed from the parent classes :class:`.QubitMapper` and
     :class:`.ModeBasedMapper` and is now implemented exclusively for the
     :meth:`.ModeBasedMapper.pauli_table` methods in the child classes.
+  - |
+    Methods ``.pauli_table``, ``.sparse_pauli_operators``, and ``.mode_based_mapping``
+    have been removed from :class:`.QubitMapper`.

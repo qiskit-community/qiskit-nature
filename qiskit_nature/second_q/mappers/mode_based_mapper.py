@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2023.
+# (C) Copyright IBM 2023, 2024.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -46,7 +46,7 @@ class ModeBasedMapper(QubitMapper):
         operators are used to construct the creation and annihilation operators
         :math:`(P \pm i Q)/2`.
 
-        The generated table is processed by :meth:`.QubitMapper.sparse_pauli_operators`.
+        The generated table is processed by :meth:`.sparse_pauli_operators`.
 
         Args:
             register_length: the register length for which to generate the table.
