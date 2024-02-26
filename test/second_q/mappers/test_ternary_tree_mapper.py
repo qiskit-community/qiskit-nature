@@ -18,7 +18,7 @@ from test import QiskitNatureTestCase
 import numpy as np
 from qiskit.circuit import Parameter
 from qiskit.quantum_info import SparsePauliOp
-from qiskit.algorithms.eigensolvers import NumPyEigensolver
+from qiskit_algorithms import NumPyEigensolver
 
 import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.drivers import PySCFDriver

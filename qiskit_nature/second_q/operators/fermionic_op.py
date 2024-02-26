@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2023.
+# (C) Copyright IBM 2021, 2024.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -215,8 +215,7 @@ class FermionicOp(SparseLabelOp):
             for term in key.split():
                 index = int(term[2:])
                 if num_so is None:
-                    if index > max_index:
-                        max_index = index
+                    max_index = max(max_index, index)
                 elif index >= num_so:
                     raise QiskitNatureError(
                         f"The index, {index}, from the label, {key}, exceeds the number of spin "
