@@ -142,6 +142,7 @@ class TestJordanWignerMapper(QiskitNatureTestCase):
         mapper = JordanWignerMapper()
         self.assertEqual(mapper.map(op, register_length=3), mapper.map(expected))
 
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_reverse_map(self):
         """Test reverse mapping from qubit operator back to fermionic operator."""
         driver = PySCFDriver()
