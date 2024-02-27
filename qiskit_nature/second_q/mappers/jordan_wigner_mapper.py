@@ -21,8 +21,8 @@ import numpy as np
 from qiskit.quantum_info.operators import Pauli
 from qiskit.quantum_info import SparsePauliOp
 
-from .fermionic_mapper import FermionicMapper
 from qiskit_nature.second_q.operators import FermionicOp
+from .fermionic_mapper import FermionicMapper
 
 
 class JordanWignerMapper(FermionicMapper):
@@ -47,13 +47,15 @@ class JordanWignerMapper(FermionicMapper):
 
     @classmethod
     def reverse_map(cls, qubit_op: SparsePauliOp) -> FermionicOp:
-        """Maps a qubit operator ``SparsePauliOp`` back into the second quantized operator ``FermionicOp``.
+        """Maps a qubit operator ``SparsePauliOp`` back into the second
+        quantized operator ``FermionicOp``.
 
         Args:
             qubit_op: The qubit operator ``SparsePauliOp`` to be mapped.
 
         Returns:
-            The second quantized operator ``FermionicOp`` corresponding to the Hamiltonian in the Fermionic space.
+            The second quantized operator ``FermionicOp`` corresponding to
+            the Hamiltonian in the Fermionic space.
         """
         num_qubits = (
             qubit_op.num_qubits
