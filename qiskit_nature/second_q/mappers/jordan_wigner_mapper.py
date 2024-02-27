@@ -77,7 +77,7 @@ class JordanWignerMapper(FermionicMapper):
                         target_pauli_op
                     )
                 elif one_pauli.to_label() == "Y":  # dealing Pauli Y op
-                    ferm_op_pauli = 1j * FermionicOp({f"+_{i}": -1, f"-_{i}": 1})
+                    ferm_op_pauli = FermionicOp({f"+_{i}": -1j, f"-_{i}": 1j})
                     target_pauli_op = Pauli("I" * (i + 1) + "Z" * (num_qubits - i - 1)).compose(
                         target_pauli_op
                     )
