@@ -78,6 +78,7 @@ chkfile
 cholesky
 chuang
 ci
+classmethod
 clbit
 clbits
 clifford
@@ -280,6 +281,7 @@ jcf
 jcp
 jernigan
 ji
+jiang
 jk
 jl
 jordan
@@ -289,6 +291,7 @@ json
 jupyter
 jw
 kagome
+kalev
 kanav
 ket
 kitaev
@@ -301,6 +304,7 @@ kwargs
 kwds
 labelled
 langle
+lbl
 lbrace
 lda
 ldots
@@ -326,6 +330,7 @@ lvert
 lysine
 macos
 majorana
+majoranaop
 makefile
 matmul
 matplotlib
@@ -357,6 +362,7 @@ moller
 molssi
 morse
 mpl
+mruczkiewicz
 mul
 multi
 multigraph
@@ -377,6 +383,7 @@ neq
 networkx
 neuropeptide
 neutron
+neven
 nicholas
 nielsen
 nisq
@@ -453,6 +460,7 @@ pxd
 py
 pydata
 pyquante
+pyright
 pyscf
 qarg
 qargs
@@ -658,11 +666,16 @@ xcfun
 xdata
 xy
 xyz
+xzy
 ydata
 yx
+yxz
 yy
+yzx
 zeitschrift
 zi
 zmatrix
 zsh
+zxy
+zyx
 zz

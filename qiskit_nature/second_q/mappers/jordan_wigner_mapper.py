@@ -21,15 +21,18 @@ import numpy as np
 from qiskit.quantum_info.operators import Pauli
 
 from .fermionic_mapper import FermionicMapper
+from .mode_based_mapper import ModeBasedMapper, PauliType
 
 
-class JordanWignerMapper(FermionicMapper):
+class JordanWignerMapper(FermionicMapper, ModeBasedMapper):
     """The Jordan-Wigner fermion-to-qubit mapping."""
 
-    @classmethod
+    def pauli_table(self, register_length: int) -> list[tuple[PauliType, PauliType]]:
+        return self._pauli_table(register_length)
+
+    @staticmethod
     @lru_cache(maxsize=32)
-    def pauli_table(cls, register_length: int) -> list[tuple[Pauli, Pauli]]:
-        # pylint: disable=unused-argument
+    def _pauli_table(register_length: int) -> list[tuple[PauliType, PauliType]]:
         pauli_table = []
 
         for i in range(register_length):
