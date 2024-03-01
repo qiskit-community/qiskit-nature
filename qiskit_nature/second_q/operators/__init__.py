@@ -23,6 +23,7 @@ Operators and mappers for different systems such as fermionic, vibrational and s
 
    ElectronicIntegrals
    FermionicOp
+   MajoranaOp
    BosonicOp
    SparseLabelOp
    SpinOp
@@ -44,6 +45,7 @@ Modules
 
 from .electronic_integrals import ElectronicIntegrals
 from .fermionic_op import FermionicOp
+from .majorana_op import MajoranaOp
 from .bosonic_op import BosonicOp
 from .spin_op import SpinOp
 from .vibrational_op import VibrationalOp
@@ -55,6 +57,7 @@ from .tensor import Tensor
 __all__ = [
     "ElectronicIntegrals",
     "FermionicOp",
+    "MajoranaOp",
     "BosonicOp",
     "SpinOp",
     "VibrationalOp",
