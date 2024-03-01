@@ -275,8 +275,7 @@ class SpinOp(SparseLabelOp):
                 # sub_terms[0] is the base, sub_terms[1] is the (optional) exponent
                 index = int(sub_terms[0][2:])
                 if num_s is None:
-                    if index > max_index:
-                        max_index = index
+                    max_index = max(max_index, index)
                 elif index >= num_s:
                     raise QiskitNatureError(
                         f"The index, {index}, from the label, {key}, exceeds the number of "

@@ -214,8 +214,7 @@ class BosonicOp(SparseLabelOp):
             for term in key.split():
                 index = int(term[2:])
                 if num_so is None:
-                    if index > max_index:
-                        max_index = index
+                    max_index = max(max_index, index)
                 elif index >= num_so:
                     raise QiskitNatureError(
                         f"The index, {index}, from the label, {key}, exceeds the number of spin "
