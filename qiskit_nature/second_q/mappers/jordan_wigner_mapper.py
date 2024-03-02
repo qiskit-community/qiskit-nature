@@ -60,7 +60,7 @@ class JordanWignerMapper(FermionicMapper):
         num_qubits = (
             qubit_op.num_qubits
         )  # get number of qubits from input second quantized operator
-        qubit_op = cls.invert_pauli_terms(qubit_op)
+        qubit_op = cls.__invert_pauli_terms(qubit_op)
         total_fermionic_op = FermionicOp.zero()
         for term in qubit_op:
             coef_term = term.coeffs[0]
@@ -97,7 +97,7 @@ class JordanWignerMapper(FermionicMapper):
         return total_fermionic_op.normal_order()
 
     @staticmethod
-    def invert_pauli_terms(sparse_pauli_op: SparsePauliOp) -> SparsePauliOp:
+    def __invert_pauli_terms(sparse_pauli_op: SparsePauliOp) -> SparsePauliOp:
         """Utility to invert the order of Pauli operators in each term of a SparsePauliOp."""
         inverted_labels = [label[::-1] for label in sparse_pauli_op.paulis.to_labels()]
         # Create a new SparsePauliOp with the inverted labels but same coefficients
