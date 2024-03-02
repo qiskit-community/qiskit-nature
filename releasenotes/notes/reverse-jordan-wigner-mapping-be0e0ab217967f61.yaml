@@ -1,4 +1,4 @@
-
+---
 features:
   - 
     Adds a new method :meth:`.JordanWignerMapper.reverse_map` for :class:``JordanWignerMapper` that does
