@@ -50,7 +50,7 @@ class JordanWignerMapper(FermionicMapper):
         """Maps a qubit operator ``SparsePauliOp`` back into the second quantized
         operator ``FermionicOp``. While it'll provide an output for any ``SparsePauliOp``
         operator, it should be used on operators that were created with
-        ``JordanWignerMapper`` to ensure accurate results.
+        ``JordanWignerMapper`` to ensure a meaningful result.
 
         Args:
             qubit_op: The qubit operator ``SparsePauliOp`` to be mapped.
