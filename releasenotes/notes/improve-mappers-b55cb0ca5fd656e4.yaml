@@ -1,0 +1,12 @@
+---
+features:
+  - |
+    The class :class:`.second_q.mappers.ModeBasedMapper` has been added to implement mode based
+    mapping via a Pauli table (previously part of :class:`.second_q.mappers.QubitMapper`).
+upgrade:
+  - |
+    :meth:`.ModeBasedMapper.pauli_table` is now an instance method of all :class:`.ModeBasedMapper`
+    subclasses (previously a class method of :class:`.QubitMapper`)
+  - |
+    Methods ``.pauli_table``, ``.sparse_pauli_operators``, and ``.mode_based_mapping``
+    have been removed from :class:`.QubitMapper`.
