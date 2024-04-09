@@ -76,40 +76,48 @@ class BosonicLogarithmicMapper(BosonicMapper):
                     break
                 pauli_expansion: list[SparsePauliOp] = []
                 mode_index_in_register: int = idx * (self.number_of_qubits_per_mode)
-                for n in range(2**self.number_of_qubits_per_mode - 2):
+                terms_idx = range(2**self.number_of_qubits_per_mode - 1) if op == "+" else range(1, 2**self.number_of_qubits_per_mode)
+                for n in terms_idx:
                     prefactor = np.sqrt(n + 1)
+                    print(f"n: {n}, prefactor: {prefactor}")
                     # Define the initial and final states (which results from the action of the operator)
-                    final_state: str = bin(n + 1).split("b")[1]
-                    init_state: str = bin(n).split("b")[1]
-                    init_state = init_state if len(init_state) == len(final_state) else f"0{init_state}"
+                    final_state: str = bin(n + 1).split("b")[1].rjust(self.number_of_qubits_per_mode, "0")
+                    init_state: str = bin(n).split("b")[1].rjust(self.number_of_qubits_per_mode, "0")
+                    print(f"final_state: {final_state}, init_state: {init_state}")
                     # At this point, we have the following situation: sqrt(n+1)*|n+1><n|, where the states are represented
                     # in binary. We have to convert this to the corresponding Pauli operators
                     # Now build the Pauli operators
                     single_mapped_term = SparsePauliOp(["I" * qubit_register_length], coeffs=[1.0])
-                    for i in range(len(init_state)):
+                    for j in range(len(init_state)):# - 1, -1, -1):
+                        i: int = len(init_state) - j - 1
+                        print(f"i: {i}, op: {final_state[j]}{init_state[j]}")
                         # Case |0><0|: this should be converted to 0.5*(I + Z)
-                        if f"{final_state[i]}{init_state[i]}" == "00":
+                        if f"{final_state[j]}{init_state[j]}" == "00":
                             single_mapped_term: SparsePauliOp = single_mapped_term.compose(
                                 self._get_single_qubit_pauli_matrix(mode_index_in_register, qubit_register_length, i, "I+"))
                         # Case |1><1|: this should be converted to 0.5*(I - Z)
-                        elif f"{final_state[i]}{init_state[i]}" == "11":
+                        elif f"{final_state[j]}{init_state[j]}" == "11":
                             single_mapped_term: SparsePauliOp = single_mapped_term.compose(
                                 self._get_single_qubit_pauli_matrix(mode_index_in_register, qubit_register_length, i, "I-"))
                         # Case |0><1|: this should be converted to 0.5*(X + iY)
-                        elif f"{final_state[i]}{init_state[i]}" == "01":
+                        elif f"{final_state[j]}{init_state[j]}" == "01":
                             single_mapped_term: SparsePauliOp = single_mapped_term.compose(
                                 self._get_single_qubit_pauli_matrix(mode_index_in_register, qubit_register_length, i, "S+"))
                         # Case |1><0|: this should be converted to 0.5*(X - iY)
-                        elif f"{final_state[i]}{init_state[i]}" == "10":
+                        elif f"{final_state[j]}{init_state[j]}" == "10":
                             single_mapped_term: SparsePauliOp = single_mapped_term.compose(
                                 self._get_single_qubit_pauli_matrix(mode_index_in_register, qubit_register_length, i, "S-"))
+                        else:
+                            raise ValueError(f"Invalid state {final_state[i]}{init_state[i]}.")
                     pauli_expansion.append(prefactor * single_mapped_term)
                 # Add the Pauli expansion for a single n_k to map of the bosonic operator
                 bos_op_to_pauli_op = reduce(operator.add, pauli_expansion).compose(
                     bos_op_to_pauli_op
                 )
+                print(f"bos_op_to_pauli_op: {bos_op_to_pauli_op}")
             # Add the map of the single boson op (e.g. +_0) to the map of the full bosonic operator
             pauli_op.append(coeff * reduce(operator.add, bos_op_to_pauli_op.simplify()))
+            print(f"pauli_op: {reduce(operator.add, pauli_op)}")
         # return the lookup table for the transformed XYZI operators
         return reduce(operator.add, pauli_op)
     
@@ -162,7 +170,7 @@ class BosonicLogarithmicMapper(BosonicMapper):
                     prefix_zeros + [1] + suffix_zeros,
                 )
             )
-            if pauli_op == "I+":
+            if pauli_op == "S+":
                 return 0.5 * (SparsePauliOp(sigma_x) + 1j*SparsePauliOp(sigma_y))
             return 0.5 * (SparsePauliOp(sigma_x) - 1j*SparsePauliOp(sigma_y))
         raise ValueError(f"Invalid operator {pauli_op}. Possible values are 'I+', 'I-', 'S+' and 'S-'.")
