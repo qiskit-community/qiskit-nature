@@ -78,17 +78,23 @@ class BosonicLogarithmicMapper(BosonicMapper):
                 mode_index_in_register: int = idx * (self.number_of_qubits_per_mode)
                 terms_idx = range(2**self.number_of_qubits_per_mode - 1) if op == "+" else range(1, 2**self.number_of_qubits_per_mode)
                 for n in terms_idx:
-                    prefactor = np.sqrt(n + 1)
+                    # Define the prefactor and the initial and final states (which results from the action of the operator). They vary depending on the operator
+                    if op == "+":
+                        prefactor = np.sqrt(n + 1)
+                        final_state: str = bin(n + 1).split("b")[1].rjust(self.number_of_qubits_per_mode, "0")
+                        init_state: str = bin(n).split("b")[1].rjust(self.number_of_qubits_per_mode, "0")
+                    else:
+                        prefactor = np.sqrt(n)
+                        # Define the initial and final states (which results from the action of the operator)
+                        final_state: str = bin(n - 1).split("b")[1].rjust(self.number_of_qubits_per_mode, "0")
+                        init_state: str = bin(n).split("b")[1].rjust(self.number_of_qubits_per_mode, "0")
                     print(f"n: {n}, prefactor: {prefactor}")
-                    # Define the initial and final states (which results from the action of the operator)
-                    final_state: str = bin(n + 1).split("b")[1].rjust(self.number_of_qubits_per_mode, "0")
-                    init_state: str = bin(n).split("b")[1].rjust(self.number_of_qubits_per_mode, "0")
                     print(f"final_state: {final_state}, init_state: {init_state}")
                     # At this point, we have the following situation: sqrt(n+1)*|n+1><n|, where the states are represented
                     # in binary. We have to convert this to the corresponding Pauli operators
                     # Now build the Pauli operators
                     single_mapped_term = SparsePauliOp(["I" * qubit_register_length], coeffs=[1.0])
-                    for j in range(len(init_state)):# - 1, -1, -1):
+                    for j in range(len(init_state)):
                         i: int = len(init_state) - j - 1
                         print(f"i: {i}, op: {final_state[j]}{init_state[j]}")
                         # Case |0><0|: this should be converted to 0.5*(I + Z)
@@ -120,7 +126,11 @@ class BosonicLogarithmicMapper(BosonicMapper):
             print(f"pauli_op: {reduce(operator.add, pauli_op)}")
         # return the lookup table for the transformed XYZI operators
         return reduce(operator.add, pauli_op)
-    
+
+    @lru_cache(maxsize=32)
+    def _get_binary_state(self, n: int) -> str:
+        """This method converts an integer to its binary representation."""
+        return bin(n).split("b")[1].rjust(self.number_of_qubits_per_mode, "0")
 
     @lru_cache(maxsize=32)
     def _get_single_qubit_pauli_matrix(
