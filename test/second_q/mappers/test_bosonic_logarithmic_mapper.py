@@ -78,10 +78,63 @@ class TestBosonicLogarithmicMapper(QiskitNatureTestCase):
                 2j, 2, 2, -2j],
     )
 
+    bos_op3 = BosonicOp({"+_1": 1})
+    # Using: max_occupation = 3 (number_of_qubits_per_mode = 2)
+    ref_qubit_op3_tr1 = 0.25 * SparsePauliOp(
+        ["IXII", "IYII", "ZXII", "ZYII", "XXII", "XYII", "YXII", "YYII"],
+        coeffs=[1 + sq_3, -1j*(1 + sq_3), 1 - sq_3, -1j*(1 - sq_3), sq_2, 1j*sq_2, -1j*sq_2, sq_2])
+    # Using: max_occupation = 7 (number_of_qubits_per_mode = 3)
+    ref_qubit_op3_tr2 = 0.125 * SparsePauliOp(
+        ["IIXIII", "IIYIII", "IZXIII", "IZYIII",
+         "ZIXIII", "ZIYIII", "ZZXIII", "ZZYIII",
+         "IXXIII", "IXYIII", "IYXIII", "IYYIII",
+         "ZXXIII", "ZXYIII", "ZYXIII", "ZYYIII",
+         "XXXIII", "XXYIII", "XYXIII", "XYYIII",
+         "YXXIII", "YXYIII", "YYXIII", "YYYIII"],
+        coeffs=[1+sq_3+sq_5+sq_7, -1j*(1+sq_3+sq_5+sq_7), 1-sq_3+sq_5-sq_7, -1j*(1-sq_3+sq_5-sq_7),
+                1+sq_3-sq_5-sq_7, -1j*(1+sq_3-sq_5-sq_7), 1-sq_3-sq_5+sq_7, -1j*(1-sq_3-sq_5+sq_7),
+                sq_2 + sq_6, 1j*(sq_2 + sq_6), -1j*(sq_2 + sq_6), sq_2 + sq_6,
+                sq_2 - sq_6, 1j*(sq_2 - sq_6), -1j*(sq_2 - sq_6), sq_2 - sq_6,
+                2, 2j, 2j, -2,
+                -2j, 2, 2, 2j],
+    )
+
+    bos_op4 = BosonicOp({"-_1": 1})
+    # Using: max_occupation = 3 (number_of_qubits_per_mode = 2)
+    ref_qubit_op4_tr1 = 0.25 * SparsePauliOp(
+        ["IXII", "IYII", "ZXII", "ZYII", "XXII", "XYII", "YXII", "YYII"],
+        coeffs=[1 + sq_3, 1j*(1 + sq_3), 1 - sq_3, 1j*(1 - sq_3), sq_2, -1j*sq_2, 1j*sq_2, sq_2])
+    # Using: max_occupation = 7 (number_of_qubits_per_mode = 3)
+    ref_qubit_op4_tr2 = 0.125 * SparsePauliOp(
+        ["IIXIII", "IIYIII", "IZXIII", "IZYIII",
+         "ZIXIII", "ZIYIII", "ZZXIII", "ZZYIII",
+         "IXXIII", "IXYIII", "IYXIII", "IYYIII",
+         "ZXXIII", "ZXYIII", "ZYXIII", "ZYYIII",
+         "XXXIII", "XXYIII", "XYXIII", "XYYIII",
+         "YXXIII", "YXYIII", "YYXIII", "YYYIII"],
+        coeffs=[1+sq_3+sq_5+sq_7, 1j*(1+sq_3+sq_5+sq_7), 1-sq_3+sq_5-sq_7, 1j*(1-sq_3+sq_5-sq_7),
+                1+sq_3-sq_5-sq_7, 1j*(1+sq_3-sq_5-sq_7), 1-sq_3-sq_5+sq_7, 1j*(1-sq_3-sq_5+sq_7),
+                sq_2 + sq_6, -1j*(sq_2 + sq_6), 1j*(sq_2 + sq_6), sq_2 + sq_6,
+                sq_2 - sq_6, -1j*(sq_2 - sq_6), 1j*(sq_2 - sq_6), sq_2 - sq_6,
+                2, -2j, -2j, -2,
+                2j, 2, 2, -2j],
+    )
+
+    bos_op5 = BosonicOp({"+_0 -_0": 1})
+    # Using: max_occupation = 1
+    ref_qubit_op5_tr1 = 0.5 * SparsePauliOp(["II", "IZ", "ZI"], coeffs=[3, -1, -2])
+    # Using: max_occupation = 2
+    ref_qubit_op5_tr2 = SparsePauliOp(
+        ["III", "IZZ", "IZI", "IIZ", "ZZI", "ZII"], coeffs=[0.75, -0.25, 0.25, 0.25, -0.5, -0.5]
+    )
+
     # Test max_occupation = 3 (number_of_qubits_per_mode = 2)
     @data(
         (bos_op1, ref_qubit_op1_tr1),
-        (bos_op2, ref_qubit_op2_tr1)
+        (bos_op2, ref_qubit_op2_tr1),
+        (bos_op3, ref_qubit_op3_tr1),
+        (bos_op4, ref_qubit_op4_tr1),
+        (bos_op5, ref_qubit_op5_tr1)
     )
     @unpack
     def test_mapping_max_occupation_3(self, bos_op, ref_qubit_op):
@@ -93,7 +146,9 @@ class TestBosonicLogarithmicMapper(QiskitNatureTestCase):
     # Test max_occupation = 7 (number_of_qubits_per_mode = 3)
     @data(
         (bos_op1, ref_qubit_op1_tr2),
-        (bos_op2, ref_qubit_op2_tr2)
+        (bos_op2, ref_qubit_op2_tr2),
+        (bos_op3, ref_qubit_op3_tr2),
+        (bos_op4, ref_qubit_op4_tr2),
     )
     @unpack
     def test_mapping_max_occupation_7(self, bos_op, ref_qubit_op):
