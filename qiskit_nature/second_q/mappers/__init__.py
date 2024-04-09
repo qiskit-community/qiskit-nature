@@ -57,6 +57,7 @@ BosonicOp Mappers
    :nosignatures:
 
    BosonicLinearMapper
+   BosonicLogarithmicMapper
 
 VibrationalOp Mappers
 +++++++++++++++++++++
@@ -98,6 +99,7 @@ from .jordan_wigner_mapper import JordanWignerMapper
 from .parity_mapper import ParityMapper
 from .linear_mapper import LinearMapper
 from .bosonic_linear_mapper import BosonicLinearMapper
+from .bosonic_logarithmic_mapper import BosonicLogarithmicMapper
 from .logarithmic_mapper import LogarithmicMapper
 from .direct_mapper import DirectMapper
 from .qubit_mapper import QubitMapper
@@ -112,6 +114,7 @@ __all__ = [
     "ParityMapper",
     "LinearMapper",
     "BosonicLinearMapper",
+    "BosonicLogarithmicMapper",
     "LogarithmicMapper",
     "QubitMapper",
     "InterleavedQubitMapper",

@@ -85,7 +85,7 @@ class BosonicLinearMapper(BosonicMapper):
     def _map_single(
         self, second_q_op: BosonicOp, *, register_length: int | None = None
     ) -> SparsePauliOp:
-        """Maps a :class:`~qiskit_nature.second_q.operators.SparseLabelOp` to a``SparsePauliOp``.
+        """Maps a :class:`~qiskit_nature.second_q.operators.SparseLabelOp` to a ``SparsePauliOp``.
 
         Args:
             second_q_op: the ``SparseLabelOp`` to be mapped.
