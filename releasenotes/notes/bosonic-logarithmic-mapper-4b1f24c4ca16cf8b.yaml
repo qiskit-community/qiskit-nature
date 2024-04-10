@@ -1,0 +1,17 @@
+---
+prelude: >
+    Up to now, Qiskit Nature could only map bosonic operators to qubit operators using
+    a linear encoding (see :class:`.BosonicLinearMapper`).
+features:
+  - |
+    This release introduces a new mapper for the BosonicOp, the BosonicLogarithmicMapper.
+    It is more efficient both in terms of the number of qubits required and the Pauli strings generated.
+    as it allows to map the BosonicOp with a binary encoding. This mapper is based
+    on `this paper <https://doi.org/10.48550/arXiv.2307.06580>`_.
+    To use this mapper one can for example:
+
+    .. code-block:: python
+
+      from qiskit_nature.second_q.mappers import BosonicLogarithmicMapper
+      mapper = BosonicLogarithmicMapper(max_occupation=2)
+      qubit_op = mapper.map(bos_op)
