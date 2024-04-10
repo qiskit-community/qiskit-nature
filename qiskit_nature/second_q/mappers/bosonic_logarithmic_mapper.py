@@ -25,13 +25,75 @@ from qiskit.quantum_info import Pauli, SparsePauliOp
 from qiskit_nature.second_q.operators import BosonicOp
 from .bosonic_mapper import BosonicMapper
 
+
 class BosonicLogarithmicMapper(BosonicMapper):
+    """The Logarithmic boson-to-qubit Mapper.
+
+    This mapper generates a logarithmic encoding of the Bosonic operator :math:`b_k^\\dagger, b_k` to
+    qubit operators (linear combinations of pauli strings).
+    In this logarithmic encoding the number of qubits necessary to represent a bosonic mode is
+    determined by the max occupation :math:`n_k^{max}` of the mode (meaning the number of states used
+    in the expansion of the mode, or equivalently the state at which the maximum excitation can take
+    place). To number of qubits is given by:
+    :math:`\\rceil\\log_2(n_k^{max} + 1)\\lceil`, rounded up to the nearest integer.
+
+    .. note::
+        A consequence of the rounding up for determining the number of required qubits is that the
+        actual max occupation is often larger than the one selected by the user. For example, if the
+        user selects a :math:`n_k^{max} = 2`, then the number of required qubits is
+        :math:`\\rceil\\log_2(3)\\lceil = 2`. If we now compute the max occupation for 2 qubits, we
+        get :math:`2^2 - 1 = 3`, which is larger than the user-selected max occupation. The user should
+        expect that the actual max occupation is always larger than or equal to the one selected.
+
+    The mode :math:`|k\\rangle` is then mapped to the occupation number vector
+    :math:`|0_{n_k^{max}}, 0_{n_k^{max} - 1},..., 0_{n_k + 1}, 1_{n_k}, 0_{n_k - 1},..., 0_{0_k}\\rangle`
+
+    This class implmenets the equation (34) and (35) of Reference [1].
+
+    .. math::
+        b_k^\\dagger = \\sum_{n_k = 0}^{2^{N_q}-2}(\\sqrt{n_k + 1}|n+1\\rangle\\langle n|)
+
+        b_k = \\sum_{n_k = 1}^{2^{N_q}-1}(\\sqrt{n_k}|n-1\\rangle\\langle n|)
+
+    where :math:`N_q` is the number of qubits used to represent each mode
+    (given by :math:`\\rceil\\log_2(n_k^{max} + 1)\\lceil`). This implementation first computes each
+    :math:`|n+1\\rangle\\langle n|` and :math:`|n-1\\rangle\\langle n|` in a binary representation
+    and the uses equation (37) from Reference [1] to map to the Pauli operators.
+
+    The length of the qubit register is:
+
+    .. code-block:: python
+
+        BosonicOp.num_modes * numpy.log2(BosonicLogarithmicMapper.max_occupation + 1)
+
+    To use this mapper one can for example:
+
+    .. code-block:: python
+
+        from qiskit_nature.second_q.mappers import BosonicLogarithmicMapper
+        from qiskit_nature.second_q.operators import BosonicOp
+
+        mapper = BosonicLogarithmicMapper(max_occupation=2)
+        qubit_op = mapper.map(BosonicOp({'+_0 -_0': 1}, num_modes=1))
+
+    .. note::
+        Since this mapper truncates the maximum occupation of a bosonic state as represented in the
+        qubit register, the commutation relation after the mapping differ from the standard ones.
+        Please refer to Section 4, equation 22 of Reference [2] for more details
+
+    References:
+        [1] Bo Peng et al., Quantum Simulation of Boson-Related Hamiltonians: Techniques, Effective
+        Hamiltonian Construction, and Error Analysis, Arxiv https://doi.org/10.48550/arXiv.2307.06580
+
+        [2] R. Somma et al., Quantum Simulations of Physics Problems, Arxiv
+        https://doi.org/10.48550/arXiv.quant-ph/0304063
     """
-    The Bosonic Logarithmic Mapper.
-    """
+
     def __init__(self, max_occupation: int) -> None:
         # Compute the actual max occupation from the one selected by the user
-        self.number_of_qubits_per_mode: int = 1 if max_occupation == 0 else math.ceil(np.log2(max_occupation + 1))
+        self.number_of_qubits_per_mode: int = (
+            1 if max_occupation == 0 else math.ceil(np.log2(max_occupation + 1))
+        )
         max_occupation = 2**self.number_of_qubits_per_mode - 1
         super().__init__(max_occupation)
 
@@ -43,12 +105,12 @@ class BosonicLogarithmicMapper(BosonicMapper):
     @number_of_qubits_per_mode.setter
     def number_of_qubits_per_mode(self, num_qubits: int) -> None:
         if num_qubits < 1:
-            raise ValueError(
-                f"The number of qubits must be at least 1, and not {num_qubits}."
-            )
+            raise ValueError(f"The number of qubits must be at least 1, and not {num_qubits}.")
         self._number_of_qubits_per_mode: int = num_qubits
 
-    def _map_single(self, second_q_op: BosonicOp, *, register_length: int | None = None) -> SparsePauliOp:
+    def _map_single(
+        self, second_q_op: BosonicOp, *, register_length: int | None = None
+    ) -> SparsePauliOp:
         """Maps a :class:`~qiskit_nature.second_q.operators.SparseLabelOp` to a ``SparsePauliOp``.
 
         Args:
@@ -71,48 +133,77 @@ class BosonicLogarithmicMapper(BosonicMapper):
         for terms, coeff in second_q_op.terms():
             # Then loop over each term (terms -> List[Tuple[string, int]])
             bos_op_to_pauli_op = SparsePauliOp(["I" * qubit_register_length], coeffs=[1.0])
+            # Loop over the operators in the term
             for op, idx in terms:
                 if op not in ("+", "-"):
                     break
                 pauli_expansion: list[SparsePauliOp] = []
-                mode_index_in_register: int = idx * (self.number_of_qubits_per_mode)
-                terms_idx = range(2**self.number_of_qubits_per_mode - 1) if op == "+" else range(1, 2**self.number_of_qubits_per_mode)
-                for n in terms_idx:
-                    # Define the prefactor and the initial and final states (which results from the action of the operator). They vary depending on the operator
+                # Define the index of the mode in the qubit register
+                mode_index_in_register: int = idx * self.number_of_qubits_per_mode
+                # Now we start mapping the operator. First, define the range of the sum
+                terms_range = (
+                    range(2**self.number_of_qubits_per_mode - 1)
+                    if op == "+"
+                    else range(1, 2**self.number_of_qubits_per_mode)
+                )
+                for n in terms_range:
+                    # In each iteration we deal with a term of the form sqrt(n+1)*|n+1><n| or
+                    # sqrt(n)*|n-1><n|. The initial and final states are represented in binary.
+                    # Define the prefactor and the initial and final states (which results from the
+                    # action of the operator). They vary depending on the operator
                     if op == "+":
                         prefactor = np.sqrt(n + 1)
-                        final_state: str = bin(n + 1).split("b")[1].rjust(self.number_of_qubits_per_mode, "0")
-                        init_state: str = bin(n).split("b")[1].rjust(self.number_of_qubits_per_mode, "0")
+                        final_state: str = (
+                            bin(n + 1).split("b")[1].rjust(self.number_of_qubits_per_mode, "0")
+                        )
+                        init_state: str = (
+                            bin(n).split("b")[1].rjust(self.number_of_qubits_per_mode, "0")
+                        )
                     else:
                         prefactor = np.sqrt(n)
-                        # Define the initial and final states (which results from the action of the operator)
-                        final_state: str = bin(n - 1).split("b")[1].rjust(self.number_of_qubits_per_mode, "0")
-                        init_state: str = bin(n).split("b")[1].rjust(self.number_of_qubits_per_mode, "0")
-                    print(f"n: {n}, prefactor: {prefactor}")
-                    print(f"final_state: {final_state}, init_state: {init_state}")
-                    # At this point, we have the following situation: sqrt(n+1)*|n+1><n|, where the states are represented
-                    # in binary. We have to convert this to the corresponding Pauli operators
+                        final_state: str = (
+                            bin(n - 1).split("b")[1].rjust(self.number_of_qubits_per_mode, "0")
+                        )
+                        init_state: str = (
+                            bin(n).split("b")[1].rjust(self.number_of_qubits_per_mode, "0")
+                        )
                     # Now build the Pauli operators
                     single_mapped_term = SparsePauliOp(["I" * qubit_register_length], coeffs=[1.0])
+                    # pylint: disable=consider-using-enumerate
                     for j in range(len(init_state)):
+                        # We need to comply to the little endian notation of qiskit.
+                        # For the binary string representation of the state, the first element is the
+                        # most significant bit. Thus, it needs to be put to the end of the mode in the
+                        # qubit register.
                         i: int = len(init_state) - j - 1
-                        print(f"i: {i}, op: {final_state[j]}{init_state[j]}")
                         # Case |0><0|: this should be converted to 0.5*(I + Z)
                         if f"{final_state[j]}{init_state[j]}" == "00":
                             single_mapped_term: SparsePauliOp = single_mapped_term.compose(
-                                self._get_single_qubit_pauli_matrix(mode_index_in_register, qubit_register_length, i, "I+"))
+                                self._get_single_qubit_pauli_matrix(
+                                    mode_index_in_register, qubit_register_length, i, "I+"
+                                )
+                            )
                         # Case |1><1|: this should be converted to 0.5*(I - Z)
                         elif f"{final_state[j]}{init_state[j]}" == "11":
                             single_mapped_term: SparsePauliOp = single_mapped_term.compose(
-                                self._get_single_qubit_pauli_matrix(mode_index_in_register, qubit_register_length, i, "I-"))
+                                self._get_single_qubit_pauli_matrix(
+                                    mode_index_in_register, qubit_register_length, i, "I-"
+                                )
+                            )
                         # Case |0><1|: this should be converted to 0.5*(X + iY)
                         elif f"{final_state[j]}{init_state[j]}" == "01":
                             single_mapped_term: SparsePauliOp = single_mapped_term.compose(
-                                self._get_single_qubit_pauli_matrix(mode_index_in_register, qubit_register_length, i, "S+"))
+                                self._get_single_qubit_pauli_matrix(
+                                    mode_index_in_register, qubit_register_length, i, "S+"
+                                )
+                            )
                         # Case |1><0|: this should be converted to 0.5*(X - iY)
                         elif f"{final_state[j]}{init_state[j]}" == "10":
                             single_mapped_term: SparsePauliOp = single_mapped_term.compose(
-                                self._get_single_qubit_pauli_matrix(mode_index_in_register, qubit_register_length, i, "S-"))
+                                self._get_single_qubit_pauli_matrix(
+                                    mode_index_in_register, qubit_register_length, i, "S-"
+                                )
+                            )
                         else:
                             raise ValueError(f"Invalid state {final_state[i]}{init_state[i]}.")
                     pauli_expansion.append(prefactor * single_mapped_term)
@@ -120,10 +211,8 @@ class BosonicLogarithmicMapper(BosonicMapper):
                 bos_op_to_pauli_op = reduce(operator.add, pauli_expansion).compose(
                     bos_op_to_pauli_op
                 )
-                print(f"bos_op_to_pauli_op: {bos_op_to_pauli_op}")
             # Add the map of the single boson op (e.g. +_0) to the map of the full bosonic operator
             pauli_op.append(coeff * reduce(operator.add, bos_op_to_pauli_op.simplify()))
-            print(f"pauli_op: {reduce(operator.add, pauli_op)}")
         # return the lookup table for the transformed XYZI operators
         return reduce(operator.add, pauli_op)
 
@@ -134,24 +223,26 @@ class BosonicLogarithmicMapper(BosonicMapper):
 
     @lru_cache(maxsize=32)
     def _get_single_qubit_pauli_matrix(
-        self, register_index: int, register_length: int, qubit_index: int, pauli_op: str
+        self, register_index: int, register_length: int, mode_qubit_index: int, pauli_op: str
     ) -> SparsePauliOp:
-        """This method builds the Qiskit Pauli operators of the operators
+        """This method builds the Qiskit Pauli operators of one of the operators:
         I_+ = I + Z, I_- = I - Z, S_+ = X + iY and S_- = X - iY.
 
         Args:
             register_index: the index of the qubit register where the mapped operator should be placed.
             register_length: the length of the qubit register.
+            mode_qubit_index: the index of the qubit within the mode on which the `pauli_op` is acting.
+            pauli_op: the operator to be mapped. Possible values are 'I+', 'I-', 'S+' and 'S-'.
 
         Returns:
-            Four Pauli operators that represent XX, XY, YX and YY at the specified index in the
-            current qubit register.
+            A SparsePauliOp representing the Pauli operator.
         """
         # Define recurrent variables
-        prefix_zeros = [0] * register_index + [0] * qubit_index
-        suffix_zeros = ([0] * (register_length - self.number_of_qubits_per_mode - register_index) +
-                                   [0] * (self.number_of_qubits_per_mode - qubit_index - 1))
-        if pauli_op == "I+" or pauli_op == "I-":
+        prefix_zeros = [0] * register_index + [0] * mode_qubit_index
+        suffix_zeros = [0] * (register_length - self.number_of_qubits_per_mode - register_index) + [
+            0
+        ] * (self.number_of_qubits_per_mode - mode_qubit_index - 1)
+        if pauli_op in ("I+", "I-"):
             identity = Pauli(
                 (
                     [0] * register_length,
@@ -167,7 +258,7 @@ class BosonicLogarithmicMapper(BosonicMapper):
             if pauli_op == "I+":
                 return 0.5 * (SparsePauliOp(identity) + SparsePauliOp(sigma_z))
             return 0.5 * (SparsePauliOp(identity) - SparsePauliOp(sigma_z))
-        if pauli_op == "S+" or pauli_op == "S-":
+        if pauli_op in ("S+", "S-"):
             sigma_x = Pauli(
                 (
                     [0] * register_length,
@@ -181,6 +272,8 @@ class BosonicLogarithmicMapper(BosonicMapper):
                 )
             )
             if pauli_op == "S+":
-                return 0.5 * (SparsePauliOp(sigma_x) + 1j*SparsePauliOp(sigma_y))
-            return 0.5 * (SparsePauliOp(sigma_x) - 1j*SparsePauliOp(sigma_y))
-        raise ValueError(f"Invalid operator {pauli_op}. Possible values are 'I+', 'I-', 'S+' and 'S-'.")
+                return 0.5 * (SparsePauliOp(sigma_x) + 1j * SparsePauliOp(sigma_y))
+            return 0.5 * (SparsePauliOp(sigma_x) - 1j * SparsePauliOp(sigma_y))
+        raise ValueError(
+            f"Invalid operator {pauli_op}. Possible values are 'I+', 'I-', 'S+' and 'S-'."
+        )
