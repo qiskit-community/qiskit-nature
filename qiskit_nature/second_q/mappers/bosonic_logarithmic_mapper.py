@@ -151,22 +151,9 @@ class BosonicLogarithmicMapper(BosonicMapper):
                     # sqrt(n)*|n-1><n|. The initial and final states are represented in binary.
                     # Define the prefactor and the initial and final states (which results from the
                     # action of the operator). They vary depending on the operator
-                    if op == "+":
-                        prefactor = np.sqrt(n + 1)
-                        final_state: str = (
-                            bin(n + 1).split("b")[1].rjust(self.number_of_qubits_per_mode, "0")
-                        )
-                        init_state: str = (
-                            bin(n).split("b")[1].rjust(self.number_of_qubits_per_mode, "0")
-                        )
-                    else:
-                        prefactor = np.sqrt(n)
-                        final_state: str = (
-                            bin(n - 1).split("b")[1].rjust(self.number_of_qubits_per_mode, "0")
-                        )
-                        init_state: str = (
-                            bin(n).split("b")[1].rjust(self.number_of_qubits_per_mode, "0")
-                        )
+                    prefactor = np.sqrt(n + 1) if op == "+" else np.sqrt(n)
+                    final_state: str = self._get_binary_state((n + 1) if op == "+" else (n - 1))
+                    init_state: str = self._get_binary_state(n)
                     # Now build the Pauli operators
                     single_mapped_term = SparsePauliOp(["I" * qubit_register_length], coeffs=[1.0])
                     # pylint: disable=consider-using-enumerate
@@ -178,28 +165,28 @@ class BosonicLogarithmicMapper(BosonicMapper):
                         i: int = len(init_state) - j - 1
                         # Case |0><0|: this should be converted to 0.5*(I + Z)
                         if f"{final_state[j]}{init_state[j]}" == "00":
-                            single_mapped_term: SparsePauliOp = single_mapped_term.compose(
+                            single_mapped_term = single_mapped_term.compose(
                                 self._get_single_qubit_pauli_matrix(
                                     mode_index_in_register, qubit_register_length, i, "I+"
                                 )
                             )
                         # Case |1><1|: this should be converted to 0.5*(I - Z)
                         elif f"{final_state[j]}{init_state[j]}" == "11":
-                            single_mapped_term: SparsePauliOp = single_mapped_term.compose(
+                            single_mapped_term = single_mapped_term.compose(
                                 self._get_single_qubit_pauli_matrix(
                                     mode_index_in_register, qubit_register_length, i, "I-"
                                 )
                             )
                         # Case |0><1|: this should be converted to 0.5*(X + iY)
                         elif f"{final_state[j]}{init_state[j]}" == "01":
-                            single_mapped_term: SparsePauliOp = single_mapped_term.compose(
+                            single_mapped_term = single_mapped_term.compose(
                                 self._get_single_qubit_pauli_matrix(
                                     mode_index_in_register, qubit_register_length, i, "S+"
                                 )
                             )
                         # Case |1><0|: this should be converted to 0.5*(X - iY)
                         elif f"{final_state[j]}{init_state[j]}" == "10":
-                            single_mapped_term: SparsePauliOp = single_mapped_term.compose(
+                            single_mapped_term = single_mapped_term.compose(
                                 self._get_single_qubit_pauli_matrix(
                                     mode_index_in_register, qubit_register_length, i, "S-"
                                 )
