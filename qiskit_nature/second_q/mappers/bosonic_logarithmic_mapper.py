@@ -48,7 +48,7 @@ class BosonicLogarithmicMapper(BosonicMapper):
     The mode :math:`|k\\rangle` is then mapped to the occupation number vector
     :math:`|0_{n_k^{max}}, 0_{n_k^{max} - 1},..., 0_{n_k + 1}, 1_{n_k}, 0_{n_k - 1},..., 0_{0_k}\\rangle`
 
-    This class implmenets the equation (34) and (35) of Reference [1].
+    This class implements the equation (34) and (35) of Reference [1].
 
     .. math::
         b_k^\\dagger = \\sum_{n_k = 0}^{2^{N_q}-2}(\\sqrt{n_k + 1}|n+1\\rangle\\langle n|)
