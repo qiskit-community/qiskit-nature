@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2023.
+# (C) Copyright IBM 2021, 2024.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -102,9 +102,9 @@ class FermiHubbardModel(LatticeModel):
         for node in self._lattice.node_indexes:
             index_up = 2 * node
             index_down = 2 * node + 1
-            interaction_ham[
-                f"+_{index_up} -_{index_up} +_{index_down} -_{index_down}"
-            ] = self._onsite_interaction
+            interaction_ham[f"+_{index_up} -_{index_up} +_{index_down} -_{index_down}"] = (
+                self._onsite_interaction
+            )
 
         ham = {**kinetic_ham, **interaction_ham}
 

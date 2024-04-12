@@ -78,8 +78,9 @@ class KagomeLattice(Lattice):
         cols: int,
         edge_parameter: complex = 1.0,
         onsite_parameter: complex = 0.0,
-        boundary_condition: BoundaryCondition
-        | tuple[BoundaryCondition, BoundaryCondition] = BoundaryCondition.OPEN,
+        boundary_condition: (
+            BoundaryCondition | tuple[BoundaryCondition, BoundaryCondition]
+        ) = BoundaryCondition.OPEN,
     ) -> None:
         """
         Args:
