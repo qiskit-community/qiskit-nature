@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2023.
+# (C) Copyright IBM 2021, 2024.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -62,14 +62,16 @@ class UVCC(EvolvedOperatorAnsatz):
     def __init__(
         self,
         num_modals: list[int] | None = None,
-        excitations: str
-        | int
-        | list[int]
-        | Callable[
-            [int, tuple[int, int]],
-            list[tuple[tuple[int, ...], tuple[int, ...]]],
-        ]
-        | None = None,
+        excitations: (
+            str
+            | int
+            | list[int]
+            | Callable[
+                [int, tuple[int, int]],
+                list[tuple[tuple[int, ...], tuple[int, ...]]],
+            ]
+            | None
+        ) = None,
         qubit_mapper: QubitMapper | None = None,
         *,
         reps: int = 1,

@@ -28,13 +28,15 @@ from qiskit_nature.utils import _parallel_map
 def build_electronic_ops(
     num_spatial_orbitals: int,
     num_particles: tuple[int, int],
-    excitations: str
-    | int
-    | list[int]
-    | Callable[
-        [int, tuple[int, int]],
-        list[tuple[tuple[int, ...], tuple[int, ...]]],
-    ],
+    excitations: (
+        str
+        | int
+        | list[int]
+        | Callable[
+            [int, tuple[int, int]],
+            list[tuple[tuple[int, ...], tuple[int, ...]]],
+        ]
+    ),
     qubit_mapper: QubitMapper,
 ) -> tuple[
     dict[str, SparsePauliOp],

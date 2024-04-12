@@ -167,13 +167,15 @@ class QEOM(ExcitedStatesSolver):
         self,
         ground_state_solver: GroundStateSolver,
         estimator: BaseEstimator,
-        excitations: str
-        | int
-        | list[int]
-        | Callable[
-            [int, tuple[int, int]],
-            list[tuple[tuple[int, ...], tuple[int, ...]]],
-        ] = "sd",
+        excitations: (
+            str
+            | int
+            | list[int]
+            | Callable[
+                [int, tuple[int, int]],
+                list[tuple[tuple[int, ...], tuple[int, ...]]],
+            ]
+        ) = "sd",
         aux_eval_rules: EvaluationRule | dict[str, list[tuple[int, int]]] | None = None,
         *,
         tol: float = 1e-6,
@@ -400,9 +402,7 @@ class QEOM(ExcitedStatesSolver):
 
         return result
 
-    def _build_hopping_ops(
-        self, problem: BaseProblem
-    ) -> tuple[
+    def _build_hopping_ops(self, problem: BaseProblem) -> tuple[
         dict[str, SparsePauliOp],
         dict[str, list[bool]],
         dict[str, tuple[tuple[int, ...], tuple[int, ...]]],
@@ -1023,9 +1023,9 @@ class QEOMResult(EigensolverResult):
         self.h_matrix_std: np.ndarray = np.zeros((2, 2))
         self.s_matrix_std: np.ndarray = np.zeros((2, 2))
 
-        self.transition_amplitudes: list[
-            ListOrDictType[tuple[complex, dict[str, Any]]]
-        ] | None = None
+        self.transition_amplitudes: list[ListOrDictType[tuple[complex, dict[str, Any]]]] | None = (
+            None
+        )
         self.gamma_square: np.ndarray = None
 
     @property

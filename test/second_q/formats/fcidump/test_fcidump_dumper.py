@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2020, 2023.
+# (C) Copyright IBM 2020, 2024.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -163,9 +163,11 @@ class TestFCIDumpDumpH2(QiskitNatureTestCase, BaseTestFCIDumpDumper):
             hij=electronic_integrals.alpha.get("+-", None),
             hij_b=electronic_integrals.beta.get("+-", None),
             hijkl=S1Integrals(to_chemist_ordering(hijkl)) if hijkl is not None else None,
-            hijkl_ba=S1Integrals(to_chemist_ordering(hijkl_ba, index_order=find_index_order(hijkl)))
-            if hijkl_ba is not None
-            else None,
+            hijkl_ba=(
+                S1Integrals(to_chemist_ordering(hijkl_ba, index_order=find_index_order(hijkl)))
+                if hijkl_ba is not None
+                else None
+            ),
             hijkl_bb=S1Integrals(to_chemist_ordering(hijkl_bb)) if hijkl_bb is not None else None,
             multiplicity=problem.molecule.multiplicity,
             constant_energy=electronic_energy.nuclear_repulsion_energy,
