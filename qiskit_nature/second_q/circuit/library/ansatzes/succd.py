@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2023.
+# (C) Copyright IBM 2021, 2024.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -91,9 +91,9 @@ class SUCCD(UCC):
         self._validate_num_particles(num_particles)
         self._include_singles = include_singles
         self._mirror = mirror
-        self._excitations_dict: dict[
-            str, list[tuple[tuple[int, ...], tuple[int, ...]]]
-        ] | None = None
+        self._excitations_dict: dict[str, list[tuple[tuple[int, ...], tuple[int, ...]]]] | None = (
+            None
+        )
         super().__init__(
             num_spatial_orbitals=num_spatial_orbitals,
             num_particles=num_particles,
@@ -239,9 +239,9 @@ class SUCCD(UCC):
             The list of excitation operators in the second quantized formalism.
         """
         operators: list[FermionicOp] = []
-        excitations_dictionary: dict[
-            str, list[tuple[tuple[int, ...], tuple[int, ...]]]
-        ] = defaultdict(list)
+        excitations_dictionary: dict[str, list[tuple[tuple[int, ...], tuple[int, ...]]]] = (
+            defaultdict(list)
+        )
         beta_index_shift = self.num_spatial_orbitals
 
         # Reform the excitations list to a dictionary. Each items in the dictionary
