@@ -127,14 +127,16 @@ class UCC(EvolvedOperatorAnsatz):
         self,
         num_spatial_orbitals: int | None = None,
         num_particles: tuple[int, int] | None = None,
-        excitations: str
-        | int
-        | list[int]
-        | Callable[
-            [int, tuple[int, int]],
-            list[tuple[tuple[int, ...], tuple[int, ...]]],
-        ]
-        | None = None,
+        excitations: (
+            str
+            | int
+            | list[int]
+            | Callable[
+                [int, tuple[int, int]],
+                list[tuple[tuple[int, ...], tuple[int, ...]]],
+            ]
+            | None
+        ) = None,
         qubit_mapper: QubitMapper | None = None,
         *,
         alpha_spin: bool = True,

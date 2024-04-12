@@ -219,7 +219,7 @@ def generate_fermionic_excitations(
                     shift = num_spatial_orbitals - offset
                     return (index - offset + shift) % period + offset
 
-            for (occ_idx, unocc_idx) in single_excitations:
+            for occ_idx, unocc_idx in single_excitations:
                 # we map from interleaved to blocked spin orbital indices
                 reordered_occ_idx = reorder_index(occ_idx)
                 reordered_unocc_idx = reorder_index(unocc_idx)

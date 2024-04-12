@@ -62,14 +62,16 @@ class UVCC(EvolvedOperatorAnsatz):
     def __init__(
         self,
         num_modals: list[int] | None = None,
-        excitations: str
-        | int
-        | list[int]
-        | Callable[
-            [int, tuple[int, int]],
-            list[tuple[tuple[int, ...], tuple[int, ...]]],
-        ]
-        | None = None,
+        excitations: (
+            str
+            | int
+            | list[int]
+            | Callable[
+                [int, tuple[int, int]],
+                list[tuple[tuple[int, ...], tuple[int, ...]]],
+            ]
+            | None
+        ) = None,
         qubit_mapper: QubitMapper | None = None,
         *,
         reps: int = 1,

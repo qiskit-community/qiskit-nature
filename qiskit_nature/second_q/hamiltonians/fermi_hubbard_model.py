@@ -102,9 +102,9 @@ class FermiHubbardModel(LatticeModel):
         for node in self._lattice.node_indexes:
             index_up = 2 * node
             index_down = 2 * node + 1
-            interaction_ham[
-                f"+_{index_up} -_{index_up} +_{index_down} -_{index_down}"
-            ] = self._onsite_interaction
+            interaction_ham[f"+_{index_up} -_{index_up} +_{index_down} -_{index_down}"] = (
+                self._onsite_interaction
+            )
 
         ham = {**kinetic_ham, **interaction_ham}
 

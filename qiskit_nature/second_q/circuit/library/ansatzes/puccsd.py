@@ -68,9 +68,13 @@ class PUCCSD(UCC):
             reps: The number of times to repeat the evolved operators.
             initial_state: A ``QuantumCircuit`` object to prepend to the circuit.
         """
-        self._excitations_dict: dict[
-            tuple[tuple[int, ...], tuple[int, ...]], list[tuple[tuple[int, ...], tuple[int, ...]]]
-        ] | None = None
+        self._excitations_dict: (
+            dict[
+                tuple[tuple[int, ...], tuple[int, ...]],
+                list[tuple[tuple[int, ...], tuple[int, ...]]],
+            ]
+            | None
+        ) = None
         super().__init__(
             num_spatial_orbitals=num_spatial_orbitals,
             num_particles=num_particles,

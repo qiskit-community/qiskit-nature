@@ -44,10 +44,9 @@ class Psi4Driver(ElectronicStructureDriver):
 
     def __init__(
         self,
-        config: str
-        | list[
-            str
-        ] = "molecule h2 {\n  0 1\n  H  0.0 0.0 0.0\n  H  0.0 0.0 0.735\n  no_com\n  no_reorient\n}\n\n"
+        config: (
+            str | list[str]
+        ) = "molecule h2 {\n  0 1\n  H  0.0 0.0 0.0\n  H  0.0 0.0 0.735\n  no_com\n  no_reorient\n}\n\n"
         "set {\n  basis sto-3g\n  scf_type pk\n  reference rhf\n",
     ) -> None:
         """

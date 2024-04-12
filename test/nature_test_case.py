@@ -23,6 +23,7 @@ import time
 import math
 from qiskit.quantum_info import SparsePauliOp
 
+
 # pylint: disable=unused-argument
 def _noop(*args, **kargs):
     pass
