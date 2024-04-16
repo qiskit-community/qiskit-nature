@@ -162,9 +162,9 @@ class BosonicLogarithmicMapper(BosonicMapper):
                     # action of the operator). They vary depending on the operator
                     prefactor = np.sqrt(n + 1) if op == "+" else np.sqrt(n)
                     final_state: str = (
-                        # fmt: off
-                        f"{(n + 1) if op == "+" else (n - 1):0{self.number_of_qubits_per_mode}b}"
-                        # fmt: on
+                        f"{(n + 1):0{self.number_of_qubits_per_mode}b}"
+                        if op == "+"
+                        else f"{(n - 1):0{self.number_of_qubits_per_mode}b}"
                     )
                     init_state: str = f"{n:0{self.number_of_qubits_per_mode}b}"
                     # Now build the Pauli operators
