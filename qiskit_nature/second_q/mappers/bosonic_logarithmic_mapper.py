@@ -34,8 +34,8 @@ class BosonicLogarithmicMapper(BosonicMapper):
     In this logarithmic encoding the number of qubits necessary to represent a bosonic mode is
     determined by the max occupation :math:`n_k^{max}` of the mode (meaning the number of states used
     in the expansion of the mode, or equivalently the state at which the maximum excitation can take
-    place). To number of qubits is given by:
-    :math:`\\rceil\\log_2(n_k^{max} + 1)\\lceil`, rounded up to the nearest integer.
+    place). The number of qubits is given by:
+    :math:`\\lceil\\log_2(n_k^{max} + 1)\\rceil`.
 
     .. note::
         A consequence of the rounding up for determining the number of required qubits is that the
