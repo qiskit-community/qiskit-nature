@@ -54,8 +54,8 @@ class TestBosonicLogarithmicMapper(QiskitNatureTestCase):
          "XXX", "XXY", "XYX", "XYY",
          "YXX", "YXY", "YYX", "YYY"],
         coeffs=[
-            1 + sq_3 + sq_5 + sq_7, -1j * (1 + sq_3 + sq_5 + sq_7), 1 - sq_3 + sq_5 - sq_7, -1j * (1 - sq_3 + sq_5 - sq_7),
-            1 + sq_3 - sq_5 - sq_7, -1j * (1 + sq_3 - sq_5 - sq_7), 1 - sq_3 - sq_5 + sq_7, -1j * (1 - sq_3 - sq_5 + sq_7),
+            1+sq_3+sq_5+sq_7, -1j*(1+sq_3+sq_5+sq_7), 1-sq_3+sq_5-sq_7, -1j*(1-sq_3+sq_5-sq_7),
+            1+sq_3-sq_5-sq_7, -1j*(1+sq_3-sq_5-sq_7), 1-sq_3-sq_5+sq_7, -1j*(1-sq_3-sq_5+sq_7),
             sq_2 + sq_6, 1j * (sq_2 + sq_6), -1j * (sq_2 + sq_6), sq_2 + sq_6,
             sq_2 - sq_6, 1j * (sq_2 - sq_6), -1j * (sq_2 - sq_6), sq_2 - sq_6,
             2, 2j, 2j, -2,
@@ -82,8 +82,8 @@ class TestBosonicLogarithmicMapper(QiskitNatureTestCase):
          "XXX", "XXY", "XYX", "XYY",
          "YXX", "YXY", "YYX", "YYY"],
         coeffs=[
-            1 + sq_3 + sq_5 + sq_7, 1j * (1 + sq_3 + sq_5 + sq_7), 1 - sq_3 + sq_5 - sq_7, 1j * (1 - sq_3 + sq_5 - sq_7),
-            1 + sq_3 - sq_5 - sq_7, 1j * (1 + sq_3 - sq_5 - sq_7), 1 - sq_3 - sq_5 + sq_7, 1j * (1 - sq_3 - sq_5 + sq_7),
+            1+sq_3+sq_5+sq_7, 1j*(1+sq_3+sq_5+sq_7), 1-sq_3+sq_5-sq_7, 1j*(1-sq_3+sq_5-sq_7),
+            1+sq_3-sq_5-sq_7, 1j*(1+sq_3-sq_5-sq_7), 1-sq_3-sq_5+sq_7, 1j*(1-sq_3-sq_5+sq_7),
             sq_2 + sq_6, -1j * (sq_2 + sq_6), 1j * (sq_2 + sq_6), sq_2 + sq_6,
             sq_2 - sq_6, -1j * (sq_2 - sq_6), 1j * (sq_2 - sq_6), sq_2 - sq_6,
             2, -2j, -2j, -2,
@@ -110,8 +110,8 @@ class TestBosonicLogarithmicMapper(QiskitNatureTestCase):
          "XXXIII", "XXYIII", "XYXIII", "XYYIII",
          "YXXIII", "YXYIII", "YYXIII", "YYYIII"],
         coeffs=[
-            1 + sq_3 + sq_5 + sq_7, -1j * (1 + sq_3 + sq_5 + sq_7), 1 - sq_3 + sq_5 - sq_7, -1j * (1 - sq_3 + sq_5 - sq_7),
-            1 + sq_3 - sq_5 - sq_7, -1j * (1 + sq_3 - sq_5 - sq_7), 1 - sq_3 - sq_5 + sq_7, -1j * (1 - sq_3 - sq_5 + sq_7),
+            1+sq_3+sq_5+sq_7, -1j*(1+sq_3+sq_5+sq_7), 1-sq_3+sq_5-sq_7, -1j*(1-sq_3+sq_5-sq_7),
+            1+sq_3-sq_5-sq_7, -1j*(1+sq_3-sq_5-sq_7), 1-sq_3-sq_5+sq_7, -1j*(1-sq_3-sq_5+sq_7),
             sq_2 + sq_6, 1j * (sq_2 + sq_6), -1j * (sq_2 + sq_6), sq_2 + sq_6,
             sq_2 - sq_6, 1j * (sq_2 - sq_6), -1j * (sq_2 - sq_6), sq_2 - sq_6,
             2, 2j, 2j, -2,
@@ -138,8 +138,8 @@ class TestBosonicLogarithmicMapper(QiskitNatureTestCase):
          "XXXIII", "XXYIII", "XYXIII", "XYYIII",
          "YXXIII", "YXYIII", "YYXIII", "YYYIII"],
         coeffs=[
-            1 + sq_3 + sq_5 + sq_7, 1j * (1 + sq_3 + sq_5 + sq_7), 1 - sq_3 + sq_5 - sq_7, 1j * (1 - sq_3 + sq_5 - sq_7),
-            1 + sq_3 - sq_5 - sq_7, 1j * (1 + sq_3 - sq_5 - sq_7), 1 - sq_3 - sq_5 + sq_7, 1j * (1 - sq_3 - sq_5 + sq_7),
+            1+sq_3+sq_5+sq_7, 1j*(1+sq_3+sq_5+sq_7), 1-sq_3+sq_5-sq_7, 1j*(1-sq_3+sq_5-sq_7),
+            1+sq_3-sq_5-sq_7, 1j*(1+sq_3-sq_5-sq_7), 1-sq_3-sq_5+sq_7, 1j*(1-sq_3-sq_5+sq_7),
             sq_2 + sq_6, -1j * (sq_2 + sq_6), 1j * (sq_2 + sq_6), sq_2 + sq_6,
             sq_2 - sq_6, -1j * (sq_2 - sq_6), 1j * (sq_2 - sq_6), sq_2 - sq_6,
             2, -2j, -2j, -2,
