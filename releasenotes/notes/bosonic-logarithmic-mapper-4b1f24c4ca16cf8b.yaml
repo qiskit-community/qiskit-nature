@@ -6,7 +6,7 @@ features:
     to the binary encoding of the bosonic operator. For other operations, such as the hopping term
     :math:`a^\\dagger_i a_j`, the number of Pauli strings generated is bigger than the linear mapper.
     This mapper is based on this `paper <https://doi.org/10.48550/arXiv.2307.06580>`_.
-    To use this mapper one can for example:
+    Below is an example of how one can use this mapper, assuming the existence of some :class:`.BosonicOp` instance called ``bos_op``:
 
     .. code-block:: python
 
