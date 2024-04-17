@@ -182,7 +182,7 @@ class BosonicLogarithmicMapper(BosonicMapper):
                             self._get_single_qubit_pauli_matrix(
                                 mode_index_in_register + i,
                                 qubit_register_length,
-                                f"{final_state[j]}{init_state[j]}",
+                                final_state[j] + init_state[j],
                             )
                         )
                     pauli_expansion.append(prefactor * single_mapped_term)
