@@ -70,7 +70,7 @@ class BosonicLogarithmicMapper(BosonicMapper):
 
         BosonicOp.num_modes * numpy.log2(BosonicLogarithmicMapper.max_occupation + 1)
 
-    To use this mapper one can for example:
+    Below is an example of how one can use this mapper:
 
     .. code-block:: python
 
