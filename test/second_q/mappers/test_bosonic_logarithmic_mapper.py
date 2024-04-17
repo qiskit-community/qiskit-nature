@@ -150,17 +150,15 @@ class TestBosonicLogarithmicMapper(QiskitNatureTestCase):
     bos_op5 = BosonicOp({"+_0 -_0": 1})
     # Using: max_occupation = 3 (number_of_qubits_per_mode = 2)
     ref_qubit_op5_nq2 = 0.5 * SparsePauliOp(["II", "IZ", "ZI"], coeffs=[3, -1, -2])
-    # Using: max_occupation = 2
-    ref_qubit_op6_nq3 = SparsePauliOp(
-        ["III", "IZZ", "IZI", "IIZ", "ZZI", "ZII"], coeffs=[0.75, -0.25, 0.25, 0.25, -0.5, -0.5]
-    )
+    # Using: max_occupation = 7 (number_of_qubits_per_mode = 3)
+    ref_qubit_op5_nq3 = 0.5 * SparsePauliOp(["III", "IIZ", "IZI", "ZII"], coeffs=[7, -1, -2, -4])
 
     bos_op6 = BosonicOp({"-_0 +_0": 1})
     # Using: max_occupation = 3 (number_of_qubits_per_mode = 2)
     ref_qubit_op6_nq2 = 0.5 * SparsePauliOp(["II", "IZ", "ZZ"], coeffs=[3, 1, -2])
-    # Using: max_occupation = 2
-    ref_qubit_op6_tr2 = SparsePauliOp(
-        ["III", "IZZ", "IZI", "IIZ", "ZZI", "ZII"], coeffs=[0.75, -0.25, 0.25, 0.25, -0.5, -0.5]
+    # Using: max_occupation = 7 (number_of_qubits_per_mode = 3)
+    ref_qubit_op6_nq3 = 0.5 * SparsePauliOp(
+        ["III", "IIZ", "IZZ", "ZII", "ZIZ", "ZZI", "ZZZ"], coeffs=[7, 1, -2, -2, -2, -2, 2]
     )
 
     bos_op7 = BosonicOp({"+_0 -_1": 1})
@@ -204,6 +202,14 @@ class TestBosonicLogarithmicMapper(QiskitNatureTestCase):
             2, -2j, 2j, 2],
     )
     # fmt: on
+    # Using: max_occupation = 7 (number_of_qubits_per_mode = 3)
+    # Computing this analitically is too complex, as it would result in hundreds of Pauli terms.
+    # Thus we compute the reference by composing previously mapped operators. The correctness of
+    # this reference is ensured by the fact that the previous operators are covered in some of
+    # the unit tests in this test class.
+    ref_qubit_op7_8_nq3 = ref_qubit_op4_nq3.compose(
+        BosonicLogarithmicMapper(max_occupation=7).map(BosonicOp({"+_0": 1}, num_modes=2))
+    ).simplify()
 
     bos_op9 = BosonicOp({"+_0 +_0": 1})
     # Using: max_occupation = 3 (number_of_qubits_per_mode = 2)
@@ -215,6 +221,11 @@ class TestBosonicLogarithmicMapper(QiskitNatureTestCase):
             coeffs=[sq_2 + sq_6, -1j * (sq_2 + sq_6), sq_2 - sq_6, -1j * (sq_2 - sq_6)],
         )
     )
+    # Using: max_occupation = 7 (number_of_qubits_per_mode = 3)
+    # Computing this analitically is too complex. Thus we compute the reference by composing previously
+    # mapped operators. The correctness of this reference is ensured by the fact that the previous
+    # operators are covered in some of the unit tests in this test class.
+    ref_qubit_op9_nq3 = ref_qubit_op1_nq3.compose(ref_qubit_op1_nq3).simplify()
 
     # Test max_occupation = 3 (number_of_qubits_per_mode = 2)
     @data(
@@ -241,6 +252,11 @@ class TestBosonicLogarithmicMapper(QiskitNatureTestCase):
         (bos_op2, ref_qubit_op2_nq3),
         (bos_op3, ref_qubit_op3_nq3),
         (bos_op4, ref_qubit_op4_nq3),
+        (bos_op5, ref_qubit_op5_nq3),
+        (bos_op6, ref_qubit_op6_nq3),
+        (bos_op7, ref_qubit_op7_8_nq3),
+        (bos_op8, ref_qubit_op7_8_nq3),
+        (bos_op9, ref_qubit_op9_nq3),
     )
     @unpack
     def test_mapping_max_occupation_7(self, bos_op, ref_qubit_op):
