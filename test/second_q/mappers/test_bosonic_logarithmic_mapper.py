@@ -203,7 +203,7 @@ class TestBosonicLogarithmicMapper(QiskitNatureTestCase):
     )
     # fmt: on
     # Using: max_occupation = 7 (number_of_qubits_per_mode = 3)
-    # Computing this analitically is too complex, as it would result in hundreds of Pauli terms.
+    # Computing this analytically is too complex, as it would result in hundreds of Pauli terms.
     # Thus we compute the reference by composing previously mapped operators. The correctness of
     # this reference is ensured by the fact that the previous operators are covered in some of
     # the unit tests in this test class.
@@ -222,7 +222,7 @@ class TestBosonicLogarithmicMapper(QiskitNatureTestCase):
         )
     )
     # Using: max_occupation = 7 (number_of_qubits_per_mode = 3)
-    # Computing this analitically is too complex. Thus we compute the reference by composing previously
+    # Computing this analytically is too complex. Thus we compute the reference by composing previously
     # mapped operators. The correctness of this reference is ensured by the fact that the previous
     # operators are covered in some of the unit tests in this test class.
     ref_qubit_op9_nq3 = ref_qubit_op1_nq3.compose(ref_qubit_op1_nq3).simplify()
