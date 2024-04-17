@@ -78,6 +78,7 @@ chkfile
 cholesky
 chuang
 ci
+classmethod
 clbit
 clbits
 clifford
@@ -301,6 +302,7 @@ kwargs
 kwds
 labelled
 langle
+lbl
 lbrace
 lda
 ldots
@@ -326,6 +328,7 @@ lvert
 lysine
 macos
 majorana
+majoranaop
 makefile
 matmul
 matplotlib
@@ -453,6 +456,7 @@ pxd
 py
 pydata
 pyquante
+pyright
 pyscf
 qarg
 qargs

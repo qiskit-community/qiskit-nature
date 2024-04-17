@@ -26,13 +26,15 @@ from qiskit_nature.utils import _parallel_map
 
 def build_vibrational_ops(
     num_modals: list[int],
-    excitations: str
-    | int
-    | list[int]
-    | Callable[
-        [int, tuple[int, int]],
-        list[tuple[tuple[int, ...], tuple[int, ...]]],
-    ],
+    excitations: (
+        str
+        | int
+        | list[int]
+        | Callable[
+            [int, tuple[int, int]],
+            list[tuple[tuple[int, ...], tuple[int, ...]]],
+        ]
+    ),
     qubit_mapper: QubitMapper,
 ) -> tuple[
     dict[str, SparsePauliOp],

@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2020, 2023.
+# (C) Copyright IBM 2020, 2024.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -355,7 +355,12 @@ class ElectronicStructureResult(EigenstateResult):
             lines.append(" ")
             lines.append("=== MEASURED OBSERVABLES ===")
             lines.append(" ")
-            for idx, (num_particles, spin, total_angular_momentum, magnetization,) in enumerate(
+            for idx, (
+                num_particles,
+                spin,
+                total_angular_momentum,
+                magnetization,
+            ) in enumerate(
                 zip(
                     self.num_particles,
                     self.spin,
@@ -384,7 +389,15 @@ class ElectronicStructureResult(EigenstateResult):
                     f"{_dipole_to_string(self.nuclear_dipole_moment, self.formatting_precision)}"
                 )
                 lines.append(" ")
-            for idx, (elec_dip, comp_dip, extr_dip, dip, tot_dip, dip_db, tot_dip_db,) in enumerate(
+            for idx, (
+                elec_dip,
+                comp_dip,
+                extr_dip,
+                dip,
+                tot_dip,
+                dip_db,
+                tot_dip_db,
+            ) in enumerate(
                 zip(
                     self.electronic_dipole_moment,
                     self.computed_dipole_moment,
