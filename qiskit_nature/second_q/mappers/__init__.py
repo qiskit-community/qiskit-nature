@@ -25,6 +25,7 @@ operators.
    :nosignatures:
 
    QubitMapper
+   ModeBasedMapper
 
 FermionicOp Mappers
 +++++++++++++++++++
@@ -103,6 +104,7 @@ from .bosonic_logarithmic_mapper import BosonicLogarithmicMapper
 from .logarithmic_mapper import LogarithmicMapper
 from .direct_mapper import DirectMapper
 from .qubit_mapper import QubitMapper
+from .mode_based_mapper import ModeBasedMapper
 from .interleaved_qubit_mapper import InterleavedQubitMapper
 from .tapered_qubit_mapper import TaperedQubitMapper
 
@@ -119,4 +121,5 @@ __all__ = [
     "QubitMapper",
     "InterleavedQubitMapper",
     "TaperedQubitMapper",
+    "ModeBasedMapper",
 ]
