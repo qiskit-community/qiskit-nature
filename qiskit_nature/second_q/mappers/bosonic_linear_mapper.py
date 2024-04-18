@@ -108,7 +108,10 @@ class BosonicLinearMapper(BosonicMapper):
             bos_op_to_pauli_op = SparsePauliOp(["I" * qubit_register_length], coeffs=[1.0])
             for op, idx in terms:
                 if op not in ("+", "-"):
-                    break
+                    raise ValueError(
+                        f"Invalid bosonic operator: `{op}_{idx}`."
+                        + "All bosonic operators must have the following shape: `+_k` or `-_k`."
+                    )
                 pauli_expansion: list[SparsePauliOp] = []
                 # Now we are dealing with a single bosonic operator. We have to perform the linear mapper
                 for n_k in range(self.max_occupation):
