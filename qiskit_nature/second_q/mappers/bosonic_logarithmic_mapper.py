@@ -43,11 +43,11 @@ class BosonicLogarithmicMapper(BosonicMapper):
     .. note::
         A consequence of the rounding up for determining the number of required qubits is that the
         actual max occupation is often larger than the one selected by the user. For example, if the
-        user selects a :math:`n_k^{max} = 2`, then the number of required qubits is
+        user selects :math:`n_k^{max} = 2`, then the number of required qubits is
         :math:`\\lceil\\log_2(3)\\rceil = 2`. If we now compute the max occupation for 2 qubits, we
         get :math:`2^2 - 1 = 3`, which is larger than the user-selected max occupation. The user should
         expect that the actual max occupation is always larger than or equal to the one selected.
-        If the code changes the max occupation, the code will issue a warning in the logs.
+        If the code changes the max occupation, a warning will appear in the logs.
 
     The mode :math:`|k\\rangle` is then mapped to the occupation number vector
     :math:`|0_{n_k^{max}}, 0_{n_k^{max} - 1},..., 0_{n_k + 1}, 1_{n_k}, 0_{n_k - 1},..., 0_{0_k}\\rangle`
@@ -55,20 +55,20 @@ class BosonicLogarithmicMapper(BosonicMapper):
     This class implements the equation (34) and (35) of Reference [1].
 
     .. math::
-        b_k^\\dagger = \\sum_{n_k = 0}^{2^{N_q}-2}(\\sqrt{n_k + 1}|n+1\\rangle\\langle n|)
+        b_k^\\dagger = \\sum_{n_k = 0}^{2^{N_q}-2}\\left(\\sqrt{n_k + 1}|n+1\\rangle\\langle n|\\right)
 
-        b_k = \\sum_{n_k = 1}^{2^{N_q}-1}(\\sqrt{n_k}|n-1\\rangle\\langle n|)
+        b_k = \\sum_{n_k = 1}^{2^{N_q}-1}\\left(\\sqrt{n_k}|n-1\\rangle\\langle n|\\right)
 
     where :math:`N_q` is the number of qubits used to represent each mode
     (given by :math:`\\lceil\\log_2(n_k^{max} + 1)\\rceil`). This implementation first computes each
     :math:`|n+1\\rangle\\langle n|` and :math:`|n-1\\rangle\\langle n|` in a binary representation
-    and the uses equation (37) from Reference [1] to map to the Pauli operators.
+    and then uses equation (37) from Reference [1] to map to the Pauli operators.
 
     The length of the qubit register is:
 
     .. code-block:: python
 
-        BosonicOp.num_modes * numpy.log2(BosonicLogarithmicMapper.max_occupation + 1)
+        BosonicOp.num_modes * math.ceil(numpy.log2(BosonicLogarithmicMapper.max_occupation + 1))
 
     Below is an example of how one can use this mapper:
 
@@ -82,8 +82,8 @@ class BosonicLogarithmicMapper(BosonicMapper):
 
     .. note::
         Since this mapper truncates the maximum occupation of a bosonic state as represented in the
-        qubit register, the commutation relation after the mapping differ from the standard ones.
-        Please refer to Section 4, equation 22 of Reference [2] for more details
+        qubit register, the commutation relations after the mapping differ from the standard ones.
+        Please refer to Section 4, equation 22 of Reference [2] for more details.
 
     References:
         [1] Bo Peng et al., Quantum Simulation of Boson-Related Hamiltonians: Techniques, Effective
