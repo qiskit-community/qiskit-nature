@@ -130,6 +130,9 @@ class BosonicLogarithmicMapper(BosonicMapper):
 
         Returns:
             The qubit operator corresponding to the problem-Hamiltonian in the qubit space.
+
+        Raises:
+            ValueError: if any term in the bosonic operator is not in the form `+_k` or `-_k`.
         """
         if register_length is None:
             register_length = second_q_op.num_modes
@@ -147,7 +150,7 @@ class BosonicLogarithmicMapper(BosonicMapper):
                 if op not in ("+", "-"):
                     raise ValueError(
                         f"Invalid bosonic operator: `{op}_{idx}`."
-                        + "All bosonic operators must have the following shape: `+_k` or `-_k`."
+                        "All bosonic operators must have the following shape: `+_k` or `-_k`."
                     )
                 pauli_expansion: list[SparsePauliOp] = []
                 # Define the index of the mode in the qubit register
