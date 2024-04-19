@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2023.
+# (C) Copyright IBM 2021, 2024.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -219,7 +219,7 @@ def generate_fermionic_excitations(
                     shift = num_spatial_orbitals - offset
                     return (index - offset + shift) % period + offset
 
-            for (occ_idx, unocc_idx) in single_excitations:
+            for occ_idx, unocc_idx in single_excitations:
                 # we map from interleaved to blocked spin orbital indices
                 reordered_occ_idx = reorder_index(occ_idx)
                 reordered_unocc_idx = reorder_index(unocc_idx)

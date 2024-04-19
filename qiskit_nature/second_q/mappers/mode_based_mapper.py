@@ -46,7 +46,7 @@ class ModeBasedMapper(QubitMapper):
         operators are used to construct the creation and annihilation operators
         :math:`(P \pm i Q)/2`.
 
-        The generated table is processed by :meth:`.QubitMapper.sparse_pauli_operators`.
+        The generated table is processed by :meth:`.sparse_pauli_operators`.
 
         Args:
             register_length: the register length for which to generate the table.
@@ -113,21 +113,22 @@ class ModeBasedMapper(QubitMapper):
             register_length = second_q_op.register_length
 
         times_creation_op, times_annihilation_op = self.sparse_pauli_operators(register_length)
-        mapped_string_length = times_creation_op[0].num_qubits
 
         # make sure ret_op_list is not empty by including a zero op
-        ret_op_list = [SparsePauliOp("I" * mapped_string_length, coeffs=[0])]
+        ret_op_list = [SparsePauliOp("I" * register_length, coeffs=[0])]
 
         for terms, coeff in second_q_op.terms():
             # 1. Initialize an operator list with the identity scaled by the `coeff`
-            ret_op = SparsePauliOp("I" * mapped_string_length, coeffs=np.array([coeff]))
+            ret_op = SparsePauliOp("I" * register_length, coeffs=np.array([coeff]))
 
             # Go through the label and replace the fermion operators by their qubit-equivalent, then
             # save the respective Pauli string in the pauli_str list.
             for term in terms:
                 char = term[0]
+                if char == "":
+                    break
                 position = int(term[1])
-                if char in ("+", ""):  # "" for MajoranaOp, creator = annihilator
+                if char == "+":
                     ret_op = ret_op.compose(times_creation_op[position], front=True).simplify()
                 elif char == "-":
                     ret_op = ret_op.compose(times_annihilation_op[position], front=True).simplify()

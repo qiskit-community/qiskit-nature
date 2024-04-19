@@ -85,7 +85,7 @@ class BosonicLinearMapper(BosonicMapper):
     def _map_single(
         self, second_q_op: BosonicOp, *, register_length: int | None = None
     ) -> SparsePauliOp:
-        """Maps a :class:`~qiskit_nature.second_q.operators.SparseLabelOp` to a``SparsePauliOp``.
+        """Maps a :class:`~qiskit_nature.second_q.operators.SparseLabelOp` to a ``SparsePauliOp``.
 
         Args:
             second_q_op: the ``SparseLabelOp`` to be mapped.
@@ -95,6 +95,9 @@ class BosonicLinearMapper(BosonicMapper):
 
         Returns:
             The qubit operator corresponding to the problem-Hamiltonian in the qubit space.
+
+        Raises:
+            ValueError: if any term in the bosonic operator is not in the form `+_k` or `-_k`.
         """
         if register_length is None:
             register_length = second_q_op.num_modes
@@ -108,7 +111,10 @@ class BosonicLinearMapper(BosonicMapper):
             bos_op_to_pauli_op = SparsePauliOp(["I" * qubit_register_length], coeffs=[1.0])
             for op, idx in terms:
                 if op not in ("+", "-"):
-                    break
+                    raise ValueError(
+                        f"Invalid bosonic operator: `{op}_{idx}`."
+                        "All bosonic operators must have the following shape: `+_k` or `-_k`."
+                    )
                 pauli_expansion: list[SparsePauliOp] = []
                 # Now we are dealing with a single bosonic operator. We have to perform the linear mapper
                 for n_k in range(self.max_occupation):
