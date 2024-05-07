@@ -254,8 +254,6 @@ class SpinOp(SparseLabelOp):
         return self.__class__(data, copy=False, num_spins=num_s)
 
     def _validate_keys(self, keys: Collection[str]) -> None:
-        super()._validate_keys(keys)
-
         num_s = self.num_spins
 
         max_index = -1

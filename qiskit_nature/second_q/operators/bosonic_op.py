@@ -195,8 +195,6 @@ class BosonicOp(SparseLabelOp):
         return self.__class__(data, copy=False, num_modes=num_so)
 
     def _validate_keys(self, keys: Collection[str]) -> None:
-        super()._validate_keys(keys)
-
         num_so = self.num_modes
 
         max_index = -1
