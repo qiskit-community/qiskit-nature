@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2023.
+# (C) Copyright IBM 2021, 2024.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -21,15 +21,18 @@ import numpy as np
 from qiskit.quantum_info.operators import Pauli
 
 from .fermionic_mapper import FermionicMapper
+from .mode_based_mapper import ModeBasedMapper, PauliType
 
 
-class BravyiKitaevMapper(FermionicMapper):
+class BravyiKitaevMapper(FermionicMapper, ModeBasedMapper):
     """The Bravyi-Kitaev fermion-to-qubit mapping."""
 
-    @classmethod
+    def pauli_table(self, register_length: int) -> list[tuple[PauliType, PauliType]]:
+        return self._pauli_table(register_length)
+
+    @staticmethod
     @lru_cache(maxsize=32)
-    def pauli_table(cls, register_length: int) -> list[tuple[Pauli, Pauli]]:
-        # pylint: disable=unused-argument
+    def _pauli_table(register_length: int) -> list[tuple[PauliType, PauliType]]:
         def parity_set(j, n):
             """
             Computes the parity set of the j-th orbital in n modes.

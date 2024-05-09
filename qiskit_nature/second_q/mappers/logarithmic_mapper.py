@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2023.
+# (C) Copyright IBM 2021, 2024.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -143,7 +143,7 @@ class LogarithmicMapper(SpinMapper):
             op.chop()
             spin_op_encoding.append(op)
 
-        return tuple(spin_op_encoding)
+        return (spin_op_encoding[0], spin_op_encoding[1], spin_op_encoding[2], spin_op_encoding[3])
 
     def _embed_matrix(
         self,

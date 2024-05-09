@@ -143,7 +143,6 @@ class FermionicOp(SparseLabelOp):
         However, a FermionicOp containing parameters does not support the following methods:
 
         - ``is_hermitian``
-        - ``to_matrix``
     """
 
     _OPERATION_REGEX = re.compile(r"([\+\-]_\d+\s)*[\+\-]_\d+")
@@ -459,7 +458,8 @@ class FermionicOp(SparseLabelOp):
             }
         )
 
-    def _index_order(self, terms: list[tuple[str, int]], coeff: _TCoeff) -> tuple[str, _TCoeff]:
+    @classmethod
+    def _index_order(cls, terms: list[tuple[str, int]], coeff: _TCoeff) -> tuple[str, _TCoeff]:
         if not terms:
             return "", coeff
 

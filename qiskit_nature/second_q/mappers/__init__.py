@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2022, 2023.
+# (C) Copyright IBM 2022, 2024.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -25,6 +25,7 @@ operators.
    :nosignatures:
 
    QubitMapper
+   ModeBasedMapper
 
 FermionicOp Mappers
 +++++++++++++++++++
@@ -57,6 +58,7 @@ BosonicOp Mappers
    :nosignatures:
 
    BosonicLinearMapper
+   BosonicLogarithmicMapper
 
 VibrationalOp Mappers
 +++++++++++++++++++++
@@ -98,9 +100,11 @@ from .jordan_wigner_mapper import JordanWignerMapper
 from .parity_mapper import ParityMapper
 from .linear_mapper import LinearMapper
 from .bosonic_linear_mapper import BosonicLinearMapper
+from .bosonic_logarithmic_mapper import BosonicLogarithmicMapper
 from .logarithmic_mapper import LogarithmicMapper
 from .direct_mapper import DirectMapper
 from .qubit_mapper import QubitMapper
+from .mode_based_mapper import ModeBasedMapper
 from .interleaved_qubit_mapper import InterleavedQubitMapper
 from .tapered_qubit_mapper import TaperedQubitMapper
 
@@ -112,8 +116,10 @@ __all__ = [
     "ParityMapper",
     "LinearMapper",
     "BosonicLinearMapper",
+    "BosonicLogarithmicMapper",
     "LogarithmicMapper",
     "QubitMapper",
     "InterleavedQubitMapper",
     "TaperedQubitMapper",
+    "ModeBasedMapper",
 ]
