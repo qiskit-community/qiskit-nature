@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2024.
+# (C) Copyright IBM 2021, 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -459,8 +459,9 @@ class UCC(EvolvedOperatorAnsatz):
         extra_kwargs: Dict[str, Any] = {
             "alpha_spin": bool(self._alpha_spin),
             "beta_spin": bool(self._beta_spin),
-            "max_spin_excitation": int(self._max_spin_excitation)
-            if self._max_spin_excitation is not None else None,
+            "max_spin_excitation": (
+                int(self._max_spin_excitation) if self._max_spin_excitation is not None else None
+            ),
             "generalized": bool(self._generalized),
             "preserve_spin": bool(self._preserve_spin),
         }
@@ -483,7 +484,9 @@ class UCC(EvolvedOperatorAnsatz):
         elif isinstance(self.excitations, list):
             for excitation in self.excitations:
                 generators.append(
-                    partial(generate_fermionic_excitations, num_excitations=excitation, **extra_kwargs)
+                    partial(
+                        generate_fermionic_excitations, num_excitations=excitation, **extra_kwargs
+                    )
                 )
         elif callable(self.excitations):
             generators = [self.excitations]

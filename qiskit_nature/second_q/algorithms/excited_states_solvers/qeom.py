@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2020, 2024.
+# (C) Copyright IBM 2020, 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -930,7 +930,7 @@ class QEOM(ExcitedStatesSolver):
             for indice in indices_diag_as_list:
                 aux_operators_eigenvalues[indice] = {}  # type: ignore[index]
                 for aux_name in untap_aux_ops.keys():
-                    aux_operators_eigenvalues[indice][aux_name] = aux_measurements.get( # type: ignore
+                    aux_operators_eigenvalues[indice][aux_name] = aux_measurements.get(  # type: ignore
                         (aux_name, indice[0], indice[1]), (0.0, {})
                     )
 

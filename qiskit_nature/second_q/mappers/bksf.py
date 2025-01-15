@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2023.
+# (C) Copyright IBM 2021, 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -303,6 +303,7 @@ def _double_excitation(
     )
     final_coeff = 0.125
     return (final_coeff * h2_pqrs) * qubit_op
+
 
 # pylint: disable=invalid-name, disable=too-many-positional-arguments
 def _number_excitation(

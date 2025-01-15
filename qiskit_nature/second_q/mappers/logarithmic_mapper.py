@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2024.
+# (C) Copyright IBM 2021, 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -103,7 +103,8 @@ class LogarithmicMapper(SpinMapper):
             operatorlist = [mat[i] if i in mat else identity for i in range(register_length)]
             # Now, we can tensor all operators in this list
             qubit_ops_list.append(
-                coeff * reduce(operator.xor, reversed(operatorlist))) # type: ignore[operator]
+                coeff * reduce(operator.xor, reversed(operatorlist))  # type: ignore[operator]
+            )
 
         qubit_op = reduce(operator.add, qubit_ops_list)
 

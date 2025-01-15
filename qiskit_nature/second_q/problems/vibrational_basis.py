@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2023.
+# (C) Copyright IBM 2021, 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -131,4 +131,4 @@ class VibrationalBasis(ABC):
             else:
                 # update the matrix in all permuted locations
                 for i in product(*index_permutations):
-                    yield (coeff, tuple(chain(*i))) # type: ignore[arg-type]
+                    yield (coeff, tuple(chain(*i)))  # type: ignore[arg-type]

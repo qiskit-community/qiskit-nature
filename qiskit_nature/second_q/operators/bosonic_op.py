@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2023, 2024.
+# (C) Copyright IBM 2023, 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -195,7 +195,7 @@ class BosonicOp(SparseLabelOp):
         return self.__class__(data, copy=False, num_modes=num_so)
 
     def _validate_keys(self, keys: Collection[str]) -> None:
-        super()._validate_keys(keys) # type: ignore[safe-super]
+        super()._validate_keys(keys)  # type: ignore[safe-super]
 
         num_so = self.num_modes
 
