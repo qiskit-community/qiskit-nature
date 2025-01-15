@@ -139,7 +139,7 @@ class ElectronicEnergy(Hamiltonian):
         else:
             self.constants["nuclear_repulsion_energy"] = e_nuc
 
-    # pylint: disable=invalid-name
+    # pylint: disable=invalid-name, disable=too-many-positional-arguments
     @classmethod
     def from_raw_integrals(
         cls,

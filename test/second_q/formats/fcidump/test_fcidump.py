@@ -44,6 +44,7 @@ class BaseTestFCIDump(ABC):
         """subtest"""
         raise builtins.Exception("Abstract method")
 
+    # pylint: disable=too-many-positional-arguments
     @abstractmethod
     def assertAlmostEqual(self, first, second, places=None, msg=None, delta=None):
         """assert Almost Equal"""

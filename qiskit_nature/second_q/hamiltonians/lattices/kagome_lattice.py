@@ -72,6 +72,7 @@ class KagomeLattice(Lattice):
     # Primitive translation vectors in each direction
     _basis = np.array([[2, 0], [1, np.sqrt(3)]])
 
+    # pylint: disable=too-many-positional-arguments
     def __init__(
         self,
         rows: int,

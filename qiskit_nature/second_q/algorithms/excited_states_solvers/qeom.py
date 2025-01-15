@@ -946,6 +946,7 @@ class QEOM(ExcitedStatesSolver):
 
         return aux_operators_eigenvalues, transition_amplitudes
 
+    # pylint: disable=too-many-positional-arguments
     def _build_qeom_result(
         self,
         problem,

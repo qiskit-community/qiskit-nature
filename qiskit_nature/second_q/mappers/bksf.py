@@ -261,7 +261,8 @@ def _excitation_operator(  # pylint: disable=invalid-name
 
 
 ## SW2018 eq 37
-def _double_excitation(  # pylint: disable=invalid-name
+# pylint: disable=invalid-name, disable=too-many-positional-arguments
+def _double_excitation(
     edge_list: np.ndarray, p: int, q: int, r: int, s: int, h2_pqrs: float
 ) -> SparsePauliOp:
     """Map a double-excitation operator to a Pauli operator.
@@ -303,8 +304,8 @@ def _double_excitation(  # pylint: disable=invalid-name
     final_coeff = 0.125
     return (final_coeff * h2_pqrs) * qubit_op
 
-
-def _number_excitation(  # pylint: disable=invalid-name
+# pylint: disable=invalid-name, disable=too-many-positional-arguments
+def _number_excitation(
     edge_list: np.ndarray, p: int, q: int, r: int, s: int, h2_pqrs: float
 ) -> SparsePauliOp:
     """Map a number-excitation operator to a Pauli operator.

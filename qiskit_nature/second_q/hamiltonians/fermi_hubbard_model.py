@@ -94,7 +94,9 @@ class FermiHubbardModel(LatticeModel):
                         index_left = 2 * node_b + spin
                         index_right = 2 * node_a + spin
                         hopping_parameter = np.conjugate(weight)
+                    # pylint: disable=possibly-used-before-assignment
                     kinetic_ham[f"+_{index_left} -_{index_right}"] = hopping_parameter
+                    # pylint: disable=possibly-used-before-assignment
                     kinetic_ham[f"-_{index_left} +_{index_right}"] = -np.conjugate(
                         hopping_parameter
                     )

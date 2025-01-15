@@ -210,6 +210,7 @@ class TestDriverGaussianForces(QiskitNatureTestCase):
             matched = re.search("G16Rev\\w+\\.\\w+", qne.message)
             if matched is not None:
                 version = matched[0]
+        exp_vals = []
         if version == "G16RevA.03":
             if pbe:
                 exp_vals = TestDriverGaussianForces._A03_REV_PBE_EXPECTED

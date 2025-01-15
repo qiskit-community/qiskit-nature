@@ -20,6 +20,7 @@ from .hyper_cubic_lattice import HyperCubicLattice
 class SquareLattice(HyperCubicLattice):
     """Square lattice."""
 
+    # pylint: disable=too-many-positional-arguments
     def __init__(
         self,
         rows: int,

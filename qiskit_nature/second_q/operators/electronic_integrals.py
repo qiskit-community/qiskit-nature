@@ -616,7 +616,7 @@ class ElectronicIntegrals(LinearMixin):
             )
         return cls(alpha, beta, beta_alpha, validate=validate)
 
-    # pylint: disable=invalid-name
+    # pylint: disable=invalid-name, disable=too-many-positional-arguments
     @classmethod
     def from_raw_integrals(
         cls,

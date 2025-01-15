@@ -158,6 +158,7 @@ class TriangularLattice(Lattice):
             pos[index] = coord.tolist()
         return pos
 
+    # pylint: disable=too-many-positional-arguments
     def __init__(
         self,
         rows: int,

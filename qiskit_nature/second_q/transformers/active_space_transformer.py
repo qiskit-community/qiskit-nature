@@ -435,6 +435,11 @@ class ActiveSpaceTransformer(BaseTransformer):
             num_alpha, num_beta = self._num_electrons
         elif isinstance(self._num_electrons, (int, np.integer)):
             num_alpha = num_beta = self._num_electrons // 2
+        else:
+            raise QiskitNatureError(
+                "The number of active electrons must be an int, or a tuple thereof, not: ",
+                type(self._num_electrons),
+            )
 
         # compute number of inactive electrons
         nelec_inactive = total_num_electrons - num_alpha - num_beta

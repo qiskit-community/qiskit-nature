@@ -34,6 +34,7 @@ class HarmonicBasis(VibrationalBasis):
             https://doi.org/10.1039/D0SC01908A
     """
 
+    # pylint: disable=too-many-positional-arguments
     @lru_cache(maxsize=128)
     def eval_integral(
         self,

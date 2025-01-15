@@ -52,6 +52,7 @@ class VibrationalBasis(ABC):
         self.num_modals = num_modals
         self.threshold = threshold
 
+    # pylint: disable=too-many-positional-arguments
     @abstractmethod
     @lru_cache(maxsize=128)
     def eval_integral(

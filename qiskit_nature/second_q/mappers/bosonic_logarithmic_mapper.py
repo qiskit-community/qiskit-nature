@@ -100,10 +100,10 @@ class BosonicLogarithmicMapper(BosonicMapper):
         )
         max_calculated_occupation = 2**self.number_of_qubits_per_mode - 1
         if max_occupation != max_calculated_occupation:
-            logger.warning(
-                f"The user requested a max occupation of {max_occupation}, but the actual "
-                + f"max occupation is {max_calculated_occupation}."
-            )
+            # Use of a message variable to suppress pylint warning logging-not-lazy
+            warning_message = f"The user requested a max occupation of {max_occupation}, " +\
+                f"but the actual max occupation is {max_calculated_occupation}."
+            logger.warning(warning_message)
         super().__init__(max_calculated_occupation)
 
     @property

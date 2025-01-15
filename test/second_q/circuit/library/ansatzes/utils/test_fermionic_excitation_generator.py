@@ -145,6 +145,8 @@ class TestFermionicExcitationGenerator(QiskitNatureTestCase):
             ],
         ),
     )
+
+    # pylint: disable=too-many-positional-arguments
     def test_max_spin_excitation(
         self, num_excitations, num_spatial_orbitals, num_particles, max_spin, expect
     ):
