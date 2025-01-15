@@ -145,11 +145,11 @@ class BravyiKitaevMapper(FermionicMapper, ModeBasedMapper):
                 )
             )
             for k in range(register_length):
-                if np.in1d(k, update_sets[j]):
+                if np.isin(k, update_sets[j]):
                     update_pauli[j].x[k] = True
-                if np.in1d(k, parity_sets[j]):
+                if np.isin(k, parity_sets[j]):
                     parity_pauli[j].z[k] = True
-                if np.in1d(k, remainder_sets[j]):
+                if np.isin(k, remainder_sets[j]):
                     remainder_pauli[j].z[k] = True
 
             x_j = Pauli(

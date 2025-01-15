@@ -596,7 +596,7 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
     @classmethod
     def _tensor(cls, a: Tensor, b: Tensor) -> Tensor:
         # expand a-matrix into upper left sector
-        amat = cast(ARRAY_TYPE, a._array)
+        amat = a._array
         adim = len(a.shape)
         aones = np.zeros((2,) * adim)
         aones[(0,) * adim] = 1.0
@@ -604,7 +604,7 @@ class Tensor(np.lib.mixins.NDArrayOperatorsMixin, TolerancesMixin):
         aeinsum = string.ascii_lowercase[:adim] if adim > 0 else ""
 
         # expand b-matrix into lower right sector
-        bmat = cast(ARRAY_TYPE, b._array)
+        bmat = b._array
         bdim = len(b.shape)
         bones = np.zeros((2,) * bdim)
         bones[(1,) * bdim] = 1.0

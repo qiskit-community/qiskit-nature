@@ -928,9 +928,9 @@ class QEOM(ExcitedStatesSolver):
             indices_diag = np.diag_indices(size + 1)
             indices_diag_as_list = list(zip(indices_diag[0], indices_diag[1]))
             for indice in indices_diag_as_list:
-                aux_operators_eigenvalues[indice] = {}
+                aux_operators_eigenvalues[indice] = {}  # type: ignore[index]
                 for aux_name in untap_aux_ops.keys():
-                    aux_operators_eigenvalues[indice][aux_name] = aux_measurements.get(
+                    aux_operators_eigenvalues[indice][aux_name] = aux_measurements.get( # type: ignore
                         (aux_name, indice[0], indice[1]), (0.0, {})
                     )
 
@@ -938,9 +938,9 @@ class QEOM(ExcitedStatesSolver):
             indices_offdiag = np.triu_indices(size + 1, k=1)
             indices_offdiag_as_list = list(zip(indices_offdiag[0], indices_offdiag[1]))
             for indice in indices_offdiag_as_list:
-                transition_amplitudes[indice] = {}
+                transition_amplitudes[indice] = {}  # type: ignore[index]
                 for aux_name in untap_aux_ops.keys():
-                    transition_amplitudes[indice][aux_name] = aux_measurements.get(
+                    transition_amplitudes[indice][aux_name] = aux_measurements.get(  # type: ignore
                         (aux_name, indice[0], indice[1]), (0.0, {})
                     )
 

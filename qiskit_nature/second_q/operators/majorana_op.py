@@ -250,7 +250,7 @@ class MajoranaOp(SparseLabelOp):
         return self.__class__(data, copy=False, num_modes=num_modes)
 
     def _validate_keys(self, keys: Collection[str]) -> None:
-        super()._validate_keys(keys)
+        super()._validate_keys(keys) # type: ignore[safe-super]
 
         num_modes = self.num_modes
 

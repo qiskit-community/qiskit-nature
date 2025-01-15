@@ -269,8 +269,8 @@ def hartree_fock_bitstring(num_spatial_orbitals: int, num_particles: tuple[int, 
         raise ValueError("# of particles must be less than or equal to # of orbitals.")
 
     half_orbitals = num_spatial_orbitals
-    bitstr = np.zeros(2 * num_spatial_orbitals, bool)
+    bitstr = np.zeros(2 * num_spatial_orbitals, dtype=bool)
     bitstr[:num_alpha] = True
     bitstr[half_orbitals : (half_orbitals + num_beta)] = True
 
-    return bitstr.tolist()
+    return [bool(x) for x in bitstr.tolist()]

@@ -322,11 +322,11 @@ class UVCC(EvolvedOperatorAnsatz):
                 )
             )
         elif isinstance(self.excitations, list):
-            for exc in self.excitations:  # type: ignore
+            for excitation in self.excitations:
                 generators.append(
                     partial(
                         generate_vibration_excitations,
-                        num_excitations=exc,
+                        num_excitations=excitation,
                     )
                 )
         elif callable(self.excitations):

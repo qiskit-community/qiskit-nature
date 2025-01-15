@@ -196,7 +196,7 @@ class FermionicOp(SparseLabelOp):
         return self.__class__(data, copy=False, num_spin_orbitals=num_so)
 
     def _validate_keys(self, keys: Collection[str]) -> None:
-        super()._validate_keys(keys)
+        super()._validate_keys(keys) # type: ignore[safe-super]
 
         num_so = self.num_spin_orbitals
 

@@ -102,7 +102,8 @@ class LogarithmicMapper(SpinMapper):
 
             operatorlist = [mat[i] if i in mat else identity for i in range(register_length)]
             # Now, we can tensor all operators in this list
-            qubit_ops_list.append(coeff * reduce(operator.xor, reversed(operatorlist)))
+            qubit_ops_list.append(
+                coeff * reduce(operator.xor, reversed(operatorlist))) # type: ignore[operator]
 
         qubit_op = reduce(operator.add, qubit_ops_list)
 

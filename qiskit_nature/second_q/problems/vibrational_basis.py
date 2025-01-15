@@ -131,4 +131,4 @@ class VibrationalBasis(ABC):
             else:
                 # update the matrix in all permuted locations
                 for i in product(*index_permutations):
-                    yield (coeff, tuple(chain(*i)))
+                    yield (coeff, tuple(chain(*i))) # type: ignore[arg-type]

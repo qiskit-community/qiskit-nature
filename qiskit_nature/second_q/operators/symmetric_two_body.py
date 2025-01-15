@@ -665,7 +665,7 @@ def fold_s1_to_s8(eri: Tensor | ARRAY_TYPE, *, validate: bool = True) -> S8Integ
     new_eri = np.zeros(npair * (npair + 1) // 2)
     ijkl = 0
     for ij, (i, j) in enumerate(zip(*np.tril_indices(norb))):
-        for kl, (k, l) in enumerate(zip(*np.tril_indices(i + 1))):
+        for kl, (k, l) in enumerate(zip(*np.tril_indices(int(i + 1)))):
             if ij >= kl:
                 new_eri[ijkl] = eri[i, j, k, l]
                 ijkl += 1
@@ -857,9 +857,9 @@ def unfold_s8_to_s1(eri: Tensor | ARRAY_TYPE, *, validate: bool = True) -> S1Int
         row = np.zeros(npair)
         idx = ij * (ij + 1) // 2
         row[:ij] = eri[idx : idx + ij]
-        for k in range(ij, npair):
-            idx += k
-            row[k] = eri[idx]
+        for a in range(ij, npair):
+            idx += a
+            row[a] = eri[idx]
         idx = ij * (ij + 1) // 2
         for kl, (k, l) in enumerate(zip(*np.tril_indices(norb))):
             if ij <= kl:
