@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2024.
+# (C) Copyright IBM 2021, 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -149,7 +149,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.8, 3.9, '3.10', 3.11, 3.12]
+        python-version: [3.8, 3.9, 3.10, 3.11, 3.12]
         include:
           - os: macos-latest
             python-version: 3.8
@@ -171,11 +171,14 @@ jobs:
             requirements-dev.txt
       - name: Create conda environment
         run: |
+          echo user $USER
+          echo conda_dir $CONDA
+          which conda
           if [ "${{ matrix.os }}" == "macos-latest" ]; then
             sudo chown -R $USER: "$CONDA"
           fi
           source "$CONDA/etc/profile.d/conda.sh"
-          if [ "${{ matrix.python-version }}" >= "3.11" ]; then
+          if [ "${{ matrix.python-version }}" >= "3.9" ]; then
             conda create -y -n psi4env python=${{ matrix.python-version }} -c conda-forge
           else
             conda create -y -n psi4env python=${{ matrix.python-version }}
