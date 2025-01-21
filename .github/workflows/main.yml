@@ -151,9 +151,9 @@ jobs:
         os: [ubuntu-latest]
         python-version: [3.8, 3.9, '3.10', 3.11, 3.12]
         include:
-          - os: macos-12
+          - os: macos-latest
             python-version: 3.8
-          - os: macos-12
+          - os: macos-latest
             python-version: 3.12
           - os: windows-latest
             python-version: 3.8
@@ -169,12 +169,18 @@ jobs:
             setup.py
             requirements.txt
             requirements-dev.txt
+      - uses: conda-incubator/setup-miniconda@v3
+        id: setup-miniforge
+        continue-on-error: true
+        with:
+          miniforge-version: latest
+        if: ${{ matrix.os == 'macos-latest' }}
       - name: Create conda environment
         run: |
           echo user $USER
           echo conda_dir $CONDA output_complete
           which conda
-          if [ "${{ matrix.os }}" == "macos-12" ]; then
+          if [ "${{ matrix.os }}" == "macos-latest" ]; then
             sudo chown -R $USER: "$CONDA"
           fi
           source "$CONDA/etc/profile.d/conda.sh"
@@ -386,11 +392,11 @@ jobs:
           path: /tmp/u312
       - uses: actions/download-artifact@v4
         with:
-          name: macos-12-3.8
+          name: macos-latest-3.8
           path: /tmp/m38
       - uses: actions/download-artifact@v4
         with:
-          name: macos-12-3.12
+          name: macos-latest-3.12
           path: /tmp/m312
       - uses: actions/download-artifact@v4
         with:
