@@ -149,11 +149,11 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.8, 3.9, 3.10, 3.11, 3.12]
+        python-version: [3.8, 3.9, '3.10', 3.11, 3.12]
         include:
-          - os: macos-latest
+          - os: macos-13
             python-version: 3.8
-          - os: macos-latest
+          - os: macos-13
             python-version: 3.12
           - os: windows-latest
             python-version: 3.8
@@ -172,9 +172,9 @@ jobs:
       - name: Create conda environment
         run: |
           echo user $USER
-          echo conda_dir $CONDA
+          echo conda_dir $CONDA output_complete
           which conda
-          if [ "${{ matrix.os }}" == "macos-latest" ]; then
+          if [ "${{ matrix.os }}" == "macos-13" ]; then
             sudo chown -R $USER: "$CONDA"
           fi
           source "$CONDA/etc/profile.d/conda.sh"
@@ -386,11 +386,11 @@ jobs:
           path: /tmp/u312
       - uses: actions/download-artifact@v4
         with:
-          name: macos-latest-3.8
+          name: macos-13-3.8
           path: /tmp/m38
       - uses: actions/download-artifact@v4
         with:
-          name: macos-latest-3.12
+          name: macos-13-3.12
           path: /tmp/m312
       - uses: actions/download-artifact@v4
         with:
