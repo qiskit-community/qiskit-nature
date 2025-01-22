@@ -25,7 +25,7 @@ runs:
     - run : |
         source "$CONDA/etc/profile.d/conda.sh"
         conda activate psi4env
-        if [ "${{ inputs.os }}" == "ubuntu-latest" && "${{ inputs.python-version }}" < "3.11" ]; then
+        if [[ "${{ inputs.os }}" == "ubuntu-latest" && "${{ inputs.python-version }}" < "3.11" ]]; then
           echo "installs libecpint"
           conda install -c conda-forge libecpint
         fi
