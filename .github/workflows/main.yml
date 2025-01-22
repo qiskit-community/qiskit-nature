@@ -399,10 +399,10 @@ jobs:
         shell: bash
       - name: Combined Deprecation Messages
         run: |
-          sort -f -u /tmp/u38/nat.dep /tmp/u39/nat.dep /tmp/u310/nat.dep /tmp/u311/nat.dep /tmp/u312/nat.dep /tmp/m38/nat.dep /tmp/m312/nat.dep /tmp/w38/nat.dep /tmp/w312/nat.dep || true
+          sort -f -u /tmp/u39/nat.dep /tmp/u310/nat.dep /tmp/u311/nat.dep /tmp/u312/nat.dep /tmp/m39/nat.dep /tmp/m312/nat.dep /tmp/w39/nat.dep /tmp/w312/nat.dep || true
         shell: bash
       - name: Coverage combine
-        run: coverage3 combine /tmp/u38/nat.dat
+        run: coverage3 combine /tmp/u39/nat.dat
         shell: bash
       - name: Upload to Coveralls
         env:
