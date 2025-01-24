@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2018, 2024.
+# (C) Copyright IBM 2018, 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -245,5 +245,5 @@ class Psi4Driver(ElectronicStructureDriver):
                     logger.error(line)
                     errmsg += line + "\n"
             raise QiskitNatureError(
-                f"{_optionals.PSI4} process return code {process.returncode}\n{errmsg}"
+                f"{_optionals.PSI4} process return code {process.returncode}: {errmsg}"
             )

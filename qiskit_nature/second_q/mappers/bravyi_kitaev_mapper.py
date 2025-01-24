@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2024.
+# (C) Copyright IBM 2021, 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -145,11 +145,11 @@ class BravyiKitaevMapper(FermionicMapper, ModeBasedMapper):
                 )
             )
             for k in range(register_length):
-                if np.in1d(k, update_sets[j]):
+                if np.isin(k, update_sets[j]):
                     update_pauli[j].x[k] = True
-                if np.in1d(k, parity_sets[j]):
+                if np.isin(k, parity_sets[j]):
                     parity_pauli[j].z[k] = True
-                if np.in1d(k, remainder_sets[j]):
+                if np.isin(k, remainder_sets[j]):
                     remainder_pauli[j].z[k] = True
 
             x_j = Pauli(

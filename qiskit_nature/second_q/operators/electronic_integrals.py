@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2022, 2023.
+# (C) Copyright IBM 2022, 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -616,7 +616,7 @@ class ElectronicIntegrals(LinearMixin):
             )
         return cls(alpha, beta, beta_alpha, validate=validate)
 
-    # pylint: disable=invalid-name
+    # pylint: disable=invalid-name, disable=too-many-positional-arguments
     @classmethod
     def from_raw_integrals(
         cls,

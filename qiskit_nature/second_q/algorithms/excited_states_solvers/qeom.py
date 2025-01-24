@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2020, 2024.
+# (C) Copyright IBM 2020, 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -946,6 +946,7 @@ class QEOM(ExcitedStatesSolver):
 
         return aux_operators_eigenvalues, transition_amplitudes
 
+    # pylint: disable=too-many-positional-arguments
     def _build_qeom_result(
         self,
         problem,

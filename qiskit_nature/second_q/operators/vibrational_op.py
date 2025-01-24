@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2023.
+# (C) Copyright IBM 2021, 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -249,7 +249,7 @@ class VibrationalOp(SparseLabelOp):
         return self.__class__(data, copy=False, num_modals=num_modals)
 
     def _validate_keys(self, keys: Collection[str]) -> None:
-        super()._validate_keys(keys)
+        super()._validate_keys(keys)  # type: ignore[safe-super]
         num_modals = self._num_modals if self._num_modals is not None else []
 
         for key in keys:

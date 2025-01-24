@@ -1,19 +1,19 @@
 queue_rules:
   - name: automerge
-    conditions:
-      - check-success=Deprecation_Messages_and_Coverage (3.8)
+    queue_conditions:
+      - check-success=Deprecation_Messages_and_Coverage (3.9)
+    merge_method: squash
 
 pull_request_rules:
   - name: automatic merge on CI success and review
     conditions:
-      - check-success=Deprecation_Messages_and_Coverage (3.8)
+      - check-success=Deprecation_Messages_and_Coverage (3.9)
       - "#approved-reviews-by>=1"
       - label=automerge
       - label!=on hold
     actions:
       queue:
         name: automerge
-        method: squash
   - name: backport
     conditions:
       - label=stable backport potential
