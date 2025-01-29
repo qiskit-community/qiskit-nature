@@ -1,0 +1,49 @@
+---
+features:
+  - |
+    The classes :class:`.second_q.mappers.MixedMapper` and :class:`.second_q.operators.MixedOp` have been added
+    for manipulating composite systems. These class allow for dealing with Hamiltonians composed of
+    boson-fermion interactions.
+    
+    Below is an example of how one can use this mapper:
+
+    .. code-block:: python
+      
+      import numpy as np
+      from qiskit_nature.second_q.mappers.mixed_mapper import MixedMapper
+      from qiskit_nature.second_q.mappers import JordanWignerMapper, BosonicLinearMapper
+      from qiskit_nature.second_q.operators import FermionicOp, BosonicOp, MixedOp, PolynomialTensor
+
+      # Define mixed operator with a pure fermionic part and a bosonic part
+      ev_to_hartree = 0.0367492929
+
+      epsilonKS_mat = (np.diag([-9.965680, 3.027931, 5.816614, 5.816670, 8.888777]) * ev_to_hartree)
+      hel_data = {"+-": epsilonKS_mat}
+      hel_tensor = PolynomialTensor(hel_data)
+      hel_operator = FermionicOp.from_polynomial_tensor(hel_tensor)
+
+      hph_operator = BosonicOp(
+      {
+          "": 1 / 2,
+          "+_0 -_0": 1.0,
+      },
+      num_modes=1,
+      )
+
+      hqed_operator = MixedOp(
+      {
+          ("F",): [(1.0, hel_operator)],
+          ("B",): [(2.0, hph_operator)]
+      }
+      )
+
+      # Map mixed operator to qubit space
+      jw_mapper = JordanWignerMapper()
+      bl_mapper = BosonicLinearMapper(max_occupation=2) # 1 photon mode and 3 fock states
+      mappers = {"F": jw_mapper, "B": bl_mapper}
+      hilbert_space_registers = {"F": 5, "B": 3} # Actual qubit register size
+      # Careful that the bl_mapper requires register_length*(max_occupation+1) registers
+      mixed_mapper = MixedMapper(mappers, hilbert_space_registers)
+
+      hqed_operator_mapped = mixed_mapper.map(hqed_operator)
+

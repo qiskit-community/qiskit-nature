@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2023.
+# (C) Copyright IBM 2023, 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -71,7 +71,7 @@ class TestMixedMapper(QiskitNatureTestCase):
 
         mop = MixedOp({("b1", "f1"): [(coef, bos_op, fer_op)]})
 
-        target = coef * self.bos_mapper.map(bos_op).tensor(self.fer_mapper.map(fer_op))
+        target = coef * self.fer_mapper.map(fer_op).tensor(self.bos_mapper.map(bos_op))
         test = self.mix_mapper.map(mop)
         self.assertTrue(target.equiv(test))
 
