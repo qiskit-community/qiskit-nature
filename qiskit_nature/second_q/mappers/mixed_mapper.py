@@ -103,18 +103,16 @@ class MixedMapper(ABC):
         }
 
         for active_index, active_op in zip(active_indices, active_operators):
-            register_length = self.hilbert_space_register_lengths[active_index]
-            product_op_dict[active_index] = self.mappers[active_index].map(
-                active_op, register_length=register_length
-            )
 
-        product_op = reduce(SparsePauliOp.tensor, list(product_op_dict.values()))
+            product_op_dict[active_index] = self.mappers[active_index].map(active_op)
+            # Cannot use register_length here because it does not correspond to the
+            # qubit register length for all mappers.
+
+        product_op = reduce(SparsePauliOp.tensor, list(product_op_dict.values())[::-1])
 
         return product_op
 
-    def _distribute_map(
-        self, operator_dict: dict[tuple[str], list[tuple[float, SparseLabelOp]]]
-    ) -> SparsePauliOp:
+    def _distribute_map(self, operator_dict: dict[tuple[str], list[tuple]]) -> SparsePauliOp:
         """Distributes the mapping of operators to each of the terms defined across specific
         Hilbert spaces.
 
@@ -124,11 +122,11 @@ class MixedMapper(ABC):
                 operator list is the coefficient of this operator product across these Hilbert spaces.
         """
 
-        mapped_op: SparsePauliOp = 0
+        mapped_op: SparsePauliOp = 0.0
         for active_indices, operator_list in operator_dict.items():
             for coef_and_operators in operator_list:
-                coef: float = coef_and_operators[0]
-                active_operators: tuple[SparseLabelOp] = coef_and_operators[1:]
+                coef = coef_and_operators[0]
+                active_operators = coef_and_operators[1:]
                 mapped_op += coef * self._map_tuple_product(active_indices, active_operators)
 
         return mapped_op.simplify()
