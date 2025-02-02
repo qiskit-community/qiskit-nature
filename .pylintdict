@@ -282,6 +282,7 @@ jcf
 jcp
 jernigan
 ji
+jiang
 jk
 jl
 jordan
@@ -291,6 +292,7 @@ json
 jupyter
 jw
 kagome
+kalev
 kanav
 ket
 kitaev
@@ -361,6 +363,7 @@ moller
 molssi
 morse
 mpl
+mruczkiewicz
 mul
 multi
 multigraph
@@ -381,6 +384,7 @@ neq
 networkx
 neuropeptide
 neutron
+neven
 nicholas
 nielsen
 nisq
@@ -665,11 +669,16 @@ xcfun
 xdata
 xy
 xyz
+xzy
 ydata
 yx
+yxz
 yy
+yzx
 zeitschrift
 zi
 zmatrix
 zsh
+zxy
+zyx
 zz
