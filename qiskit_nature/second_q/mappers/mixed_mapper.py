@@ -63,7 +63,7 @@ class MixedMapper(ABC):
         self,
         mappers: dict[str, QubitMapper],
         hilbert_space_register_lengths: dict[str, int],
-        hilbert_space_register_types: dict[str, SparseLabelOp],
+        hilbert_space_register_types: dict[str, type[SparseLabelOp]],
     ):
         """
         Args:
@@ -73,7 +73,9 @@ class MixedMapper(ABC):
         super().__init__()
         self.mappers: dict[str, QubitMapper] = mappers
         self.hilbert_space_register_lengths: dict[str, int] = hilbert_space_register_lengths
-        self.hilbert_space_register_types: dict[str, SparseLabelOp] = hilbert_space_register_types
+        self.hilbert_space_register_types: dict[str, type[SparseLabelOp]] = (
+            hilbert_space_register_types
+        )
 
     def _map_tuple_product(
         self, active_indices: tuple[str], active_operators: tuple[SparseLabelOp]
