@@ -55,8 +55,11 @@ class TestMixedMapper(QiskitNatureTestCase):
     fer_mapper = JordanWignerMapper()
     mappers = {"b1": bos_mapper, "f1": fer_mapper}
     hilbert_space_register_lengths = {"b1": 1, "f1": 1}
+    hilbert_space_register_types = {"b1": BosonicOp, "f1": FermionicOp}
     mix_mapper = MixedMapper(
-        mappers=mappers, hilbert_space_register_lengths=hilbert_space_register_lengths
+        mappers=mappers,
+        hilbert_space_register_lengths=hilbert_space_register_lengths,
+        hilbert_space_register_types=hilbert_space_register_types,
     )
 
     @data(
