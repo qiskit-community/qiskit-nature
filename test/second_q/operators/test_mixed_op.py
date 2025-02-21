@@ -89,6 +89,5 @@ class TestFermionicOp(QiskitNatureTestCase):
             self.assertEqual(composed_op, target)
 
 
-
 if __name__ == "__main__":
     unittest.main()

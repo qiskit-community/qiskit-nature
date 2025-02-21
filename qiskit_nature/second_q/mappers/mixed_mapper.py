@@ -18,18 +18,8 @@ import logging
 from abc import ABC
 from functools import reduce
 
-import logging
-from abc import ABC
-from functools import reduce
-
-import logging
-from abc import ABC
-from functools import reduce
-
 from qiskit.quantum_info import SparsePauliOp
-
 from qiskit_algorithms.list_or_dict import ListOrDict as ListOrDictType
-
 from qiskit_nature.second_q.operators import MixedOp, SparseLabelOp
 
 from .qubit_mapper import QubitMapper, _ListOrDict
