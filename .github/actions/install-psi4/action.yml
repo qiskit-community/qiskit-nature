@@ -37,6 +37,8 @@ runs:
           echo $LD_LIBRARY_PATH
           echo $CONDA
           echo $CONDA_PREFIX
+          export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
+          echo $LD_LIBRARY_PATH
         fi
         echo "installs psi4 stable release"
         conda install -y psi4 python=${{ inputs.python-version }} -c conda-forge/label/libint_dev -c conda-forge
