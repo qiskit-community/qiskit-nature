@@ -26,9 +26,17 @@ runs:
         source "$CONDA/etc/profile.d/conda.sh"
         conda activate psi4env
         py_requires_libecpint=("3.9" "3.10")
-        if [[ "${{ inputs.os }}" == "ubuntu-latest" && " ${py_requires_libecpint[@]} " =~ "${{ inputs.python-version }}" ]]; then
-          echo "installs libecpint"
-          conda install -c conda-forge libecpint
+        if [[ "${{ inputs.os }}" == "ubuntu-latest" ]]; then
+          for py_ver in "${py_requires_libecpint[@]}"; do
+            if [[ "${{ inputs.python-version }}" == "$py_ver" ]]; then
+              echo "Installing libecpint for Python $py_ver"
+              conda install -c conda-forge libecpint
+              break
+            fi
+          done
+          echo $LD_LIBRARY_PATH
+          echo $CONDA
+          echo $CONDA_PREFIX
         fi
         echo "installs psi4 stable release"
         conda install -y psi4 python=${{ inputs.python-version }} -c conda-forge/label/libint_dev -c conda-forge
