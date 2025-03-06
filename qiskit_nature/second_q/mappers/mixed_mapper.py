@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2023, 2025.
+# (C) Copyright IBM 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -30,15 +30,36 @@ LOGGER = logging.getLogger(__name__)
 class MixedMapper(ABC):
     """Mapper of a Mixed Operator to a Qubit Operator.
 
-    This class is intended to be used for handling the mapping of composed fermionic and (or) bosonic
-    systems, defined as :class:`~qiskit_nature.second_q.operators.MixedOp`, into qubit operators.
+    This class is to be used to map systems with particles of different nature, such as bosons and fermions.
 
     Please note that the creation and usage of this class requires the precise definition of the
     composite Hilbert size corresponding to the problem.
-    The ordering of the qubit registers associated to the bosonic and fermionic degrees of freedom
-    (for example) must be provided by the user through the definition of the hilbert space
-    registers dictionary. This ordering corresponds to a specific way to take the tensor product
-    of the fermionic and bosonic operators.
+    The ordering of the qubit registers associated to the different physical particles
+    must be provided by the user through the definition of the Hilbert space registers dictionary.
+
+    This ordering corresponds to a specific way to take the tensor product of the operators.
+
+    .. code-block:: python
+
+        # Consider the Hilbert spaces of a fermionic system Hf and a bosonic system Hb
+        bos_mapper = BosonicLinearMapper(max_occupation=1)
+        fer_mapper = JordanWignerMapper()
+        # These mappers map to qubit simulation Hilbert spaces S(Hf) and S(Hb)
+        mappers = {"b1": bos_mapper, "f1": fer_mapper}
+        # This ordering of the dictionary implies that the simulation Hilbert spaces are
+        # tensored as S(Hf).tensor(S(Hb))
+        # This follows the qiskit convention for stacking qubit registers from right to left.
+        hilbert_space_register_lengths = {"b1": 1, "f1": 1}
+        hilbert_space_register_types = {"b1": BosonicOp, "f1": FermionicOp}
+        # One bosonic mode (potentially a qudit with yet unknow local dimension d)
+        # One fermionic mode (qubit).
+        mix_mapper = MixedMapper(
+            mappers=mappers,
+            hilbert_space_register_lengths=hilbert_space_register_lengths,
+            hilbert_space_register_types=hilbert_space_register_types,
+        )
+        # The final simulation register is composed of d+1 qubits arranged as [qf_0, qb_d, ... qb_0]
+
 
     .. note::
 
@@ -47,8 +68,9 @@ class MixedMapper(ABC):
 
     .. note::
 
-      This class enforces the register lengths to the mappers. Note that for the bosonic mappers, the
-      register lengths is not directly equal to the qubit register length but to the number of modes.
+      This class leaves the handling of register lengths to the mappers.
+      Note that for the bosonic mappers, the register lengths is not directly equal to the qubit
+      register length but to the number of modes.
       See the documentation of the class :class:``~.BosonicLinearMapper``.
 
     The following attributes can be read and updated once the ``MixedMapper`` object has been
@@ -57,6 +79,7 @@ class MixedMapper(ABC):
     Attributes:
         mappers: Dictionary of mappers corresponding to "local" Hilbert spaces of the global problem.
         hilbert_space_register_lengths: Ordered dictionary of local registers and their respective sizes.
+        hilbert_space_register_types: Ordered dictionary of local registers and their respective types.
     """
 
     def __init__(
@@ -69,6 +92,7 @@ class MixedMapper(ABC):
         Args:
             mappers: Dictionary of mappers corresponding to the "local" Hilbert spaces.
             hilbert_space_register_lengths: Ordered dictionary of local registers with their sizes.
+            hilbert_space_register_types: Ordered dictionary of local registers and their respective types.
         """
         super().__init__()
         self.mappers: dict[str, QubitMapper] = mappers
@@ -133,19 +157,16 @@ class MixedMapper(ABC):
         *,
         register_length: int | None = None,
     ) -> SparsePauliOp:
-        """Map the :class:`~qiskit_nature.second_q.operators.MixedOp` into a qubit operator.
+        """Maps the :class:`~qiskit_nature.second_q.operators.MixedOp` into a qubit operator.
 
-        The ``MixedOp`` is a representation of sums of products of operators corresponding to different
-        Hilbert spaces. The mapping procedure first runs through all of the terms to be summed,
+        The mapping procedure first runs through all of the terms to be summed,
         and then maps the operator product by tensoring the individually mapped operators.
 
         Args:
             mixed_op: Operator to map.
-            register_length: UNUSED.
+            register_length: Ignored. The register lengths must be set in the individual mappers.
         """
 
-        if register_length is not None:
-            LOGGER.info("Argument register length = %s was ignored.", register_length)
         mapped_op: SparsePauliOp = self._distribute_map(mixed_op.data)
 
         return mapped_op
@@ -161,14 +182,16 @@ class MixedMapper(ABC):
 
         Args:
             mixed_ops: A second quantized operator, or list thereof.
-            register_length: when provided, this will be used to overwrite the ``register_length``
-                attribute of the ``SparseLabelOp`` being mapped. This is possible because the
-                ``register_length`` is considered a lower bound in a ``SparseLabelOp``.
+            register_length: Ignored. The register lengths must be set in the individual mappers.
 
         Returns:
             A qubit operator in the form of a ``SparsePauliOp``, or list (resp. dict) thereof if a
             list (resp. dict) of second quantized operators was supplied.
         """
+
+        if register_length is not None:
+            LOGGER.info("Argument register length = %s was ignored.", register_length)
+
         wrapped_second_q_ops, wrapped_type = _ListOrDict.wrap(mixed_ops)
 
         qubit_ops: _ListOrDict = _ListOrDict()

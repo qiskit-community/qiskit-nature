@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2023, 2025.
+# (C) Copyright IBM 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -26,8 +26,8 @@ from .sparse_label_op import SparseLabelOp
 class MixedOp(LinearMixin):
     """Mixed operator.
 
-    A ``MixedOp`` represents a weighted sum of products of fermionic/bosonic operators potentially
-    acting on different "local" Hilbert spaces. The terms to be summed are encoded in a dictionary,
+    A ``MixedOp`` represents a weighted sum of products of operators such as fermionic, bosonic or spin
+    operators acting on respective Hilbert spaces. The terms to be summed are encoded in a dictionary,
     where each operator product is identified by its key, a tuple of string specifying the names of the
     local Hilbert spaces on which it acts, and by its value, a list of tuple (corresponding to a sum of
     operators acting on the same composite Hilbert space) where each tuple encodes the coupling
@@ -46,13 +46,16 @@ class MixedOp(LinearMixin):
         fop1 = FermionicOp({"+_0 -_0": 1}) # Acting on Hilbert space "h1"
         sop1 = SpinOp({"X_0 Y_0": 1}, num_spins=1) # Acting on Hilbert space "s1"
 
-        mop1 = MixedOp({("h1",): [(5.0, fop1)]}) # 5.0 * fop1
+        mop1 = MixedOp({("h1",): [(5.0, fop1)]})
         mop2 = MixedOp(
             {
                 ("h1", "s1"): [(3, fop1, sop1)],
                 ("s1",): [(2, sop1)],
             }
-        ) # 3*(fop1 @ sop1) + 2*(sop1)
+        )
+        # 5.0 * fop1 (acts as identity on the spin Hilbert space)
+        # 3*(fop1 @ sop1) (fermion-spin coupling term)
+        # 2*(sop1) (acts as identity on the fermionic Hilbert space)
 
 
     **Algebra**
@@ -148,7 +151,6 @@ class MixedOp(LinearMixin):
 
         Args:
             other: the second ``MixedOp`` to multiply to the first.
-            qargs: UNUSED.
 
         Returns:
             The new multiplied ``MixedOp``.
@@ -179,7 +181,7 @@ class MixedOp(LinearMixin):
 
     @classmethod
     def compose(cls, op_left: MixedOp, op_right: MixedOp) -> MixedOp:
-        """Returns Operator composition of self and other.
+        """Returns Operator composition of two mixed operators.
 
         Args:
             op_left: left MixedOp to tensor.

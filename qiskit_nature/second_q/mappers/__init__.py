@@ -133,5 +133,4 @@ __all__ = [
     "InterleavedQubitMapper",
     "TaperedQubitMapper",
     "ModeBasedMapper",
-    "MixedMapper",
 ]
