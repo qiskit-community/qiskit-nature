@@ -20,7 +20,7 @@ from functools import reduce
 
 from qiskit.quantum_info import SparsePauliOp
 from qiskit_algorithms.list_or_dict import ListOrDict as ListOrDictType
-from qiskit_nature.second_q.operators import MixedOp, SparseLabelOp
+from qiskit_nature.second_q.operators import MixedOp, SparseLabelOp, FermionicOp
 
 from .qubit_mapper import QubitMapper, _ListOrDict
 
@@ -101,6 +101,14 @@ class MixedMapper(ABC):
         self.hilbert_space_register_types: dict[str, type[SparseLabelOp]] = (
             hilbert_space_register_types
         )
+
+        # Only one fermionic register allowed to ensure fermionic statistics.
+        count_fermionic_registers = [
+            issubclass(register_type, FermionicOp)
+            for register_type in self.hilbert_space_register_types.values()
+        ]
+        if sum(count_fermionic_registers) > 1:
+            raise ValueError("Register types can only contain a single fermionic register")
 
     def _map_tuple_product(
         self, active_indices: tuple[str], active_operators: tuple[SparseLabelOp]

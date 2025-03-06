@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-""" Test Mixed Mapper """
+"""Test Mixed Mapper"""
 
 import unittest
 
@@ -104,6 +104,22 @@ class TestMixedMapper(QiskitNatureTestCase):
             self.assertTrue(
                 calc_op_list[0].equiv(calc_op_dict["A"])
                 and calc_op_list[1].equiv(calc_op_dict["B"])
+            )
+
+    def test_map_multiple_fermionic_operators(self):
+        """Test the ``MixedOp`` mapping on list and dictionaries."""
+
+        with self.assertRaises(ValueError):
+
+            fer_mapper_1 = JordanWignerMapper()
+            fer_mapper_2 = JordanWignerMapper()
+            mappers = {"f2": fer_mapper_2, "f1": fer_mapper_1}
+            hilbert_space_register_lengths = {"f2": 1, "f1": 1}
+            hilbert_space_register_types = {"f2": FermionicOp, "f1": FermionicOp}
+            MixedMapper(
+                mappers=mappers,
+                hilbert_space_register_lengths=hilbert_space_register_lengths,
+                hilbert_space_register_types=hilbert_space_register_types,
             )
 
 
