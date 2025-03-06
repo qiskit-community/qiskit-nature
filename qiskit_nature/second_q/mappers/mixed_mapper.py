@@ -30,7 +30,8 @@ LOGGER = logging.getLogger(__name__)
 class MixedMapper(ABC):
     """Mapper of a Mixed Operator to a Qubit Operator.
 
-    This class is to be used to map systems with particles of different nature, such as bosons and fermions.
+    This class is to be used to map systems with particles of different nature,
+    such as bosons and fermions.
 
     Please note that the creation and usage of this class requires the precise definition of the
     composite Hilbert size corresponding to the problem.
@@ -78,8 +79,8 @@ class MixedMapper(ABC):
 
     Attributes:
         mappers: Dictionary of mappers corresponding to "local" Hilbert spaces of the global problem.
-        hilbert_space_register_lengths: Ordered dictionary of local registers and their respective sizes.
-        hilbert_space_register_types: Ordered dictionary of local registers and their respective types.
+        hilbert_space_register_lengths: Ordered dictionary of local registers sizes.
+        hilbert_space_register_types: Ordered dictionary of local registers types.
     """
 
     def __init__(
@@ -91,8 +92,8 @@ class MixedMapper(ABC):
         """
         Args:
             mappers: Dictionary of mappers corresponding to the "local" Hilbert spaces.
-            hilbert_space_register_lengths: Ordered dictionary of local registers with their sizes.
-            hilbert_space_register_types: Ordered dictionary of local registers and their respective types.
+            hilbert_space_register_lengths: Ordered dictionary of local registers sizes.
+            hilbert_space_register_types: Ordered dictionary of local register types.
         """
         super().__init__()
         self.mappers: dict[str, QubitMapper] = mappers
