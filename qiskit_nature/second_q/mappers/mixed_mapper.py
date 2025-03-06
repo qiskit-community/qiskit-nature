@@ -51,7 +51,7 @@ class MixedMapper(ABC):
         # This follows the qiskit convention for stacking qubit registers from right to left.
         hilbert_space_register_lengths = {"b1": 1, "f1": 1}
         hilbert_space_register_types = {"b1": BosonicOp, "f1": FermionicOp}
-        # One bosonic mode (potentially a qudit with yet unknow local dimension d)
+        # One bosonic mode (yet unknown local dimension d)
         # One fermionic mode (qubit).
         mix_mapper = MixedMapper(
             mappers=mappers,
