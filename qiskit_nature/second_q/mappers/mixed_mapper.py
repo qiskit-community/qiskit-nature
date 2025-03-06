@@ -154,8 +154,6 @@ class MixedMapper(ABC):
     def _map_single(
         self,
         mixed_op: MixedOp,
-        *,
-        register_length: int | None = None,
     ) -> SparsePauliOp:
         """Maps the :class:`~qiskit_nature.second_q.operators.MixedOp` into a qubit operator.
 
@@ -196,7 +194,7 @@ class MixedMapper(ABC):
 
         qubit_ops: _ListOrDict = _ListOrDict()
         for name, second_q_op in iter(wrapped_second_q_ops):
-            qubit_ops[name] = self._map_single(second_q_op, register_length=register_length)
+            qubit_ops[name] = self._map_single(second_q_op)
 
         returned_ops = qubit_ops.unwrap(wrapped_type)
         # Note the output of the mapping will never be None for standard mappers other than the
