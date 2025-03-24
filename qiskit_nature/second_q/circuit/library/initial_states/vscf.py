@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2020, 2023.
+# (C) Copyright IBM 2020, 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import logging
 
+from typing import List
 import numpy as np
 
 from qiskit import QuantumRegister
@@ -208,7 +209,7 @@ def vscf_bitstring_mapped(
     return bits
 
 
-def vscf_bitstring(num_modals: list[int]) -> list[bool]:
+def vscf_bitstring(num_modals: List[int]) -> List[bool]:
     """Compute the bitstring representing the VSCF initial state based on the modals per mode.
 
     Args:
@@ -219,10 +220,10 @@ def vscf_bitstring(num_modals: list[int]) -> list[bool]:
         The bitstring representing the state of the VSCF state as array of bools.
     """
     num_qubits = sum(num_modals)
-    bitstr = np.zeros(num_qubits, bool)
+    bitstr = np.zeros(num_qubits, dtype=bool)
     count = 0
     for modal in num_modals:
         bitstr[count] = True
         count += modal
 
-    return bitstr.tolist()
+    return [bool(x) for x in bitstr.tolist()]

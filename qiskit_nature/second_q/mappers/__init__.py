@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2022, 2024.
+# (C) Copyright IBM 2022, 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -100,6 +100,15 @@ after the mapping to qubit operators, you can use the following wrapper for symm
 
    TaperedQubitMapper
 
+MixedOp Mappers
++++++++++++++++
+
+.. autosummary::
+   :toctree: ../stubs/
+   :nosignatures:
+
+   MixedMapper
+
 """
 
 from .bksf import BravyiKitaevSuperFastMapper
@@ -116,6 +125,7 @@ from .qubit_mapper import QubitMapper
 from .mode_based_mapper import ModeBasedMapper
 from .interleaved_qubit_mapper import InterleavedQubitMapper
 from .tapered_qubit_mapper import TaperedQubitMapper
+from .mixed_mapper import MixedMapper
 
 __all__ = [
     "BravyiKitaevMapper",
@@ -128,6 +138,7 @@ __all__ = [
     "BosonicLinearMapper",
     "BosonicLogarithmicMapper",
     "LogarithmicMapper",
+    "MixedMapper",
     "QubitMapper",
     "InterleavedQubitMapper",
     "TaperedQubitMapper",

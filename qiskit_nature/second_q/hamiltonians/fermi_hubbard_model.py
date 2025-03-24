@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2024.
+# (C) Copyright IBM 2021, 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -94,7 +94,9 @@ class FermiHubbardModel(LatticeModel):
                         index_left = 2 * node_b + spin
                         index_right = 2 * node_a + spin
                         hopping_parameter = np.conjugate(weight)
+                    # pylint: disable=possibly-used-before-assignment
                     kinetic_ham[f"+_{index_left} -_{index_right}"] = hopping_parameter
+                    # pylint: disable=possibly-used-before-assignment
                     kinetic_ham[f"-_{index_left} +_{index_right}"] = -np.conjugate(
                         hopping_parameter
                     )

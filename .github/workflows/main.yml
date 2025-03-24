@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2024.
+# (C) Copyright IBM 2021, 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -36,7 +36,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.8]
+        python-version: [3.9]
     steps:
       - name: Print Concurrency Group
         env:
@@ -149,14 +149,14 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.8, 3.9, '3.10', 3.11, 3.12]
+        python-version: [3.9, '3.10', 3.11, 3.12]
         include:
           - os: macos-latest
-            python-version: 3.8
+            python-version: 3.9
           - os: macos-latest
             python-version: 3.12
           - os: windows-latest
-            python-version: 3.8
+            python-version: 3.9
           - os: windows-latest
             python-version: 3.12
     steps:
@@ -169,6 +169,12 @@ jobs:
             setup.py
             requirements.txt
             requirements-dev.txt
+      - uses: conda-incubator/setup-miniconda@v3
+        id: setup-miniforge
+        continue-on-error: true
+        with:
+          miniforge-version: latest
+        if: ${{ matrix.os == 'macos-latest' }}
       - name: Create conda environment
         run: |
           if [ "${{ matrix.os }}" == "macos-latest" ]; then
@@ -195,11 +201,6 @@ jobs:
       - uses: ./.github/actions/install-nature
         with:
           use-conda: "true"
-      - name: Set up problem matches
-        run: |
-          echo "::add-matcher::./.github/problem_matchers/pylint.json"
-          echo "::add-matcher::./.github/problem_matchers/mypy.json"
-        if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == 3.8 }}
       - name: Run lint
         run: |
           source "$CONDA/etc/profile.d/conda.sh"
@@ -245,7 +246,7 @@ jobs:
           conda activate psi4env
           coverage3 combine
           mv .coverage ./ci-artifact-data/nat.dat
-        if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == 3.8 }}
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == 3.9 }}
         shell: bash
       - uses: actions/upload-artifact@v4
         with:
@@ -274,7 +275,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.8, 3.12]
+        python-version: [3.9, 3.12]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -341,30 +342,26 @@ jobs:
           cd docs/_build/html
           mkdir artifacts
           tar -zcvf artifacts/tutorials.tar.gz --exclude=./artifacts .
-        if: ${{ matrix.python-version == 3.8 && !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
+        if: ${{ matrix.python-version == 3.9 && !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
         shell: bash
       - name: Run upload stable tutorials
         uses: actions/upload-artifact@v4
         with:
           name: tutorials-stable${{ matrix.python-version }}
           path: docs/_build/html/artifacts/tutorials.tar.gz
-        if: ${{ matrix.python-version == 3.8 && !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
+        if: ${{ matrix.python-version == 3.9 && !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
   Deprecation_Messages_and_Coverage:
     if: github.repository_owner == 'qiskit-community'
     needs: [Checks, Nature, Tutorials]
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8]
+        python-version: [3.9]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: actions/download-artifact@v4
-        with:
-          name: ubuntu-latest-3.8
-          path: /tmp/u38
       - uses: actions/download-artifact@v4
         with:
           name: ubuntu-latest-3.9
@@ -383,16 +380,16 @@ jobs:
           path: /tmp/u312
       - uses: actions/download-artifact@v4
         with:
-          name: macos-latest-3.8
-          path: /tmp/m38
+          name: macos-latest-3.9
+          path: /tmp/m39
       - uses: actions/download-artifact@v4
         with:
           name: macos-latest-3.12
           path: /tmp/m312
       - uses: actions/download-artifact@v4
         with:
-          name: windows-latest-3.8
-          path: /tmp/w38
+          name: windows-latest-3.9
+          path: /tmp/w39
       - uses: actions/download-artifact@v4
         with:
           name: windows-latest-3.12
@@ -402,10 +399,10 @@ jobs:
         shell: bash
       - name: Combined Deprecation Messages
         run: |
-          sort -f -u /tmp/u38/nat.dep /tmp/u39/nat.dep /tmp/u310/nat.dep /tmp/u311/nat.dep /tmp/u312/nat.dep /tmp/m38/nat.dep /tmp/m312/nat.dep /tmp/w38/nat.dep /tmp/w312/nat.dep || true
+          sort -f -u /tmp/u39/nat.dep /tmp/u310/nat.dep /tmp/u311/nat.dep /tmp/u312/nat.dep /tmp/m39/nat.dep /tmp/m312/nat.dep /tmp/w39/nat.dep /tmp/w312/nat.dep || true
         shell: bash
       - name: Coverage combine
-        run: coverage3 combine /tmp/u38/nat.dat
+        run: coverage3 combine /tmp/u39/nat.dat
         shell: bash
       - name: Upload to Coveralls
         env:

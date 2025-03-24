@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2024.
+# (C) Copyright IBM 2021, 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -144,6 +144,7 @@ class TestLattice(QiskitNatureTestCase):
     @unittest.skipIf(not _optionals.HAS_NETWORKX, "networkx not available.")
     def test_from_networkx(self):
         """Test initialization from a networkx graph."""
+        # pylint: disable=possibly-used-before-assignment
         graph = nx.Graph()
         graph.add_nodes_from(range(5))
         graph.add_edges_from([(i, i + 1) for i in range(4)])

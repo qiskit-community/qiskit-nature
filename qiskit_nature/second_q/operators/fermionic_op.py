@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2024.
+# (C) Copyright IBM 2021, 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -196,7 +196,7 @@ class FermionicOp(SparseLabelOp):
         return self.__class__(data, copy=False, num_spin_orbitals=num_so)
 
     def _validate_keys(self, keys: Collection[str]) -> None:
-        super()._validate_keys(keys)
+        super()._validate_keys(keys)  # type: ignore[safe-super]
 
         num_so = self.num_spin_orbitals
 

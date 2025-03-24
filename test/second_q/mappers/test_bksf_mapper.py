@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2023.
+# (C) Copyright IBM 2021, 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -100,7 +100,7 @@ class TestBravyiKitaevSuperFastMapper(QiskitNatureTestCase):
     def test_h2(self):
         """Test H2 molecule"""
         with self.subTest("Excitation edges 1"):
-            assert np.alltrue(
+            assert np.all(
                 _bksf_edge_list_fermionic_op(
                     FermionicOp({"+_0 -_1 +_2 -_3": 1}, num_spin_orbitals=4),
                     4,
@@ -109,7 +109,7 @@ class TestBravyiKitaevSuperFastMapper(QiskitNatureTestCase):
             )
 
         with self.subTest("Excitation edges 2"):
-            assert np.alltrue(
+            assert np.all(
                 _bksf_edge_list_fermionic_op(
                     FermionicOp({"+_0 -_1 -_2 +_3": 1}, num_spin_orbitals=4),
                     4,
