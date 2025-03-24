@@ -107,7 +107,7 @@ class TestMixedMapper(QiskitNatureTestCase):
             )
 
     def test_map_multiple_fermionic_operators(self):
-        """Test the ``MixedOp`` mapping on list and dictionaries."""
+        """Test the ``MixedMapper`` if multiple fermionic operators are provided."""
 
         with self.assertRaises(ValueError):
 

@@ -197,7 +197,7 @@ class MixedMapper(ABC):
         """
 
         if register_length is not None:
-            LOGGER.info("Argument register length = %s was ignored.", register_length)
+            LOGGER.warning("Argument register length = %s was ignored.", register_length)
 
         wrapped_second_q_ops, wrapped_type = _ListOrDict.wrap(mixed_ops)
 
