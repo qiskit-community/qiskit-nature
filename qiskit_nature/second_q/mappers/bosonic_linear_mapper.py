@@ -29,7 +29,7 @@ class BosonicLinearMapper(BosonicMapper):
     """The Linear boson-to-qubit mapping.
 
     This mapper generates a linear encoding of the Bosonic operator :math:`b_k^\\dagger, b_k` to qubit
-    operators (linear combinations of pauli strings).
+    operators (linear combinations of Pauli strings).
     In this linear encoding each bosonic mode is represented via :math:`n_k^{max} + 1` qubits, where
     :math:`n_k^{max}` is the max occupation of the mode (meaning the number of states used in the
     expansion of the mode, or equivalently the state at which the maximum excitation can take place).
