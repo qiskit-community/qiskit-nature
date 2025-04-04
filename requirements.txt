@@ -1,7 +1,7 @@
 qiskit>=0.44,<2.0
 qiskit-algorithms>=0.2.1
 scipy>=1.4
-numpy>=1.17,<2.0
+numpy>=1.17
 setuptools>=40.1.0
 h5py
 rustworkx>=0.12
