@@ -33,7 +33,7 @@ features:
   - |
     The ``algorithms`` module now requires the new algorithms introduced in
     Qiskit Terra 0.22 which in turn rely on the `Qiskit Primitives
-    <https://docs.quantum.ibm.com/api/qiskit/primitives>`_ themselves.
+    <https://quantum.cloud.ibm.com/docs/api/qiskit/primitives>`_ themselves.
     For more details check out the `migration guide for problem solving
     <https://qiskit-community.github.io/qiskit-nature/migration/0.5_b_solving_problems.html>`_.
   - |
