@@ -12,18 +12,18 @@
 
 """Test AngularMomentum Property"""
 
-import unittest
 import json
-from test.second_q.properties.property_test import PropertyTest
+import unittest
 
 import numpy as np
-
-from qiskit.primitives import Estimator
+from qiskit.primitives import BaseEstimatorV2 as BaseEstimator
 from qiskit_algorithms.observables_evaluator import estimate_observables
+
 from qiskit_nature.second_q.circuit.library import HartreeFock
 from qiskit_nature.second_q.mappers import ParityMapper
-from qiskit_nature.second_q.properties import AngularMomentum
 from qiskit_nature.second_q.operators import FermionicOp
+from qiskit_nature.second_q.properties import AngularMomentum
+from test.second_q.properties.property_test import PropertyTest
 
 
 class TestAngularMomentum(PropertyTest):
@@ -101,7 +101,7 @@ class TestAngularMomentum(PropertyTest):
 
         hf_state = HartreeFock(norb, nelec, mapper)
 
-        result = estimate_observables(Estimator(), hf_state, qubit_op)
+        result = estimate_observables(BaseEstimator(), hf_state, qubit_op)
         self.assertAlmostEqual(result["AngularMomentum"][0], 0.29663167846210015)
 
     def test_with_non_unitary_overlap(self):
@@ -128,7 +128,7 @@ class TestAngularMomentum(PropertyTest):
 
         hf_state = HartreeFock(norb, nelec, mapper)
 
-        result = estimate_observables(Estimator(), hf_state, qubit_op)
+        result = estimate_observables(BaseEstimator(), hf_state, qubit_op)
         self.assertAlmostEqual(result["AngularMomentum"][0], 1.9700743392855005)
 
 

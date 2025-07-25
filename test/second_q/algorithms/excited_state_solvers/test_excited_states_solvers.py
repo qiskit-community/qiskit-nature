@@ -16,18 +16,20 @@ from __future__ import annotations
 
 import unittest
 
-from test import QiskitNatureTestCase
-from ddt import ddt, named_data
 import numpy as np
-
-from qiskit_algorithms import NumPyEigensolver, NumPyMinimumEigensolver, VQE
+from ddt import ddt, named_data
+from qiskit.primitives import BaseEstimatorV2 as BaseEstimator
+from qiskit_algorithms import VQE, NumPyEigensolver, NumPyMinimumEigensolver
 from qiskit_algorithms.optimizers import SLSQP
 from qiskit_algorithms.utils import algorithm_globals
-from qiskit.primitives import Estimator
 
-from qiskit_nature.units import DistanceUnit
-from qiskit_nature.second_q.circuit.library import HartreeFock, UCCSD
-from qiskit_nature.second_q.transformers import ActiveSpaceTransformer
+import qiskit_nature.optionals as _optionals
+from qiskit_nature.second_q.algorithms import (
+    QEOM,
+    ExcitedStatesEigensolver,
+    GroundStateEigensolver,
+)
+from qiskit_nature.second_q.circuit.library import UCCSD, HartreeFock
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import (
     JordanWignerMapper,
@@ -35,9 +37,9 @@ from qiskit_nature.second_q.mappers import (
     QubitMapper,
     TaperedQubitMapper,
 )
-
-from qiskit_nature.second_q.algorithms import GroundStateEigensolver, ExcitedStatesEigensolver, QEOM
-import qiskit_nature.optionals as _optionals
+from qiskit_nature.second_q.transformers import ActiveSpaceTransformer
+from qiskit_nature.units import DistanceUnit
+from test import QiskitNatureTestCase
 
 
 @ddt
@@ -81,7 +83,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
                 self.assertAlmostEqual(computed[i], references[i], places=places)
 
     def _compute_and_assert_qeom_energies(self, mapper: QubitMapper):
-        estimator = Estimator()
+        estimator = BaseEstimator()
         ansatz = UCCSD(
             self.electronic_structure_problem.num_spatial_orbitals,
             self.electronic_structure_problem.num_particles,
@@ -103,7 +105,7 @@ class TestNumericalQEOMESCCalculation(QiskitNatureTestCase):
         """Test NumPyMinimumEigenSolver with QEOM"""
         solver = NumPyMinimumEigensolver()
         gsc = GroundStateEigensolver(self.mapper, solver)
-        esc = QEOM(gsc, Estimator(), "sd")
+        esc = QEOM(gsc, BaseEstimator(), "sd")
         results = esc.solve(self.electronic_structure_problem)
         self._assert_energies(results.computed_energies, self.reference_energies)
 

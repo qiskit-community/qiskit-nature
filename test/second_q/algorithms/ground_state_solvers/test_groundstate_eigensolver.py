@@ -17,24 +17,25 @@ import copy
 import io
 import unittest
 
-from test import QiskitNatureTestCase, slow_test
-
 import numpy as np
-
-from qiskit_algorithms import NumPyMinimumEigensolver, VQE
+from qiskit.primitives import BaseEstimatorV2 as BaseEstimator
+from qiskit_algorithms import VQE, NumPyMinimumEigensolver
 from qiskit_algorithms.optimizers import SLSQP, SPSA
 from qiskit_algorithms.utils import algorithm_globals
-from qiskit.primitives import Estimator
 
 import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.algorithms import GroundStateEigensolver
-from qiskit_nature.second_q.circuit.library import HartreeFock, UCC, UCCSD
-from qiskit_nature.second_q.drivers import PySCFDriver
-from qiskit_nature.second_q.mappers import JordanWignerMapper, ParityMapper
-from qiskit_nature.second_q.mappers import TaperedQubitMapper
-from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
-from qiskit_nature.second_q.transformers import FreezeCoreTransformer
 from qiskit_nature.second_q.algorithms.initial_points import MP2InitialPoint
+from qiskit_nature.second_q.circuit.library import UCC, UCCSD, HartreeFock
+from qiskit_nature.second_q.drivers import PySCFDriver
+from qiskit_nature.second_q.hamiltonians import ElectronicEnergy
+from qiskit_nature.second_q.mappers import (
+    JordanWignerMapper,
+    ParityMapper,
+    TaperedQubitMapper,
+)
+from qiskit_nature.second_q.transformers import FreezeCoreTransformer
+from test import QiskitNatureTestCase, slow_test
 
 
 @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
@@ -85,7 +86,7 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
                 self.mapper,
             ),
         )
-        solver = VQE(Estimator(), ansatz, SLSQP())
+        solver = VQE(BaseEstimator(), ansatz, SLSQP())
         solver.initial_point = [0] * ansatz.num_parameters
         calc = GroundStateEigensolver(self.mapper, solver)
         res = calc.solve(self.electronic_structure_problem)
@@ -104,7 +105,7 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
                 self.mapper,
             ),
         )
-        solver = VQE(Estimator(), ansatz, SLSQP())
+        solver = VQE(BaseEstimator(), ansatz, SLSQP())
         solver.initial_point = [0] * ansatz.num_parameters
         calc = GroundStateEigensolver(self.tapered_mapper, solver)
         res = calc.solve(self.electronic_structure_problem)
@@ -128,7 +129,7 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
                 self.mapper,
             ),
         )
-        solver = VQE(Estimator(), ansatz, SLSQP(), callback=callback)
+        solver = VQE(BaseEstimator(), ansatz, SLSQP(), callback=callback)
         solver.initial_point = [0] * ansatz.num_parameters
         calc = GroundStateEigensolver(self.tapered_mapper, solver)
         with contextlib.redirect_stdout(io.StringIO()) as out:
@@ -168,7 +169,7 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
                 self.mapper,
             ),
         )
-        solver = VQE(Estimator(), ansatz, SLSQP())
+        solver = VQE(BaseEstimator(), ansatz, SLSQP())
         solver.initial_point = [0] * ansatz.num_parameters
         calc = GroundStateEigensolver(self.tapered_mapper, solver)
         res = calc.solve(self.electronic_structure_problem)
@@ -198,7 +199,7 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
         solver = VQE(
             ansatz=ansatz,
             optimizer=optimizer,
-            estimator=Estimator(),
+            estimator=BaseEstimator(),
             initial_point=[0.0] * ansatz.num_parameters,
         )
 
@@ -218,7 +219,7 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
         solver = VQE(
             ansatz=ansatz,
             optimizer=optimizer,
-            estimator=Estimator(),
+            estimator=BaseEstimator(),
             initial_point=[0.0] * ansatz.num_parameters,
         )
 
@@ -302,7 +303,7 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
                 self.mapper,
             ),
         )
-        solver = VQE(Estimator(), ansatz, SLSQP())
+        solver = VQE(BaseEstimator(), ansatz, SLSQP())
 
         initial_point = MP2InitialPoint()
         initial_point.ansatz = ansatz

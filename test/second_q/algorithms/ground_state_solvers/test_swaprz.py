@@ -13,18 +13,19 @@
 """Test of ExcitationPreserving from the circuit library."""
 
 import unittest
-from test import QiskitNatureTestCase, slow_test
 
+from qiskit.circuit.library import ExcitationPreserving
+from qiskit.primitives import BaseEstimatorV2 as BaseEstimator
 from qiskit_algorithms import VQE
 from qiskit_algorithms.optimizers import SLSQP
 from qiskit_algorithms.utils import algorithm_globals
-from qiskit.primitives import Estimator
-from qiskit.circuit.library import ExcitationPreserving
+
 import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.algorithms import GroundStateEigensolver
 from qiskit_nature.second_q.circuit.library import HartreeFock
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import ParityMapper
+from test import QiskitNatureTestCase, slow_test
 
 
 class TestExcitationPreserving(QiskitNatureTestCase):
@@ -68,7 +69,7 @@ class TestExcitationPreserving(QiskitNatureTestCase):
         solver = VQE(
             ansatz=wavefunction,
             optimizer=optimizer,
-            estimator=Estimator(),
+            estimator=BaseEstimator(),
         )
 
         gsc = GroundStateEigensolver(mapper, solver)

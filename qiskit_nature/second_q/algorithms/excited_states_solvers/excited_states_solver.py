@@ -19,8 +19,7 @@ from abc import ABC, abstractmethod
 from qiskit.quantum_info import SparsePauliOp
 
 from qiskit_nature.second_q.operators import SparseLabelOp
-from qiskit_nature.second_q.problems import BaseProblem
-from qiskit_nature.second_q.problems import EigenstateResult
+from qiskit_nature.second_q.problems import BaseProblem, EigenstateResult
 
 
 class ExcitedStatesSolver(ABC):

@@ -17,7 +17,7 @@ import unittest
 from test import QiskitNatureTestCase
 from test.second_q.circuit.library.ansatzes.utils.vibrational_op_label_creator import _create_labels
 
-from qiskit.primitives import Estimator
+from qiskit.primitives import StatevectorEstimator as Estimator
 from qiskit_algorithms import VQE
 from qiskit_algorithms.optimizers import COBYLA
 from qiskit_algorithms.utils import algorithm_globals
