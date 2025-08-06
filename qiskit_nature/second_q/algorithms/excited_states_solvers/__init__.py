@@ -18,9 +18,9 @@ Excited State Solving Algorithms (:mod:`qiskit_nature.second_q.algorithms.excite
 
 """
 
-from .excited_states_solver import ExcitedStatesSolver
-from .qeom import QEOM, QEOMResult, EvaluationRule
 from .excited_states_eigensolver import ExcitedStatesEigensolver
+from .excited_states_solver import ExcitedStatesSolver
+from .qeom import QEOM, EvaluationRule, QEOMResult
 
 __all__ = [
     "ExcitedStatesSolver",

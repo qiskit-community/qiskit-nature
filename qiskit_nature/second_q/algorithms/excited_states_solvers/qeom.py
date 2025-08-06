@@ -28,7 +28,7 @@ from qiskit_algorithms.list_or_dict import ListOrDict as ListOrDictType
 from qiskit_algorithms.observables_evaluator import estimate_observables
 from qiskit.circuit import QuantumCircuit
 from qiskit.quantum_info import SparsePauliOp
-from qiskit.primitives import BaseEstimator
+from qiskit.primitives import BaseEstimatorV2 as BaseEstimator
 
 from qiskit_nature.second_q.algorithms.ground_state_solvers import GroundStateSolver
 from qiskit_nature.second_q.algorithms.excited_states_solvers.excited_states_solver import (

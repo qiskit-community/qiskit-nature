@@ -19,8 +19,8 @@ from typing import Callable
 from qiskit.quantum_info import SparsePauliOp
 
 from qiskit_nature.second_q.circuit.library import UVCC
-from qiskit_nature.second_q.operators import VibrationalOp
 from qiskit_nature.second_q.mappers import QubitMapper, TaperedQubitMapper
+from qiskit_nature.second_q.operators import VibrationalOp
 from qiskit_nature.utils import _parallel_map
 
 
