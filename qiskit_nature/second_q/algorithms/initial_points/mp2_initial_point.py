@@ -19,8 +19,11 @@ import numpy as np
 from qiskit_nature.exceptions import QiskitNatureError
 from qiskit_nature.second_q.circuit.library import UCC
 from qiskit_nature.second_q.operators import ElectronicIntegrals
+from qiskit_nature.second_q.operators.symmetric_two_body import (
+    SymmetricTwoBodyIntegrals,
+    unfold,
+)
 from qiskit_nature.second_q.operators.tensor import Tensor
-from qiskit_nature.second_q.operators.symmetric_two_body import SymmetricTwoBodyIntegrals, unfold
 from qiskit_nature.second_q.problems import BaseProblem, ElectronicStructureProblem
 from qiskit_nature.utils import get_einsum
 

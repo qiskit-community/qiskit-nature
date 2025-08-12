@@ -16,27 +16,28 @@ from __future__ import annotations
 
 import unittest
 
-from test import QiskitNatureTestCase
-from ddt import ddt, named_data
 import numpy as np
-
+from ddt import ddt, named_data
+from qiskit.primitives import BaseEstimatorV2 as BaseEstimator
 from qiskit_algorithms import VQE
 from qiskit_algorithms.optimizers import SLSQP
 from qiskit_algorithms.utils import algorithm_globals
-from qiskit.primitives import Estimator
 
-from qiskit_nature.units import DistanceUnit
-from qiskit_nature.second_q.circuit.library import HartreeFock, UCCSD
+import qiskit_nature.optionals as _optionals
+from qiskit_nature.second_q.algorithms import QEOM, GroundStateEigensolver
+from qiskit_nature.second_q.algorithms.excited_states_solvers.qeom import EvaluationRule
+from qiskit_nature.second_q.circuit.library import UCCSD, HartreeFock
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import (
     JordanWignerMapper,
     ParityMapper,
+    QubitMapper,
+    TaperedQubitMapper,
 )
-from qiskit_nature.second_q.mappers import QubitMapper, TaperedQubitMapper
 from qiskit_nature.second_q.operators.fermionic_op import FermionicOp
-from qiskit_nature.second_q.algorithms import GroundStateEigensolver, QEOM
-from qiskit_nature.second_q.algorithms.excited_states_solvers.qeom import EvaluationRule
-import qiskit_nature.optionals as _optionals
+from qiskit_nature.units import DistanceUnit
+from test import QiskitNatureTestCase
+
 from .resources.expected_transition_amplitudes import reference_trans_amps
 
 
@@ -128,7 +129,7 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
     def _compute_and_assert_qeom_aux_eigenvalues(self, mapper: QubitMapper):
         hamiltonian_op, _ = self.electronic_structure_problem.second_q_ops()
         aux_ops = {"hamiltonian": hamiltonian_op}
-        estimator = Estimator()
+        estimator = BaseEstimator()
         ansatz = UCCSD(
             self.electronic_structure_problem.num_spatial_orbitals,
             self.electronic_structure_problem.num_particles,
@@ -158,7 +159,7 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
         }
         aux_ops = {"hamiltonian_derivative": self._hamiltonian_derivative()}
 
-        estimator = Estimator()
+        estimator = BaseEstimator()
         ansatz = UCCSD(
             self.electronic_structure_problem.num_spatial_orbitals,
             self.electronic_structure_problem.num_particles,

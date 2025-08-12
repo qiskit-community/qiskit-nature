@@ -14,16 +14,16 @@
 
 import unittest
 
-from test import QiskitNatureTestCase
-
+from qiskit.circuit.library import TwoLocal
+from qiskit.primitives import BaseEstimatorV2 as BaseEstimator
 from qiskit_algorithms import VQE
 from qiskit_algorithms.optimizers import COBYLA
 from qiskit_algorithms.utils import algorithm_globals
-from qiskit.circuit.library import TwoLocal
-from qiskit.primitives import Estimator
+
 import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import ParityMapper
+from test import QiskitNatureTestCase
 
 
 @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
@@ -46,7 +46,7 @@ class TestEnd2End(QiskitNatureTestCase):
         """end to end h2"""
         optimizer = COBYLA(maxiter=1000)
         ryrz = TwoLocal(rotation_blocks=["ry", "rz"], entanglement_blocks="cz")
-        vqe = VQE(Estimator(), ryrz, optimizer)
+        vqe = VQE(BaseEstimator(), ryrz, optimizer)
         result = vqe.compute_minimum_eigenvalue(self.qubit_op, aux_operators=self.aux_ops)
         self.assertAlmostEqual(result.eigenvalue.real, self.reference_energy, places=4)
 
