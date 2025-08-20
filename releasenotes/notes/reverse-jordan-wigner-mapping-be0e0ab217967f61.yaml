@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Adds a new method :meth:`.JordanWignerMapper.reverse_map` for :class:`.JordanWignerMapper` that does
+    a reverse mapping to create a fermionic operator from a qubit operator.
