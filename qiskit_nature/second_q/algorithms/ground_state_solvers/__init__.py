@@ -18,8 +18,8 @@ Ground State Solving Algorithms (:mod:`qiskit_nature.second_q.algorithms.ground_
 
 """
 
-from .ground_state_solver import GroundStateSolver
 from .ground_state_eigensolver import GroundStateEigensolver
+from .ground_state_solver import GroundStateSolver
 
 __all__ = [
     "GroundStateSolver",

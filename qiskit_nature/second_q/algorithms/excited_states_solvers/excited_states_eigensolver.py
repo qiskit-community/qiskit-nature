@@ -16,13 +16,12 @@ from __future__ import annotations
 
 import logging
 
-from qiskit_algorithms import Eigensolver
 from qiskit.quantum_info import SparsePauliOp
+from qiskit_algorithms import Eigensolver
 
 from qiskit_nature.second_q.mappers import QubitMapper
 from qiskit_nature.second_q.operators import SparseLabelOp
-from qiskit_nature.second_q.problems import BaseProblem
-from qiskit_nature.second_q.problems import EigenstateResult
+from qiskit_nature.second_q.problems import BaseProblem, EigenstateResult
 
 from .excited_states_solver import ExcitedStatesSolver
 

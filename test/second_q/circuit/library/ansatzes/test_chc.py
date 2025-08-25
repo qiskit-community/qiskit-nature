@@ -14,19 +14,21 @@
 
 import unittest
 
-from test import QiskitNatureTestCase
-from test.second_q.circuit.library.ansatzes.utils.vibrational_op_label_creator import _create_labels
-
-from qiskit.primitives import Estimator
+from qiskit.primitives import BaseEstimatorV2 as BaseEstimator
 from qiskit_algorithms import VQE
 from qiskit_algorithms.optimizers import COBYLA
 from qiskit_algorithms.utils import algorithm_globals
+
 from qiskit_nature.second_q.circuit.library import CHC, VSCF
 from qiskit_nature.second_q.circuit.library.ansatzes.utils.vibration_excitation_generator import (
     generate_vibration_excitations,
 )
 from qiskit_nature.second_q.mappers import DirectMapper
 from qiskit_nature.second_q.operators import VibrationalOp
+from test import QiskitNatureTestCase
+from test.second_q.circuit.library.ansatzes.utils.vibrational_op_label_creator import (
+    _create_labels,
+)
 
 
 class TestCHCVSCF(QiskitNatureTestCase):
@@ -83,7 +85,7 @@ class TestCHCVSCF(QiskitNatureTestCase):
         )
 
         optimizer = COBYLA(maxiter=1000)
-        algo = VQE(Estimator(), chc_ansatz, optimizer)
+        algo = VQE(BaseEstimator(), chc_ansatz, optimizer)
 
         mapper = DirectMapper()
 

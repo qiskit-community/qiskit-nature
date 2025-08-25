@@ -14,19 +14,18 @@
 
 import unittest
 
-from test import QiskitNatureTestCase, slow_test
-
+from qiskit.primitives import BaseEstimatorV2 as BaseEstimator
 from qiskit_algorithms import VQE
 from qiskit_algorithms.optimizers import SLSQP
 from qiskit_algorithms.utils import algorithm_globals
-from qiskit.primitives import Estimator
 
+import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.algorithms import GroundStateEigensolver
-from qiskit_nature.second_q.circuit.library import HartreeFock, SUCCD, PUCCD
+from qiskit_nature.second_q.circuit.library import PUCCD, SUCCD, HartreeFock
 from qiskit_nature.second_q.drivers import PySCFDriver
 from qiskit_nature.second_q.mappers import ParityMapper
 from qiskit_nature.second_q.transformers import FreezeCoreTransformer
-import qiskit_nature.optionals as _optionals
+from test import QiskitNatureTestCase, slow_test
 
 # pylint: disable=invalid-name
 
@@ -92,7 +91,7 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         solver = VQE(
             ansatz=ansatz,
             optimizer=optimizer,
-            estimator=Estimator(),
+            estimator=BaseEstimator(),
             initial_point=[0.0] * ansatz.num_parameters,
         )
 
@@ -119,7 +118,7 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         solver = VQE(
             ansatz=ansatz,
             optimizer=optimizer,
-            estimator=Estimator(),
+            estimator=BaseEstimator(),
             initial_point=[0.0] * ansatz.num_parameters,
         )
 
@@ -147,7 +146,7 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         solver = VQE(
             ansatz=ansatz,
             optimizer=optimizer,
-            estimator=Estimator(),
+            estimator=BaseEstimator(),
             initial_point=[0.0] * ansatz.num_parameters,
         )
 

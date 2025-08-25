@@ -12,21 +12,22 @@
 
 """Test the UVCC Ansatz."""
 
-from test import QiskitNatureTestCase
-from test.second_q.circuit.library.ansatzes.utils.vibrational_op_label_creator import _create_labels
-
 import unittest
 
-from ddt import ddt, data, unpack
-
+from ddt import data, ddt, unpack
 from qiskit import transpile
-from qiskit.primitives import Estimator
+from qiskit.primitives import BaseEstimatorV2 as BaseEstimator
 from qiskit_algorithms import VQE
 from qiskit_algorithms.optimizers import COBYLA
 from qiskit_algorithms.utils import algorithm_globals
+
 from qiskit_nature.second_q.circuit.library import UVCC, VSCF
 from qiskit_nature.second_q.mappers import DirectMapper
 from qiskit_nature.second_q.operators import VibrationalOp
+from test import QiskitNatureTestCase
+from test.second_q.circuit.library.ansatzes.utils.vibrational_op_label_creator import (
+    _create_labels,
+)
 
 
 def assert_ucc_like_ansatz(test_case, ansatz, num_modals, expected_ops):
@@ -118,7 +119,7 @@ class TestUVCCVSCF(QiskitNatureTestCase):
         qubit_op = mapper.map(vibr_op)
         uvcc_ansatz = UVCC(num_modals, "sd", mapper, initial_state=init_state)
         optimizer = COBYLA(maxiter=1000)
-        algo = VQE(Estimator(), uvcc_ansatz, optimizer)
+        algo = VQE(BaseEstimator(), uvcc_ansatz, optimizer)
         vqe_result = algo.compute_minimum_eigenvalue(qubit_op)
         energy = vqe_result.optimal_value
         self.assertAlmostEqual(energy, self.reference_energy, places=4)
