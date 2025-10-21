@@ -49,7 +49,7 @@ features:
       from pyscf import gto, scf, mcscf
 
       from qiskit.algorithms.optimizers import SLSQP
-      from qiskit.primitives import Estimator
+      from qiskit.primitives import StatevectorEstimator
       from qiskit_nature.second_q.algorithms import GroundStateEigensolver, VQEUCCFactory
       from qiskit_nature.second_q.circuit.library import UCCSD
       from qiskit_nature.second_q.mappers import ParityMapper, QubitConverter
@@ -66,7 +66,7 @@ features:
 
       converter = QubitConverter(ParityMapper(), two_qubit_reduction=True)
 
-      vqe = VQEUCCFactory(Estimator(), UCCSD(), SLSQP())
+      vqe = VQEUCCFactory(StatevectorEstimator(), UCCSD(), SLSQP())
 
       algorithm = GroundStateEigensolver(converter, vqe)
 

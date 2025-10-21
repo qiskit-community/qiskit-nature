@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2023.
+# (C) Copyright IBM 2021, 2023, 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -18,7 +18,7 @@ from test.second_q.properties.property_test import PropertyTest
 
 import numpy as np
 
-from qiskit.primitives import Estimator
+from qiskit.primitives import StatevectorEstimator
 from qiskit_algorithms.observables_evaluator import estimate_observables
 from qiskit_nature.second_q.circuit.library import HartreeFock
 from qiskit_nature.second_q.mappers import ParityMapper
@@ -101,7 +101,7 @@ class TestAngularMomentum(PropertyTest):
 
         hf_state = HartreeFock(norb, nelec, mapper)
 
-        result = estimate_observables(Estimator(), hf_state, qubit_op)
+        result = estimate_observables(StatevectorEstimator(), hf_state, qubit_op)
         self.assertAlmostEqual(result["AngularMomentum"][0], 0.29663167846210015)
 
     def test_with_non_unitary_overlap(self):
@@ -128,7 +128,7 @@ class TestAngularMomentum(PropertyTest):
 
         hf_state = HartreeFock(norb, nelec, mapper)
 
-        result = estimate_observables(Estimator(), hf_state, qubit_op)
+        result = estimate_observables(StatevectorEstimator(), hf_state, qubit_op)
         self.assertAlmostEqual(result["AngularMomentum"][0], 1.9700743392855005)
 
 

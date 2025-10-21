@@ -53,7 +53,7 @@ class UCC(EvolvedOperatorAnsatz):
         hf_initial_point = HFInitialPoint()
         hf_initial_point.ansatz = ucc
         initial_point = hf_initial_point.to_numpy_array()
-        vqe = VQE(Estimator(), ucc, SLSQP(), initial_point=initial_point)
+        vqe = VQE(StatevectorEstimator(), ucc, SLSQP(), initial_point=initial_point)
 
     You can also use a custom excitation generator method by passing a callable to ``excitations``.
 

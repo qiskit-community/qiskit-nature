@@ -28,7 +28,7 @@ from qiskit_algorithms.list_or_dict import ListOrDict as ListOrDictType
 from qiskit_algorithms.observables_evaluator import estimate_observables
 from qiskit.circuit import QuantumCircuit
 from qiskit.quantum_info import SparsePauliOp
-from qiskit.primitives import BaseEstimator
+from qiskit.primitives import BaseEstimatorV2
 
 from qiskit_nature.second_q.algorithms.ground_state_solvers import GroundStateSolver
 from qiskit_nature.second_q.algorithms.excited_states_solvers.excited_states_solver import (
@@ -166,7 +166,7 @@ class QEOM(ExcitedStatesSolver):
     def __init__(
         self,
         ground_state_solver: GroundStateSolver,
-        estimator: BaseEstimator,
+        estimator: BaseEstimatorV2,
         excitations: (
             str
             | int
@@ -184,9 +184,9 @@ class QEOM(ExcitedStatesSolver):
         Args:
             ground_state_solver: A ``GroundStateSolver`` object. The qEOM algorithm
                 will use this ground state to compute the EOM matrix elements.
-            estimator: The ``BaseEstimator`` to use for the evaluation of
+            estimator: The ``BaseEstimatorV2`` to use for the evaluation of
                 the qubit operators at the ground state ansatz. If the internal solver provided to
-                the ``GroundStateSolver`` also uses a ``BaseEstimator`` primitive, you can provide the
+                the ``GroundStateSolver`` also uses a ``BaseEstimatorV2`` primitive, you can provide the
                 same estimator instance here.
             excitations: The excitations to be included in the eom pseudo-eigenvalue problem.
 

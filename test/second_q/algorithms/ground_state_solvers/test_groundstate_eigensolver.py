@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2020, 2024.
+# (C) Copyright IBM 2020, 2024, 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -24,7 +24,7 @@ import numpy as np
 from qiskit_algorithms import NumPyMinimumEigensolver, VQE
 from qiskit_algorithms.optimizers import SLSQP, SPSA
 from qiskit_algorithms.utils import algorithm_globals
-from qiskit.primitives import Estimator
+from qiskit.primitives import StatevectorEstimator
 
 import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.algorithms import GroundStateEigensolver
@@ -85,7 +85,7 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
                 self.mapper,
             ),
         )
-        solver = VQE(Estimator(), ansatz, SLSQP())
+        solver = VQE(StatevectorEstimator(), ansatz, SLSQP())
         solver.initial_point = [0] * ansatz.num_parameters
         calc = GroundStateEigensolver(self.mapper, solver)
         res = calc.solve(self.electronic_structure_problem)
@@ -104,7 +104,7 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
                 self.mapper,
             ),
         )
-        solver = VQE(Estimator(), ansatz, SLSQP())
+        solver = VQE(StatevectorEstimator(), ansatz, SLSQP())
         solver.initial_point = [0] * ansatz.num_parameters
         calc = GroundStateEigensolver(self.tapered_mapper, solver)
         res = calc.solve(self.electronic_structure_problem)
@@ -128,7 +128,7 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
                 self.mapper,
             ),
         )
-        solver = VQE(Estimator(), ansatz, SLSQP(), callback=callback)
+        solver = VQE(StatevectorEstimator(), ansatz, SLSQP(), callback=callback)
         solver.initial_point = [0] * ansatz.num_parameters
         calc = GroundStateEigensolver(self.tapered_mapper, solver)
         with contextlib.redirect_stdout(io.StringIO()) as out:
@@ -168,7 +168,7 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
                 self.mapper,
             ),
         )
-        solver = VQE(Estimator(), ansatz, SLSQP())
+        solver = VQE(StatevectorEstimator(), ansatz, SLSQP())
         solver.initial_point = [0] * ansatz.num_parameters
         calc = GroundStateEigensolver(self.tapered_mapper, solver)
         res = calc.solve(self.electronic_structure_problem)
@@ -198,7 +198,7 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
         solver = VQE(
             ansatz=ansatz,
             optimizer=optimizer,
-            estimator=Estimator(),
+            estimator=StatevectorEstimator(),
             initial_point=[0.0] * ansatz.num_parameters,
         )
 
@@ -218,7 +218,7 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
         solver = VQE(
             ansatz=ansatz,
             optimizer=optimizer,
-            estimator=Estimator(),
+            estimator=StatevectorEstimator(),
             initial_point=[0.0] * ansatz.num_parameters,
         )
 
@@ -302,7 +302,7 @@ class TestGroundStateEigensolverMapper(QiskitNatureTestCase):
                 self.mapper,
             ),
         )
-        solver = VQE(Estimator(), ansatz, SLSQP())
+        solver = VQE(StatevectorEstimator(), ansatz, SLSQP())
 
         initial_point = MP2InitialPoint()
         initial_point.ansatz = ansatz

@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2020, 2023.
+# (C) Copyright IBM 2020, 2023, 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -23,7 +23,7 @@ import numpy as np
 from qiskit_algorithms import VQE
 from qiskit_algorithms.optimizers import SLSQP
 from qiskit_algorithms.utils import algorithm_globals
-from qiskit.primitives import Estimator
+from qiskit.primitives import StatevectorEstimator
 
 from qiskit_nature.units import DistanceUnit
 from qiskit_nature.second_q.circuit.library import HartreeFock, UCCSD
@@ -128,7 +128,7 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
     def _compute_and_assert_qeom_aux_eigenvalues(self, mapper: QubitMapper):
         hamiltonian_op, _ = self.electronic_structure_problem.second_q_ops()
         aux_ops = {"hamiltonian": hamiltonian_op}
-        estimator = Estimator()
+        estimator = StatevectorEstimator()
         ansatz = UCCSD(
             self.electronic_structure_problem.num_spatial_orbitals,
             self.electronic_structure_problem.num_particles,
@@ -158,7 +158,7 @@ class TestNumericalQEOMObscalculation(QiskitNatureTestCase):
         }
         aux_ops = {"hamiltonian_derivative": self._hamiltonian_derivative()}
 
-        estimator = Estimator()
+        estimator = StatevectorEstimator()
         ansatz = UCCSD(
             self.electronic_structure_problem.num_spatial_orbitals,
             self.electronic_structure_problem.num_particles,

@@ -9,7 +9,7 @@ features:
     .. code-block:: python
 
       from qiskit.algorithms.optimizers import COBYLA
-      from qiskit.primitives import Estimator
+      from qiskit.primitives import StatevectorEstimator
 
       from qiskit_nature.units import DistanceUnit
       from qiskit_nature.second_q.algorithms import VQEUCCFactory, GroundStateEigensolver
@@ -37,10 +37,10 @@ features:
       aux_ops = {"hamiltonian": hamiltonian_op}
 
       # Qeom results
-      vqe_solver = VQEUCCFactory(Estimator(), UCCSD(), optimizer)
+      vqe_solver = VQEUCCFactory(StatevectorEstimator(), UCCSD(), optimizer)
       me_gsc = GroundStateEigensolver(qubit_converter, vqe_solver)
       qeom_solver = QEOM(
-          me_gsc, estimator=Estimator(), excitations="sd", aux_eval_rules=EvaluationRule.ALL
+          me_gsc, estimator=StatevectorEstimator(), excitations="sd", aux_eval_rules=EvaluationRule.ALL
       )
       results_qeom = qeom_solver.solve(es_problem, aux_operators=aux_ops)
 

@@ -1,0 +1,10 @@
+---
+prelude: >
+    This release now supports `Qiskit 2.0 <https://quantum.cloud.ibm.com/docs/api/qiskit/release-notes/2.0>` and 
+    drops the support for Qiskit < 1.0.
+upgrade:
+  - |
+    Consumers can use the `Qiskit v1.0 migration guide <https://quantum.cloud.ibm.com/docs/en/migration-guides/qiskit-1.0>`, 
+    `Qiskit v2.0 migration guide <https://quantum.cloud.ibm.com/docs/en/migration-guides/qiskit-2.0>`,
+    and `Migrate to the Qiskit Runtime V2 primitives <https://quantum.cloud.ibm.com/docs/en/migration-guides/v2-primitives>`
+    to help with updating their code for the Qiskit APIs.

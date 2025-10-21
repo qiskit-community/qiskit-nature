@@ -47,7 +47,7 @@ class UVCC(EvolvedOperatorAnsatz):
         vscf_initial_point = VSCFInitialPoint()
         vscf_initial_point.ansatz = uvcc
         initial_point = vscf_initial_point.to_numpy_array()
-        vqe = VQE(Estimator(), uvcc, SLSQP(), initial_point=initial_point)
+        vqe = VQE(StatevectorEstimator(), uvcc, SLSQP(), initial_point=initial_point)
 
     For more information, see Ollitrault Pauline J., Chemical science 11 (2020): 6842-6855.
     """
