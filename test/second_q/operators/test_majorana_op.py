@@ -193,15 +193,19 @@ class TestMajoranaOp(QiskitNatureTestCase):
             params_map = {self.a: test_val}
             maj_op_bound = maj_op.assign_parameters(params_map)
             targ_bound = targ.assign_parameters(params_map)
-            
+
             # Cross-version compatible comparison: compare numerical values
             # ParameterExpression objects may not compare equal even after assignment
             self.assertEqual(set(maj_op_bound.keys()), set(targ_bound.keys()))
             for key in maj_op_bound.keys():
                 val1 = float(maj_op_bound[key])
                 val2 = float(targ_bound[key])
-                self.assertAlmostEqual(val1, val2, places=10, 
-                                     msg=f"Values for key '{key}' don't match: {val1} vs {val2}")
+                self.assertAlmostEqual(
+                    val1,
+                    val2,
+                    places=10,
+                    msg=f"Values for key '{key}' don't match: {val1} vs {val2}",
+                )
 
     def test_adjoint(self):
         """Test adjoint method"""
