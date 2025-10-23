@@ -10,6 +10,7 @@ mypy-extensions>=0.4.3
 nbsphinx
 pylint>=2.15.0
 pylatexenc>=1.4
+qiskit[all]>=1.0
 qiskit-aer>=0.17
 qiskit-algorithms>=0.4.0
 qiskit_sphinx_theme~=1.16.0
