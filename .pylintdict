@@ -555,6 +555,7 @@ springer
 spsa
 squ
 statevector
+statevectorestimator
 statevectors
 stderr
 stdlib
