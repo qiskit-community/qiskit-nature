@@ -62,7 +62,6 @@ setuptools.setup(
         "Operating System :: MacOS",
         "Operating System :: POSIX :: Linux",
         "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
@@ -72,7 +71,7 @@ setuptools.setup(
     packages=setuptools.find_packages(include=["qiskit_nature", "qiskit_nature.*"]),
     install_requires=REQUIREMENTS,
     include_package_data=True,
-    python_requires=">=3.9",
+    python_requires=">=3.10",
     extras_require={
         "pyscf": ["pyscf; sys_platform != 'win32'"],
         "mpl": ["matplotlib>=3.3"],
