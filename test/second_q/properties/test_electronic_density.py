@@ -197,7 +197,7 @@ class TestElectronicDensity(QiskitNatureTestCase):
             self.assertEqual(expected_keys, aux_ops.keys())
 
         with self.subTest("operator contents"):
-            all_terms = {}
+            all_terms: dict[str, complex] = {}
             for op in aux_ops.values():
                 all_terms.update(op.items())
 

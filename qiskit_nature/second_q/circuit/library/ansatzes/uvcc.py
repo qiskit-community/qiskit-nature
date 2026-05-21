@@ -358,7 +358,7 @@ class UVCC(EvolvedOperatorAnsatz):
             op -= op.adjoint()
             # we need to account for an additional imaginary phase in the exponent accumulated from
             # the first-order trotterization routine implemented in Qiskit
-            op *= 1j  # type: ignore
+            op *= 1j
             operators.append(op)
 
         return operators

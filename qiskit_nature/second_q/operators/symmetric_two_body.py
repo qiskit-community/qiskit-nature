@@ -805,7 +805,7 @@ def unfold_s4_to_s1(eri: Tensor | ARRAY_TYPE, *, validate: bool = True) -> S1Int
             new_eri[j, i, :, :] = new_eri[i, j, :, :]
 
     if is_sparse:
-        new_eri = new_eri.to_coo()
+        new_eri = new_eri.to_coo()  # type: ignore[union-attr]
 
     return S1Integrals(new_eri)
 
@@ -880,6 +880,6 @@ def unfold_s8_to_s1(eri: Tensor | ARRAY_TYPE, *, validate: bool = True) -> S1Int
             new_eri[j, i, :, :] = new_eri[i, j, :, :]
 
     if is_sparse:
-        new_eri = new_eri.to_coo()
+        new_eri = new_eri.to_coo()  # type: ignore[union-attr]
 
     return S1Integrals(new_eri)

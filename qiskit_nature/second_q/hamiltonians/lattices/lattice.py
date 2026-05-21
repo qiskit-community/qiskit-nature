@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from dataclasses import asdict, dataclass
-from typing import Callable, List, Optional, Sequence, Tuple, Union
+from typing import Callable, List, Optional, Sequence, Tuple, Union, cast
 import numbers
 
 import numpy as np
@@ -153,7 +153,7 @@ class Lattice:
     @property
     def graph(self) -> PyGraph:
         """Return a copy of the input graph."""
-        return self._graph.copy()
+        return cast(PyGraph, self._graph.copy())
 
     @property
     def num_nodes(self) -> int:
