@@ -58,7 +58,6 @@ jobs:
             requirements-dev.txt
       - name: Install dependencies
         run: |
-          pip install 'qiskit>=0.44,<1.0' qiskit-aer
           pip install -e .[pyscf,mpl,sparse,opt_einsum]
           pip install -U -c constraints.txt -r requirements-dev.txt
           echo "B3LYP_WITH_VWN5 = True" >> ~/.pyscf_conf.py
@@ -109,6 +108,31 @@ jobs:
         if: ${{ !cancelled() }}
       - name: Doctest
         run: make doctest
+        if: ${{ !cancelled() }}
+        shell: bash
+  Lint:
+    if: github.repository_owner == 'qiskit-community'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+          cache: 'pip'
+          cache-dependency-path: |
+            setup.py
+            requirements.txt
+            requirements-dev.txt
+      - name: Install dependencies
+        run: |
+          pip install -e .[pyscf,mpl,sparse,opt_einsum]
+          pip install -U -c constraints.txt -r requirements-dev.txt
+        shell: bash
+      - name: Run lint
+        run: make lint
+        shell: bash
+      - name: Run mypy
+        run: make mypy
         if: ${{ !cancelled() }}
         shell: bash
   Nature:
@@ -165,23 +189,9 @@ jobs:
         run: |
           source "$CONDA/etc/profile.d/conda.sh"
           conda activate psi4env
-          pip install 'qiskit>=0.44,<1.0' qiskit-aer
           pip install -e .[pyscf,mpl,sparse,opt_einsum]
           pip install -U -c constraints.txt -r requirements-dev.txt
           echo "B3LYP_WITH_VWN5 = True" >> ~/.pyscf_conf.py
-        shell: bash
-      - name: Run lint
-        run: |
-          source "$CONDA/etc/profile.d/conda.sh"
-          conda activate psi4env
-          make lint
-        shell: bash
-      - name: Run mypy
-        run: |
-          source "$CONDA/etc/profile.d/conda.sh"
-          conda activate psi4env
-          make mypy
-        if: ${{ !cancelled() }}
         shell: bash
       - name: Stestr Cache
         uses: actions/cache@v4
@@ -259,7 +269,6 @@ jobs:
             requirements-dev.txt
       - name: Install dependencies
         run: |
-          pip install 'qiskit>=0.44,<1.0' qiskit-aer
           pip install -e .[pyscf,mpl,sparse,opt_einsum]
           pip install -U -c constraints.txt -r requirements-dev.txt
           echo "B3LYP_WITH_VWN5 = True" >> ~/.pyscf_conf.py
@@ -311,7 +320,7 @@ jobs:
         if: ${{ matrix.python-version == 3.9 && !startsWith(github.ref, 'refs/heads/stable') && !startsWith(github.base_ref, 'stable/') }}
   Deprecation_Messages_and_Coverage:
     if: github.repository_owner == 'qiskit-community'
-    needs: [Checks, Nature, Tutorials]
+    needs: [Checks, Lint, Nature, Tutorials]
     runs-on: ubuntu-latest
     strategy:
       matrix:
