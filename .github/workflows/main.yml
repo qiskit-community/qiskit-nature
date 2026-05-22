@@ -288,6 +288,7 @@ jobs:
           QISKIT_DOCS_BUILD_TUTORIALS: 'always'
         run: |
           make clean_sphinx
+          # get current version
           version=$(pip show qiskit-nature | awk -F. '/^Version:/ { print substr($1,10), $2-1 }' OFS=.)
           wget https://codeload.github.com/qiskit-community/qiskit-nature/zip/stable/$version -O /tmp/repo.zip
           unzip /tmp/repo.zip -d /tmp/
