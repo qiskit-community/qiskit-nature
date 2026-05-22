@@ -69,11 +69,22 @@ class VibrationalIntegrals(PolynomialTensor):
             The constructed instance.
         """
         if _optionals.HAS_SPARSE:
-            max_n_body = max(len(key) for key in integrals) // 3
+            max_n_body = 0
+            max_mode = 0
+            max_modal = 0
+            for key in integrals:
+                max_n_body = max(max_n_body, len(key) // 3)
+                max_mode = max(max_mode, *key[::3])
+                max_modal = max(max_modal, *key[1::3], *key[2::3])
+            max_mode += 1
+            max_modal += 1
             ret = cls(
                 {
                     ("_+-" * n_body): Tensor(
-                        as_coo({k: v for k, v in integrals.items() if len(k) == 3 * n_body}),
+                        as_coo(
+                            {k: v for k, v in integrals.items() if len(k) == 3 * n_body},
+                            shape=(max_mode, max_modal, max_modal) * n_body,
+                        ),
                         label_template=" ".join(["{}_{{}}_{{}}"] * n_body * 2),
                     )
                     for n_body in range(1, max_n_body + 1)
