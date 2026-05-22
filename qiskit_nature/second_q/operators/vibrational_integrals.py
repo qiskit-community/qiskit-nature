@@ -68,57 +68,37 @@ class VibrationalIntegrals(PolynomialTensor):
         Returns:
             The constructed instance.
         """
-        if _optionals.HAS_SPARSE:
-            max_n_body = 0
-            max_mode = 0
-            max_modal = 0
-            for key in integrals:
-                max_n_body = max(max_n_body, len(key) // 3)
-                max_mode = max(max_mode, *key[::3])
-                max_modal = max(max_modal, *key[1::3], *key[2::3])
-            max_mode += 1
-            max_modal += 1
-            ret = cls(
-                {
-                    ("_+-" * n_body): Tensor(
-                        as_coo(
-                            {k: v for k, v in integrals.items() if len(k) == 3 * n_body},
-                            shape=(max_mode, max_modal, max_modal) * n_body,
-                        ),
-                        label_template=" ".join(["{}_{{}}_{{}}"] * n_body * 2),
-                    )
-                    for n_body in range(1, max_n_body + 1)
-                },
-                validate=False,
-            )
-        else:
+        max_n_body = 0
+        max_mode = 0
+        max_modal = 0
+        for key in integrals:
+            max_n_body = max(max_n_body, len(key) // 3)
+            max_mode = max(max_mode, *key[::3])
+            max_modal = max(max_modal, *key[1::3], *key[2::3])
+        max_mode += 1
+        max_modal += 1
+
+        if not _optionals.HAS_SPARSE:
             LOGGER.warning(
                 "The optional dependency 'sparse' is not installed. Falling back to using 'numpy' "
                 "arrays instead. Consider installing the 'sparse' package to reduce memory "
                 "requirements."
             )
-            data = {}
-            max_n_body = 0
-            max_mode = 0
-            max_modal = 0
-            for key in integrals:
-                max_n_body = max(max_n_body, len(key) // 3)
-                max_mode = max(max_mode, *key[::3])
-                max_modal = max(max_modal, *key[1::3], *key[2::3])
+        data = {}
+        for n_body in range(1, max_n_body + 1):
+            shape = (max_mode, max_modal, max_modal) * n_body
+            body_integrals = {k: v for k, v in integrals.items() if len(k) == 3 * n_body}
+            label_template = " ".join(["{}_{{}}_{{}}"] * n_body * 2)
+            if _optionals.HAS_SPARSE:
+                array = as_coo(body_integrals, shape=shape)
+            else:
+                array = np.zeros(shape, dtype=complex)
+                for k, v in body_integrals.items():
+                    array[k] = v
+            data["_+-" * n_body] = Tensor(array, label_template=label_template)
 
-            max_mode += 1
-            max_modal += 1
-            for n_body in range(1, max_n_body + 1):
-                data_key = "_+-" * n_body
-                numpy_arr = np.zeros((max_mode, max_modal, max_modal) * n_body, dtype=complex)
-                for k, v in integrals.items():
-                    if len(k) == 3 * n_body:
-                        numpy_arr[k] = v
-                data[data_key] = Tensor(
-                    numpy_arr, label_template=" ".join(["{}_{{}}_{{}}"] * n_body * 2)
-                )
-            ret = cls(data, validate=False)
-        return ret
+
+        return cls(data, validate=False)
 
     @property
     def register_length(self) -> int | None:
