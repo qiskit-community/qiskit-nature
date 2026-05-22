@@ -6,6 +6,7 @@ h5py
 jupyter-sphinx
 matplotlib>=3.3
 mypy>=0.991
+networkx
 mypy-extensions>=0.4.3
 nbsphinx
 pylint>=2.15.0

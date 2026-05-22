@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2022, 2023.
+# (C) Copyright IBM 2022, 2026.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -197,7 +197,7 @@ class TestElectronicDensity(QiskitNatureTestCase):
             self.assertEqual(expected_keys, aux_ops.keys())
 
         with self.subTest("operator contents"):
-            all_terms = {}
+            all_terms: dict[str, complex] = {}
             for op in aux_ops.values():
                 all_terms.update(op.items())
 

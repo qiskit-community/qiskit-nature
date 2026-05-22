@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2022, 2023.
+# (C) Copyright IBM 2022, 2026.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -348,7 +348,7 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
 
         prod_dict: dict[str, Tensor] = {}
         for key, matrix in self._data.items():
-            prod_dict[key] = other * matrix
+            prod_dict[key] = cast(Tensor, other * matrix)
 
         return PolynomialTensor(prod_dict, validate=False)
 

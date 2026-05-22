@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2023.
+# (C) Copyright IBM 2021, 2026.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -24,9 +24,9 @@ from qiskit_nature.second_q.algorithms.excited_states_solvers.qeom_electronic_op
 )
 import qiskit_nature.optionals as _optionals
 from .resources.expected_qeom_ops import (
-    expected_hopping_operators_electronic,
-    expected_commutativies_electronic,
-    expected_indices_electronic,
+    EXPECTED_HOPPING_OPERATORS_ELECTRONIC,
+    EXPECTED_COMMUTATIVIES_ELECTRONIC,
+    EXPECTED_INDICES_ELECTRONIC,
 )
 
 
@@ -61,23 +61,23 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
         )
 
         with self.subTest("hopping operators"):
-            self.assertEqual(hopping_operators.keys(), expected_hopping_operators_electronic.keys())
+            self.assertEqual(hopping_operators.keys(), EXPECTED_HOPPING_OPERATORS_ELECTRONIC.keys())
             for key, exp_key in zip(
-                hopping_operators.keys(), expected_hopping_operators_electronic.keys()
+                hopping_operators.keys(), EXPECTED_HOPPING_OPERATORS_ELECTRONIC.keys()
             ):
                 self.assertEqual(key, exp_key)
                 val = hopping_operators[key]
-                exp_val = expected_hopping_operators_electronic[exp_key]
+                exp_val = EXPECTED_HOPPING_OPERATORS_ELECTRONIC[exp_key]
                 if not val.equiv(exp_val):
                     print(val)
                     print(exp_val)
                 self.assertTrue(val.equiv(exp_val), msg=(val, exp_val))
 
         with self.subTest("commutativities"):
-            self.assertEqual(commutativities, expected_commutativies_electronic)
+            self.assertEqual(commutativities, EXPECTED_COMMUTATIVIES_ELECTRONIC)
 
         with self.subTest("excitation indices"):
-            self.assertEqual(indices, expected_indices_electronic)
+            self.assertEqual(indices, EXPECTED_INDICES_ELECTRONIC)
 
     def test_build_hopping_operators_taperedmapper(self):
         """Tests that the correct hopping operator is built with a tapered qubit mapper."""
@@ -90,23 +90,23 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
         )
 
         with self.subTest("hopping operators"):
-            self.assertEqual(hopping_operators.keys(), expected_hopping_operators_electronic.keys())
+            self.assertEqual(hopping_operators.keys(), EXPECTED_HOPPING_OPERATORS_ELECTRONIC.keys())
             for key, exp_key in zip(
-                hopping_operators.keys(), expected_hopping_operators_electronic.keys()
+                hopping_operators.keys(), EXPECTED_HOPPING_OPERATORS_ELECTRONIC.keys()
             ):
                 self.assertEqual(key, exp_key)
                 val = hopping_operators[key]
-                exp_val = expected_hopping_operators_electronic[exp_key]
+                exp_val = EXPECTED_HOPPING_OPERATORS_ELECTRONIC[exp_key]
                 if not val.equiv(exp_val):
                     print(val)
                     print(exp_val)
                 self.assertTrue(val.equiv(exp_val), msg=(val, exp_val))
 
         with self.subTest("commutativities"):
-            self.assertEqual(commutativities, expected_commutativies_electronic)
+            self.assertEqual(commutativities, EXPECTED_COMMUTATIVIES_ELECTRONIC)
 
         with self.subTest("excitation indices"):
-            self.assertEqual(indices, expected_indices_electronic)
+            self.assertEqual(indices, EXPECTED_INDICES_ELECTRONIC)
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2023.
+# (C) Copyright IBM 2021, 2026.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -28,9 +28,9 @@ from qiskit_nature.second_q.problems import HarmonicBasis
 import qiskit_nature.optionals as _optionals
 
 from .resources.expected_qeom_ops import (
-    expected_hopping_operators_vibrational,
-    expected_commutativies_vibrational,
-    expected_indices_vibrational,
+    EXPECTED_HOPPING_OPERATORS_VIBRATIONAL,
+    EXPECTED_COMMUTATIVIES_VIBRATIONAL,
+    EXPECTED_INDICES_VIBRATIONAL,
 )
 
 
@@ -91,24 +91,24 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
 
         with self.subTest("hopping operators"):
             self.assertEqual(
-                hopping_operators.keys(), expected_hopping_operators_vibrational.keys()
+                hopping_operators.keys(), EXPECTED_HOPPING_OPERATORS_VIBRATIONAL.keys()
             )
             for key, exp_key in zip(
-                hopping_operators.keys(), expected_hopping_operators_vibrational.keys()
+                hopping_operators.keys(), EXPECTED_HOPPING_OPERATORS_VIBRATIONAL.keys()
             ):
                 self.assertEqual(key, exp_key)
                 val = hopping_operators[key]
-                exp_val = expected_hopping_operators_vibrational[exp_key]
+                exp_val = EXPECTED_HOPPING_OPERATORS_VIBRATIONAL[exp_key]
                 if not val.equiv(exp_val):
                     print(val)
                     print(exp_val)
                 self.assertTrue(val.equiv(exp_val), msg=(val, exp_val))
 
         with self.subTest("commutativities"):
-            self.assertEqual(commutativities, expected_commutativies_vibrational)
+            self.assertEqual(commutativities, EXPECTED_COMMUTATIVIES_VIBRATIONAL)
 
         with self.subTest("excitation indices"):
-            self.assertEqual(indices, expected_indices_vibrational)
+            self.assertEqual(indices, EXPECTED_INDICES_VIBRATIONAL)
 
     def test_build_hopping_operators_taperedmapper(self):
         """Tests that the correct hopping operator is built with a qubit mapper."""
@@ -119,24 +119,24 @@ class TestHoppingOpsBuilder(QiskitNatureTestCase):
 
         with self.subTest("hopping operators"):
             self.assertEqual(
-                hopping_operators.keys(), expected_hopping_operators_vibrational.keys()
+                hopping_operators.keys(), EXPECTED_HOPPING_OPERATORS_VIBRATIONAL.keys()
             )
             for key, exp_key in zip(
-                hopping_operators.keys(), expected_hopping_operators_vibrational.keys()
+                hopping_operators.keys(), EXPECTED_HOPPING_OPERATORS_VIBRATIONAL.keys()
             ):
                 self.assertEqual(key, exp_key)
                 val = hopping_operators[key]
-                exp_val = expected_hopping_operators_vibrational[exp_key]
+                exp_val = EXPECTED_HOPPING_OPERATORS_VIBRATIONAL[exp_key]
                 if not val.equiv(exp_val):
                     print(val)
                     print(exp_val)
                 self.assertTrue(val.equiv(exp_val), msg=(val, exp_val))
 
         with self.subTest("commutativities"):
-            self.assertEqual(commutativities, expected_commutativies_vibrational)
+            self.assertEqual(commutativities, EXPECTED_COMMUTATIVIES_VIBRATIONAL)
 
         with self.subTest("excitation indices"):
-            self.assertEqual(indices, expected_indices_vibrational)
+            self.assertEqual(indices, EXPECTED_INDICES_VIBRATIONAL)
 
 
 if __name__ == "__main__":
