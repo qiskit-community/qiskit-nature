@@ -97,7 +97,6 @@ class VibrationalIntegrals(PolynomialTensor):
                     array[k] = v
             data["_+-" * n_body] = Tensor(array, label_template=label_template)
 
-
         return cls(data, validate=False)
 
     @property
