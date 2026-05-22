@@ -15,7 +15,7 @@
 from typing import Any, List, Dict
 from qiskit.quantum_info import SparsePauliOp
 
-expected_hopping_operators_electronic: Dict[str, SparsePauliOp] = {
+EXPECTED_HOPPING_OPERATORS_ELECTRONIC: Dict[str, SparsePauliOp] = {
     "E_0": 1 / 4 * SparsePauliOp.from_list([("IIXY", -1j), ("IIYY", 1), ("IIXX", 1), ("IIYX", 1j)]),
     "Edag_0": 1
     / 4
@@ -70,7 +70,7 @@ expected_hopping_operators_electronic: Dict[str, SparsePauliOp] = {
     ),
 }
 
-expected_commutativies_electronic: Dict[str, List[bool]] = {
+EXPECTED_COMMUTATIVIES_ELECTRONIC: Dict[str, List[bool]] = {
     "E_0": [],
     "Edag_0": [],
     "E_1": [],
@@ -79,7 +79,7 @@ expected_commutativies_electronic: Dict[str, List[bool]] = {
     "Edag_2": [],
 }
 
-expected_indices_electronic: Dict[str, Any] = {
+EXPECTED_INDICES_ELECTRONIC: Dict[str, Any] = {
     "E_0": ((0,), (1,)),
     "Edag_0": ((1,), (0,)),
     "E_1": ((2,), (3,)),
@@ -88,7 +88,7 @@ expected_indices_electronic: Dict[str, Any] = {
     "Edag_2": ((1, 3), (0, 2)),
 }
 
-expected_hopping_operators_vibrational: Dict[str, SparsePauliOp] = {
+EXPECTED_HOPPING_OPERATORS_VIBRATIONAL: Dict[str, SparsePauliOp] = {
     "E_0": SparsePauliOp.from_list(
         [("IIXX", 0.25), ("IIYX", 0.25j), ("IIXY", -0.25j), ("IIYY", 0.25)]
     ),
@@ -142,8 +142,8 @@ expected_hopping_operators_vibrational: Dict[str, SparsePauliOp] = {
         ]
     ),
 }
-expected_commutativies_vibrational: Dict[str, List[bool]] = {}
-expected_indices_vibrational: Dict[str, Any] = {
+EXPECTED_COMMUTATIVIES_VIBRATIONAL: Dict[str, List[bool]] = {}
+EXPECTED_INDICES_VIBRATIONAL: Dict[str, Any] = {
     "E_0": ((0,), (1,)),
     "Edag_0": ((1,), (0,)),
     "E_1": ((2,), (3,)),
