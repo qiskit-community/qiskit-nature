@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2020, 2023.
+# (C) Copyright IBM 2020, 2026.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -60,12 +60,12 @@ class CHC(BlueprintCircuit):
 
         super().__init__()
         self._reps = reps
-        self._bounds = None
+        self._bounds: list[tuple[float, float]] | None = None
         self._ladder = ladder
-        self._num_qubits = None
-        self._excitations = None
+        self._num_qubits: int | None = None
+        self._excitations: list[tuple[tuple[Any, ...], ...]] | None = None
         self._initial_state = None
-        self._num_parameters = None
+        self._num_parameters: int | None = None
         self._support_parameterized_circuit = True
 
         if num_qubits is not None:

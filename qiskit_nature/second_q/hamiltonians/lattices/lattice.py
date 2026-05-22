@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2024.
+# (C) Copyright IBM 2021, 2026.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from dataclasses import asdict, dataclass
-from typing import Callable, List, Optional, Sequence, Tuple, Union
+from typing import Callable, List, Optional, Sequence, Tuple, Union, cast
 import numbers
 
 import numpy as np
@@ -153,7 +153,7 @@ class Lattice:
     @property
     def graph(self) -> PyGraph:
         """Return a copy of the input graph."""
-        return self._graph.copy()
+        return cast(PyGraph, self._graph.copy())
 
     @property
     def num_nodes(self) -> int:

@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2022, 2023.
+# (C) Copyright IBM 2022, 2026.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -45,12 +45,12 @@ op3 = {
     "+_0 -_3": 3.0,
 }
 
-opComplex = {
+OP_COMPLEX = {
     "+_0 -_1": 0.5 + 1j,
     "+_0 -_2": 1.0,
 }
 
-opParameter = {
+OP_PARAMETER = {
     "+_0 -_1": a,
     "+_0 -_2": b,
 }
@@ -126,7 +126,7 @@ class TestSparseLabelOp(QiskitNatureTestCase):
             self.assertEqual(test_op, target_op)
 
         with self.subTest("complex + real"):
-            test_op = DummySparseLabelOp(op2) + DummySparseLabelOp(opComplex)
+            test_op = DummySparseLabelOp(op2) + DummySparseLabelOp(OP_COMPLEX)
             target_op = DummySparseLabelOp(
                 {
                     "+_0 -_1": 1.0 + 1j,
@@ -137,7 +137,7 @@ class TestSparseLabelOp(QiskitNatureTestCase):
             self.assertEqual(test_op, target_op)
 
         with self.subTest("complex + complex"):
-            test_op = DummySparseLabelOp(opComplex) + DummySparseLabelOp(opComplex)
+            test_op = DummySparseLabelOp(OP_COMPLEX) + DummySparseLabelOp(OP_COMPLEX)
             target_op = DummySparseLabelOp(
                 {
                     "+_0 -_1": 1.0 + 2j,
@@ -148,7 +148,7 @@ class TestSparseLabelOp(QiskitNatureTestCase):
             self.assertEqual(test_op, target_op)
 
         with self.subTest("complex + parameter"):
-            test_op = DummySparseLabelOp(opComplex) + DummySparseLabelOp(opParameter)
+            test_op = DummySparseLabelOp(OP_COMPLEX) + DummySparseLabelOp(OP_PARAMETER)
             target_op = DummySparseLabelOp({"+_0 -_1": 0.5 + 1j + a, "+_0 -_2": 1.0 + b})
 
             self.assertEqual(test_op, target_op)
@@ -191,7 +191,7 @@ class TestSparseLabelOp(QiskitNatureTestCase):
             self.assertEqual(test_op, target_op)
 
         with self.subTest("complex * real"):
-            test_op = DummySparseLabelOp(opComplex) * 2
+            test_op = DummySparseLabelOp(OP_COMPLEX) * 2
             target_op = DummySparseLabelOp(
                 {
                     "+_0 -_1": 1.0 + 2j,
@@ -213,7 +213,7 @@ class TestSparseLabelOp(QiskitNatureTestCase):
             self.assertEqual(test_op, target_op)
 
         with self.subTest("complex * complex"):
-            test_op = DummySparseLabelOp(opComplex) * (0.5 + 1j)
+            test_op = DummySparseLabelOp(OP_COMPLEX) * (0.5 + 1j)
             target_op = DummySparseLabelOp(
                 {
                     "+_0 -_1": -0.75 + 1j,
@@ -224,7 +224,7 @@ class TestSparseLabelOp(QiskitNatureTestCase):
             self.assertEqual(test_op, target_op)
 
         with self.subTest("parameter * complex"):
-            test_op = DummySparseLabelOp(opParameter) * (0.5 + 1j)
+            test_op = DummySparseLabelOp(OP_PARAMETER) * (0.5 + 1j)
             target_op = DummySparseLabelOp(
                 {
                     "+_0 -_1": a * (0.5 + 1j),
@@ -235,7 +235,7 @@ class TestSparseLabelOp(QiskitNatureTestCase):
             self.assertEqual(test_op, target_op)
 
         with self.subTest("complex * parameter"):
-            test_op = DummySparseLabelOp(opComplex) * (a + b)
+            test_op = DummySparseLabelOp(OP_COMPLEX) * (a + b)
             target_op = DummySparseLabelOp(
                 {
                     "+_0 -_1": (0.5 + 1j) * (a + b),
@@ -246,7 +246,7 @@ class TestSparseLabelOp(QiskitNatureTestCase):
             self.assertEqual(test_op, target_op)
 
         with self.subTest("parameter * parameter"):
-            test_op = DummySparseLabelOp(opParameter) * (a + b)
+            test_op = DummySparseLabelOp(OP_PARAMETER) * (a + b)
             target_op = DummySparseLabelOp(
                 {
                     "+_0 -_1": a * (a + b),
@@ -275,24 +275,24 @@ class TestSparseLabelOp(QiskitNatureTestCase):
     def test_adjoint(self):
         """Test adjoint method"""
         with self.subTest("complex"):
-            test_op = DummySparseLabelOp(opComplex).adjoint()
+            test_op = DummySparseLabelOp(OP_COMPLEX).adjoint()
             target_op = DummySparseLabelOp({"+_0 -_1": 0.5 - 1j, "+_0 -_2": 1.0})
             self.assertEqual(test_op, target_op)
 
         with self.subTest("parameter"):
-            test_op = DummySparseLabelOp(opParameter).adjoint()
+            test_op = DummySparseLabelOp(OP_PARAMETER).adjoint()
             target_op = DummySparseLabelOp({"+_0 -_1": a.conjugate(), "+_0 -_2": b.conjugate()})
             self.assertEqual(test_op, target_op)
 
     def test_conjugate(self):
         """Test conjugate method"""
         with self.subTest("complex"):
-            test_op = DummySparseLabelOp(opComplex).conjugate()
+            test_op = DummySparseLabelOp(OP_COMPLEX).conjugate()
             target_op = DummySparseLabelOp({"+_0 -_1": 0.5 - 1j, "+_0 -_2": 1.0})
             self.assertEqual(test_op, target_op)
 
         with self.subTest("parameter"):
-            test_op = DummySparseLabelOp(opParameter).conjugate()
+            test_op = DummySparseLabelOp(OP_PARAMETER).conjugate()
             target_op = DummySparseLabelOp({"+_0 -_1": a.conjugate(), "+_0 -_2": b.conjugate()})
             self.assertEqual(test_op, target_op)
 
@@ -364,12 +364,12 @@ class TestSparseLabelOp(QiskitNatureTestCase):
             self.assertTrue(test_op)
 
         with self.subTest("parameters"):
-            test_op = DummySparseLabelOp(opParameter)
+            test_op = DummySparseLabelOp(OP_PARAMETER)
             with self.assertRaisesRegex(ValueError, "parameter"):
-                _ = test_op.equiv(DummySparseLabelOp(opParameter))
-            test_op = DummySparseLabelOp(opComplex)
+                _ = test_op.equiv(DummySparseLabelOp(OP_PARAMETER))
+            test_op = DummySparseLabelOp(OP_COMPLEX)
             with self.assertRaisesRegex(ValueError, "parameter"):
-                _ = test_op.equiv(DummySparseLabelOp(opParameter))
+                _ = test_op.equiv(DummySparseLabelOp(OP_PARAMETER))
 
     def test_iter(self):
         """test __iter__ method"""
@@ -414,7 +414,7 @@ class TestSparseLabelOp(QiskitNatureTestCase):
         self.assertAlmostEqual(op.induced_norm(), 7.0)
         self.assertAlmostEqual(op.induced_norm(2), 5.0)
 
-        test_op = DummySparseLabelOp(opParameter)
+        test_op = DummySparseLabelOp(OP_PARAMETER)
         with self.assertRaisesRegex(ValueError, "parameter"):
             _ = test_op.induced_norm()
 
@@ -430,7 +430,7 @@ class TestSparseLabelOp(QiskitNatureTestCase):
 
     def test_is_parameterized(self):
         """Test is_parameterized."""
-        self.assertTrue(DummySparseLabelOp(opParameter).is_parameterized())
+        self.assertTrue(DummySparseLabelOp(OP_PARAMETER).is_parameterized())
         self.assertFalse(DummySparseLabelOp(op1).is_parameterized())
 
     def test_assign_parameters(self):
