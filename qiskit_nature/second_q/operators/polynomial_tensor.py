@@ -348,7 +348,7 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
 
         prod_dict: dict[str, Tensor] = {}
         for key, matrix in self._data.items():
-            prod_dict[key] = other * matrix
+            prod_dict[key] = cast(Tensor, other * matrix)
 
         return PolynomialTensor(prod_dict, validate=False)
 
