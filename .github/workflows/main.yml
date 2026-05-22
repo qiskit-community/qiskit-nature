@@ -18,9 +18,6 @@ on:
       - main
       - 'stable/**'
   pull_request:
-    branches:
-      - main
-      - 'stable/**'
   schedule:
     # run every day at 1AM
     - cron: '0 1 * * *'
