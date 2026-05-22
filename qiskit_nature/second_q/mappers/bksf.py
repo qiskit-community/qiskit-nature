@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2023.
+# (C) Copyright IBM 2021, 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -261,7 +261,8 @@ def _excitation_operator(  # pylint: disable=invalid-name
 
 
 ## SW2018 eq 37
-def _double_excitation(  # pylint: disable=invalid-name
+# pylint: disable=invalid-name, disable=too-many-positional-arguments
+def _double_excitation(
     edge_list: np.ndarray, p: int, q: int, r: int, s: int, h2_pqrs: float
 ) -> SparsePauliOp:
     """Map a double-excitation operator to a Pauli operator.
@@ -304,7 +305,8 @@ def _double_excitation(  # pylint: disable=invalid-name
     return (final_coeff * h2_pqrs) * qubit_op
 
 
-def _number_excitation(  # pylint: disable=invalid-name
+# pylint: disable=invalid-name, disable=too-many-positional-arguments
+def _number_excitation(
     edge_list: np.ndarray, p: int, q: int, r: int, s: int, h2_pqrs: float
 ) -> SparsePauliOp:
     """Map a number-excitation operator to a Pauli operator.

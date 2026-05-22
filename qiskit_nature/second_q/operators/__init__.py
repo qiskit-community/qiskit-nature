@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2022, 2024.
+# (C) Copyright IBM 2022, 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -31,6 +31,7 @@ Operators and mappers for different systems such as fermionic, vibrational and s
    VibrationalIntegrals
    PolynomialTensor
    Tensor
+   MixedOp
 
 Modules
 -------
@@ -53,6 +54,7 @@ from .vibrational_integrals import VibrationalIntegrals
 from .polynomial_tensor import PolynomialTensor
 from .sparse_label_op import SparseLabelOp
 from .tensor import Tensor
+from .mixed_op import MixedOp
 
 __all__ = [
     "ElectronicIntegrals",
@@ -65,4 +67,5 @@ __all__ = [
     "PolynomialTensor",
     "SparseLabelOp",
     "Tensor",
+    "MixedOp",
 ]

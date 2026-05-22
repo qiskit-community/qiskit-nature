@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2023.
+# (C) Copyright IBM 2021, 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -145,6 +145,8 @@ class TestFermionicExcitationGenerator(QiskitNatureTestCase):
             ],
         ),
     )
+
+    # pylint: disable=too-many-positional-arguments
     def test_max_spin_excitation(
         self, num_excitations, num_spatial_orbitals, num_particles, max_spin, expect
     ):

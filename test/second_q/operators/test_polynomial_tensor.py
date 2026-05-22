@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2022, 2023.
+# (C) Copyright IBM 2022, 2026.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -151,17 +151,21 @@ class TestPolynomialTensor(QiskitNatureTestCase):
         import sparse as sp  # pylint: disable=import-error
 
         with self.subTest("sparse"):
-            self.assertTrue(PolynomialTensor({"+": sp.as_coo({(0,): 1})}).is_sparse())
+            self.assertTrue(PolynomialTensor({"+": sp.as_coo({(0,): 1}, shape=(1,))}).is_sparse())
 
         with self.subTest("sparse with empty key"):
-            self.assertTrue(PolynomialTensor({"": 1.0, "+": sp.as_coo({(0,): 1})}).is_sparse())
+            self.assertTrue(
+                PolynomialTensor({"": 1.0, "+": sp.as_coo({(0,): 1}, shape=(1,))}).is_sparse()
+            )
 
         with self.subTest("dense"):
             self.assertFalse(PolynomialTensor({"+": np.array([1])}).is_sparse())
 
         with self.subTest("mixed"):
             self.assertFalse(
-                PolynomialTensor({"+": sp.as_coo({(1,): 1}), "+-": np.eye(2)}).is_sparse()
+                PolynomialTensor(
+                    {"+": sp.as_coo({(1,): 1}, shape=(2,)), "+-": np.eye(2)}
+                ).is_sparse()
             )
 
     def test_is_dense(self):
@@ -175,11 +179,13 @@ class TestPolynomialTensor(QiskitNatureTestCase):
             self.assertTrue(PolynomialTensor({"": 1.0, "+": np.array([1])}).is_dense())
 
         with self.subTest("sparse"):
-            self.assertFalse(PolynomialTensor({"+": sp.as_coo({(0,): 1})}).is_dense())
+            self.assertFalse(PolynomialTensor({"+": sp.as_coo({(0,): 1}, shape=(1,))}).is_dense())
 
         with self.subTest("mixed"):
             self.assertFalse(
-                PolynomialTensor({"+": sp.as_coo({(1,): 1}), "+-": np.eye(2)}).is_dense()
+                PolynomialTensor(
+                    {"+": sp.as_coo({(1,): 1}, shape=(2,)), "+-": np.eye(2)}
+                ).is_dense()
             )
 
     def test_get_item(self):

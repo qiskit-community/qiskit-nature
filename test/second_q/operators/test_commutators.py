@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2022, 2023.
+# (C) Copyright IBM 2022, 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -67,6 +67,7 @@ class TestCommutators(QiskitNatureTestCase):
                 anti_commutator(modified_op, op_b), FermionicOp(expected, num_spin_orbitals=1)
             )
 
+    # pylint: disable=too-many-positional-arguments
     @unpack
     @data(
         (op1, op2, op3, False, {}),

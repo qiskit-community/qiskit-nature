@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2018, 2023.
+# (C) Copyright IBM 2018, 2025.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -269,8 +269,8 @@ def hartree_fock_bitstring(num_spatial_orbitals: int, num_particles: tuple[int, 
         raise ValueError("# of particles must be less than or equal to # of orbitals.")
 
     half_orbitals = num_spatial_orbitals
-    bitstr = np.zeros(2 * num_spatial_orbitals, bool)
+    bitstr = np.zeros(2 * num_spatial_orbitals, dtype=bool)
     bitstr[:num_alpha] = True
     bitstr[half_orbitals : (half_orbitals + num_beta)] = True
 
-    return bitstr.tolist()
+    return [bool(x) for x in bitstr.tolist()]

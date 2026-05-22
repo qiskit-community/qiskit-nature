@@ -80,8 +80,9 @@ please ensure that:
    that change and that the PR is tagged for the changelog.
 
 5. Ensure all code, including unit tests, has the copyright header. The copyright
-   date will be checked by CI build. The format of the date(s) is _year of creation,
-   last year changed_. So for example:
+   date will be checked by CI build. You can automatically fix the copyright dates
+   by running `make copyright`.
+   The format of the date(s) is _year of creation, last year changed_. So for example:
    
    > \# (C) Copyright IBM 2018, 2021.
 

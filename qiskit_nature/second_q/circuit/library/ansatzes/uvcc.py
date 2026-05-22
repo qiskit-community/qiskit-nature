@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2024.
+# (C) Copyright IBM 2021, 2026.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -322,11 +322,11 @@ class UVCC(EvolvedOperatorAnsatz):
                 )
             )
         elif isinstance(self.excitations, list):
-            for exc in self.excitations:  # type: ignore
+            for excitation in self.excitations:
                 generators.append(
                     partial(
                         generate_vibration_excitations,
-                        num_excitations=exc,
+                        num_excitations=excitation,
                     )
                 )
         elif callable(self.excitations):
@@ -358,7 +358,7 @@ class UVCC(EvolvedOperatorAnsatz):
             op -= op.adjoint()
             # we need to account for an additional imaginary phase in the exponent accumulated from
             # the first-order trotterization routine implemented in Qiskit
-            op *= 1j  # type: ignore
+            op *= 1j
             operators.append(op)
 
         return operators
