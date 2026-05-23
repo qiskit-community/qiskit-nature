@@ -186,8 +186,7 @@ class TestMajoranaOp(QiskitNatureTestCase):
         with self.subTest("square with parameters"):
             maj_op = MajoranaOp({"_0 _1 _2": self.a, "_1 _0 _3": 1}, num_modes=4) ** 2
             maj_op = maj_op.simplify()
-            square = (2 * self.a.log()).exp()  # qiskit.circuit.Parameter has no pow method
-            targ = MajoranaOp({"": -1 - square, "_2 _3": self.a, "_3 _2": self.a}, num_modes=4)
+            targ = MajoranaOp({"": -1 - self.a * self.a, "_2 _3": self.a, "_3 _2": self.a}, num_modes=4)
             self.assertEqual(maj_op, targ)
 
     def test_adjoint(self):
