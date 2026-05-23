@@ -37,7 +37,11 @@ _TCoeff = Union[complex, ParameterExpression]  # pylint: disable=invalid-name
 
 def _to_number(a: _TCoeff) -> complex:
     if isinstance(a, ParameterExpression):
-        return np.nan if a.is_symbol() else complex(a)
+        try:
+            return complex(a.numeric(strict=False))
+        except TypeError as e:
+            if "not numeric" in str(e):
+                return np.nan
     return a
 
 
