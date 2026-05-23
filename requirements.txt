@@ -1,8 +1,8 @@
-qiskit>=2.0,<3.0
-qiskit-algorithms>=0.4.0,<0.5.0
+qiskit>=1.4,<3.0
+qiskit-algorithms>=0.4.0
 scipy>=1.4
 numpy>=1.17
 setuptools>=40.1.0
 h5py
 rustworkx>=0.12
-sympy # due to SparsePauliOp.to_complex 
+sympy
