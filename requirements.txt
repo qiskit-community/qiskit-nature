@@ -5,3 +5,4 @@ numpy>=1.17
 setuptools>=40.1.0
 h5py
 rustworkx>=0.12
+sympy # due to SparsePauliOp.to_complex 
