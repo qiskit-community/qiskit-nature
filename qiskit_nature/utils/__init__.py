@@ -30,6 +30,8 @@ Linear algebra utilities
 """
 import warnings
 
+from qiskit.utils import parallel_map as _parallel_map
+
 from .linalg import (
     apply_matrix_to_slices,
     double_factorized,
@@ -37,8 +39,6 @@ from .linalg import (
     modified_cholesky,
 )
 from .opt_einsum import get_einsum
-
-from qiskit.utils import parallel_map as _parallel_map
 
 __all__ = [
     "apply_matrix_to_slices",

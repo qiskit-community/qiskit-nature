@@ -962,7 +962,7 @@ class QEOM(ExcitedStatesSolver):
             )
 
             # 3. Measure observables
-            _tapered = self._taper_operators(op_aux_op_dict)  # type: ignore
+            _tapered = self._taper_operators(op_aux_op_dict)
             tap_op_aux_op_dict = cast(dict[str, SparsePauliOp | None], _tapered)
 
             aux_measurements = _estimate_complex_observables(
