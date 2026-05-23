@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, Sequence
+from typing import Any, Callable, Sequence, cast
 from enum import Enum
 import itertools
 import logging
@@ -28,7 +28,7 @@ from qiskit_algorithms.list_or_dict import ListOrDict as ListOrDictType
 from qiskit_algorithms.observables_evaluator import estimate_observables
 from qiskit.circuit import QuantumCircuit
 from qiskit.quantum_info import SparsePauliOp
-from qiskit.primitives import BaseEstimator
+from qiskit.primitives import BaseEstimatorV2 as BaseEstimator
 
 from qiskit_nature.second_q.algorithms.ground_state_solvers import GroundStateSolver
 from qiskit_nature.second_q.algorithms.excited_states_solvers.excited_states_solver import (
@@ -136,6 +136,46 @@ def _double_commutator(
     )
 
     return res.simplify(atol=0)
+
+
+def _estimate_complex_observables(
+    estimator, circuit, observables: dict[str, SparsePauliOp | None], params=None
+) -> dict:
+    """Wrapper around estimate_observables that handles non-Hermitian observables.
+
+    Splits each complex-coefficient SparsePauliOp into Hermitian real and imaginary parts,
+    evaluates them separately via the Estimator (which rejects imaginary coefficients since
+    Qiskit 1), then recombines as complex expectation values.
+    """
+    real_obs: dict = {}
+    imag_obs: dict = {}
+    for key, op in observables.items():
+        if op is None:
+            continue
+        real_coeffs = op.coeffs.real.copy()
+        imag_coeffs = op.coeffs.imag.copy()
+        
+        real_obs[key] = SparsePauliOp(op.paulis, real_coeffs).simplify()
+        imag_obs[key] = SparsePauliOp(op.paulis, imag_coeffs).simplify()
+
+    all_obs = {
+        **{f"__real__{k}": v for k, v in real_obs.items()},
+        **{f"__imag__{k}": v for k, v in imag_obs.items()},
+    }
+
+    if not all_obs:
+        return {k: (0.0, {}) for k in observables if observables[k] is not None}
+
+    raw = cast(dict, estimate_observables(estimator, circuit, all_obs, params))
+
+    results = {}
+    for key, op in observables.items():
+        if op is None:
+            continue
+        re_val, re_meta = raw.get(f"__real__{key}", (0.0, {}))
+        im_val, im_meta = raw.get(f"__imag__{key}", (0.0, {}))
+        results[key] = (re_val + 1j * im_val, {**re_meta, **im_meta})
+    return results
 
 
 class QEOM(ExcitedStatesSolver):
@@ -691,10 +731,12 @@ class QEOM(ExcitedStatesSolver):
             expansion_basis_data,
         )
 
-        tap_eom_matrix_ops = self._taper_operators(untap_eom_matrix_ops)
+        tap_eom_matrix_ops = cast(
+            dict[str, SparsePauliOp | None], self._taper_operators(untap_eom_matrix_ops)
+        )
 
         # 2. Evaluate all EOM operators on the ground state
-        measurement_results = estimate_observables(
+        measurement_results = _estimate_complex_observables(
             self._estimator,
             reference_state[0],
             tap_eom_matrix_ops,
@@ -773,9 +815,11 @@ class QEOM(ExcitedStatesSolver):
         """
 
         untap_hopping_ops, _, size = expansion_basis_data
-        tap_hopping_ops = self._taper_operators(untap_hopping_ops)
+        tap_hopping_ops = cast(
+            dict[str, SparsePauliOp | None], self._taper_operators(untap_hopping_ops)
+        )
 
-        additionnal_measurements = estimate_observables(
+        additionnal_measurements = _estimate_complex_observables(
             self._estimator, reference_state[0], tap_hopping_ops, reference_state[1]
         )
 
@@ -918,9 +962,10 @@ class QEOM(ExcitedStatesSolver):
             )
 
             # 3. Measure observables
-            tap_op_aux_op_dict = self._taper_operators(op_aux_op_dict)
+            _tapered = self._taper_operators(op_aux_op_dict)  # type: ignore
+            tap_op_aux_op_dict = cast(dict[str, SparsePauliOp | None], _tapered)
 
-            aux_measurements = estimate_observables(
+            aux_measurements = _estimate_complex_observables(
                 self._estimator, reference_state[0], tap_op_aux_op_dict, reference_state[1]
             )
 
