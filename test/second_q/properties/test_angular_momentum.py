@@ -18,8 +18,7 @@ from test.second_q.properties.property_test import PropertyTest
 
 import numpy as np
 
-from qiskit.primitives import Estimator
-from qiskit_algorithms.observables_evaluator import estimate_observables
+from qiskit.quantum_info import SparsePauliOp, Statevector
 from qiskit_nature.second_q.circuit.library import HartreeFock
 from qiskit_nature.second_q.mappers import ParityMapper
 from qiskit_nature.second_q.properties import AngularMomentum
@@ -101,8 +100,10 @@ class TestAngularMomentum(PropertyTest):
 
         hf_state = HartreeFock(norb, nelec, mapper)
 
-        result = estimate_observables(Estimator(), hf_state, qubit_op)
-        self.assertAlmostEqual(result["AngularMomentum"][0], 0.29663167846210015)
+        assert isinstance(qubit_op, dict)
+        assert isinstance(qubit_op["AngularMomentum"], SparsePauliOp)
+        result = Statevector(hf_state).expectation_value(qubit_op["AngularMomentum"])
+        self.assertAlmostEqual(result, 0.29663167846210015)
 
     def test_with_non_unitary_overlap(self):
         """Tests the result with a non-unitary overlap.
@@ -128,8 +129,10 @@ class TestAngularMomentum(PropertyTest):
 
         hf_state = HartreeFock(norb, nelec, mapper)
 
-        result = estimate_observables(Estimator(), hf_state, qubit_op)
-        self.assertAlmostEqual(result["AngularMomentum"][0], 1.9700743392855005)
+        assert isinstance(qubit_op, dict)
+        assert isinstance(qubit_op["AngularMomentum"], SparsePauliOp)
+        result = Statevector(hf_state).expectation_value(qubit_op["AngularMomentum"])
+        self.assertAlmostEqual(result, 1.9700743392855005)
 
 
 if __name__ == "__main__":

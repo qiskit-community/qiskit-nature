@@ -18,7 +18,7 @@ from test import QiskitNatureTestCase, slow_test
 from qiskit_algorithms import VQE
 from qiskit_algorithms.optimizers import SLSQP
 from qiskit_algorithms.utils import algorithm_globals
-from qiskit.primitives import Estimator
+from qiskit.primitives import StatevectorEstimator
 from qiskit.circuit.library import ExcitationPreserving
 import qiskit_nature.optionals as _optionals
 from qiskit_nature.second_q.algorithms import GroundStateEigensolver
@@ -68,7 +68,7 @@ class TestExcitationPreserving(QiskitNatureTestCase):
         solver = VQE(
             ansatz=wavefunction,
             optimizer=optimizer,
-            estimator=Estimator(),
+            estimator=StatevectorEstimator(),
         )
 
         gsc = GroundStateEigensolver(mapper, solver)

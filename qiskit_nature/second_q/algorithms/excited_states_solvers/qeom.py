@@ -154,7 +154,7 @@ def _estimate_complex_observables(
             continue
         real_coeffs = op.coeffs.real.copy()
         imag_coeffs = op.coeffs.imag.copy()
-        
+
         real_obs[key] = SparsePauliOp(op.paulis, real_coeffs).simplify()
         imag_obs[key] = SparsePauliOp(op.paulis, imag_coeffs).simplify()
 

@@ -20,7 +20,7 @@ import unittest
 from ddt import ddt, data, unpack
 
 from qiskit import transpile
-from qiskit.primitives import Estimator
+from qiskit.primitives import StatevectorEstimator
 from qiskit_algorithms import VQE
 from qiskit_algorithms.optimizers import COBYLA
 from qiskit_algorithms.utils import algorithm_globals
@@ -118,7 +118,7 @@ class TestUVCCVSCF(QiskitNatureTestCase):
         qubit_op = mapper.map(vibr_op)
         uvcc_ansatz = UVCC(num_modals, "sd", mapper, initial_state=init_state)
         optimizer = COBYLA(maxiter=1000)
-        algo = VQE(Estimator(), uvcc_ansatz, optimizer)
+        algo = VQE(StatevectorEstimator(), uvcc_ansatz, optimizer)
         vqe_result = algo.compute_minimum_eigenvalue(qubit_op)
         energy = vqe_result.optimal_value
         self.assertAlmostEqual(energy, self.reference_energy, places=4)
