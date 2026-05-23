@@ -50,8 +50,8 @@ Hartree-Fock state).
     import numpy as np
     from qiskit_algorithms import VQE
     from qiskit_algorithms.optimizers import SLSQP
-    from qiskit.primitives import Estimator
-    vqe = VQE(Estimator(), ansatz, SLSQP())
+    from qiskit.primitives import StatevectorEstimator
+    vqe = VQE(StatevectorEstimator(), ansatz, SLSQP())
 
 5. Now comes the key step: choosing the initial point. Since we picked the
    :class:`~qiskit_nature.second_q.circuit.library.HartreeFock` initial

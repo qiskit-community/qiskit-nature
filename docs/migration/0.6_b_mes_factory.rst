@@ -61,11 +61,11 @@ The old way:
 .. code:: ipython3
 
    from qiskit.algorithms.optimizers import SLSQP
-   from qiskit.primitives import Estimator
+   from qiskit.primitives import StatevectorEstimator
    from qiskit_nature.second_q.circuit.library import UCCSD
    from qiskit_nature.second_q.algorithms import VQEUCCFactory
 
-   solver_factory = VQEUCCFactory(Estimator(), UCCSD(), SLSQP())
+   solver_factory = VQEUCCFactory(StatevectorEstimator(), UCCSD(), SLSQP())
 
    solver = solver_factory.get_solver(problem, mapper)
 
@@ -82,7 +82,7 @@ And the corresponding new way:
 
    from qiskit.algorithms.minimum_eigensolvers import VQE
    from qiskit.algorithms.optimizers import SLSQP
-   from qiskit.primitives import Estimator
+   from qiskit.primitives import StatevectorEstimator
    from qiskit_nature.second_q.circuit.library import HartreeFock, UCCSD
    from qiskit_nature.second_q.algorithms.initial_points import HFInitialPoint
 
@@ -101,7 +101,7 @@ And the corresponding new way:
    initial_point.ansatz = ansatz
    initial_point.problem = problem
 
-   solver = VQE(Estimator(), ansatz, SLSQP())
+   solver = VQE(StatevectorEstimator(), ansatz, SLSQP())
    solver.initial_point = initial_point.to_numpy_array()
 
    result = solver.compute_minimum_eigenvalue(qubit_op, aux_ops)

@@ -44,8 +44,8 @@ be used to find the ground state solutions of natural science problems.
     import numpy as np
     from qiskit_algorithms import VQE
     from qiskit_algorithms.optimizers import SLSQP
-    from qiskit.primitives import Estimator
-    vqe = VQE(Estimator(), ansatz, SLSQP())
+    from qiskit.primitives import StatevectorEstimator
+    vqe = VQE(StatevectorEstimator(), ansatz, SLSQP())
     vqe.initial_point = np.zeros(ansatz.num_parameters)
 
 5. We setup the :class:`~qiskit_algorithms.AdaptVQE`:
