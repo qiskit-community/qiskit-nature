@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2022, 2024.
+# (C) Copyright IBM 2022, 2026.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -37,8 +37,7 @@ _TCoeff = Union[complex, ParameterExpression]  # pylint: disable=invalid-name
 
 def _to_number(a: _TCoeff) -> complex:
     if isinstance(a, ParameterExpression):
-        sympified = a.sympify()
-        return complex(sympified) if sympified.is_Number else np.nan
+        return np.nan if a.is_symbol() else complex(a)
     return a
 
 
