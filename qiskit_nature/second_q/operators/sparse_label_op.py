@@ -39,8 +39,8 @@ def _to_number(a: _TCoeff) -> complex:
     if isinstance(a, ParameterExpression):
         try:
             return complex(a.numeric(strict=False))
-        except TypeError as e:
-            if "not numeric" in str(e):
+        except TypeError as exception:
+            if "not numeric" in str(exception):
                 return np.nan
     return a
 
