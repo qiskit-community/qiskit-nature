@@ -1,2 +1,2 @@
 numpy>=1.20.0
-qiskit<1.0
+qiskit<3.0
