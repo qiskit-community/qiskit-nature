@@ -45,7 +45,7 @@ class TestEstimateComplexObservables(QiskitNatureTestCase):
         self.assertAlmostEqual(result["z"][0].imag, 0.0)
 
     def test_imaginary_operator(self):
-        """Purely imaginary coefficient is routed through Im(O) and gives Im(<O>) = <Im(O)>."""
+        """Purely imaginary coefficient."""
         # O = i*Z  =>  <0|O|0> = i*<0|Z|0> = i
         result = _estimate_complex_observables(
             self.estimator, self.circuit, {"iz": SparsePauliOp(["Z"], [1j])}
