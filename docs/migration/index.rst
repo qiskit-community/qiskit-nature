@@ -2,8 +2,18 @@
 Qiskit Nature Migration Guides
 ##############################
 
-If you are switching over to version 0.7, which has removed all previously
-deprecated code, simply follow the instructions provided in the sections below.
+If you are switching over to version 0.8, which drops support for Qiskit 0.x
+and fully adopts the Qiskit 1.x primitives interface, follow the instructions
+in the section below.
+
+Migrating from 0.7 to 0.8
+--------------------------
+
+.. toctree::
+    :maxdepth: 1
+    :glob:
+
+    0.8*
 
 Migrating from 0.5 to 0.6
 -------------------------
