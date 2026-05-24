@@ -141,27 +141,19 @@ def _double_commutator(
 def _estimate_complex_observables(
     estimator, circuit, observables: dict[str, SparsePauliOp | None], params=None
 ) -> dict:
-    """Wrapper around estimate_observables that handles non-Hermitian observables.
+    """Wrapper around estimate_observables for non-Hermitian (complex-coefficient) observables.
 
-    Splits each complex-coefficient SparsePauliOp into Hermitian real and imaginary parts,
-    evaluates them separately via the Estimator (which rejects imaginary coefficients since
-    Qiskit 1), then recombines as complex expectation values.
+    Splits each operator into Hermitian real and imaginary parts, evaluates them via the
+    Estimator (which rejects imaginary coefficients since Qiskit 1), and recombines.
     """
-    real_obs: dict = {}
-    imag_obs: dict = {}
+    all_obs: dict = {}
     for key, op in observables.items():
         if op is None:
             continue
-        real_coeffs = op.coeffs.real.copy()
-        imag_coeffs = op.coeffs.imag.copy()
-
-        real_obs[key] = SparsePauliOp(op.paulis, real_coeffs).simplify()
-        imag_obs[key] = SparsePauliOp(op.paulis, imag_coeffs).simplify()
-
-    all_obs = {
-        **{f"__real__{k}": v for k, v in real_obs.items()},
-        **{f"__imag__{k}": v for k, v in imag_obs.items()},
-    }
+        for suffix, coeffs in (("re", op.coeffs.real), ("im", op.coeffs.imag)):
+            part = SparsePauliOp(op.paulis, coeffs).simplify()
+            if len(part) > 0:
+                all_obs[f"__{suffix}__{key}"] = part
 
     if not all_obs:
         return {k: (0.0, {}) for k in observables if observables[k] is not None}
@@ -172,8 +164,8 @@ def _estimate_complex_observables(
     for key, op in observables.items():
         if op is None:
             continue
-        re_val, re_meta = raw.get(f"__real__{key}", (0.0, {}))
-        im_val, im_meta = raw.get(f"__imag__{key}", (0.0, {}))
+        re_val, re_meta = raw.get(f"__re__{key}", (0.0, {}))
+        im_val, im_meta = raw.get(f"__im__{key}", (0.0, {}))
         results[key] = (re_val + 1j * im_val, {**re_meta, **im_meta})
     return results
 
