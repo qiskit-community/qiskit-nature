@@ -15,7 +15,6 @@
 import unittest
 from test import QiskitNatureTestCase
 
-import numpy as np
 from qiskit.circuit import QuantumCircuit
 from qiskit.quantum_info import SparsePauliOp
 from qiskit.primitives import StatevectorEstimator
