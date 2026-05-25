@@ -150,7 +150,7 @@ jobs:
             setup.py
             requirements.txt
             requirements-dev.txt
-      - uses: conda-incubator/setup-miniconda@v3
+      - uses: conda-incubator/setup-miniconda@v4
         id: setup-miniforge
         continue-on-error: true
         with:
