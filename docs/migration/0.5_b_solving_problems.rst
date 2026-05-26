@@ -229,11 +229,11 @@ New
 .. code:: ipython3
 
     from qiskit.algorithms.optimizers import SLSQP
-    from qiskit.primitives import Estimator
+    from qiskit.primitives import StatevectorEstimator
     from qiskit_nature.second_q.circuit.library import UCCSD
     from qiskit_nature.second_q.algorithms.ground_state_solvers import VQEUCCFactory
 
-    estimator = Estimator()
+    estimator = StatevectorEstimator()
     ansatz = UCCSD()
     optimizer = SLSQP()
 
@@ -247,7 +247,7 @@ This module was moved to
 updating your imports, you need to pay attention to the following:
 
 -  the ``QEOM`` API now also requires an `Estimator
-   primitiver <https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.primitives.BaseEstimator>`__
+   primitiver <https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.primitives.BaseEstimatorV2>`__
    to be provided
 
 Previously
@@ -273,7 +273,7 @@ New
 .. code:: ipython3
 
     from qiskit.algorithms.optimizers import SLSQP
-    from qiskit.primitives import Estimator
+    from qiskit.primitives import StatevectorEstimator
     from qiskit_nature.second_q.circuit.library import UCCSD
     from qiskit_nature.second_q.algorithms.ground_state_solvers import (
         GroundStateEigensolver,
@@ -282,7 +282,7 @@ New
     from qiskit_nature.second_q.algorithms.excited_states_solvers import QEOM
     from qiskit_nature.second_q.mappers import JordanWignerMapper, QubitConverter
 
-    estimator = Estimator()
+    estimator = StatevectorEstimator()
     ansatz = UCCSD()
     optimizer = SLSQP()
 

@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2019, 2023.
+# (C) Copyright IBM 2019, 2026.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -17,7 +17,7 @@ import unittest
 from test import QiskitNatureTestCase
 from test.second_q.circuit.library.ansatzes.utils.vibrational_op_label_creator import _create_labels
 
-from qiskit.primitives import Estimator
+from qiskit.primitives import StatevectorEstimator
 from qiskit_algorithms import VQE
 from qiskit_algorithms.optimizers import COBYLA
 from qiskit_algorithms.utils import algorithm_globals
@@ -83,7 +83,7 @@ class TestCHCVSCF(QiskitNatureTestCase):
         )
 
         optimizer = COBYLA(maxiter=1000)
-        algo = VQE(Estimator(), chc_ansatz, optimizer)
+        algo = VQE(StatevectorEstimator(), chc_ansatz, optimizer)
 
         mapper = DirectMapper()
 
