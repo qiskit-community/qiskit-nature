@@ -8,8 +8,11 @@ prelude: >
     model by requiring a V2 Estimator, and its complex-observable evaluation path has been updated 
     to work robustly with modern Estimator constraints.
 
+    Check out the `migration for Qiskit 1.x
+    <https://qiskit-community.github.io/qiskit-nature/migration/index.html#0.8_a_qiskit1>`_ for more details.
+
     Alongside these compatibility updates, 0.8 introduces meaningful internal and API improvements,
-    including the new ModeBasedMapper abstraction, mapper API cleanup, and expanded second-quantized
-    capabilities such as MajoranaOp, TernaryTreeMapper, MixedOp/MixedMapper, and BosonicLogarithmicMapper.
+    including the new :class:`~qiskit_nature.second_q.mappers.ModeBasedMapper` abstraction, mapper API cleanup, and expanded second-quantized
+    capabilities such as :class:`~qiskit_nature.second_q.operators.MajoranaOp`, :class:`~qiskit_nature.second_q.mappers.TernaryTreeMapper`, :class:`~qiskit_nature.second_q.operators.MixedOp`/:class:`~qiskit_nature.second_q.mappers.MixedMapper`, and :class:`~qiskit_nature.second_q.mappers.BosonicLogarithmicMapper`.
     Multiple correctness and robustness fixes (for example in angular momentum handling, commutators,
     and UCC ansatz construction) make the release both more future-proof and more reliable in practice.
