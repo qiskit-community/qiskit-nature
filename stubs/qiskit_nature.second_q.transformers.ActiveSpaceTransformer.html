@@ -5,15 +5,15 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="FreezeCoreTransformer" href="qiskit_nature.second_q.transformers.FreezeCoreTransformer.html" /><link rel="prev" title="BasisTransformer" href="qiskit_nature.second_q.transformers.BasisTransformer.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>ActiveSpaceTransformer - Qiskit Nature 0.7.2</title>
+    <!-- Generated with Sphinx 7.4.7 and Furo 2024.01.29 -->
+        <title>ActiveSpaceTransformer - Qiskit Nature 0.8.0</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-ecosystem.css?v=745c5aa7" />
     <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     
     
@@ -202,7 +202,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Nature 0.7.2</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Nature 0.8.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -229,7 +229,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Nature 0.7.2</span>
+  <span class="sidebar-brand-text">Qiskit Nature 0.8.0</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -240,6 +240,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../migration/index.html">Migration Guides</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Migration Guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../migration/0.8_a_qiskit1.html">Qiskit Nature v0.8 Migration Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../migration/0.6_a_intro.html">Qiskit Nature v0.6 Migration Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../migration/0.6_b_mes_factory.html">The (Minimum)EigensolverFactory Migration Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../migration/0.6_c_qubit_converter.html">The QubitConverter Migration Guide</a></li>
@@ -409,21 +410,26 @@
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.mappers.html">Mappers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.mappers</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" role="switch" type="checkbox"/><label for="toctree-checkbox-21"><div class="visually-hidden">Toggle navigation of Mappers (qiskit_nature.second_q.mappers)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.QubitMapper.html">QubitMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.ModeBasedMapper.html">ModeBasedMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.BravyiKitaevMapper.html">BravyiKitaevMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.BravyiKitaevSuperFastMapper.html">BravyiKitaevSuperFastMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.JordanWignerMapper.html">JordanWignerMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.ParityMapper.html">ParityMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.TernaryTreeMapper.html">TernaryTreeMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.InterleavedQubitMapper.html">InterleavedQubitMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.BosonicLinearMapper.html">BosonicLinearMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.BosonicLogarithmicMapper.html">BosonicLogarithmicMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.DirectMapper.html">DirectMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.LinearMapper.html">LinearMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.LogarithmicMapper.html">LogarithmicMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.TaperedQubitMapper.html">TaperedQubitMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.MixedMapper.html">MixedMapper</a></li>
 </ul>
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.operators.html">Operators (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.operators</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" role="switch" type="checkbox"/><label for="toctree-checkbox-22"><div class="visually-hidden">Toggle navigation of Operators (qiskit_nature.second_q.operators)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.operators.ElectronicIntegrals.html">ElectronicIntegrals</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.operators.FermionicOp.html">FermionicOp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.operators.MajoranaOp.html">MajoranaOp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.operators.BosonicOp.html">BosonicOp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.operators.SparseLabelOp.html">SparseLabelOp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.operators.SpinOp.html">SpinOp</a></li>
@@ -431,6 +437,7 @@
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.operators.VibrationalIntegrals.html">VibrationalIntegrals</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.operators.PolynomialTensor.html">PolynomialTensor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.operators.Tensor.html">Tensor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.operators.MixedOp.html">MixedOp</a></li>
 <li class="toctree-l4 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.operators.tensor_ordering.html">Tensor Ordering Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.operators.tensor_ordering</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" role="switch" type="checkbox"/><label for="toctree-checkbox-23"><div class="visually-hidden">Toggle navigation of Tensor Ordering Utilities (qiskit_nature.second_q.operators.tensor_ordering)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l5"><a class="reference internal" href="qiskit_nature.second_q.operators.tensor_ordering.to_chemist_ordering.html">to_chemist_ordering</a></li>
 <li class="toctree-l5"><a class="reference internal" href="qiskit_nature.second_q.operators.tensor_ordering.to_physicist_ordering.html">to_physicist_ordering</a></li>
@@ -582,10 +589,10 @@
         </div>
         <article role="main">
           <br><br><br><section id="activespacetransformer">
-<h1>ActiveSpaceTransformer<a class="headerlink" href="#activespacetransformer" title="Permalink to this heading">#</a></h1>
+<h1>ActiveSpaceTransformer<a class="headerlink" href="#activespacetransformer" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.transformers.ActiveSpaceTransformer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ActiveSpaceTransformer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_electrons</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_spatial_orbitals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_orbitals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_nature/second_q/transformers/active_space_transformer.html#ActiveSpaceTransformer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_nature.second_q.transformers.ActiveSpaceTransformer" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ActiveSpaceTransformer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_electrons</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_spatial_orbitals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">active_orbitals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_nature/second_q/transformers/active_space_transformer.html#ActiveSpaceTransformer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_nature.second_q.transformers.ActiveSpaceTransformer" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="qiskit_nature.second_q.transformers.BaseTransformer.html#qiskit_nature.second_q.transformers.BaseTransformer" title="qiskit_nature.second_q.transformers.base_transformer.BaseTransformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseTransformer</span></code></a></p>
 <p>The Active-Space reduction.</p>
 <p>The reduction is done by computing the inactive Fock operator which is defined as
@@ -652,14 +659,14 @@ be extracted from the Problem object. You can do this like so:</p>
 </ul>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.transformers.ActiveSpaceTransformer.reference_inactive_fock">
-<span class="sig-name descname"><span class="pre">reference_inactive_fock</span></span><a class="headerlink" href="#qiskit_nature.second_q.transformers.ActiveSpaceTransformer.reference_inactive_fock" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">reference_inactive_fock</span></span><a class="headerlink" href="#qiskit_nature.second_q.transformers.ActiveSpaceTransformer.reference_inactive_fock" title="Link to this definition">¶</a></dt>
 <dd><p>the inactive Fock operator. Setting this attribute allows you to
 enforce a custom reference operator to be used during <a class="reference internal" href="#qiskit_nature.second_q.transformers.ActiveSpaceTransformer.transform_hamiltonian" title="qiskit_nature.second_q.transformers.ActiveSpaceTransformer.transform_hamiltonian"><code class="xref py py-meth docutils literal notranslate"><span class="pre">transform_hamiltonian()</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.transformers.ActiveSpaceTransformer.reference_inactive_energy">
-<span class="sig-name descname"><span class="pre">reference_inactive_energy</span></span><a class="headerlink" href="#qiskit_nature.second_q.transformers.ActiveSpaceTransformer.reference_inactive_energy" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">reference_inactive_energy</span></span><a class="headerlink" href="#qiskit_nature.second_q.transformers.ActiveSpaceTransformer.reference_inactive_energy" title="Link to this definition">¶</a></dt>
 <dd><p>the inactive energy. Setting this attribute allows you to enforce
 a custom reference energy to be used during <a class="reference internal" href="#qiskit_nature.second_q.transformers.ActiveSpaceTransformer.transform_hamiltonian" title="qiskit_nature.second_q.transformers.ActiveSpaceTransformer.transform_hamiltonian"><code class="xref py py-meth docutils literal notranslate"><span class="pre">transform_hamiltonian()</span></code></a>.</p>
 </dd></dl>
@@ -667,12 +674,12 @@ a custom reference energy to be used during <a class="reference internal" href="
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>num_electrons</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.12)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em>]</em>) – The number of active electrons. If this is a tuple, it represents the
+<li><p><strong>num_electrons</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>]</em>) – The number of active electrons. If this is a tuple, it represents the
 number of alpha- and beta-spin electrons, respectively. If this is a number, it is
 interpreted as the total number of active electrons, should be even, and implies that
 the number of alpha and beta electrons equals half of this value, respectively.</p></li>
-<li><p><strong>num_spatial_orbitals</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – The number of active orbitals.</p></li>
-<li><p><strong>active_orbitals</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em>] </em><em>| </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.12)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em>]</em><em>] </em><em>| </em><em>None</em>) – A single or pair of lists of indices specifying the spatial orbitals of
+<li><p><strong>num_spatial_orbitals</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – The number of active orbitals.</p></li>
+<li><p><strong>active_orbitals</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>] </em><em>| </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>]</em><em>] </em><em>| </em><em>None</em>) – A single or pair of lists of indices specifying the spatial orbitals of
 the active space. This argument must match with the remaining arguments and should
 only be used to enforce an active space that is not chosen purely around the Fermi
 level.</p></li>
@@ -685,20 +692,20 @@ level.</p></li>
 <p class="rubric">Attributes</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.transformers.ActiveSpaceTransformer.active_basis">
-<span class="sig-name descname"><span class="pre">active_basis</span></span><a class="headerlink" href="#qiskit_nature.second_q.transformers.ActiveSpaceTransformer.active_basis" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">active_basis</span></span><a class="headerlink" href="#qiskit_nature.second_q.transformers.ActiveSpaceTransformer.active_basis" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the <code class="docutils literal notranslate"><span class="pre">BasisTransformer</span></code> mapping from the total to the active space.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.transformers.ActiveSpaceTransformer.active_density">
-<span class="sig-name descname"><span class="pre">active_density</span></span><a class="headerlink" href="#qiskit_nature.second_q.transformers.ActiveSpaceTransformer.active_density" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">active_density</span></span><a class="headerlink" href="#qiskit_nature.second_q.transformers.ActiveSpaceTransformer.active_density" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the active electronic density.</p>
 </dd></dl>
 
 <p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.transformers.ActiveSpaceTransformer.get_active_density_component">
-<span class="sig-name descname"><span class="pre">get_active_density_component</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">total_density</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_nature/second_q/transformers/active_space_transformer.html#ActiveSpaceTransformer.get_active_density_component"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_nature.second_q.transformers.ActiveSpaceTransformer.get_active_density_component" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_active_density_component</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">total_density</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_nature/second_q/transformers/active_space_transformer.html#ActiveSpaceTransformer.get_active_density_component"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_nature.second_q.transformers.ActiveSpaceTransformer.get_active_density_component" title="Link to this definition">¶</a></dt>
 <dd><p>Gets the active space density-component of the provided <a class="reference internal" href="qiskit_nature.second_q.operators.ElectronicIntegrals.html#qiskit_nature.second_q.operators.ElectronicIntegrals" title="qiskit_nature.second_q.operators.ElectronicIntegrals"><code class="xref py py-class docutils literal notranslate"><span class="pre">ElectronicIntegrals</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -715,7 +722,7 @@ level.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.transformers.ActiveSpaceTransformer.prepare_active_space">
-<span class="sig-name descname"><span class="pre">prepare_active_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">total_num_electrons</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_num_spatial_orbitals</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupation_alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupation_beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_nature/second_q/transformers/active_space_transformer.html#ActiveSpaceTransformer.prepare_active_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_nature.second_q.transformers.ActiveSpaceTransformer.prepare_active_space" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">prepare_active_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">total_num_electrons</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_num_spatial_orbitals</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupation_alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupation_beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_nature/second_q/transformers/active_space_transformer.html#ActiveSpaceTransformer.prepare_active_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_nature.second_q.transformers.ActiveSpaceTransformer.prepare_active_space" title="Link to this definition">¶</a></dt>
 <dd><p>Prepares the active space.</p>
 <p>This method must be called manually when using this transformer on a hamiltonian outside of
 a problem instance. In all other cases, the information required here is extracted from the
@@ -723,15 +730,15 @@ problem automatically.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>total_num_electrons</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.12)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em>]</em>) – the total number of electrons in the system represented by the
+<li><p><strong>total_num_electrons</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>]</em>) – the total number of electrons in the system represented by the
 hamiltonian which is to be transformed. If this is a tuple of integers, it encodes
 the number of alpha- and beta-spin electrons separately. Otherwise the integer value
 is assumed to indicate the sum of these two numbers.</p></li>
-<li><p><strong>total_num_spatial_orbitals</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – the total number of spatial orbitals in the system
+<li><p><strong>total_num_spatial_orbitals</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – the total number of spatial orbitals in the system
 represented by the hamiltonian which is to be transformed.</p></li>
-<li><p><strong>occupation_alpha</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a><em>] </em><em>| </em><em>np.ndarray</em><em> | </em><em>None</em>) – the occupation of the alpha-spin orbitals. If omitted, this
+<li><p><strong>occupation_alpha</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>] </em><em>| </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>ndarray</em></a><em> | </em><em>None</em>) – the occupation of the alpha-spin orbitals. If omitted, this
 information is inferred from the required arguments.</p></li>
-<li><p><strong>occupation_beta</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a><em>] </em><em>| </em><em>np.ndarray</em><em> | </em><em>None</em>) – the occupation of the beta-spin orbitals. If omitted, this
+<li><p><strong>occupation_beta</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>] </em><em>| </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>ndarray</em></a><em> | </em><em>None</em>) – the occupation of the beta-spin orbitals. If omitted, this
 information is inferred from the required arguments.</p></li>
 </ul>
 </dd>
@@ -744,7 +751,7 @@ information is inferred from the required arguments.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.transformers.ActiveSpaceTransformer.transform">
-<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_nature/second_q/transformers/active_space_transformer.html#ActiveSpaceTransformer.transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_nature.second_q.transformers.ActiveSpaceTransformer.transform" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_nature/second_q/transformers/active_space_transformer.html#ActiveSpaceTransformer.transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_nature.second_q.transformers.ActiveSpaceTransformer.transform" title="Link to this definition">¶</a></dt>
 <dd><p>Transforms one <a class="reference internal" href="qiskit_nature.second_q.problems.BaseProblem.html#qiskit_nature.second_q.problems.BaseProblem" title="qiskit_nature.second_q.problems.BaseProblem"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseProblem</span></code></a> into another.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -752,8 +759,8 @@ information is inferred from the required arguments.</p></li>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.12)"><strong>NotImplementedError</strong></a> – when an unsupported problem type is provided.</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.12)"><strong>NotImplementedError</strong></a> – when the <code class="docutils literal notranslate"><span class="pre">ElectronicStructureProblem</span></code> is not in the
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.14)"><strong>NotImplementedError</strong></a> – when an unsupported problem type is provided.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.14)"><strong>NotImplementedError</strong></a> – when the <code class="docutils literal notranslate"><span class="pre">ElectronicStructureProblem</span></code> is not in the
     <a class="reference internal" href="qiskit_nature.second_q.problems.ElectronicBasis.html#qiskit_nature.second_q.problems.ElectronicBasis.MO" title="qiskit_nature.second_q.problems.ElectronicBasis.MO"><code class="xref py py-attr docutils literal notranslate"><span class="pre">qiskit_nature.second_q.problems.ElectronicBasis.MO</span></code></a> basis.</p></li>
 <li><p><a class="reference internal" href="qiskit_nature.QiskitNatureError.html#qiskit_nature.QiskitNatureError" title="qiskit_nature.QiskitNatureError"><strong>QiskitNatureError</strong></a> – If the provided <code class="docutils literal notranslate"><span class="pre">ElectronicStructureProblem</span></code> does not specify the
     number of particles (<code class="docutils literal notranslate"><span class="pre">num_particles</span></code>) and number of orbitals
@@ -772,7 +779,7 @@ information is inferred from the required arguments.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.transformers.ActiveSpaceTransformer.transform_hamiltonian">
-<span class="sig-name descname"><span class="pre">transform_hamiltonian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hamiltonian</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_nature/second_q/transformers/active_space_transformer.html#ActiveSpaceTransformer.transform_hamiltonian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_nature.second_q.transformers.ActiveSpaceTransformer.transform_hamiltonian" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">transform_hamiltonian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hamiltonian</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_nature/second_q/transformers/active_space_transformer.html#ActiveSpaceTransformer.transform_hamiltonian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_nature.second_q.transformers.ActiveSpaceTransformer.transform_hamiltonian" title="Link to this definition">¶</a></dt>
 <dd><p>Transforms one <code class="xref py py-class docutils literal notranslate"><span class="pre">Hamiltonian</span></code> into another.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -780,7 +787,7 @@ information is inferred from the required arguments.</p></li>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.12)"><strong>NotImplementedError</strong></a> – when an unsupported hamiltonian type is provided.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.14)"><strong>NotImplementedError</strong></a> – when an unsupported hamiltonian type is provided.</p></li>
 <li><p><a class="reference internal" href="qiskit_nature.QiskitNatureError.html#qiskit_nature.QiskitNatureError" title="qiskit_nature.QiskitNatureError"><strong>QiskitNatureError</strong></a> – when <a class="reference internal" href="#qiskit_nature.second_q.transformers.ActiveSpaceTransformer.prepare_active_space" title="qiskit_nature.second_q.transformers.ActiveSpaceTransformer.prepare_active_space"><code class="xref py py-meth docutils literal notranslate"><span class="pre">prepare_active_space()</span></code></a> was not called prior to calling
     this method.</p></li>
 </ul>
@@ -839,7 +846,7 @@ information is inferred from the required arguments.</p></li>
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2018, 2024, Qiskit Nature Development Team
+                Copyright &#169; 2018, 2026, Qiskit Nature Development Team
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
@@ -890,11 +897,11 @@ information is inferred from the required arguments.</p></li>
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=4f87218b"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/documentation_options.js?v=486e5634"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/qiskit-sphinx-theme.js?v=4d77b8ca"></script>
-    <script src="../_static/design-tabs.js?v=36754332"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>

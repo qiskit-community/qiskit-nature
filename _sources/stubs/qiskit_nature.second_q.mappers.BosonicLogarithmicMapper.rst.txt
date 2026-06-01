@@ -1,0 +1,29 @@
+﻿
+
+BosonicLogarithmicMapper
+=======================================================
+
+.. currentmodule:: qiskit_nature.second_q.mappers
+
+.. autoclass:: BosonicLogarithmicMapper
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: BosonicLogarithmicMapper.max_occupation
+   .. autoattribute:: BosonicLogarithmicMapper.number_of_qubits_per_mode
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: BosonicLogarithmicMapper.map
+   
+   

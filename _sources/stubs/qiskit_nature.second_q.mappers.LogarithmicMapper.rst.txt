@@ -20,8 +20,5 @@ LogarithmicMapper
    .. rubric:: Methods
    
    .. automethod:: LogarithmicMapper.map
-   .. automethod:: LogarithmicMapper.mode_based_mapping
-   .. automethod:: LogarithmicMapper.pauli_table
-   .. automethod:: LogarithmicMapper.sparse_pauli_operators
    
    

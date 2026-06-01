@@ -5,16 +5,16 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Qiskit Nature How-To Guides" href="../howtos/index.html" /><link rel="prev" title="Quadratic Hamiltonians and Slater determinants" href="11_quadratic_hamiltonian_and_slater_determinants.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>Binding Energy between proton and neutron in the Deuteron nucleus - Qiskit Nature 0.7.2</title>
+    <!-- Generated with Sphinx 7.4.7 and Furo 2024.01.29 -->
+        <title>Binding Energy between proton and neutron in the Deuteron nucleus - Qiskit Nature 0.8.0</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-ecosystem.css?v=745c5aa7" />
     <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
-    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     
     
@@ -203,7 +203,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Nature 0.7.2</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Nature 0.8.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -230,7 +230,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Nature 0.7.2</span>
+  <span class="sidebar-brand-text">Qiskit Nature 0.8.0</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -241,6 +241,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../migration/index.html">Migration Guides</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Migration Guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../migration/0.8_a_qiskit1.html">Qiskit Nature v0.8 Migration Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../migration/0.6_a_intro.html">Qiskit Nature v0.6 Migration Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../migration/0.6_b_mes_factory.html">The (Minimum)EigensolverFactory Migration Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../migration/0.6_c_qubit_converter.html">The QubitConverter Migration Guide</a></li>
@@ -410,21 +411,26 @@
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.mappers.html">Mappers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.mappers</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" role="switch" type="checkbox"/><label for="toctree-checkbox-21"><div class="visually-hidden">Toggle navigation of Mappers (qiskit_nature.second_q.mappers)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.QubitMapper.html">QubitMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.ModeBasedMapper.html">ModeBasedMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.BravyiKitaevMapper.html">BravyiKitaevMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.BravyiKitaevSuperFastMapper.html">BravyiKitaevSuperFastMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.JordanWignerMapper.html">JordanWignerMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.ParityMapper.html">ParityMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.TernaryTreeMapper.html">TernaryTreeMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.InterleavedQubitMapper.html">InterleavedQubitMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.BosonicLinearMapper.html">BosonicLinearMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.BosonicLogarithmicMapper.html">BosonicLogarithmicMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.DirectMapper.html">DirectMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.LinearMapper.html">LinearMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.LogarithmicMapper.html">LogarithmicMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.TaperedQubitMapper.html">TaperedQubitMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.MixedMapper.html">MixedMapper</a></li>
 </ul>
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.operators.html">Operators (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.operators</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" role="switch" type="checkbox"/><label for="toctree-checkbox-22"><div class="visually-hidden">Toggle navigation of Operators (qiskit_nature.second_q.operators)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.ElectronicIntegrals.html">ElectronicIntegrals</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.FermionicOp.html">FermionicOp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.MajoranaOp.html">MajoranaOp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.BosonicOp.html">BosonicOp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.SparseLabelOp.html">SparseLabelOp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.SpinOp.html">SpinOp</a></li>
@@ -432,6 +438,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.VibrationalIntegrals.html">VibrationalIntegrals</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.PolynomialTensor.html">PolynomialTensor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.Tensor.html">Tensor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.MixedOp.html">MixedOp</a></li>
 <li class="toctree-l4 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.operators.tensor_ordering.html">Tensor Ordering Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.operators.tensor_ordering</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" role="switch" type="checkbox"/><label for="toctree-checkbox-23"><div class="visually-hidden">Toggle navigation of Tensor Ordering Utilities (qiskit_nature.second_q.operators.tensor_ordering)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.tensor_ordering.to_chemist_ordering.html">to_chemist_ordering</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.tensor_ordering.to_physicist_ordering.html">to_physicist_ordering</a></li>
@@ -584,37 +591,37 @@
         <article role="main">
           <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This page was generated from <a class="reference external" href="https://github.com/qiskit-community/qiskit-nature/blob/stable/0.7/docs/tutorials/12_deuteron_binding_energy.ipynb">docs/tutorials/12_deuteron_binding_energy.ipynb</a>.</p>
+<p>This page was generated from <a class="reference external" href="https://github.com/qiskit-community/qiskit-nature/blob/stable/0.8/docs/tutorials/12_deuteron_binding_energy.ipynb">docs/tutorials/12_deuteron_binding_energy.ipynb</a>.</p>
 </div>
 <section id="Binding-Energy-between-proton-and-neutron-in-the-Deuteron-nucleus">
-<h1>Binding Energy between proton and neutron in the Deuteron nucleus<a class="headerlink" href="#Binding-Energy-between-proton-and-neutron-in-the-Deuteron-nucleus" title="Permalink to this heading">#</a></h1>
+<h1>Binding Energy between proton and neutron in the Deuteron nucleus<a class="headerlink" href="#Binding-Energy-between-proton-and-neutron-in-the-Deuteron-nucleus" title="Link to this heading">¶</a></h1>
 <p>At the current stage of quantum computing the quantum processors we have available do not yet have error correcting codes implemented and thus still have noise that must be contended with. This noise can adversely impact the results and hence can limit the sort of problems we can currently tackle when, due to the noise, a high level of confidence and precision cannot be expected from the results.</p>
 <p>However, there are some problems which demand only few qubits to be solved, like the computation of the binding energy between the proton and neutron in the Deuteron nucleus <a class="reference external" href="https://arxiv.org/pdf/1801.03897.pdf">[1]</a>. This problem is an example of a scenario where we can achieve good results despite the challenges mentioned earlier.</p>
 <section id="Step-1:-Importing-the-packages-that-we-need-to-tackle-the-problem">
-<h2>Step 1: Importing the packages that we need to tackle the problem<a class="headerlink" href="#Step-1:-Importing-the-packages-that-we-need-to-tackle-the-problem" title="Permalink to this heading">#</a></h2>
+<h2>Step 1: Importing the packages that we need to tackle the problem<a class="headerlink" href="#Step-1:-Importing-the-packages-that-we-need-to-tackle-the-problem" title="Link to this heading">¶</a></h2>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">display</span><span class="p">,</span> <span class="n">clear_output</span>
-<span class="kn">from</span> <span class="nn">qiskit.primitives</span> <span class="kn">import</span> <span class="n">Estimator</span>
-<span class="kn">from</span> <span class="nn">qiskit_algorithms</span> <span class="kn">import</span> <span class="n">VQE</span>
-<span class="kn">from</span> <span class="nn">qiskit_algorithms.observables_evaluator</span> <span class="kn">import</span> <span class="n">estimate_observables</span>
-<span class="kn">from</span> <span class="nn">qiskit_algorithms.optimizers</span> <span class="kn">import</span> <span class="n">COBYLA</span><span class="p">,</span> <span class="n">SLSQP</span>
-<span class="kn">from</span> <span class="nn">qiskit_algorithms.utils</span> <span class="kn">import</span> <span class="n">algorithm_globals</span>
-<span class="kn">from</span> <span class="nn">qiskit.circuit</span> <span class="kn">import</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">Parameter</span>
-<span class="kn">from</span> <span class="nn">qiskit.circuit.library</span> <span class="kn">import</span> <span class="n">TwoLocal</span>
-<span class="kn">from</span> <span class="nn">qiskit.quantum_info</span> <span class="kn">import</span> <span class="n">Pauli</span><span class="p">,</span> <span class="n">SparsePauliOp</span>
-<span class="kn">from</span> <span class="nn">qiskit_nature.second_q.operators</span> <span class="kn">import</span> <span class="n">FermionicOp</span>
-<span class="kn">from</span> <span class="nn">qiskit_nature.second_q.mappers</span> <span class="kn">import</span> <span class="n">JordanWignerMapper</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">display</span><span class="p">,</span> <span class="n">clear_output</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.primitives</span><span class="w"> </span><span class="kn">import</span> <span class="n">StatevectorEstimator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">VQE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_algorithms.observables_evaluator</span><span class="w"> </span><span class="kn">import</span> <span class="n">estimate_observables</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_algorithms.optimizers</span><span class="w"> </span><span class="kn">import</span> <span class="n">COBYLA</span><span class="p">,</span> <span class="n">SLSQP</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_algorithms.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">algorithm_globals</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">Parameter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">TwoLocal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.quantum_info</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pauli</span><span class="p">,</span> <span class="n">SparsePauliOp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.second_q.operators</span><span class="w"> </span><span class="kn">import</span> <span class="n">FermionicOp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.second_q.mappers</span><span class="w"> </span><span class="kn">import</span> <span class="n">JordanWignerMapper</span>
 </pre></div>
 </div>
 </div>
 </section>
 <section id="Step-2:-Defining-some-functions-that-we-will-use">
-<h2>Step 2: Defining some functions that we will use<a class="headerlink" href="#Step-2:-Defining-some-functions-that-we-will-use" title="Permalink to this heading">#</a></h2>
+<h2>Step 2: Defining some functions that we will use<a class="headerlink" href="#Step-2:-Defining-some-functions-that-we-will-use" title="Link to this heading">¶</a></h2>
 <p>Before we start the definition of the Deuteron Hamiltonian, we need to define a utility function implementing the Kronecker delta, which is defined as follows:</p>
 <p><span class="math notranslate nohighlight">\(\delta_{n,m} = \bigg\{\begin{array}{c}0, \ \textrm{if} \ n \neq m \\1, \ \textrm{if } \ n = m.\end{array}\)</span>.</p>
 <p>This function appears in the Deuteron Hamiltonian definition given in <a class="reference external" href="https://arxiv.org/pdf/1801.03897.pdf">[1]</a>. Below we have a piece of code that defines the Kronecker delta function.</p>
@@ -622,7 +629,7 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">kronecker_delta_function</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">kronecker_delta_function</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An implementation of the Kronecker delta function.</span>
 
 <span class="sd">    Args:</span>
@@ -648,7 +655,7 @@ we have to pass the list with the tuples with labels and coefficients to <code c
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">create_deuteron_hamiltonian</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">create_deuteron_hamiltonian</span><span class="p">(</span>
     <span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">hbar_omega</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">7.0</span><span class="p">,</span> <span class="n">V_0</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mf">5.68658111</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SparsePauliOp</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates a version of the Deuteron Hamiltonian as a qubit operator.</span>
@@ -667,12 +674,12 @@ we have to pass the list with the tuples with labels and coefficients to <code c
         <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
 
             <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;+_</span><span class="si">{}</span><span class="s2"> -_</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">m</span><span class="p">))</span>
-            <span class="n">coefficient_kinect</span> <span class="o">=</span> <span class="p">(</span><span class="n">hbar_omega</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span>
+            <span class="n">coefficient_kinetic</span> <span class="o">=</span> <span class="p">(</span><span class="n">hbar_omega</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span>
                 <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">kronecker_delta_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
                 <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)))</span> <span class="o">*</span> <span class="n">kronecker_delta_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
                 <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="p">(</span><span class="mi">3</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="n">kronecker_delta_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
             <span class="p">)</span>
-            <span class="n">hamiltonian_terms</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">coefficient_kinect</span>
+            <span class="n">hamiltonian_terms</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">coefficient_kinetic</span>
 
             <span class="n">coefficient_potential</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">V_0</span> <span class="o">*</span> <span class="n">kronecker_delta_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">kronecker_delta_function</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span>
@@ -692,7 +699,7 @@ we have to pass the list with the tuples with labels and coefficients to <code c
 <p>Now, we have an idea of how to use some of Qiskit Nature tools to build a Hamiltonian in terms of Pauli operators. However, this is not the end, we need to construct an ansatz through a parameterized quantum circuit and use it in the <code class="docutils literal notranslate"><span class="pre">VQE</span></code> to compute the minimum eigenvalue of the Deuteron Hamiltonian (binding energy).</p>
 </section>
 <section id="Step-3:-Using-Qiskit-tools-to-calculate-the-binding-energy-between-proton-and-neutron-in-Deuteron-nucleus">
-<h2>Step 3: Using Qiskit tools to calculate the binding energy between proton and neutron in Deuteron nucleus<a class="headerlink" href="#Step-3:-Using-Qiskit-tools-to-calculate-the-binding-energy-between-proton-and-neutron-in-Deuteron-nucleus" title="Permalink to this heading">#</a></h2>
+<h2>Step 3: Using Qiskit tools to calculate the binding energy between proton and neutron in Deuteron nucleus<a class="headerlink" href="#Step-3:-Using-Qiskit-tools-to-calculate-the-binding-energy-between-proton-and-neutron-in-Deuteron-nucleus" title="Link to this heading">¶</a></h2>
 <p>In the previous step, we have defined the functions that will be useful to us in the task of calculating the binding energy between proton and neutron in the Deuteron nucleus. Thus, now it is time to start the process of solving the problem with the tools we built.</p>
 <p>Now it is time to create the Hamiltonian, we will begin with <span class="math notranslate nohighlight">\(H_1\)</span>, that is the simplest form of the deuteron Hamiltonian (<span class="math notranslate nohighlight">\(N = 1\)</span>). In <a class="reference external" href="https://arxiv.org/pdf/1801.03897.pdf">[1]</a>, the authors calculated the ground-state energy for <span class="math notranslate nohighlight">\(N = 1,2,3\)</span> and they used those values to extrapolate the energy and try to reach <span class="math notranslate nohighlight">\(-2.22 \ MeV\)</span>, the value of the deuteron’s ground-state energy. Here we will create a list to store the Hamiltonians <span class="math notranslate nohighlight">\(H_1\)</span>, <span class="math notranslate nohighlight">\(H_2\)</span>, <span class="math notranslate nohighlight">\(H_3\)</span> and
 <span class="math notranslate nohighlight">\(H_4\)</span>, because we will use these Hamiltonians later to calculate the ground-state. To do this, we can do a list comprehension with the function <code class="docutils literal notranslate"><span class="pre">create_deuteron_hamiltonian</span></code> that we defined above.</p>
@@ -861,7 +868,7 @@ Exact binding energies calculated through numpy.linalg.eigh
 
 Exact binding energy for H_1: -0.43658110999999966
 Exact binding energy for H_2: -1.7491598763215301
-Exact binding energy for H_3: -2.0456708984064416
+Exact binding energy for H_3: -2.045670898406441
 Exact binding energy for H_4: -2.143981030799862
 </pre></div></div>
 </div>
@@ -876,7 +883,7 @@ Exact binding energy for H_4: -2.143981030799862
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
     <span class="n">seed</span> <span class="o">=</span> <span class="mi">42</span>
     <span class="n">algorithm_globals</span><span class="o">.</span><span class="n">random_seed</span> <span class="o">=</span> <span class="n">seed</span>
-    <span class="n">vqe</span> <span class="o">=</span> <span class="n">VQE</span><span class="p">(</span><span class="n">Estimator</span><span class="p">(),</span> <span class="n">ansatz</span><span class="o">=</span><span class="n">ansatz</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">optimizer</span><span class="o">=</span><span class="n">SLSQP</span><span class="p">())</span>
+    <span class="n">vqe</span> <span class="o">=</span> <span class="n">VQE</span><span class="p">(</span><span class="n">StatevectorEstimator</span><span class="p">(),</span> <span class="n">ansatz</span><span class="o">=</span><span class="n">ansatz</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">optimizer</span><span class="o">=</span><span class="n">SLSQP</span><span class="p">())</span>
     <span class="n">vqe_result</span> <span class="o">=</span> <span class="n">vqe</span><span class="o">.</span><span class="n">compute_minimum_eigenvalue</span><span class="p">(</span><span class="n">deuteron_hamiltonians</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
     <span class="n">binding_energy</span> <span class="o">=</span> <span class="n">vqe_result</span><span class="o">.</span><span class="n">optimal_value</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Binding energy for H_</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2"> MeV&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">binding_energy</span><span class="p">))</span>
@@ -890,9 +897,9 @@ Exact binding energy for H_4: -2.143981030799862
 <div class="highlight"><pre>
 Results using Estimator for H_1, H_2 and H_3 with the ansatz given in the reference paper
 
-Binding energy for H_1: -0.4365811096105766 MeV
-Binding energy for H_2: -1.7491595316575452 MeV
-Binding energy for H_3: -2.045670898257444 MeV
+Binding energy for H_1: -0.43658110960995966 MeV
+Binding energy for H_2: -1.7491595316396333 MeV
+Binding energy for H_3: -2.045670898258795 MeV
 </pre></div></div>
 </div>
 <p>We can see that our results are in agreement with the reference values obtained by classical methods. We also tested some different options of optimizers provided in Qiskit, because we wanted to know which one behaves better. To do this, we make use of the <code class="docutils literal notranslate"><span class="pre">callback</span></code> option in <code class="docutils literal notranslate"><span class="pre">VQE</span></code> to allow us to store the list of counts and values. With this information it is possible to make a plot to see if the optimizer converges to the value of reference and, if it converges, how fast it does. However,
@@ -901,7 +908,7 @@ in the code cell below, we are working only with the <code class="docutils liter
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">eval_count</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">std</span><span class="p">):</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">callback</span><span class="p">(</span><span class="n">eval_count</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">std</span><span class="p">):</span>
     <span class="c1"># Overwrites the same line when printing</span>
     <span class="n">display</span><span class="p">(</span><span class="s2">&quot;Evaluation: </span><span class="si">{}</span><span class="s2">, Energy: </span><span class="si">{}</span><span class="s2">, Std: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">eval_count</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">std</span><span class="p">))</span>
     <span class="n">clear_output</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -926,7 +933,7 @@ in the code cell below, we are working only with the <code class="docutils liter
     <span class="n">deviation</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">seed</span> <span class="o">=</span> <span class="mi">42</span>
     <span class="n">algorithm_globals</span><span class="o">.</span><span class="n">random_seed</span> <span class="o">=</span> <span class="n">seed</span>
-    <span class="n">vqe</span> <span class="o">=</span> <span class="n">VQE</span><span class="p">(</span><span class="n">Estimator</span><span class="p">(),</span> <span class="n">ansatz</span><span class="o">=</span><span class="n">ansatz</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">optimizer</span><span class="o">=</span><span class="n">COBYLA</span><span class="p">(),</span> <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">)</span>
+    <span class="n">vqe</span> <span class="o">=</span> <span class="n">VQE</span><span class="p">(</span><span class="n">StatevectorEstimator</span><span class="p">(),</span> <span class="n">ansatz</span><span class="o">=</span><span class="n">ansatz</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">optimizer</span><span class="o">=</span><span class="n">COBYLA</span><span class="p">(),</span> <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">)</span>
     <span class="n">vqe_result</span> <span class="o">=</span> <span class="n">vqe</span><span class="o">.</span><span class="n">compute_minimum_eigenvalue</span><span class="p">(</span><span class="n">deuteron_hamiltonians</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
     <span class="n">plots</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">counts</span><span class="p">,</span> <span class="n">values</span><span class="p">])</span>
 </pre></div>
@@ -937,7 +944,7 @@ in the code cell below, we are working only with the <code class="docutils liter
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&#39;Evaluation: 45, Energy: -2.045670636012936, Std: {}&#39;
+&#34;Evaluation: 45, Energy: -2.045670636012918, Std: {&#39;target_precision&#39;: 0.0, &#39;circuit_metadata&#39;: {}}&#34;
 </pre></div></div>
 </div>
 <p>Plotting the results obtained with the execution of <code class="docutils literal notranslate"><span class="pre">VQE</span></code> on the previous code cell.</p>
@@ -971,7 +978,7 @@ in the code cell below, we are working only with the <code class="docutils liter
 </div>
 <p>Note that with the quantum circuits given in <a class="reference external" href="https://arxiv.org/pdf/1801.03897.pdf">[1]</a>, we can’t test whether we can reach the reference value for <span class="math notranslate nohighlight">\(H_4\)</span>, because, as mentioned before, we don’t have an <code class="docutils literal notranslate"><span class="pre">ansatz</span></code> for this Hamiltonian. Fortunately, that is not the end for our experiments, because Qiskit provides some functions that create an <code class="docutils literal notranslate"><span class="pre">ansatz</span></code> for us. For our purposes, we decided to use the TwoLocal function to build our new <code class="docutils literal notranslate"><span class="pre">ansatz</span></code>. In the code cell below we used a for loop
 to create a list with the <code class="docutils literal notranslate"><span class="pre">TwoLocal</span></code> ansatz for each Hamiltonian.</p>
-<div class="nbinput nblast docutils container">
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
@@ -989,6 +996,15 @@ to create a list with the <code class="docutils literal notranslate"><span class
 </pre></div>
 </div>
 </div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_4139/4031043882.py:3: DeprecationWarning: The class ``qiskit.circuit.library.n_local.two_local.TwoLocal`` is deprecated as of Qiskit 2.1. It will be removed in Qiskit 3.0. Use the function qiskit.circuit.library.n_local instead.
+  ansatz = TwoLocal(
+</pre></div></div>
+</div>
 <p>Now we can check if with this new type of <code class="docutils literal notranslate"><span class="pre">ansatz</span></code>, we can reach the reference values obtained through classical methods. To do this verification, we have to repeat the experiments done previously, but now using the <code class="docutils literal notranslate"><span class="pre">ansatz</span></code> defined through the usage of TwoLocal function.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
@@ -998,45 +1014,24 @@ to create a list with the <code class="docutils literal notranslate"><span class
 <span class="n">seed</span> <span class="o">=</span> <span class="mi">42</span>
 <span class="n">algorithm_globals</span><span class="o">.</span><span class="n">random_seed</span> <span class="o">=</span> <span class="n">seed</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
-    <span class="n">vqe</span> <span class="o">=</span> <span class="n">VQE</span><span class="p">(</span><span class="n">Estimator</span><span class="p">(),</span> <span class="n">ansatz</span><span class="o">=</span><span class="n">twolocal_ansatzes</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">optimizer</span><span class="o">=</span><span class="n">SLSQP</span><span class="p">())</span>
+    <span class="n">vqe</span> <span class="o">=</span> <span class="n">VQE</span><span class="p">(</span><span class="n">StatevectorEstimator</span><span class="p">(),</span> <span class="n">ansatz</span><span class="o">=</span><span class="n">twolocal_ansatzes</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">optimizer</span><span class="o">=</span><span class="n">SLSQP</span><span class="p">())</span>
     <span class="n">vqe_result</span> <span class="o">=</span> <span class="n">vqe</span><span class="o">.</span><span class="n">compute_minimum_eigenvalue</span><span class="p">(</span><span class="n">deuteron_hamiltonians</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
     <span class="n">binding_energy</span> <span class="o">=</span> <span class="n">vqe_result</span><span class="o">.</span><span class="n">optimal_value</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Binding energy for H_</span><span class="si">{}</span><span class="s2">:&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">binding_energy</span><span class="p">,</span> <span class="s2">&quot;MeV&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
+<div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 Results using Estimator for H_1, H_2, H_3 and H_4 with TwoLocal ansatz
 
-Binding energy for H_1: -0.4365806560191138 MeV
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Binding energy for H_2: -1.7491598681936242 MeV
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Binding energy for H_3: -2.045670763548605 MeV
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Binding energy for H_4: -2.1439130048015045 MeV
+Binding energy for H_1: -0.43658065601161367 MeV
+Binding energy for H_2: -1.7491598681600231 MeV
+Binding energy for H_3: -2.0456708679599824 MeV
+Binding energy for H_4: -2.1439187487041043 MeV
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -1054,7 +1049,7 @@ Binding energy for H_4: -2.1439130048015045 MeV
     <span class="n">params</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">deviation</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">vqe</span> <span class="o">=</span> <span class="n">VQE</span><span class="p">(</span>
-        <span class="n">Estimator</span><span class="p">(),</span>
+        <span class="n">StatevectorEstimator</span><span class="p">(),</span>
         <span class="n">ansatz</span><span class="o">=</span><span class="n">twolocal_ansatzes</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
         <span class="n">optimizer</span><span class="o">=</span><span class="n">SLSQP</span><span class="p">(),</span>
         <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">,</span>
@@ -1069,7 +1064,7 @@ Binding energy for H_4: -2.1439130048015045 MeV
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-&#39;Evaluation: 4149, Energy: -2.143913004801629, Std: {}&#39;
+&#34;Evaluation: 4150, Energy: -2.143918748693185, Std: {&#39;target_precision&#39;: 0.0, &#39;circuit_metadata&#39;: {}}&#34;
 </pre></div></div>
 </div>
 <p>Using the four different <code class="docutils literal notranslate"><span class="pre">TwoLocal</span></code> ansatze, we obtained the following results:</p>
@@ -1103,7 +1098,7 @@ Binding energy for H_4: -2.1439130048015045 MeV
 </div>
 </section>
 <section id="Step-4:-Calculating-the-observables-expectation-values">
-<h2>Step 4: Calculating the observables expectation values<a class="headerlink" href="#Step-4:-Calculating-the-observables-expectation-values" title="Permalink to this heading">#</a></h2>
+<h2>Step 4: Calculating the observables expectation values<a class="headerlink" href="#Step-4:-Calculating-the-observables-expectation-values" title="Link to this heading">¶</a></h2>
 <p>One of our goals in the Qiskit Advocate Mentorship Program project was to show that it is possible to calculate expectation values of some observables of interest, and show how they behave when we vary a parameter in the <code class="docutils literal notranslate"><span class="pre">ansatz</span></code> circuit. In our case, the observables of interest were <span class="math notranslate nohighlight">\(I_1 \otimes Z_0\)</span>, <span class="math notranslate nohighlight">\(Z_1 \otimes I_0\)</span>, <span class="math notranslate nohighlight">\(X_1 \otimes X_0\)</span>, <span class="math notranslate nohighlight">\(Y_1 \otimes Y_0\)</span> and <span class="math notranslate nohighlight">\(H_2\)</span>, then we investigate their behavior when the parameter <span class="math notranslate nohighlight">\(\theta\)</span> was varied inside the
 interval <span class="math notranslate nohighlight">\([-\pi,\pi]\)</span>.</p>
 <p>In Dirac notation (bra-ket), the definition of the expectation value of an observable <span class="math notranslate nohighlight">\(\hat{O}\)</span> is equal to <a class="reference external" href="https://www.feynmanlectures.caltech.edu/III_toc.html">[3]</a> [4]:</p>
@@ -1113,7 +1108,7 @@ interval <span class="math notranslate nohighlight">\([-\pi,\pi]\)</span>.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">calculate_observables_exp_values</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">calculate_observables_exp_values</span><span class="p">(</span>
     <span class="n">quantum_circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="n">observables</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">angles</span><span class="p">:</span> <span class="nb">list</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the expectation value of an observable given the quantum</span>
@@ -1139,7 +1134,7 @@ interval <span class="math notranslate nohighlight">\([-\pi,\pi]\)</span>.</p>
         <span class="k">for</span> <span class="n">angle</span> <span class="ow">in</span> <span class="n">angles</span><span class="p">:</span>
             <span class="n">qc</span> <span class="o">=</span> <span class="n">quantum_circuit</span><span class="o">.</span><span class="n">assign_parameters</span><span class="p">({</span><span class="n">theta</span><span class="p">:</span> <span class="n">angle</span><span class="p">})</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">estimate_observables</span><span class="p">(</span>
-                <span class="n">Estimator</span><span class="p">(),</span>
+                <span class="n">StatevectorEstimator</span><span class="p">(),</span>
                 <span class="n">quantum_state</span><span class="o">=</span><span class="n">qc</span><span class="p">,</span>
                 <span class="n">observables</span><span class="o">=</span><span class="p">[</span><span class="n">observable</span><span class="p">],</span>
             <span class="p">)</span>
@@ -1227,11 +1222,11 @@ interval <span class="math notranslate nohighlight">\([-\pi,\pi]\)</span>.</p>
 </div>
 </section>
 <section id="Acknowledgment">
-<h2>Acknowledgment<a class="headerlink" href="#Acknowledgment" title="Permalink to this heading">#</a></h2>
+<h2>Acknowledgment<a class="headerlink" href="#Acknowledgment" title="Link to this heading">¶</a></h2>
 <p>I would like to thank Steve Wood, Soham Pal and Siddhartha Morales for the debates in our meetings during the Qiskit Advocate Mentorship Program 2021 - Fall, they were very important for the construction of this tutorial.</p>
 </section>
 <section id="References">
-<h2>References<a class="headerlink" href="#References" title="Permalink to this heading">#</a></h2>
+<h2>References<a class="headerlink" href="#References" title="Link to this heading">¶</a></h2>
 <p>[1] Dumitrescu, Eugene F., et al. “Cloud quantum computing of an atomic nucleus.” Physical review letters 120.21 (2018): 210501. Arxiv version: <a class="reference external" href="https://arxiv.org/pdf/1801.03897.pdf">https://arxiv.org/pdf/1801.03897.pdf</a></p>
 <p>[2] Qiskit Nature Documentation. <a class="reference external" href="https://qiskit-community.github.io/qiskit-nature/">https://qiskit-community.github.io/qiskit-nature/</a></p>
 <p>[3] Feynman, R. P., Robert B. Leighton, and Matthew Sands. “The Feynman Lectures on Physics, Volume III: Quantum Mechanics, vol. 3.” (2010). <a class="reference external" href="https://www.feynmanlectures.caltech.edu/III_toc.html">https://www.feynmanlectures.caltech.edu/III_toc.html</a></p>
@@ -1240,7 +1235,7 @@ interval <span class="math notranslate nohighlight">\([-\pi,\pi]\)</span>.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tutorial_magics</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tutorial_magics</span>
 
 <span class="o">%</span><span class="k">qiskit_version_table</span>
 <span class="o">%</span><span class="k">qiskit_copyright</span>
@@ -1251,13 +1246,13 @@ interval <span class="math notranslate nohighlight">\([-\pi,\pi]\)</span>.</p>
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<h3>Version Information</h3><table><tr><th>Software</th><th>Version</th></tr><tr><td><code>qiskit</code></td><td>1.0.1</td></tr><tr><td><code>qiskit_nature</code></td><td>0.7.2</td></tr><tr><td><code>qiskit_algorithms</code></td><td>0.3.0</td></tr><tr><th colspan='2'>System information</th></tr><tr><td>Python version</td><td>3.8.18</td></tr><tr><td>OS</td><td>Linux</td></tr><tr><td colspan='2'>Fri Feb 23 10:27:04 2024 UTC</td></tr></table></div>
+<h3>Version Information</h3><table><tr><th>Software</th><th>Version</th></tr><tr><td><code>qiskit</code></td><td>2.4.1</td></tr><tr><td><code>qiskit_algorithms</code></td><td>0.4.0</td></tr><tr><td><code>qiskit_nature</code></td><td>0.8.0</td></tr><tr><th colspan='2'>System information</th></tr><tr><td>Python version</td><td>3.10.20</td></tr><tr><td>OS</td><td>Linux</td></tr><tr><td colspan='2'>Mon Jun 01 14:51:16 2026 UTC</td></tr></table></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<div style='width: 100%; background-color:#d5d9e0;padding-left: 10px; padding-bottom: 10px; padding-right: 10px; padding-top: 5px'><h3>This code is a part of a Qiskit project</h3><p>&copy; Copyright IBM 2017, 2024.</p><p>This code is licensed under the Apache License, Version 2.0. You may<br>obtain a copy of this license in the LICENSE.txt file in the root directory<br> of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.<p>Any modifications or derivative works of this code must retain this<br>copyright notice, and modified files need to carry a notice indicating<br>that they have been altered from the originals.</p></div></div>
+<div style='width: 100%; background-color:#d5d9e0;padding-left: 10px; padding-bottom: 10px; padding-right: 10px; padding-top: 5px'><h3>This code is a part of a Qiskit project</h3><p>&copy; Copyright IBM 2017, 2026.</p><p>This code is licensed under the Apache License, Version 2.0. You may<br>obtain a copy of this license in the LICENSE.txt file in the root directory<br> of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.<p>Any modifications or derivative works of this code must retain this<br>copyright notice, and modified files need to carry a notice indicating<br>that they have been altered from the originals.</p></div></div>
 </div>
 </section>
 </section>
@@ -1303,7 +1298,7 @@ interval <span class="math notranslate nohighlight">\([-\pi,\pi]\)</span>.</p>
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2018, 2024, Qiskit Nature Development Team
+                Copyright &#169; 2018, 2026, Qiskit Nature Development Team
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
@@ -1349,11 +1344,11 @@ interval <span class="math notranslate nohighlight">\([-\pi,\pi]\)</span>.</p>
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=4f87218b"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/documentation_options.js?v=486e5634"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/qiskit-sphinx-theme.js?v=4d77b8ca"></script>
-    <script src="../_static/design-tabs.js?v=36754332"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>

@@ -15,6 +15,7 @@ FermionicGaussianState
    
    .. rubric:: Attributes
    
+   .. autoattribute:: FermionicGaussianState.name
    
    
 

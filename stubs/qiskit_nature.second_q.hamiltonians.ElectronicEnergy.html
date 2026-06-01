@@ -5,15 +5,15 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="VibrationalEnergy" href="qiskit_nature.second_q.hamiltonians.VibrationalEnergy.html" /><link rel="prev" title="QuadraticHamiltonian" href="qiskit_nature.second_q.hamiltonians.QuadraticHamiltonian.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>ElectronicEnergy - Qiskit Nature 0.7.2</title>
+    <!-- Generated with Sphinx 7.4.7 and Furo 2024.01.29 -->
+        <title>ElectronicEnergy - Qiskit Nature 0.8.0</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-ecosystem.css?v=745c5aa7" />
     <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     
     
@@ -202,7 +202,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Nature 0.7.2</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Nature 0.8.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -229,7 +229,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Nature 0.7.2</span>
+  <span class="sidebar-brand-text">Qiskit Nature 0.8.0</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -240,6 +240,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../migration/index.html">Migration Guides</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Migration Guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../migration/0.8_a_qiskit1.html">Qiskit Nature v0.8 Migration Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../migration/0.6_a_intro.html">Qiskit Nature v0.6 Migration Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../migration/0.6_b_mes_factory.html">The (Minimum)EigensolverFactory Migration Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../migration/0.6_c_qubit_converter.html">The QubitConverter Migration Guide</a></li>
@@ -409,21 +410,26 @@
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.mappers.html">Mappers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.mappers</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" role="switch" type="checkbox"/><label for="toctree-checkbox-21"><div class="visually-hidden">Toggle navigation of Mappers (qiskit_nature.second_q.mappers)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.QubitMapper.html">QubitMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.ModeBasedMapper.html">ModeBasedMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.BravyiKitaevMapper.html">BravyiKitaevMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.BravyiKitaevSuperFastMapper.html">BravyiKitaevSuperFastMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.JordanWignerMapper.html">JordanWignerMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.ParityMapper.html">ParityMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.TernaryTreeMapper.html">TernaryTreeMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.InterleavedQubitMapper.html">InterleavedQubitMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.BosonicLinearMapper.html">BosonicLinearMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.BosonicLogarithmicMapper.html">BosonicLogarithmicMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.DirectMapper.html">DirectMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.LinearMapper.html">LinearMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.LogarithmicMapper.html">LogarithmicMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.TaperedQubitMapper.html">TaperedQubitMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.MixedMapper.html">MixedMapper</a></li>
 </ul>
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.operators.html">Operators (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.operators</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" role="switch" type="checkbox"/><label for="toctree-checkbox-22"><div class="visually-hidden">Toggle navigation of Operators (qiskit_nature.second_q.operators)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.operators.ElectronicIntegrals.html">ElectronicIntegrals</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.operators.FermionicOp.html">FermionicOp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.operators.MajoranaOp.html">MajoranaOp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.operators.BosonicOp.html">BosonicOp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.operators.SparseLabelOp.html">SparseLabelOp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.operators.SpinOp.html">SpinOp</a></li>
@@ -431,6 +437,7 @@
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.operators.VibrationalIntegrals.html">VibrationalIntegrals</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.operators.PolynomialTensor.html">PolynomialTensor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.operators.Tensor.html">Tensor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.operators.MixedOp.html">MixedOp</a></li>
 <li class="toctree-l4 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.operators.tensor_ordering.html">Tensor Ordering Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.operators.tensor_ordering</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" role="switch" type="checkbox"/><label for="toctree-checkbox-23"><div class="visually-hidden">Toggle navigation of Tensor Ordering Utilities (qiskit_nature.second_q.operators.tensor_ordering)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l5"><a class="reference internal" href="qiskit_nature.second_q.operators.tensor_ordering.to_chemist_ordering.html">to_chemist_ordering</a></li>
 <li class="toctree-l5"><a class="reference internal" href="qiskit_nature.second_q.operators.tensor_ordering.to_physicist_ordering.html">to_physicist_ordering</a></li>
@@ -582,10 +589,10 @@
         </div>
         <article role="main">
           <br><br><br><section id="electronicenergy">
-<h1>ElectronicEnergy<a class="headerlink" href="#electronicenergy" title="Permalink to this heading">#</a></h1>
+<h1>ElectronicEnergy<a class="headerlink" href="#electronicenergy" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.hamiltonians.ElectronicEnergy">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ElectronicEnergy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">electronic_integrals</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constants</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_nature/second_q/hamiltonians/electronic_energy.html#ElectronicEnergy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_nature.second_q.hamiltonians.ElectronicEnergy" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ElectronicEnergy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">electronic_integrals</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constants</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_nature/second_q/hamiltonians/electronic_energy.html#ElectronicEnergy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_nature.second_q.hamiltonians.ElectronicEnergy" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Hamiltonian</span></code></p>
 <p>The electronic energy Hamiltonian.</p>
 <p>This class implements the following Hamiltonian:</p>
@@ -605,7 +612,7 @@ manner, following any quantum chemistry textbook.</p>
 </ol>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">integrals</span><span class="p">:</span> <span class="n">ElectronicIntegrals</span> <span class="o">=</span> <span class="o">...</span>
 
-<span class="kn">from</span> <span class="nn">qiskit_nature.second_q.hamiltonians</span> <span class="kn">import</span> <span class="n">ElectronicEnergy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.second_q.hamiltonians</span><span class="w"> </span><span class="kn">import</span> <span class="n">ElectronicEnergy</span>
 
 <span class="n">hamiltonian</span> <span class="o">=</span> <span class="n">ElectronicEnergy</span><span class="p">(</span><span class="n">integrals</span><span class="p">,</span> <span class="n">constants</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;nuclear_repulsion_energy&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">})</span>
 </pre></div>
@@ -627,7 +634,7 @@ It is however possible to include constant energy terms inside of the
 <a class="reference internal" href="qiskit_nature.second_q.operators.ElectronicIntegrals.html#qiskit_nature.second_q.operators.ElectronicIntegrals" title="qiskit_nature.second_q.operators.ElectronicIntegrals"><code class="xref py py-class docutils literal notranslate"><span class="pre">ElectronicIntegrals</span></code></a> container, if you want it to be
 included in the qubit operator, once mapping the second-quantized operator to the qubit space
 (see also <a class="reference internal" href="qiskit_nature.second_q.mappers.QubitMapper.html#qiskit_nature.second_q.mappers.QubitMapper" title="qiskit_nature.second_q.mappers.QubitMapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">QubitMapper</span></code></a>).</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_nature.second_q.operators</span> <span class="kn">import</span> <span class="n">PolynomialTensor</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.second_q.operators</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolynomialTensor</span>
 
 <span class="n">e_nuc</span> <span class="o">=</span> <span class="n">hamiltonian</span><span class="o">.</span><span class="n">nuclear_repulsion_energy</span>
 <span class="n">hamiltonian</span><span class="o">.</span><span class="n">electronic_integrals</span><span class="o">.</span><span class="n">alpha</span> <span class="o">+=</span> <span class="n">PolynomialTensor</span><span class="p">({</span><span class="s2">&quot;&quot;</span><span class="p">:</span> <span class="n">e_nuc</span><span class="p">})</span>
@@ -645,13 +652,13 @@ operator.</p>
 </div>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.hamiltonians.ElectronicEnergy.electronic_integrals">
-<span class="sig-name descname"><span class="pre">electronic_integrals</span></span><a class="headerlink" href="#qiskit_nature.second_q.hamiltonians.ElectronicEnergy.electronic_integrals" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">electronic_integrals</span></span><a class="headerlink" href="#qiskit_nature.second_q.hamiltonians.ElectronicEnergy.electronic_integrals" title="Link to this definition">¶</a></dt>
 <dd><p>The <a class="reference internal" href="qiskit_nature.second_q.operators.ElectronicIntegrals.html#qiskit_nature.second_q.operators.ElectronicIntegrals" title="qiskit_nature.second_q.operators.ElectronicIntegrals"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit_nature.second_q.operators.ElectronicIntegrals</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.hamiltonians.ElectronicEnergy.constants">
-<span class="sig-name descname"><span class="pre">constants</span></span><a class="headerlink" href="#qiskit_nature.second_q.hamiltonians.ElectronicEnergy.constants" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">constants</span></span><a class="headerlink" href="#qiskit_nature.second_q.hamiltonians.ElectronicEnergy.constants" title="Link to this definition">¶</a></dt>
 <dd><p>A mapping of constant energy offsets, not mapped to the qubit operator.</p>
 </dd></dl>
 
@@ -659,19 +666,19 @@ operator.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>electronic_integrals</strong> (<a class="reference internal" href="qiskit_nature.second_q.operators.ElectronicIntegrals.html#qiskit_nature.second_q.operators.ElectronicIntegrals" title="qiskit_nature.second_q.operators.ElectronicIntegrals"><em>ElectronicIntegrals</em></a>) – The container with the one- and two-body coefficients.</p></li>
-<li><p><strong>constants</strong> (<em>MutableMapping</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a><em>]</em>) – A mapping of constant energy offsets.</p></li>
+<li><p><strong>constants</strong> (<em>MutableMapping</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>]</em>) – A mapping of constant energy offsets.</p></li>
 </ul>
 </dd>
 </dl>
 <p class="rubric">Attributes</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.hamiltonians.ElectronicEnergy.nuclear_repulsion_energy">
-<span class="sig-name descname"><span class="pre">nuclear_repulsion_energy</span></span><a class="headerlink" href="#qiskit_nature.second_q.hamiltonians.ElectronicEnergy.nuclear_repulsion_energy" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">nuclear_repulsion_energy</span></span><a class="headerlink" href="#qiskit_nature.second_q.hamiltonians.ElectronicEnergy.nuclear_repulsion_energy" title="Link to this definition">¶</a></dt>
 <dd><p>The nuclear repulsion energy.</p>
 <p>This constant energy offset does <strong>not</strong> get included in the generated operator.
 Add it as a constant term to the <a class="reference internal" href="#qiskit_nature.second_q.hamiltonians.ElectronicEnergy.electronic_integrals" title="qiskit_nature.second_q.hamiltonians.ElectronicEnergy.electronic_integrals"><code class="xref py py-attr docutils literal notranslate"><span class="pre">electronic_integrals</span></code></a> and remove it here, if you
 want to include it in the generated operator:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_nature.second_q.operators</span> <span class="kn">import</span> <span class="n">PolynomialTensor</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.second_q.operators</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolynomialTensor</span>
 
 <span class="n">hamiltonian</span> <span class="o">=</span> <span class="n">ElectronicEnergy</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
 <span class="n">hamiltonian</span><span class="o">.</span><span class="n">electronic_integrals</span><span class="o">.</span><span class="n">alpha</span> <span class="o">+=</span> <span class="n">PolynomialTensor</span><span class="p">({</span>
@@ -684,13 +691,13 @@ want to include it in the generated operator:</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.hamiltonians.ElectronicEnergy.register_length">
-<span class="sig-name descname"><span class="pre">register_length</span></span><a class="headerlink" href="#qiskit_nature.second_q.hamiltonians.ElectronicEnergy.register_length" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">register_length</span></span><a class="headerlink" href="#qiskit_nature.second_q.hamiltonians.ElectronicEnergy.register_length" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.hamiltonians.ElectronicEnergy.coulomb">
-<span class="sig-name descname"><span class="pre">coulomb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">density</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_nature/second_q/hamiltonians/electronic_energy.html#ElectronicEnergy.coulomb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_nature.second_q.hamiltonians.ElectronicEnergy.coulomb" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">coulomb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">density</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_nature/second_q/hamiltonians/electronic_energy.html#ElectronicEnergy.coulomb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_nature.second_q.hamiltonians.ElectronicEnergy.coulomb" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the Coulomb term for the given reduced density matrix.</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
@@ -704,7 +711,7 @@ want to include it in the generated operator:</p>
 <dd class="field-even"><p>The Coulomb operator coefficients.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.12)"><strong>NotImplementedError</strong></a> – when encountering <a class="reference internal" href="qiskit_nature.second_q.operators.symmetric_two_body.SymmetricTwoBodyIntegrals.html#qiskit_nature.second_q.operators.symmetric_two_body.SymmetricTwoBodyIntegrals" title="qiskit_nature.second_q.operators.symmetric_two_body.SymmetricTwoBodyIntegrals"><code class="xref py py-class docutils literal notranslate"><span class="pre">SymmetricTwoBodyIntegrals</span></code></a> inside of
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.14)"><strong>NotImplementedError</strong></a> – when encountering <a class="reference internal" href="qiskit_nature.second_q.operators.symmetric_two_body.SymmetricTwoBodyIntegrals.html#qiskit_nature.second_q.operators.symmetric_two_body.SymmetricTwoBodyIntegrals" title="qiskit_nature.second_q.operators.symmetric_two_body.SymmetricTwoBodyIntegrals"><code class="xref py py-class docutils literal notranslate"><span class="pre">SymmetricTwoBodyIntegrals</span></code></a> inside of
     <a class="reference internal" href="#qiskit_nature.second_q.hamiltonians.ElectronicEnergy.electronic_integrals" title="qiskit_nature.second_q.hamiltonians.ElectronicEnergy.electronic_integrals"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ElectronicEnergy.electronic_integrals</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -715,7 +722,7 @@ want to include it in the generated operator:</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.hamiltonians.ElectronicEnergy.exchange">
-<span class="sig-name descname"><span class="pre">exchange</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">density</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_nature/second_q/hamiltonians/electronic_energy.html#ElectronicEnergy.exchange"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_nature.second_q.hamiltonians.ElectronicEnergy.exchange" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">exchange</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">density</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_nature/second_q/hamiltonians/electronic_energy.html#ElectronicEnergy.exchange"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_nature.second_q.hamiltonians.ElectronicEnergy.exchange" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the Exchange term for the given reduced density matrix.</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
@@ -729,7 +736,7 @@ want to include it in the generated operator:</p>
 <dd class="field-even"><p>The Exchange operator coefficients.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.12)"><strong>NotImplementedError</strong></a> – when encountering <a class="reference internal" href="qiskit_nature.second_q.operators.symmetric_two_body.SymmetricTwoBodyIntegrals.html#qiskit_nature.second_q.operators.symmetric_two_body.SymmetricTwoBodyIntegrals" title="qiskit_nature.second_q.operators.symmetric_two_body.SymmetricTwoBodyIntegrals"><code class="xref py py-class docutils literal notranslate"><span class="pre">SymmetricTwoBodyIntegrals</span></code></a> inside of
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.14)"><strong>NotImplementedError</strong></a> – when encountering <a class="reference internal" href="qiskit_nature.second_q.operators.symmetric_two_body.SymmetricTwoBodyIntegrals.html#qiskit_nature.second_q.operators.symmetric_two_body.SymmetricTwoBodyIntegrals" title="qiskit_nature.second_q.operators.symmetric_two_body.SymmetricTwoBodyIntegrals"><code class="xref py py-class docutils literal notranslate"><span class="pre">SymmetricTwoBodyIntegrals</span></code></a> inside of
     <a class="reference internal" href="#qiskit_nature.second_q.hamiltonians.ElectronicEnergy.electronic_integrals" title="qiskit_nature.second_q.hamiltonians.ElectronicEnergy.electronic_integrals"><code class="xref py py-attr docutils literal notranslate"><span class="pre">ElectronicEnergy.electronic_integrals</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -740,7 +747,7 @@ want to include it in the generated operator:</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.hamiltonians.ElectronicEnergy.fock">
-<span class="sig-name descname"><span class="pre">fock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">density</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_nature/second_q/hamiltonians/electronic_energy.html#ElectronicEnergy.fock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_nature.second_q.hamiltonians.ElectronicEnergy.fock" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">fock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">density</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_nature/second_q/hamiltonians/electronic_energy.html#ElectronicEnergy.fock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_nature.second_q.hamiltonians.ElectronicEnergy.fock" title="Link to this definition">¶</a></dt>
 <dd><p>Computes the Fock operator for the given reduced density matrix.</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
@@ -763,7 +770,7 @@ respectively.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.hamiltonians.ElectronicEnergy.from_raw_integrals">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_raw_integrals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h1_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h2_aa</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h1_b</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h2_bb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h2_ba</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_index_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_nature/second_q/hamiltonians/electronic_energy.html#ElectronicEnergy.from_raw_integrals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_nature.second_q.hamiltonians.ElectronicEnergy.from_raw_integrals" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_raw_integrals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h1_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h2_aa</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h1_b</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h2_bb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h2_ba</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_index_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_nature/second_q/hamiltonians/electronic_energy.html#ElectronicEnergy.from_raw_integrals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_nature.second_q.hamiltonians.ElectronicEnergy.from_raw_integrals" title="Link to this definition">¶</a></dt>
 <dd><p>Constructs a hamiltonian instance from raw integrals.</p>
 <p>This function simply calls
 <a class="reference internal" href="qiskit_nature.second_q.operators.ElectronicIntegrals.html#qiskit_nature.second_q.operators.ElectronicIntegrals.from_raw_integrals" title="qiskit_nature.second_q.operators.ElectronicIntegrals.from_raw_integrals"><code class="xref py py-meth docutils literal notranslate"><span class="pre">from_raw_integrals()</span></code></a>.
@@ -771,13 +778,13 @@ See its documentation for more details.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>h1_a</strong> (<em>np.ndarray</em>) – the alpha-spin one-body coefficients.</p></li>
-<li><p><strong>h2_aa</strong> (<em>np.ndarray</em>) – the alpha-alpha-spin two-body coefficients.</p></li>
-<li><p><strong>h1_b</strong> (<em>np.ndarray</em><em> | </em><em>None</em>) – the beta-spin one-body coefficients.</p></li>
-<li><p><strong>h2_bb</strong> (<em>np.ndarray</em><em> | </em><em>None</em>) – the beta-beta-spin two-body coefficients.</p></li>
-<li><p><strong>h2_ba</strong> (<em>np.ndarray</em><em> | </em><em>None</em>) – the beta-alpha-spin two-body coefficients.</p></li>
-<li><p><strong>validate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – whether or not to validate the coefficient matrices.</p></li>
-<li><p><strong>auto_index_order</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – whether or not to automatically convert the matrices to physicists’
+<li><p><strong>h1_a</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>ndarray</em></a>) – the alpha-spin one-body coefficients.</p></li>
+<li><p><strong>h2_aa</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>ndarray</em></a>) – the alpha-alpha-spin two-body coefficients.</p></li>
+<li><p><strong>h1_b</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>ndarray</em></a><em> | </em><em>None</em>) – the beta-spin one-body coefficients.</p></li>
+<li><p><strong>h2_bb</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>ndarray</em></a><em> | </em><em>None</em>) – the beta-beta-spin two-body coefficients.</p></li>
+<li><p><strong>h2_ba</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>ndarray</em></a><em> | </em><em>None</em>) – the beta-alpha-spin two-body coefficients.</p></li>
+<li><p><strong>validate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – whether or not to validate the coefficient matrices.</p></li>
+<li><p><strong>auto_index_order</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – whether or not to automatically convert the matrices to physicists’
 order.</p></li>
 </ul>
 </dd>
@@ -785,27 +792,27 @@ order.</p></li>
 <dd class="field-even"><p>The resulting <code class="docutils literal notranslate"><span class="pre">ElectronicEnergy</span></code> instance.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#qiskit_nature.second_q.hamiltonians.ElectronicEnergy" title="qiskit_nature.second_q.hamiltonians.ElectronicEnergy">ElectronicEnergy</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#qiskit_nature.second_q.hamiltonians.ElectronicEnergy" title="qiskit_nature.second_q.hamiltonians.electronic_energy.ElectronicEnergy"><em>ElectronicEnergy</em></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.hamiltonians.ElectronicEnergy.interpret">
-<span class="sig-name descname"><span class="pre">interpret</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_nature/second_q/hamiltonians/electronic_energy.html#ElectronicEnergy.interpret"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_nature.second_q.hamiltonians.ElectronicEnergy.interpret" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">interpret</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_nature/second_q/hamiltonians/electronic_energy.html#ElectronicEnergy.interpret"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_nature.second_q.hamiltonians.ElectronicEnergy.interpret" title="Link to this definition">¶</a></dt>
 <dd><p>Interprets an <a class="reference internal" href="qiskit_nature.second_q.problems.EigenstateResult.html#qiskit_nature.second_q.problems.EigenstateResult" title="qiskit_nature.second_q.problems.EigenstateResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">EigenstateResult</span></code></a>.</p>
 <p>In particular, this adds the constant energy shifts stored in this hamiltonian to the result
 object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>result</strong> (<a class="reference internal" href="qiskit_nature.second_q.problems.EigenstateResult.html#qiskit_nature.second_q.problems.EigenstateResult" title="qiskit_nature.second_q.problems.EigenstateResult"><em>qiskit_nature.second_q.problems.EigenstateResult</em></a>) – the result to add meaning to.</p>
+<dd class="field-odd"><p><strong>result</strong> (<a class="reference internal" href="qiskit_nature.second_q.problems.EigenstateResult.html#qiskit_nature.second_q.problems.EigenstateResult" title="qiskit_nature.second_q.problems.eigenstate_result.EigenstateResult"><em>EigenstateResult</em></a>) – the result to add meaning to.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.hamiltonians.ElectronicEnergy.second_q_op">
-<span class="sig-name descname"><span class="pre">second_q_op</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_nature/second_q/hamiltonians/electronic_energy.html#ElectronicEnergy.second_q_op"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_nature.second_q.hamiltonians.ElectronicEnergy.second_q_op" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">second_q_op</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_nature/second_q/hamiltonians/electronic_energy.html#ElectronicEnergy.second_q_op"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_nature.second_q.hamiltonians.ElectronicEnergy.second_q_op" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the second quantized operator constructed from the contained electronic integrals.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -862,7 +869,7 @@ object.</p>
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2018, 2024, Qiskit Nature Development Team
+                Copyright &#169; 2018, 2026, Qiskit Nature Development Team
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
@@ -915,11 +922,11 @@ object.</p>
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=4f87218b"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/documentation_options.js?v=486e5634"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/qiskit-sphinx-theme.js?v=4d77b8ca"></script>
-    <script src="../_static/design-tabs.js?v=36754332"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>

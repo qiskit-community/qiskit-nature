@@ -16,6 +16,7 @@ PUCCD
    .. rubric:: Attributes
    
    .. autoattribute:: PUCCD.include_singles
+   .. autoattribute:: PUCCD.name
    
    
 

@@ -4,16 +4,16 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../../../genindex.html" /><link rel="search" title="Search" href="../../../../../../search.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>qiskit_nature.second_q.circuit.library.ansatzes.uvcc - Qiskit Nature 0.7.2</title>
+    <!-- Generated with Sphinx 7.4.7 and Furo 2024.01.29 -->
+        <title>qiskit_nature.second_q.circuit.library.ansatzes.uvcc - Qiskit Nature 0.8.0</title>
       <link rel="stylesheet" type="text/css" href="../../../../../../_static/styles/furo.css?v=135e06be" />
-    <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=82a976d7" />
+    <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/styles/qiskit-ecosystem.css?v=745c5aa7" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/thebelab.css" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/plot_directive.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/styles/furo-extensions.css?v=36a5483c" />
     
     
@@ -202,7 +202,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../../../../index.html"><div class="brand">Qiskit Nature 0.7.2</div></a>
+      <a href="../../../../../../index.html"><div class="brand">Qiskit Nature 0.8.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -229,7 +229,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Nature 0.7.2</span>
+  <span class="sidebar-brand-text">Qiskit Nature 0.8.0</span>
 </div><form class="sidebar-search-container" method="get" action="../../../../../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -240,6 +240,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../../../../migration/index.html">Migration Guides</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Migration Guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../../migration/0.8_a_qiskit1.html">Qiskit Nature v0.8 Migration Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../../migration/0.6_a_intro.html">Qiskit Nature v0.6 Migration Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../../migration/0.6_b_mes_factory.html">The (Minimum)EigensolverFactory Migration Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../../migration/0.6_c_qubit_converter.html">The QubitConverter Migration Guide</a></li>
@@ -409,21 +410,26 @@
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../../../../apidocs/qiskit_nature.second_q.mappers.html">Mappers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.mappers</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" role="switch" type="checkbox"/><label for="toctree-checkbox-21"><div class="visually-hidden">Toggle navigation of Mappers (qiskit_nature.second_q.mappers)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../../stubs/qiskit_nature.second_q.mappers.QubitMapper.html">QubitMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../../stubs/qiskit_nature.second_q.mappers.ModeBasedMapper.html">ModeBasedMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../../stubs/qiskit_nature.second_q.mappers.BravyiKitaevMapper.html">BravyiKitaevMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../../stubs/qiskit_nature.second_q.mappers.BravyiKitaevSuperFastMapper.html">BravyiKitaevSuperFastMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../../stubs/qiskit_nature.second_q.mappers.JordanWignerMapper.html">JordanWignerMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../../stubs/qiskit_nature.second_q.mappers.ParityMapper.html">ParityMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../../stubs/qiskit_nature.second_q.mappers.TernaryTreeMapper.html">TernaryTreeMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../../stubs/qiskit_nature.second_q.mappers.InterleavedQubitMapper.html">InterleavedQubitMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../../stubs/qiskit_nature.second_q.mappers.BosonicLinearMapper.html">BosonicLinearMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../../stubs/qiskit_nature.second_q.mappers.BosonicLogarithmicMapper.html">BosonicLogarithmicMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../../stubs/qiskit_nature.second_q.mappers.DirectMapper.html">DirectMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../../stubs/qiskit_nature.second_q.mappers.LinearMapper.html">LinearMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../../stubs/qiskit_nature.second_q.mappers.LogarithmicMapper.html">LogarithmicMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../../stubs/qiskit_nature.second_q.mappers.TaperedQubitMapper.html">TaperedQubitMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../../stubs/qiskit_nature.second_q.mappers.MixedMapper.html">MixedMapper</a></li>
 </ul>
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../../../../../../apidocs/qiskit_nature.second_q.operators.html">Operators (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.operators</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" role="switch" type="checkbox"/><label for="toctree-checkbox-22"><div class="visually-hidden">Toggle navigation of Operators (qiskit_nature.second_q.operators)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../../stubs/qiskit_nature.second_q.operators.ElectronicIntegrals.html">ElectronicIntegrals</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../../stubs/qiskit_nature.second_q.operators.FermionicOp.html">FermionicOp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../../stubs/qiskit_nature.second_q.operators.MajoranaOp.html">MajoranaOp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../../stubs/qiskit_nature.second_q.operators.BosonicOp.html">BosonicOp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../../stubs/qiskit_nature.second_q.operators.SparseLabelOp.html">SparseLabelOp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../../stubs/qiskit_nature.second_q.operators.SpinOp.html">SpinOp</a></li>
@@ -431,6 +437,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../../../../stubs/qiskit_nature.second_q.operators.VibrationalIntegrals.html">VibrationalIntegrals</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../../stubs/qiskit_nature.second_q.operators.PolynomialTensor.html">PolynomialTensor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../../stubs/qiskit_nature.second_q.operators.Tensor.html">Tensor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../../stubs/qiskit_nature.second_q.operators.MixedOp.html">MixedOp</a></li>
 <li class="toctree-l4 has-children"><a class="reference internal" href="../../../../../../apidocs/qiskit_nature.second_q.operators.tensor_ordering.html">Tensor Ordering Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.operators.tensor_ordering</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" role="switch" type="checkbox"/><label for="toctree-checkbox-23"><div class="visually-hidden">Toggle navigation of Tensor Ordering Utilities (qiskit_nature.second_q.operators.tensor_ordering)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l5"><a class="reference internal" href="../../../../../../stubs/qiskit_nature.second_q.operators.tensor_ordering.to_chemist_ordering.html">to_chemist_ordering</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../../../../../../stubs/qiskit_nature.second_q.operators.tensor_ordering.to_physicist_ordering.html">to_physicist_ordering</a></li>
@@ -583,7 +590,7 @@
           <h1>Source code for qiskit_nature.second_q.circuit.library.ansatzes.uvcc</h1><div class="highlight"><pre>
 <span></span><span class="c1"># This code is part of a Qiskit project.</span>
 <span class="c1">#</span>
-<span class="c1"># (C) Copyright IBM 2021, 2023.</span>
+<span class="c1"># (C) Copyright IBM 2021, 2026.</span>
 <span class="c1">#</span>
 <span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
 <span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
@@ -595,25 +602,27 @@
 
 <span class="sd">&quot;&quot;&quot; The Unitary Vibrational Coupled-Cluster Ansatz. &quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Sequence</span>
 
-<span class="kn">from</span> <span class="nn">qiskit.circuit</span> <span class="kn">import</span> <span class="n">QuantumCircuit</span>
-<span class="kn">from</span> <span class="nn">qiskit.circuit.library</span> <span class="kn">import</span> <span class="n">EvolvedOperatorAnsatz</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuantumCircuit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">EvolvedOperatorAnsatz</span>
 
-<span class="kn">from</span> <span class="nn">qiskit_nature</span> <span class="kn">import</span> <span class="n">QiskitNatureError</span>
-<span class="kn">from</span> <span class="nn">qiskit_nature.second_q.mappers</span> <span class="kn">import</span> <span class="n">QubitMapper</span><span class="p">,</span> <span class="n">TaperedQubitMapper</span>
-<span class="kn">from</span> <span class="nn">qiskit_nature.second_q.operators</span> <span class="kn">import</span> <span class="n">SparseLabelOp</span><span class="p">,</span> <span class="n">VibrationalOp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature</span><span class="w"> </span><span class="kn">import</span> <span class="n">QiskitNatureError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.second_q.mappers</span><span class="w"> </span><span class="kn">import</span> <span class="n">QubitMapper</span><span class="p">,</span> <span class="n">TaperedQubitMapper</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.second_q.operators</span><span class="w"> </span><span class="kn">import</span> <span class="n">SparseLabelOp</span><span class="p">,</span> <span class="n">VibrationalOp</span>
 
-<span class="kn">from</span> <span class="nn">.utils.vibration_excitation_generator</span> <span class="kn">import</span> <span class="n">generate_vibration_excitations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils.vibration_excitation_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_vibration_excitations</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="UVCC"><a class="viewcode-back" href="../../../../../../stubs/qiskit_nature.second_q.circuit.library.UVCC.html#qiskit_nature.second_q.circuit.library.UVCC">[docs]</a><span class="k">class</span> <span class="nc">UVCC</span><span class="p">(</span><span class="n">EvolvedOperatorAnsatz</span><span class="p">):</span>
+<div class="viewcode-block" id="UVCC">
+<a class="viewcode-back" href="../../../../../../stubs/qiskit_nature.second_q.circuit.library.UVCC.html#qiskit_nature.second_q.circuit.library.UVCC">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">UVCC</span><span class="p">(</span><span class="n">EvolvedOperatorAnsatz</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This trial wavefunction is a Unitary Vibrational Coupled-Cluster ansatz.</span>
 
@@ -642,17 +651,19 @@
         <span class="s2">&quot;q&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">num_modals</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">excitations</span><span class="p">:</span> <span class="nb">str</span>
-        <span class="o">|</span> <span class="nb">int</span>
-        <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
-        <span class="o">|</span> <span class="n">Callable</span><span class="p">[</span>
-            <span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
-            <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]],</span>
-        <span class="p">]</span>
-        <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">excitations</span><span class="p">:</span> <span class="p">(</span>
+            <span class="nb">str</span>
+            <span class="o">|</span> <span class="nb">int</span>
+            <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+            <span class="o">|</span> <span class="n">Callable</span><span class="p">[</span>
+                <span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+                <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]],</span>
+            <span class="p">]</span>
+            <span class="o">|</span> <span class="kc">None</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">qubit_mapper</span><span class="p">:</span> <span class="n">QubitMapper</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">reps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
@@ -713,43 +724,43 @@
         <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">operators</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">qubit_mapper</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QubitMapper</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">qubit_mapper</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QubitMapper</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The qubit operator mapper.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qubit_mapper</span>
 
     <span class="nd">@qubit_mapper</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">qubit_mapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mapper</span><span class="p">:</span> <span class="n">QubitMapper</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">qubit_mapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mapper</span><span class="p">:</span> <span class="n">QubitMapper</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the qubit operator mapper.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_operators</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_invalidate</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_qubit_mapper</span> <span class="o">=</span> <span class="n">mapper</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">num_modals</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">num_modals</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The number of modals.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_modals</span>
 
     <span class="nd">@num_modals</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">num_modals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_modals</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">num_modals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_modals</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the number of modals.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_operators</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_invalidate</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_num_modals</span> <span class="o">=</span> <span class="n">num_modals</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">excitations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">Callable</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">excitations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">Callable</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The excitations.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_excitations</span>
 
     <span class="nd">@excitations</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">excitations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">excitations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the excitations.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_operators</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_invalidate</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_excitations</span> <span class="o">=</span> <span class="n">exc</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">excitation_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">excitation_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The excitation list that UVCC is using.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_excitation_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># If the excitation_list is None build it out alongside the operators if the ucc config</span>
@@ -758,7 +769,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_excitation_list</span>
 
     <span class="nd">@EvolvedOperatorAnsatz</span><span class="o">.</span><span class="n">operators</span><span class="o">.</span><span class="n">getter</span>
-    <span class="k">def</span> <span class="nf">operators</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pylint: disable=invalid-overridden-method</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">operators</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># pylint: disable=invalid-overridden-method</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The operators that are evolved in this circuit.</span>
 
 <span class="sd">        Returns:</span>
@@ -797,7 +808,7 @@
 
         <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">UVCC</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span><span class="o">.</span><span class="n">operators</span><span class="o">.</span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_filter_operators</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operators</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_filter_operators</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operators</span><span class="p">):</span>
         <span class="n">valid_operators</span><span class="p">,</span> <span class="n">valid_excitations</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">op</span><span class="p">,</span> <span class="n">ex</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">operators</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_excitation_list</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">op</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -807,11 +818,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_excitation_list</span> <span class="o">=</span> <span class="n">valid_excitations</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">operators</span> <span class="o">=</span> <span class="n">valid_operators</span>
 
-    <span class="k">def</span> <span class="nf">_invalidate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_invalidate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_excitation_ops</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_invalidate</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">_check_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raise_on_failure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raise_on_failure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="c1"># Check our local config is valid first. The super class will check the</span>
         <span class="c1"># operators by getting them, and if we detect they are still None they</span>
         <span class="c1"># will be built so that its valid check will end up passing in that regard.</span>
@@ -820,7 +831,7 @@
 
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_check_configuration</span><span class="p">(</span><span class="n">raise_on_failure</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_check_uvcc_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raise_on_failure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_uvcc_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raise_on_failure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="c1"># Check the local config, separated out that it can be checked via build</span>
         <span class="c1"># or ahead of building operators to make sure everything needed is present.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_modals</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -848,7 +859,9 @@
 
         <span class="k">return</span> <span class="kc">True</span>
 
-<div class="viewcode-block" id="UVCC.excitation_ops"><a class="viewcode-back" href="../../../../../../stubs/qiskit_nature.second_q.circuit.library.UVCC.html#qiskit_nature.second_q.circuit.library.UVCC.excitation_ops">[docs]</a>    <span class="k">def</span> <span class="nf">excitation_ops</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">SparseLabelOp</span><span class="p">]:</span>
+<div class="viewcode-block" id="UVCC.excitation_ops">
+<a class="viewcode-back" href="../../../../../../stubs/qiskit_nature.second_q.circuit.library.UVCC.html#qiskit_nature.second_q.circuit.library.UVCC.excitation_ops">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">excitation_ops</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">SparseLabelOp</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Parses the excitations and generates the list of operators.</span>
 
 <span class="sd">        Raises:</span>
@@ -869,7 +882,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_excitation_ops</span> <span class="o">=</span> <span class="n">excitation_ops</span>
         <span class="k">return</span> <span class="n">excitation_ops</span></div>
 
-    <span class="k">def</span> <span class="nf">_get_excitation_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]]:</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_excitation_list</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]]:</span>
         <span class="n">generators</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_excitation_generators</span><span class="p">()</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Generating excitation list...&quot;</span><span class="p">)</span>
@@ -883,7 +897,7 @@
 
         <span class="k">return</span> <span class="n">excitations</span>
 
-    <span class="k">def</span> <span class="nf">_get_excitation_generators</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Callable</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_excitation_generators</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Callable</span><span class="p">]:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Gathering excitation generators...&quot;</span><span class="p">)</span>
         <span class="n">generators</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -903,11 +917,11 @@
                 <span class="p">)</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">excitations</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">exc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">excitations</span><span class="p">:</span>  <span class="c1"># type: ignore</span>
+            <span class="k">for</span> <span class="n">excitation</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">excitations</span><span class="p">:</span>
                 <span class="n">generators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="n">partial</span><span class="p">(</span>
                         <span class="n">generate_vibration_excitations</span><span class="p">,</span>
-                        <span class="n">num_excitations</span><span class="o">=</span><span class="n">exc</span><span class="p">,</span>
+                        <span class="n">num_excitations</span><span class="o">=</span><span class="n">excitation</span><span class="p">,</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
         <span class="k">elif</span> <span class="nb">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">excitations</span><span class="p">):</span>
@@ -917,7 +931,7 @@
 
         <span class="k">return</span> <span class="n">generators</span>
 
-    <span class="k">def</span> <span class="nf">_build_vibration_excitation_ops</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">excitations</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">VibrationalOp</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_vibration_excitation_ops</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">excitations</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">VibrationalOp</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Builds all possible excitation operators with the given number of excitations for the</span>
 <span class="sd">        specified number of particles distributed in the number of orbitals.</span>
 
@@ -939,10 +953,11 @@
             <span class="n">op</span> <span class="o">-=</span> <span class="n">op</span><span class="o">.</span><span class="n">adjoint</span><span class="p">()</span>
             <span class="c1"># we need to account for an additional imaginary phase in the exponent accumulated from</span>
             <span class="c1"># the first-order trotterization routine implemented in Qiskit</span>
-            <span class="n">op</span> <span class="o">*=</span> <span class="mi">1</span><span class="n">j</span>  <span class="c1"># type: ignore</span>
+            <span class="n">op</span> <span class="o">*=</span> <span class="mi">1</span><span class="n">j</span>
             <span class="n">operators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">operators</span></div>
+
 </pre></div>
         </article>
       </div>
@@ -967,7 +982,7 @@
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2018, 2024, Qiskit Nature Development Team
+                Copyright &#169; 2018, 2026, Qiskit Nature Development Team
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
@@ -989,12 +1004,12 @@
   </div>
 </div><script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
     <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../../../../../../" id="documentation_options" src="../../../../../../_static/documentation_options.js?v=4f87218b"></script>
-    <script src="../../../../../../_static/doctools.js?v=888ff710"></script>
-    <script src="../../../../../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../../../../../_static/documentation_options.js?v=486e5634"></script>
+    <script src="../../../../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../../../../_static/thebelab-helper.js"></script>
     <script src="../../../../../../_static/scripts/qiskit-sphinx-theme.js?v=4d77b8ca"></script>
-    <script src="../../../../../../_static/design-tabs.js?v=36754332"></script>
+    <script src="../../../../../../_static/design-tabs.js?v=f930bc37"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>

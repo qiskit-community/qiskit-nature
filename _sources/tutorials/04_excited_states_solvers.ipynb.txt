@@ -136,7 +136,7 @@
    "source": [
     "from qiskit_algorithms import VQE\n",
     "from qiskit_algorithms.optimizers import SLSQP\n",
-    "from qiskit.primitives import Estimator\n",
+    "from qiskit.primitives import StatevectorEstimator\n",
     "from qiskit_nature.second_q.algorithms import GroundStateEigensolver, QEOM, EvaluationRule\n",
     "from qiskit_nature.second_q.circuit.library import HartreeFock, UCCSD\n",
     "\n",
@@ -151,7 +151,7 @@
     "    ),\n",
     ")\n",
     "\n",
-    "estimator = Estimator()\n",
+    "estimator = StatevectorEstimator()\n",
     "# This first part sets the ground state solver\n",
     "# see more about this part in the ground state calculation tutorial\n",
     "solver = VQE(estimator, ansatz, SLSQP())\n",

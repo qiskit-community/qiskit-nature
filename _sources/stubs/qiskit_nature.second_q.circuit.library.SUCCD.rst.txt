@@ -17,6 +17,7 @@ SUCCD
    
    .. autoattribute:: SUCCD.include_singles
    .. autoattribute:: SUCCD.mirror
+   .. autoattribute:: SUCCD.name
    
    
 

@@ -20,8 +20,5 @@ BravyiKitaevSuperFastMapper
    .. rubric:: Methods
    
    .. automethod:: BravyiKitaevSuperFastMapper.map
-   .. automethod:: BravyiKitaevSuperFastMapper.mode_based_mapping
-   .. automethod:: BravyiKitaevSuperFastMapper.pauli_table
-   .. automethod:: BravyiKitaevSuperFastMapper.sparse_pauli_operators
    
    

@@ -1,0 +1,61 @@
+﻿
+
+MajoranaOp
+===========================================
+
+.. currentmodule:: qiskit_nature.second_q.operators
+
+.. autoclass:: MajoranaOp
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   .. rubric:: Attributes
+   
+   .. autoattribute:: MajoranaOp.atol
+   .. autoattribute:: MajoranaOp.register_length
+   .. autoattribute:: MajoranaOp.rtol
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: MajoranaOp.adjoint
+   .. automethod:: MajoranaOp.argsort
+   .. automethod:: MajoranaOp.assign_parameters
+   .. automethod:: MajoranaOp.chop
+   .. automethod:: MajoranaOp.compose
+   .. automethod:: MajoranaOp.conjugate
+   .. automethod:: MajoranaOp.dot
+   .. automethod:: MajoranaOp.equiv
+   .. automethod:: MajoranaOp.expand
+   .. automethod:: MajoranaOp.from_fermionic_op
+   .. automethod:: MajoranaOp.from_polynomial_tensor
+   .. automethod:: MajoranaOp.from_terms
+   .. automethod:: MajoranaOp.get
+   .. automethod:: MajoranaOp.index_order
+   .. automethod:: MajoranaOp.induced_norm
+   .. automethod:: MajoranaOp.is_hermitian
+   .. automethod:: MajoranaOp.is_parameterized
+   .. automethod:: MajoranaOp.is_zero
+   .. automethod:: MajoranaOp.items
+   .. automethod:: MajoranaOp.keys
+   .. automethod:: MajoranaOp.one
+   .. automethod:: MajoranaOp.parameters
+   .. automethod:: MajoranaOp.permute_indices
+   .. automethod:: MajoranaOp.power
+   .. automethod:: MajoranaOp.round
+   .. automethod:: MajoranaOp.simplify
+   .. automethod:: MajoranaOp.sort
+   .. automethod:: MajoranaOp.tensor
+   .. automethod:: MajoranaOp.terms
+   .. automethod:: MajoranaOp.transpose
+   .. automethod:: MajoranaOp.values
+   .. automethod:: MajoranaOp.zero
+   
+   

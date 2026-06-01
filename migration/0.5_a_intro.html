@@ -5,15 +5,15 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Solving Problems with v0.5" href="0.5_b_solving_problems.html" /><link rel="prev" title="The QubitConverter Migration Guide" href="0.6_c_qubit_converter.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>Qiskit Nature v0.5 Migration Guide - Qiskit Nature 0.7.2</title>
+    <!-- Generated with Sphinx 7.4.7 and Furo 2024.01.29 -->
+        <title>Qiskit Nature v0.5 Migration Guide - Qiskit Nature 0.8.0</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-ecosystem.css?v=745c5aa7" />
     <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     
     
@@ -202,7 +202,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Nature 0.7.2</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Nature 0.8.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -229,7 +229,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Nature 0.7.2</span>
+  <span class="sidebar-brand-text">Qiskit Nature 0.8.0</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -240,6 +240,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Migration Guides</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Migration Guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="0.8_a_qiskit1.html">Qiskit Nature v0.8 Migration Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="0.6_a_intro.html">Qiskit Nature v0.6 Migration Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="0.6_b_mes_factory.html">The (Minimum)EigensolverFactory Migration Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="0.6_c_qubit_converter.html">The QubitConverter Migration Guide</a></li>
@@ -409,21 +410,26 @@
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.mappers.html">Mappers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.mappers</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" role="switch" type="checkbox"/><label for="toctree-checkbox-21"><div class="visually-hidden">Toggle navigation of Mappers (qiskit_nature.second_q.mappers)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.QubitMapper.html">QubitMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.ModeBasedMapper.html">ModeBasedMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.BravyiKitaevMapper.html">BravyiKitaevMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.BravyiKitaevSuperFastMapper.html">BravyiKitaevSuperFastMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.JordanWignerMapper.html">JordanWignerMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.ParityMapper.html">ParityMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.TernaryTreeMapper.html">TernaryTreeMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.InterleavedQubitMapper.html">InterleavedQubitMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.BosonicLinearMapper.html">BosonicLinearMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.BosonicLogarithmicMapper.html">BosonicLogarithmicMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.DirectMapper.html">DirectMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.LinearMapper.html">LinearMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.LogarithmicMapper.html">LogarithmicMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.TaperedQubitMapper.html">TaperedQubitMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.MixedMapper.html">MixedMapper</a></li>
 </ul>
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.operators.html">Operators (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.operators</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" role="switch" type="checkbox"/><label for="toctree-checkbox-22"><div class="visually-hidden">Toggle navigation of Operators (qiskit_nature.second_q.operators)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.ElectronicIntegrals.html">ElectronicIntegrals</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.FermionicOp.html">FermionicOp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.MajoranaOp.html">MajoranaOp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.BosonicOp.html">BosonicOp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.SparseLabelOp.html">SparseLabelOp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.SpinOp.html">SpinOp</a></li>
@@ -431,6 +437,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.VibrationalIntegrals.html">VibrationalIntegrals</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.PolynomialTensor.html">PolynomialTensor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.Tensor.html">Tensor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.MixedOp.html">MixedOp</a></li>
 <li class="toctree-l4 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.operators.tensor_ordering.html">Tensor Ordering Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.operators.tensor_ordering</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" role="switch" type="checkbox"/><label for="toctree-checkbox-23"><div class="visually-hidden">Toggle navigation of Tensor Ordering Utilities (qiskit_nature.second_q.operators.tensor_ordering)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.tensor_ordering.to_chemist_ordering.html">to_chemist_ordering</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.tensor_ordering.to_physicist_ordering.html">to_physicist_ordering</a></li>
@@ -582,11 +589,11 @@
         </div>
         <article role="main">
           <br><br><br><section id="qiskit-nature-v0-5-migration-guide">
-<h1>Qiskit Nature v0.5 Migration Guide<a class="headerlink" href="#qiskit-nature-v0-5-migration-guide" title="Permalink to this heading">#</a></h1>
+<h1>Qiskit Nature v0.5 Migration Guide<a class="headerlink" href="#qiskit-nature-v0-5-migration-guide" title="Link to this heading">¶</a></h1>
 <p>This tutorial will guide you through the process of migrating your code
 from Qiskit Nature v0.4 to v0.5</p>
 <section id="overview">
-<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading">#</a></h2>
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
 <p>Let us begin with an overview of the refactored design. A major
 motivator for the refactoring of Qiskit Nature was the goal of readying
 Qiskit Nature for more and tighter integrations with other
@@ -630,7 +637,7 @@ integrations, but also the capabilities of our <code class="docutils literal not
 representation, and its usage in the remainder of the package.</p>
 </section>
 <section id="how-to-use-this-guide">
-<h2>How to use this guide<a class="headerlink" href="#how-to-use-this-guide" title="Permalink to this heading">#</a></h2>
+<h2>How to use this guide<a class="headerlink" href="#how-to-use-this-guide" title="Link to this heading">¶</a></h2>
 <p>This guide is split across multiple files allowing you to discover the
 changes between v0.4 and v0.5 to each submodule as you find the need.
 That means, you do not need to read all of the details at once and
@@ -653,9 +660,9 @@ Problems</span></a></p></li>
 </ul>
 </section>
 <section id="some-important-general-notes">
-<h2>Some important general notes<a class="headerlink" href="#some-important-general-notes" title="Permalink to this heading">#</a></h2>
+<h2>Some important general notes<a class="headerlink" href="#some-important-general-notes" title="Link to this heading">¶</a></h2>
 <section id="too-many-positional-arguments">
-<h3>Too many positional arguments<a class="headerlink" href="#too-many-positional-arguments" title="Permalink to this heading">#</a></h3>
+<h3>Too many positional arguments<a class="headerlink" href="#too-many-positional-arguments" title="Link to this heading">¶</a></h3>
 <p>With Qiskit Nature v0.5 we have started to require certain arguments in
 the public API to be <strong>keyword-only</strong> arguments. This change was
 motivated by the following advantages:</p>
@@ -669,14 +676,14 @@ order-dependent</p></li>
 <p>That means, even if you only need to update the import path during your
 migration process, you may run into errors like the following:</p>
 <section id="previously">
-<h4>Previously<a class="headerlink" href="#previously" title="Permalink to this heading">#</a></h4>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_nature.mappers.second_quantization</span> <span class="kn">import</span> <span class="n">LogarithmicMapper</span>
+<h4>Previously<a class="headerlink" href="#previously" title="Link to this heading">¶</a></h4>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.mappers.second_quantization</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogarithmicMapper</span>
 
 <span class="n">mapper</span> <span class="o">=</span> <span class="n">LogarithmicMapper</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Now we update the import path to the new location and obtain an error:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_nature.second_q.mappers</span> <span class="kn">import</span> <span class="n">LogarithmicMapper</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.second_q.mappers</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogarithmicMapper</span>
 
 <span class="n">mapper</span> <span class="o">=</span> <span class="n">LogarithmicMapper</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
@@ -686,7 +693,7 @@ migration process, you may run into errors like the following:</p>
 <span class="ne">TypeError</span>                                 <span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">)</span>
 
 <span class="o">&lt;</span><span class="n">ipython</span><span class="o">-</span><span class="nb">input</span><span class="o">-</span><span class="mi">2</span><span class="o">-</span><span class="mi">74</span><span class="n">b842b89d77</span><span class="o">&gt;</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
-      <span class="mi">1</span> <span class="kn">from</span> <span class="nn">qiskit_nature.second_q.mappers</span> <span class="kn">import</span> <span class="n">LogarithmicMapper</span>
+      <span class="mi">1</span> <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.second_q.mappers</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogarithmicMapper</span>
       <span class="mi">2</span>
 <span class="o">----&gt;</span> <span class="mi">3</span> <span class="n">mapper</span> <span class="o">=</span> <span class="n">LogarithmicMapper</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 
@@ -700,8 +707,8 @@ likely that only need to change from using an argument <em>positionally</em> to
 using it with a <strong>keyword</strong>. For example like so:</p>
 </section>
 <section id="new">
-<h4>New<a class="headerlink" href="#new" title="Permalink to this heading">#</a></h4>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_nature.second_q.mappers</span> <span class="kn">import</span> <span class="n">LogarithmicMapper</span>
+<h4>New<a class="headerlink" href="#new" title="Link to this heading">¶</a></h4>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.second_q.mappers</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogarithmicMapper</span>
 
 <span class="n">mapper</span> <span class="o">=</span> <span class="n">LogarithmicMapper</span><span class="p">(</span><span class="n">padding</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
@@ -709,7 +716,7 @@ using it with a <strong>keyword</strong>. For example like so:</p>
 </section>
 </section>
 <section id="unexpected-number-of-orbitals-or-qubits">
-<h3>Unexpected number of orbitals or qubits<a class="headerlink" href="#unexpected-number-of-orbitals-or-qubits" title="Permalink to this heading">#</a></h3>
+<h3>Unexpected number of orbitals or qubits<a class="headerlink" href="#unexpected-number-of-orbitals-or-qubits" title="Link to this heading">¶</a></h3>
 <p>With Qiskit Nature v0.5 we have switched the entire stack over from
 using <code class="docutils literal notranslate"><span class="pre">num_spin_orbitals</span></code> to instead use <code class="docutils literal notranslate"><span class="pre">num_spatial_orbitals</span></code>. The
 motivation behind this, was that the behavior when specifying an odd
@@ -721,10 +728,10 @@ number of spin orbitals), this problem can no longer arise.</p>
 in your results, be sure to check whether you need to update your input.
 For example like shown below:</p>
 <section id="id1">
-<h4>Previously<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h4>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_nature.circuit.library</span> <span class="kn">import</span> <span class="n">HartreeFock</span>
-<span class="kn">from</span> <span class="nn">qiskit_nature.converters.second_quantization</span> <span class="kn">import</span> <span class="n">QubitConverter</span>
-<span class="kn">from</span> <span class="nn">qiskit_nature.mappers.second_quantization</span> <span class="kn">import</span> <span class="n">JordanWignerMapper</span>
+<h4>Previously<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h4>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.circuit.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">HartreeFock</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.converters.second_quantization</span><span class="w"> </span><span class="kn">import</span> <span class="n">QubitConverter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.mappers.second_quantization</span><span class="w"> </span><span class="kn">import</span> <span class="n">JordanWignerMapper</span>
 
 <span class="n">converter</span> <span class="o">=</span> <span class="n">QubitConverter</span><span class="p">(</span><span class="n">JordanWignerMapper</span><span class="p">())</span>
 
@@ -748,9 +755,9 @@ q_5: ─────
 </div>
 </section>
 <section id="id2">
-<h4>New<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h4>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_nature.second_q.circuit.library</span> <span class="kn">import</span> <span class="n">HartreeFock</span>
-<span class="kn">from</span> <span class="nn">qiskit_nature.second_q.mappers</span> <span class="kn">import</span> <span class="n">JordanWignerMapper</span><span class="p">,</span> <span class="n">QubitConverter</span>
+<h4>New<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h4>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.second_q.circuit.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">HartreeFock</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.second_q.mappers</span><span class="w"> </span><span class="kn">import</span> <span class="n">JordanWignerMapper</span><span class="p">,</span> <span class="n">QubitConverter</span>
 
 <span class="n">converter</span> <span class="o">=</span> <span class="n">QubitConverter</span><span class="p">(</span><span class="n">JordanWignerMapper</span><span class="p">())</span>
 
@@ -818,7 +825,7 @@ q_5: ─────
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2018, 2024, Qiskit Nature Development Team
+                Copyright &#169; 2018, 2026, Qiskit Nature Development Team
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
@@ -873,11 +880,11 @@ q_5: ─────
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=4f87218b"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/documentation_options.js?v=486e5634"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/qiskit-sphinx-theme.js?v=4d77b8ca"></script>
-    <script src="../_static/design-tabs.js?v=36754332"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>

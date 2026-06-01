@@ -1,0 +1,27 @@
+﻿
+
+ModeBasedMapper
+==============================================
+
+.. currentmodule:: qiskit_nature.second_q.mappers
+
+.. autoclass:: ModeBasedMapper
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: ModeBasedMapper.map
+   .. automethod:: ModeBasedMapper.mode_based_mapping
+   .. automethod:: ModeBasedMapper.pauli_table
+   .. automethod:: ModeBasedMapper.sparse_pauli_operators
+   
+   

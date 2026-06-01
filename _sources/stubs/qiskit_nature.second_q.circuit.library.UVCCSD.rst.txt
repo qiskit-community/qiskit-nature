@@ -15,6 +15,7 @@ UVCCSD
    
    .. rubric:: Attributes
    
+   .. autoattribute:: UVCCSD.name
    
    
 

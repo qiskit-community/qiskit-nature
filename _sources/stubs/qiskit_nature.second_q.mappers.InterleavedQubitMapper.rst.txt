@@ -20,8 +20,5 @@ InterleavedQubitMapper
    .. rubric:: Methods
    
    .. automethod:: InterleavedQubitMapper.map
-   .. automethod:: InterleavedQubitMapper.mode_based_mapping
-   .. automethod:: InterleavedQubitMapper.pauli_table
-   .. automethod:: InterleavedQubitMapper.sparse_pauli_operators
    
    

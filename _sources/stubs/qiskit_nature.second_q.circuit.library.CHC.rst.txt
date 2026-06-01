@@ -18,6 +18,7 @@ CHC
    .. autoattribute:: CHC.excitations
    .. autoattribute:: CHC.initial_state
    .. autoattribute:: CHC.num_qubits
+   .. autoattribute:: CHC.name
    
    
 

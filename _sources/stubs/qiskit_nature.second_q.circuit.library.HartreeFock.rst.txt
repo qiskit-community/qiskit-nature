@@ -18,6 +18,7 @@ HartreeFock
    .. autoattribute:: HartreeFock.num_particles
    .. autoattribute:: HartreeFock.num_spatial_orbitals
    .. autoattribute:: HartreeFock.qubit_mapper
+   .. autoattribute:: HartreeFock.name
    
    
 

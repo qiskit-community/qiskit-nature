@@ -15,6 +15,7 @@ PUCCSD
    
    .. rubric:: Attributes
    
+   .. autoattribute:: PUCCSD.name
    
    
 

@@ -20,8 +20,5 @@ QubitMapper
    .. rubric:: Methods
    
    .. automethod:: QubitMapper.map
-   .. automethod:: QubitMapper.mode_based_mapping
-   .. automethod:: QubitMapper.pauli_table
-   .. automethod:: QubitMapper.sparse_pauli_operators
    
    

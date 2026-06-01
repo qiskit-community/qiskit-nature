@@ -5,16 +5,16 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Excited states solvers" href="04_excited_states_solvers.html" /><link rel="prev" title="Vibrational structure" href="02_vibrational_structure.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>Ground state solvers - Qiskit Nature 0.7.2</title>
+    <!-- Generated with Sphinx 7.4.7 and Furo 2024.01.29 -->
+        <title>Ground state solvers - Qiskit Nature 0.8.0</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-ecosystem.css?v=745c5aa7" />
     <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
-    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     
     
@@ -203,7 +203,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Nature 0.7.2</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Nature 0.8.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -230,7 +230,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Nature 0.7.2</span>
+  <span class="sidebar-brand-text">Qiskit Nature 0.8.0</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -241,6 +241,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../migration/index.html">Migration Guides</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Migration Guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../migration/0.8_a_qiskit1.html">Qiskit Nature v0.8 Migration Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../migration/0.6_a_intro.html">Qiskit Nature v0.6 Migration Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../migration/0.6_b_mes_factory.html">The (Minimum)EigensolverFactory Migration Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../migration/0.6_c_qubit_converter.html">The QubitConverter Migration Guide</a></li>
@@ -410,21 +411,26 @@
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.mappers.html">Mappers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.mappers</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" role="switch" type="checkbox"/><label for="toctree-checkbox-21"><div class="visually-hidden">Toggle navigation of Mappers (qiskit_nature.second_q.mappers)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.QubitMapper.html">QubitMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.ModeBasedMapper.html">ModeBasedMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.BravyiKitaevMapper.html">BravyiKitaevMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.BravyiKitaevSuperFastMapper.html">BravyiKitaevSuperFastMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.JordanWignerMapper.html">JordanWignerMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.ParityMapper.html">ParityMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.TernaryTreeMapper.html">TernaryTreeMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.InterleavedQubitMapper.html">InterleavedQubitMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.BosonicLinearMapper.html">BosonicLinearMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.BosonicLogarithmicMapper.html">BosonicLogarithmicMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.DirectMapper.html">DirectMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.LinearMapper.html">LinearMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.LogarithmicMapper.html">LogarithmicMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.TaperedQubitMapper.html">TaperedQubitMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.MixedMapper.html">MixedMapper</a></li>
 </ul>
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.operators.html">Operators (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.operators</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" role="switch" type="checkbox"/><label for="toctree-checkbox-22"><div class="visually-hidden">Toggle navigation of Operators (qiskit_nature.second_q.operators)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.ElectronicIntegrals.html">ElectronicIntegrals</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.FermionicOp.html">FermionicOp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.MajoranaOp.html">MajoranaOp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.BosonicOp.html">BosonicOp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.SparseLabelOp.html">SparseLabelOp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.SpinOp.html">SpinOp</a></li>
@@ -432,6 +438,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.VibrationalIntegrals.html">VibrationalIntegrals</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.PolynomialTensor.html">PolynomialTensor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.Tensor.html">Tensor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.MixedOp.html">MixedOp</a></li>
 <li class="toctree-l4 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.operators.tensor_ordering.html">Tensor Ordering Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.operators.tensor_ordering</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" role="switch" type="checkbox"/><label for="toctree-checkbox-23"><div class="visually-hidden">Toggle navigation of Tensor Ordering Utilities (qiskit_nature.second_q.operators.tensor_ordering)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.tensor_ordering.to_chemist_ordering.html">to_chemist_ordering</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.tensor_ordering.to_physicist_ordering.html">to_physicist_ordering</a></li>
@@ -584,13 +591,13 @@
         <article role="main">
           <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This page was generated from <a class="reference external" href="https://github.com/qiskit-community/qiskit-nature/blob/stable/0.7/docs/tutorials/03_ground_state_solvers.ipynb">docs/tutorials/03_ground_state_solvers.ipynb</a>.</p>
+<p>This page was generated from <a class="reference external" href="https://github.com/qiskit-community/qiskit-nature/blob/stable/0.8/docs/tutorials/03_ground_state_solvers.ipynb">docs/tutorials/03_ground_state_solvers.ipynb</a>.</p>
 </div>
 <section id="Ground-state-solvers">
-<h1>Ground state solvers<a class="headerlink" href="#Ground-state-solvers" title="Permalink to this heading">#</a></h1>
+<h1>Ground state solvers<a class="headerlink" href="#Ground-state-solvers" title="Link to this heading">¶</a></h1>
 <section id="Introduction">
-<h2>Introduction<a class="headerlink" href="#Introduction" title="Permalink to this heading">#</a></h2>
-<p><img alt="ae0dac62c06c4e25a08daad4ad116c58" class="no-scaled-link" src="../_images/H2_gs.png" style="width: 200px;" /></p>
+<h2>Introduction<a class="headerlink" href="#Introduction" title="Link to this heading">¶</a></h2>
+<p><img alt="960f90f7ba5e4ac9b4acb09da04b4059" class="no-scaled-link" src="../_images/H2_gs.png" style="width: 200px;" /></p>
 <p>In this tutorial we are going to discuss the ground state calculation interface of Qiskit Nature. The goal is to compute the ground state of a molecular Hamiltonian. This Hamiltonian can for example be electronic or vibrational. To know more about the preparation of the Hamiltonian, check out the <a class="reference internal" href="01_electronic_structure.html"><span class="doc">Electronic structure</span></a> and <a class="reference internal" href="02_vibrational_structure.html"><span class="doc">Vibrational structure tutorials</span></a>.</p>
 <blockquote>
 <div><p>It should be said, that in the electronic case, we are actually computing purely the <strong>electronic</strong> part. When using the Qiskit Nature stack as presented in this tutorial, the <em>nuclear repulsion energy</em> will be added automatically, to obtain the <strong>total</strong> ground state energy.</p>
@@ -600,8 +607,8 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_nature.units</span> <span class="kn">import</span> <span class="n">DistanceUnit</span>
-<span class="kn">from</span> <span class="nn">qiskit_nature.second_q.drivers</span> <span class="kn">import</span> <span class="n">PySCFDriver</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.units</span><span class="w"> </span><span class="kn">import</span> <span class="n">DistanceUnit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.second_q.drivers</span><span class="w"> </span><span class="kn">import</span> <span class="n">PySCFDriver</span>
 
 <span class="n">driver</span> <span class="o">=</span> <span class="n">PySCFDriver</span><span class="p">(</span>
     <span class="n">atom</span><span class="o">=</span><span class="s2">&quot;H 0 0 0; H 0 0 0.735&quot;</span><span class="p">,</span>
@@ -620,7 +627,7 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_nature.second_q.mappers</span> <span class="kn">import</span> <span class="n">JordanWignerMapper</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.second_q.mappers</span><span class="w"> </span><span class="kn">import</span> <span class="n">JordanWignerMapper</span>
 
 <span class="n">mapper</span> <span class="o">=</span> <span class="n">JordanWignerMapper</span><span class="p">()</span>
 </pre></div>
@@ -628,30 +635,30 @@
 </div>
 </section>
 <section id="The-Solver">
-<h2>The Solver<a class="headerlink" href="#The-Solver" title="Permalink to this heading">#</a></h2>
+<h2>The Solver<a class="headerlink" href="#The-Solver" title="Link to this heading">¶</a></h2>
 <p>After these steps, we need to define a solver. The solver is the algorithm through which the ground state is computed.</p>
 <p>Let’s first start with a purely classical example: the <code class="docutils literal notranslate"><span class="pre">NumPyMinimumEigensolver</span></code>. This algorithm exactly diagonalizes the Hamiltonian. Although it scales badly, it can be used on small systems to check the results of the quantum algorithms.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_algorithms</span> <span class="kn">import</span> <span class="n">NumPyMinimumEigensolver</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">NumPyMinimumEigensolver</span>
 
 <span class="n">numpy_solver</span> <span class="o">=</span> <span class="n">NumPyMinimumEigensolver</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <p>To find the ground state we could also use the Variational Quantum Eigensolver (VQE) algorithm. The VQE algorithm works by exchanging information between a classical and a quantum computer as depicted in the following figure.</p>
-<p><img alt="49015198767b49d7882ee3cffa90a8a9" class="no-scaled-link" src="../_images/vqe.png" style="width: 600px;" /></p>
+<p><img alt="8e429f9716c74ed5b839a76d23def721" class="no-scaled-link" src="../_images/vqe.png" style="width: 600px;" /></p>
 <p>Let’s initialize a VQE solver.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_algorithms</span> <span class="kn">import</span> <span class="n">VQE</span>
-<span class="kn">from</span> <span class="nn">qiskit_algorithms.optimizers</span> <span class="kn">import</span> <span class="n">SLSQP</span>
-<span class="kn">from</span> <span class="nn">qiskit.primitives</span> <span class="kn">import</span> <span class="n">Estimator</span>
-<span class="kn">from</span> <span class="nn">qiskit_nature.second_q.circuit.library</span> <span class="kn">import</span> <span class="n">HartreeFock</span><span class="p">,</span> <span class="n">UCCSD</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">VQE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_algorithms.optimizers</span><span class="w"> </span><span class="kn">import</span> <span class="n">SLSQP</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.primitives</span><span class="w"> </span><span class="kn">import</span> <span class="n">StatevectorEstimator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.second_q.circuit.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">HartreeFock</span><span class="p">,</span> <span class="n">UCCSD</span>
 
 <span class="n">ansatz</span> <span class="o">=</span> <span class="n">UCCSD</span><span class="p">(</span>
     <span class="n">es_problem</span><span class="o">.</span><span class="n">num_spatial_orbitals</span><span class="p">,</span>
@@ -664,25 +671,25 @@
     <span class="p">),</span>
 <span class="p">)</span>
 
-<span class="n">vqe_solver</span> <span class="o">=</span> <span class="n">VQE</span><span class="p">(</span><span class="n">Estimator</span><span class="p">(),</span> <span class="n">ansatz</span><span class="p">,</span> <span class="n">SLSQP</span><span class="p">())</span>
+<span class="n">vqe_solver</span> <span class="o">=</span> <span class="n">VQE</span><span class="p">(</span><span class="n">StatevectorEstimator</span><span class="p">(),</span> <span class="n">ansatz</span><span class="p">,</span> <span class="n">SLSQP</span><span class="p">())</span>
 <span class="n">vqe_solver</span><span class="o">.</span><span class="n">initial_point</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">*</span> <span class="n">ansatz</span><span class="o">.</span><span class="n">num_parameters</span>
 </pre></div>
 </div>
 </div>
 <p>To define the VQE solver one needs three essential elements:</p>
 <ol class="arabic simple">
-<li><p>An Estimator primitive: these were released as part of Qiskit Terra 0.22. To learn more about primitives, check out <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/primitives">this resource</a>.</p></li>
+<li><p>An Estimator primitive: these were released as part of Qiskit Terra 0.22. To learn more about primitives, check out <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/primitives">this resource</a>.</p></li>
 <li><p>A variational form: here we use the Unitary Coupled Cluster (UCC) ansatz (see for instance [Physical Review A 98.2 (2018): 022322]). Since it is a chemistry standard, a factory is already available allowing a fast initialization of a VQE with UCC. The default is to use all single and double excitations. However, the excitation type (S, D, SD) as well as other parameters can be selected. We also prepend the <code class="docutils literal notranslate"><span class="pre">UCCSD</span></code> variational form with a <code class="docutils literal notranslate"><span class="pre">HartreeFock</span></code> initial state, which initializes the
 occupation of our qubits according to the problem which we are trying solve.</p></li>
 <li><p>An optimizer: this is the classical piece of code in charge of optimizing the parameters in our variational form. See <a class="reference external" href="https://qiskit-community.github.io/qiskit-algorithms/apidocs/qiskit_algorithms.optimizers.html">the corresponding documentation</a> for more information.</p></li>
 </ol>
 <p>One could also use any available ansatz / initial state or even define one’s own. For instance,</p>
-<div class="nbinput nblast docutils container">
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_algorithms</span> <span class="kn">import</span> <span class="n">VQE</span>
-<span class="kn">from</span> <span class="nn">qiskit.circuit.library</span> <span class="kn">import</span> <span class="n">TwoLocal</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">VQE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">TwoLocal</span>
 
 <span class="n">tl_circuit</span> <span class="o">=</span> <span class="n">TwoLocal</span><span class="p">(</span>
     <span class="n">rotation_blocks</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="s2">&quot;rx&quot;</span><span class="p">],</span>
@@ -692,25 +699,40 @@ occupation of our qubits according to the problem which we are trying solve.</p>
     <span class="n">parameter_prefix</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="n">another_solver</span> <span class="o">=</span> <span class="n">VQE</span><span class="p">(</span><span class="n">Estimator</span><span class="p">(),</span> <span class="n">tl_circuit</span><span class="p">,</span> <span class="n">SLSQP</span><span class="p">())</span>
+<span class="n">another_solver</span> <span class="o">=</span> <span class="n">VQE</span><span class="p">(</span><span class="n">StatevectorEstimator</span><span class="p">(),</span> <span class="n">tl_circuit</span><span class="p">,</span> <span class="n">SLSQP</span><span class="p">())</span>
 </pre></div>
 </div>
 </div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_2960/3277410664.py:4: DeprecationWarning: The class ``qiskit.circuit.library.n_local.two_local.TwoLocal`` is deprecated as of Qiskit 2.1. It will be removed in Qiskit 3.0. Use the function qiskit.circuit.library.n_local instead.
+  tl_circuit = TwoLocal(
+</pre></div></div>
+</div>
 </section>
 <section id="The-calculation-and-results">
-<h2>The calculation and results<a class="headerlink" href="#The-calculation-and-results" title="Permalink to this heading">#</a></h2>
+<h2>The calculation and results<a class="headerlink" href="#The-calculation-and-results" title="Link to this heading">¶</a></h2>
 <p>We are now ready to put everything together to compute the ground-state of our problem. Doing so requires us to wrap our <code class="docutils literal notranslate"><span class="pre">mapper</span></code> and quantum algorithm into a single <code class="docutils literal notranslate"><span class="pre">GroundStateEigensolver</span></code> like so:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_nature.second_q.algorithms</span> <span class="kn">import</span> <span class="n">GroundStateEigensolver</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.second_q.algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">GroundStateEigensolver</span>
 
 <span class="n">calc</span> <span class="o">=</span> <span class="n">GroundStateEigensolver</span><span class="p">(</span><span class="n">mapper</span><span class="p">,</span> <span class="n">vqe_solver</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<p>This will now take of the entire workflow: 1. generating the second-quantized operators stored in our problem (here referred to as <code class="docutils literal notranslate"><span class="pre">es_problem</span></code>) 2. mapping (and potentially reducing) the operators in the qubit space 3. running the quantum algorithm on the Hamiltonian qubit operator 4. once converged, evaluating the additional observables at the determined ground state</p>
+<p>This will now take of the entire workflow:</p>
+<ol class="arabic simple">
+<li><p>generating the second-quantized operators stored in our problem (here referred to as <code class="docutils literal notranslate"><span class="pre">es_problem</span></code>)</p></li>
+<li><p>mapping (and potentially reducing) the operators in the qubit space</p></li>
+<li><p>running the quantum algorithm on the Hamiltonian qubit operator</p></li>
+<li><p>once converged, evaluating the additional observables at the determined ground state</p></li>
+</ol>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
@@ -720,6 +742,17 @@ occupation of our qubits according to the problem which we are trying solve.</p>
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/opt/hostedtoolcache/Python/3.10.20/x64/lib/python3.10/site-packages/scipy/sparse/linalg/_dsolve/linsolve.py:597: SparseEfficiencyWarning: splu converted its input to CSC format
+  return splu(A).solve
+/opt/hostedtoolcache/Python/3.10.20/x64/lib/python3.10/site-packages/scipy/sparse/linalg/_matfuncs.py:707: SparseEfficiencyWarning: spsolve is more efficient when sparse b is in the CSC matrix format
+  return spsolve(Q, P)
+</pre></div></div>
+</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
@@ -727,24 +760,24 @@ occupation of our qubits according to the problem which we are trying solve.</p>
 <div class="highlight"><pre>
 === GROUND STATE ENERGY ===
 
-* Electronic ground state energy (Hartree): -1.857275030146
-  - computed part:      -1.857275030146
+* Electronic ground state energy (Hartree): -1.857275030145
+  - computed part:      -1.857275030145
 ~ Nuclear repulsion energy (Hartree): 0.719968994449
-&gt; Total ground state energy (Hartree): -1.137306035697
+&gt; Total ground state energy (Hartree): -1.137306035696
 
 === MEASURED OBSERVABLES ===
 
-  0:  # Particles: 2.000 S: 0.000 S^2: 0.000 M: 0.000
+  0:  # Particles: 2.000 S: 0.000 S^2: -0.000 M: 0.000
 
 === DIPOLE MOMENTS ===
 
 ~ Nuclear dipole moment (a.u.): [0.0  0.0  1.3889487]
 
   0:
-  * Electronic dipole moment (a.u.): [0.0  0.0  1.38894868734]
-    - computed part:      [0.0  0.0  1.38894868734]
-  &gt; Dipole moment (a.u.): [0.0  0.0  0.00000001266]  Total: 0.00000001266
-                 (debye): [0.0  0.0  0.000000032179]  Total: 0.000000032179
+  * Electronic dipole moment (a.u.): [0.0  0.0  1.388948750033]
+    - computed part:      [0.0  0.0  1.388948750033]
+  &gt; Dipole moment (a.u.): [0.0  0.0  -0.000000050033]  Total: 0.000000050033
+                 (debye): [0.0  0.0  -0.000000127171]  Total: 0.000000127171
 
 </pre></div></div>
 </div>
@@ -789,17 +822,17 @@ occupation of our qubits according to the problem which we are trying solve.</p>
 </div>
 </section>
 <section id="Using-a-filter-function">
-<h2>Using a filter function<a class="headerlink" href="#Using-a-filter-function" title="Permalink to this heading">#</a></h2>
+<h2>Using a filter function<a class="headerlink" href="#Using-a-filter-function" title="Link to this heading">¶</a></h2>
 <p>Sometimes the true ground state of the Hamiltonian is not of interest because it lies in a different symmetry sector of the Hilbert space. In this case the <code class="docutils literal notranslate"><span class="pre">NumPyEigensolver</span></code> can take a filter function to return only the eigenstates with for example the correct number of particles. This is of particular importance in the case of vibrational structure calculations where the true ground state of the Hamiltonian is the vacuum state. A default filter function to check the number of particles is
 implemented in the different problems and can be used as follows:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_algorithms</span> <span class="kn">import</span> <span class="n">NumPyMinimumEigensolver</span>
-<span class="kn">from</span> <span class="nn">qiskit_nature.second_q.drivers</span> <span class="kn">import</span> <span class="n">GaussianForcesDriver</span>
-<span class="kn">from</span> <span class="nn">qiskit_nature.second_q.mappers</span> <span class="kn">import</span> <span class="n">DirectMapper</span>
-<span class="kn">from</span> <span class="nn">qiskit_nature.second_q.problems</span> <span class="kn">import</span> <span class="n">HarmonicBasis</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">NumPyMinimumEigensolver</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.second_q.drivers</span><span class="w"> </span><span class="kn">import</span> <span class="n">GaussianForcesDriver</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.second_q.mappers</span><span class="w"> </span><span class="kn">import</span> <span class="n">DirectMapper</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.second_q.problems</span><span class="w"> </span><span class="kn">import</span> <span class="n">HarmonicBasis</span>
 
 <span class="n">driver</span> <span class="o">=</span> <span class="n">GaussianForcesDriver</span><span class="p">(</span><span class="n">logfile</span><span class="o">=</span><span class="s2">&quot;aux_files/CO2_freq_B3LYP_631g.log&quot;</span><span class="p">)</span>
 <span class="n">basis</span> <span class="o">=</span> <span class="n">HarmonicBasis</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
@@ -832,7 +865,7 @@ implemented in the different problems and can be used as follows:</p>
 <div class="highlight"><pre>
 === GROUND STATE ===
 
-* Vibrational ground state energy (cm^-1): -4e-12
+* Vibrational ground state energy (cm^-1): (-4e-12-0j)
 The number of occupied modals for each mode is:
 - Mode 0: 0.0
 - Mode 1: 0.0
@@ -855,7 +888,7 @@ The number of occupied modals for each mode is:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">tutorial_magics</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tutorial_magics</span>
 
 <span class="o">%</span><span class="k">qiskit_version_table</span>
 <span class="o">%</span><span class="k">qiskit_copyright</span>
@@ -866,13 +899,13 @@ The number of occupied modals for each mode is:
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<h3>Version Information</h3><table><tr><th>Software</th><th>Version</th></tr><tr><td><code>qiskit</code></td><td>1.0.1</td></tr><tr><td><code>qiskit_algorithms</code></td><td>0.3.0</td></tr><tr><td><code>qiskit_nature</code></td><td>0.7.2</td></tr><tr><th colspan='2'>System information</th></tr><tr><td>Python version</td><td>3.8.18</td></tr><tr><td>OS</td><td>Linux</td></tr><tr><td colspan='2'>Fri Feb 23 10:25:11 2024 UTC</td></tr></table></div>
+<h3>Version Information</h3><table><tr><th>Software</th><th>Version</th></tr><tr><td><code>qiskit</code></td><td>2.4.1</td></tr><tr><td><code>qiskit_algorithms</code></td><td>0.4.0</td></tr><tr><td><code>qiskit_nature</code></td><td>0.8.0</td></tr><tr><th colspan='2'>System information</th></tr><tr><td>Python version</td><td>3.10.20</td></tr><tr><td>OS</td><td>Linux</td></tr><tr><td colspan='2'>Mon Jun 01 14:49:24 2026 UTC</td></tr></table></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<div style='width: 100%; background-color:#d5d9e0;padding-left: 10px; padding-bottom: 10px; padding-right: 10px; padding-top: 5px'><h3>This code is a part of a Qiskit project</h3><p>&copy; Copyright IBM 2017, 2024.</p><p>This code is licensed under the Apache License, Version 2.0. You may<br>obtain a copy of this license in the LICENSE.txt file in the root directory<br> of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.<p>Any modifications or derivative works of this code must retain this<br>copyright notice, and modified files need to carry a notice indicating<br>that they have been altered from the originals.</p></div></div>
+<div style='width: 100%; background-color:#d5d9e0;padding-left: 10px; padding-bottom: 10px; padding-right: 10px; padding-top: 5px'><h3>This code is a part of a Qiskit project</h3><p>&copy; Copyright IBM 2017, 2026.</p><p>This code is licensed under the Apache License, Version 2.0. You may<br>obtain a copy of this license in the LICENSE.txt file in the root directory<br> of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.<p>Any modifications or derivative works of this code must retain this<br>copyright notice, and modified files need to carry a notice indicating<br>that they have been altered from the originals.</p></div></div>
 </div>
 </section>
 </section>
@@ -918,7 +951,7 @@ The number of occupied modals for each mode is:
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2018, 2024, Qiskit Nature Development Team
+                Copyright &#169; 2018, 2026, Qiskit Nature Development Team
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
@@ -962,11 +995,11 @@ The number of occupied modals for each mode is:
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=4f87218b"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/documentation_options.js?v=486e5634"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/qiskit-sphinx-theme.js?v=4d77b8ca"></script>
-    <script src="../_static/design-tabs.js?v=36754332"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>

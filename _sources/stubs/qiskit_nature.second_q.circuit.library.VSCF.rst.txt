@@ -17,6 +17,7 @@ VSCF
    
    .. autoattribute:: VSCF.num_modals
    .. autoattribute:: VSCF.qubit_mapper
+   .. autoattribute:: VSCF.name
    
    
 

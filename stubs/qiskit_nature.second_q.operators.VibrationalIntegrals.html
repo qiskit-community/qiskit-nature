@@ -5,15 +5,15 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="PolynomialTensor" href="qiskit_nature.second_q.operators.PolynomialTensor.html" /><link rel="prev" title="VibrationalOp" href="qiskit_nature.second_q.operators.VibrationalOp.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>VibrationalIntegrals - Qiskit Nature 0.7.2</title>
+    <!-- Generated with Sphinx 7.4.7 and Furo 2024.01.29 -->
+        <title>VibrationalIntegrals - Qiskit Nature 0.8.0</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-ecosystem.css?v=745c5aa7" />
     <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     
     
@@ -202,7 +202,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Nature 0.7.2</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Nature 0.8.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -229,7 +229,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Nature 0.7.2</span>
+  <span class="sidebar-brand-text">Qiskit Nature 0.8.0</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -240,6 +240,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../migration/index.html">Migration Guides</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Migration Guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../migration/0.8_a_qiskit1.html">Qiskit Nature v0.8 Migration Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../migration/0.6_a_intro.html">Qiskit Nature v0.6 Migration Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../migration/0.6_b_mes_factory.html">The (Minimum)EigensolverFactory Migration Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../migration/0.6_c_qubit_converter.html">The QubitConverter Migration Guide</a></li>
@@ -409,21 +410,26 @@
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.mappers.html">Mappers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.mappers</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" role="switch" type="checkbox"/><label for="toctree-checkbox-21"><div class="visually-hidden">Toggle navigation of Mappers (qiskit_nature.second_q.mappers)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.QubitMapper.html">QubitMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.ModeBasedMapper.html">ModeBasedMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.BravyiKitaevMapper.html">BravyiKitaevMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.BravyiKitaevSuperFastMapper.html">BravyiKitaevSuperFastMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.JordanWignerMapper.html">JordanWignerMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.ParityMapper.html">ParityMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.TernaryTreeMapper.html">TernaryTreeMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.InterleavedQubitMapper.html">InterleavedQubitMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.BosonicLinearMapper.html">BosonicLinearMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.BosonicLogarithmicMapper.html">BosonicLogarithmicMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.DirectMapper.html">DirectMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.LinearMapper.html">LinearMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.LogarithmicMapper.html">LogarithmicMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.TaperedQubitMapper.html">TaperedQubitMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.mappers.MixedMapper.html">MixedMapper</a></li>
 </ul>
 </li>
 <li class="toctree-l3 current has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.operators.html">Operators (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.operators</span></code>)</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" role="switch" type="checkbox"/><label for="toctree-checkbox-22"><div class="visually-hidden">Toggle navigation of Operators (qiskit_nature.second_q.operators)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.operators.ElectronicIntegrals.html">ElectronicIntegrals</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.operators.FermionicOp.html">FermionicOp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.operators.MajoranaOp.html">MajoranaOp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.operators.BosonicOp.html">BosonicOp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.operators.SparseLabelOp.html">SparseLabelOp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.operators.SpinOp.html">SpinOp</a></li>
@@ -431,6 +437,7 @@
 <li class="toctree-l4 current current-page"><a class="current reference internal" href="#">VibrationalIntegrals</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.operators.PolynomialTensor.html">PolynomialTensor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.operators.Tensor.html">Tensor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qiskit_nature.second_q.operators.MixedOp.html">MixedOp</a></li>
 <li class="toctree-l4 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.operators.tensor_ordering.html">Tensor Ordering Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.operators.tensor_ordering</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" role="switch" type="checkbox"/><label for="toctree-checkbox-23"><div class="visually-hidden">Toggle navigation of Tensor Ordering Utilities (qiskit_nature.second_q.operators.tensor_ordering)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l5"><a class="reference internal" href="qiskit_nature.second_q.operators.tensor_ordering.to_chemist_ordering.html">to_chemist_ordering</a></li>
 <li class="toctree-l5"><a class="reference internal" href="qiskit_nature.second_q.operators.tensor_ordering.to_physicist_ordering.html">to_physicist_ordering</a></li>
@@ -582,10 +589,10 @@
         </div>
         <article role="main">
           <br><br><br><section id="vibrationalintegrals">
-<h1>VibrationalIntegrals<a class="headerlink" href="#vibrationalintegrals" title="Permalink to this heading">#</a></h1>
+<h1>VibrationalIntegrals<a class="headerlink" href="#vibrationalintegrals" title="Link to this heading">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.operators.VibrationalIntegrals">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">VibrationalIntegrals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_nature/second_q/operators/vibrational_integrals.html#VibrationalIntegrals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">VibrationalIntegrals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_nature/second_q/operators/vibrational_integrals.html#VibrationalIntegrals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor" title="qiskit_nature.second_q.operators.polynomial_tensor.PolynomialTensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">PolynomialTensor</span></code></a></p>
 <p>A container class for vibrational operator coefficients (a.k.a. vibrational integrals).</p>
 <p>This class simply derives the <a class="reference internal" href="qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor" title="qiskit_nature.second_q.operators.PolynomialTensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit_nature.second_q.operators.PolynomialTensor</span></code></a>
@@ -595,45 +602,45 @@ that class.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>Mapping</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>, </em><em>np.ndarray</em><em> | </em><em>SparseArray</em><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.12)"><em>complex</em></a><em> | </em><a class="reference internal" href="qiskit_nature.second_q.operators.Tensor.html#qiskit_nature.second_q.operators.Tensor" title="qiskit_nature.second_q.operators.Tensor"><em>Tensor</em></a><em>]</em>) – mapping of string-based operator keys to coefficient tensor values. If the values
+<li><p><strong>data</strong> (<em>Mapping</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>np.ndarray</em><em> | </em><em>SparseArray</em><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.14)"><em>complex</em></a><em> | </em><a class="reference internal" href="qiskit_nature.second_q.operators.Tensor.html#qiskit_nature.second_q.operators.Tensor" title="qiskit_nature.second_q.operators.Tensor"><em>Tensor</em></a><em>]</em>) – mapping of string-based operator keys to coefficient tensor values. If the values
 are not already of type <a class="reference internal" href="qiskit_nature.second_q.operators.Tensor.html#qiskit_nature.second_q.operators.Tensor" title="qiskit_nature.second_q.operators.Tensor"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>, they will
 automatically be wrapped into one.</p></li>
-<li><p><strong>validate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – when set to False the <code class="docutils literal notranslate"><span class="pre">data</span></code> will not be validated. Disable this setting
+<li><p><strong>validate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – when set to False the <code class="docutils literal notranslate"><span class="pre">data</span></code> will not be validated. Disable this setting
 with care!</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.12)"><strong>ValueError</strong></a> – when length of operator key does not match dimensions of value matrix.</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.12)"><strong>ValueError</strong></a> – when value matrix does not have consistent dimensions.</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.12)"><strong>ValueError</strong></a> – when some or all value matrices in <code class="docutils literal notranslate"><span class="pre">data</span></code> have different dimensions.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – when length of operator key does not match dimensions of value matrix.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – when value matrix does not have consistent dimensions.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – when some or all value matrices in <code class="docutils literal notranslate"><span class="pre">data</span></code> have different dimensions.</p></li>
 </ul>
 </dd>
 </dl>
 <p class="rubric">Attributes</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.operators.VibrationalIntegrals.atol">
-<span class="sig-name descname"><span class="pre">atol</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1e-08</span></em><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.atol" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">atol</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1e-08</span></em><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.atol" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.operators.VibrationalIntegrals.register_length">
-<span class="sig-name descname"><span class="pre">register_length</span></span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.register_length" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">register_length</span></span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.register_length" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.operators.VibrationalIntegrals.rtol">
-<span class="sig-name descname"><span class="pre">rtol</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1e-05</span></em><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.rtol" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">rtol</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1e-05</span></em><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.rtol" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <p class="rubric">Methods</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.operators.VibrationalIntegrals.apply">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">apply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">operands</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.apply" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">apply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">operands</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.apply" title="Link to this definition">¶</a></dt>
 <dd><p>Applies the provided function to the common set of keys of the provided tensors.</p>
 <p>The usage of this method is best explained by some examples:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">qiskit_nature.second_q.opertors</span> <span class="kn">import</span> <span class="n">PolynomialTensor</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.second_q.opertors</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolynomialTensor</span>
 <span class="n">rand_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
 <span class="n">rand_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
 <span class="n">a</span> <span class="o">=</span> <span class="n">PolynomialTensor</span><span class="p">({</span><span class="s2">&quot;+-&quot;</span><span class="p">:</span> <span class="n">rand_a</span><span class="p">})</span>
@@ -671,14 +678,14 @@ generated.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>function</strong> (<em>Callable</em><em>[</em><em>...</em><em>, </em><em>np.ndarray</em><em> | </em><em>SparseArray</em><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.12)"><em>complex</em></a><em>]</em>) – the function to apply to the internal arrays of the provided operands. This
+<li><p><strong>function</strong> (<a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><em>Callable</em></a><em>[</em><em>[</em><em>...</em><em>]</em><em>, </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>ndarray</em></a><em> | </em><a class="reference external" href="https://sparse.pydata.org/en/stable/api/SparseArray/#sparse.SparseArray" title="(in sparse v0.0.0)"><em>SparseArray</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.14)"><em>complex</em></a><em>]</em>) – the function to apply to the internal arrays of the provided operands. This
 function must take numpy (or sparse) arrays as its positional arguments. The number
 of arguments must match the number of provided operands.</p></li>
-<li><p><strong>operands</strong> (<a class="reference internal" href="qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor" title="qiskit_nature.second_q.operators.PolynomialTensor"><em>PolynomialTensor</em></a>) – a sequence of <code class="docutils literal notranslate"><span class="pre">PolynomialTensor</span></code> instances on which to operate.</p></li>
-<li><p><strong>multi</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – when set to True this indicates that the provided numpy function will return
+<li><p><strong>operands</strong> (<a class="reference internal" href="qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor" title="qiskit_nature.second_q.operators.polynomial_tensor.PolynomialTensor"><em>PolynomialTensor</em></a>) – a sequence of <code class="docutils literal notranslate"><span class="pre">PolynomialTensor</span></code> instances on which to operate.</p></li>
+<li><p><strong>multi</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – when set to True this indicates that the provided numpy function will return
 multiple new numpy arrays which will each be wrapped into a <code class="docutils literal notranslate"><span class="pre">PolynomialTensor</span></code>
 instance separately.</p></li>
-<li><p><strong>validate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – when set to False the <code class="docutils literal notranslate"><span class="pre">data</span></code> will not be validated. Disable this setting
+<li><p><strong>validate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – when set to False the <code class="docutils literal notranslate"><span class="pre">data</span></code> will not be validated. Disable this setting
 with care!</p></li>
 </ul>
 </dd>
@@ -686,26 +693,26 @@ with care!</p></li>
 <dd class="field-even"><p>A new <code class="docutils literal notranslate"><span class="pre">PolynomialTensor</span></code> instance with the resulting arrays.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor" title="qiskit_nature.second_q.operators.PolynomialTensor">PolynomialTensor</a> | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)">list</a>[<a class="reference internal" href="qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor" title="qiskit_nature.second_q.operators.PolynomialTensor">PolynomialTensor</a>]</p>
+<dd class="field-odd"><p><a class="reference internal" href="qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor" title="qiskit_nature.second_q.operators.polynomial_tensor.PolynomialTensor"><em>PolynomialTensor</em></a> | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference internal" href="qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor" title="qiskit_nature.second_q.operators.polynomial_tensor.PolynomialTensor"><em>PolynomialTensor</em></a>]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.operators.VibrationalIntegrals.compose">
-<span class="sig-name descname"><span class="pre">compose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">front</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.compose" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">compose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">front</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.compose" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the matrix multiplication with another <code class="docutils literal notranslate"><span class="pre">PolynomialTensor</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>other</strong> (<a class="reference internal" href="qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor" title="qiskit_nature.second_q.operators.polynomial_tensor.PolynomialTensor"><em>PolynomialTensor</em></a>) – the other PolynomialTensor.</p></li>
 <li><p><strong>qargs</strong> (<em>None</em>) – UNUSED.</p></li>
-<li><p><strong>front</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, composition uses right matrix multiplication, otherwise left
+<li><p><strong>front</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, composition uses right matrix multiplication, otherwise left
 multiplication is used (the default).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.12)"><strong>NotImplementedError</strong></a> – when the two tensors do not have the same <a class="reference internal" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.register_length" title="qiskit_nature.second_q.operators.VibrationalIntegrals.register_length"><code class="xref py py-attr docutils literal notranslate"><span class="pre">register_length</span></code></a>.</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.14)"><strong>NotImplementedError</strong></a> – when the two tensors do not have the same <a class="reference internal" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.register_length" title="qiskit_nature.second_q.operators.VibrationalIntegrals.register_length"><code class="xref py py-attr docutils literal notranslate"><span class="pre">register_length</span></code></a>.</p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The tensor resulting from the composition.</p>
@@ -728,13 +735,13 @@ multiplication which is equivalent to the <a class="reference internal" href="#q
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.operators.VibrationalIntegrals.dot">
-<span class="sig-name descname"><span class="pre">dot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.dot" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">dot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.dot" title="Link to this definition">¶</a></dt>
 <dd><p>Return the right multiplied operator self * other.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>other</strong> (<em>Operator</em>) – an operator object.</p></li>
-<li><p><strong>qargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><em>list</em></a><em> or </em><em>None</em>) – Optional, a list of subsystem positions to
+<li><p><strong>qargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em> or </em><em>None</em>) – a list of subsystem positions to
 apply other on. If None apply on all
 subsystems (default: None).</p></li>
 </ul>
@@ -755,7 +762,7 @@ Hence <code class="docutils literal notranslate"><span class="pre">a.dot(b)</spa
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.operators.VibrationalIntegrals.einsum">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">einsum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">einsum_map</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">operands</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.einsum" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">einsum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">einsum_map</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">operands</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.einsum" title="Link to this definition">¶</a></dt>
 <dd><p>Applies the various Einsum convention operations to the provided tensors.</p>
 <p>This method wraps the <code class="xref py py-meth docutils literal notranslate"><span class="pre">numpy.einsum()</span></code> function, allowing very complex operations to be
 applied efficiently to the matrices stored inside the provided <code class="docutils literal notranslate"><span class="pre">PolynomialTensor</span></code>
@@ -798,7 +805,7 @@ operands.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><a class="reference external" href="https://sparse.pydata.org/en/stable/generated/sparse.SparseArray.html#sparse.SparseArray" title="(in sparse v0.1.dev66+g51e6133)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sparse.SparseArray</span></code></a> supports <code class="docutils literal notranslate"><span class="pre">opt_einsum.contract`</span> <span class="pre">if</span> <span class="pre">``opt_einsum</span></code> is installed.
+<p><a class="reference external" href="https://sparse.pydata.org/en/stable/api/SparseArray/#sparse.SparseArray" title="(in sparse v0.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sparse.SparseArray</span></code></a> supports <code class="docutils literal notranslate"><span class="pre">opt_einsum.contract`</span> <span class="pre">if</span> <span class="pre">``opt_einsum</span></code> is installed.
 It does not support <code class="docutils literal notranslate"><span class="pre">numpy.einsum</span></code>. In this case, the resultant
 <code class="docutils literal notranslate"><span class="pre">PolynomialTensor</span></code> will contain all dense numpy arrays. If a user would like to work
 with a sparse array instead, they should install <code class="docutils literal notranslate"><span class="pre">opt_einsum</span></code> or
@@ -807,12 +814,12 @@ they should convert it explicitly using the <a class="reference internal" href="
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>einsum_map</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.12)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>, </em><em>...</em><em>]</em><em>]</em>) – a dictionary, mapping from <code class="xref py py-meth docutils literal notranslate"><span class="pre">numpy.einsum()</span></code> subscripts to a tuple of
+<li><p><strong>einsum_map</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>...</em><em>]</em><em>]</em>) – a dictionary, mapping from <code class="xref py py-meth docutils literal notranslate"><span class="pre">numpy.einsum()</span></code> subscripts to a tuple of
 strings. These strings correspond to the keys of matrices to be extracted from the
 provided <code class="docutils literal notranslate"><span class="pre">PolynomialTensor</span></code> operands. The last string in this tuple indicates the
 key under which to store the result in the returned <code class="docutils literal notranslate"><span class="pre">PolynomialTensor</span></code>.</p></li>
-<li><p><strong>operands</strong> (<a class="reference internal" href="qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor" title="qiskit_nature.second_q.operators.PolynomialTensor"><em>PolynomialTensor</em></a>) – a sequence of <code class="docutils literal notranslate"><span class="pre">PolynomialTensor</span></code> instances on which to operate.</p></li>
-<li><p><strong>validate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – when set to False the <code class="docutils literal notranslate"><span class="pre">data</span></code> will not be validated. Disable this setting
+<li><p><strong>operands</strong> (<a class="reference internal" href="qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor" title="qiskit_nature.second_q.operators.polynomial_tensor.PolynomialTensor"><em>PolynomialTensor</em></a>) – a sequence of <code class="docutils literal notranslate"><span class="pre">PolynomialTensor</span></code> instances on which to operate.</p></li>
+<li><p><strong>validate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – when set to False the <code class="docutils literal notranslate"><span class="pre">data</span></code> will not be validated. Disable this setting
 with care!</p></li>
 </ul>
 </dd>
@@ -820,14 +827,14 @@ with care!</p></li>
 <dd class="field-even"><p>A new <code class="docutils literal notranslate"><span class="pre">PolynomialTensor</span></code>.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor" title="qiskit_nature.second_q.operators.PolynomialTensor">PolynomialTensor</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor" title="qiskit_nature.second_q.operators.polynomial_tensor.PolynomialTensor"><em>PolynomialTensor</em></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.operators.VibrationalIntegrals.empty">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">empty</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.empty" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">empty</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.empty" title="Link to this definition">¶</a></dt>
 <dd><p>Constructs an empty tensor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -841,7 +848,7 @@ with care!</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.operators.VibrationalIntegrals.equiv">
-<span class="sig-name descname"><span class="pre">equiv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.equiv" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">equiv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.equiv" title="Link to this definition">¶</a></dt>
 <dd><p>Check equivalence of <code class="docutils literal notranslate"><span class="pre">PolynomialTensor</span></code> instances.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -852,27 +859,27 @@ elements match.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>other</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><em>object</em></a>) – the second <code class="docutils literal notranslate"><span class="pre">PolynomialTensor</span></code> object to be compared with the first.</p>
+<dd class="field-odd"><p><strong>other</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><em>object</em></a>) – the second <code class="docutils literal notranslate"><span class="pre">PolynomialTensor</span></code> object to be compared with the first.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>True when the <code class="docutils literal notranslate"><span class="pre">PolynomialTensor</span></code> objects are equivalent, False when not.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)">bool</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.operators.VibrationalIntegrals.expand">
-<span class="sig-name descname"><span class="pre">expand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.expand" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">expand</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.expand" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the reverse-order tensor product with another <code class="docutils literal notranslate"><span class="pre">PolynomialTensor</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>other</strong> (<a class="reference internal" href="qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor" title="qiskit_nature.second_q.operators.polynomial_tensor.PolynomialTensor"><em>PolynomialTensor</em></a>) – the other PolynomialTensor.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.12)"><strong>NotImplementedError</strong></a> – when the two tensors do not have the same <a class="reference internal" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.register_length" title="qiskit_nature.second_q.operators.VibrationalIntegrals.register_length"><code class="xref py py-attr docutils literal notranslate"><span class="pre">register_length</span></code></a>.</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.14)"><strong>NotImplementedError</strong></a> – when the two tensors do not have the same <a class="reference internal" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.register_length" title="qiskit_nature.second_q.operators.VibrationalIntegrals.register_length"><code class="xref py py-attr docutils literal notranslate"><span class="pre">register_length</span></code></a>.</p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The tensor resulting from the tensor product, <span class="math notranslate nohighlight">\(other \otimes self\)</span>.</p>
@@ -890,13 +897,13 @@ For two tensors of the same type <code class="docutils literal notranslate"><spa
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.operators.VibrationalIntegrals.from_raw_integrals">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_raw_integrals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">integrals</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_nature/second_q/operators/vibrational_integrals.html#VibrationalIntegrals.from_raw_integrals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.from_raw_integrals" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_raw_integrals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">integrals</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/qiskit_nature/second_q/operators/vibrational_integrals.html#VibrationalIntegrals.from_raw_integrals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.from_raw_integrals" title="Link to this definition">¶</a></dt>
 <dd><p>Constructs a <code class="docutils literal notranslate"><span class="pre">VibrationalIntegrals</span></code> instance from the provided coefficients.</p>
 <p>The provided coefficients must already be mapped to a second-quantization basis. See the
 documentation of <a class="reference internal" href="qiskit_nature.second_q.problems.VibrationalBasis.html#qiskit_nature.second_q.problems.VibrationalBasis" title="qiskit_nature.second_q.problems.VibrationalBasis"><code class="xref py py-class docutils literal notranslate"><span class="pre">qiskit_nature.second_q.problems.VibrationalBasis</span></code></a> for more details.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>integrals</strong> (<em>Mapping</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.12)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em>, </em><em>...</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.12)"><em>complex</em></a><em>]</em>) – a mapping of matrix index tuples to coefficients. This is effectively a
+<dd class="field-odd"><p><strong>integrals</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Mapping" title="(in Python v3.14)"><em>Mapping</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>...</em><em>]</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.14)"><em>complex</em></a><em>]</em>) – a mapping of matrix index tuples to coefficients. This is effectively a
 sparse representation of the coefficients. Each key in the mapping should be a tuple
 of integers of the form <code class="docutils literal notranslate"><span class="pre">(mode,</span> <span class="pre">modal_1,</span> <span class="pre">modal_2,</span> <span class="pre">...)</span></code>. That means that each key
 is expected to have its length be a multiple of three. See also the documentation of
@@ -906,66 +913,66 @@ is expected to have its length be a multiple of three. See also the documentatio
 <dd class="field-even"><p>The constructed instance.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#qiskit_nature.second_q.operators.VibrationalIntegrals" title="qiskit_nature.second_q.operators.VibrationalIntegrals">VibrationalIntegrals</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#qiskit_nature.second_q.operators.VibrationalIntegrals" title="qiskit_nature.second_q.operators.vibrational_integrals.VibrationalIntegrals"><em>VibrationalIntegrals</em></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.operators.VibrationalIntegrals.get">
-<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="optional">[</span>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="optional">]</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">D[k]</span> <span class="pre">if</span> <span class="pre">k</span> <span class="pre">in</span> <span class="pre">D,</span> <span class="pre">else</span> <span class="pre">d.</span>&#160; <span class="pre">d</span> <span class="pre">defaults</span> <span class="pre">to</span> <span class="pre">None.</span></span></span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.get" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="optional">[</span>, <em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="optional">]</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">D[k]</span> <span class="pre">if</span> <span class="pre">k</span> <span class="pre">in</span> <span class="pre">D,</span> <span class="pre">else</span> <span class="pre">d.</span>&#160; <span class="pre">d</span> <span class="pre">defaults</span> <span class="pre">to</span> <span class="pre">None.</span></span></span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.get" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.operators.VibrationalIntegrals.is_dense">
-<span class="sig-name descname"><span class="pre">is_dense</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.is_dense" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">is_dense</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.is_dense" title="Link to this definition">¶</a></dt>
 <dd><p>Returns whether all matrices in this tensor are dense.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)">bool</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.operators.VibrationalIntegrals.is_empty">
-<span class="sig-name descname"><span class="pre">is_empty</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.is_empty" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">is_empty</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.is_empty" title="Link to this definition">¶</a></dt>
 <dd><p>Returns whether this tensor is empty or not.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)">bool</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.operators.VibrationalIntegrals.is_sparse">
-<span class="sig-name descname"><span class="pre">is_sparse</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.is_sparse" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">is_sparse</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.is_sparse" title="Link to this definition">¶</a></dt>
 <dd><p>Returns whether all matrices in this tensor are sparse.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)">bool</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.operators.VibrationalIntegrals.items">
-<span class="sig-name descname"><span class="pre">items</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">a</span> <span class="pre">set-like</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D's</span> <span class="pre">items</span></span></span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.items" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">items</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">a</span> <span class="pre">set-like</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D's</span> <span class="pre">items</span></span></span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.items" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.operators.VibrationalIntegrals.keys">
-<span class="sig-name descname"><span class="pre">keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">a</span> <span class="pre">set-like</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D's</span> <span class="pre">keys</span></span></span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.keys" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">a</span> <span class="pre">set-like</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D's</span> <span class="pre">keys</span></span></span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.keys" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.operators.VibrationalIntegrals.power">
-<span class="sig-name descname"><span class="pre">power</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.power" title="Permalink to this definition">#</a></dt>
-<dd><p>Return the compose of a operator with itself n times.</p>
+<span class="sig-name descname"><span class="pre">power</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.power" title="Link to this definition">¶</a></dt>
+<dd><p>Return the composition of an operator with itself n times.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – the number of times to compose with self (n&gt;0).</p>
+<dd class="field-odd"><p><strong>n</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a>) – the number of times to compose with self (n&gt;0).</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>the n-times composed operator.</p>
@@ -982,11 +989,11 @@ is expected to have its length be a multiple of three. See also the documentatio
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.operators.VibrationalIntegrals.split">
-<span class="sig-name descname"><span class="pre">split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices_or_sections</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.split" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices_or_sections</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.split" title="Link to this definition">¶</a></dt>
 <dd><p>Splits the acted on tensor instance using the given numpy splitting function.</p>
 <p>The usage of this method is best explained by some examples:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">qiskit_nature.second_q.opertors</span> <span class="kn">import</span> <span class="n">PolynomialTensor</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.second_q.opertors</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolynomialTensor</span>
 <span class="n">rand_ab</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
 <span class="n">ab</span> <span class="o">=</span> <span class="n">PolynomialTensor</span><span class="p">({</span><span class="s2">&quot;+-&quot;</span><span class="p">:</span> <span class="n">rand_ab</span><span class="p">})</span>
 
@@ -1011,13 +1018,13 @@ this check themselves, to ensure they know what they are doing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>function</strong> (<em>Callable</em><em>[</em><em>...</em><em>, </em><em>np.ndarray</em><em> | </em><em>SparseArray</em><em> | </em><em>Number</em><em>]</em>) – the splitting function to use. This function must take a single numpy (or
+<li><p><strong>function</strong> (<a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><em>Callable</em></a><em>[</em><em>[</em><em>...</em><em>]</em><em>, </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>ndarray</em></a><em> | </em><a class="reference external" href="https://sparse.pydata.org/en/stable/api/SparseArray/#sparse.SparseArray" title="(in sparse v0.0.0)"><em>SparseArray</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/numbers.html#numbers.Number" title="(in Python v3.14)"><em>Number</em></a><em>]</em>) – the splitting function to use. This function must take a single numpy (or
 sparse) array as its first input followed by a sequence of indices to split on.
 You should use <code class="code docutils literal notranslate"><span class="pre">functools.partial</span></code> if you need to provide keyword arguments
 (e.g. <code class="code docutils literal notranslate"><span class="pre">partial(np.split,</span> <span class="pre">axis=-1)</span></code>). Common methods to use here are
-<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.hsplit.html#numpy.hsplit" title="(in NumPy v1.26)"><code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.hsplit()</span></code></a> and <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.vsplit.html#numpy.vsplit" title="(in NumPy v1.26)"><code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.vsplit()</span></code></a>.</p></li>
-<li><p><strong>indices_or_sections</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em> | </em><em>Sequence</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em>]</em>) – a single index or sequence of indices to split on.</p></li>
-<li><p><strong>validate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – when set to False the <code class="docutils literal notranslate"><span class="pre">data</span></code> will not be validated. Disable this setting
+<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.hsplit.html#numpy.hsplit" title="(in NumPy v2.4)"><code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.hsplit()</span></code></a> and <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.vsplit.html#numpy.vsplit" title="(in NumPy v2.4)"><code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.vsplit()</span></code></a>.</p></li>
+<li><p><strong>indices_or_sections</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.14)"><em>Sequence</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>]</em>) – a single index or sequence of indices to split on.</p></li>
+<li><p><strong>validate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – when set to False the <code class="docutils literal notranslate"><span class="pre">data</span></code> will not be validated. Disable this setting
 with care!</p></li>
 </ul>
 </dd>
@@ -1025,18 +1032,18 @@ with care!</p></li>
 <dd class="field-even"><p>New <code class="docutils literal notranslate"><span class="pre">PolynomialTensor</span></code> instances containing the split arrays.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)">list</a>[<a class="reference internal" href="qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor" title="qiskit_nature.second_q.operators.PolynomialTensor">PolynomialTensor</a>]</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a>[<a class="reference internal" href="qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor" title="qiskit_nature.second_q.operators.polynomial_tensor.PolynomialTensor"><em>PolynomialTensor</em></a>]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.operators.VibrationalIntegrals.stack">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operands</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.stack" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">stack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operands</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.stack" title="Link to this definition">¶</a></dt>
 <dd><p>Stacks the provided sequence of tensors using the given numpy stacking function.</p>
 <p>The usage of this method is best explained by some examples:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">qiskit_nature.second_q.opertors</span> <span class="kn">import</span> <span class="n">PolynomialTensor</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.second_q.opertors</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolynomialTensor</span>
 <span class="n">rand_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
 <span class="n">rand_b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
 <span class="n">a</span> <span class="o">=</span> <span class="n">PolynomialTensor</span><span class="p">({</span><span class="s2">&quot;+-&quot;</span><span class="p">:</span> <span class="n">rand_a</span><span class="p">})</span>
@@ -1067,13 +1074,13 @@ this check themselves, to ensure they know what they are doing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>function</strong> (<em>Callable</em><em>[</em><em>...</em><em>, </em><em>np.ndarray</em><em> | </em><em>SparseArray</em><em> | </em><em>Number</em><em>]</em>) – the stacking function to apply to the internal arrays of the provided
+<li><p><strong>function</strong> (<a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><em>Callable</em></a><em>[</em><em>[</em><em>...</em><em>]</em><em>, </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>ndarray</em></a><em> | </em><a class="reference external" href="https://sparse.pydata.org/en/stable/api/SparseArray/#sparse.SparseArray" title="(in sparse v0.0.0)"><em>SparseArray</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/numbers.html#numbers.Number" title="(in Python v3.14)"><em>Number</em></a><em>]</em>) – the stacking function to apply to the internal arrays of the provided
 operands. This function must take a sequence of numpy (or sparse) arrays as its
 first argument. You should use <code class="code docutils literal notranslate"><span class="pre">functools.partial</span></code> if you need to provide
 keyword arguments (e.g. <code class="code docutils literal notranslate"><span class="pre">partial(np.stack,</span> <span class="pre">axis=-1)</span></code>). Common methods to use
-here are <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.hstack.html#numpy.hstack" title="(in NumPy v1.26)"><code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.hstack()</span></code></a> and <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.vstack.html#numpy.vstack" title="(in NumPy v1.26)"><code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.vstack()</span></code></a>.</p></li>
-<li><p><strong>operands</strong> (<em>Sequence</em><em>[</em><a class="reference internal" href="qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor" title="qiskit_nature.second_q.operators.PolynomialTensor"><em>PolynomialTensor</em></a><em>]</em>) – a sequence of <code class="docutils literal notranslate"><span class="pre">PolynomialTensor</span></code> instances on which to operate.</p></li>
-<li><p><strong>validate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – when set to False the <code class="docutils literal notranslate"><span class="pre">data</span></code> will not be validated. Disable this setting
+here are <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.hstack.html#numpy.hstack" title="(in NumPy v2.4)"><code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.hstack()</span></code></a> and <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.vstack.html#numpy.vstack" title="(in NumPy v2.4)"><code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.vstack()</span></code></a>.</p></li>
+<li><p><strong>operands</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Sequence" title="(in Python v3.14)"><em>Sequence</em></a><em>[</em><a class="reference internal" href="qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor" title="qiskit_nature.second_q.operators.polynomial_tensor.PolynomialTensor"><em>PolynomialTensor</em></a><em>]</em>) – a sequence of <code class="docutils literal notranslate"><span class="pre">PolynomialTensor</span></code> instances on which to operate.</p></li>
+<li><p><strong>validate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – when set to False the <code class="docutils literal notranslate"><span class="pre">data</span></code> will not be validated. Disable this setting
 with care!</p></li>
 </ul>
 </dd>
@@ -1081,21 +1088,21 @@ with care!</p></li>
 <dd class="field-even"><p>A new <code class="docutils literal notranslate"><span class="pre">PolynomialTensor</span></code> instance with the resulting arrays.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor" title="qiskit_nature.second_q.operators.PolynomialTensor">PolynomialTensor</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor" title="qiskit_nature.second_q.operators.polynomial_tensor.PolynomialTensor"><em>PolynomialTensor</em></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.operators.VibrationalIntegrals.tensor">
-<span class="sig-name descname"><span class="pre">tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.tensor" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.tensor" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the tensor product with another <code class="docutils literal notranslate"><span class="pre">PolynomialTensor</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>other</strong> (<a class="reference internal" href="qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor" title="qiskit_nature.second_q.operators.polynomial_tensor.PolynomialTensor"><em>PolynomialTensor</em></a>) – the other PolynomialTensor.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.12)"><strong>NotImplementedError</strong></a> – when the two tensors do not have the same <a class="reference internal" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.register_length" title="qiskit_nature.second_q.operators.VibrationalIntegrals.register_length"><code class="xref py py-attr docutils literal notranslate"><span class="pre">register_length</span></code></a>.</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.14)"><strong>NotImplementedError</strong></a> – when the two tensors do not have the same <a class="reference internal" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.register_length" title="qiskit_nature.second_q.operators.VibrationalIntegrals.register_length"><code class="xref py py-attr docutils literal notranslate"><span class="pre">register_length</span></code></a>.</p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The tensor resulting from the tensor product, <span class="math notranslate nohighlight">\(self \otimes other\)</span>.</p>
@@ -1118,7 +1125,7 @@ For two tensors of the same type <code class="docutils literal notranslate"><spa
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.operators.VibrationalIntegrals.to_dense">
-<span class="sig-name descname"><span class="pre">to_dense</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.to_dense" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">to_dense</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.to_dense" title="Link to this definition">¶</a></dt>
 <dd><p>Returns a new instance where all matrices are now dense tensors.</p>
 <p>If the instance on which this method was called already fulfilled this requirement, it is
 returned unchanged.</p>
@@ -1131,13 +1138,13 @@ returned unchanged.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.operators.VibrationalIntegrals.to_sparse">
-<span class="sig-name descname"><span class="pre">to_sparse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse_type=&lt;class</span> <span class="pre">'sparse._coo.core.COO'&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.to_sparse" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">to_sparse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse_type=&lt;class</span> <span class="pre">'sparse.numba_backend._coo.core.COO'&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.to_sparse" title="Link to this definition">¶</a></dt>
 <dd><p>Returns a new instance where all matrices are now sparse tensors.</p>
 <p>If the instance on which this method was called already fulfilled this requirement, it is
 returned unchanged.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>sparse_type</strong> (<em>Type</em><em>[</em><em>COO</em><em>] </em><em>| </em><em>Type</em><em>[</em><em>DOK</em><em>] </em><em>| </em><em>Type</em><em>[</em><em>GCXS</em><em>]</em>) – the type to use for the conversion to sparse matrices. Note, that this will
+<dd class="field-odd"><p><strong>sparse_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.14)"><em>Type</em></a><em>[</em><a class="reference external" href="https://sparse.pydata.org/en/stable/api/COO/#sparse.COO" title="(in sparse v0.0.0)"><em>COO</em></a><em>] </em><em>| </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.14)"><em>Type</em></a><em>[</em><a class="reference external" href="https://sparse.pydata.org/en/stable/api/DOK/#sparse.DOK" title="(in sparse v0.0.0)"><em>DOK</em></a><em>] </em><em>| </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Type" title="(in Python v3.14)"><em>Type</em></a><em>[</em><a class="reference external" href="https://sparse.pydata.org/en/stable/api/GCXS/#sparse.GCXS" title="(in sparse v0.0.0)"><em>GCXS</em></a><em>]</em>) – the type to use for the conversion to sparse matrices. Note, that this will
 only be applied to matrices which were previously dense tensors. Sparse arrays of
 another type will not be explicitly converted.</p>
 </dd>
@@ -1146,14 +1153,14 @@ another type will not be explicitly converted.</p>
 type.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor" title="qiskit_nature.second_q.operators.PolynomialTensor">PolynomialTensor</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="qiskit_nature.second_q.operators.PolynomialTensor.html#qiskit_nature.second_q.operators.PolynomialTensor" title="qiskit_nature.second_q.operators.polynomial_tensor.PolynomialTensor"><em>PolynomialTensor</em></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_nature.second_q.operators.VibrationalIntegrals.values">
-<span class="sig-name descname"><span class="pre">values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">an</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D's</span> <span class="pre">values</span></span></span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.values" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">an</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D's</span> <span class="pre">values</span></span></span><a class="headerlink" href="#qiskit_nature.second_q.operators.VibrationalIntegrals.values" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -1201,7 +1208,7 @@ type.</p>
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2018, 2024, Qiskit Nature Development Team
+                Copyright &#169; 2018, 2026, Qiskit Nature Development Team
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
@@ -1268,11 +1275,11 @@ type.</p>
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=4f87218b"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/documentation_options.js?v=486e5634"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/qiskit-sphinx-theme.js?v=4d77b8ca"></script>
-    <script src="../_static/design-tabs.js?v=36754332"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>

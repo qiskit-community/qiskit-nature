@@ -1,0 +1,27 @@
+﻿
+
+TernaryTreeMapper
+================================================
+
+.. currentmodule:: qiskit_nature.second_q.mappers
+
+.. autoclass:: TernaryTreeMapper
+   :show-inheritance:
+   :no-members:
+   :no-inherited-members:
+   :no-special-members:
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Methods
+   
+   .. automethod:: TernaryTreeMapper.map
+   .. automethod:: TernaryTreeMapper.mode_based_mapping
+   .. automethod:: TernaryTreeMapper.pauli_table
+   .. automethod:: TernaryTreeMapper.sparse_pauli_operators
+   
+   

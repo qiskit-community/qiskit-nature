@@ -24,8 +24,5 @@ BosonicLinearMapper
    .. rubric:: Methods
    
    .. automethod:: BosonicLinearMapper.map
-   .. automethod:: BosonicLinearMapper.mode_based_mapping
-   .. automethod:: BosonicLinearMapper.pauli_table
-   .. automethod:: BosonicLinearMapper.sparse_pauli_operators
    
    

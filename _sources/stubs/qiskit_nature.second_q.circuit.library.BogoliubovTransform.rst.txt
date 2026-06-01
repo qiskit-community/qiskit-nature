@@ -15,6 +15,7 @@ BogoliubovTransform
    
    .. rubric:: Attributes
    
+   .. autoattribute:: BogoliubovTransform.name
    
    
 

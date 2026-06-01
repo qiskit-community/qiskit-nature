@@ -21,6 +21,7 @@ UCC
    .. autoattribute:: UCC.num_spatial_orbitals
    .. autoattribute:: UCC.operators
    .. autoattribute:: UCC.qubit_mapper
+   .. autoattribute:: UCC.name
    
    
 

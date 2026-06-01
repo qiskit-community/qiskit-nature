@@ -20,6 +20,7 @@ UVCC
    .. autoattribute:: UVCC.num_modals
    .. autoattribute:: UVCC.operators
    .. autoattribute:: UVCC.qubit_mapper
+   .. autoattribute:: UVCC.name
    
    
 

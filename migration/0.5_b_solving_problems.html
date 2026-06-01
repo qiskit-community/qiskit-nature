@@ -5,15 +5,15 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Electronic Structure Problems with v0.5" href="0.5_c_electronic_structure.html" /><link rel="prev" title="Qiskit Nature v0.5 Migration Guide" href="0.5_a_intro.html" />
 
-    <!-- Generated with Sphinx 7.1.2 and Furo 2023.08.19 -->
-        <title>Solving Problems with v0.5 - Qiskit Nature 0.7.2</title>
+    <!-- Generated with Sphinx 7.4.7 and Furo 2024.01.29 -->
+        <title>Solving Problems with v0.5 - Qiskit Nature 0.8.0</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=82a976d7" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ee1c6c6" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fe84956c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-ecosystem.css?v=745c5aa7" />
     <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     
     
@@ -202,7 +202,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit Nature 0.7.2</div></a>
+      <a href="../index.html"><div class="brand">Qiskit Nature 0.8.0</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -229,7 +229,7 @@
     </div>
   </a>
   
-  <span class="sidebar-brand-text">Qiskit Nature 0.7.2</span>
+  <span class="sidebar-brand-text">Qiskit Nature 0.8.0</span>
 </div><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
@@ -240,6 +240,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../index.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Migration Guides</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Migration Guides</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="0.8_a_qiskit1.html">Qiskit Nature v0.8 Migration Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="0.6_a_intro.html">Qiskit Nature v0.6 Migration Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="0.6_b_mes_factory.html">The (Minimum)EigensolverFactory Migration Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="0.6_c_qubit_converter.html">The QubitConverter Migration Guide</a></li>
@@ -409,21 +410,26 @@
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.mappers.html">Mappers (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.mappers</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-21" name="toctree-checkbox-21" role="switch" type="checkbox"/><label for="toctree-checkbox-21"><div class="visually-hidden">Toggle navigation of Mappers (qiskit_nature.second_q.mappers)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.QubitMapper.html">QubitMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.ModeBasedMapper.html">ModeBasedMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.BravyiKitaevMapper.html">BravyiKitaevMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.BravyiKitaevSuperFastMapper.html">BravyiKitaevSuperFastMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.JordanWignerMapper.html">JordanWignerMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.ParityMapper.html">ParityMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.TernaryTreeMapper.html">TernaryTreeMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.InterleavedQubitMapper.html">InterleavedQubitMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.BosonicLinearMapper.html">BosonicLinearMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.BosonicLogarithmicMapper.html">BosonicLogarithmicMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.DirectMapper.html">DirectMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.LinearMapper.html">LinearMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.LogarithmicMapper.html">LogarithmicMapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.TaperedQubitMapper.html">TaperedQubitMapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.mappers.MixedMapper.html">MixedMapper</a></li>
 </ul>
 </li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.operators.html">Operators (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.operators</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-22" name="toctree-checkbox-22" role="switch" type="checkbox"/><label for="toctree-checkbox-22"><div class="visually-hidden">Toggle navigation of Operators (qiskit_nature.second_q.operators)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.ElectronicIntegrals.html">ElectronicIntegrals</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.FermionicOp.html">FermionicOp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.MajoranaOp.html">MajoranaOp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.BosonicOp.html">BosonicOp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.SparseLabelOp.html">SparseLabelOp</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.SpinOp.html">SpinOp</a></li>
@@ -431,6 +437,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.VibrationalIntegrals.html">VibrationalIntegrals</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.PolynomialTensor.html">PolynomialTensor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.Tensor.html">Tensor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.MixedOp.html">MixedOp</a></li>
 <li class="toctree-l4 has-children"><a class="reference internal" href="../apidocs/qiskit_nature.second_q.operators.tensor_ordering.html">Tensor Ordering Utilities (<code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit_nature.second_q.operators.tensor_ordering</span></code>)</a><input class="toctree-checkbox" id="toctree-checkbox-23" name="toctree-checkbox-23" role="switch" type="checkbox"/><label for="toctree-checkbox-23"><div class="visually-hidden">Toggle navigation of Tensor Ordering Utilities (qiskit_nature.second_q.operators.tensor_ordering)</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.tensor_ordering.to_chemist_ordering.html">to_chemist_ordering</a></li>
 <li class="toctree-l5"><a class="reference internal" href="../stubs/qiskit_nature.second_q.operators.tensor_ordering.to_physicist_ordering.html">to_physicist_ordering</a></li>
@@ -582,24 +589,24 @@
         </div>
         <article role="main">
           <br><br><br><section id="solving-problems-with-v0-5">
-<h1>Solving Problems with v0.5<a class="headerlink" href="#solving-problems-with-v0-5" title="Permalink to this heading">#</a></h1>
+<h1>Solving Problems with v0.5<a class="headerlink" href="#solving-problems-with-v0-5" title="Link to this heading">¶</a></h1>
 <section id="overview">
-<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading">#</a></h2>
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
 <p>The major focus of the Qiskit Nature v0.5 refactoring was the
 description and representation of second-quantized operators and
 problems. Nonetheless, the <code class="docutils literal notranslate"><span class="pre">algorithms</span></code> module and supporting modules
 did also receive significant updates. Most importantly all algorithms In
 Nature are now dependent on the new Qiskit Terra algorithms, and these
-are now based on <a class="reference external" href="https://docs.quantum.ibm.com/run/primitives">Qiskit
+are now based on <a class="reference external" href="https://quantum.cloud.ibm.com/docs/guides/primitives">Qiskit
 Primitives</a>
 and were added in Qiskit Terra 0.22. It is not the intention to provide
 detailed explanations of the primitives in this migration guide. We
-suggest that you read the <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/primitives">corresponding
+suggest that you read the <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/primitives">corresponding
 resources</a>
 of the Qiskit Terra documentation instead.</p>
 </section>
 <section id="further-resources">
-<h2>Further Resources<a class="headerlink" href="#further-resources" title="Permalink to this heading">#</a></h2>
+<h2>Further Resources<a class="headerlink" href="#further-resources" title="Link to this heading">¶</a></h2>
 <p>For more details, please refer to the corresponding tutorials:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="../tutorials/03_ground_state_solvers.html"><span class="doc">Ground State Solvers</span></a></p></li>
@@ -610,7 +617,7 @@ Solvers</span></a></p></li>
 </section>
 </section>
 <section id="qiskit-nature-mappers">
-<h1><code class="docutils literal notranslate"><span class="pre">qiskit_nature.mappers</span></code><a class="headerlink" href="#qiskit-nature-mappers" title="Permalink to this heading">#</a></h1>
+<h1><code class="docutils literal notranslate"><span class="pre">qiskit_nature.mappers</span></code><a class="headerlink" href="#qiskit-nature-mappers" title="Link to this heading">¶</a></h1>
 <p>The mappers of Qiskit Nature did <strong>not</strong> receive any API changes (other
 than potentially requiring certain arguments to be keywords; see also
 the <a class="reference internal" href="0.5_a_intro.html"><span class="doc">“Too many positional arguments” section</span></a>).
@@ -619,7 +626,7 @@ has been moved to <code class="docutils literal notranslate"><span class="pre">q
 import is all you need to do here.</p>
 </section>
 <section id="qiskit-nature-converters">
-<h1><code class="docutils literal notranslate"><span class="pre">qiskit_nature.converters</span></code><a class="headerlink" href="#qiskit-nature-converters" title="Permalink to this heading">#</a></h1>
+<h1><code class="docutils literal notranslate"><span class="pre">qiskit_nature.converters</span></code><a class="headerlink" href="#qiskit-nature-converters" title="Link to this heading">¶</a></h1>
 <p>This module contained a single component: <code class="docutils literal notranslate"><span class="pre">QubitConverter</span></code>. This has
 been moved to <code class="docutils literal notranslate"><span class="pre">qiskit_nature.second_q.mappers.QubitConverter</span></code> so you
 can simply update your import path.</p>
@@ -628,7 +635,7 @@ this class are no longer the legacy <code class="docutils literal notranslate"><
 new <code class="docutils literal notranslate"><span class="pre">SparseLabelOp</span></code> objects.</p>
 </section>
 <section id="qiskit-nature-circuit">
-<h1><code class="docutils literal notranslate"><span class="pre">qiskit_nature.circuit</span></code><a class="headerlink" href="#qiskit-nature-circuit" title="Permalink to this heading">#</a></h1>
+<h1><code class="docutils literal notranslate"><span class="pre">qiskit_nature.circuit</span></code><a class="headerlink" href="#qiskit-nature-circuit" title="Link to this heading">¶</a></h1>
 <p>The entire <code class="docutils literal notranslate"><span class="pre">qiskit_nature.circuit</span></code> module was relocated to
 <code class="docutils literal notranslate"><span class="pre">qiskit_nature.second_q.circuit</span></code>. The reason for this, is that the
 existing circuit were actually only applicable to second-quantized
@@ -636,7 +643,7 @@ applications, but the API did not reflect this. Updating your imports
 should fix <em>most</em> issues.</p>
 <p>However, there are two more details to take note of, detailed below.</p>
 <section id="number-of-orbitals">
-<h2>Number of Orbitals<a class="headerlink" href="#number-of-orbitals" title="Permalink to this heading">#</a></h2>
+<h2>Number of Orbitals<a class="headerlink" href="#number-of-orbitals" title="Link to this heading">¶</a></h2>
 <p>We have been consistently describing the number of orbitals via
 <code class="docutils literal notranslate"><span class="pre">num_spin_orbitals</span></code> throughout the package. However, what this
 oftentimes implied (without rigorous checks) was that an <strong>even</strong> number
@@ -650,8 +657,8 @@ any positive integer value (and negative values are guarded against).</p>
 <code class="docutils literal notranslate"><span class="pre">num_spin_orbitals</span></code> manually in the past, you now need to supply
 <strong>half the value</strong> to represent the <code class="docutils literal notranslate"><span class="pre">num_spatial_orbitals</span></code>.</p>
 <section id="previously">
-<h3>Previously<a class="headerlink" href="#previously" title="Permalink to this heading">#</a></h3>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_nature.circuit.library</span> <span class="kn">import</span> <span class="n">UCCSD</span>
+<h3>Previously<a class="headerlink" href="#previously" title="Link to this heading">¶</a></h3>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.circuit.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">UCCSD</span>
 
 <span class="n">ansatz</span> <span class="o">=</span> <span class="n">UCCSD</span><span class="p">()</span>
 <span class="n">ansatz</span><span class="o">.</span><span class="n">num_spin_orbitals</span> <span class="o">=</span> <span class="mi">10</span>
@@ -659,8 +666,8 @@ any positive integer value (and negative values are guarded against).</p>
 </div>
 </section>
 <section id="new">
-<h3>New<a class="headerlink" href="#new" title="Permalink to this heading">#</a></h3>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_nature.second_q.circuit.library</span> <span class="kn">import</span> <span class="n">UCCSD</span>
+<h3>New<a class="headerlink" href="#new" title="Link to this heading">¶</a></h3>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.second_q.circuit.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">UCCSD</span>
 
 <span class="n">ansatz</span> <span class="o">=</span> <span class="n">UCCSD</span><span class="p">()</span>
 <span class="n">ansatz</span><span class="o">.</span><span class="n">num_spatial_orbitals</span> <span class="o">=</span> <span class="mi">5</span>
@@ -669,12 +676,12 @@ any positive integer value (and negative values are guarded against).</p>
 </section>
 </section>
 <section id="ucc-uvcc-init-arguments">
-<h2>UCC/UVCC <code class="docutils literal notranslate"><span class="pre">__init__</span></code> arguments<a class="headerlink" href="#ucc-uvcc-init-arguments" title="Permalink to this heading">#</a></h2>
+<h2>UCC/UVCC <code class="docutils literal notranslate"><span class="pre">__init__</span></code> arguments<a class="headerlink" href="#ucc-uvcc-init-arguments" title="Link to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">UCC</span></code> and <code class="docutils literal notranslate"><span class="pre">UVCC</span></code> subclasses used to take the following arguments
 for their <code class="docutils literal notranslate"><span class="pre">__init__</span></code>:</p>
 <section id="id1">
-<h3>Previously<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h3>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_nature.circuit.library</span> <span class="kn">import</span> <span class="n">UCC</span><span class="p">,</span> <span class="n">UVCC</span>
+<h3>Previously<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.circuit.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">UCC</span><span class="p">,</span> <span class="n">UVCC</span>
 
 <span class="n">ucc</span> <span class="o">=</span> <span class="n">UCC</span><span class="p">(</span><span class="n">qubit_converter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num_particles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num_spin_orbitals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">excitations</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 <span class="n">uvcc</span> <span class="o">=</span> <span class="n">UVCC</span><span class="p">(</span><span class="n">qubit_converter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num_modals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">excitations</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
@@ -682,10 +689,10 @@ for their <code class="docutils literal notranslate"><span class="pre">__init__<
 </div>
 </section>
 <section id="id2">
-<h3>New<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h3>
+<h3>New<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
 <p>This was mismatching the API of the <code class="docutils literal notranslate"><span class="pre">HartreeFock</span></code> and <code class="docutils literal notranslate"><span class="pre">VSCF</span></code> initial
 states. We have aligned these APIs to look like in the following:</p>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_nature.second_q.circuit.library</span> <span class="kn">import</span> <span class="n">UCC</span><span class="p">,</span> <span class="n">UVCC</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.second_q.circuit.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">UCC</span><span class="p">,</span> <span class="n">UVCC</span>
 
 <span class="n">ucc</span> <span class="o">=</span> <span class="n">UCC</span><span class="p">(</span><span class="n">num_spatial_orbitals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num_particles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">excitations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">qubit_converter</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 <span class="n">uvcc</span> <span class="o">=</span> <span class="n">UVCC</span><span class="p">(</span><span class="n">num_modals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">excitations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">qubit_converter</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
@@ -694,16 +701,16 @@ states. We have aligned these APIs to look like in the following:</p>
 </section>
 </section>
 <section id="hartreefock-vscf-initial-states">
-<h2>HartreeFock/VSCF initial states<a class="headerlink" href="#hartreefock-vscf-initial-states" title="Permalink to this heading">#</a></h2>
+<h2>HartreeFock/VSCF initial states<a class="headerlink" href="#hartreefock-vscf-initial-states" title="Link to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">HartreeFock</span></code> and <code class="docutils literal notranslate"><span class="pre">VSCF</span></code> initial state circuits are now
 implemented as <code class="docutils literal notranslate"><span class="pre">BlueprintCircuit</span></code>. That means, that you can initialize
 them without any arguments and supply the information later as shown
 below:</p>
 <section id="id3">
-<h3>Previously<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h3>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_nature.circuit.library</span> <span class="kn">import</span> <span class="n">HartreeFock</span><span class="p">,</span> <span class="n">VSCF</span>
-<span class="kn">from</span> <span class="nn">qiskit_nature.converters.second_quantization</span> <span class="kn">import</span> <span class="n">QubitConverter</span>
-<span class="kn">from</span> <span class="nn">qiskit_nature.mappers.second_quantization</span> <span class="kn">import</span> <span class="n">DirectMapper</span><span class="p">,</span> <span class="n">JordanWignerMapper</span>
+<h3>Previously<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.circuit.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">HartreeFock</span><span class="p">,</span> <span class="n">VSCF</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.converters.second_quantization</span><span class="w"> </span><span class="kn">import</span> <span class="n">QubitConverter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.mappers.second_quantization</span><span class="w"> </span><span class="kn">import</span> <span class="n">DirectMapper</span><span class="p">,</span> <span class="n">JordanWignerMapper</span>
 
 <span class="n">hf</span> <span class="o">=</span> <span class="n">HartreeFock</span><span class="p">(</span>
     <span class="n">num_spin_orbitals</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">num_particles</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">qubit_converter</span><span class="o">=</span><span class="n">QubitConverter</span><span class="p">(</span><span class="n">JordanWignerMapper</span><span class="p">())</span>
@@ -713,9 +720,9 @@ below:</p>
 </div>
 </section>
 <section id="id4">
-<h3>New<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h3>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_nature.second_q.circuit.library</span> <span class="kn">import</span> <span class="n">HartreeFock</span><span class="p">,</span> <span class="n">VSCF</span>
-<span class="kn">from</span> <span class="nn">qiskit_nature.second_q.mappers</span> <span class="kn">import</span> <span class="n">DirectMapper</span><span class="p">,</span> <span class="n">JordanWignerMapper</span><span class="p">,</span> <span class="n">QubitConverter</span>
+<h3>New<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.second_q.circuit.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">HartreeFock</span><span class="p">,</span> <span class="n">VSCF</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.second_q.mappers</span><span class="w"> </span><span class="kn">import</span> <span class="n">DirectMapper</span><span class="p">,</span> <span class="n">JordanWignerMapper</span><span class="p">,</span> <span class="n">QubitConverter</span>
 
 <span class="n">hf</span> <span class="o">=</span> <span class="n">HartreeFock</span><span class="p">()</span>
 <span class="n">hf</span><span class="o">.</span><span class="n">num_spatial_orbitals</span> <span class="o">=</span> <span class="mi">2</span>
@@ -730,7 +737,7 @@ below:</p>
 </section>
 </section>
 <section id="qiskit-nature-algorithms">
-<h1><code class="docutils literal notranslate"><span class="pre">qiskit_nature.algorithms</span></code><a class="headerlink" href="#qiskit-nature-algorithms" title="Permalink to this heading">#</a></h1>
+<h1><code class="docutils literal notranslate"><span class="pre">qiskit_nature.algorithms</span></code><a class="headerlink" href="#qiskit-nature-algorithms" title="Link to this heading">¶</a></h1>
 <p>The algorithms in Qiskit Nature have been updated to use the new
 <code class="docutils literal notranslate"><span class="pre">qiskit.algorithms</span></code> components which are based on the
 <code class="docutils literal notranslate"><span class="pre">qiskit.primitives</span></code> as of Qiskit Terra 0.22.</p>
@@ -741,20 +748,20 @@ which you need to pay attention to, due to the change to the
 primitive-based algorithms of Qiskit Terra being used under the hood.
 These details are explained below.</p>
 <section id="qiskit-nature-algorithms-initial-points">
-<h2><code class="docutils literal notranslate"><span class="pre">qiskit_nature.algorithms.initial_points</span></code><a class="headerlink" href="#qiskit-nature-algorithms-initial-points" title="Permalink to this heading">#</a></h2>
+<h2><code class="docutils literal notranslate"><span class="pre">qiskit_nature.algorithms.initial_points</span></code><a class="headerlink" href="#qiskit-nature-algorithms-initial-points" title="Link to this heading">¶</a></h2>
 <p>This module was moved to
 <code class="docutils literal notranslate"><span class="pre">qiskit_nature.second_q.algorithms.initial_points</span></code>. All you need to do
 is update your imports.</p>
 </section>
 <section id="qiskit-nature-algorithms-pes-samplers">
-<h2><code class="docutils literal notranslate"><span class="pre">qiskit_nature.algorithms.pes_samplers</span></code><a class="headerlink" href="#qiskit-nature-algorithms-pes-samplers" title="Permalink to this heading">#</a></h2>
+<h2><code class="docutils literal notranslate"><span class="pre">qiskit_nature.algorithms.pes_samplers</span></code><a class="headerlink" href="#qiskit-nature-algorithms-pes-samplers" title="Link to this heading">¶</a></h2>
 <p>This module was <strong>removed</strong> without a replacement. The reason for that,
 is that we are working towards a driver-less design of Qiskit Nature, in
 which case the sampling of the potential energy surface becomes the
 responsibility of the classical code rather than Qiskit Nature.</p>
 </section>
 <section id="qiskit-nature-algorithms-ground-state-solvers">
-<h2><code class="docutils literal notranslate"><span class="pre">qiskit_nature.algorithms.ground_state_solvers</span></code><a class="headerlink" href="#qiskit-nature-algorithms-ground-state-solvers" title="Permalink to this heading">#</a></h2>
+<h2><code class="docutils literal notranslate"><span class="pre">qiskit_nature.algorithms.ground_state_solvers</span></code><a class="headerlink" href="#qiskit-nature-algorithms-ground-state-solvers" title="Link to this heading">¶</a></h2>
 <p>This module was moved to
 <code class="docutils literal notranslate"><span class="pre">qiskit_nature.second_q.algorithms.ground_state_solvers</span></code>. Besides
 updating your imports, you need to pay attention to the following:</p>
@@ -770,10 +777,10 @@ Qiskit Nature. To see the new <code class="docutils literal notranslate"><span c
 matched with the new primitive-based <code class="docutils literal notranslate"><span class="pre">VQE</span></code> API</p></li>
 </ul>
 <section id="id5">
-<h3>Previously<a class="headerlink" href="#id5" title="Permalink to this heading">#</a></h3>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit.providers.basicaer</span> <span class="kn">import</span> <span class="n">BasicAer</span>
-<span class="kn">from</span> <span class="nn">qiskit.utils</span> <span class="kn">import</span> <span class="n">QuantumInstance</span>
-<span class="kn">from</span> <span class="nn">qiskit_nature.algorithms.ground_state_solvers</span> <span class="kn">import</span> <span class="n">VQEUCCFactory</span>
+<h3>Previously<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.providers.basicaer</span><span class="w"> </span><span class="kn">import</span> <span class="n">BasicAer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuantumInstance</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.algorithms.ground_state_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">VQEUCCFactory</span>
 
 <span class="n">quantum_instance</span> <span class="o">=</span> <span class="n">QuantumInstance</span><span class="p">(</span><span class="n">BasicAer</span><span class="o">.</span><span class="n">get_backend</span><span class="p">(</span><span class="s2">&quot;statevector_simulator&quot;</span><span class="p">))</span>
 <span class="n">vqe_factory</span> <span class="o">=</span> <span class="n">VQEUCCFactory</span><span class="p">(</span><span class="n">quantum_instance</span><span class="o">=</span><span class="n">quantum_instance</span><span class="p">)</span>
@@ -781,13 +788,13 @@ matched with the new primitive-based <code class="docutils literal notranslate">
 </div>
 </section>
 <section id="id6">
-<h3>New<a class="headerlink" href="#id6" title="Permalink to this heading">#</a></h3>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit.algorithms.optimizers</span> <span class="kn">import</span> <span class="n">SLSQP</span>
-<span class="kn">from</span> <span class="nn">qiskit.primitives</span> <span class="kn">import</span> <span class="n">Estimator</span>
-<span class="kn">from</span> <span class="nn">qiskit_nature.second_q.circuit.library</span> <span class="kn">import</span> <span class="n">UCCSD</span>
-<span class="kn">from</span> <span class="nn">qiskit_nature.second_q.algorithms.ground_state_solvers</span> <span class="kn">import</span> <span class="n">VQEUCCFactory</span>
+<h3>New<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.algorithms.optimizers</span><span class="w"> </span><span class="kn">import</span> <span class="n">SLSQP</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.primitives</span><span class="w"> </span><span class="kn">import</span> <span class="n">StatevectorEstimator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.second_q.circuit.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">UCCSD</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.second_q.algorithms.ground_state_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">VQEUCCFactory</span>
 
-<span class="n">estimator</span> <span class="o">=</span> <span class="n">Estimator</span><span class="p">()</span>
+<span class="n">estimator</span> <span class="o">=</span> <span class="n">StatevectorEstimator</span><span class="p">()</span>
 <span class="n">ansatz</span> <span class="o">=</span> <span class="n">UCCSD</span><span class="p">()</span>
 <span class="n">optimizer</span> <span class="o">=</span> <span class="n">SLSQP</span><span class="p">()</span>
 
@@ -797,21 +804,21 @@ matched with the new primitive-based <code class="docutils literal notranslate">
 </section>
 </section>
 <section id="qiskit-nature-algorithms-excited-states-solvers">
-<h2><code class="docutils literal notranslate"><span class="pre">qiskit_nature.algorithms.excited_states_solvers</span></code><a class="headerlink" href="#qiskit-nature-algorithms-excited-states-solvers" title="Permalink to this heading">#</a></h2>
+<h2><code class="docutils literal notranslate"><span class="pre">qiskit_nature.algorithms.excited_states_solvers</span></code><a class="headerlink" href="#qiskit-nature-algorithms-excited-states-solvers" title="Link to this heading">¶</a></h2>
 <p>This module was moved to
 <code class="docutils literal notranslate"><span class="pre">qiskit_nature.second_q.algorithms.excited_states_solvers</span></code>. Besides
 updating your imports, you need to pay attention to the following:</p>
 <ul class="simple">
-<li><p>the <code class="docutils literal notranslate"><span class="pre">QEOM</span></code> API now also requires an <a class="reference external" href="https://docs.quantum.ibm.com/api/qiskit/qiskit.primitives.BaseEstimator">Estimator
+<li><p>the <code class="docutils literal notranslate"><span class="pre">QEOM</span></code> API now also requires an <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.primitives.BaseEstimatorV2">Estimator
 primitiver</a>
 to be provided</p></li>
 </ul>
 <section id="id7">
-<h3>Previously<a class="headerlink" href="#id7" title="Permalink to this heading">#</a></h3>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit_nature.algorithms.ground_state_solvers</span> <span class="kn">import</span> <span class="n">GroundStateEigensolver</span><span class="p">,</span> <span class="n">VQEUCCFactory</span>
-<span class="kn">from</span> <span class="nn">qiskit_nature.algorithms.excited_states_solvers</span> <span class="kn">import</span> <span class="n">QEOM</span>
-<span class="kn">from</span> <span class="nn">qiskit_nature.converters.second_quantization</span> <span class="kn">import</span> <span class="n">QubitConverter</span>
-<span class="kn">from</span> <span class="nn">qiskit_nature.mappers.second_quantization</span> <span class="kn">import</span> <span class="n">JordanWignerMapper</span>
+<h3>Previously<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h3>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.algorithms.ground_state_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">GroundStateEigensolver</span><span class="p">,</span> <span class="n">VQEUCCFactory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.algorithms.excited_states_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">QEOM</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.converters.second_quantization</span><span class="w"> </span><span class="kn">import</span> <span class="n">QubitConverter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.mappers.second_quantization</span><span class="w"> </span><span class="kn">import</span> <span class="n">JordanWignerMapper</span>
 
 <span class="n">vqe_factory</span> <span class="o">=</span> <span class="n">VQEUCCFactory</span><span class="p">()</span>
 <span class="n">converter</span> <span class="o">=</span> <span class="n">QubitConverter</span><span class="p">(</span><span class="n">JordanWignerMapper</span><span class="p">())</span>
@@ -822,18 +829,18 @@ to be provided</p></li>
 </div>
 </section>
 <section id="id8">
-<h3>New<a class="headerlink" href="#id8" title="Permalink to this heading">#</a></h3>
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">qiskit.algorithms.optimizers</span> <span class="kn">import</span> <span class="n">SLSQP</span>
-<span class="kn">from</span> <span class="nn">qiskit.primitives</span> <span class="kn">import</span> <span class="n">Estimator</span>
-<span class="kn">from</span> <span class="nn">qiskit_nature.second_q.circuit.library</span> <span class="kn">import</span> <span class="n">UCCSD</span>
-<span class="kn">from</span> <span class="nn">qiskit_nature.second_q.algorithms.ground_state_solvers</span> <span class="kn">import</span> <span class="p">(</span>
+<h3>New<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h3>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.algorithms.optimizers</span><span class="w"> </span><span class="kn">import</span> <span class="n">SLSQP</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.primitives</span><span class="w"> </span><span class="kn">import</span> <span class="n">StatevectorEstimator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.second_q.circuit.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">UCCSD</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.second_q.algorithms.ground_state_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">GroundStateEigensolver</span><span class="p">,</span>
     <span class="n">VQEUCCFactory</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">qiskit_nature.second_q.algorithms.excited_states_solvers</span> <span class="kn">import</span> <span class="n">QEOM</span>
-<span class="kn">from</span> <span class="nn">qiskit_nature.second_q.mappers</span> <span class="kn">import</span> <span class="n">JordanWignerMapper</span><span class="p">,</span> <span class="n">QubitConverter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.second_q.algorithms.excited_states_solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">QEOM</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_nature.second_q.mappers</span><span class="w"> </span><span class="kn">import</span> <span class="n">JordanWignerMapper</span><span class="p">,</span> <span class="n">QubitConverter</span>
 
-<span class="n">estimator</span> <span class="o">=</span> <span class="n">Estimator</span><span class="p">()</span>
+<span class="n">estimator</span> <span class="o">=</span> <span class="n">StatevectorEstimator</span><span class="p">()</span>
 <span class="n">ansatz</span> <span class="o">=</span> <span class="n">UCCSD</span><span class="p">()</span>
 <span class="n">optimizer</span> <span class="o">=</span> <span class="n">SLSQP</span><span class="p">()</span>
 
@@ -889,7 +896,7 @@ to be provided</p></li>
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2018, 2024, Qiskit Nature Development Team
+                Copyright &#169; 2018, 2026, Qiskit Nature Development Team
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
@@ -966,11 +973,11 @@ to be provided</p></li>
   </div>
 </div><script src="../_static/jquery.js?v=5d32c60e"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=4f87218b"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/documentation_options.js?v=486e5634"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/qiskit-sphinx-theme.js?v=4d77b8ca"></script>
-    <script src="../_static/design-tabs.js?v=36754332"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
