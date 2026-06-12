@@ -150,9 +150,9 @@ molecule.
    optimizer = L_BFGS_B()
 
    # setup the estimator primitive for the VQE
-   from qiskit.primitives import Estimator
+   from qiskit.primitives import StatevectorEstimator
 
-   estimator = Estimator()
+   estimator = StatevectorEstimator()
 
    # setup the ansatz for VQE
    from qiskit_nature.second_q.circuit.library import HartreeFock, UCCSD

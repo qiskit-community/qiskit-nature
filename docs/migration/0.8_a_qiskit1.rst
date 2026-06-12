@@ -1,0 +1,69 @@
+Qiskit Nature v0.8 Migration Guide
+===================================
+
+This document guides you through migrating your code from Qiskit Nature v0.7 to v0.8.
+
+Overview
+--------
+
+Version 0.8 of Qiskit Nature drops support for Qiskit 0.x and fully adopts the
+Qiskit 1.x primitives interface. The changes required on the user side are
+minimal but **breaking**: code that uses the V1 Estimator primitive with
+:class:`.QEOM` must be updated.
+
+Migrating to Qiskit 1.4 or 2.x
+------------------------------
+
+It is not possible to install Qiskit 1.x or 2.x in an environment that has 
+Qiskit 0.x installed. To migrate, you will need to create a new environment and 
+install qiskit-nature 0.8. 
+
+We recommend migrating to Qiskit 2.x as support for Qiskit 1.x ended in March 2026.
+
+Refer to the `Qiskit 1.x migration guide
+<https://quantum.cloud.ibm.com/docs/en/guides/qiskit-1.0>`_ 
+and the `Qiskit 2.x migration guide
+<https://quantum.cloud.ibm.com/docs/en/guides/qiskit-2.0>`_
+for details on migrating your code to Qiskit 2.x.
+
+Migrating to ``BaseEstimatorV2``
+---------------------------------
+
+Qiskit now uses V2 primitives (inheriting from ``BaseEstimatorV2``) and 
+qiskit-nature fully adopts this interface. Passing a V1 Estimator (``BaseEstimatorV1``) is no longer supported.
+
+The old way (v0.7):
+
+.. code:: python
+
+   from qiskit.primitives import Estimator  # V1 Estimator
+   from qiskit_nature.second_q.algorithms import QEOM, GroundStateEigensolver
+
+   estimator = Estimator()
+   solver = GroundStateEigensolver(mapper, vqe)
+   qeom_solver = QEOM(solver, estimator, excitations="sd")
+
+The new way (v0.8):
+
+.. code:: python
+
+   from qiskit.primitives import StatevectorEstimator  # V2 Estimator
+   from qiskit_nature.second_q.algorithms import QEOM, GroundStateEigensolver
+
+   estimator = StatevectorEstimator()
+   solver = GroundStateEigensolver(mapper, vqe)
+   qeom_solver = QEOM(solver, estimator, excitations="sd")
+
+When using Qiskit Aer:
+
+.. code:: python
+
+   from qiskit_aer.primitives import EstimatorV2
+   estimator = EstimatorV2()
+
+.. note::
+
+   The V2 Estimator interface handles shots and options differently from V1.
+   Refer to the `Qiskit 1.x primitives migration guide
+   <https://docs.quantum.ibm.com/migration-guides/v2-primitives>`_ for details
+   on adapting your primitive configuration.

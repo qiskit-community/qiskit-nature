@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2020, 2023.
+# (C) Copyright IBM 2020, 2026.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -23,7 +23,7 @@ import numpy as np
 from qiskit_algorithms import NumPyEigensolver, NumPyMinimumEigensolver, VQE
 from qiskit_algorithms.optimizers import COBYLA
 from qiskit_algorithms.utils import algorithm_globals
-from qiskit.primitives import Estimator
+from qiskit.primitives import StatevectorEstimator
 
 from qiskit_nature.second_q.algorithms import GroundStateEigensolver, QEOM, ExcitedStatesEigensolver
 from qiskit_nature.second_q.circuit.library import VSCF, UVCCSD
@@ -100,7 +100,7 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
 
     def test_numpy_mes(self):
         """Test with NumPyMinimumEigensolver"""
-        estimator = Estimator()
+        estimator = StatevectorEstimator()
         solver = NumPyMinimumEigensolver()
         solver.filter_criterion = self.vibrational_problem.get_default_filter_criterion()
         gsc = GroundStateEigensolver(self.qubit_mapper, solver)
@@ -119,7 +119,7 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
     def test_vqe_uvccsd(self):
         """Test with VQE plus UVCCSD"""
         optimizer = COBYLA(maxiter=5000)
-        estimator = Estimator()
+        estimator = StatevectorEstimator()
         initial_state = VSCF(self.vibrational_problem.num_modals, self.qubit_mapper)
         ansatz = UVCCSD(
             self.vibrational_problem.num_modals, self.qubit_mapper, initial_state=initial_state
@@ -136,7 +136,7 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
     def test_vqe_uvcc_with_user_initial_point(self):
         """Test when using a user defined initial point."""
         initial_point = np.asarray([-7.35250290e-05, -9.73079292e-02, -5.43346282e-05])
-        estimator = Estimator()
+        estimator = StatevectorEstimator()
         optimizer = COBYLA(maxiter=1)
         initial_state = VSCF(self.vibrational_problem.num_modals, self.qubit_mapper)
         ansatz = UVCCSD(
@@ -156,7 +156,7 @@ class TestBosonicESCCalculation(QiskitNatureTestCase):
         def cb_callback(nfev, parameters, energy, stddev):
             print(f"iterations {nfev}: energy: {energy}")
 
-        estimator = Estimator()
+        estimator = StatevectorEstimator()
         optimizer = COBYLA(maxiter=5000)
         initial_state = VSCF(self.vibrational_problem.num_modals, self.qubit_mapper)
         ansatz = UVCCSD(

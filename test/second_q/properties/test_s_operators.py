@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2023.
+# (C) Copyright IBM 2023, 2026.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -17,8 +17,7 @@ from test import QiskitNatureTestCase
 
 import numpy as np
 
-from qiskit.primitives import Estimator
-from qiskit_algorithms.observables_evaluator import estimate_observables
+from qiskit.quantum_info import SparsePauliOp, Statevector
 from qiskit_nature.second_q.circuit.library import HartreeFock
 from qiskit_nature.second_q.mappers import ParityMapper
 from qiskit_nature.second_q.operators import FermionicOp
@@ -143,31 +142,31 @@ class TestSOperatorsWithOverlap(QiskitNatureTestCase):
 
     def test_s_plus_operator(self) -> None:
         """Tests the $S^+$ operator with non-identity overlap."""
-        s_p = s_plus_operator(self.norb, self.ovlpab)
-        qubit_op = self.mapper.map(s_p)
-        result = estimate_observables(Estimator(), self.hf_state, {"S+": qubit_op})
-        self.assertAlmostEqual(result["S+"][0], -0.2723195166091395 + 0.2723195166091395j)
+        qubit_op = self.mapper.map(s_plus_operator(self.norb, self.ovlpab))
+        assert isinstance(qubit_op, SparsePauliOp)
+        result = Statevector(self.hf_state).expectation_value(qubit_op)
+        self.assertAlmostEqual(result, -0.2723195166091395 + 0.2723195166091395j)
 
     def test_s_minus_operator(self) -> None:
         """Tests the $S^-$ operator with non-identity overlap."""
-        s_m = s_minus_operator(self.norb, self.ovlpab.T)
-        qubit_op = self.mapper.map(s_m)
-        result = estimate_observables(Estimator(), self.hf_state, {"S-": qubit_op})
-        self.assertAlmostEqual(result["S-"][0], -0.2723195166091395 - 0.2723195166091395j)
+        qubit_op = self.mapper.map(s_minus_operator(self.norb, self.ovlpab.T))
+        assert isinstance(qubit_op, SparsePauliOp)
+        result = Statevector(self.hf_state).expectation_value(qubit_op)
+        self.assertAlmostEqual(result, -0.2723195166091395 - 0.2723195166091395j)
 
     def test_s_x_operator(self) -> None:
         """Tests the $S^x$ operator with non-identity overlap."""
-        s_x = s_x_operator(self.norb, self.ovlpab)
-        qubit_op = self.mapper.map(s_x)
-        result = estimate_observables(Estimator(), self.hf_state, {"Sx": qubit_op})
-        self.assertAlmostEqual(result["Sx"][0], -0.27231951660913956)
+        qubit_op = self.mapper.map(s_x_operator(self.norb, self.ovlpab))
+        assert isinstance(qubit_op, SparsePauliOp)
+        result = Statevector(self.hf_state).expectation_value(qubit_op)
+        self.assertAlmostEqual(result, -0.27231951660913956)
 
     def test_s_y_operator(self) -> None:
         """Tests the $S^y$ operator with non-identity overlap."""
-        s_y = s_y_operator(self.norb, self.ovlpab)
-        qubit_op = self.mapper.map(s_y)
-        result = estimate_observables(Estimator(), self.hf_state, {"Sy": qubit_op})
-        self.assertAlmostEqual(result["Sy"][0], 0.27231951660913956)
+        qubit_op = self.mapper.map(s_y_operator(self.norb, self.ovlpab))
+        assert isinstance(qubit_op, SparsePauliOp)
+        result = Statevector(self.hf_state).expectation_value(qubit_op)
+        self.assertAlmostEqual(result, 0.27231951660913956)
 
 
 if __name__ == "__main__":

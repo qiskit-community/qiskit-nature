@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2019, 2024.
+# (C) Copyright IBM 2019, 2026.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -19,7 +19,7 @@ from test import QiskitNatureTestCase, slow_test
 from qiskit_algorithms import VQE
 from qiskit_algorithms.optimizers import SLSQP
 from qiskit_algorithms.utils import algorithm_globals
-from qiskit.primitives import Estimator
+from qiskit.primitives import StatevectorEstimator
 
 from qiskit_nature.second_q.algorithms import GroundStateEigensolver
 from qiskit_nature.second_q.circuit.library import HartreeFock, SUCCD, PUCCD
@@ -92,7 +92,7 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         solver = VQE(
             ansatz=ansatz,
             optimizer=optimizer,
-            estimator=Estimator(),
+            estimator=StatevectorEstimator(),
             initial_point=[0.0] * ansatz.num_parameters,
         )
 
@@ -119,7 +119,7 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         solver = VQE(
             ansatz=ansatz,
             optimizer=optimizer,
-            estimator=Estimator(),
+            estimator=StatevectorEstimator(),
             initial_point=[0.0] * ansatz.num_parameters,
         )
 
@@ -147,7 +147,7 @@ class TestUCCSDHartreeFock(QiskitNatureTestCase):
         solver = VQE(
             ansatz=ansatz,
             optimizer=optimizer,
-            estimator=Estimator(),
+            estimator=StatevectorEstimator(),
             initial_point=[0.0] * ansatz.num_parameters,
         )
 

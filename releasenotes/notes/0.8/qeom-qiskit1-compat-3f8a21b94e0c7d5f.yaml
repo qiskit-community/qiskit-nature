@@ -1,0 +1,27 @@
+---
+upgrade:
+  - |
+    The minimum required version of Qiskit has been raised to ``>=1.4``.
+    Support for Qiskit 0.x has been dropped. Users must upgrade their Qiskit
+    installation to at least version 1.4 before using this release.
+  - |
+    :class:`.QEOM` now requires a **V2 Estimator primitive** (``BaseEstimatorV2``).
+    Passing a V1 Estimator (``BaseEstimatorV1``) is no longer supported. Users
+    must migrate to the V2 interface, for example by wrapping an Aer simulator::
+
+      from qiskit_aer.primitives import EstimatorV2
+      estimator = EstimatorV2()
+  - |
+    The minimum required version of ``qiskit-algorithms`` has been raised to
+    ``>=0.4.0`` to support Qiskit 1.4 and later. Users must upgrade 
+    ``qiskit-algorithms`` accordingly.
+fixes:
+  - |
+    Fixed the evaluation of non-Hermitian (complex-coefficient) operators in
+    :class:`.QEOM`. Qiskit 1.x Estimator primitives reject operators with
+    imaginary coefficients, which caused ``QEOM`` calculations involving such
+    operators (e.g. the hopping and EOM matrix operators) to fail. The new
+    internal helper ``_estimate_complex_observables`` transparently decomposes
+    each operator into its Hermitian real and imaginary parts, evaluates them
+    independently via the Estimator, and recombines the results into a single
+    complex expectation value.

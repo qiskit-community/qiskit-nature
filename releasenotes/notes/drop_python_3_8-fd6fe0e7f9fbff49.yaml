@@ -1,5 +1,0 @@
----
-upgrade:
-  - |
-    Support for running with Python 3.8 has been removed. To run Nature you need
-    a minimum Python version of 3.9.
