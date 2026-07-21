@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2023.
+# (C) Copyright IBM 2021, 2024.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -141,6 +141,19 @@ class TestJordanWignerMapper(QiskitNatureTestCase):
         expected = FermionicOp({"+_0 -_0": 1}, num_spin_orbitals=3)
         mapper = JordanWignerMapper()
         self.assertEqual(mapper.map(op, register_length=3), mapper.map(expected))
+
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
+    def test_reverse_map(self):
+        """Test reverse mapping from qubit operator back to fermionic operator."""
+        driver = PySCFDriver()
+        driver_result = driver.run()
+        fermionic_op, _ = driver_result.second_q_ops()
+        mapper = JordanWignerMapper()
+        qubit_op = mapper.map(fermionic_op)
+        recovered_fermionic_op = mapper.reverse_map(qubit_op)
+        fermionic_op = fermionic_op.normal_order()
+        recovered_fermionic_op = recovered_fermionic_op.normal_order()
+        self.assertTrue(fermionic_op.equiv(recovered_fermionic_op))
 
 
 if __name__ == "__main__":
