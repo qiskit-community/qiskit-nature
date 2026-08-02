@@ -19,10 +19,10 @@ name    -- name string (label used in file)
 type    -- "i", "d", or "c" for integer (int32), double, or
            complex double.
 
-asym    -- whether any lower-triangular indices are antisymmetric/anti-Hermetian
-           (True) or symmetric/Hermetian (False).
+asym    -- whether any lower-triangular indices are antisymmetric/anti-Hermitian
+           (True) or symmetric/Hermitian (False).
 
-nelem   -- number of elements per set of indicies.  Usually 1, but
+nelem   -- number of elements per set of indices.  Usually 1, but
            2 or 3 for raffenetti 1,2 or 1,2, and 3 integrals.
 
 dimens   -- tuple with up to 5 dimensions, negative values for lower-triangular
@@ -43,8 +43,8 @@ OpMat (name,array,nelem=1,type=None,asym=False,dimens=None):
   initialization, copies arguments to the corresponding properties.
   type defaults based on the data type in the array, which must be
   np.int32, np.int64, np.float64, or np.complex128.  asym is False for
-  symmetric/Hermetian and True for antisymmetric/anti-Hermetian
-  and only matters if dimens marks some some indices as lower
+  symmetric/Hermitian and True for antisymmetric/anti-Hermitian
+  and only matters if dimens marks some indices as lower
   triangular/tetrahedral/etc.  dimens defaults to one dimension
   determined by the size of the array (i.e., array.size/nelem)
   

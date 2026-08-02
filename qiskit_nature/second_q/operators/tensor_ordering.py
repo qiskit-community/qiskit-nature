@@ -61,7 +61,7 @@ def to_chemist_ordering(
 ) -> np.ndarray | SparseArray:
     """Convert a two-body tensor to chemists' index order.
 
-    Coverts the rank-four tensor two-body tensor representing two-body integrals from
+    Converts the rank-four tensor two-body tensor representing two-body integrals from
     physicists', or intermediate, index order to chemists' index order:
     ``i,j,k,l -> i,l,j,k``
 

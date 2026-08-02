@@ -558,7 +558,7 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         .. code-block:: python
 
             import numpy as np
-            from qiskit_nature.second_q.opertors import PolynomialTensor
+            from qiskit_nature.second_q.operators import PolynomialTensor
             rand_a = np.random.random((2, 2))
             rand_b = np.random.random((2, 2))
             a = PolynomialTensor({"+-": rand_a})
@@ -640,7 +640,7 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         .. code-block:: python
 
             import numpy as np
-            from qiskit_nature.second_q.opertors import PolynomialTensor
+            from qiskit_nature.second_q.operators import PolynomialTensor
             rand_a = np.random.random((2, 2))
             rand_b = np.random.random((2, 2))
             a = PolynomialTensor({"+-": rand_a})
@@ -700,7 +700,7 @@ class PolynomialTensor(LinearMixin, GroupMixin, TolerancesMixin, Mapping):
         .. code-block:: python
 
             import numpy as np
-            from qiskit_nature.second_q.opertors import PolynomialTensor
+            from qiskit_nature.second_q.operators import PolynomialTensor
             rand_ab = np.random.random((4, 4))
             ab = PolynomialTensor({"+-": rand_ab})
 

@@ -73,7 +73,7 @@ def load_head (self,title="No title",natoms=None,nbasis=0,nbsuse=None,
                  
   update an object with new values for the header information.  the
   remaining header elements, such as the basis set dimensions, are
-  reinitialized, so this call should preceed setting new values for
+  reinitialized, so this call should precede setting new values for
   scalars, the basis set, and storing matrices.
 
 update (matfi=None, matfo=None, check_status=True, doinit=False, **kwargs):
@@ -165,7 +165,7 @@ rungau (matfi, matfo, program="g16", progargs=[], debug=False,
 Module data
 -----------
 
-scalar_names  -- dict containing the scalar result values held in in an
+scalar_names  -- dict containing the scalar result values held in an
                  internal array
 
 mat_names_arr -- array containing the names of standard operator matrices,
@@ -177,7 +177,7 @@ mat_names     -- dict containing the standard operator names, with values
 head_scalars  -- dict listing the scalars which are stored in header
                  records in the file.
 
-head_arrays   -- dict listing the arrays which are setored in header
+head_arrays   -- dict listing the arrays which are stored in header
                  records in the file.
 
 """

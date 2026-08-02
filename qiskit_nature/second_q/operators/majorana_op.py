@@ -95,7 +95,7 @@ class MajoranaOp(SparseLabelOp):
         f_op = FermionicOp({"+_0 -_1": 1}, num_spin_orbitals=2)
         m_op = MajoranaOp.from_fermionic_op(f_op)
 
-    Note that each ``FerminonicOp``-term consisting of :math:`n` expressions will result in a
+    Note that each ``FermionicOp``-term consisting of :math:`n` expressions will result in a
     ``MajoranaOp``-term consisting of :math:`2^n` expressions. The conversion uses the convention
     that
 

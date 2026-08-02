@@ -541,7 +541,7 @@ def fold(eri: Tensor | ARRAY_TYPE, *, validate: bool = True) -> SymmetricTwoBody
                     "1-fold to 4-fold symmetric integrals: %s",
                     err,
                 )
-                LOGGER.info("No folding was possible. Returing 1-fold symmetric integrals.")
+                LOGGER.info("No folding was possible. Returning 1-fold symmetric integrals.")
                 return S1Integrals(eri, validate=validate)
 
     raise NotImplementedError(
