@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2022, 2023.
+# (C) Copyright IBM 2022, 2026.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -35,8 +35,8 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from qiskit_nature import QiskitNatureError
 import qiskit_nature.optionals as _optionals
+from qiskit_nature import QiskitNatureError
 
 if TYPE_CHECKING:
     from .symmetric_two_body import SymmetricTwoBodyIntegrals
@@ -88,12 +88,10 @@ def to_chemist_ordering(
         chem_tensor = _chem_to_phys(two_body_tensor)
         return chem_tensor
     else:
-        raise QiskitNatureError(
-            """
+        raise QiskitNatureError("""
             Unknown index order type, input tensor must be chemists', physicists',
             or intermediate index order
-            """
-        )
+            """)
 
 
 def to_physicist_ordering(
@@ -129,12 +127,10 @@ def to_physicist_ordering(
         phys_tensor = _phys_to_chem(two_body_tensor)
         return phys_tensor
     else:
-        raise QiskitNatureError(
-            """
+        raise QiskitNatureError("""
             Unknown index order type, input tensor must be chemists', physicists',
             or intermediate index order
-            """
-        )
+            """)
 
 
 def _phys_to_chem(two_body_tensor: np.ndarray | SparseArray) -> np.ndarray | SparseArray:
