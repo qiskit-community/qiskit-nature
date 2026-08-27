@@ -62,48 +62,25 @@ class JordanWignerMapper(FermionicMapper, ModeBasedMapper):
             The second quantized operator ``FermionicOp`` corresponding to
             the Hamiltonian in the Fermionic space.
         """
-        num_qubits = (
-            qubit_op.num_qubits
-        )  # get number of qubits from input second quantized operator
-        qubit_op = cls.__invert_pauli_terms(qubit_op)
-        total_fermionic_op = FermionicOp.zero()
-        for term in qubit_op:
-            coef_term = term.coeffs[0]
-            target_pauli_op = term.paulis[0]
-            ferm_term_ops = []
-            for i in range(num_qubits):
-                one_pauli = target_pauli_op[num_qubits - 1 - i]
-                pauli_char = one_pauli.to_label()
+        num_qubits = qubit_op.num_qubits
+        total_fermionic_op = FermionicOp({}, num_spin_orbitals=num_qubits)
+        for target_pauli_op, coef_term in zip(qubit_op.paulis, qubit_op.coeffs):
+            term_fermionic_op = FermionicOp({"": 1}, num_spin_orbitals=num_qubits)
+            # X and Y introduce parity Zs on lower modes, so process higher modes first.
+            for i in reversed(range(num_qubits)):
+                pauli_char = target_pauli_op[i].to_label()
                 if pauli_char == "Z":  # dealing Pauli Z op
                     ferm_op_pauli = FermionicOp({"": 1, f"+_{i} -_{i}": -2})
                 elif pauli_char == "X":  # dealing Pauli X op
                     ferm_op_pauli = FermionicOp({f"+_{i}": 1, f"-_{i}": 1})
-                    target_pauli_op = Pauli("I" * (i + 1) + "Z" * (num_qubits - i - 1)).compose(
-                        target_pauli_op
-                    )
-                elif one_pauli.to_label() == "Y":  # dealing Pauli Y op
-                    ferm_op_pauli = FermionicOp({f"+_{i}": -1j, f"-_{i}": 1j})
-                    target_pauli_op = Pauli("I" * (i + 1) + "Z" * (num_qubits - i - 1)).compose(
-                        target_pauli_op
-                    )
+                elif pauli_char == "Y":  # dealing Pauli Y op
+                    ferm_op_pauli = FermionicOp({f"+_{i}": 1j, f"-_{i}": -1j})
                 else:
-                    ferm_op_pauli = FermionicOp.one()
-                ferm_term_ops.append(ferm_op_pauli)
-            term_fermionic_op = FermionicOp.one()
-            for op in ferm_term_ops:
-                term_fermionic_op = term_fermionic_op @ op
-            if target_pauli_op.phase == 1:
-                coef_term *= -1j
-            elif target_pauli_op.phase == 2:
-                coef_term *= -1
-            elif target_pauli_op.phase == 3:
-                coef_term *= 1j
+                    continue
+                if pauli_char in ("X", "Y"):
+                    parity_pauli = Pauli("I" * (num_qubits - i) + "Z" * i)
+                    target_pauli_op = parity_pauli @ target_pauli_op
+                term_fermionic_op = term_fermionic_op @ ferm_op_pauli
+            coef_term *= (-1j) ** target_pauli_op.phase
             total_fermionic_op += coef_term * term_fermionic_op
         return total_fermionic_op.normal_order()
-
-    @staticmethod
-    def __invert_pauli_terms(sparse_pauli_op: SparsePauliOp) -> SparsePauliOp:
-        """Utility to invert the order of Pauli operators in each term of a SparsePauliOp."""
-        inverted_labels = [label[::-1] for label in sparse_pauli_op.paulis.to_labels()]
-        # Create a new SparsePauliOp with the inverted labels but same coefficients
-        return SparsePauliOp(inverted_labels, sparse_pauli_op.coeffs)
