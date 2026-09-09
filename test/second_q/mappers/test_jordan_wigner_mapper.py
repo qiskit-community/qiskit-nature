@@ -1,6 +1,6 @@
 # This code is part of a Qiskit project.
 #
-# (C) Copyright IBM 2021, 2023.
+# (C) Copyright IBM 2021, 2026.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -27,6 +27,8 @@ from qiskit_nature.second_q.operators import FermionicOp
 class TestJordanWignerMapper(QiskitNatureTestCase):
     """Test Jordan Wigner Mapper"""
 
+    h2_fermionic_op: FermionicOp | None = None
+
     REF_H2 = SparsePauliOp.from_list(
         [
             ("IIII", -0.81054798160031430),
@@ -47,14 +49,19 @@ class TestJordanWignerMapper(QiskitNatureTestCase):
         ]
     )
 
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
+        if _optionals.HAS_PYSCF:
+            driver_result = PySCFDriver().run()
+            cls.h2_fermionic_op, _ = driver_result.second_q_ops()
+
     @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
     def test_mapping(self):
         """Test mapping to qubit operator"""
-        driver = PySCFDriver()
-        driver_result = driver.run()
-        fermionic_op, _ = driver_result.second_q_ops()
+        assert self.h2_fermionic_op is not None
         mapper = JordanWignerMapper()
-        qubit_op = mapper.map(fermionic_op)
+        qubit_op = mapper.map(self.h2_fermionic_op)
         self.assertTrue(qubit_op.equiv(TestJordanWignerMapper.REF_H2))
 
     def test_mapping_for_single_op(self):
@@ -141,6 +148,83 @@ class TestJordanWignerMapper(QiskitNatureTestCase):
         expected = FermionicOp({"+_0 -_0": 1}, num_spin_orbitals=3)
         mapper = JordanWignerMapper()
         self.assertEqual(mapper.map(op, register_length=3), mapper.map(expected))
+
+    def test_reverse_map_single_paulis(self):
+        """Test reverse mapping of single-qubit Pauli operators."""
+        test_cases = {
+            "I": FermionicOp({"": 1}, num_spin_orbitals=1),
+            "X": FermionicOp({"+_0": 1, "-_0": 1}, num_spin_orbitals=1),
+            "Y": FermionicOp({"+_0": 1j, "-_0": -1j}, num_spin_orbitals=1),
+            "Z": FermionicOp({"": 1, "+_0 -_0": -2}, num_spin_orbitals=1),
+        }
+
+        mapper = JordanWignerMapper()
+        for label, expected in test_cases.items():
+            with self.subTest(label):
+                qubit_op = SparsePauliOp.from_list([(label, 1)])
+                actual = mapper.reverse_map(qubit_op)
+                self.assertTrue(expected.equiv(actual))
+                self.assertEqual(actual.num_spin_orbitals, qubit_op.num_qubits)
+
+    def test_reverse_map_zero_and_identity(self):
+        """Test reverse mapping preserves the register length for zero and identity."""
+        test_cases = {
+            "zero": (
+                SparsePauliOp.from_list([], num_qubits=3),
+                FermionicOp({}, num_spin_orbitals=3),
+            ),
+            "identity": (
+                SparsePauliOp.from_list([("III", 1)]),
+                FermionicOp({"": 1}, num_spin_orbitals=3),
+            ),
+        }
+
+        mapper = JordanWignerMapper()
+        for name, (qubit_op, expected) in test_cases.items():
+            with self.subTest(name):
+                actual = mapper.reverse_map(qubit_op)
+                self.assertTrue(expected.equiv(actual))
+                self.assertEqual(actual.num_spin_orbitals, qubit_op.num_qubits)
+
+    def test_reverse_map_phases(self):
+        """Test phase handling while reverse mapping multi-qubit Pauli operators."""
+        mapper = JordanWignerMapper()
+        test_cases = (
+            ("XY", 1),
+            ("XX", 0.25 - 0.75j),
+            ("YX", -0.5j),
+            ("XXXX", 1),
+        )
+        for label, coefficient in test_cases:
+            with self.subTest(label):
+                qubit_op = SparsePauliOp.from_list([(label, coefficient)])
+                recovered_fermionic_op = mapper.reverse_map(qubit_op)
+                self.assertTrue(qubit_op.equiv(mapper.map(recovered_fermionic_op)))
+
+    def test_reverse_map_fermionic_round_trip(self):
+        """Test round trips of small fermionic operators."""
+        test_cases = {
+            "creation": FermionicOp({"+_0": 1}, num_spin_orbitals=1),
+            "orbital order": FermionicOp({"+_0 -_1": 1}, num_spin_orbitals=2),
+        }
+
+        mapper = JordanWignerMapper()
+        for name, fermionic_op in test_cases.items():
+            with self.subTest(name):
+                recovered_fermionic_op = mapper.reverse_map(mapper.map(fermionic_op))
+                self.assertTrue(fermionic_op.normal_order().equiv(recovered_fermionic_op))
+                self.assertEqual(
+                    recovered_fermionic_op.num_spin_orbitals,
+                    fermionic_op.num_spin_orbitals,
+                )
+
+    @unittest.skipIf(not _optionals.HAS_PYSCF, "pyscf not available.")
+    def test_reverse_map_h2(self):
+        """Test the reverse-mapping round trip of an H2 Hamiltonian."""
+        assert self.h2_fermionic_op is not None
+        mapper = JordanWignerMapper()
+        recovered_fermionic_op = mapper.reverse_map(mapper.map(self.h2_fermionic_op))
+        self.assertTrue(self.h2_fermionic_op.normal_order().equiv(recovered_fermionic_op))
 
 
 if __name__ == "__main__":
