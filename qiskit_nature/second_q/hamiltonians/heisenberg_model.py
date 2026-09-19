@@ -27,14 +27,15 @@ class HeisenbergModel(LatticeModel):
     This class implements the following Hamiltonian:
 
     .. math::
-        H = - \vec{J} \sum_{\langle i, j \rangle} \vec{\sigma}_{i} \otimes \vec{\sigma}_{j}
-        - \vec{h} \sum_{i} \vec{\sigma}_{i}
+        H = \vec{J} \sum_{\langle i, j \rangle} \vec{\sigma}_{i} \otimes \vec{\sigma}_{j}
+        + \vec{h} \sum_{i} \vec{\sigma}_{i}
 
     where :math:`i,j` refer to lattice nodes. The :math:`\sum_{\langle i, j \rangle}` is performed
     over adjacent lattice nodes. This model assumes spin-:math:`\frac{1}{2}` particles. Thus,
     :math:`\vec{\sigma}_{i} = (X_i, Y_i, Z_i)` is a vector containing the Pauli matrices.
     :math:`\vec{J}` is the coupling constant and :math:`\vec{h}` is the external magnetic field,
-    both with dimensions of energy.
+    both with dimensions of energy. The coefficients are used as given, without an overall sign,
+    so a ferromagnetic coupling corresponds to negative components of :math:`\vec{J}`.
 
     This model is instantiated using a
     :class:`~qiskit_nature.second_q.hamiltonians.lattices.Lattice`. For example, using a
