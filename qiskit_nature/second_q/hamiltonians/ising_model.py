@@ -25,13 +25,15 @@ class IsingModel(LatticeModel):
     This class implements the following Hamiltonian:
 
     .. math::
-        H = -\sum_{\langle i, j \rangle} J_{ij} Z_{i} Z_{j} -  \sum_{i} g_{i} X_{i},
+        H = \sum_{\langle i, j \rangle} J_{ij} Z_{i} Z_{j} + \sum_{i} g_{i} X_{i},
 
     where :math:`i,j` refer to lattice nodes. The :math:`\sum_{\langle i, j \rangle}` is performed
     over adjacent lattice nodes. This model assumes spin-:math:`\frac{1}{2}` particles. Thus,
     :math:`X_i` and :math:`Z_i` represent the respective Pauli matrices. :math:`J_{ij}` are constants
     with dimensions of energy and :math:`g_{i}` are coupling parameters that determine the relative
-    strength between the external transverse field and the nearest neighbor interactions.
+    strength between the external transverse field and the nearest neighbor interactions. The
+    interaction and on-site parameters of the lattice are used as given, without an overall sign,
+    so a ferromagnetic coupling corresponds to negative :math:`J_{ij}`.
 
     This model is instantiated using a
     :class:`~qiskit_nature.second_q.hamiltonians.lattices.Lattice`. For example, using a

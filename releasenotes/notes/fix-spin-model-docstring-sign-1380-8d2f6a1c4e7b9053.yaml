@@ -1,0 +1,9 @@
+---
+fixes:
+  - |
+    The docstrings of :class:`.HeisenbergModel` and :class:`.IsingModel` stated the Hamiltonian
+    with an overall minus sign in front of the coupling and field terms, which did not match the
+    operator returned by ``second_q_op()``. The operator has always used the coefficients as given
+    (``+J`` on the coupling terms and ``+h`` / ``+g`` on the field terms); the documentation now
+    reflects this. The behaviour of the classes is unchanged.
+    Fixes `#1380 <https://github.com/qiskit-community/qiskit-nature/issues/1380>`__.
